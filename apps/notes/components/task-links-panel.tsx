@@ -1,6 +1,6 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
+import { buildE2eeDeepLink } from "@helvety/shared/e2ee-deep-link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,11 +34,9 @@ import { useTaskLinks } from "@/hooks/use-task-links";
 
 import type { LinkedItem, PickerItem } from "@/lib/types";
 
-const TASKS_APP_URL = urls.tasks;
-
+/** @deprecated Import from `@helvety/shared/e2ee-deep-link` */
 export function getItemDeepLink(itemId: string): string {
-  const params = new URLSearchParams({ item: itemId });
-  return `${TASKS_APP_URL}?${params.toString()}`;
+  return buildE2eeDeepLink("tasks", itemId);
 }
 
 function ItemRow({

@@ -65,8 +65,9 @@ This package centralizes:
 - `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
 - `@helvety/shared/layout-session-bootstrap`:
-  - `bootstrapPublicLayoutUser()` — user only (`apps/web`). `apps/pdf` and `apps/image-upscaler` call `getCachedUser()` inline with the same log-on-failure behavior.
+  - `bootstrapPublicLayoutUser()` — user only (`apps/web`, `apps/pdf`, `apps/image-upscaler`, docs public `app/page.tsx`).
   - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (e.g. `apps/store` and `apps/docs` layouts, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links). Docs uses this for optional vault save while keeping the main editor route public. Both helpers log and return safe fallbacks on failure.
+- `@helvety/shared/e2ee-deep-link` -> `buildE2eeDeepLink`: Cross-app entity deep links for tasks, notes, and contacts URL query params.
 
 ### Logging and Errors
 

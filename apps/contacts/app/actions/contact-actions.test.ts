@@ -23,9 +23,11 @@ vi.mock("@helvety/shared/logger", () => ({
   },
 }));
 
-vi.mock("@helvety/shared/rate-limit", () => ({
+vi.mock("@/lib/rate-limit", () => ({
   RATE_LIMITS: {
+    ENCRYPTION_UNLOCK: { maxRequests: 100, windowMs: 60_000 },
     API: { maxRequests: 100, windowMs: 60_000 },
+    READ: { maxRequests: 100, windowMs: 60_000 },
     EXPORT: { maxRequests: 5, windowMs: 60_000 },
   },
 }));

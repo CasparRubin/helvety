@@ -10,7 +10,7 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `proxy.test.ts`      | Matcher parity with `SECURITY_PROXY_MATCHER` (gateway: zone exclusions + static extensions)                                                              |
 | `env.template`       | Documented env keys; validated by `bun run consistency:env-templates`                                                                                    |
 | `eslint.config.mjs`  | `createEslintConfig(import.meta.dirname)` from `@helvety/config/eslint`                                                                                  |
-| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest`                                                                                            |
+| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest`; workspaces with real tests pass `{ passWithNoTests: false }`                              |
 | `vitest.setup.ts`    | `@testing-library/jest-dom` + RTL `cleanup()`                                                                                                            |
 | `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                          |
 | `postcss.config.mjs` | Re-exports `@helvety/config/postcss`                                                                                                                     |
@@ -37,7 +37,7 @@ Every zone asserts layouts omit `@helvety/light-pillar` and `HelvetyShellWithLig
 | Family                | Apps                                  | Also assert                                                    |
 | --------------------- | ------------------------------------- | -------------------------------------------------------------- |
 | E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}` |
-| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `getCachedUser`                |
+| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`    |
 | Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`    |
 | Auth gateway          | `auth`                                | CSRF wraps `EncryptionProvider`; nesting order                 |
 | Store gateway         | `store`                               | CSRF wraps `{shell}`                                           |
@@ -49,12 +49,13 @@ Copy an existing test from the same family when adding a zone.
 
 Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests import `metadata`, not the default layout):
 
-| Layout pattern                                         | Mock                                                                      |
-| ------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `bootstrapPublicLayoutUser()`                          | `@helvety/shared/layout-session-bootstrap`                                |
-| `bootstrapE2eeLayoutSession()`                         | `@helvety/shared/layout-session-bootstrap`                                |
-| Inline `getCachedUser` / `getCachedCSRFToken`          | `@helvety/shared/cached-server` (+ `logger` if the layout catches errors) |
-| `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                                                   |
+| Layout pattern                                                   | Mock                                                                      |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `bootstrapPublicLayoutUser()`                                    | `@helvety/shared/layout-session-bootstrap`                                |
+| `bootstrapE2eeLayoutSession()`                                   | `@helvety/shared/layout-session-bootstrap`                                |
+| Inline `getCachedUser` / `getCachedCSRFToken` (auth layout only) | `@helvety/shared/cached-server` (+ `logger` if the layout catches errors) |
+| Docs public `page.tsx` session                                   | `@helvety/shared/layout-session-bootstrap` (`bootstrapPublicLayoutUser`)  |
+| `E2eeAppRootLayout` only (no session in layout module)           | `next/font/google` only                                                   |
 
 Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync.
 
@@ -119,6 +120,15 @@ See root [`README.md`](../README.md) § Environment Model.
 | Public tools | `pdf`, `image-upscaler`    | Yes (`validateCookieSigningEnv`)                        |
 | Auth         | `auth`                     | Yes (extended schema)                                   |
 | Gateway      | `web`                      | No `lib/env.ts`                                         |
+
+## E2EE UX patterns
+
+| Pattern               | Canonical                                                       | Apps                                                                                   |
+| --------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)       | `tasks`, `notes`, `contacts`, `links`                                                  |
+| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks | E2EE apps                                                                              |
+| Vault delete confirm  | `AlertDialog` before vault document delete                      | `docs`                                                                                 |
+| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + per-app hooks             | `tasks`, `notes` contact/note panels; contacts→notes/tasks use bespoke lazy-load hooks |
 
 ## Validation before merge
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useDragDrop } from "@helvety/shared/hooks/use-drag-drop";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
@@ -69,7 +70,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
 
   const addFiles = React.useCallback((fileList: FileList): void => {
     const parsed = parseImageFiles(fileList);
-    parsed.errors.forEach((message) => toast.error(message));
+    parsed.errors.forEach((message) =>
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR })
+    );
     if (parsed.items.length === 0) return;
 
     void (async () => {
@@ -91,7 +94,8 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
       );
 
       hydrated.forEach((result) => {
-        if (result.error) toast.error(result.error);
+        if (result.error)
+          toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
       });
 
       const decodedItems = hydrated
@@ -104,7 +108,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
         const availableSlots = Math.max(0, MAX_BULK_FILES - current.length);
         const accepted = decodedItems.slice(0, availableSlots);
         if (decodedItems.length > availableSlots) {
-          toast.error(`Maximum ${MAX_BULK_FILES} files per batch.`);
+          toast.error(`Maximum ${MAX_BULK_FILES} files per batch.`, {
+            duration: TOAST_DURATIONS.ERROR,
+          });
         }
         return [...current, ...accepted];
       });
@@ -164,7 +170,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
     async (ids: string[]): Promise<void> => {
       if (ids.length === 0) return;
       if (!targetIsValid) {
-        toast.error("Target value must be a positive whole number.");
+        toast.error("Target value must be a positive whole number.", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return;
       }
 
@@ -224,18 +232,23 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
         });
         if (result.failedCount === 0) {
           toast.success(
-            `Upscaling complete (${result.completedCount}/${result.totalCount} images).`
+            `Upscaling complete (${result.completedCount}/${result.totalCount} images).`,
+            { duration: TOAST_DURATIONS.SUCCESS }
           );
         } else if (result.completedCount === 0) {
-          toast.error(`Upscaling failed for all ${result.totalCount} images.`);
+          toast.error(`Upscaling failed for all ${result.totalCount} images.`, {
+            duration: TOAST_DURATIONS.ERROR,
+          });
         } else {
           toast.warning(
-            `Upscaling finished with errors (${result.completedCount} succeeded, ${result.failedCount} failed).`
+            `Upscaling finished with errors (${result.completedCount} succeeded, ${result.failedCount} failed).`,
+            { duration: TOAST_DURATIONS.INFO }
           );
         }
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to upscale."
+          error instanceof Error ? error.message : "Failed to upscale.",
+          { duration: TOAST_DURATIONS.ERROR }
         );
       } finally {
         setIsProcessing(false);
@@ -257,7 +270,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
   const runUpscale = React.useCallback(async (): Promise<void> => {
     if (items.length === 0) return;
     if (!targetIsValid) {
-      toast.error("Target value must be a positive whole number.");
+      toast.error("Target value must be a positive whole number.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return;
     }
     await runUpscaleForIds(items.map((item) => item.id));

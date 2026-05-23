@@ -19,6 +19,7 @@ import { Button } from "./button";
 import { CommandBarPageLayout } from "./command-bar-page-layout";
 import { E2EE_UNSAVED_CHANGES_DIALOG } from "./e2ee-form-layout";
 import { Input } from "./input";
+import { Label } from "./label";
 import { parseRichTextContent, serializeRichTextContent } from "./tiptap-utils";
 
 import type { TiptapEditorRef } from "./tiptap-editor";
@@ -61,6 +62,18 @@ export interface E2eeRichTextItemEditorShellProps {
   notFoundMessage: string;
   loadErrorMessage: string;
   onDeleteRequested?: () => void;
+  /** When true, omits the default title input (e.g. contacts use renderMetadata for fields). */
+  hideTitle?: boolean;
+  /** When false, save is allowed with an empty title. Defaults to true. */
+  requireTitle?: boolean;
+  /** Extra dirty state outside title + rich text (e.g. contact metadata fields). */
+  hasAdditionalUnsavedChanges?: boolean;
+  /** Optional label shown above the rich-text editor. */
+  richTextLabel?: ReactNode;
+  /** Placeholder for the rich-text editor body. */
+  richTextPlaceholder?: string;
+  /** Content rendered above the rich-text editor (e.g. contact name fields). */
+  renderBeforeEditor?: ReactNode;
   renderCommandBar: (props: {
     onBack: () => void;
     onRefresh: () => void;
@@ -95,6 +108,12 @@ export function E2eeRichTextItemEditorShell({
   notFoundMessage,
   loadErrorMessage,
   onDeleteRequested,
+  hideTitle = false,
+  requireTitle = true,
+  hasAdditionalUnsavedChanges = false,
+  richTextLabel,
+  richTextPlaceholder = "Add a description... Use the toolbar above for formatting.",
+  renderBeforeEditor,
   renderCommandBar,
   renderMetadata,
   renderLinks,
@@ -182,10 +201,13 @@ export function E2eeRichTextItemEditorShell({
   );
 
   const handleManualSave = useCallback(async () => {
-    if (!title.trim()) return;
+    if (requireTitle && !title.trim()) return;
     const currentContent = editorRef.current?.getJSON() ?? null;
     await persistSave(title, currentContent);
-  }, [title, persistSave]);
+  }, [requireTitle, title, persistSave]);
+
+  const combinedUnsavedChanges =
+    hasUnsavedChanges || hasAdditionalUnsavedChanges;
 
   const doRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -198,20 +220,20 @@ export function E2eeRichTextItemEditorShell({
   }, [draftState, onRefresh]);
 
   const handleRefresh = useCallback(() => {
-    if (hasUnsavedChanges) {
+    if (combinedUnsavedChanges) {
       setPendingAction("refresh");
     } else {
       void doRefresh();
     }
-  }, [hasUnsavedChanges, doRefresh]);
+  }, [combinedUnsavedChanges, doRefresh]);
 
   const handleBack = useCallback(() => {
-    if (hasUnsavedChanges) {
+    if (combinedUnsavedChanges) {
       setPendingAction("back");
     } else {
       onBack();
     }
-  }, [hasUnsavedChanges, onBack]);
+  }, [combinedUnsavedChanges, onBack]);
 
   const handleConfirmDiscard = useCallback(() => {
     const action = pendingAction;
@@ -231,7 +253,7 @@ export function E2eeRichTextItemEditorShell({
       void handleManualSave();
     },
     isSaving: saveStatus === "saving",
-    hasUnsavedChanges,
+    hasUnsavedChanges: combinedUnsavedChanges,
     saveStatus,
     onDelete: () => onDeleteRequested?.(),
     showBack: false,
@@ -261,21 +283,29 @@ export function E2eeRichTextItemEditorShell({
       <CommandBarPageLayout className="min-h-0 flex-1" commandBar={commandBar}>
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col gap-6">
-            <div className="min-w-0 flex-1">
-              <div className="mb-6">
+            <div className="min-w-0 flex-1 space-y-6">
+              {renderBeforeEditor}
+              {!hideTitle ? (
                 <Input
                   id="item-title"
                   value={title}
                   onChange={handleTitleInputChange}
                   placeholder={titlePlaceholder}
                 />
-              </div>
-              <div className="mb-6">
+              ) : null}
+              <div className={richTextLabel ? "grid gap-2" : undefined}>
+                {richTextLabel ? (
+                  typeof richTextLabel === "string" ? (
+                    <Label>{richTextLabel}</Label>
+                  ) : (
+                    richTextLabel
+                  )
+                ) : null}
                 <TiptapEditor
                   ref={editorRef}
                   content={parseRichTextContent(description)}
                   onChange={handleDescriptionChange}
-                  placeholder="Add a description... Use the toolbar above for formatting."
+                  placeholder={richTextPlaceholder}
                 />
               </div>
             </div>

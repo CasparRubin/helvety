@@ -1,5 +1,6 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { DOCS_FILE_SIZE_LIMIT_COPY } from "@helvety/shared/product-file-limit-copy";
 import dynamic from "next/dynamic";
@@ -98,7 +99,12 @@ export function HelvetyDocsShell({
   const validateDocxSize = useCallback(
     (bytes: ArrayBuffer, label: string): boolean => {
       if (bytes.byteLength > MAX_DOCX_BYTES) {
-        toast.error(`${label} exceeds the ${DOCS_FILE_SIZE_LIMIT_COPY} limit.`);
+        toast.error(
+          `${label} exceeds the ${DOCS_FILE_SIZE_LIMIT_COPY} limit.`,
+          {
+            duration: TOAST_DURATIONS.ERROR,
+          }
+        );
         return false;
       }
       return true;
@@ -151,7 +157,9 @@ export function HelvetyDocsShell({
       event.target.value = "";
       if (!file) return;
       if (!file.name.toLowerCase().endsWith(".docx")) {
-        toast.error("Please choose a .docx file.");
+        toast.error("Please choose a .docx file.", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return;
       }
       try {
@@ -162,7 +170,9 @@ export function HelvetyDocsShell({
         setLocalFileName(file.name);
         setDocInUrl(null);
       } catch {
-        toast.error("Could not open that file.");
+        toast.error("Could not open that file.", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
       }
     },
     [setDocInUrl, validateDocxSize]
@@ -171,7 +181,9 @@ export function HelvetyDocsShell({
   const handleDownload = useCallback(async () => {
     const bytes = normalizeDocxSaveResult(await editorRef.current?.save());
     if (!bytes) {
-      toast.error("Nothing to download yet.");
+      toast.error("Nothing to download yet.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return;
     }
     if (!validateDocxSize(bytes, "Document")) return;
@@ -191,7 +203,9 @@ export function HelvetyDocsShell({
     async (title: string) => {
       const bytes = normalizeDocxSaveResult(await editorRef.current?.save());
       if (!bytes) {
-        toast.error("Could not read the document for saving.");
+        toast.error("Could not read the document for saving.", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return;
       }
       if (!validateDocxSize(bytes, title)) return;
@@ -206,7 +220,8 @@ export function HelvetyDocsShell({
           setVaultDocId(id);
           setDocInUrl(id);
           toast.success(
-            vaultDocId ? "Vault document updated." : "Saved to vault."
+            vaultDocId ? "Vault document updated." : "Saved to vault.",
+            { duration: TOAST_DURATIONS.SUCCESS }
           );
         }
       } finally {
@@ -219,11 +234,15 @@ export function HelvetyDocsShell({
 
   const handleSaveToVault = useCallback(() => {
     if (!initialUser) {
-      toast.error("Sign in to save to your vault.");
+      toast.error("Sign in to save to your vault.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return;
     }
     if (!isUnlocked) {
-      toast.error("Unlock your vault to save documents.");
+      toast.error("Unlock your vault to save documents.", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
       return;
     }
     const existing = documents.find((d) => d.id === vaultDocId);
@@ -253,7 +272,9 @@ export function HelvetyDocsShell({
       if (vaultDocId === id) {
         handleNewDocument();
       }
-      toast.success("Document removed from vault.");
+      toast.success("Document removed from vault.", {
+        duration: TOAST_DURATIONS.SUCCESS,
+      });
     },
     [handleNewDocument, remove, vaultDocId]
   );

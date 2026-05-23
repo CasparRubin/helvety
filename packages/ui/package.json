@@ -92,7 +92,10 @@
     "./helvety-shell-navbar": "./src/helvety-shell-navbar.tsx",
     "./use-e2ee-entity-list-dnd-sensors": "./src/use-e2ee-entity-list-dnd-sensors.ts",
     "./hooks/use-encrypted-sortable-items": "./src/hooks/use-encrypted-sortable-items.ts",
-    "./e2ee-item-editor-shell": "./src/e2ee-item-editor-shell.tsx"
+    "./e2ee-item-editor-shell": "./src/e2ee-item-editor-shell.tsx",
+    "./entity-links-panel": "./src/entity-links-panel.tsx",
+    "./item-command-bar": "./src/item-command-bar.tsx",
+    "./hooks/use-e2ee-data-export": "./src/hooks/use-e2ee-data-export.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

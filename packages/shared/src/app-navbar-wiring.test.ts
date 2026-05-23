@@ -70,6 +70,16 @@ describe("app navbar wiring", () => {
     ] as const) {
       const source = readFileSync(join(repoRoot, rel), "utf8");
       expect(source).toContain("E2EE_NAVBAR_ENCRYPTION_TOOLTIP");
+      expect(source).toContain("E2eeAppNavbar");
     }
+  });
+
+  it("auth navbar uses shared encryption tooltip copy", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/auth/components/navbar.tsx"),
+      "utf8"
+    );
+    expect(source).toContain("AUTH_NAVBAR_ENCRYPTION_TOOLTIP");
+    expect(source).toContain('loginReturnUrl="current"');
   });
 });

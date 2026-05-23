@@ -1,10 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
-import {
-  patchEntityInList,
-  patchSingleEntity,
-} from "@helvety/shared/optimistic-entity";
+import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import {
   reportE2eeActionFailure,
@@ -12,6 +9,7 @@ import {
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -76,12 +74,11 @@ interface UseContactsReturn {
 }
 
 /** Fetches encrypted contact rows via GET route handler. */
-async function fetchContacts(): Promise<ActionResponse<ContactRow[]>> {
-  const response = await fetch(getContactsApiPath("/api/contacts"), {
+function fetchContacts(): Promise<Response> {
+  return fetch(getContactsApiPath("/api/contacts"), {
     method: "GET",
     cache: "no-store",
   });
-  return parseActionResponse<ContactRow[]>(response, "Failed to load contacts");
 }
 
 /** Fetches a single encrypted contact row via GET route handler. */
@@ -105,316 +102,92 @@ async function fetchContactById(
  */
 export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
-  const csrfToken = useCSRFToken();
 
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
-  const latestRefreshTokenRef = useRef(0);
-
-  const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked) {
-      setContacts([]);
-      setIsLoading(false);
-      setIsRefreshing(false);
-      return;
-    }
-
-    const refreshToken = ++latestRefreshTokenRef.current;
-    const perfLabel = `contacts:list-refresh:${refreshToken}`;
-    const routeAtStart = window.location.href;
-    const requestStartedAt = Date.now();
-    performance.mark(`${perfLabel}:start`);
-    const hasExistingContacts = contacts.length > 0;
-    if (hasExistingContacts) {
-      setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
-    }
-    setError(null);
-
-    try {
-      const result = await fetchContacts();
-      if (!result.success) {
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        if (
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to load contacts",
-            setError,
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
-        ) {
-          return;
-        }
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        if (!hasExistingContacts) {
-          setContacts([]);
-        }
-        return;
-      }
-
-      const decrypted = await decryptContactRows(result.data, masterKey);
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      setContacts(decrypted);
-      performance.mark(`${perfLabel}:end`);
-      performance.measure(
-        "contacts:list-refresh-duration",
-        `${perfLabel}:start`,
-        `${perfLabel}:end`
-      );
-    } catch (err) {
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      reportE2eeHookError(err, {
-        source: "contacts-use-contacts",
-        fallback: "Failed to load contacts",
-        setError,
-        redirectUri: routeAtStart,
-        expectedRoute: routeAtStart,
-        requestStartedAt,
-      });
-      if (!hasExistingContacts) {
-        setContacts([]);
-      }
-    } finally {
-      performance.clearMarks(`${perfLabel}:start`);
-      performance.clearMarks(`${perfLabel}:end`);
-      if (refreshToken === latestRefreshTokenRef.current) {
-        setIsLoading(false);
-        setIsRefreshing(false);
-      }
-    }
-  }, [contacts.length, masterKey, isUnlocked]);
-
-  const create = useCallback(
-    async (input: ContactInput): Promise<{ id: string } | null> => {
-      if (!masterKey) {
-        triggerHardLogoutOnce(window.location.href, "contacts-use-contacts");
-        return null;
-      }
-
-      try {
-        const encrypted = await encryptContactInput(input, masterKey);
-        const result = await createContact(encrypted, csrfToken);
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to create contact",
-          });
-          return null;
-        }
-
-        // Optimistic update: add the new contact to local state
-        setContacts((prev) => {
-          const maxSortOrder =
-            prev.length > 0 ? Math.max(...prev.map((c) => c.sort_order)) : -1;
-          const newContact: Contact = {
-            id: result.data.id,
-            user_id: prev[0]?.user_id ?? "",
-            first_name: input.first_name,
-            last_name: input.last_name,
-            description: input.description,
-            email: input.email,
-            phone: input.phone,
-            birthday: input.birthday,
-            notes: input.notes,
-            category_id: input.category_id ?? DEFAULT_CONTACT_CATEGORY_ID,
-            sort_order: maxSortOrder + 1,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-          return [...prev, newContact].toSorted(
-            (a, b) => a.sort_order - b.sort_order
-          );
-        });
-
-        return result.data;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "contacts-use-contacts",
-          fallback: "Failed to create contact",
-        });
-        return null;
-      }
-    },
-    [masterKey, csrfToken]
-  );
-
-  const update = useCallback(
-    async (id: string, input: Partial<ContactInput>): Promise<boolean> => {
-      if (!masterKey) {
-        triggerHardLogoutOnce(window.location.href, "contacts-use-contacts");
-        return false;
-      }
-
-      try {
-        const encrypted = await encryptContactUpdate(id, input, masterKey);
-        const result = await updateContact(
-          {
-            id,
-            ...encrypted,
-            ...(input.category_id !== undefined && {
-              category_id: input.category_id,
-            }),
-          },
-          csrfToken
-        );
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to update contact",
-          });
-          return false;
-        }
-
-        // Optimistic update: merge changes into local state
-        setContacts((prev) => patchEntityInList(prev, id, input));
-
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "contacts-use-contacts",
-          fallback: "Failed to update contact",
-        });
-        return false;
-      }
-    },
-    [masterKey, csrfToken]
-  );
-
-  const remove = useCallback(
-    async (id: string): Promise<boolean> => {
-      // Optimistic delete: remove from state immediately, rollback on failure
-      let prevContacts: Contact[] = [];
-      setContacts((prev) => {
-        prevContacts = prev;
-        return prev.filter((contact) => contact.id !== id);
-      });
-
-      try {
-        const result = await deleteContact(id, csrfToken);
-        if (!result.success) {
-          if (
-            !reportE2eeActionFailure(result.error, {
-              source: "contacts-use-contacts",
-              fallback: "Failed to delete contact",
-            })
-          ) {
-            setContacts(prevContacts);
-          }
-          return false;
-        }
-
-        return true;
-      } catch (err) {
-        if (
-          !reportE2eeHookError(err, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to delete contact",
-          })
-        ) {
-          setContacts(prevContacts);
-        }
-        return false;
-      }
-    },
-    [csrfToken]
-  );
-
-  const patchLocal = useCallback((id: string, input: Partial<ContactInput>) => {
-    setContacts((prev) => patchEntityInList(prev, id, input));
-  }, []);
-
-  /**
-   * Batch reorder contacts (for drag-and-drop)
-   */
-  const reorder = useCallback(
-    async (updates: ReorderUpdate[]): Promise<boolean> => {
-      // Optimistic update
-      setContacts((prev) => {
-        const updatesById = new Map(updates.map((u) => [u.id, u]));
-        const updated = prev.map((contact) => {
-          const match = updatesById.get(contact.id);
-          if (!match) return contact;
-          return {
-            ...contact,
-            sort_order: match.sort_order,
-            ...(match.category_id !== undefined && {
-              category_id: match.category_id,
-            }),
-          };
-        });
-        return updated.toSorted((a, b) => a.sort_order - b.sort_order);
-      });
-
-      try {
-        const result = await reorderContacts(updates, csrfToken);
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to reorder contacts",
-          });
-          await refresh();
-          return false;
-        }
-
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "contacts-use-contacts",
-          fallback: "Failed to reorder contacts",
-        });
-        await refresh();
-        return false;
-      }
-    },
-    [csrfToken, refresh]
-  );
-
-  useEffect(() => {
-    if (!isUnlocked || !masterKey) return;
-
-    // Use server-prefetched data on first unlock to avoid a round-trip
-    if (options?.initialEncryptedData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      decryptContactRows(options.initialEncryptedData, masterKey)
-        .then((decrypted) => setContacts(decrypted))
-        .catch((err) => {
-          reportE2eeHookError(err, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to decrypt contacts",
-            setError,
-          });
-        })
-        .finally(() => setIsLoading(false));
-      return;
-    }
-
-    void refresh();
-  }, [
-    isUnlocked,
-    masterKey,
+  const {
+    items,
+    isLoading,
+    isRefreshing,
+    error,
     refresh,
-    options?.initialEncryptedData,
-    initialDataConsumed,
-  ]);
+    create,
+    update,
+    remove,
+    reorder,
+    patchLocal,
+  } = useEncryptedSortableItems<
+    Contact,
+    ContactRow,
+    ContactInput,
+    ReorderUpdate
+  >({
+    navigationSource: "contacts-use-contacts",
+    perfMeasureName: "contacts:list-refresh-duration",
+    initialEncryptedData: options?.initialEncryptedData,
+    masterKey,
+    isUnlocked,
+    loadFailureMessage: "Failed to load contacts",
+    createFailureMessage: "Failed to create contact",
+    updateFailureMessage: "Failed to update contact",
+    deleteFailureMessage: "Failed to delete contact",
+    reorderFailureMessage: "Failed to reorder contacts",
+    decryptFailureMessage: "Failed to decrypt contacts",
+    fetchRows: fetchContacts,
+    createItem: (payload, csrfToken) =>
+      createContact(payload as Parameters<typeof createContact>[0], csrfToken),
+    updateItem: (payload, csrfToken) =>
+      updateContact(payload as Parameters<typeof updateContact>[0], csrfToken),
+    deleteItem: deleteContact,
+    reorderEntities: (_table, updates, csrfToken) =>
+      reorderContacts(updates, csrfToken),
+    encryptInput: encryptContactInput,
+    encryptUpdate: encryptContactUpdate,
+    decryptRows: decryptContactRows,
+    buildCreatePayload: (encrypted) => encrypted,
+    buildUpdatePayload: (id, encrypted, input) => ({
+      id,
+      ...(encrypted as object),
+      ...(input.category_id !== undefined
+        ? { category_id: input.category_id }
+        : {}),
+    }),
+    buildOptimisticItem: (input, prev, created) => {
+      const maxSortOrder =
+        prev.length > 0 ? Math.max(...prev.map((c) => c.sort_order)) : -1;
+      return {
+        id: created.id,
+        user_id: prev[0]?.user_id ?? "",
+        first_name: input.first_name,
+        last_name: input.last_name,
+        description: input.description,
+        email: input.email,
+        phone: input.phone,
+        birthday: input.birthday,
+        notes: input.notes,
+        category_id: input.category_id ?? DEFAULT_CONTACT_CATEGORY_ID,
+        sort_order: maxSortOrder + 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    },
+    applyReorderOptimistic: (prev, updates) => {
+      const updatesById = new Map(updates.map((u) => [u.id, u]));
+      const updated = prev.map((contact) => {
+        const match = updatesById.get(contact.id);
+        if (!match) return contact;
+        return {
+          ...contact,
+          sort_order: match.sort_order,
+          ...(match.category_id !== undefined && {
+            category_id: match.category_id,
+          }),
+        };
+      });
+      return updated.toSorted((a, b) => a.sort_order - b.sort_order);
+    },
+  });
 
   return {
-    contacts,
+    contacts: items,
     isLoading,
     isRefreshing,
     error,

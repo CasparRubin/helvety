@@ -559,9 +559,9 @@ async function main() {
         `apps/${appName}/app/layout-shell-providers.test.ts must assert HelvetyPublicShellRootLayout usage.`
       );
     }
-    if (!layoutShellTest.includes("getCachedUser")) {
+    if (!layoutShellTest.includes("bootstrapPublicLayoutUser")) {
       throw new Error(
-        `apps/${appName}/app/layout-shell-providers.test.ts must assert getCachedUser session bootstrap.`
+        `apps/${appName}/app/layout-shell-providers.test.ts must assert bootstrapPublicLayoutUser session bootstrap.`
       );
     }
   }

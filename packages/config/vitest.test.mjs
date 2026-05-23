@@ -7,12 +7,16 @@ import { createVitestConfig } from "./vitest.mjs";
 describe("createVitestConfig", () => {
   it("uses shared include patterns and coverage reporters", () => {
     const config = createVitestConfig("/tmp/workspace");
+    const strictConfig = createVitestConfig("/tmp/workspace", {
+      passWithNoTests: false,
+    });
     const include = config.test?.include ?? [];
     const reporters = config.test?.coverage?.reporter ?? [];
 
     expect(include).toEqual(["**/*.{test,spec}.{ts,tsx}"]);
     expect(reporters).toEqual(["text", "lcov"]);
     expect(config.test?.passWithNoTests).toBe(true);
+    expect(strictConfig.test?.passWithNoTests).toBe(false);
   });
 
   it("configures alias and setup path from workspace root", () => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import {
   reportE2eeActionFailure,
@@ -145,7 +146,7 @@ export function useDocs(enabled: boolean): UseDocsReturn {
             triggerHardLogoutOnce(window.location.href, `${E2EE_SOURCE}-load`);
             return null;
           }
-          toast.error(result.error);
+          toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
           return null;
         }
         return decryptDocRow(result.data, masterKey);
@@ -154,7 +155,9 @@ export function useDocs(enabled: boolean): UseDocsReturn {
           source: E2EE_SOURCE,
           fallback: "Failed to load document",
         });
-        toast.error("Failed to load document");
+        toast.error("Failed to load document", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
     },
@@ -192,7 +195,7 @@ export function useDocs(enabled: boolean): UseDocsReturn {
               );
               return null;
             }
-            toast.error(result.error);
+            toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
             return null;
           }
           await refresh();
@@ -211,7 +214,7 @@ export function useDocs(enabled: boolean): UseDocsReturn {
             triggerHardLogoutOnce(window.location.href, `${E2EE_SOURCE}-save`);
             return null;
           }
-          toast.error(result.error);
+          toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
           return null;
         }
         await refresh();
@@ -221,7 +224,9 @@ export function useDocs(enabled: boolean): UseDocsReturn {
           source: E2EE_SOURCE,
           fallback: "Failed to save document",
         });
-        toast.error("Failed to save document");
+        toast.error("Failed to save document", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return null;
       }
     },
@@ -245,7 +250,7 @@ export function useDocs(enabled: boolean): UseDocsReturn {
             );
             return false;
           }
-          toast.error(result.error);
+          toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
           return false;
         }
         setDocuments((prev) => prev.filter((doc) => doc.id !== id));
@@ -255,7 +260,9 @@ export function useDocs(enabled: boolean): UseDocsReturn {
           source: E2EE_SOURCE,
           fallback: "Failed to delete document",
         });
-        toast.error("Failed to delete document");
+        toast.error("Failed to delete document", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
         return false;
       }
     },

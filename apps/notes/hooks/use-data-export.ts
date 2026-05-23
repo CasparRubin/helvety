@@ -1,37 +1,10 @@
 "use client";
 
-import { ERROR_MESSAGES, TOAST_DURATIONS } from "@helvety/shared/constants";
-import { logger } from "@helvety/shared/logger";
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
+import { useE2eeDataExport } from "@helvety/ui/hooks/use-e2ee-data-export";
 
 import { downloadNoteDataExport } from "@/lib/data-export";
 
-/**
- * Hook for exporting decrypted note data as JSON.
- *
- * Encapsulates the export flow: loading state, error handling, and toast
- * notifications. Used by the Notes dashboard.
- *
- * @param masterKey - The user's decryption key from EncryptionContext
- */
+/** Hook for exporting decrypted note data as JSON. */
 export function useDataExport(masterKey: CryptoKey | null) {
-  const [isExporting, setIsExporting] = useState(false);
-
-  const handleExportData = useCallback(async () => {
-    if (!masterKey) return;
-    setIsExporting(true);
-    try {
-      await downloadNoteDataExport(masterKey);
-    } catch (error) {
-      logger.logUnexpectedError("Data export failed", error);
-      toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
-        duration: TOAST_DURATIONS.ERROR,
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  }, [masterKey]);
-
-  return { isExporting, handleExportData };
+  return useE2eeDataExport(masterKey, downloadNoteDataExport);
 }

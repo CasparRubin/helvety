@@ -1,5 +1,5 @@
-import { getCachedUser } from "@helvety/shared/cached-server";
-import { logger } from "@helvety/shared/logger";
+import { bootstrapPublicLayoutUser } from "@helvety/shared/layout-session-bootstrap";
+import { ListLoadingState } from "@helvety/ui/list-states";
 import { Suspense } from "react";
 
 import { HelvetyDocsShell } from "@/components/helvety-docs-shell";
@@ -10,22 +10,10 @@ import { HelvetyDocsShell } from "@/components/helvety-docs-shell";
  * Theme: shared public shell + navbar ThemeSwitcher; Eigenpal bridge in `styles/docx-editor-helvety-bridge.css`.
  */
 export default async function Page(): Promise<React.JSX.Element> {
-  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
-
-  try {
-    initialUser = await getCachedUser();
-  } catch (error) {
-    logger.logUnexpectedError("Docs page session bootstrap failed", error);
-  }
+  const initialUser = await bootstrapPublicLayoutUser();
 
   return (
-    <Suspense
-      fallback={
-        <div className="bg-background text-muted-foreground flex h-full items-center justify-center text-sm">
-          Loading…
-        </div>
-      }
-    >
+    <Suspense fallback={<ListLoadingState message="Loading…" />}>
       <HelvetyDocsShell initialUser={initialUser} />
     </Suspense>
   );

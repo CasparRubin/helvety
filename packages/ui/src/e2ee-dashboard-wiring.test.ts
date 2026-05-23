@@ -111,9 +111,31 @@ describe("E2EE editor dynamic import SSR", () => {
     expect(src).toContain("TiptapEditor");
   });
 
-  it("contacts contact-editor client-only loads Tiptap only", () => {
+  it("contacts contact-editor uses dynamic link panels (Tiptap via shared shell)", () => {
     const src = readAppFile("contacts", "components/contact-editor.tsx");
-    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(1);
-    expect(src).not.toContain("ContactLinksPanel");
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(2);
+    expect(src).toContain("NoteLinksPanel");
+    expect(src).toContain("TaskLinksPanel");
+    expect(src).toContain("E2eeRichTextItemEditorShell");
   });
+
+  it("links dashboard uses dynamic sheet editors and no redundant locked empty state", () => {
+    const src = readAppFile("links", "components/links-dashboard.tsx");
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(2);
+    expect(src).toContain("LinkEditor");
+    expect(src).toContain("FolderEditor");
+    expect(src).not.toContain('title="Locked"');
+    expect(src).toContain("ListEmptySearchState");
+  });
+});
+
+describe("E2EE navbar wiring", () => {
+  it.each(["tasks", "notes", "contacts", "links"] as const)(
+    "apps/%s navbar composes E2eeAppNavbar (login return defaults in shared component)",
+    (app) => {
+      const src = readAppFile(app, "components/navbar.tsx");
+      expect(src).toContain("E2eeAppNavbar");
+      expect(src).toContain("E2EE_NAVBAR_ENCRYPTION_TOOLTIP");
+    }
+  );
 });

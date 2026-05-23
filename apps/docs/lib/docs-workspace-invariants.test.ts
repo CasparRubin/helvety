@@ -26,7 +26,7 @@ describe("docs workspace UX invariants", () => {
     const page = readFileSync(pagePath, "utf8");
 
     expect(shell).toMatch(/flex h-full min-h-0 flex-col/);
-    expect(page).toMatch(/flex h-full items-center justify-center/);
+    expect(page).toContain("ListLoadingState");
   });
 
   it("docx editor workspace fills height for internal document scroll", () => {
@@ -37,6 +37,15 @@ describe("docs workspace UX invariants", () => {
     expect(src).toContain("bg-background");
     expect(src).toContain('className="h-full min-h-0 flex-1"');
     expect(src).not.toContain("@eigenpal/docx-editor-react/styles.css");
+  });
+
+  it("vault list uses shared list states and delete confirmation", () => {
+    const src = readFileSync(vaultPanelPath, "utf8");
+
+    expect(src).toContain("ListLoadingState");
+    expect(src).toContain("ListEmptyState");
+    expect(src).toContain("AlertDialog");
+    expect(src).toContain("Delete document");
   });
 
   it("vault list buttons use square Helvety corners", () => {
@@ -57,6 +66,16 @@ describe("docs workspace UX invariants", () => {
     const shell = readFileSync(shellPath, "utf8");
 
     expect(shell).toContain("bg-background flex min-h-0 flex-1");
+  });
+
+  it("docs shell and vault hook use TOAST_DURATIONS on user-facing toasts", () => {
+    const shell = readFileSync(shellPath, "utf8");
+    const useDocs = readFileSync(join(libDir, "../hooks/use-docs.ts"), "utf8");
+
+    expect(shell).toContain("TOAST_DURATIONS");
+    expect(useDocs).toContain("TOAST_DURATIONS");
+    expect(useDocs).toContain("reportE2eeActionFailure");
+    expect(useDocs).toContain("reportE2eeHookError");
   });
 
   it("does not auto-open vault documents from ?doc= on load", () => {

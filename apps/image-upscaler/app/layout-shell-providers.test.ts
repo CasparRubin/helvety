@@ -13,6 +13,6 @@ describe("image-upscaler root layout shell providers", () => {
     expect(src).not.toContain("@helvety/light-pillar");
     expect(src).not.toContain("HelvetyShellWithLightPillarBackdrop");
     expect(src).toContain("HelvetyPublicShellRootLayout");
-    expect(src).toContain("getCachedUser");
+    expect(src).toContain("bootstrapPublicLayoutUser");
   });
 });

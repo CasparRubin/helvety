@@ -1,10 +1,9 @@
+import { buildE2eeDeepLink } from "@helvety/shared/e2ee-deep-link";
 import { describe, expect, it } from "vitest";
 
-import { getNoteDeepLink } from "./note-links-panel";
-
-describe("getNoteDeepLink", () => {
+describe("buildE2eeDeepLink (notes from tasks)", () => {
   it("builds a notes deep link with note query parameter", () => {
-    const href = getNoteDeepLink("note-123");
+    const href = buildE2eeDeepLink("notes", "note-123");
     const url = new URL(href);
 
     expect(url.pathname).toBe("/notes");

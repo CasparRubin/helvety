@@ -1,11 +1,9 @@
 "use client";
 
-import { ERROR_MESSAGES, TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
   filterE2eeDashboardItems,
   resolveE2eeEmptySearchMessage,
 } from "@helvety/shared/e2ee-dashboard-search";
-import { logger } from "@helvety/shared/logger";
 import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
 import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
@@ -14,12 +12,12 @@ import { ListSearchField } from "@helvety/ui/list-search-field";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
-import { toast } from "sonner";
 
 import { ContactEditor } from "@/components/contact-editor";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { useContacts } from "@/hooks/use-contacts";
+import { useDataExport } from "@/hooks/use-data-export";
 import {
   DEFAULT_CATEGORIES,
   DEFAULT_CONTACT_CATEGORY_ID,
@@ -30,7 +28,6 @@ import {
   isContactDraftUnchanged,
 } from "@/lib/config/draft-defaults";
 import { useEncryptionContext } from "@/lib/crypto";
-import { downloadContactDataExport } from "@/lib/data-export";
 
 import type { ContactDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ContactRow } from "@/lib/types";
@@ -70,8 +67,8 @@ export function ContactsDashboard({
   }>({ open: false, id: null, name: null });
   const [isDeleting, startDeleteTransition] = useTransition();
   const [isRefreshPending, startRefreshTransition] = useTransition();
-  const [isExporting, startExportTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
+  const { isExporting, handleExportData } = useDataExport(masterKey);
 
   const filteredContacts = useMemo(() => {
     return filterE2eeDashboardItems(contacts, searchQuery, (contact) => [
@@ -186,20 +183,6 @@ export function ContactsDashboard({
       await refresh();
     });
   }, [refresh, startRefreshTransition]);
-
-  const handleExportData = useCallback(() => {
-    if (!masterKey) return;
-    startExportTransition(async () => {
-      try {
-        await downloadContactDataExport(masterKey);
-      } catch (error) {
-        logger.logUnexpectedError("Data export failed", error);
-        toast.error(ERROR_MESSAGES.EXPORT_FAILED, {
-          duration: TOAST_DURATIONS.ERROR,
-        });
-      }
-    });
-  }, [masterKey, startExportTransition]);
 
   return (
     <>

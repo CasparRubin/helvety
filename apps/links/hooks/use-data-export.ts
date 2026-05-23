@@ -1,36 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { useE2eeDataExport } from "@helvety/ui/hooks/use-e2ee-data-export";
 
-import {
-  downloadLinksExport,
-  exportDecryptedLinkData,
-} from "@/lib/data-export";
+import { downloadLinkDataExport } from "@/lib/data-export";
 
-/**
- *
- */
+/** Hook for exporting decrypted link data as JSON. */
 export function useDataExport(masterKey: CryptoKey | null) {
-  const [isExporting, setIsExporting] = useState(false);
-
-  const handleExportData = useCallback(async () => {
-    if (!masterKey) {
-      toast.error("Unlock encryption to export data");
-      return;
-    }
-    setIsExporting(true);
-    try {
-      const data = await exportDecryptedLinkData(masterKey);
-      downloadLinksExport(data);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to export links";
-      toast.error(message);
-    } finally {
-      setIsExporting(false);
-    }
-  }, [masterKey]);
-
-  return { isExporting, handleExportData };
+  return useE2eeDataExport(masterKey, downloadLinkDataExport);
 }

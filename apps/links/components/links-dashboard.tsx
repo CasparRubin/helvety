@@ -10,11 +10,12 @@ import { E2eeEntityDetailSheet } from "@helvety/ui/e2ee-entity-detail-sheet";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import {
-  ListEmptyState,
+  ListEmptySearchState,
   ListErrorState,
   ListLoadingState,
 } from "@helvety/ui/list-states";
 import { Pencil } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import {
   useCallback,
@@ -26,8 +27,6 @@ import {
 } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { FolderEditor } from "@/components/folder-editor";
-import { LinkEditor } from "@/components/link-editor";
 import { LinksCommandBar } from "@/components/links-command-bar";
 import { LinksTreeList } from "@/components/links-tree-list";
 import { useDataExport } from "@/hooks/use-data-export";
@@ -60,6 +59,16 @@ import type {
 } from "@/lib/config/draft-defaults";
 import type { Link, LinkFolderRow, LinkRow } from "@/lib/types";
 
+const LinkEditor = dynamic(
+  () => import("@/components/link-editor").then((m) => m.LinkEditor),
+  { ssr: false }
+);
+
+const FolderEditor = dynamic(
+  () => import("@/components/folder-editor").then((m) => m.FolderEditor),
+  { ssr: false }
+);
+
 /** Props for the links dashboard page client. */
 interface LinksDashboardProps {
   initialEncryptedFolders?: LinkFolderRow[];
@@ -71,7 +80,7 @@ export function LinksDashboard({
   initialEncryptedFolders,
   initialEncryptedLinks,
 }: LinksDashboardProps): React.JSX.Element {
-  const { isUnlocked, masterKey } = useEncryptionContext();
+  const { masterKey } = useEncryptionContext();
   const library = useLinkLibrary({
     initialEncryptedFolders,
     initialEncryptedLinks,
@@ -399,15 +408,13 @@ export function LinksDashboard({
         <EntityDashboardShell
           title="Links"
           searchField={
-            isUnlocked ? (
-              <ListSearchField
-                className="mb-4"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search links…"
-                aria-label="Search links"
-              />
-            ) : null
+            <ListSearchField
+              className="mb-4"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search links…"
+              aria-label="Search links"
+            />
           }
           list={
             library.isLoading ? (
@@ -417,23 +424,14 @@ export function LinksDashboard({
                 message={library.error}
                 onRetry={library.refresh}
               />
-            ) : !isUnlocked ? (
-              <ListEmptyState
-                title="Locked"
-                description="Unlock encryption with your passkey to view bookmarks."
-              />
             ) : searchActive ? (
-              <ul className="divide-border divide-y rounded-lg border">
-                {emptySearchMessage ? (
-                  <li className="text-muted-foreground p-4 text-sm">
-                    {emptySearchMessage}
-                  </li>
-                ) : filteredLinks.length === 0 ? (
-                  <li className="text-muted-foreground p-4 text-sm">
-                    No links match your search
-                  </li>
-                ) : (
-                  filteredLinks.map((link) => (
+              emptySearchMessage || filteredLinks.length === 0 ? (
+                <ListEmptySearchState
+                  message={emptySearchMessage ?? "No links match your search"}
+                />
+              ) : (
+                <ul className="divide-border divide-y rounded-lg border">
+                  {filteredLinks.map((link) => (
                     <li key={link.id}>
                       <SearchResultRow
                         link={link}
@@ -447,9 +445,9 @@ export function LinksDashboard({
                         onEdit={() => openEditLink(link.id)}
                       />
                     </li>
-                  ))
-                )}
-              </ul>
+                  ))}
+                </ul>
+              )
             ) : (
               <LinksTreeList
                 folders={library.folders}

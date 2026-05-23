@@ -16,7 +16,7 @@ End-to-end encrypted bookmarks with nested folders.
 - Folder actions: open links in a folder, or in a folder and all nested subfolders (on **All**, open every bookmark in the library)
 - Drag-and-drop reorder and reparenting (disabled while search is active)
 - List toolbar: primary “New link”, secondary “New folder” (inline on `md+`, overflow menu on small screens) via `LinksCommandBar`
-- New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with `LinkEditor` / `FolderEditor` and `LinksEditorCommandBar` (wraps shared `EditorCommandBar`: save, refresh, unsaved-change detection, delete in overflow). **New link** / **New folder** persist a draft row immediately, then open the full editor in that sheet; closing without edits removes the draft row.
+- New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with `LinkEditor` / `FolderEditor` (`dynamic(..., { ssr: false })`) and `LinksEditorCommandBar` (wraps shared `EditorCommandBar`: save, refresh, unsaved-change detection, delete in overflow). **New link** / **New folder** persist a draft row immediately, then open the full editor in that sheet; closing without edits removes the draft row.
 - Client-side search on decrypted names and URLs; while search is active, the tree flattens to a matching list and drag-and-drop is disabled
 - Client-side decrypted export (server-side encrypted fetch)
 - Library/folder hooks report auth and action failures via `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation` (same pattern as tasks/notes list hooks)

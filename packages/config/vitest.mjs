@@ -13,9 +13,11 @@ const configDir = path.dirname(fileURLToPath(import.meta.url));
  * by `turbo run type-check` (`tsc --noEmit`) instead.
  *
  * @param {string} rootDir - The root directory of the app (e.g. `import.meta.dirname` in ESM or `__dirname` in CJS).
+ * @param {{ passWithNoTests?: boolean }} [options] - Optional overrides; set `passWithNoTests: false` when the workspace has real tests.
  * @returns {import("vitest/config").UserConfig} The Vitest config.
  */
-export function createVitestConfig(rootDir) {
+export function createVitestConfig(rootDir, options = {}) {
+  const passWithNoTests = options.passWithNoTests ?? true;
   return defineConfig({
     plugins: [react()],
     resolve: {
@@ -31,9 +33,8 @@ export function createVitestConfig(rootDir) {
       exclude: ["node_modules", ".next"],
       // Command-bar and layout tests can exceed 5s under full turbo parallel runs.
       testTimeout: 10_000,
-      // Kept intentionally permissive for now to avoid broad breakages while
-      // test quality is being uplifted workspace-by-workspace.
-      passWithNoTests: true,
+      // Default permissive; workspaces with coverage pass `passWithNoTests: false`.
+      passWithNoTests,
       // TypeScript is checked by `turbo run type-check` (tsc --noEmit);
       // keep Vitest typecheck disabled to avoid duplicate type-check work.
       typecheck: {

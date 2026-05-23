@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
   E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
   NOTES_NAVBAR_ABOUT,
@@ -107,5 +111,14 @@ describe("E2eeAppNavbar", () => {
     });
     renderE2ee(user);
     expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
+  });
+
+  it("defaults loginReturnUrl to current for sign-in links", () => {
+    const src = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "e2ee-app-navbar.tsx"),
+      "utf8"
+    );
+    expect(src).toContain('loginReturnUrl = "current"');
+    expect(src).toContain("loginReturnUrl={loginReturnUrl}");
   });
 });

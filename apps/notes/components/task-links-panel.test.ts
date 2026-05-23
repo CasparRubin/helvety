@@ -1,12 +1,12 @@
+import { buildE2eeDeepLink } from "@helvety/shared/e2ee-deep-link";
 import { describe, expect, it } from "vitest";
 
-import { getItemDeepLink } from "./task-links-panel";
-
-describe("getItemDeepLink", () => {
+describe("buildE2eeDeepLink (tasks from notes)", () => {
   it("builds a tasks deep link with item query parameter", () => {
-    const href = getItemDeepLink("item-123");
+    const href = buildE2eeDeepLink("tasks", "item-123");
     const url = new URL(href);
 
+    expect(url.pathname).toBe("/tasks");
     expect(url.searchParams.get("item")).toBe("item-123");
   });
 });

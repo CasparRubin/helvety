@@ -23,5 +23,6 @@ describe("docs root layout shell providers", () => {
     expect(csrfOpen).toBeGreaterThan(-1);
     expect(encryptionOpen).toBeGreaterThan(csrfOpen);
     expect(encryptionClose).toBeGreaterThan(encryptionOpen);
+    expect(src).toContain("bootstrapE2eeLayoutSession");
   });
 });

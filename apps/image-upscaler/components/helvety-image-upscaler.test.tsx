@@ -1,3 +1,4 @@
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -193,7 +194,8 @@ describe("HelvetyImageUpscaler", () => {
 
     await waitFor(() => {
       expect(toastMocks.success).toHaveBeenCalledWith(
-        "Upscaling complete (1/1 images)."
+        "Upscaling complete (1/1 images).",
+        { duration: TOAST_DURATIONS.SUCCESS }
       );
     });
   });
@@ -215,7 +217,8 @@ describe("HelvetyImageUpscaler", () => {
 
     await waitFor(() => {
       expect(toastMocks.warning).toHaveBeenCalledWith(
-        "Upscaling finished with errors (2 succeeded, 1 failed)."
+        "Upscaling finished with errors (2 succeeded, 1 failed).",
+        { duration: TOAST_DURATIONS.INFO }
       );
     });
   });
@@ -233,7 +236,9 @@ describe("HelvetyImageUpscaler", () => {
     fireEvent.click(screen.getByRole("button", { name: "Upscale all" }));
 
     await waitFor(() => {
-      expect(toastMocks.error).toHaveBeenCalledWith("Worker failed");
+      expect(toastMocks.error).toHaveBeenCalledWith("Worker failed", {
+        duration: TOAST_DURATIONS.ERROR,
+      });
     });
   });
 

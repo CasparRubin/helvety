@@ -1,8 +1,7 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import { getCachedUser } from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { logger } from "@helvety/shared/logger";
+import { bootstrapPublicLayoutUser } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
@@ -52,13 +51,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
-
-  try {
-    initialUser = await getCachedUser();
-  } catch (error) {
-    logger.logUnexpectedError("Layout initialization failed", error);
-  }
+  const initialUser = await bootstrapPublicLayoutUser();
 
   return HelvetyPublicShellRootLayout({
     children,

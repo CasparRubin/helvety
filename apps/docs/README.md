@@ -8,7 +8,7 @@ Browser-based `.docx` editor with optional encrypted vault save.
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` so vault save can use the same passkey-derived keys as Tasks/Notes, while the main editor route stays public (no full-app `EncryptionGate`).
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` so vault save can use the same passkey-derived keys as Tasks/Notes, while the main editor route stays public (no full-app `EncryptionGate`). The public `app/page.tsx` calls `bootstrapPublicLayoutUser()` for the navbar session snapshot.
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`DOCS_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`DOCS_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler and LLM hints in [`public/llms.txt`](./public/llms.txt) (vault bookmarks, theme, licensing).
 - `@eigenpal/docx-editor-react` loads via `dynamic(..., { ssr: false })` per vendor Next.js guidance.
 - **Local editing:** open, create, upload, and download `.docx` files without signing in; bytes stay in the browser for editing.

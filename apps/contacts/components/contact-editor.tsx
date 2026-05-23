@@ -1,57 +1,61 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@helvety/ui/alert-dialog";
-import { Button } from "@helvety/ui/button";
-import { CommandBarPageLayout } from "@helvety/ui/command-bar-page-layout";
-import { E2EE_UNSAVED_CHANGES_DIALOG } from "@helvety/ui/e2ee-form-layout";
+import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import {
-  parseRichTextContent,
   serializeRichTextContent,
+  type JSONContent,
 } from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-
-const TiptapEditor = dynamic(
-  () => import("@helvety/ui/tiptap-editor").then((m) => m.TiptapEditor),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="border-border/40 flex min-h-[200px] items-center justify-center rounded-md border">
-        <Loader2Icon className="text-muted-foreground h-6 w-6 animate-spin" />
-      </div>
-    ),
-  }
-);
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { ContactActionPanel } from "@/components/contact-action-panel";
 import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { NoteLinksPanel } from "@/components/note-links-panel";
-import { TaskLinksPanel } from "@/components/task-links-panel";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useContact } from "@/hooks/use-contacts";
 import { DEFAULT_CATEGORIES } from "@/lib/config/default-categories";
 
 import type { Contact, ContactRow } from "@/lib/types";
-import type { TiptapEditorRef } from "@helvety/ui/tiptap-editor";
-import type { JSONContent } from "@tiptap/react";
 
-/** Save status type */
-type SaveStatus = "idle" | "saving" | "saved" | "error";
+const NoteLinksPanel = dynamic(
+  () => import("@/components/note-links-panel").then((m) => m.NoteLinksPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const TaskLinksPanel = dynamic(
+  () => import("@/components/task-links-panel").then((m) => m.TaskLinksPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 const APP_HOME_PATH = "/contacts";
+
+/** Saved contact metadata snapshot for dirty tracking outside the rich-text shell. */
+interface ContactMetadataSnapshot {
+  firstName: string;
+  lastName: string;
+  description: string;
+  email: string;
+  phone: string;
+  birthday: string | null;
+}
 
 /** Props for ContactEditor */
 interface ContactEditorProps {
@@ -81,112 +85,73 @@ export function ContactEditor({
     }
   );
 
-  // Form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [description, setDescription] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [birthday, setBirthday] = useState<string | null>(null);
-  const [notesContent, setNotesContent] = useState<JSONContent | null>(null);
-  const editorRef = useRef<TiptapEditorRef>(null);
-  const saveStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const savedMetadataRef = useRef<ContactMetadataSnapshot>({
+    firstName: "",
+    lastName: "",
+    description: "",
+    email: "",
+    phone: "",
+    birthday: null,
+  });
 
-  // Save tracking
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [isSaving, setIsSaving] = useState(false);
-  const savedFirstNameRef = useRef("");
-  const savedLastNameRef = useRef("");
-  const savedDescriptionRef = useRef("");
-  const savedEmailRef = useRef("");
-  const savedPhoneRef = useRef("");
-  const savedBirthdayRef = useRef<string | null>(null);
-  const savedNotesRef = useRef<string | null>(null);
-  const [editorBaselineCaptured, setEditorBaselineCaptured] = useState(false);
-  /** Captures the editor's normalized output on its first emission (initialization).
-   * Until captured, notes changes are not treated as user edits. */
-  const notesBaselineCaptured = useRef(false);
-
-  // Delete state
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeletingContact, setIsDeletingContact] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSavingCategory, setIsSavingCategory] = useState(false);
 
-  // Unsaved changes confirmation state
-  const [pendingAction, setPendingAction] = useState<"back" | "refresh" | null>(
-    null
-  );
-
   useEffect(() => {
-    return () => {
-      if (saveStatusTimeoutRef.current) {
-        clearTimeout(saveStatusTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Populate form when contact loads
-  useEffect(() => {
-    if (contact && !editorBaselineCaptured) {
+    if (contact && !hasInitialized) {
       setFirstName(contact.first_name);
       setLastName(contact.last_name);
       setDescription(contact.description ?? "");
       setEmail(contact.email ?? "");
       setPhone(contact.phone ?? "");
       setBirthday(contact.birthday);
-      const parsedNotes = parseRichTextContent(contact.notes);
-      setNotesContent(parsedNotes);
-      savedFirstNameRef.current = contact.first_name;
-      savedLastNameRef.current = contact.last_name;
-      savedDescriptionRef.current = contact.description ?? "";
-      savedEmailRef.current = contact.email ?? "";
-      savedPhoneRef.current = contact.phone ?? "";
-      savedBirthdayRef.current = contact.birthday;
-      savedNotesRef.current = contact.notes;
-      notesBaselineCaptured.current = false;
-      setEditorBaselineCaptured(true);
+      savedMetadataRef.current = {
+        firstName: contact.first_name,
+        lastName: contact.last_name,
+        description: contact.description ?? "",
+        email: contact.email ?? "",
+        phone: contact.phone ?? "",
+        birthday: contact.birthday,
+      };
+      setHasInitialized(true);
     }
-  }, [contact, editorBaselineCaptured]);
+  }, [contact, hasInitialized]);
 
-  // Derive unsaved-changes flag during render instead of in a useEffect
-  const hasUnsavedChanges = useMemo(() => {
-    if (!editorBaselineCaptured) return false;
+  const hasAdditionalUnsavedChanges = useMemo(() => {
+    if (!hasInitialized) return false;
 
-    const currentNotes = notesContent
-      ? serializeRichTextContent(notesContent)
-      : null;
-
+    const saved = savedMetadataRef.current;
     return (
-      firstName !== savedFirstNameRef.current ||
-      lastName !== savedLastNameRef.current ||
-      description !== savedDescriptionRef.current ||
-      email !== savedEmailRef.current ||
-      phone !== savedPhoneRef.current ||
-      birthday !== savedBirthdayRef.current ||
-      currentNotes !== savedNotesRef.current
+      firstName !== saved.firstName ||
+      lastName !== saved.lastName ||
+      description !== saved.description ||
+      email !== saved.email ||
+      phone !== saved.phone ||
+      birthday !== saved.birthday
     );
   }, [
-    editorBaselineCaptured,
+    hasInitialized,
     firstName,
     lastName,
     description,
     email,
     phone,
     birthday,
-    notesContent,
   ]);
 
-  const handleSave = useCallback(async () => {
-    if (!contact || isSaving) return;
+  const onSave = useCallback(
+    async (_title: string, notesContent: JSONContent | null) => {
+      if (!contact) return false;
 
-    setIsSaving(true);
-    setSaveStatus("saving");
-
-    try {
-      const currentNotes = notesContent
+      const notes = notesContent
         ? serializeRichTextContent(notesContent)
         : null;
 
@@ -197,44 +162,24 @@ export function ContactEditor({
         email: email.trim() || null,
         phone: phone.trim() || null,
         birthday,
-        notes: currentNotes,
+        notes,
       });
 
       if (success) {
-        savedFirstNameRef.current = firstName.trim();
-        savedLastNameRef.current = lastName.trim();
-        savedDescriptionRef.current = description.trim();
-        savedEmailRef.current = email.trim();
-        savedPhoneRef.current = phone.trim();
-        savedBirthdayRef.current = birthday;
-        savedNotesRef.current = currentNotes;
-        setSaveStatus("saved");
-        if (saveStatusTimeoutRef.current) {
-          clearTimeout(saveStatusTimeoutRef.current);
-        }
-        saveStatusTimeoutRef.current = setTimeout(() => {
-          setSaveStatus("idle");
-        }, 2000);
-      } else {
-        setSaveStatus("error");
+        savedMetadataRef.current = {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          description: description.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          birthday,
+        };
       }
-    } catch {
-      setSaveStatus("error");
-    } finally {
-      setIsSaving(false);
-    }
-  }, [
-    contact,
-    firstName,
-    lastName,
-    description,
-    email,
-    phone,
-    birthday,
-    notesContent,
-    update,
-    isSaving,
-  ]);
+
+      return success;
+    },
+    [contact, firstName, lastName, description, email, phone, birthday, update]
+  );
 
   const doBack = useCallback(() => {
     if (onClose) {
@@ -244,52 +189,10 @@ export function ContactEditor({
     router.replace(APP_HOME_PATH);
   }, [onClose, router]);
 
-  const handleBack = useCallback(() => {
-    if (hasUnsavedChanges) {
-      setPendingAction("back");
-      return;
-    }
-    doBack();
-  }, [hasUnsavedChanges, doBack]);
-
-  const handleRefresh = useCallback(() => {
-    if (hasUnsavedChanges) {
-      setPendingAction("refresh");
-      return;
-    }
-    setIsRefreshing(true);
-    setEditorBaselineCaptured(false);
-    notesBaselineCaptured.current = false;
-    void (async () => {
-      try {
-        await refresh();
-      } finally {
-        setIsRefreshing(false);
-      }
-    })();
-  }, [refresh, hasUnsavedChanges]);
-
-  const handleConfirmDiscard = useCallback(async () => {
-    const action = pendingAction;
-    setPendingAction(null);
-
-    if (action === "back") {
-      doBack();
-    } else if (action === "refresh") {
-      setIsRefreshing(true);
-      setEditorBaselineCaptured(false);
-      notesBaselineCaptured.current = false;
-      try {
-        await refresh();
-      } finally {
-        setIsRefreshing(false);
-      }
-    }
-  }, [pendingAction, doBack, refresh]);
-
-  const handleDelete = useCallback(() => {
-    setIsDeleteOpen(true);
-  }, []);
+  const handleEditorRefresh = useCallback(async () => {
+    setHasInitialized(false);
+    await refresh();
+  }, [refresh]);
 
   const handleCategoryChange = useCallback(
     async (categoryId: string) => {
@@ -326,223 +229,147 @@ export function ContactEditor({
     }
   }, [onClose, remove, router]);
 
-  // Handle notes change: capture editor baseline on first emission, then compare values
-  const handleNotesChange = useCallback((content: JSONContent) => {
-    const serialized = serializeRichTextContent(content);
-
-    // On the first emission after mount/refresh, capture the editor's normalized
-    // output as the baseline. This accounts for any content normalization TiptapEditor
-    // performs on the initial content (e.g., adding empty paragraphs, restructuring).
-    if (!notesBaselineCaptured.current) {
-      savedNotesRef.current = serialized;
-      notesBaselineCaptured.current = true;
-      return;
-    }
-
-    setNotesContent(content);
-  }, []);
-
-  // Loading state
-  if (isLoading) {
+  if (!contact && !error && isLoading) {
     return (
-      <div className="flex items-center justify-center py-24">
+      <div className="flex min-h-[400px] items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
       </div>
     );
   }
 
-  // Error state - friendly UI with retry (toast already shown by hooks)
-  if (error || !contact) {
-    return (
-      <CommandBarPageLayout
-        className="min-h-0 flex-1"
-        commandBar={
-          <ContactEditorCommandBar
-            onBack={handleBack}
-            showBack={false}
-            onRefresh={handleRefresh}
-            isRefreshing={isRefreshing}
-          />
-        }
-      >
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-muted/30 flex flex-col items-center justify-center gap-3 py-12">
-            <p className="text-muted-foreground text-sm">
-              {error
-                ? "Couldn't load this contact. Please try again."
-                : "Contact not found"}
-            </p>
-            <Button variant="outline" size="sm" onClick={handleRefresh}>
-              Try again
-            </Button>
-          </div>
-        </div>
-      </CommandBarPageLayout>
-    );
-  }
-
   return (
-    <>
-      <CommandBarPageLayout
-        className="min-h-0 flex-1"
-        commandBar={
-          <ContactEditorCommandBar
-            onBack={handleBack}
-            showBack={false}
-            onRefresh={handleRefresh}
-            isRefreshing={isRefreshing}
-            onSave={handleSave}
-            isSaving={isSaving}
-            hasUnsavedChanges={hasUnsavedChanges}
-            saveStatus={saveStatus}
-            onDelete={handleDelete}
-          />
-        }
-      >
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col gap-6">
-            {/* Left column: Form fields + Notes editor */}
-            <div className="min-w-0 flex-1 space-y-6">
-              {/* Name fields */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="first-name">First Name(s)</Label>
-                  <Input
-                    id="first-name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="First name(s)"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="last-name">Last Name(s)</Label>
-                  <Input
-                    id="last-name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Last name(s)"
-                  />
-                </div>
-              </div>
-
-              {/* Description field */}
+    <E2eeRichTextItemEditorShell
+      title=""
+      description={contact?.notes ?? null}
+      isLoading={isLoading}
+      hasItem={Boolean(contact)}
+      error={error}
+      hasInitialized={hasInitialized}
+      onTitleChange={() => undefined}
+      onSave={onSave}
+      onRefresh={handleEditorRefresh}
+      onBack={doBack}
+      titlePlaceholder=""
+      notFoundMessage="Contact not found"
+      loadErrorMessage="Couldn't load this contact. Please try again."
+      hideTitle
+      requireTitle={false}
+      hasAdditionalUnsavedChanges={hasAdditionalUnsavedChanges}
+      richTextLabel="Notes"
+      richTextPlaceholder="Add notes about this contact..."
+      onDeleteRequested={() => setIsDeleteOpen(true)}
+      renderCommandBar={(props) => (
+        <ContactEditorCommandBar
+          onBack={props.onBack}
+          showBack={props.showBack}
+          onRefresh={props.onRefresh}
+          isRefreshing={props.isRefreshing}
+          onSave={props.onSave}
+          isSaving={props.isSaving}
+          hasUnsavedChanges={props.hasUnsavedChanges}
+          saveStatus={props.saveStatus}
+          onDelete={props.onDelete}
+        />
+      )}
+      renderBeforeEditor={
+        contact ? (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="first-name">First Name(s)</Label>
                 <Input
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="e.g., Cousin, Product Manager"
+                  id="first-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First name(s)"
                 />
               </div>
-
-              {/* Email and Phone fields */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@example.com"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+41 79 123 45 67"
-                  />
-                </div>
-              </div>
-
-              {/* Birthday field */}
               <div className="grid gap-2">
-                <Label>Birthday</Label>
-                <DatePicker
-                  value={birthday}
-                  onChange={setBirthday}
-                  placeholder="Pick a birthday"
+                <Label htmlFor="last-name">Last Name(s)</Label>
+                <Input
+                  id="last-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last name(s)"
                 />
-              </div>
-
-              {/* Notes TipTap Editor */}
-              <div className="grid gap-2">
-                <Label>Notes</Label>
-                {editorBaselineCaptured ? (
-                  <TiptapEditor
-                    ref={editorRef}
-                    content={notesContent}
-                    onChange={handleNotesChange}
-                    placeholder="Add notes about this contact..."
-                  />
-                ) : (
-                  <div className="border-border/40 bg-background dark:bg-input/30 min-h-[200px] rounded-md border" />
-                )}
               </div>
             </div>
 
-            <ContactActionPanel
-              contact={contact}
-              categories={DEFAULT_CATEGORIES}
-              onCategoryChange={(categoryId) => {
-                void handleCategoryChange(categoryId);
-              }}
-              isSavingCategory={isSavingCategory}
-              stacked
-            />
-
-            <div className="space-y-6">
-              <TaskLinksPanel contactId={contactId} />
-              <NoteLinksPanel contactId={contactId} />
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="e.g., Cousin, Product Manager"
+              />
             </div>
-          </div>
-        </div>
-      </CommandBarPageLayout>
 
-      {/* Unsaved Changes Confirmation Dialog */}
-      <AlertDialog
-        open={pendingAction !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingAction(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {E2EE_UNSAVED_CHANGES_DIALOG.title}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {E2EE_UNSAVED_CHANGES_DIALOG.description}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>
-              {E2EE_UNSAVED_CHANGES_DIALOG.cancelLabel}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleConfirmDiscard}
-            >
-              {E2EE_UNSAVED_CHANGES_DIALOG.confirmLabel}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+41 79 123 45 67"
+                />
+              </div>
+            </div>
 
-      {/* Delete Contact Confirmation Dialog */}
-      <DeleteConfirmationDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        entityType="contact"
-        entityName={`${contact.first_name} ${contact.last_name}`}
-        onConfirm={handleDeleteConfirm}
-        isDeleting={isDeletingContact}
-      />
-    </>
+            <div className="grid gap-2">
+              <Label>Birthday</Label>
+              <DatePicker
+                value={birthday}
+                onChange={setBirthday}
+                placeholder="Pick a birthday"
+              />
+            </div>
+          </>
+        ) : null
+      }
+      renderMetadata={
+        contact ? (
+          <ContactActionPanel
+            contact={contact}
+            categories={DEFAULT_CATEGORIES}
+            onCategoryChange={(categoryId) => {
+              void handleCategoryChange(categoryId);
+            }}
+            isSavingCategory={isSavingCategory}
+            stacked
+          />
+        ) : null
+      }
+      renderLinks={
+        <>
+          <TaskLinksPanel contactId={contactId} />
+          <NoteLinksPanel contactId={contactId} />
+        </>
+      }
+      deleteDialog={
+        contact ? (
+          <DeleteConfirmationDialog
+            open={isDeleteOpen}
+            onOpenChange={setIsDeleteOpen}
+            entityType="contact"
+            entityName={`${contact.first_name} ${contact.last_name}`}
+            onConfirm={handleDeleteConfirm}
+            isDeleting={isDeletingContact}
+          />
+        ) : null
+      }
+    />
   );
 }

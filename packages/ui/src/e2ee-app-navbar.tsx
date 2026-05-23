@@ -26,6 +26,10 @@ export type E2eeAppNavbarProps = {
   labels: E2eeAppNavbarLabels;
   /** Build label from the host app (e.g. `VERSION` from `@/lib/config/version`). */
   versionLabel: string | null;
+  /**
+   * Login link return URL. Defaults to `"current"` so sign-in returns to the open entity.
+   */
+  loginReturnUrl?: "current";
 };
 
 /**
@@ -37,6 +41,7 @@ export function E2eeAppNavbar({
   initialUser = null,
   labels,
   versionLabel,
+  loginReturnUrl = "current",
 }: E2eeAppNavbarProps) {
   const {
     isUnlocked,
@@ -62,6 +67,7 @@ export function E2eeAppNavbar({
       navigationMenuDescription={labels.navigationMenuDescription}
       versionLabel={versionLabel}
       account={{ variant: "external-store" }}
+      loginReturnUrl={loginReturnUrl}
       encryption={({ user }) => ({
         loading: encryptionLoading,
         showBadge: isUnlocked && !!user?.id && unlockedForUserId === user.id,

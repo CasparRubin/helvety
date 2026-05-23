@@ -1,6 +1,6 @@
 "use client";
 
-import { urls } from "@helvety/shared/config";
+import { buildE2eeDeepLink } from "@helvety/shared/e2ee-deep-link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,11 +34,9 @@ import { useNoteLinks } from "@/hooks/use-note-links";
 
 import type { LinkedNote, PickerNote } from "@/hooks/use-note-links";
 
-const NOTES_APP_URL = urls.notes;
-
+/** @deprecated Import from `@helvety/shared/e2ee-deep-link` */
 export function getNoteDeepLink(noteId: string): string {
-  const params = new URLSearchParams({ note: noteId });
-  return `${NOTES_APP_URL}?${params.toString()}`;
+  return buildE2eeDeepLink("notes", noteId);
 }
 
 function NoteRow({

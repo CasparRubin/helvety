@@ -30,10 +30,8 @@ interface DecryptedLinksExport {
 const PLAINTEXT_EXPORT_WARNING =
   "This export file contains decrypted plaintext bookmark data and can be read by anyone with access to your device. Continue?";
 
-/**
- *
- */
-export async function exportDecryptedLinkData(
+/** Decrypts link library rows for JSON export. */
+async function exportDecryptedLinkData(
   masterKey: CryptoKey
 ): Promise<DecryptedLinksExport> {
   const result = await getAllLinkDataForExport();
@@ -73,7 +71,7 @@ export async function exportDecryptedLinkData(
 /**
  *
  */
-export function downloadLinksExport(data: DecryptedLinksExport): void {
+function downloadLinksExport(data: DecryptedLinksExport): void {
   if (!window.confirm(PLAINTEXT_EXPORT_WARNING)) {
     return;
   }
@@ -86,4 +84,12 @@ export function downloadLinksExport(data: DecryptedLinksExport): void {
   anchor.download = `helvety-links-export-${new Date().toISOString().slice(0, 10)}.json`;
   anchor.click();
   URL.revokeObjectURL(url);
+}
+
+/** Export and download decrypted link library data (for `useE2eeDataExport`). */
+export async function downloadLinkDataExport(
+  masterKey: CryptoKey
+): Promise<void> {
+  const data = await exportDecryptedLinkData(masterKey);
+  downloadLinksExport(data);
 }

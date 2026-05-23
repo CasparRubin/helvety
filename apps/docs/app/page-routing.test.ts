@@ -13,7 +13,7 @@ const vaultPanelPath = join(
 describe("docs hybrid routing", () => {
   it("main page stays public and does not require full-app E2EE gate", () => {
     const src = readFileSync(pagePath, "utf8");
-    expect(src).toContain("getCachedUser");
+    expect(src).toContain("bootstrapPublicLayoutUser");
     expect(src).not.toContain("requireE2eeAppPageAuth");
     expect(src).not.toContain("EncryptionGateApp");
   });

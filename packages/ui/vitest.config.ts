@@ -1,6 +1,6 @@
 import { createVitestConfig } from "@helvety/config/vitest";
 
-const base = createVitestConfig(__dirname);
+const base = createVitestConfig(__dirname, { passWithNoTests: false });
 
 /** UI package mounts Radix sheets and Tiptap; allow extra time under parallel `turbo run test`. */
 export default {

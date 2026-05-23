@@ -28,6 +28,10 @@ export const STORE_NAVBAR_ABOUT =
 export const AUTH_NAVBAR_ABOUT =
   "Sign-in for Helvety web apps on helvety.com. One account and shared sessions across those apps." as const;
 
+/** Auth gateway: encryption badge tooltip (login / setup context). */
+export const AUTH_NAVBAR_ENCRYPTION_TOOLTIP =
+  "Sensitive content is encrypted on your device before it leaves your browser. Helvety does not store your decryption keys. In our current architecture, encrypted content is designed to remain unreadable to Helvety during normal operation. Some structural metadata (such as timestamps and display preferences) is stored unencrypted to enable app functionality." as const;
+
 export const TASKS_NAVBAR_ABOUT = `Stage-based tasks with drag-and-drop flow. Titles, descriptions, and dates are encrypted on your device before storage. ${HELVETY_NAVBAR_SWISS_CLOSING}`;
 
 export const CONTACTS_NAVBAR_ABOUT = `Encrypted contacts with fast lookup and Personal, Work, and Other groups. Names, numbers, and notes are encrypted on your device before storage. ${HELVETY_NAVBAR_SWISS_CLOSING}`;

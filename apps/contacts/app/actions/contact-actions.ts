@@ -10,7 +10,6 @@ import {
   reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
-import { RATE_LIMITS } from "@helvety/shared/rate-limit";
 import {
   parseActionInput,
   unexpectedActionError,
@@ -24,6 +23,7 @@ import {
   ALLOWED_CATEGORY_IDS,
   DEFAULT_CONTACT_CATEGORY_ID,
 } from "@/lib/config/default-categories";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { ActionResponse, ContactRow, ReorderUpdate } from "@/lib/types";
 

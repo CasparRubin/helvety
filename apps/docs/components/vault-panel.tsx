@@ -2,12 +2,24 @@
 
 import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { cn } from "@helvety/shared/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
 import { EncryptionGateApp } from "@helvety/ui/encryption-gate-app";
+import { ListEmptyState, ListLoadingState } from "@helvety/ui/list-states";
 import { ScrollArea } from "@helvety/ui/scroll-area";
-import { Loader2, LogIn, Trash2 } from "lucide-react";
+import { LogIn, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { buildDocsPublicPath } from "@/lib/docs-zone-path";
 
@@ -39,54 +51,86 @@ function VaultDocumentList({
   onOpenDocument: (id: string) => void;
   onDeleteDocument: (id: string) => void;
 }): React.JSX.Element {
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const deleteTargetTitle =
+    documents.find((d) => d.id === deleteTargetId)?.title ?? "this document";
+
   if (isLoading) {
-    return (
-      <div className="text-muted-foreground flex items-center gap-2 p-4 text-sm">
-        <Loader2 className="size-4 animate-spin" />
-        Loading documents…
-      </div>
-    );
+    return <ListLoadingState message="Loading documents…" />;
   }
 
   if (documents.length === 0) {
     return (
-      <p className="text-muted-foreground p-4 text-sm">
-        No saved documents yet. Save from the toolbar when your vault is
-        unlocked.
-      </p>
+      <ListEmptyState
+        title="No saved documents"
+        description="Save from the toolbar when your vault is unlocked."
+      />
     );
   }
 
   return (
-    <ul className="flex flex-col gap-1 p-2">
-      {documents.map((doc) => (
-        <li key={doc.id} className="flex items-center gap-1">
-          <button
-            type="button"
-            className={cn(
-              "hover:bg-accent min-w-0 flex-1 rounded-none px-3 py-2 text-left text-sm",
-              activeDocId === doc.id && "bg-accent font-medium"
-            )}
-            onClick={() => onOpenDocument(doc.id)}
-          >
-            <span className="block truncate">{doc.title}</span>
-            <span className="text-muted-foreground text-xs">
-              {new Date(doc.updated_at).toLocaleString()}
-            </span>
-          </button>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            className="shrink-0"
-            aria-label={`Delete ${doc.title}`}
-            onClick={() => onDeleteDocument(doc.id)}
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="flex flex-col gap-1 p-2">
+        {documents.map((doc) => (
+          <li key={doc.id} className="flex items-center gap-1">
+            <button
+              type="button"
+              className={cn(
+                "hover:bg-accent min-w-0 flex-1 rounded-none px-3 py-2 text-left text-sm",
+                activeDocId === doc.id && "bg-accent font-medium"
+              )}
+              onClick={() => onOpenDocument(doc.id)}
+            >
+              <span className="block truncate">{doc.title}</span>
+              <span className="text-muted-foreground text-xs">
+                {new Date(doc.updated_at).toLocaleString()}
+              </span>
+            </button>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="shrink-0"
+              aria-label={`Delete ${doc.title}`}
+              onClick={() => setDeleteTargetId(doc.id)}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </li>
+        ))}
+      </ul>
+
+      <AlertDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTargetId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Remove &ldquo;{deleteTargetTitle}&rdquo; from your vault? This
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (deleteTargetId) {
+                  onDeleteDocument(deleteTargetId);
+                  setDeleteTargetId(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
