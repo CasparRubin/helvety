@@ -64,7 +64,7 @@ function VaultDocumentList({
           <button
             type="button"
             className={cn(
-              "hover:bg-accent min-w-0 flex-1 rounded-md px-3 py-2 text-left text-sm",
+              "hover:bg-accent min-w-0 flex-1 rounded-none px-3 py-2 text-left text-sm",
               activeDocId === doc.id && "bg-accent font-medium"
             )}
             onClick={() => onOpenDocument(doc.id)}
@@ -102,7 +102,7 @@ export function VaultPanel({
 }: VaultPanelProps): React.JSX.Element {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  // Gateway-visible /docs… so post-login redirect returns here (not site home).
+  // Gateway-visible /docs… so sign-in returns to this zone (preserves query for context; editor still starts blank until the user picks a document).
   const loginHref = getLoginUrl(
     buildDocsPublicPath(pathname, searchParams.toString())
   );

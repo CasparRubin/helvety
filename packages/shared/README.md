@@ -53,7 +53,7 @@ This package centralizes:
 
 - **`urls`**: canonical absolute base URLs for each helvety.com zone (and the dev gateway host).
 - **`getLocalAppHref`**: strips Helvety / localhost origins to **root-relative** paths for **`next/link`** in the **gateway** (`apps/web`, no Next **`basePath`**). Do **not** use it for cross-zone **`Link`** targets rendered inside **`basePath`** apps; use absolute **`urls.*`** (see **`AppSwitcher`** / `packages/ui` README).
-- **Inside a `basePath` zone** (`apps/docs`, `apps/tasks`, …): App Router navigation (`router.replace`, `<Link href>`) uses **zone-relative** paths (`/`, `/?doc=…`). Browser **`fetch`**, **`getLoginUrl`** return paths, and **`revalidatePath`** use **gateway-visible** paths (`/docs/api/…`, `/docs`, …). Passing `/docs` to `router.replace` inside Docs yields `/docs/docs` (404). Reference: [`apps/docs/README.md`](../../apps/docs/README.md) § Routing and [`apps/docs/lib/docs-zone-path.ts`](../../apps/docs/lib/docs-zone-path.ts).
+- **Inside a `basePath` zone** (`apps/docs`, `apps/tasks`, …): App Router navigation (`router.replace`, `<Link href>`) uses **zone-relative** paths (`/`, `/?doc=…` on Docs, `/?item=…` on Tasks, etc.). Browser **`fetch`**, **`getLoginUrl`** return paths, and **`revalidatePath`** use **gateway-visible** paths (`/docs/api/…`, `/docs`, …). Passing `/docs` to `router.replace` inside Docs yields `/docs/docs` (404). Docs `?doc=` is a **vault bookmark** (URL sync after explicit open/save; editor starts blank on load), not an E2EE-style auto-open sheet link. Reference: [`apps/docs/README.md`](../../apps/docs/README.md) § Routing and [`apps/docs/lib/docs-zone-path.ts`](../../apps/docs/lib/docs-zone-path.ts).
 
 ### Supabase SSR
 

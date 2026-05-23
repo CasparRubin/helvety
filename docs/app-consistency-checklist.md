@@ -87,6 +87,8 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 | `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler`; `docs` (+ optional `EncryptionProvider` for vault) |
 | `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`                                                               |
 
+**Docs** uses `mainVariant: "overflow-main"` (pinned command bar + editor workspace). Eigenpal editor theming lives in `apps/docs/styles/docx-editor-helvety-bridge.css` (imported from `app/globals.css`); Helvety chrome uses `@helvety/ui` tokens and the navbar `ThemeSwitcher`. Document pages stay white in both themes.
+
 Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
 
 ## Multi-zone static assets (`assetPrefix`)

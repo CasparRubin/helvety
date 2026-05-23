@@ -19,9 +19,16 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/before storage/i);
   });
 
-  it("mentions vault deep links on the canonical URL", () => {
+  it("documents vault bookmarks, blank-on-load, and sidebar open flow", () => {
     expect(source).toMatch(/\?doc=/);
-    expect(source).toMatch(/vault unlock/i);
+    expect(source).toMatch(/starts blank on load/i);
+    expect(source).toMatch(/not auto-opened/i);
+    expect(source).toMatch(/vault sidebar/i);
+    expect(source).toMatch(/signed in and vault-unlocked/i);
+    expect(source).not.toMatch(
+      /opens a saved document when you are signed in/i
+    );
+    expect(source).not.toMatch(/Vault deep links/i);
   });
 
   it("links to canonical routes and related Helvety apps", () => {
@@ -29,5 +36,12 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toContain("https://helvety.com/store/products/helvety-docs");
     expect(source).toContain("https://helvety.com/pdf");
     expect(source).toMatch(/Apache-2\.0/);
+  });
+
+  it("documents light/dark UI and white document page for export", () => {
+    expect(source).toMatch(/## User Interface/);
+    expect(source).toMatch(/light and dark mode/i);
+    expect(source).toMatch(/document page stays white/i);
+    expect(source).toMatch(/print-accurate/i);
   });
 });

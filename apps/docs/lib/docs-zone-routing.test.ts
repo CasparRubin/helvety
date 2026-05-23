@@ -24,12 +24,23 @@ describe("docs zone routing invariants", () => {
     expect(src).not.toMatch(/router\.replace\(["'`]\/docs/);
     expect(src).toContain("usePathname");
     expect(src).toContain("setDocInUrl");
-    expect(src).toMatch(/setDocInUrl\(null\)/g);
-    expect(src.match(/setDocInUrl\(null\)/g)?.length).toBe(2);
-    expect(src).toMatch(/setDocInUrl\(id\)/g);
-    expect(src.match(/setDocInUrl\(id\)/g)?.length).toBe(2);
     expect(src).toContain("currentDoc === docId");
     expect(src).toContain("scroll: false");
+  });
+
+  it("clears ?doc= on new document, local open, and initial landing strip", () => {
+    const src = readFileSync(shellPath, "utf8");
+
+    expect(src).toMatch(/handleNewDocument[\s\S]*?setDocInUrl\(null\)/);
+    expect(src).toMatch(/handleFileChange[\s\S]*?setDocInUrl\(null\)/);
+    expect(src).toMatch(/Always start blank[\s\S]*?setDocInUrl\(null\)/);
+  });
+
+  it("sets ?doc= when opening or saving vault documents", () => {
+    const src = readFileSync(shellPath, "utf8");
+
+    expect(src).toMatch(/handleOpenVaultDocument[\s\S]*?setDocInUrl\(id\)/);
+    expect(src).toMatch(/performVaultSave[\s\S]*?setDocInUrl\(id\)/);
   });
 
   it("vault sign-in uses buildDocsPublicPath for post-login return", () => {
@@ -58,5 +69,8 @@ describe("docs zone routing invariants", () => {
     expect(src).toContain("docs-zone-path.ts");
     expect(src).toContain("/docs/docs");
     expect(src).toMatch(/\?doc=/);
+    expect(src).toMatch(/Vault bookmarks/i);
+    expect(src).toMatch(/not an auto-open deep link/i);
+    expect(src).not.toMatch(/Vault deep links:/i);
   });
 });

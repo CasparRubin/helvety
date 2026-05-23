@@ -6,7 +6,8 @@ import { HelvetyDocsShell } from "@/components/helvety-docs-shell";
 
 /**
  * Main page: public .docx editor with optional encrypted vault save.
- * No login required for local editing.
+ * No login required for local editing. Editor starts blank on each load.
+ * Theme: shared public shell + navbar ThemeSwitcher; Eigenpal bridge in `styles/docx-editor-helvety-bridge.css`.
  */
 export default async function Page(): Promise<React.JSX.Element> {
   let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
@@ -20,7 +21,7 @@ export default async function Page(): Promise<React.JSX.Element> {
   return (
     <Suspense
       fallback={
-        <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+        <div className="bg-background text-muted-foreground flex h-full items-center justify-center text-sm">
           Loading…
         </div>
       }

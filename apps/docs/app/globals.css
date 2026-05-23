@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap");
 @import "@helvety/ui/globals.css";
+@import "@eigenpal/docx-editor-react/styles.css";
+@import "../styles/docx-editor-helvety-bridge.css";
 
 @source "../../../packages/ui/src";
 @source "../../../packages/brand/src";

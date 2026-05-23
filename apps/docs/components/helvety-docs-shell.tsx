@@ -25,7 +25,7 @@ const DocxEditorWorkspace = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+      <div className="bg-background text-muted-foreground flex h-full min-h-0 flex-1 items-center justify-center text-sm">
         Loading editor…
       </div>
     ),
@@ -91,7 +91,9 @@ export function HelvetyDocsShell({
   const [isSaving, setIsSaving] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [pendingSaveTitle, setPendingSaveTitle] = useState("Untitled");
-  const loadedDeepLinkRef = useRef<string | null>(null);
+  /** First-paint `?doc=` only; do not strip when the user opens a vault doc later. */
+  const initialDocIdRef = useRef(searchParams.get("doc"));
+  const strippedInitialDeepLinkRef = useRef(false);
 
   const validateDocxSize = useCallback(
     (bytes: ArrayBuffer, label: string): boolean => {
@@ -104,7 +106,10 @@ export function HelvetyDocsShell({
     []
   );
 
-  /** Sync `?doc=` with vault selection; paths are zone-relative (see `lib/docs-zone-path.ts`). */
+  /**
+   * Sync `?doc=` when the user opens or saves a vault document (not on landing).
+   * Zone-relative paths; see `lib/docs-zone-path.ts`.
+   */
   const setDocInUrl = useCallback(
     (docId: string | null) => {
       const currentDoc = searchParams.get("doc");
@@ -253,16 +258,16 @@ export function HelvetyDocsShell({
     [handleNewDocument, remove, vaultDocId]
   );
 
+  /** Always start blank; strip landing `?doc=` without auto-opening vault docs. */
   useEffect(() => {
-    const docId = searchParams.get("doc");
-    if (!docId || !vaultEnabled) return;
-    if (loadedDeepLinkRef.current === docId) return;
-    loadedDeepLinkRef.current = docId;
-    void handleOpenVaultDocument(docId);
-  }, [handleOpenVaultDocument, searchParams, vaultEnabled]);
+    if (strippedInitialDeepLinkRef.current) return;
+    if (!initialDocIdRef.current) return;
+    strippedInitialDeepLinkRef.current = true;
+    setDocInUrl(null);
+  }, [setDocInUrl]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <DocsCommandBar
         hasDocument={documentBuffer !== undefined}
         isSaving={isSaving}
@@ -280,7 +285,7 @@ export function HelvetyDocsShell({
         className="sr-only"
         onChange={(e) => void handleFileChange(e)}
       />
-      <div className="flex min-h-0 flex-1">
+      <div className="bg-background flex min-h-0 flex-1">
         <VaultPanel
           initialUser={initialUser}
           activeDocId={vaultDocId}

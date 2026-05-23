@@ -22,6 +22,8 @@ interface DocsCommandBarProps {
   readonly onSaveToVault: () => void;
 }
 
+const commandButtonClassName = "rounded-none";
+
 /** Pinned toolbar for the Docs editor. */
 export function DocsCommandBar({
   hasDocument,
@@ -38,6 +40,7 @@ export function DocsCommandBar({
       <Button
         size="sm"
         variant="outline"
+        className={commandButtonClassName}
         onClick={onNewDocument}
         aria-label="New document"
       >
@@ -47,6 +50,7 @@ export function DocsCommandBar({
       <Button
         size="sm"
         variant="outline"
+        className={commandButtonClassName}
         onClick={onOpenFile}
         aria-label="Open document"
       >
@@ -55,6 +59,7 @@ export function DocsCommandBar({
       </Button>
       <Button
         size="sm"
+        className={commandButtonClassName}
         onClick={onDownload}
         disabled={!hasDocument}
         aria-label="Download document"
@@ -66,6 +71,7 @@ export function DocsCommandBar({
       <Button
         size="sm"
         variant="secondary"
+        className={commandButtonClassName}
         onClick={onSaveToVault}
         disabled={!hasDocument || !canSaveToVault || isSaving}
         aria-label={vaultDocId ? "Update vault document" : "Save to vault"}

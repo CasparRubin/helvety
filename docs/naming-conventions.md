@@ -75,6 +75,8 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 **Sync order when product behavior or claims change:** `store-catalog.ts` → `products.ts` → app metadata / manifests → `llms.txt` → app `README.md` intros → legal pages if claims shift (see `docs/legal-change-guardrails.md`).
 
+**Helvety Docs theme (maintainers):** when changing shared palette tokens, update `packages/ui/globals.css`, then `apps/docs/lib/docx-editor-theme-tokens.ts` and `apps/docs/styles/docx-editor-helvety-bridge.css`, and run `bun test apps/docs/lib/docx-editor-theme.test.ts`. Keep `apps/docs/README.md` and `apps/docs/public/llms.txt` in sync if user-visible theme behavior changes.
+
 ### Retired Power Platform Configurator slugs (redirect-only)
 
 Three legacy browser-extension listings were merged into **Power Platform Configurator** (`helvety-power-platform-configurator`, package id `power-platform-configurator`). Retired store slugs and package ids (`helvety-power-automate-force-v3-false`, `helvety-power-automate-editor-preference`, `helvety-power-automate-editor-version-enforcer`, and matching `power-automate-*` download paths) must **not** appear in customer-facing copy, catalog data, or legal text. They may appear only in:

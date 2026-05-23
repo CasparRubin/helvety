@@ -1,7 +1,6 @@
 "use client";
 
 import { DocxEditor, type DocxEditorRef } from "@eigenpal/docx-editor-react";
-import "@eigenpal/docx-editor-react/styles.css";
 import { cn } from "@helvety/shared/utils";
 import { Loader2 } from "lucide-react";
 import { forwardRef } from "react";
@@ -12,7 +11,10 @@ interface DocxEditorWorkspaceProps {
   readonly className?: string;
 }
 
-/** Client-only docx editor surface (loaded via dynamic import from the page). */
+/**
+ * Client-only docx editor surface (loaded via dynamic import from the page).
+ * Editor chrome theme comes from `styles/docx-editor-helvety-bridge.css` on `.ep-root`.
+ */
 export const DocxEditorWorkspace = forwardRef<
   DocxEditorRef,
   DocxEditorWorkspaceProps
@@ -21,7 +23,7 @@ export const DocxEditorWorkspace = forwardRef<
     return (
       <div
         className={cn(
-          "text-muted-foreground flex flex-1 items-center justify-center gap-2",
+          "docx-editor-workspace bg-background text-muted-foreground flex h-full min-h-0 flex-1 items-center justify-center gap-2",
           className
         )}
       >
@@ -32,9 +34,15 @@ export const DocxEditorWorkspace = forwardRef<
   }
 
   return (
-    <div className={cn("min-h-0 flex-1 overflow-hidden", className)}>
+    <div
+      className={cn(
+        "docx-editor-workspace bg-background flex h-full min-h-0 flex-1 flex-col overflow-hidden",
+        className
+      )}
+    >
       <DocxEditor
         ref={ref}
+        className="h-full min-h-0 flex-1"
         documentBuffer={documentBuffer}
         mode="editing"
         showToolbar

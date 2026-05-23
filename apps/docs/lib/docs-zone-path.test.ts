@@ -18,7 +18,7 @@ describe("buildDocsPublicPath", () => {
     expect(buildDocsPublicPath("/")).toBe("/docs");
   });
 
-  it("preserves query for deep links", () => {
+  it("preserves ?doc= query for vault bookmarks and post-login return", () => {
     expect(buildDocsPublicPath("/", "doc=abc-123")).toBe("/docs?doc=abc-123");
   });
 
