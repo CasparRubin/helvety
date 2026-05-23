@@ -3,7 +3,7 @@
 import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
 import { DOCS_FILE_SIZE_LIMIT_COPY } from "@helvety/shared/product-file-limit-copy";
 import dynamic from "next/dynamic";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -32,9 +32,7 @@ const DocxEditorWorkspace = dynamic(
   }
 );
 
-/**
- *
- */
+/** Read a local `.docx` file into memory for the editor. */
 function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -51,9 +49,7 @@ function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   });
 }
 
-/**
- *
- */
+/** Derive a vault title from an optional local filename. */
 function defaultDocumentTitle(fileName?: string): string {
   if (fileName) {
     return fileName.replace(/\.docx$/i, "") || "Untitled";
@@ -61,9 +57,7 @@ function defaultDocumentTitle(fileName?: string): string {
   return "Untitled";
 }
 
-/**
- *
- */
+/** Props for {@link HelvetyDocsShell}. */
 interface HelvetyDocsShellProps {
   readonly initialUser: User | null;
 }
@@ -73,6 +67,7 @@ export function HelvetyDocsShell({
   initialUser,
 }: HelvetyDocsShellProps): React.JSX.Element {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<DocxEditorRef>(null);
@@ -109,12 +104,37 @@ export function HelvetyDocsShell({
     []
   );
 
+  /** Sync `?doc=` with vault selection; paths are zone-relative (see `lib/docs-zone-path.ts`). */
+  const setDocInUrl = useCallback(
+    (docId: string | null) => {
+      const currentDoc = searchParams.get("doc");
+      if (docId) {
+        if (currentDoc === docId) {
+          return;
+        }
+      } else if (!currentDoc) {
+        return;
+      }
+      const params = new URLSearchParams(searchParams.toString());
+      if (docId) {
+        params.set("doc", docId);
+      } else {
+        params.delete("doc");
+      }
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams]
+  );
+
   const handleNewDocument = useCallback(() => {
     setDocumentBuffer(null);
     setVaultDocId(null);
     setLocalFileName(null);
-    router.replace("/docs");
-  }, [router]);
+    setDocInUrl(null);
+  }, [setDocInUrl]);
 
   const handleOpenFile = useCallback(() => {
     fileInputRef.current?.click();
@@ -135,12 +155,12 @@ export function HelvetyDocsShell({
         setDocumentBuffer(buffer);
         setVaultDocId(null);
         setLocalFileName(file.name);
-        router.replace("/docs");
+        setDocInUrl(null);
       } catch {
         toast.error("Could not open that file.");
       }
     },
-    [router, validateDocxSize]
+    [setDocInUrl, validateDocxSize]
   );
 
   const handleDownload = useCallback(async () => {
@@ -179,7 +199,7 @@ export function HelvetyDocsShell({
         );
         if (id) {
           setVaultDocId(id);
-          router.replace(`/docs?doc=${id}`);
+          setDocInUrl(id);
           toast.success(
             vaultDocId ? "Vault document updated." : "Saved to vault."
           );
@@ -189,7 +209,7 @@ export function HelvetyDocsShell({
         setSaveDialogOpen(false);
       }
     },
-    [router, saveDocument, validateDocxSize, vaultDocId]
+    [saveDocument, setDocInUrl, validateDocxSize, vaultDocId]
   );
 
   const handleSaveToVault = useCallback(() => {
@@ -216,9 +236,9 @@ export function HelvetyDocsShell({
       setDocumentBuffer(doc.docxBytes);
       setVaultDocId(doc.id);
       setLocalFileName(`${doc.title}.docx`);
-      router.replace(`/docs?doc=${id}`);
+      setDocInUrl(id);
     },
-    [loadDocument, router, validateDocxSize]
+    [loadDocument, setDocInUrl, validateDocxSize]
   );
 
   const handleDeleteVaultDocument = useCallback(

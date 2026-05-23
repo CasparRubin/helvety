@@ -4,6 +4,7 @@
 
 ## Canonical URL
 - [Helvety Docs](https://helvety.com/docs): Browser-based Word (.docx) editor
+- Signed-in vault documents may use `?doc=<uuid>` on that URL (requires sign-in and vault unlock)
 
 ## Crawling And Indexing
 - The main editor route is intended to be indexable.

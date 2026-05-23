@@ -9,12 +9,12 @@ import { Loader2, LogIn, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { buildDocsPublicPath } from "@/lib/docs-zone-path";
+
 import type { DocListItem } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
 
-/**
- *
- */
+/** Props for {@link VaultPanel}. */
 interface VaultPanelProps {
   readonly initialUser: User | null;
   readonly activeDocId: string | null;
@@ -25,9 +25,7 @@ interface VaultPanelProps {
   readonly onDeleteDocument: (id: string) => void;
 }
 
-/**
- *
- */
+/** Encrypted document list inside the vault sidebar. */
 function VaultDocumentList({
   documents,
   activeDocId,
@@ -104,9 +102,10 @@ export function VaultPanel({
 }: VaultPanelProps): React.JSX.Element {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const query = searchParams.toString();
-  const returnPath = query ? `${pathname}?${query}` : pathname;
-  const loginHref = getLoginUrl(returnPath || "/docs");
+  // Gateway-visible /docs… so post-login redirect returns here (not site home).
+  const loginHref = getLoginUrl(
+    buildDocsPublicPath(pathname, searchParams.toString())
+  );
 
   return (
     <aside className="border-border bg-card flex w-72 shrink-0 flex-col border-r">

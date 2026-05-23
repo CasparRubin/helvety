@@ -10,9 +10,7 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-/**
- *
- */
+/** Props for {@link DocsCommandBar}. */
 interface DocsCommandBarProps {
   readonly hasDocument: boolean;
   readonly isSaving: boolean;

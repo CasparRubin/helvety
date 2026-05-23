@@ -13,9 +13,7 @@ import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { useEffect, useState } from "react";
 
-/**
- *
- */
+/** Props for {@link SaveVaultDialog}. */
 interface SaveVaultDialogProps {
   readonly open: boolean;
   readonly defaultTitle: string;

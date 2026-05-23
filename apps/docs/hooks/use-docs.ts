@@ -18,20 +18,13 @@ import {
   encryptDocUpdate,
   useEncryptionContext,
 } from "@/lib/crypto";
+import { getDocsApiPath } from "@/lib/docs-zone-path";
 
 import type { Doc, DocInput, DocListItem, DocRow } from "@/lib/types";
 
-const DOCS_BASE_PATH = "/docs";
 const E2EE_SOURCE = "docs-use-docs";
 
-/** Prefix API paths with the docs zone basePath. */
-function getDocsApiPath(path: string): string {
-  return `${DOCS_BASE_PATH}${path}`;
-}
-
-/**
- *
- */
+/** Return type for {@link useDocs}. */
 interface UseDocsReturn {
   documents: DocListItem[];
   isLoading: boolean;

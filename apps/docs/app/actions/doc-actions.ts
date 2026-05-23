@@ -18,7 +18,7 @@ import type { ActionResponse } from "@/lib/types";
 
 const DOCS_TABLE = "docs" as const;
 
-/** Revalidate docs app routes after vault mutations. */
+/** Revalidate the docs zone after vault mutations (`/docs` includes Next `basePath`). */
 function revalidateDocsRoutes(): void {
   revalidatePath("/docs");
 }

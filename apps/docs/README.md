@@ -13,6 +13,20 @@ Browser-based `.docx` editor with optional encrypted vault save.
 - `@eigenpal/docx-editor-react` loads via `dynamic(..., { ssr: false })` per vendor Next.js guidance.
 - **Local editing:** open, create, upload, and download `.docx` files without signing in; bytes stay in the browser for editing.
 - **Vault save (optional):** when signed in and vault-unlocked, encrypted display title + encrypted `.docx` bytes in Postgres (`docs` table). `EncryptionGateApp` is scoped to the vault sidebar only, not the whole app.
+- **Vault deep links:** `https://helvety.com/docs?doc=<uuid>` opens a saved document when you are signed in and the vault is unlocked.
+
+## Routing (`basePath: /docs`)
+
+This app uses Next.js `basePath: /docs`. Path rules differ by API:
+
+| Use case                                       | Path shape                          | Helper                                                                   |
+| ---------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| `router.replace`, `<Link href>` inside the app | Zone-relative (`/`, `/?doc=<uuid>`) | `usePathname()` + query (see `helvety-docs-shell.tsx`)                   |
+| Browser `fetch` to vault APIs                  | Gateway-visible `/docs/api/...`     | `getDocsApiPath()` in [`lib/docs-zone-path.ts`](./lib/docs-zone-path.ts) |
+| Auth sign-in return (`getLoginUrl`)            | Gateway-visible `/docs…`            | `buildDocsPublicPath()` in the same module                               |
+| `revalidatePath` after server actions          | `/docs` (includes basePath)         | `revalidateDocsRoutes()` in `doc-actions.ts`                             |
+
+Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `basePath` again and the browser lands on `/docs/docs` (404). CI guards this in [`lib/docs-zone-routing.test.ts`](./lib/docs-zone-routing.test.ts).
 
 ## Limits
 

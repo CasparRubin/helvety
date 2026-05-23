@@ -19,6 +19,11 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/before storage/i);
   });
 
+  it("mentions vault deep links on the canonical URL", () => {
+    expect(source).toMatch(/\?doc=/);
+    expect(source).toMatch(/vault unlock/i);
+  });
+
   it("links to canonical routes and related Helvety apps", () => {
     expect(source).toContain("https://helvety.com/docs");
     expect(source).toContain("https://helvety.com/store/products/helvety-docs");
