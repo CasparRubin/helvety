@@ -39,7 +39,7 @@
 ## Multi-zone static assets (`assetPrefix`)
 
 - **Use `assetPrefix` + gateway `*-static` rewrites** when a zone ships a large client bundle under a dedicated path prefix (auth, tasks, contacts, notes, links). The web gateway forwards `/auth-static`, `/tasks-static`, etc. to each deployment.
-- **Omit `assetPrefix`** for lighter zones (store, pdf, image-upscaler) that rely on default `/_next/static` under their `basePath`. Add `assetPrefix` only after measuring broken static assets or cache issues in production—not preemptively.
+- **Omit `assetPrefix`** for lighter zones (store, pdf, docs, image-upscaler) that rely on default `/_next/static` under their `basePath`. Add `assetPrefix` only after measuring broken static assets or cache issues in production—not preemptively.
 
 ## Completed modernization (2026-05)
 

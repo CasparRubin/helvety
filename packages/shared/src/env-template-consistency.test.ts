@@ -51,9 +51,7 @@ describe("env.template consistency", () => {
       const gatewayCount = WEB_GATEWAY_KEYS.filter((key) =>
         keys.includes(key)
       ).length;
-      expect(gatewayCount).toBe(
-        app === "web" ? WEB_GATEWAY_KEYS.length : 0
-      );
+      expect(gatewayCount).toBe(app === "web" ? WEB_GATEWAY_KEYS.length : 0);
     }
   });
 

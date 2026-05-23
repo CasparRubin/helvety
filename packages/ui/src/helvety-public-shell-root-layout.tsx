@@ -151,7 +151,7 @@ function buildMainBlock(
 
 /**
  * Shared root shell for **public** Helvety apps (`web`, `auth`, `store`, `pdf`,
- * `image-upscaler`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} in
+ * `docs`, `image-upscaler`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} in
  * `<head>` (all {@link HelvetyPublicShellThemeProviderScope} values, including Store),
  * theme via `ThemeProvider` (see {@link HelvetyPublicShellThemeProviderScope}), auth token
  * handler, session recovery, `TooltipProvider`, optional

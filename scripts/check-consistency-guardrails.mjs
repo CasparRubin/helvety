@@ -476,6 +476,35 @@ async function main() {
     }
   }
 
+  const publicShellLayoutPath = resolve(
+    rootDir,
+    "packages/ui/src/helvety-public-shell-root-layout.tsx"
+  );
+  const publicShellLayout = await readFile(publicShellLayoutPath, "utf8");
+  const publicShellDoc = publicShellLayout.match(
+    /\/\*\*[\s\S]*?Shared root shell[\s\S]*?\*\//
+  )?.[0];
+  if (!publicShellDoc?.includes("`docs`")) {
+    throw new Error(
+      `${publicShellLayoutPath} JSDoc must list \`docs\` among public Helvety apps (see packages/ui/README.md).`
+    );
+  }
+
+  const qualityBaselinePath = resolve(
+    rootDir,
+    "docs/quality-modernization-baseline.md"
+  );
+  const qualityBaseline = await readFile(qualityBaselinePath, "utf8");
+  if (
+    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, docs, image-upscaler\b/.test(
+      qualityBaseline
+    )
+  ) {
+    throw new Error(
+      `${qualityBaselinePath} must list docs among zones that omit assetPrefix by default.`
+    );
+  }
+
   console.log("Consistency guardrail checks passed.");
 }
 

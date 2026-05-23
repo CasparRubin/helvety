@@ -251,7 +251,10 @@ describe("web gateway rewrites", () => {
     vi.stubEnv("LINKS_URL", "https://helvety-links.vercel.app");
     vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
     vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
-    vi.stubEnv("IMAGE_UPSCALER_URL", "https://helvety-image-upscaler.vercel.app");
+    vi.stubEnv(
+      "IMAGE_UPSCALER_URL",
+      "https://helvety-image-upscaler.vercel.app"
+    );
     vi.stubEnv("DOCS_URL", "");
 
     await expect(nextConfig.rewrites?.()).rejects.toThrow(

@@ -60,9 +60,7 @@ async function main() {
 
     const rootLine = `# Vercel Root Directory: ${expectation.rootDirectory}`;
     if (!envTemplate.includes(rootLine)) {
-      errors.push(
-        `${envTemplatePath} must document:\n  ${rootLine}`
-      );
+      errors.push(`${envTemplatePath} must document:\n  ${rootLine}`);
     }
 
     for (const forbidden of expectation.forbiddenRootDirectories ?? []) {
