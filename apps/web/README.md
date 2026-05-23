@@ -13,7 +13,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 - Vercel Analytics script forwarding for sub-app routes (requires Web Analytics enabled on each zone’s Vercel project, including `docs`)
 - Shared navigation across helvety.com web zones via `@helvety/ui/helvety-shell-navbar` (`app/layout.tsx` seeds `initialUser` through `bootstrapPublicLayoutUser()` so the bar does not flash loading when a session exists). The shell’s **AppSwitcher** uses absolute `urls.*` hrefs so it works from every zone’s Next **`basePath`**; marketing components on `/` may still use **`getLocalAppHref`** for path-shaped same-origin links (see [`packages/shared/README.md`](../../packages/shared/README.md) and [`packages/ui/README.md`](../../packages/ui/README.md)).
 - `@helvety/shared/seo` (`createHelvetyProductMetadata`) plus `WEB_SITE_DESCRIPTION` / `HELVETY_WEB_DEFAULT_TITLE` from `@helvety/shared` for gateway metadata, Open Graph, Twitter, and JSON-LD (company positioning: private · simple · clean; Swiss origin; no license terms in SEO)
-- Public legal pages, cookie notice, and abuse-reporting entry points
+- Public legal pages, cookie notice (shared footer; see Privacy for analytics and other storage), and abuse-reporting entry points
 - Canonical metadata and sitemap/robots endpoints for indexable content
 
 ## Routing and SEO

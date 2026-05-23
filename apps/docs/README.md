@@ -31,6 +31,7 @@ Browser-based `.docx` editor with optional encrypted vault save.
 - Vault fields use client-side encryption with the same passkey-derived master key pattern as Tasks, Contacts, Notes, and Links; this is **not** a full-app E2EE product (local mode works without login).
 - `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
 - Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary.
+- Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Third-Party
 

@@ -18,7 +18,9 @@ const LINKS = [
 ] as const;
 
 /**
- * Site footer: contact email, legal links, and cookie info.
+ * Site footer: contact email, legal links, and a short cookie/storage notice.
+ * Essential and auth cookies are summarized inline; analytics and other storage
+ * are disclosed on the Privacy Policy (linked from the notice and nav).
  *
  * @param external - When true, legal links point to absolute URLs (urls.home)
  *   with target="_blank" (for apps served on sub-paths). When false, links are
@@ -79,8 +81,9 @@ export function Footer({
             &copy; {currentYear}
             {COPYRIGHT_GLUE}
             Helvety &middot; This site uses essential cookies and similar
-            storage technologies for security and core functionality;
-            account-based services also use authentication cookies.
+            storage for security and core functionality; signed-in services also
+            use authentication cookies. See {link("/privacy", "Privacy")} for
+            analytics and other storage details.
           </p>
           <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">
             <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>

@@ -30,10 +30,11 @@ Primary login flow:
 
 Trusted-device shortcut:
 
-- After a successful OTP verification, the auth service stores a **signed HttpOnly device-trust cookie**.
+- After a successful OTP verification, the auth service stores a **signed HttpOnly `helvety_device_trust` cookie** (see [`device-trust-cookie.ts`](./app/actions/device-trust-cookie.ts)).
 - On that same device, subsequent sign-ins may start at passkey sign-in (no email entry) as long as the device-trust cookie is still valid.
 - The trust window is **30 days** and renews (sliding window) on successful passkey sign-in.
 - Manual logout clears the trust cookie for this device.
+- User-facing disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies) (cookie table). Developer reference: [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md).
 
 `/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
 

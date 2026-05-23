@@ -11,6 +11,7 @@ const PUBLIC_SHELL_APPS = [
   "auth",
   "store",
   "pdf",
+  "docs",
   "image-upscaler",
 ] as const;
 
@@ -24,6 +25,13 @@ function readAppFile(app: string, relativePath: string): string {
 }
 
 describe("Helvety layout analytics wiring", () => {
+  it("covers all ten Helvety web zones that mount shared analytics", () => {
+    expect(ALL_SHELL_APPS).toHaveLength(10);
+    expect([...PUBLIC_SHELL_APPS, ...E2EE_SHELL_APPS]).toEqual([
+      ...ALL_SHELL_APPS,
+    ]);
+  });
+
   it.each(PUBLIC_SHELL_APPS)(
     "apps/%s uses HelvetyPublicShellRootLayout",
     (app) => {

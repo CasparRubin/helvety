@@ -16,7 +16,7 @@ the following:
 - server-side processing of files or content that previously stayed local-only
   (for example Image Upscaler or PDF payload handling)
 - AI training, fine-tuning, or dataset retention using user-provided content
-- material changes to telemetry, tracking, or profiling scope
+- material changes to telemetry, tracking, or profiling scope (including Vercel Analytics zone coverage, new cookies/localStorage keys, or shared footer disclosure text)
 - changes to account/login requirements for public tools
 - active EU/EEA market targeting, localized campaigns, or equivalent
   jurisdiction-focused expansion
@@ -34,6 +34,7 @@ At minimum, review and update all of:
   `apps/*/lib/product-copy.ts`, `apps/*/public/manifest.json` install
   descriptions, `apps/*/public/llms.txt` summaries, app `README.md`, navbar/about
   text; see `docs/naming-conventions.md` › Customer-facing product copy)
+- [`docs/cookies-telemetry-and-footer.md`](./cookies-telemetry-and-footer.md) when cookie, storage, analytics, or footer behavior changes
 
 ## Verification checklist
 
@@ -46,4 +47,5 @@ At minimum, review and update all of:
 - claims about no training/no retention are technically true
 - login/account requirement claims match actual access flow
 - telemetry/security endpoint descriptions match actual payload types
+- Privacy §9 lists all ten web zones that mount `HelvetyVercelAnalytics`; footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure` / `legal-metadata`)
 - CH-first/non-EU-targeting language is consistent wherever referenced

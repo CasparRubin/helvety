@@ -99,6 +99,7 @@ Optional CI/monorepo variables are documented as comments in [`env.template`](./
 - `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, Supabase session refresh via `store-gateway`), not full auth enforcement. `createAppProxy` also refreshes sessions on direct root hits (`/` → `/store`) when auth cookies are present. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Account actions enforce authz in pages/server actions/route handlers.
 - Public download endpoints use explicit abuse protections and rate limiting.
+- Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Development and Testing
 

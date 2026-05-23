@@ -49,7 +49,8 @@ export type E2eeAppRootLayoutProps = Readonly<{
  * Shared root shell for Contacts, Notes, Tasks, and Links: nonce, per-request CSRF +
  * user bootstrap via `bootstrapE2eeLayoutSession()`, JSON-LD, blocking
  * {@link HelvetyThemeInitScript} in `<head>`, `ThemeProvider`, tooltip shell,
- * app `encryptionProvider`, `EncryptionGateApp` when authenticated, and optional
+ * app `encryptionProvider`, `EncryptionGateApp` when authenticated, shared
+ * {@link Footer} (cookie notice with Privacy link), and optional
  * `HelvetyVercelAnalytics` (`NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` to skip).
  *
  * Main does not scroll at the layout level; list/editor pages pin the command bar

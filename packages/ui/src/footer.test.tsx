@@ -16,9 +16,36 @@ describe("Footer", () => {
     render(<Footer />);
 
     const copyrightLine = screen.getByText(
-      /This site uses essential cookies and similar storage technologies/
+      /This site uses essential cookies and similar storage for security/
     );
     expect(copyrightLine.textContent).toContain("© 2026\u00A0Helvety");
+    expect(copyrightLine.textContent).toContain(
+      "analytics and other storage details"
+    );
+    expect(copyrightLine.textContent).not.toContain("account-based services");
+    expect(copyrightLine.textContent).not.toContain(
+      "similar storage technologies for security"
+    );
+  });
+
+  it("links Privacy from the cookie notice", () => {
+    render(<Footer external={false} />);
+
+    const copyrightLine = screen.getByText(/signed-in services also use/);
+    const privacyInNotice = copyrightLine.querySelector('a[href="/privacy"]');
+    expect(privacyInNotice).toHaveTextContent("Privacy");
+  });
+
+  it("uses absolute Privacy link in cookie notice for embedded apps", () => {
+    render(<Footer />);
+
+    const copyrightLine = screen.getByText(/signed-in services also use/);
+    const privacyInNotice = copyrightLine.querySelector(
+      `a[href="${urls.home}/privacy"]`
+    );
+    expect(privacyInNotice).toHaveTextContent("Privacy");
+    expect(privacyInNotice).toHaveAttribute("target", "_blank");
+    expect(privacyInNotice).toHaveAttribute("rel", "noopener noreferrer");
   });
 
   it("renders absolute legal links by default for embedded apps", () => {
@@ -38,8 +65,11 @@ describe("Footer", () => {
   it("supports relative legal links when external is false", () => {
     render(<Footer external={false} />);
 
-    const privacyLink = screen.getByRole("link", { name: "Privacy" });
-    expect(privacyLink).toHaveAttribute("href", "/privacy");
-    expect(privacyLink).not.toHaveAttribute("target");
+    const privacyLinks = screen.getAllByRole("link", { name: "Privacy" });
+    expect(privacyLinks.length).toBeGreaterThanOrEqual(2);
+    for (const privacyLink of privacyLinks) {
+      expect(privacyLink).toHaveAttribute("href", "/privacy");
+      expect(privacyLink).not.toHaveAttribute("target");
+    }
   });
 });

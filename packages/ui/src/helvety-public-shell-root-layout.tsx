@@ -156,7 +156,8 @@ function buildMainBlock(
  * theme via `ThemeProvider` (see {@link HelvetyPublicShellThemeProviderScope}), auth token
  * handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF and encryption; Store: `CSRFProvider`),
- * navbar + main + footer, toaster, and optional `HelvetyVercelAnalytics` (Speed Insights on the gateway).
+ * navbar + main + {@link Footer} (cookie notice; Privacy link for analytics/storage),
+ * toaster, and optional `HelvetyVercelAnalytics` (Speed Insights on the gateway).
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
  * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`

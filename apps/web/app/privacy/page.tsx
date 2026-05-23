@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="May 16, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="May 23, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -505,7 +505,8 @@ export default function PrivacyPage() {
             application functionality: record identifiers, timestamps, priority
             levels, display preferences (sort orders), and entity relationships
             (e.g., stage and label references). Business/account quotas are not
-            applied.
+            applied. Essential cookies, storage, and privacy-focused analytics
+            are described in Section 9 (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -529,7 +530,8 @@ export default function PrivacyPage() {
             additional non-encrypted relationship metadata (link identifiers,
             linked entity identifiers/types, and timestamps) is stored to enable
             the cross-app linking feature. Business/account quotas are not
-            applied.
+            applied. Essential cookies, storage, and privacy-focused analytics
+            are described in Section 9 (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -551,7 +553,8 @@ export default function PrivacyPage() {
             contacts, additional non-encrypted relationship metadata (link
             identifiers, linked entity identifiers/types, and timestamps) is
             stored to enable cross-app linking. Business/account quotas are not
-            applied.
+            applied. Essential cookies, storage, and privacy-focused analytics
+            are described in Section 9 (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -563,7 +566,9 @@ export default function PrivacyPage() {
             relationships, sort order, and timestamps. Deleting a folder removes
             its subfolders and links. Per-account technical limits on folder and
             link counts (currently 2,000 each) apply for platform reliability.
-            Business/account quotas are not applied.
+            Business/account quotas are not applied. Essential cookies, storage,
+            and privacy-focused analytics are described in Section 9 (Cookies
+            and Tracking).
           </li>
         </ul>
         <p className="text-muted-foreground mt-4 text-sm">
@@ -1055,8 +1060,8 @@ export default function PrivacyPage() {
             protect against security threats.
           </li>
           <li>
-            <strong className="text-foreground">Preference cookies:</strong> To
-            remember your settings (e.g., theme preference).
+            <strong className="text-foreground">Preference storage:</strong> To
+            remember your settings (e.g., theme preference in localStorage).
           </li>
         </ul>
         <div className="legal-table-wrap mb-4 overflow-x-auto">
@@ -1106,14 +1111,45 @@ export default function PrivacyPage() {
                 <td className="border-border border-b p-3">
                   Passkey authentication challenge (signed, httpOnly)
                 </td>
-                <td className="border-border border-b p-3">
-                  helvety.com and/or configured subdomain scope (path: /)
-                </td>
+                <td className="border-border border-b p-3">.helvety.com</td>
                 <td className="border-border border-b p-3">3 minutes</td>
               </tr>
               <tr>
-                <td className="p-3">Theme preference (localStorage)</td>
-                <td className="p-3">Remember dark/light mode setting</td>
+                <td className="border-border border-b p-3">
+                  helvety_device_trust
+                </td>
+                <td className="border-border border-b p-3">
+                  Trusted-device marker for passkey-first sign-in (signed,
+                  httpOnly)
+                </td>
+                <td className="border-border border-b p-3">.helvety.com</td>
+                <td className="border-border border-b p-3">30 days</td>
+              </tr>
+              <tr>
+                <td className="border-border border-b p-3">
+                  Theme preference (localStorage)
+                </td>
+                <td className="border-border border-b p-3">
+                  Remember dark/light mode setting
+                </td>
+                <td className="border-border border-b p-3">helvety.com</td>
+                <td className="border-border border-b p-3">Persistent</td>
+              </tr>
+              <tr>
+                <td className="border-border border-b p-3">
+                  helvety-prf-salt (localStorage)
+                </td>
+                <td className="border-border border-b p-3">
+                  Cache PRF salt for passkey login unlock (auth flows)
+                </td>
+                <td className="border-border border-b p-3">helvety.com</td>
+                <td className="border-border border-b p-3">Persistent</td>
+              </tr>
+              <tr>
+                <td className="p-3">helvety-pdf-columns (localStorage)</td>
+                <td className="p-3">
+                  Remember PDF viewer column layout (Helvety PDF)
+                </td>
                 <td className="p-3">helvety.com</td>
                 <td className="p-3">Persistent</td>
               </tr>
@@ -1151,11 +1187,12 @@ export default function PrivacyPage() {
           .
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          We currently use Vercel Analytics on selected Helvety web surfaces
-          (including helvety.com, Helvety Auth, Helvety Store, Helvety PDF,
-          Helvety Docs, and Helvety Image Upscaler). Vercel Speed Insights is
-          currently enabled on helvety.com. We do not intentionally operate
-          advertising trackers or cross-site profiling technologies.
+          We currently use Vercel Analytics on all Helvety web zones served at
+          helvety.com, including the main website, Helvety Auth, Helvety Store,
+          Helvety PDF, Helvety Docs, Helvety Image Upscaler, Helvety Tasks,
+          Helvety Contacts, Helvety Notes, and Helvety Links. Vercel Speed
+          Insights is currently enabled on helvety.com. We do not intentionally
+          operate advertising trackers or cross-site profiling technologies.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are
