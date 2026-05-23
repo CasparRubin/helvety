@@ -17,6 +17,7 @@
         "LINKS_URL",
         "STORE_URL",
         "PDF_URL",
+        "DOCS_URL",
         "IMAGE_UPSCALER_URL",
         "HELVETY_SERVER_ACTION_ALLOWED_ORIGINS",
         "UPSTASH_REDIS_REST_URL",
