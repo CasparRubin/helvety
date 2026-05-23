@@ -52,21 +52,9 @@ This app uses the **full stack** tier (same as Store): Supabase publishable + se
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash REST token                                                                               |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 
-## Vercel deployment (`helvety-docs`)
+## Vercel deployment
 
-This app is a **separate Vercel project** from the gateway (`helvety-web`). In the project settings:
-
-| Setting | Value |
-| ------- | ----- |
-| **Root Directory** | `apps/docs` (not `docs` — that folder is repo documentation only) |
-| **Framework Preset** | Next.js |
-| **Install Command** | (default, or `cd ../.. && bun install` via [`vercel.json`](./vercel.json)) |
-| **Build Command** | (default `bun run build` / `next build` — do **not** use repo-root `turbo run build` alone) |
-| **Output Directory** | (leave empty — Next.js preset uses `.next`) |
-
-If the build log shows `Running build in 0 packages` and `No Output Directory named "public"`, the Root Directory is still the repo root. Set it to `apps/docs` and redeploy.
-
-Enable **Web Analytics** on this project (see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md)). Set production env vars from [`env.template`](./env.template). The gateway (`apps/web`) needs `DOCS_URL` pointing at this deployment when `VERCEL=1`.
+Separate project **`helvety-docs`** with Root Directory **`apps/docs`** (same pattern as PDF, Tasks, etc.). See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md). Production env from [`env.template`](./env.template); gateway needs `DOCS_URL` when `VERCEL=1`.
 
 ## Database
 
