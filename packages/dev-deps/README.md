@@ -11,7 +11,7 @@ Add to any app or package:
 }
 ```
 
-Canonical versions live here and are enforced by [`scripts/check-workspace-version-drift.mjs`](../../scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`). Do not duplicate these packages in individual workspace `package.json` files. Runtime dependency versions (for example `next`, `react`, `@supabase/supabase-js`) stay in each app or library manifest and are checked by the same drift script.
+Canonical versions live here and are enforced by [`scripts/check-workspace-version-drift.mjs`](../../scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`, included in root `bun run ci:check`). Do not duplicate these packages in individual workspace `package.json` files. Runtime dependency versions (for example `next`, `react`, `@supabase/supabase-js`) stay in each app or library manifest and are checked by the same drift script.
 
 Keep app-specific devDependencies (for example `@types/three` on web, `@types/chrome` on extension-chrome) in the workspace that needs them.
 

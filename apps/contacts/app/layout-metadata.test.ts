@@ -11,15 +11,6 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
-vi.mock("@helvety/shared/cached-server", () => ({
-  getCachedCSRFToken: vi.fn().mockResolvedValue(""),
-  getCachedUser: vi.fn().mockResolvedValue(null),
-}));
-
-vi.mock("@helvety/shared/logger", () => ({
-  logger: { logUnexpectedError: vi.fn() },
-}));
-
 import { CONTACTS_APP_DESCRIPTION, metadata } from "./layout";
 
 describe("contacts root layout metadata", () => {

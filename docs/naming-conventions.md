@@ -6,7 +6,7 @@ This document is the source of truth for how we name and format code across `app
 
 - **Next.js App Router structure**: [Project structure and file conventions](https://github.com/vercel/next.js/blob/v16.2.6/docs/01-app/01-getting-started/02-project-structure.mdx) - special filenames (`page.tsx`, `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, …), route groups `(segment)`, private folders `_segment`, colocation. The `blob/v…/docs/` path must match the caret minimum in `apps/web` `dependencies.next` (enforced by `bun run consistency:toolchain-docs`).
 - **TypeScript identifiers**: [typescript-eslint naming-convention](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/naming-convention.mdx).
-- **Tests**: [Vitest - Writing tests](https://vitest.dev/guide/learn/writing-tests) (official docs; default `*.test.*` / `*.spec.*` patterns); use `*.test.ts` / `*.test.tsx` in this repo. The monorepo pins **Vitest 4.x** (see workspace `package.json` files). Shared Vitest and related devDependency specifiers stay identical across workspaces via `scripts/check-workspace-version-drift.mjs` (`bun run deps:drift`) plus `bun run test:hygiene`.
+- **Tests**: [Vitest - Writing tests](https://vitest.dev/guide/learn/writing-tests) (official docs; default `*.test.*` / `*.spec.*` patterns); use `*.test.ts` / `*.test.tsx` in this repo. The monorepo pins **Vitest 4.x** (see workspace `package.json` files). Shared Vitest and related devDependency specifiers stay identical across workspaces via `scripts/check-workspace-version-drift.mjs` (`bun run deps:drift`, in `ci:check`) plus `bun run test:hygiene` (required `proxy.test.ts` per zone). Public-zone `seo-routes.test.ts` files should use `expectPublicCrawlerRobots` from `@helvety/shared/test-utils/seo-route-test-helpers`.
 
 ## Formatting
 
@@ -15,7 +15,7 @@ This document is the source of truth for how we name and format code across `app
 
 ## File and directory names
 
-- **Source modules**: `kebab-case` (`batch-actions.ts`, `helvety-shell-navbar.tsx`, `use-contacts.ts`).
+- **Source modules**: `kebab-case` (`batch-actions.ts`, `helvety-shell-navbar.tsx`, `use-contacts.ts`). Enforced under `apps/*/app`, `apps/*/lib`, `apps/*/components`, `apps/*/hooks`, and `packages/*/src` by `bun run consistency:filenames` (Next.js reserved names exempt).
 - **Next.js reserved names**: exact names required by the framework (`page.tsx`, `layout.tsx`, `route.ts`, `template.tsx`, `default.tsx`, `opengraph-image.tsx`, …).
 - **Server actions**: prefer dedicated files under `app/actions/` named `*-actions.ts` with `"use server"` at the top; colocated actions next to a route use the same `*-actions.ts` pattern (e.g. `logout-actions.ts` beside `logout/page.tsx`).
 - **Tests**: prefer `**/*.test.ts`, `**/*.test.tsx`.
@@ -126,3 +126,4 @@ Three legacy browser-extension listings were merged into **Power Platform Config
 ## See also
 
 - Root monorepo overview and CI: [`README.md`](../README.md)
+- Per-app zone checklist: [`app-consistency-checklist.md`](./app-consistency-checklist.md)

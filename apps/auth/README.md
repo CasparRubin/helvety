@@ -7,7 +7,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (blocking `HelvetyThemeInitScript` in `<head>`; `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`), loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (same data as `bootstrapE2eeLayoutSession()`), and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`; `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`). The layout loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (equivalent data to `bootstrapE2eeLayoutSession()`, but fetched inline here) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Metadata / OG / JSON-LD use `AUTH_DESCRIPTION` in [`app/layout.tsx`](./app/layout.tsx); PWA [`public/manifest.json`](./public/manifest.json) matches the shorter `AUTH_PWA_MANIFEST_DESCRIPTION`. Root `bun run consistency:install-manifest-metadata` fails if those diverge.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
@@ -98,7 +98,7 @@ Notable tests include layout shell providers without WebGL backdrop (`app/layout
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
 Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts` and `lib/extension-passkey-challenge.test.ts`.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
-`components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots.
+`components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots (mocks `@helvety/shared/cached-server` because this layout reads CSRF/user inline).
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

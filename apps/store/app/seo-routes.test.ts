@@ -1,4 +1,5 @@
 import { urls } from "@helvety/shared/config";
+import { expectPublicCrawlerRobots } from "@helvety/shared/test-utils/seo-route-test-helpers";
 import { describe, expect, it } from "vitest";
 
 import { getAllProducts } from "@/lib/data/products";
@@ -8,24 +9,11 @@ import sitemap from "./sitemap";
 
 describe("store SEO routes", () => {
   it("returns public robots output without self-blocking entries", () => {
-    const robotsOutput = robots();
-    const rules = Array.isArray(robotsOutput.rules)
-      ? robotsOutput.rules[0]
-      : robotsOutput.rules;
-    const disallow = rules?.disallow;
-    const disallowPaths = Array.isArray(disallow)
-      ? disallow
-      : disallow
-        ? [disallow]
-        : [];
-
-    expect(rules?.allow).toBe("/");
-    expect(disallowPaths).toEqual(
-      expect.arrayContaining(["/account", "/api", "/auth"])
-    );
-    expect(disallowPaths).not.toContain("/store");
-    expect(disallowPaths).not.toContain("/store/sitemap.xml");
-    expect(robotsOutput.sitemap).toBe(`${urls.home}/store/sitemap.xml`);
+    expectPublicCrawlerRobots(robots(), {
+      disallowPaths: ["/account", "/api", "/auth"],
+      mustNotDisallow: ["/store", "/store/sitemap.xml"],
+      sitemap: `${urls.home}/store/sitemap.xml`,
+    });
   });
 
   it("returns public sitemap entries including all product URLs", () => {

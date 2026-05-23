@@ -7,7 +7,7 @@ End-to-end encrypted bookmarks with nested folders.
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/e2ee-app-root-layout` (blocking `HelvetyThemeInitScript` in `<head>`; `bootstrapE2eeLayoutSession` for CSRF/user, encryption gate, JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. The dashboard pins [`LinksCommandBar`](components/links-command-bar.tsx) (wraps `@helvety/ui/entity-command-bar` for New link / New folder) via `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
+- Root `app/layout.tsx` composes `@helvety/ui/e2ee-app-root-layout` (that shell injects `HelvetyThemeInitScript` in `<head>`, calls `bootstrapE2eeLayoutSession()`, mounts the encryption gate, and emits JSON-LD) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `renderNavbar` receives the server user snapshot; product routes are not indexable. The dashboard pins [`LinksCommandBar`](components/links-command-bar.tsx) (wraps `@helvety/ui/entity-command-bar` for New link / New folder) via `@helvety/ui/command-bar-page-layout` (body scrolls in shadcn `ScrollArea`).
 - Client-side encryption for folder names and link names/URLs
 - Virtual **All** folder as the only top-level tree row (cannot be deleted or renamed); user folders and unfiled links live inside All (`parent_folder_id` / `folder_id` `null` in the database)
 - Finder-style nested folder tree on one page (expand/collapse state is client-side; tree rows are not routed by URL)

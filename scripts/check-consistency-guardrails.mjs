@@ -490,6 +490,101 @@ async function main() {
     );
   }
 
+  const proxyMatcherComment =
+    "Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy`";
+  for (const entry of appDirectories.filter((item) => item.isDirectory())) {
+    const proxyPath = resolve(rootDir, "apps", entry.name, "proxy.ts");
+    const proxySource = await readFile(proxyPath, "utf8");
+    if (
+      proxySource.includes("createAppProxy") &&
+      proxySource.includes("export const config") &&
+      !proxySource.includes(proxyMatcherComment)
+    ) {
+      throw new Error(
+        `apps/${entry.name}/proxy.ts must document SECURITY_PROXY_MATCHER parity above config.matcher (see apps/pdf/proxy.ts).`
+      );
+    }
+
+    const layoutShellTestPath = resolve(
+      rootDir,
+      "apps",
+      entry.name,
+      "app/layout-shell-providers.test.ts"
+    );
+    const layoutShellTest = await readFile(layoutShellTestPath, "utf8");
+    for (const forbidden of [
+      "@helvety/light-pillar",
+      "HelvetyShellWithLightPillarBackdrop",
+    ]) {
+      if (!layoutShellTest.includes(forbidden)) {
+        throw new Error(
+          `apps/${entry.name}/app/layout-shell-providers.test.ts must assert layouts do not use ${forbidden}.`
+        );
+      }
+    }
+  }
+
+  const e2eeApps = ["contacts", "tasks", "notes", "links"];
+  for (const appName of e2eeApps) {
+    const layoutShellTestPath = resolve(
+      rootDir,
+      "apps",
+      appName,
+      "app/layout-shell-providers.test.ts"
+    );
+    const layoutShellTest = await readFile(layoutShellTestPath, "utf8");
+    if (!layoutShellTest.includes("E2eeAppRootLayout")) {
+      throw new Error(
+        `apps/${appName}/app/layout-shell-providers.test.ts must assert E2eeAppRootLayout usage.`
+      );
+    }
+    if (!layoutShellTest.includes("encryptionProvider={EncryptionProvider}")) {
+      throw new Error(
+        `apps/${appName}/app/layout-shell-providers.test.ts must assert encryptionProvider={EncryptionProvider}.`
+      );
+    }
+  }
+
+  const publicToolApps = ["pdf", "image-upscaler"];
+  for (const appName of publicToolApps) {
+    const layoutShellTestPath = resolve(
+      rootDir,
+      "apps",
+      appName,
+      "app/layout-shell-providers.test.ts"
+    );
+    const layoutShellTest = await readFile(layoutShellTestPath, "utf8");
+    if (!layoutShellTest.includes("HelvetyPublicShellRootLayout")) {
+      throw new Error(
+        `apps/${appName}/app/layout-shell-providers.test.ts must assert HelvetyPublicShellRootLayout usage.`
+      );
+    }
+    if (!layoutShellTest.includes("getCachedUser")) {
+      throw new Error(
+        `apps/${appName}/app/layout-shell-providers.test.ts must assert getCachedUser session bootstrap.`
+      );
+    }
+  }
+
+  const fullStackEnvComment =
+    "See repository root `README.md` → Automation (`ci:release`).";
+  for (const appName of [
+    "contacts",
+    "tasks",
+    "notes",
+    "links",
+    "store",
+    "docs",
+  ]) {
+    const envPath = resolve(rootDir, "apps", appName, "lib/env.ts");
+    const envSource = await readFile(envPath, "utf8");
+    if (!envSource.includes(fullStackEnvComment)) {
+      throw new Error(
+        `apps/${appName}/lib/env.ts must document SKIP_ENV_VALIDATION / ci:release (match other full-stack zones).`
+      );
+    }
+  }
+
   const qualityBaselinePath = resolve(
     rootDir,
     "docs/quality-modernization-baseline.md"

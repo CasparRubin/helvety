@@ -90,6 +90,16 @@ async function main() {
     );
   }
 
+  const devDepsReadme = await readFile(
+    resolve(rootDir, "packages/dev-deps/README.md"),
+    "utf8"
+  );
+  if (!/\bci:check\b/.test(devDepsReadme)) {
+    throw new Error(
+      "packages/dev-deps/README.md must state that deps:drift runs in root ci:check."
+    );
+  }
+
   console.log("Toolchain documentation sync checks passed.");
 }
 

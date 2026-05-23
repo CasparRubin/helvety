@@ -34,9 +34,20 @@ describe("web SEO routes", () => {
   it("gateway llms.txt links per-zone agent guides", () => {
     const text = readFileSync(gatewayLlmsPath, "utf8");
     expect(text).toContain("## Agent And Crawler Guides");
-    expect(text).toContain(`${urls.store}/llms.txt`);
-    expect(text).toContain(`${urls.pdf}/llms.txt`);
-    expect(text).toContain(`${urls.tasks}/llms.txt`);
+    const zoneLlmsUrls = [
+      urls.store,
+      urls.pdf,
+      urls.docs,
+      urls.imageUpscaler,
+      urls.auth,
+      urls.contacts,
+      urls.notes,
+      urls.links,
+      urls.tasks,
+    ].map((base) => `${base}/llms.txt`);
+    for (const llmsUrl of zoneLlmsUrls) {
+      expect(text).toContain(llmsUrl);
+    }
   });
 
   it("returns canonical public sitemap entries", () => {

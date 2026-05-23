@@ -11,6 +11,7 @@ describe("docs root layout shell providers", () => {
     const src = readFileSync(layoutPath, "utf8");
 
     expect(src).not.toContain("@helvety/light-pillar");
+    expect(src).not.toContain("HelvetyShellWithLightPillarBackdrop");
     expect(src).toContain("<CSRFProvider csrfToken={csrfToken}>");
     expect(src).toContain("<EncryptionProvider>");
     expect(src).toContain("wrapInsideTooltipProvider");

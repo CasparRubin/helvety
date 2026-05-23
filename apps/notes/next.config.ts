@@ -16,7 +16,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     "@dnd-kit/sortable",
     "@dnd-kit/utilities",
     "@tiptap/react",
-    "date-fns",
   ],
 });
 

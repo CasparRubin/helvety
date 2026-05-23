@@ -10,7 +10,7 @@
 
 - `@helvety/dev-deps`
   - canonical `eslint`, `typescript`, `vitest`, `prettier`, testing-library, Tailwind PostCSS, and related devDependency versions
-  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift`)
+  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift` in `ci:check`)
 - `@helvety/config`
   - `createHelvetyNextConfig`
   - `createSecurityHeaders`
@@ -38,6 +38,7 @@
    - Tasks/notes/contacts: `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl`; cross-link editor panels use `dynamic(..., { ssr: false })`. Links: discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
 6. **Verification/guardrails** — ongoing
    - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+   - `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
 
 ## Multi-zone static assets (`assetPrefix`)
 
@@ -58,5 +59,5 @@
 - **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`).
 - **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`).
 - Store product catalog caching
-- Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift`)
+- Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
 - UI majors: lucide-react v1 (`icon-renderer` aliases), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep

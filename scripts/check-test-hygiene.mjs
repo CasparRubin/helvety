@@ -222,6 +222,21 @@ async function main() {
     }
   }
 
+  const appsDir = resolve(rootDir, "apps");
+  const appEntries = await readdir(appsDir, { withFileTypes: true });
+  for (const entry of appEntries) {
+    if (!entry.isDirectory()) continue;
+    const appRoot = resolve(appsDir, entry.name);
+    const proxyPath = resolve(appRoot, "proxy.ts");
+    if (!(await fileExists(proxyPath))) continue;
+    const proxyTestPath = resolve(appRoot, "proxy.test.ts");
+    if (!(await fileExists(proxyTestPath))) {
+      issues.push(
+        `apps/${entry.name}/proxy.ts exists but apps/${entry.name}/proxy.test.ts is missing (required by test hygiene; web may use gateway-specific assertions).`
+      );
+    }
+  }
+
   if (issues.length > 0) {
     throw new Error(`Test hygiene checks failed:\n- ${issues.join("\n- ")}`);
   }

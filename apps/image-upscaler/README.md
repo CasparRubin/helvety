@@ -13,7 +13,7 @@ unavailable. No image data ever leaves the client.
 
 ## Key Features
 
-- Root `app/layout.tsx` uses `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`, blocking `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `getCachedUser()` supplies an optional SSR session snapshot to the navbar (same pattern as `bootstrapPublicLayoutUser()` on the gateway; no login required for upscaling). `ImageUpscalerCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll).
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `getCachedUser()` supplies an optional SSR session snapshot to the navbar (same pattern as `bootstrapPublicLayoutUser()` on the gateway; no login required for upscaling). `ImageUpscalerCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll).
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`IMAGE_UPSCALER_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Single user-facing AI engine (`realesr-general-x4v3`) with an automatic no-AI canvas fallback for browsers that cannot run WebAssembly
 - AI inference runs entirely in a Web Worker via `onnxruntime-web` (`webgpu` -> `wasm` execution providers)

@@ -83,6 +83,16 @@ This package centralizes:
 - Strict production paths fail closed on rate-limit backend failure.
 - Request cache helpers are per-request only, not global data caches.
 
+## Test helpers
+
+Vitest-only modules (not for production app bundles):
+
+- `@helvety/shared/test-utils/customer-copy-test-helpers` — em-dash, license-free SEO, Swiss-origin assertions
+- `@helvety/shared/test-utils/seo-route-test-helpers` — `expectPublicCrawlerRobots` for public-zone `robots.ts` tests (`*` plus `AI_DISCOVERY_USER_AGENTS`)
+- `@helvety/shared/test-utils/action-test-helpers` — shared server-action test utilities
+
+See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md) for which layout/metadata mocks each zone needs.
+
 ## Usage
 
 Import from package entry points used by your app/action layer:
@@ -98,4 +108,5 @@ import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 
 - Root monorepo docs: [`README.md`](../../README.md)
 - Monorepo naming and formatting: [`docs/naming-conventions.md`](../../docs/naming-conventions.md)
+- App zone checklist: [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md)
 - Shared UI package: [`packages/ui/README.md`](../ui/README.md)
