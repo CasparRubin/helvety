@@ -14,11 +14,13 @@ export function PopupHeader({
 }): JSX.Element {
   const versionLabel =
     version && version !== "—" ? (
-      <span className="text-[11px] leading-tight text-muted-foreground">v{version}</span>
+      <span className="text-muted-foreground text-[11px] leading-tight">
+        v{version}
+      </span>
     ) : null;
 
   return (
-    <header className="mb-2 flex select-none items-center gap-2.5 border-b border-border/60 pb-2">
+    <header className="border-border/60 mb-2 flex items-center gap-2.5 border-b pb-2 select-none">
       <img
         src={iconSrc}
         alt={iconAlt}
@@ -28,7 +30,7 @@ export function PopupHeader({
         aria-hidden={iconAlt === ""}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0">
-        <span className="text-sm font-semibold tracking-tight text-foreground">
+        <span className="text-foreground text-sm font-semibold tracking-tight">
           {displayName}
         </span>
         {versionLabel}

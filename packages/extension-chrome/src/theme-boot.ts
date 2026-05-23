@@ -6,7 +6,7 @@
 try {
   document.documentElement.classList.toggle(
     "dark",
-    window.matchMedia("(prefers-color-scheme: dark)").matches,
+    window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 } catch {
   document.documentElement.classList.add("dark");

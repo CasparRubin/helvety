@@ -63,7 +63,7 @@ This package centralizes:
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
 - `@helvety/shared/layout-session-bootstrap`:
   - `bootstrapPublicLayoutUser()` — user only (`apps/web`). `apps/pdf` and `apps/image-upscaler` call `getCachedUser()` inline with the same log-on-failure behavior.
-  - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (e.g. `apps/store` layout, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links). Both helpers log and return safe fallbacks on failure.
+  - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (e.g. `apps/store` and `apps/docs` layouts, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links). Docs uses this for optional vault save while keeping the main editor route public. Both helpers log and return safe fallbacks on failure.
 
 ### Logging and Errors
 

@@ -1,0 +1,27 @@
+# Helvety Docs
+
+> Edit .docx files in the browser. Local editing needs no account. Optional vault save encrypts document titles and file bytes on your device before storage.
+
+## Canonical URL
+- [Helvety Docs](https://helvety.com/docs): Browser-based Word (.docx) editor
+
+## Crawling And Indexing
+- The main editor route is intended to be indexable.
+- API and auth callback routes are not intended as crawl targets.
+
+## Related Helvety Apps
+- [Helvety](https://helvety.com)
+- [Helvety Store](https://helvety.com/store/products/helvety-docs)
+- [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler)
+- [Helvety Auth](https://helvety.com/auth)
+- [Helvety Tasks](https://helvety.com/tasks)
+- [Helvety Contacts](https://helvety.com/contacts)
+- [Helvety Notes](https://helvety.com/notes)
+- [Helvety Links](https://helvety.com/links)
+
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository). The embedded docx editor library (@eigenpal/docx-editor-react) is Apache-2.0.
+
+## Source
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

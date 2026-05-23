@@ -26,6 +26,8 @@ describe("isValidRedirectUri", () => {
     expect(isValidRedirectUri("https://helvety.com/contacts")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/notes")).toBe(true);
     expect(isValidRedirectUri("https://helvety.com/links")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/docs")).toBe(true);
+    expect(isValidRedirectUri("https://helvety.com/docs?doc=abc")).toBe(true);
   });
 
   it("rejects old subdomain URLs (no longer allowed)", () => {
@@ -56,6 +58,9 @@ describe("isValidRedirectUri", () => {
       false
     );
     expect(isValidRedirectUri("https://helvety-links.vercel.app/links")).toBe(
+      false
+    );
+    expect(isValidRedirectUri("https://helvety-docs.vercel.app/docs")).toBe(
       false
     );
   });
@@ -132,6 +137,9 @@ describe("canonicalizeRedirectUri", () => {
         "https://helvety-links.vercel.app/links?folder=abc"
       )
     ).toBe("https://helvety.com/links?folder=abc");
+    expect(
+      canonicalizeRedirectUri("https://helvety-docs.vercel.app/docs?doc=abc")
+    ).toBe("https://helvety.com/docs?doc=abc");
   });
 
   it("returns null for unknown hosts", () => {

@@ -36,7 +36,7 @@ describe("store-catalog", () => {
 
   it("sorts newest release first with expected endpoints", () => {
     const sorted = getStoreCatalogNewestFirst();
-    expect(sorted[0]?.id).toBe("helvety-links");
+    expect(sorted[0]?.id).toBe("helvety-docs");
     expect(sorted[sorted.length - 1]?.id).toBe("helvety-pdf");
   });
 
@@ -82,6 +82,22 @@ describe("store-catalog", () => {
       "utf8"
     );
     expect(text).toContain("https://helvety.com/store/products/helvety-links");
+  });
+
+  it("includes Helvety Docs in the catalog with SaaS metadata", () => {
+    const card = requireStoreProductCard("helvety-docs");
+    expect(card.name).toBe("Helvety Docs");
+    expect(card.runsOn).toBe("Browser");
+    expect(card.releaseDate).toBe("2026-05-23");
+    expect(card.shortDescription).toMatch(/optional vault/i);
+  });
+
+  it("store llms.txt lists the Helvety Docs product page", () => {
+    const text = readFileSync(
+      join(repoRoot, "apps/store/public/llms.txt"),
+      "utf8"
+    );
+    expect(text).toContain("https://helvety.com/store/products/helvety-docs");
   });
 
   it("Power Platform Configurator card and llms.txt use canonical store short description", () => {

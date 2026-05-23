@@ -30,6 +30,12 @@ describe("requiresE2eeBrowserUnlock", () => {
     );
     expect(requiresE2eeBrowserUnlock("https://helvety.com/store")).toBe(false);
     expect(requiresE2eeBrowserUnlock("https://helvety.com/pdf")).toBe(false);
+    expect(requiresE2eeBrowserUnlock("https://helvety.com/docs")).toBe(false);
+    expect(
+      requiresE2eeBrowserUnlock(
+        "https://helvety.com/docs?doc=550e8400-e29b-41d4-a716-446655440000"
+      )
+    ).toBe(false);
   });
 
   it("returns false for invalid URLs", () => {

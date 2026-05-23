@@ -34,6 +34,7 @@ describe("env.template consistency", () => {
       "AUTH_URL",
       "STORE_URL",
       "PDF_URL",
+      "DOCS_URL",
       "IMAGE_UPSCALER_URL",
       "TASKS_URL",
       "CONTACTS_URL",
@@ -58,6 +59,7 @@ describe("env.template consistency", () => {
       { app: "links", templatePath: "apps/links/env.template" },
       { app: "store", templatePath: "apps/store/env.template" },
       { app: "pdf", templatePath: "apps/pdf/env.template" },
+      { app: "docs", templatePath: "apps/docs/env.template" },
       {
         app: "image-upscaler",
         templatePath: "apps/image-upscaler/env.template",

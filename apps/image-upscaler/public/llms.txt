@@ -12,6 +12,7 @@
 - [Helvety](https://helvety.com)
 - [Helvety Store](https://helvety.com/store)
 - [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Docs](https://helvety.com/docs)
 - [Helvety Auth](https://helvety.com/auth)
 - [Helvety Contacts](https://helvety.com/contacts)
 - [Helvety Notes](https://helvety.com/notes)

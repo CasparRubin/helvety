@@ -15,7 +15,7 @@ export const TAB_PANEL_CLASS =
 export function popupChoiceRowClass(selected: boolean): string {
   return cn(
     "flex cursor-pointer items-start gap-2 rounded-none p-2 transition-colors",
-    selected ? "bg-muted" : "hover:bg-muted/60",
+    selected ? "bg-muted" : "hover:bg-muted/60"
   );
 }
 

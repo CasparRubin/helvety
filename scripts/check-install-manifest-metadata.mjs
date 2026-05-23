@@ -18,6 +18,7 @@ import {
   WEB_SITE_DESCRIPTION,
 } from "../packages/shared/src/app-product-descriptions.ts";
 import { IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION } from "../apps/image-upscaler/lib/product-copy.ts";
+import { DOCS_PWA_MANIFEST_DESCRIPTION } from "../apps/docs/lib/product-copy.ts";
 import { PDF_PWA_MANIFEST_DESCRIPTION } from "../apps/pdf/lib/product-copy.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -36,6 +37,7 @@ const manifestChecks = [
   { app: "tasks", expected: () => TASKS_APP_DESCRIPTION },
   { app: "links", expected: () => LINKS_APP_DESCRIPTION },
   { app: "pdf", expected: () => PDF_PWA_MANIFEST_DESCRIPTION },
+  { app: "docs", expected: () => DOCS_PWA_MANIFEST_DESCRIPTION },
   {
     app: "image-upscaler",
     expected: () => IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION,

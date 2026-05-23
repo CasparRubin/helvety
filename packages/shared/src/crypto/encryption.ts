@@ -18,6 +18,7 @@ const ALLOWED_AAD_TABLES = new Set([
   "items",
   "contacts",
   "notes",
+  "docs",
   "link_folders",
   "links",
   "item_contact_links",

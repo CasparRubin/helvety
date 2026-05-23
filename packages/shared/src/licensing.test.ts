@@ -69,6 +69,7 @@ describe("workspace package manifests", () => {
     "apps/contacts/package.json",
     "apps/notes/package.json",
     "apps/links/package.json",
+    "apps/docs/package.json",
     "packages/shared/package.json",
     "packages/ui/package.json",
     "packages/config/package.json",
@@ -94,6 +95,7 @@ describe("workspace package manifests", () => {
       "apps/tasks/package.json",
       "apps/contacts/package.json",
       "apps/notes/package.json",
+      "apps/docs/package.json",
     ];
     for (const rel of appPackages) {
       const pkg = JSON.parse(readFileSync(join(repoRoot, rel), "utf8")) as {

@@ -28,6 +28,7 @@ export const WEB_GATEWAY_KEYS = [
   "CONTACTS_URL",
   "NOTES_URL",
   "LINKS_URL",
+  "DOCS_URL",
 ];
 
 /** @type {Record<string, string[]>} */
@@ -37,6 +38,7 @@ export const EXPECTED_KEYS_BY_APP = {
   tasks: [...PUBLIC_SUPABASE_KEYS, ...SERVER_UPSTASH_KEYS],
   contacts: [...PUBLIC_SUPABASE_KEYS, ...SERVER_UPSTASH_KEYS],
   links: [...PUBLIC_SUPABASE_KEYS, ...SERVER_UPSTASH_KEYS],
+  docs: [...PUBLIC_SUPABASE_KEYS, ...SERVER_UPSTASH_KEYS],
   store: [...PUBLIC_SUPABASE_KEYS, ...SERVER_UPSTASH_KEYS],
   pdf: [...PUBLIC_SUPABASE_KEYS, ...COOKIE_SIGNING_KEYS],
   "image-upscaler": [...PUBLIC_SUPABASE_KEYS, ...COOKIE_SIGNING_KEYS],

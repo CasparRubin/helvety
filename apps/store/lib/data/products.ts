@@ -1110,6 +1110,107 @@ const helvetyLinks: SaaSProduct = {
 };
 
 // =============================================================================
+// HELVETY DOCS
+// =============================================================================
+
+/** Helvety Docs - browser .docx editor with optional encrypted vault save. */
+const cHelvetyDocs = cardCore("helvety-docs", "saas");
+const helvetyDocs: SaaSProduct = {
+  id: cHelvetyDocs.id,
+  slug: cHelvetyDocs.slug,
+  name: cHelvetyDocs.name,
+  shortDescription: cHelvetyDocs.shortDescription,
+  type: cHelvetyDocs.type,
+  category: cHelvetyDocs.category,
+  description: {
+    intro:
+      "Helvety Docs edits Word (.docx) files in your browser. Open, create, or upload a document and work locally without signing in. When you choose vault save, document titles and file bytes are encrypted on your device before they reach Helvety storage.",
+    sections: [
+      {
+        heading: "Access model",
+        kind: "paragraph",
+        body: "Local editing needs no account. Optional vault save requires Helvety Auth sign-in and passkey unlock, the same encryption setup used for encrypted Helvety apps.",
+      },
+      {
+        heading: "What you can do",
+        kind: "bullets",
+        items: [
+          "Edit .docx in the tab with familiar word-processor controls.",
+          "Upload or start a new document, then download when you are done.",
+          "Save to your vault when signed in (titles and .docx bytes encrypted client-side).",
+          "Per-file ceiling of 20 MB. Large documents still depend on device RAM and your browser.",
+        ],
+      },
+      {
+        heading: "Third-party editor",
+        kind: "paragraph",
+        body: "The in-browser editor is powered by @eigenpal/docx-editor-react (Apache-2.0). Helvety app source remains AGPL-3.0-or-later.",
+      },
+    ],
+  },
+  status: "available",
+  image: productArtwork.artwork10,
+  artist: "Rudolf Koller",
+  features: [
+    "Local .docx editing without an account",
+    "Optional vault save with client-side encryption",
+    "Upload, create, edit, and download .docx files",
+    "Encrypted document titles and file bytes when vault save is used",
+    "Up to 20MB per file",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    hasYearlyPricing: false,
+    tiers: [
+      {
+        id: "helvety-docs-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "Full local editor included",
+          "Optional encrypted vault save when signed in",
+          "Up to 20MB per file",
+          "No account required for local editing",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/docs",
+    github: "https://github.com/CasparRubin/helvety/tree/main/apps/docs",
+  },
+  saas: {
+    appUrl: "https://helvety.com/docs",
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Anyone editing Word documents",
+      "Privacy-conscious professionals",
+    ],
+    platforms: ["Web"],
+    keywords: [
+      "docx",
+      "word",
+      "document",
+      "editor",
+      "browser",
+      "encryption",
+      "vault",
+      "privacy",
+      "free",
+    ],
+    featured: true,
+    releaseDate: cHelvetyDocs.releaseDate,
+  },
+};
+
+// =============================================================================
 // ALL PRODUCTS
 // =============================================================================
 
@@ -1127,6 +1228,7 @@ const products: Product[] = [
   powerPlatformConfigurator,
   helvetyScreenTools,
   helvetyImageUpscaler,
+  helvetyDocs,
 ];
 
 // =============================================================================

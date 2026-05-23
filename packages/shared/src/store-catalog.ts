@@ -47,6 +47,7 @@ export interface StoreProductCard {
  * (newer for display when using newest-first sort).
  */
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
+  "helvety-docs": 9,
   "helvety-image-upscaler": 8,
   "helvety-screen-tools": 7,
   "helvety-power-platform-configurator": 6,
@@ -170,6 +171,19 @@ export const STORE_PRODUCT_CARDS = [
     shortDescription:
       "Upscale PNG, JPEG, or WebP in the browser. AI quality when your device supports it, with sensible limits so tabs stay responsive.",
     releaseDate: "2026-04-28",
+    type: "saas",
+    category: "utilities",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-docs",
+    slug: "helvety-docs",
+    name: "Helvety Docs",
+    shortDescription:
+      "Edit Word (.docx) in your browser. Local editing needs no account; optional vault save encrypts titles and files on your device before storage.",
+    releaseDate: "2026-05-23",
     type: "saas",
     category: "utilities",
     runsOn: "Browser",

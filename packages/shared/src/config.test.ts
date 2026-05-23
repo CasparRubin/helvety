@@ -7,6 +7,11 @@ describe("urls and DEV_PORTS", () => {
     expect(urls.links).toMatch(/\/links$/);
     expect(DEV_PORTS.links).toBe(3009);
   });
+
+  it("exposes the docs zone on the gateway and dev port 3010", () => {
+    expect(urls.docs).toMatch(/\/docs$/);
+    expect(DEV_PORTS.docs).toBe(3010);
+  });
 });
 
 describe("getLocalAppHref (gateway path helper: not for cross-zone Link inside basePath apps)", () => {

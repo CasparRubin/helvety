@@ -15,7 +15,7 @@ export function usePopupTheme(storageKey: string): {
   saveTheme: (next: ThemePreference) => void;
 } {
   const [themePreference, setThemePreference] = useState<ThemePreference>(() =>
-    defaultThemeFromSystem(),
+    defaultThemeFromSystem()
   );
   const [themeLoaded, setThemeLoaded] = useState(false);
 
@@ -59,7 +59,7 @@ export function usePopupTheme(storageKey: string): {
       setThemePreference(next);
       void chrome.storage.local.set({ [storageKey]: next });
     },
-    [storageKey],
+    [storageKey]
   );
 
   return { themePreference, themeLoaded, saveTheme };

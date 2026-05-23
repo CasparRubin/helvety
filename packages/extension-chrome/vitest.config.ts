@@ -1,8 +1,3 @@
-import { defineConfig } from "vitest/config";
+import { createVitestConfig } from "@helvety/config/vitest";
 
-export default defineConfig({
-  test: {
-    environment: "jsdom",
-    include: ["src/**/*.test.ts"],
-  },
-});
+export default createVitestConfig(import.meta.dirname);

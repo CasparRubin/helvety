@@ -10,6 +10,7 @@ const PROXIED_ZONES = [
   "links",
   "store",
   "pdf",
+  "docs",
   "image-upscaler",
 ] as const;
 

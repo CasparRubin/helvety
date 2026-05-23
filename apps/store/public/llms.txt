@@ -10,6 +10,7 @@
 The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
+- [Helvety Docs](https://helvety.com/store/products/helvety-docs)
 - [Helvety Image Upscaler](https://helvety.com/store/products/helvety-image-upscaler)
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools)
 - [Helvety Tasks](https://helvety.com/store/products/helvety-tasks)

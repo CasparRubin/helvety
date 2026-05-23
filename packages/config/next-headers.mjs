@@ -94,6 +94,7 @@ export function createSecurityHeaders({ appName } = {}) {
  * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
  * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. onnxruntime-web)
+ * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts (Material Symbols for docx-editor toolbar icons)
  * @returns {string}
  */
 export function buildCsp({
@@ -102,6 +103,7 @@ export function buildCsp({
   scriptUnsafeEval = "dev-only",
   workerBlob = false,
   wasmUnsafeEval = false,
+  googleFonts = false,
 } = {}) {
   const isDevelopment = process.env.NODE_ENV === "development";
   const cspReportEndpoint = "/api/csp-report";
@@ -131,12 +133,19 @@ export function buildCsp({
     }
   }
 
+  const styleSources = ["'self'", "'unsafe-inline'"];
+  const fontSources = new Set(["'self'", "data:"]);
+  if (googleFonts) {
+    styleSources.push("https://fonts.googleapis.com");
+    fontSources.add("https://fonts.gstatic.com");
+  }
+
   const directives = [
     "default-src 'self'",
     `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${useWasmUnsafeEval ? " 'wasm-unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
-    "style-src 'self' 'unsafe-inline'",
+    `style-src ${styleSources.join(" ")}`,
     `img-src ${Array.from(imageSources).join(" ")}${imgBlob ? " blob:" : ""}`,
-    "font-src 'self' data:",
+    `font-src ${Array.from(fontSources).join(" ")}`,
     `connect-src ${Array.from(connectSources).join(" ")}`,
     ...(workerBlob ? ["worker-src 'self' blob:"] : []),
     "frame-src 'self'",

@@ -2,6 +2,7 @@ import { urls } from "@helvety/shared/config";
 import {
   Building2,
   FileText,
+  FileType,
   House,
   ImageUp,
   ListTodo,
@@ -53,6 +54,7 @@ export const appSwitcherSections: AppSwitcherSection[] = [
     title: "File Tools",
     links: [
       { name: "PDF", href: urls.pdf, icon: FileText },
+      { name: "Docs", href: urls.docs, icon: FileType },
       { name: "Image Upscaler", href: urls.imageUpscaler, icon: ImageUp },
     ],
   },

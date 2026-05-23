@@ -26,6 +26,8 @@ export type BuildCspOptions = {
    * onnxruntime-web in the image upscaler).
    */
   wasmUnsafeEval?: boolean;
+  /** Allow Google Fonts (Material Symbols for @eigenpal/docx-editor-react). */
+  googleFonts?: boolean;
 };
 
 /**

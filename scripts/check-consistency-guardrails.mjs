@@ -186,6 +186,7 @@ async function main() {
   const rootAppPagePaths = [
     "apps/auth/app/page.tsx",
     "apps/contacts/app/page.tsx",
+    "apps/docs/app/page.tsx",
     "apps/image-upscaler/app/page.tsx",
     "apps/links/app/page.tsx",
     "apps/notes/app/page.tsx",
@@ -211,6 +212,7 @@ async function main() {
   const securityProxyTargets = [
     "apps/auth/proxy.ts",
     "apps/contacts/proxy.ts",
+    "apps/docs/proxy.ts",
     "apps/image-upscaler/proxy.ts",
     "apps/links/proxy.ts",
     "apps/notes/proxy.ts",
@@ -297,6 +299,7 @@ async function main() {
   const serverUpstashEnvModules = [
     "apps/auth/lib/env.ts",
     "apps/contacts/lib/env.ts",
+    "apps/docs/lib/env.ts",
     "apps/links/lib/env.ts",
     "apps/notes/lib/env.ts",
     "apps/store/lib/env.ts",
@@ -348,6 +351,7 @@ async function main() {
     "contacts",
     "notes",
     "links",
+    "docs",
     "pdf",
     "image-upscaler",
   ];

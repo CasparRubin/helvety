@@ -10,6 +10,8 @@ import {
   STORE_NAVBAR_ABOUT,
   TASKS_NAVBAR_ABOUT,
   WEB_NAVBAR_ABOUT,
+  DOCS_NAVBAR_ENCRYPTION_TOOLTIP,
+  docsNavbarAbout,
   imageUpscalerNavbarAbout,
   pdfNavbarAbout,
 } from "./app-navbar-about";
@@ -25,6 +27,8 @@ describe("app-navbar-about", () => {
     ["links", LINKS_NAVBAR_ABOUT],
     ["notes", NOTES_NAVBAR_ABOUT],
     ["pdf", pdfNavbarAbout()],
+    ["docs", docsNavbarAbout()],
+    ["docs-vault-tooltip", DOCS_NAVBAR_ENCRYPTION_TOOLTIP],
     ["image-upscaler", imageUpscalerNavbarAbout()],
     ["encryption-tooltip", E2EE_NAVBAR_ENCRYPTION_TOOLTIP],
   ] as const;

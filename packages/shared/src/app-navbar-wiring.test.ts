@@ -41,6 +41,10 @@ const NAVBAR_WIRING = [
     symbol: "pdfNavbarAbout",
   },
   {
+    rel: "apps/docs/components/navbar.tsx",
+    symbol: "docsNavbarAbout",
+  },
+  {
     rel: "apps/image-upscaler/components/navbar.tsx",
     symbol: "imageUpscalerNavbarAbout",
   },

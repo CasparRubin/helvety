@@ -97,6 +97,7 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         "IMAGE_UPSCALER_URL",
         DEV_PORTS.imageUpscaler
       );
+      const docsUrl = getAppUrl("DOCS_URL", DEV_PORTS.docs);
       const analyticsScriptSource = "/:analyticsId([a-z0-9]+)/script.js";
 
       return {
@@ -180,6 +181,17 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
               },
             ],
             destination: `${pdfUrl}${analyticsScriptSource}`,
+          },
+          {
+            source: analyticsScriptSource,
+            has: [
+              {
+                type: "header",
+                key: "referer",
+                value: zoneAnalyticsReferer("docs"),
+              },
+            ],
+            destination: `${docsUrl}${analyticsScriptSource}`,
           },
           {
             source: analyticsScriptSource,
@@ -272,6 +284,14 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/pdf/:path*",
             destination: `${pdfUrl}/pdf/:path*`,
+          },
+          {
+            source: "/docs",
+            destination: `${docsUrl}/docs`,
+          },
+          {
+            source: "/docs/:path*",
+            destination: `${docsUrl}/docs/:path*`,
           },
           {
             source: "/image-upscaler",

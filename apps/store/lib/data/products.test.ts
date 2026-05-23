@@ -45,9 +45,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Links newest; PDF oldest)", () => {
+  it("default sort is newest release first (Docs newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-links");
+    expect(ids[0]).toBe("helvety-docs");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -69,6 +69,10 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-links")?.links?.website).toBe(
       "https://helvety.com/links"
     );
+    expect(getProductBySlug("helvety-docs")?.slug).toBe("helvety-docs");
+    expect(getProductBySlug("helvety-docs")?.links?.website).toBe(
+      "https://helvety.com/docs"
+    );
   });
 
   it("every listing has store artwork and an artist credit", () => {
@@ -81,6 +85,25 @@ describe("store product catalog", () => {
   it("assigns each artwork asset to exactly one product", () => {
     const images = getAllProducts().map((product) => product.image);
     expect(new Set(images).size).toBe(images.length);
+  });
+
+  it("Helvety Docs is a SaaS listing with store artwork and monorepo source", () => {
+    const product = getProductBySlug("helvety-docs");
+    expect(product).toBeDefined();
+    if (!product) {
+      return;
+    }
+    expect(product.type).toBe("saas");
+    expect(product.image).toBe(productArtwork.artwork10);
+    expect(product.artist).toBe("Rudolf Koller");
+    expect(product.links?.github).toContain("apps/docs");
+    expect(product.description.intro).toMatch(/vault save/i);
+    expect(product.features).toContain(
+      "Local .docx editing without an account"
+    );
+    expect(product.features).toContain(
+      "Optional vault save with client-side encryption"
+    );
   });
 
   it("Helvety Links is a SaaS listing with store artwork and monorepo source", () => {

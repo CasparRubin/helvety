@@ -15,6 +15,7 @@ describe("GET /sitemap-index.xml", () => {
       "/sitemap.xml",
       "/store/sitemap.xml",
       "/pdf/sitemap.xml",
+      "/docs/sitemap.xml",
       "/image-upscaler/sitemap.xml",
     ];
 

@@ -454,6 +454,20 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
+              Helvety Docs (helvety.com/docs):
+            </strong>{" "}
+            Edit Word (.docx) files in your browser. Routine local editing keeps
+            document bytes in your browser; nothing is uploaded to our servers
+            for editing. No login or account is required for that mode. Optional
+            vault save (when you sign in and unlock) encrypts document titles
+            and .docx file bytes on your device before storage. The service
+            still uses minimal server-side endpoints for platform and security
+            functions (for example CSP reporting and session/security proxy
+            logic). The service is provided free of charge; technical safeguards
+            may still apply for security and operational stability.
+          </li>
+          <li>
+            <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
             Catalog browsing and public package downloads work without creating
@@ -1138,10 +1152,10 @@ export default function PrivacyPage() {
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           We currently use Vercel Analytics on selected Helvety web surfaces
-          (including helvety.com, Helvety Auth, Helvety Store, Helvety PDF, and
-          Helvety Image Upscaler). Vercel Speed Insights is currently enabled on
-          helvety.com. We do not intentionally operate advertising trackers or
-          cross-site profiling technologies.
+          (including helvety.com, Helvety Auth, Helvety Store, Helvety PDF,
+          Helvety Docs, and Helvety Image Upscaler). Vercel Speed Insights is
+          currently enabled on helvety.com. We do not intentionally operate
+          advertising trackers or cross-site profiling technologies.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are
@@ -1256,8 +1270,11 @@ export default function PrivacyPage() {
           Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links
           implement end-to-end encryption to protect your content. Other Helvety
           services (helvety.com, Helvety Auth, Helvety PDF, Helvety Image
-          Upscaler, Helvety Store) do not use end-to-end encryption. For Helvety
-          Tasks, Helvety Contacts, Helvety Notes, and Helvety Links:
+          Upscaler, Helvety Store) do not use full-app end-to-end encryption.
+          Helvety Docs supports optional client-side encrypted vault storage for
+          saved documents when you sign in and unlock; local editing without an
+          account does not use that vault. For Helvety Tasks, Helvety Contacts,
+          Helvety Notes, and Helvety Links:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

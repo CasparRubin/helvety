@@ -36,6 +36,31 @@ describe("legal pages enumerate E2EE products", () => {
     expect(source).toContain("2,000 each");
   });
 
+  it.each([
+    ["privacy", "apps/web/app/privacy/page.tsx"],
+    ["terms", "apps/web/app/terms/page.tsx"],
+    ["impressum", "apps/web/app/impressum/page.tsx"],
+  ] as const)(
+    "%s documents Helvety Docs hybrid local and optional vault modes",
+    (_label, rel) => {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      expect(source).toContain("Helvety Docs");
+      expect(source).toMatch(/optional vault|vault save/i);
+    }
+  );
+
+  it("privacy documents Helvety Docs service URL in section 2.8", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    expect(source).toContain("Helvety Docs (helvety.com/docs)");
+    expect(source).toMatch(/optional\s+vault|vault save/i);
+    expect(source).not.toMatch(
+      /Helvety Tasks, Helvety Contacts, Helvety Notes, Helvety Links, and Helvety Docs/
+    );
+  });
+
   it("privacy does not list only three E2EE apps in shared disclosure sections", () => {
     const source = readFileSync(
       join(repoRoot, "apps/web/app/privacy/page.tsx"),
