@@ -52,6 +52,22 @@ This app uses the **full stack** tier (same as Store): Supabase publishable + se
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash REST token                                                                               |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 
+## Vercel deployment (`helvety-docs`)
+
+This app is a **separate Vercel project** from the gateway (`helvety-web`). In the project settings:
+
+| Setting | Value |
+| ------- | ----- |
+| **Root Directory** | `apps/docs` |
+| **Framework Preset** | Next.js |
+| **Install Command** | (default, or `cd ../.. && bun install` via [`vercel.json`](./vercel.json)) |
+| **Build Command** | (default `bun run build` / `next build` — do **not** use repo-root `turbo run build` alone) |
+| **Output Directory** | (leave empty — Next.js preset uses `.next`) |
+
+If the build log shows `Running build in 0 packages` and `No Output Directory named "public"`, the Root Directory is still the repo root. Set it to `apps/docs` and redeploy.
+
+Enable **Web Analytics** on this project (see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md)). Set production env vars from [`env.template`](./env.template). The gateway (`apps/web`) needs `DOCS_URL` pointing at this deployment when `VERCEL=1`.
+
 ## Database
 
 Apply [`supabase/migrations/20260523120000_create_docs_table.sql`](../../supabase/migrations/20260523120000_create_docs_table.sql) to your Supabase project, then refresh local schema exports if you use `supabase/getSupabase.sql` (never commit `supabase.json`).
