@@ -18,6 +18,7 @@ This package centralizes:
 - Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (`STORE_PRODUCT_CARDS`, `StoreProductId` literal-id union, plus typed sort/lookup helpers) as the single source of truth for Store card fields (name, blurb, type, category, runs-on, free / open-source flags, release date); UI badges (type colors, artist credit) are styled in `apps/store/components/products/product-badge.tsx`; see `apps/store/README.md` › "Adding a New Product" for the end-to-end add-a-product flow
 - Customer-facing copy guardrails via `@helvety/shared/customer-copy-guardrails` (user-facing path list; em-dash rule; SEO license-free checks in `seo-customer-copy.test.ts` and `store-copy-guardrails.test.ts`; enforced by `consistency:customer-copy`, `consistency:install-manifest-metadata`, and Vitest)
 - Per-app `env.template` keys validated by root `consistency:env-templates` (`scripts/env-template-expectations.mjs`; Vitest in `env-template-consistency.test.ts`)
+- PostCSS / Tailwind build wiring validated by `scripts/postcss-app-expectations.mjs` (`consistency:guardrails`, `deps:drift`; Vitest in `postcss-app-consistency.test.ts`)
 - Navbar About blurbs via `@helvety/shared/app-navbar-about` (per-app product copy; Swiss closing uses `HELVETY_SWISS_ORIGIN_SEO`)
 
 ## Core Contracts
@@ -28,7 +29,7 @@ This package centralizes:
 - Shared action and export limits: `packages/shared/src/constants.ts`
 - Auth next-step resolver (app-owned): `apps/auth/lib/auth-step.ts`
 - Shared auth callback flow factory: `packages/shared/src/auth-callback.ts`
-- Toolchain config entrypoints: `packages/config/eslint.mjs`, `packages/config/tsconfig.base.json`, `packages/config/vitest.mjs` (pinned versions in [`packages/dev-deps`](../dev-deps/))
+- Toolchain config entrypoints: `packages/config/eslint.mjs`, `packages/config/tsconfig.base.json`, `packages/config/vitest.mjs`, `packages/config/postcss.mjs` (pinned versions in [`packages/dev-deps`](../dev-deps/); `@tailwindcss/postcss` resolved at build time via [`@helvety/ui`](../ui/) production dependencies)
 - E2EE server page guard and path helpers: `@helvety/shared/e2ee-page-auth` (`requireE2eeAppPageAuth`, `requiresE2eeBrowserUnlock`, `E2EE_APP_PAGE_PATHS`)
 - Passkey encryption params for E2EE apps: `@helvety/shared/encryption-actions` (`getEncryptionParams`, `getPasskeyParams`, `getPasskeyParamsWithOptions`); the auth zone wraps `getPasskeyParamsWithOptions` with auth-specific rate limits
 

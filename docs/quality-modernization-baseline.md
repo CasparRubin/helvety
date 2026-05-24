@@ -9,8 +9,8 @@
 ## Shared Contracts To Preserve
 
 - `@helvety/dev-deps`
-  - canonical `eslint`, `typescript`, `vitest`, `prettier`, testing-library, Tailwind PostCSS, and related devDependency versions
-  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift` in `ci:check`)
+  - canonical semver ranges for `eslint`, `typescript`, `vitest`, `prettier`, testing-library, `tailwindcss`, `@tailwindcss/postcss`, and related toolchain packages
+  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift` in `ci:check`); zone apps do not declare Tailwind packages directly
 - `@helvety/config`
   - `createHelvetyNextConfig`
   - `createSecurityHeaders`
@@ -23,6 +23,7 @@
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
   - shared navigation/session UX behavior
+  - production `tailwindcss` and `@tailwindcss/postcss` so Turbopack/Vercel can resolve PostCSS plugins from zone apps that re-export `@helvety/config/postcss` (versions still canonical in `@helvety/dev-deps`; `deps:drift` allows both only on `packages/ui`)
 
 ## Phase Success Criteria
 

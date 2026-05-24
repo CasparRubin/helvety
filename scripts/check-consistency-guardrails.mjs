@@ -17,6 +17,7 @@
 import { readFile } from "node:fs/promises";
 import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
+import { validatePostcssZoneApps } from "./postcss-app-expectations.mjs";
 
 const rootDir = process.cwd();
 const appsDir = resolve(rootDir, "apps");
@@ -583,6 +584,11 @@ async function main() {
         `apps/${appName}/lib/env.ts must document SKIP_ENV_VALIDATION / ci:release (match other full-stack zones).`
       );
     }
+  }
+
+  const postcssErrors = await validatePostcssZoneApps(rootDir);
+  if (postcssErrors.length > 0) {
+    throw new Error(postcssErrors.join("\n"));
   }
 
   const qualityBaselinePath = resolve(

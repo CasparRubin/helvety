@@ -102,6 +102,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.0",
     "@supabase/supabase-js": "^2.106.0",
     "@tiptap/extension-link": "^3.23.5",
     "@tiptap/extension-placeholder": "^3.23.5",

@@ -35,6 +35,7 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 
 ## Styling And Composition Rules
 
+- **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss`. Production `tailwindcss` and `@tailwindcss/postcss` live on `@helvety/ui` so Vercel/Turbopack can resolve the plugin from each app; see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
 - Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes.
 - Prefer reusable state primitives for list surfaces (`ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`).
 - Use shared dashboard primitives (`EntityDashboardShell`) and command bars (`EntityCommandBar`) for list-centric entity apps.
@@ -45,4 +46,5 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 
 - `scripts/check-consistency-guardrails.mjs` enforces:
   - `components.json` parity across every `apps/*` package that ships a UI surface.
+  - `postcss.config.mjs` parity and `@helvety/ui` in production dependencies on every zone that uses shared PostCSS.
   - import-policy violations for app-local `@/components/ui/*` usage outside the allowlist.

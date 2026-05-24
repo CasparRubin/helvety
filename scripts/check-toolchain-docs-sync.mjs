@@ -3,6 +3,7 @@
  * - Root `packageManager` (Bun) ↔ README prerequisites
  * - `apps/web` `next` semver ↔ Next.js doc deep link in `docs/naming-conventions.md`
  * - Root `ci:check` script order ↔ README Automation bullet
+ * - Tailwind/PostCSS Vercel docs ↔ packages/ui and dev-deps READMEs
  */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -97,6 +98,32 @@ async function main() {
   if (!/\bci:check\b/.test(devDepsReadme)) {
     throw new Error(
       "packages/dev-deps/README.md must state that deps:drift runs in root ci:check."
+    );
+  }
+  if (!/@helvety\/ui[\s\S]*@tailwindcss\/postcss/.test(devDepsReadme)) {
+    throw new Error(
+      "packages/dev-deps/README.md must document @helvety/ui production tailwindcss / @tailwindcss/postcss exception."
+    );
+  }
+
+  const uiReadme = await readFile(
+    resolve(rootDir, "packages/ui/README.md"),
+    "utf8"
+  );
+  if (!uiReadme.includes("## Styling / Tailwind")) {
+    throw new Error(
+      "packages/ui/README.md must document Styling / Tailwind and Vercel PostCSS resolution."
+    );
+  }
+
+  const rootReadme = await readFile(resolve(rootDir, "README.md"), "utf8");
+  if (
+    !/packages\/ui\/[\s\S]*@tailwindcss\/postcss|@tailwindcss\/postcss[\s\S]*packages\/ui/.test(
+      rootReadme
+    )
+  ) {
+    throw new Error(
+      "README.md Shared Packages table must document @helvety/ui production @tailwindcss/postcss for Vercel builds."
     );
   }
 

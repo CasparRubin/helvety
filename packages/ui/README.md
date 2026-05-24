@@ -60,6 +60,11 @@ This package provides:
 
 Also includes reusable UI building blocks used across zones (for example `@helvety/ui/calendar` on react-day-picker v10, `@helvety/ui/icon-renderer` for kebab-case Lucide names in E2EE configs, command bars, search fields, and selected editor helpers).
 
+## Styling / Tailwind
+
+- **`globals.css`** (`@helvety/ui/globals.css`): semantic design tokens and Tailwind v4 imports for every zone app (`@import` from each app’s `app/globals.css`).
+- **PostCSS at build time:** zone apps re-export [`@helvety/config/postcss`](../config/postcss.mjs). Turbopack resolves `@tailwindcss/postcss` from the **app** directory, so this package declares **`tailwindcss`** and **`@tailwindcss/postcss`** in **`dependencies`** (not only via `@helvety/dev-deps`). Canonical semver ranges live in [`@helvety/dev-deps`](../dev-deps/); do not add those packages to individual app manifests. See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md) and [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
+
 ## Testing
 
 Run from repo root:
@@ -76,7 +81,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `Calendar`, `getLucideIcon` / `renderIcon`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionGate`, `EncryptionTooltipContent`, `AccessibleSheetHeader`, `E2eeEntityDetailSheet`, `HelvetyVercelAnalytics`, `useE2eeEntityPanel`, `useE2eeEntityPanelWithUrl`, `useSyncE2eeEntityPanelFromUrl`, `useEncryptedSortableItems`, `reportE2eeHookError` / `reportE2eeActionFailure`, `e2ee-dashboard-wiring` / `helvety-layout-analytics-wiring` structural guards, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). WebGL hero utilities are tested in `@helvety/light-pillar`; gateway Hyperspeed/vendor tests live in `apps/web`. Toolchain versions (`vitest`, testing-library, `jsdom`, etc.) are declared once in [`@helvety/dev-deps`](../dev-deps/) and enforced by `bun run deps:drift` (in `ci:check`) and `bun run test:hygiene`; see the root [`README.md`](../../README.md) › **Testing Consistency**.
+Coverage focuses on stable primitives and key shared UX surfaces (`CommandBar`, `CommandBarPageLayout`, `EntityCommandBar`, `Calendar`, `getLucideIcon` / `renderIcon`, `HelvetyShellNavbar`, `E2eeAppNavbar`, `EncryptionGate`, `EncryptionTooltipContent`, `AccessibleSheetHeader`, `E2eeEntityDetailSheet`, `HelvetyVercelAnalytics`, `useE2eeEntityPanel`, `useE2eeEntityPanelWithUrl`, `useSyncE2eeEntityPanelFromUrl`, `useEncryptedSortableItems`, `reportE2eeHookError` / `reportE2eeActionFailure`, `e2ee-dashboard-wiring` / `helvety-layout-analytics-wiring` structural guards, `HelvetyPublicShellRootLayout`, and `E2eeAppRootLayout`). WebGL hero utilities are tested in `@helvety/light-pillar`; gateway Hyperspeed/vendor tests live in `apps/web`. Most toolchain versions (`vitest`, testing-library, `jsdom`, etc.) are pinned in [`@helvety/dev-deps`](../dev-deps/) (`bun run deps:drift`, `test:hygiene`); **Tailwind/PostCSS production packages** on this package are covered by [`packages/shared/src/postcss-app-consistency.test.ts`](../shared/src/postcss-app-consistency.test.ts). See the root [`README.md`](../../README.md) › **Testing Consistency**.
 
 ## Related
 

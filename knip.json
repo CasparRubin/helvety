@@ -56,6 +56,18 @@
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
       "ignoreDependencies": ["eslint-plugin-react", "@helvety/dev-deps"]
     },
+    "packages/ui": {
+      "entry": [
+        "src/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+        "*.{ts,tsx,js,jsx,mjs,cjs}",
+        "globals.css",
+        "eslint.config.mjs",
+        "vitest.config.{ts,js,mjs,cjs}",
+        "**/*.{test,spec}.{ts,tsx}"
+      ],
+      "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
+      "ignoreDependencies": ["@helvety/dev-deps", "@tailwindcss/postcss"]
+    },
     "packages/extension-chrome": {
       "entry": [
         "src/**/*.{ts,tsx,js,jsx,mjs,cjs}",

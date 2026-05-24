@@ -27,6 +27,10 @@ When `VERCEL=1`, set zone URLs on `helvety-com` (`apps/web`) from [`apps/web/env
 
 Canonical zone URLs (for example `https://helvety.com/docs`) are served by **`helvety-com`** via rewrites to each zone’s deployment origin (`DOCS_URL`, `PDF_URL`, …). Deploying **`helvety-docs` alone** updates `helvety-docs.vercel.app/docs` but does **not** change `helvety.com/docs` until **`helvety-com`** is redeployed with the correct gateway env. Cross-app navigation (**AppSwitcher** in `@helvety/ui`) ships with each zone’s build; no separate “ecosystem menu” deploy exists.
 
+## Tailwind / PostCSS at build time
+
+Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs). Turbopack resolves `@tailwindcss/postcss` from the **app** directory during `next build`, so the plugin must sit on a **production** dependency path. `@helvety/ui` declares `tailwindcss` and `@tailwindcss/postcss` in `dependencies`; every zone app must keep `"@helvety/ui": "workspace:*"` in `dependencies` (not only devDependencies). Versions stay canonical in `@helvety/dev-deps`; `bun run deps:drift` and `consistency:guardrails` enforce this.
+
 ## CI guardrail
 
-`bun run consistency:vercel-apps` asserts identical `vercel.json` files and `env.template` Vercel lines for every zone. See [`scripts/vercel-app-expectations.mjs`](../scripts/vercel-app-expectations.mjs).
+`bun run consistency:vercel-apps` asserts identical `vercel.json` files and `env.template` Vercel lines for every zone. `consistency:guardrails` asserts `postcss.config.mjs` parity and `@helvety/ui` on every zone that uses shared PostCSS. See [`scripts/vercel-app-expectations.mjs`](../scripts/vercel-app-expectations.mjs).

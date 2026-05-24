@@ -13,7 +13,7 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest`; workspaces with real tests pass `{ passWithNoTests: false }`                              |
 | `vitest.setup.ts`    | `@testing-library/jest-dom` + RTL `cleanup()`                                                                                                            |
 | `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                          |
-| `postcss.config.mjs` | Re-exports `@helvety/config/postcss`                                                                                                                     |
+| `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                             |
 | `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage |
 | `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                      |
 | `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                   |
@@ -117,7 +117,7 @@ Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/compo
 
 ## `package.json` conventions
 
-- **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*`
+- **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*` (UI carries production `tailwindcss` / `@tailwindcss/postcss` so `next build` can resolve the shared PostCSS config on Vercel)
 - **DevDependencies**: `@helvety/config`, `@helvety/dev-deps` as `workspace:*`
 - **Scripts**: `dev`, `build`, `start`, `lint`, `lint:fix`, `type-check`, `format`, `format:check`, `test`, `test:watch`, `test:coverage`
 - **Version**: align with sibling product apps (currently `3.2.0`) unless the zone is intentionally versioned separately

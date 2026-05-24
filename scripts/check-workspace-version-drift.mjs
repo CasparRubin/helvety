@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { validateUiTailwindBuildDependencies } from "./postcss-app-expectations.mjs";
 
 const ROOT_DIR = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
@@ -144,8 +145,9 @@ async function main() {
 
       if (
         rel === "packages/ui/package.json" &&
-        dependencyName === "tailwindcss" &&
-        manifest.dependencies?.tailwindcss
+        (dependencyName === "tailwindcss" ||
+          dependencyName === "@tailwindcss/postcss") &&
+        manifest.dependencies?.[dependencyName]
       ) {
         continue;
       }
@@ -202,6 +204,11 @@ async function main() {
       }
     }
   }
+
+  const uiManifest = await readManifest(
+    path.join(ROOT_DIR, "packages/ui/package.json")
+  );
+  errors.push(...validateUiTailwindBuildDependencies(uiManifest));
 
   if (errors.length > 0) {
     console.error("Workspace dependency version drift detected:");
