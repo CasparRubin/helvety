@@ -59,8 +59,8 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 ## Theme (light / dark)
 
 - **Helvety chrome** (navbar, command bar, vault sidebar, dialogs, toasts, loading states) uses `@helvety/ui` semantic tokens via `HelvetyPublicShellRootLayout` and the navbar **ThemeSwitcher** (`next-themes`, `html.dark`). No app-local `ThemeProvider`.
-- **Eigenpal editor chrome** (toolbar, dropdowns, modals, workspace gutter) is themed in [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css), imported from [`app/globals.css`](./app/globals.css) after vendor styles. The bridge maps HSL channel variables on `.ep-root` to [`packages/ui/globals.css`](../../packages/ui/globals.css). Maintainer token reference (tests): [`lib/docx-editor-theme-tokens.ts`](./lib/docx-editor-theme-tokens.ts).
-- **Document page** (`.layout-page`) stays **white paper with dark body text** in both themes so downloaded `.docx` files match print expectations; only the surround (`--doc-bg`) darkens in dark mode.
+- **Eigenpal editor chrome** (formatting toolbar, menus, dialogs, workspace gutter) is themed in [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css), imported from [`app/globals.css`](./app/globals.css) after vendor styles. The bridge sets HSL channel variables on `.ep-root` aligned with [`packages/ui/globals.css`](../../packages/ui/globals.css); editor `--doc-*` chrome tokens alias those semantics. Maintainer token reference (tests): [`lib/docx-editor-theme-tokens.ts`](./lib/docx-editor-theme-tokens.ts). The bridge also hides Eigenpal’s default title-bar doc icon and **Help** menu (New/Open/Download and vault save use the pinned Helvety command bar above the editor).
+- **Document page** (`.layout-page`) stays **white paper with dark body text** in both themes so downloaded `.docx` files match print expectations. The workspace gutter (`--doc-bg`) follows the app background in light and dark; only the page surface stays white.
 
 **When changing brand colors:** update `packages/ui/globals.css`, then `lib/docx-editor-theme-tokens.ts` and `styles/docx-editor-helvety-bridge.css`, and run `bun test lib/docx-editor-theme.test.ts`.
 
@@ -74,8 +74,10 @@ After bumping `@eigenpal/docx-editor-react`, verify visually (light + dark):
 4. Dark mode: warm dark gutter, **white page**, readable text on the page
 5. Downloaded `.docx` still has a white page background
 6. **Blank on load** and **New** show an editable empty page (toolbar + ruler), not a placeholder or empty buffer state
+7. Eigenpal title bar: no default doc icon column, no **Help** menu (Helvety uses the command bar for file actions)
+8. Menus and dialogs: readable contrast in dark mode (no white panels with light-grey text)
 
-Then run `bun test apps/docs` (theme bridge coverage in `lib/docx-editor-theme.test.ts`, including a check that every eigenpal `slate-*` utility has a dark remap). If that test fails after a package bump, extend the dark remap block in `docx-editor-helvety-bridge.css`.
+Then run `bun test apps/docs` (theme bridge coverage in `lib/docx-editor-theme.test.ts`, including a check that every eigenpal `slate-*` utility has a dark remap). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layer 4 for toolbar surfaces and inline `white` menu/dialog panels).
 
 ## Third-Party
 

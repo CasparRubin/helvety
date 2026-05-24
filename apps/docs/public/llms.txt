@@ -8,8 +8,9 @@
 
 ## User Interface
 - Light and dark mode via the navbar theme switcher (system, light, or dark)
-- Toolbar, vault sidebar, and dialogs use the shared Helvety design system (square corners, warm neutrals, red accent)
-- Editor chrome (toolbar, dropdowns, workspace gutter) follows the selected theme; the document page stays white with dark text so exported .docx files remain print-accurate
+- Pinned command bar (New, Open, Download, Save to vault), vault sidebar, and dialogs use the shared Helvety design system (square corners, warm neutrals, red accent)
+- Eigenpal editor chrome (formatting toolbar, Format/Insert menus, workspace gutter) follows the selected theme via a CSS bridge; the vendor default title-bar doc icon and Help menu are hidden (file actions live in the command bar)
+- The printable document page stays white with dark text in both themes so exported .docx files remain print-accurate
 
 ## Crawling And Indexing
 - The main editor route at `/docs` is intended to be indexable.

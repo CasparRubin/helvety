@@ -45,9 +45,16 @@ describe("docs copy consistency", () => {
 
     expect(readme).toMatch(/## Theme \(light \/ dark\)/);
     expect(readme).toContain("docx-editor-helvety-bridge.css");
+    expect(readme).toContain("docx-editor-theme-tokens.ts");
+    expect(readme).toMatch(/Eigenpal upgrade checklist/i);
+    expect(readme).toMatch(/no default doc icon column/i);
+    expect(readme).toMatch(/no \*\*Help\*\* menu/i);
+    expect(readme).toMatch(/workspace gutter/i);
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
-    expect(llms).toMatch(/white/i);
+    expect(llms).toMatch(/pinned command bar/i);
+    expect(llms).toMatch(/Help menu are hidden/i);
+    expect(llms).toMatch(/printable document page stays white/i);
     expect(llms).toMatch(/print-accurate|exported .docx/i);
 
     for (const doc of [readme, llms]) {

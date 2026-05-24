@@ -52,9 +52,25 @@ export const EP_EDITOR_THEME_DARK = {
   radius: "0",
 } as const;
 
-/** Workspace gutter around pages (Word-style); not the printable page. */
-export const EP_DOC_SURROUND_LIGHT = "#f5f2f1";
-export const EP_DOC_SURROUND_DARK = "#1c1816";
+/**
+ * Editor chrome `--doc-*` aliases on `.ep-root` (see bridge CSS).
+ * Values resolve via semantic HSL channels in light and dark.
+ */
+export const EP_DOC_CHROME_SEMANTIC = {
+  bg: "hsl(var(--background))",
+  text: "hsl(var(--foreground))",
+  textMuted: "hsl(var(--muted-foreground))",
+  textSubtle: "hsl(var(--muted-foreground))",
+  textPlaceholder: "hsl(var(--muted-foreground))",
+  border: "hsl(var(--border))",
+  borderLight: "hsl(var(--border))",
+  borderDark: "hsl(var(--input))",
+  borderInput: "hsl(var(--input))",
+  bgSubtle: "hsl(var(--muted))",
+  bgHover: "hsl(var(--accent))",
+  bgInput: "hsl(var(--secondary))",
+  hover: "var(--doc-bg-hover)",
+} as const;
 
 /** Brand accent on `.ep-root` light chrome (toolbar highlights). */
 export const EP_DOC_BRAND_LIGHT = {
@@ -89,19 +105,4 @@ export const EP_DOC_PAPER = {
   bgSubtle: "#f5f5f5",
   bgHover: "#f1f3f4",
   bgInput: "#f8f9fa",
-} as const;
-
-/** `html.dark .ep-root` doc-* tokens for editor chrome (not the printable page). */
-export const EP_DOC_CHROME_DARK = {
-  text: "#e8eaed",
-  textMuted: "#9aa0a6",
-  textSubtle: "#80868b",
-  textPlaceholder: "#5f6368",
-  border: "#3c4043",
-  borderLight: "#5f6368",
-  borderDark: "#80868b",
-  borderInput: "#5f6368",
-  bgSubtle: "#292524",
-  bgHover: "#3c4043",
-  bgInput: "#292524",
 } as const;

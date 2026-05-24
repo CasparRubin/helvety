@@ -42,7 +42,9 @@ describe("Helvety Docs llms.txt", () => {
   it("documents light/dark UI and white document page for export", () => {
     expect(source).toMatch(/## User Interface/);
     expect(source).toMatch(/light and dark mode/i);
-    expect(source).toMatch(/document page stays white/i);
+    expect(source).toMatch(/pinned command bar/i);
+    expect(source).toMatch(/Help menu are hidden/i);
+    expect(source).toMatch(/printable document page stays white/i);
     expect(source).toMatch(/print-accurate/i);
   });
 

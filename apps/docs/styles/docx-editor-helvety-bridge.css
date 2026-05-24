@@ -1,8 +1,12 @@
 /**
  * Helvety theme bridge for @eigenpal/docx-editor-react.
  * Eigenpal scopes UI under `.ep-root` with HSL channel variables (`hsl(var(--background))`).
- * Helvety app tokens use oklch on `:root` / `.dark`; see packages/ui/globals.css.
- * Token values: apps/docs/lib/docx-editor-theme-tokens.ts
+ * Helvety app tokens use oklch on `:root` / `html.dark`; see packages/ui/globals.css.
+ * Token reference: apps/docs/lib/docx-editor-theme-tokens.ts
+ *
+ * Layers: (1) semantic HSL on `.ep-root`, (2) white paper on `.layout-page`,
+ * (3) dark `slate-*` remaps, (4) chrome surfaces + inline white panels,
+ * (5) hide vendor title-bar doc icon and Help menu.
  */
 
 /* --- Layer 1: semantic shadcn variables (light) --- */
@@ -27,22 +31,23 @@
   --border: 12.4 8.4% 87.2%;
   --input: 12.4 8.4% 87.2%;
   --ring: 0 0% 63%;
-  --doc-bg: #f5f2f1;
+  --doc-bg: hsl(var(--background));
   --doc-primary: #ff102a;
   --doc-primary-hover: #d90e24;
   --doc-primary-light: #ffe8eb;
-  --doc-text: #202124;
-  --doc-text-muted: #5f6368;
-  --doc-text-subtle: #9aa0a6;
-  --doc-text-placeholder: #999999;
-  --doc-border: #e0e0e0;
-  --doc-border-light: #dadce0;
-  --doc-border-dark: #d0d0d0;
-  --doc-border-input: #cccccc;
-  --doc-bg-subtle: #f5f5f5;
-  --doc-bg-hover: #f1f3f4;
-  --doc-bg-input: #f8f9fa;
+  --doc-text: hsl(var(--foreground));
+  --doc-text-muted: hsl(var(--muted-foreground));
+  --doc-text-subtle: hsl(var(--muted-foreground));
+  --doc-text-placeholder: hsl(var(--muted-foreground));
+  --doc-border: hsl(var(--border));
+  --doc-border-light: hsl(var(--border));
+  --doc-border-dark: hsl(var(--input));
+  --doc-border-input: hsl(var(--input));
+  --doc-bg-subtle: hsl(var(--muted));
+  --doc-bg-hover: hsl(var(--accent));
+  --doc-bg-input: hsl(var(--secondary));
   --doc-link: #0563c1;
+  --doc-hover: var(--doc-bg-hover);
 }
 
 /* --- Layer 1: semantic shadcn variables (dark) --- */
@@ -67,21 +72,9 @@ html.dark .ep-root {
   --border: 12.4 10% 18%;
   --input: 12.4 10% 22%;
   --ring: 0 0% 45.2%;
-  --doc-bg: #1c1816;
   --doc-primary: #ff4d5f;
   --doc-primary-hover: #ff102a;
   --doc-primary-light: #3d1a1f;
-  --doc-text: #e8eaed;
-  --doc-text-muted: #9aa0a6;
-  --doc-text-subtle: #80868b;
-  --doc-text-placeholder: #5f6368;
-  --doc-border: #3c4043;
-  --doc-border-light: #5f6368;
-  --doc-border-dark: #80868b;
-  --doc-border-input: #5f6368;
-  --doc-bg-subtle: #292524;
-  --doc-bg-hover: #3c4043;
-  --doc-bg-input: #292524;
   --doc-link: #8ab4f8;
 }
 
@@ -177,17 +170,37 @@ html.dark .ep-root .bg-\[\#f1f5f9\] {
   background-color: hsl(var(--muted)) !important;
 }
 
-html.dark .ep-root .bg-white {
+/* --- Layer 4: theme-agnostic chrome surfaces (light + dark) --- */
+.ep-root [data-testid="title-bar"],
+.ep-root [data-testid="editor-toolbar"] {
   background-color: hsl(var(--card)) !important;
 }
 
-/* --- Global eigenpal rules (outside .ep-root utilities) --- */
-html.dark .docx-outline-heading-btn:hover {
-  background-color: #3c3836;
+.ep-root .bg-white {
+  background-color: hsl(var(--card)) !important;
 }
 
-html.dark .ep-hyperlink-popup__icon-btn:hover {
-  background-color: #3c3836;
+.ep-root div[style*="background-color: white"],
+.ep-root div[style*="background-color:white"] {
+  background-color: hsl(var(--popover)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* --- Layer 5: Eigenpal title-bar chrome hides --- */
+/* Hide default doc icon column (logo + left padding) */
+.ep-root [data-testid="title-bar"] > div:first-child {
+  display: none;
+}
+
+/* Hide Help — last menubar item when File menu is omitted (Helvety does not pass onOpen/onSave/onPrint) */
+.ep-root [data-testid="title-bar"] .flex.items-center.px-1 > :last-child {
+  display: none;
+}
+
+/* --- Global eigenpal hovers (scoped to .ep-root for HSL channel tokens) --- */
+html.dark .ep-root .docx-outline-heading-btn:hover,
+html.dark .ep-root .ep-hyperlink-popup__icon-btn:hover {
+  background-color: hsl(var(--muted)) !important;
 }
 
 /* Layout: editor fills workspace column */

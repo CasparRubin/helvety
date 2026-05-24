@@ -20,7 +20,7 @@ interface DocxEditorWorkspaceProps {
 /**
  * Client-only docx editor surface (loaded via dynamic import from the page).
  * Blank documents use Eigenpal `createEmptyDocument()` (`document` prop), not `documentBuffer={null}`.
- * Editor chrome theme comes from `styles/docx-editor-helvety-bridge.css` on `.ep-root`.
+ * Editor chrome theme and title-bar overrides come from `styles/docx-editor-helvety-bridge.css` on `.ep-root`.
  */
 export const DocxEditorWorkspace = forwardRef<
   DocxEditorRef,
