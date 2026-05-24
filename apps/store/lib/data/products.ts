@@ -1115,7 +1115,7 @@ const helvetyDocs: SaaSProduct = {
   category: cHelvetyDocs.category,
   description: {
     intro:
-      "Helvety Docs edits Word (.docx) files in your browser. Open, create, or upload a document and work locally without signing in. When you choose vault save, document titles and file bytes are encrypted on your device before they reach Helvety storage.",
+      "Helvety Docs edits Word (.docx) files in your browser. The editor starts blank on each visit; open, create, or upload a document and work locally without signing in. Vault bookmarks may use `?doc=` in URLs, but documents do not auto-open on load. When you choose vault save, document titles and .docx bytes are encrypted on your device before they reach Helvety storage.",
     sections: [
       {
         heading: "Access model",
@@ -1128,6 +1128,7 @@ const helvetyDocs: SaaSProduct = {
         items: [
           "Edit .docx in the tab with familiar word-processor controls.",
           "Upload or start a new document, then download when you are done.",
+          "Open saved vault documents from the sidebar after sign-in (URLs may show `?doc=` after you open or save).",
           "Save to your vault when signed in (titles and .docx bytes encrypted client-side).",
           "Per-file ceiling of 20 MB. Large documents still depend on device RAM and your browser.",
         ],
@@ -1146,7 +1147,7 @@ const helvetyDocs: SaaSProduct = {
     "Local .docx editing without an account",
     "Optional vault save with client-side encryption",
     "Upload, create, edit, and download .docx files",
-    "Encrypted document titles and file bytes when vault save is used",
+    "Encrypted document titles and .docx bytes when vault save is used",
     "Up to 20MB per file",
     "Dark & light mode support",
   ],

@@ -134,7 +134,7 @@ function VaultDocumentList({
   );
 }
 
-/** Sidebar listing encrypted vault documents (gated when session exists). */
+/** Sidebar listing encrypted vault documents (sign-in required; list and save require vault unlock via EncryptionGateApp). */
 export function VaultPanel({
   initialUser,
   activeDocId,

@@ -23,7 +23,7 @@ export const CONTACTS_APP_DESCRIPTION = `Encrypted contacts with names, numbers,
 export const NOTES_APP_DESCRIPTION = `Encrypted notes with titles and rich text in Personal, Work, and Other groups. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared tasks SEO / social copy. */
-export const TASKS_APP_DESCRIPTION = `Stage-based tasks encrypted before they leave your browser. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const TASKS_APP_DESCRIPTION = `Stage-based tasks with encrypted titles, descriptions, and dates. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared links SEO / social copy. */
 export const LINKS_APP_DESCRIPTION = `Encrypted bookmarks with nested folders. Names and URLs are encrypted on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;

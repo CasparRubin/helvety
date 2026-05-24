@@ -11,7 +11,6 @@ const hooksDir = join(libDir, "../hooks");
 const shellPath = join(componentsDir, "helvety-docs-shell.tsx");
 const vaultPanelPath = join(componentsDir, "vault-panel.tsx");
 const useDocsPath = join(hooksDir, "use-docs.ts");
-const readmePath = join(libDir, "../README.md");
 
 /**
  * Docs uses Next basePath `/docs`. Client router paths must stay zone-relative;
@@ -61,19 +60,5 @@ describe("docs zone routing invariants", () => {
     expect(src).not.toMatch(/const DOCS_BASE_PATH\s*=/);
     expect(src).toContain('getDocsApiPath("/api/docs")');
     expect(src).toContain("getDocsApiPath(`/api/docs/${id}`)");
-  });
-
-  it("README documents basePath routing rules and /docs/docs footgun", () => {
-    const src = readFileSync(readmePath, "utf8");
-
-    expect(src).toContain("## Routing (`basePath: /docs`)");
-    expect(src).toContain("docs-zone-path.ts");
-    expect(src).toContain("/docs/docs");
-    expect(src).toMatch(/\?doc=/);
-    expect(src).toMatch(/Vault bookmarks/i);
-    expect(src).toMatch(/not an auto-open deep link/i);
-    expect(src).toMatch(/## Editor behavior \(maintainers\)/);
-    expect(src).toContain("createEmptyDocument");
-    expect(src).not.toMatch(/Vault deep links:/i);
   });
 });

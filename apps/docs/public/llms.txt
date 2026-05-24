@@ -12,8 +12,8 @@
 - Editor chrome (toolbar, dropdowns, workspace gutter) follows the selected theme; the document page stays white with dark text so exported .docx files remain print-accurate
 
 ## Crawling And Indexing
-- The main editor route is intended to be indexable.
-- API and auth callback routes are not intended as crawl targets.
+- The main editor route at `/docs` is intended to be indexable.
+- `robots.txt` disallows site-root `/api` and `/auth` paths. Vault API routes under `/docs/api` require authentication and are not public crawl targets.
 
 ## Related Helvety Apps
 - [Helvety](https://helvety.com)

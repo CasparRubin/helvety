@@ -8,8 +8,8 @@ Browser-based `.docx` editor with optional encrypted vault save.
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` so vault save can use the same passkey-derived keys as Tasks/Notes, while the main editor route stays public (no full-app `EncryptionGate`). The public `app/page.tsx` calls `bootstrapPublicLayoutUser()` for the navbar session snapshot.
-- User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`DOCS_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`DOCS_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler and LLM hints in [`public/llms.txt`](./public/llms.txt) (vault bookmarks, theme, licensing).
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` (vault save uses the same passkey-derived keys as Tasks/Notes). That session also feeds the navbar user snapshot (`<Navbar initialUser={initialUser} />`). The main editor route stays public (no full-app `EncryptionGate`). `app/page.tsx` calls `bootstrapPublicLayoutUser()` only for the vault shell’s `initialUser` prop (sidebar sign-in state), not for the navbar.
+- SEO description: `DOCS_APP_DESCRIPTION` in `@helvety/shared/app-product-descriptions` (used by `app/layout.tsx` metadata and JSON-LD). [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports that constant for tests and defines `DOCS_PWA_MANIFEST_DESCRIPTION` for [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`). Crawler and LLM hints: [`public/llms.txt`](./public/llms.txt) (vault bookmarks, theme, licensing).
 - `@eigenpal/docx-editor-react` loads via `dynamic(..., { ssr: false })` per vendor Next.js guidance.
 - **Local editing:** open, create, upload, and download `.docx` files without signing in; bytes stay in the browser for editing. The editor **always opens to a blank document** (logged in or not). **New** resets to a fresh blank page.
 - **Light / dark theme:** navbar **ThemeSwitcher** (system, light, or dark). Helvety chrome uses `@helvety/ui` tokens; the Eigenpal editor shell is themed via [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (see [Theme](#theme-light--dark) below). The printable page stays white in both modes.
@@ -33,7 +33,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 ## Editor behavior (maintainers)
 
-- **Blank default:** [`components/docx-editor-workspace.tsx`](./components/docx-editor-workspace.tsx) mounts Eigenpal’s `createEmptyDocument()` when there is no loaded buffer. Do **not** pass `documentBuffer={null}` alone — that shows Eigenpal’s empty state, not an editable page.
+- **Blank default:** [`components/docx-editor-workspace.tsx`](./components/docx-editor-workspace.tsx) mounts Eigenpal’s `createEmptyDocument()` when there is no loaded buffer. Do **not** pass `documentBuffer={null}` alone; that shows Eigenpal’s empty state, not an editable page.
 - **New / remount:** [`components/helvety-docs-shell.tsx`](./components/helvety-docs-shell.tsx) bumps `editorSessionKey` on **New**, local open, and vault open so the editor remounts cleanly.
 - **Public route:** [`app/page.tsx`](./app/page.tsx) stays public; vault is sidebar-only. Auth does not gate the blank editor.
 
@@ -44,8 +44,8 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 ## Crawl and Indexing
 
-- `apps/docs` is publicly indexable (main editor route).
-- `/docs/robots.txt` allows crawl and advertises `/docs/sitemap.xml`.
+- `apps/docs` is publicly indexable (main editor route at `/docs`).
+- `/docs/robots.txt` allows crawl and advertises `/docs/sitemap.xml`; it disallows site-root `/api` and `/auth` paths (not `/docs/api`, which is auth-gated vault access).
 - `/docs/sitemap.xml` contains canonical public URLs (app root and `llms.txt`).
 
 ## Security Model

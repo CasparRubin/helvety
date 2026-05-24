@@ -49,6 +49,20 @@ describe("contacts api routes", () => {
     });
   });
 
+  it("returns auth failure without querying Supabase", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: false,
+      response: { success: false, error: "Unauthorized" },
+    });
+
+    const response = await getContacts();
+    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Unauthorized",
+    });
+  });
+
   it("validates contact id on detail route", async () => {
     const response = await getContactById(new Request("https://helvety.com"), {
       params: Promise.resolve({ id: "invalid-id" }),

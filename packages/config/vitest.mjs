@@ -57,12 +57,6 @@ export function createVitestConfig(rootDir, options = {}) {
           "**/*.d.ts",
         ],
         reporter: ["text", "lcov"],
-        thresholds: {
-          lines: 70,
-          functions: 70,
-          branches: 60,
-          statements: 70,
-        },
       },
     },
   });

@@ -12,6 +12,21 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EM_DASH = "\u2014";
 
+/** Keep in sync with `customer-copy-guardrails.ts` (`CUSTOMER_COPY_README_RELATIVE_PATHS`). */
+const README_RELATIVE_PATHS = [
+  "README.md",
+  "apps/pdf/README.md",
+  "apps/docs/README.md",
+  "apps/tasks/README.md",
+  "apps/contacts/README.md",
+  "apps/links/README.md",
+  "apps/notes/README.md",
+  "apps/auth/README.md",
+  "apps/store/README.md",
+  "apps/web/README.md",
+  "apps/image-upscaler/README.md",
+];
+
 /** Keep in sync with `customer-copy-guardrails.ts`. */
 const EXPLICIT_RELATIVE_PATHS = [
   "apps/web/public/llms.txt",
@@ -115,7 +130,9 @@ function collectUserFacingAppTsx() {
 }
 
 function scanFiles() {
-  const explicit = EXPLICIT_RELATIVE_PATHS.map((rel) => path.join(root, rel));
+  const explicit = [...README_RELATIVE_PATHS, ...EXPLICIT_RELATIVE_PATHS].map(
+    (rel) => path.join(root, rel)
+  );
   return [...new Set([...explicit, ...collectUserFacingAppTsx()])];
 }
 

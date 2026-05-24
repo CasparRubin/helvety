@@ -182,7 +182,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-docs",
     name: "Helvety Docs",
     shortDescription:
-      "Edit Word (.docx) in your browser. Local editing needs no account; optional vault save encrypts titles and files on your device before storage.",
+      "Edit Word (.docx) in your browser. Local editing needs no account; optional vault save encrypts titles and .docx files on your device before storage.",
     releaseDate: "2026-05-23",
     type: "saas",
     category: "utilities",

@@ -48,6 +48,20 @@ describe("tasks api routes", () => {
     });
   });
 
+  it("returns auth failure without querying Supabase", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: false,
+      response: { success: false, error: "Unauthorized" },
+    });
+
+    const response = await getItems();
+    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Unauthorized",
+    });
+  });
+
   it("validates task id on detail route", async () => {
     const response = await getItemById(new Request("https://helvety.com"), {
       params: Promise.resolve({ id: "invalid-id" }),

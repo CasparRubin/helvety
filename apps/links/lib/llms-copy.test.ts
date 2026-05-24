@@ -19,6 +19,10 @@ describe("Helvety Links llms.txt", () => {
     expect(source).toMatch(/before storage/i);
     expect(source).toMatch(/Dashboard command bar/i);
     expect(source).toMatch(/open links in a folder/i);
+    expect(source).toMatch(/draft row and open the right-hand editor sheet/i);
+    expect(source).not.toMatch(/via dialogs/i);
+    expect(source).toMatch(/\?link=/);
+    expect(source).toMatch(/\?folder=/);
   });
 
   it("states non-indexable auth-required routing", () => {

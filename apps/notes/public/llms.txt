@@ -2,6 +2,11 @@
 
 > Encrypted notes with titles and rich text in Personal, Work, and Other groups. Engineered, designed and made in Switzerland.
 
+## Product behavior
+- Encrypted titles and rich-text bodies in Personal, Work, and Other groups
+- Shareable links use `?note=<uuid>` to open a note in the detail sheet after sign-in and vault unlock
+- Optional links to Helvety Tasks and Contacts when both apps are in use
+
 ## Canonical URL
 - [Notes App](https://helvety.com/notes): Auth-required notes route
 

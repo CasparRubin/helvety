@@ -8,7 +8,9 @@
 - Link rows open the URL in a new tab; pencil opens link/folder editors in right sheets
 - Dashboard command bar: primary New link, secondary New folder
 - Folder actions: open links in a folder, or in a folder and all nested subfolders (on All, open every bookmark in the library)
-- Create link/folder via dialogs; edit with pinned save bar, refresh, and unsaved-change detection (same pattern as other Helvety E2EE apps)
+- New link / New folder create a draft row and open the right-hand editor sheet; closing without edits removes the draft
+- Edit with pinned save bar, refresh, and unsaved-change detection (same pattern as other Helvety E2EE apps)
+- Shareable links use `?link=<uuid>` or `?folder=<uuid>` to open the editor sheet after sign-in and vault unlock; they do not expand the folder tree
 - Drag-and-drop reorder and reparenting (disabled during search)
 - Client-side search on decrypted names and URLs
 - Per-account caps: 2,000 folders and 2,000 links (technical limits for reliability)

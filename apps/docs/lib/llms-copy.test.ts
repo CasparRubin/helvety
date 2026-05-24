@@ -45,4 +45,10 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/document page stays white/i);
     expect(source).toMatch(/print-accurate/i);
   });
+
+  it("documents crawl rules aligned with robots.txt", () => {
+    expect(source).toMatch(/\/docs.*indexable/i);
+    expect(source).toMatch(/site-root `\/api`/);
+    expect(source).toMatch(/\/docs\/api.*authentication/i);
+  });
 });

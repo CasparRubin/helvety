@@ -59,6 +59,62 @@ Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests
 
 Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync.
 
+Private E2EE zones (`auth`, `contacts`, `notes`, `tasks`, `links`) use manual robots tests: `disallow: "/"` for all user agents and an empty sitemap. Do not migrate those to `expectPublicCrawlerRobots`.
+
+## Cross-app test contract
+
+Beyond the required floor above, match these templates when adding or auditing tests. Reference implementations live in sibling apps — copy structure, swap entity names only.
+
+### API routes (`app/api/**/route.ts`)
+
+Colocate **`route.test.ts` beside the list handler**. Import `[id]/route` from the same file when a detail route exists (see `apps/contacts/app/api/contacts/route.test.ts`).
+
+| Case                                                | Required?                              | Reference                                      |
+| --------------------------------------------------- | -------------------------------------- | ---------------------------------------------- |
+| List success + `cache-control: no-store, max-age=0` | Yes                                    | `apps/contacts/app/api/contacts/route.test.ts` |
+| Auth failure (no Supabase query)                    | Yes                                    | `apps/links/app/api/library/route.test.ts`     |
+| `[id]` invalid UUID + no-store header               | Yes                                    | Same parent file imports `./[id]/route`        |
+| CSP wiring (`runtime`, domain, `POST`)              | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`    |
+
+Data-route mock stack:
+
+```typescript
+vi.mock("@helvety/shared/action-helpers", () => ({
+  authenticateAndRateLimit: mocks.authenticateAndRateLimit,
+}));
+vi.mock("@helvety/shared/logger", () => ({
+  logger: { logUnexpectedError: mocks.logUnexpectedError },
+}));
+```
+
+### Server actions (`app/actions/*-actions.ts`)
+
+One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/contacts/app/actions/contact-actions.test.ts` and helpers from `@helvety/shared/test-utils/action-test-helpers`.
+
+### Primary data hooks (E2EE + docs)
+
+1. `describe("get*ApiPath")` — pure basePath prefix tests.
+2. `describe("use*")` + `renderHook` — for E2EE list hooks, mock `useEncryptedSortableItems` and `@/lib/crypto`; assert `navigationSource`, `perfMeasureName`, `loadFailureMessage`, `reorderEntities` (see `apps/contacts/hooks/use-contacts.test.ts`).
+
+Docs uses a custom `useDocs` hook (mock `fetch` + `getDocsApiPath` instead of `useEncryptedSortableItems`).
+
+### Components
+
+| Type                   | E2EE reference                                      | Cases                                                                          |
+| ---------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
+| List                   | `apps/contacts/components/contact-list.test.tsx`    | Refresh visibility, grouped empty, global empty guard, search empty, flat list |
+| Editor command bar     | `apps/tasks/components/item-command-bar.test.tsx`   | Back, Save, Refresh, Delete accessible names                                   |
+| Cross-app links panels | `apps/notes/components/contact-links-panel.test.ts` | `buildE2eeDeepLink` contract only                                              |
+
+Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`).
+
+### Lib / copy / crypto
+
+- Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
+- `lib/product-copy.test.ts`: only apps with local PWA wrappers (`docs`, `pdf`, `image-upscaler`).
+- `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`docs`, `links`).
+- Crypto: `buildAAD` + module surface tests in `lib/crypto/` (see `apps/notes/lib/crypto/encryption.test.ts`).
+
 ## `package.json` conventions
 
 - **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*`

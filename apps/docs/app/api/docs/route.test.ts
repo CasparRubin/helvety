@@ -15,23 +15,22 @@ vi.mock("@helvety/shared/logger", () => ({
   },
 }));
 
-import { GET as getItemById } from "./[id]/route";
-import { GET as getItems } from "./route";
+import { GET as getDocById } from "./[id]/route";
+import { GET as getDocs } from "./route";
 
-describe("notes api routes", () => {
+describe("docs api routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns notes list with no-store header", async () => {
-    const rows = [{ id: "n-1", user_id: "user-1" }];
+  it("returns documents list with no-store header", async () => {
+    const rows = [{ id: "d-1", user_id: "user-1" }];
     const overrideTypes = vi
       .fn()
       .mockResolvedValue({ data: rows, error: null });
     const limit = vi.fn(() => ({ overrideTypes }));
-    const orderCreatedAt = vi.fn(() => ({ limit }));
-    const orderSort = vi.fn(() => ({ order: orderCreatedAt }));
-    const eqUser = vi.fn(() => ({ order: orderSort }));
+    const orderUpdatedAt = vi.fn(() => ({ limit }));
+    const eqUser = vi.fn(() => ({ order: orderUpdatedAt }));
     const select = vi.fn(() => ({ eq: eqUser }));
     const supabase = { from: vi.fn(() => ({ select })) };
 
@@ -40,7 +39,7 @@ describe("notes api routes", () => {
       ctx: { user: { id: "user-1" }, supabase },
     });
 
-    const response = await getItems();
+    const response = await getDocs();
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
     await expect(response.json()).resolves.toEqual({
       success: true,
@@ -54,7 +53,7 @@ describe("notes api routes", () => {
       response: { success: false, error: "Unauthorized" },
     });
 
-    const response = await getItems();
+    const response = await getDocs();
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
     await expect(response.json()).resolves.toEqual({
       success: false,
@@ -62,15 +61,42 @@ describe("notes api routes", () => {
     });
   });
 
-  it("validates note id on detail route", async () => {
-    const response = await getItemById(new Request("https://helvety.com"), {
+  it("rejects list responses that exceed MAX_DOC_ROWS", async () => {
+    const rows = Array.from({ length: 501 }, (_, index) => ({
+      id: `d-${index}`,
+      user_id: "user-1",
+    }));
+    const overrideTypes = vi
+      .fn()
+      .mockResolvedValue({ data: rows, error: null });
+    const limit = vi.fn(() => ({ overrideTypes }));
+    const orderUpdatedAt = vi.fn(() => ({ limit }));
+    const eqUser = vi.fn(() => ({ order: orderUpdatedAt }));
+    const select = vi.fn(() => ({ eq: eqUser }));
+    const supabase = { from: vi.fn(() => ({ select })) };
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    const response = await getDocs();
+    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Too many documents to load in one request",
+    });
+  });
+
+  it("validates document id on detail route", async () => {
+    const response = await getDocById(new Request("https://helvety.com"), {
       params: Promise.resolve({ id: "invalid-id" }),
     });
 
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: "Invalid note ID",
+      error: "Invalid document ID",
     });
   });
 });
