@@ -8,10 +8,12 @@ import { describe, expect, it } from "vitest";
 import { DOCS_PWA_MANIFEST_DESCRIPTION } from "./product-copy";
 
 const libDir = dirname(fileURLToPath(import.meta.url));
+const repoRoot = join(libDir, "../../..");
 const docsZonePath = join(libDir, "docs-zone-path.ts");
-const vaultPanelPath = join(libDir, "../components/vault-panel.tsx");
+const shellPath = join(libDir, "../components/helvety-docs-shell.tsx");
 const readmePath = join(libDir, "../README.md");
 const llmsPath = join(libDir, "../public/llms.txt");
+const uiReadmePath = join(repoRoot, "packages/ui/README.md");
 
 /** User-facing and maintainer copy stays aligned with product behavior. */
 describe("docs copy consistency", () => {
@@ -19,15 +21,16 @@ describe("docs copy consistency", () => {
     const src = readFileSync(docsZonePath, "utf8");
 
     expect(src).toMatch(/vault bookmark/i);
+    expect(src).toMatch(/My documents sheet/i);
     expect(src).toMatch(/not an[\s\S]*auto-open deep link/i);
     expect(src).toMatch(/starts blank/i);
   });
 
-  it("vault panel sign-in comment does not promise auto-open after login", () => {
-    const src = readFileSync(vaultPanelPath, "utf8");
+  it("shell does not auto-open vault documents on sign-in", () => {
+    const src = readFileSync(shellPath, "utf8");
 
-    expect(src).toMatch(/editor still starts blank/i);
-    expect(src).not.toMatch(/opens the document after sign-in/i);
+    expect(src).not.toContain("handleOpenVaultDocument(docId)");
+    expect(src).toMatch(/Always start blank[\s\S]*?setDocInUrl\(null\)/);
   });
 
   it("SEO and PWA descriptions stay hybrid (local edit, optional vault) without implying ?doc= auto-open", () => {
@@ -49,6 +52,9 @@ describe("docs copy consistency", () => {
     expect(readme).toMatch(/Eigenpal upgrade checklist/i);
     expect(readme).toMatch(/no default doc icon column/i);
     expect(readme).toMatch(/no \*\*Help\*\* menu/i);
+    expect(readme).toMatch(/no \*\*comment\*\* UI/i);
+    expect(readme).toMatch(/My documents/i);
+    expect(readme).toMatch(/seamless stack/i);
     expect(readme).toMatch(/workspace gutter/i);
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
@@ -59,6 +65,24 @@ describe("docs copy consistency", () => {
 
     for (const doc of [readme, llms]) {
       expect(doc).not.toMatch(/auto-opened on load/i);
+      expect(doc).not.toMatch(/vault sidebar/i);
+      expect(doc).not.toMatch(/left sidebar/i);
+      expect(doc).not.toMatch(/VaultPanel/i);
     }
+  });
+
+  it("README documents disabled comment UI without implying full OOXML stripping", () => {
+    const readme = readFileSync(readmePath, "utf8");
+
+    expect(readme).toMatch(/Comments:/i);
+    expect(readme).toMatch(/cannot add, view, or edit comments/i);
+    expect(readme).not.toMatch(/strip(s|ped)?\s+comments\s+from/i);
+  });
+
+  it("monorepo UI package README describes docs vault sheet, not a permanent sidebar", () => {
+    const uiReadme = readFileSync(uiReadmePath, "utf8");
+
+    expect(uiReadme).not.toMatch(/vault sidebar/i);
+    expect(uiReadme).toMatch(/My documents.*vault sheet|vault sheet/i);
   });
 });

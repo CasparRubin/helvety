@@ -6,6 +6,7 @@ import {
   CloudUploadIcon,
   DownloadIcon,
   FilePlusIcon,
+  FilesIcon,
   FolderOpenIcon,
   Loader2Icon,
 } from "lucide-react";
@@ -16,10 +17,12 @@ interface DocsCommandBarProps {
   readonly isSaving: boolean;
   readonly canSaveToVault: boolean;
   readonly vaultDocId: string | null;
+  readonly showMyDocuments: boolean;
   readonly onNewDocument: () => void;
   readonly onOpenFile: () => void;
   readonly onDownload: () => void;
   readonly onSaveToVault: () => void;
+  readonly onOpenMyDocuments: () => void;
 }
 
 const commandButtonClassName = "rounded-none";
@@ -30,13 +33,15 @@ export function DocsCommandBar({
   isSaving,
   canSaveToVault,
   vaultDocId,
+  showMyDocuments,
   onNewDocument,
   onOpenFile,
   onDownload,
   onSaveToVault,
+  onOpenMyDocuments,
 }: DocsCommandBarProps): React.JSX.Element {
   return (
-    <CommandBar>
+    <CommandBar className="border-b-0">
       <Button
         size="sm"
         variant="outline"
@@ -67,6 +72,18 @@ export function DocsCommandBar({
         <DownloadIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
         <span className="sr-only min-[400px]:not-sr-only">Download</span>
       </Button>
+      {showMyDocuments ? (
+        <Button
+          size="sm"
+          variant="outline"
+          className={commandButtonClassName}
+          onClick={onOpenMyDocuments}
+          aria-label="My documents"
+        >
+          <FilesIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+          <span className="sr-only min-[400px]:not-sr-only">My documents</span>
+        </Button>
+      ) : null}
       <CommandBarSpacer />
       <Button
         size="sm"

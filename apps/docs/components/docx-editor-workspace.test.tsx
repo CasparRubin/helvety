@@ -20,6 +20,8 @@ describe("DocxEditorWorkspace", () => {
     expect(docxEditorMock).toHaveBeenCalledWith(
       expect.objectContaining({
         document: { type: "blank-document" },
+        comments: [],
+        onCommentsChange: expect.any(Function),
       })
     );
     expect(docxEditorMock).toHaveBeenCalledWith(

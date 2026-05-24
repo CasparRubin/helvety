@@ -48,6 +48,8 @@ vi.mock("sonner", () => ({
 
 import { HelvetyDocsShell } from "./helvety-docs-shell";
 
+import type { User } from "@supabase/supabase-js";
+
 describe("HelvetyDocsShell", () => {
   it("strips landing ?doc= without auto-opening vault documents", async () => {
     render(<HelvetyDocsShell initialUser={null} />);
@@ -59,5 +61,20 @@ describe("HelvetyDocsShell", () => {
     expect(
       screen.getByRole("button", { name: "Download document" })
     ).toBeEnabled();
+    expect(
+      screen.queryByRole("button", { name: "My documents" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows My documents in the command bar when signed in", () => {
+    render(
+      <HelvetyDocsShell
+        initialUser={{ id: "user-1", email: "user@example.com" } as User}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "My documents" })
+    ).toBeInTheDocument();
   });
 });

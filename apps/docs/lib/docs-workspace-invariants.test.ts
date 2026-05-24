@@ -9,7 +9,8 @@ const componentsDir = join(libDir, "../components");
 
 const shellPath = join(componentsDir, "helvety-docs-shell.tsx");
 const workspacePath = join(componentsDir, "docx-editor-workspace.tsx");
-const vaultPanelPath = join(componentsDir, "vault-panel.tsx");
+const commandBarPath = join(componentsDir, "docs-command-bar.tsx");
+const vaultSheetPath = join(componentsDir, "vault-documents-sheet.tsx");
 
 /**
  * High-value source invariants for Docs editor UX (blank-on-load, remount, vault UX).
@@ -37,10 +38,34 @@ describe("docs workspace UX invariants", () => {
     );
     expect(shell).toContain("sessionKey={editorSessionKey}");
     expect(shell).toContain("hasDocument={true}");
+    expect(shell).toContain("VaultDocumentsSheet");
+    expect(shell).not.toContain("VaultPanel");
+    expect(shell).toMatch(
+      /handleOpenVaultDocument[\s\S]*?setVaultSheetOpen\(false\)/
+    );
+    expect(shell).toContain(
+      "onOpenMyDocuments={() => setVaultSheetOpen(true)}"
+    );
+  });
+
+  it("editor disables comment UI via controlled empty comments", () => {
+    const workspace = readFileSync(workspacePath, "utf8");
+
+    expect(workspace).toContain("comments={[]}");
+    expect(workspace).toContain("onCommentsChange={noopCommentsChange}");
+    expect(workspace).toMatch(/comment UI suppressed/i);
+  });
+
+  it("command bar stacks flush with Eigenpal toolbar chrome", () => {
+    const commandBar = readFileSync(commandBarPath, "utf8");
+
+    expect(commandBar).toContain('className="border-b-0"');
+    expect(commandBar).toContain("showMyDocuments");
+    expect(commandBar).toContain("onOpenMyDocuments");
   });
 
   it("vault list uses shared list states and delete confirmation", () => {
-    const src = readFileSync(vaultPanelPath, "utf8");
+    const src = readFileSync(vaultSheetPath, "utf8");
 
     expect(src).toContain("ListLoadingState");
     expect(src).toContain("ListEmptyState");

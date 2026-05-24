@@ -4,12 +4,12 @@
 
 ## Canonical URL
 - [Helvety Docs](https://helvety.com/docs): Browser-based Word (.docx) editor
-- Vault bookmarks may use `?doc=<uuid>` in shared or sign-in return URLs; the editor always starts blank on load (the query is not auto-opened). Open saved documents from the vault sidebar when signed in and vault-unlocked; the URL may show `?doc=<uuid>` after you open or save from the app
+- Vault bookmarks may use `?doc=<uuid>` in shared or sign-in return URLs; the editor always starts blank on load (the query is not auto-opened). Open saved documents from **My documents** in the command bar sheet when signed in and vault-unlocked; the URL may show `?doc=<uuid>` after you open or save from the app
 
 ## User Interface
 - Light and dark mode via the navbar theme switcher (system, light, or dark)
-- Pinned command bar (New, Open, Download, Save to vault), vault sidebar, and dialogs use the shared Helvety design system (square corners, warm neutrals, red accent)
-- Eigenpal editor chrome (formatting toolbar, Format/Insert menus, workspace gutter) follows the selected theme via a CSS bridge; the vendor default title-bar doc icon and Help menu are hidden (file actions live in the command bar)
+- Pinned command bar (New, Open, Download, My documents when signed in, Save to vault) and dialogs use the shared Helvety design system (square corners, warm neutrals, red accent)
+- Eigenpal editor chrome (formatting toolbar, Format/Insert menus, workspace gutter) follows the selected theme via a CSS bridge aligned with the command bar (seamless stack with the pinned command bar); comment UI is disabled in Helvety (no add/view/edit in the app); the vendor default title-bar doc icon and Help menu are hidden (file actions live in the command bar)
 - The printable document page stays white with dark text in both themes so exported .docx files remain print-accurate
 
 ## Crawling And Indexing

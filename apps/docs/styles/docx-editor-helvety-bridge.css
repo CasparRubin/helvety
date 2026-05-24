@@ -6,7 +6,8 @@
  *
  * Layers: (1) semantic HSL on `.ep-root`, (2) white paper on `.layout-page`,
  * (3) dark `slate-*` remaps, (4) chrome surfaces + inline white panels,
- * (5) hide vendor title-bar doc icon and Help menu.
+ * (5) hide vendor title-bar doc icon and Help menu,
+ * (6) comment suppression, (7) seamless toolbar stack with Helvety command bar.
  */
 
 /* --- Layer 1: semantic shadcn variables (light) --- */
@@ -31,6 +32,7 @@
   --border: 12.4 8.4% 87.2%;
   --input: 12.4 8.4% 87.2%;
   --ring: 0 0% 63%;
+  --surface-toolbar: 12.4 17% 94.5%;
   --doc-bg: hsl(var(--background));
   --doc-primary: #ff102a;
   --doc-primary-hover: #d90e24;
@@ -72,6 +74,7 @@ html.dark .ep-root {
   --border: 12.4 10% 18%;
   --input: 12.4 10% 22%;
   --ring: 0 0% 45.2%;
+  --surface-toolbar: 12.4 12% 8.5%;
   --doc-primary: #ff4d5f;
   --doc-primary-hover: #ff102a;
   --doc-primary-light: #3d1a1f;
@@ -79,8 +82,21 @@ html.dark .ep-root {
 }
 
 /* Square corners (Helvety --radius: 0) */
+.ep-root .rounded,
+.ep-root .rounded-sm,
 .ep-root .rounded-md,
-.ep-root .rounded-lg {
+.ep-root .rounded-lg,
+.ep-root .rounded-xl,
+.ep-root .rounded-2xl,
+.ep-root .rounded-full,
+.ep-root .rounded-br-2xl,
+.ep-root .rounded-l-none,
+.ep-root .rounded-r-none {
+  border-radius: 0;
+}
+
+.ep-root [data-testid="title-bar"],
+.ep-root [data-testid="editor-toolbar"] {
   border-radius: 0;
 }
 
@@ -143,7 +159,8 @@ html.dark .ep-root .hover\:bg-slate-800:hover {
 }
 
 html.dark .ep-root .bg-slate-900 {
-  background-color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
 }
 
 html.dark .ep-root .text-slate-400,
@@ -158,7 +175,7 @@ html.dark .ep-root .hover\:text-slate-900:hover {
 }
 
 html.dark .ep-root .hover\:text-white:hover {
-  color: hsl(var(--primary-foreground)) !important;
+  color: hsl(var(--accent-foreground)) !important;
 }
 
 html.dark .ep-root .focus\:ring-slate-300:focus,
@@ -170,10 +187,40 @@ html.dark .ep-root .bg-\[\#f1f5f9\] {
   background-color: hsl(var(--muted)) !important;
 }
 
+/* Dark toolbar / menu hovers: readable accent pair (no white-on-white) */
+html.dark .ep-root [data-testid="editor-toolbar"] .hover\:bg-slate-50:hover,
+html.dark .ep-root [data-testid="editor-toolbar"] .hover\:bg-slate-100:hover,
+html.dark .ep-root [data-testid="editor-toolbar"] .focus\:bg-white:focus,
+html.dark
+  .ep-root
+  [data-testid="editor-toolbar"]
+  .hover\:bg-slate-100\/80:hover,
+html.dark
+  .ep-root
+  [data-testid="editor-toolbar"]
+  .focus\:bg-slate-100\/80:focus,
+html.dark .ep-root [data-testid="title-bar"] .hover\:bg-slate-50:hover,
+html.dark .ep-root [data-testid="title-bar"] .hover\:bg-slate-100:hover,
+html.dark .ep-root [data-testid="title-bar"] .focus\:bg-white:focus {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+html.dark .ep-root [data-testid="editor-toolbar"] .hover\:text-white:hover,
+html.dark .ep-root [data-testid="editor-toolbar"] .text-white,
+html.dark .ep-root [data-testid="title-bar"] .hover\:text-white:hover {
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+html.dark .ep-root [role="menuitem"]:hover,
+html.dark .ep-root [data-radix-collection-item]:hover {
+  color: hsl(var(--accent-foreground)) !important;
+}
+
 /* --- Layer 4: theme-agnostic chrome surfaces (light + dark) --- */
 .ep-root [data-testid="title-bar"],
 .ep-root [data-testid="editor-toolbar"] {
-  background-color: hsl(var(--card)) !important;
+  background-color: hsl(var(--surface-toolbar)) !important;
 }
 
 .ep-root .bg-white {
@@ -197,14 +244,49 @@ html.dark .ep-root .bg-\[\#f1f5f9\] {
   display: none;
 }
 
+/* --- Layer 6: comment suppression --- */
+.ep-root .docx-comments-sidebar,
+.ep-root .docx-unified-sidebar,
+.ep-root .docx-comment-margin-markers,
+.ep-root .docx-comment-card,
+.ep-root button[aria-label="Toggle comments sidebar"],
+.ep-root [role="menuitem"][data-action="addComment"],
+.ep-root button[title="Add comment"] {
+  display: none !important;
+}
+
+/* --- Layer 7: seamless toolbar stack (Helvety command bar + Eigenpal chrome) --- */
+.docx-editor-workspace .ep-root {
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.ep-root [data-testid="title-bar"] {
+  min-height: 3rem;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: 1px solid hsl(var(--border));
+  gap: 0;
+}
+
+.ep-root [data-testid="title-bar"] > .flex {
+  gap: 0;
+  padding-left: 0;
+}
+
+.ep-root [data-testid="editor-toolbar"] {
+  min-height: 3rem;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top: none;
+}
+
 /* --- Global eigenpal hovers (scoped to .ep-root for HSL channel tokens) --- */
 html.dark .ep-root .docx-outline-heading-btn:hover,
 html.dark .ep-root .ep-hyperlink-popup__icon-btn:hover {
   background-color: hsl(var(--muted)) !important;
-}
-
-/* Layout: editor fills workspace column */
-.docx-editor-workspace .ep-root {
-  height: 100%;
-  min-height: 0;
 }

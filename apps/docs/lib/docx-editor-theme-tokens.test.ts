@@ -34,8 +34,8 @@ describe("docx-editor-helvety-bridge.css token sync", () => {
     expect(extractCssVar(lightBlock, "--doc-primary-hover")).toBe(
       EP_DOC_BRAND_LIGHT.primaryHover
     );
-    expect(extractCssVar(lightBlock, "--background")).toBe(
-      EP_EDITOR_THEME_LIGHT.background
+    expect(extractCssVar(lightBlock, "--surface-toolbar")).toBe(
+      EP_EDITOR_THEME_LIGHT.surfaceToolbar
     );
   });
 
@@ -50,6 +50,9 @@ describe("docx-editor-helvety-bridge.css token sync", () => {
     );
     expect(extractCssVar(darkBlock, "--background")).toBe(
       EP_EDITOR_THEME_DARK.background
+    );
+    expect(extractCssVar(darkBlock, "--surface-toolbar")).toBe(
+      EP_EDITOR_THEME_DARK.surfaceToolbar
     );
   });
 });

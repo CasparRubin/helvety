@@ -5,7 +5,7 @@
  * - {@link getDocsApiPath}: browser `fetch` to `/docs/api/...` (`fetch` does not apply Next `basePath`).
  *
  * Inside the docs app, use zone-relative paths for `router.replace` and `<Link href>` (`/`, `/?doc=…`).
- * `?doc=` is a vault bookmark id (URL sync when the user opens/saves from the sidebar), not an
+ * `?doc=` is a vault bookmark id (URL sync when the user opens/saves from the My documents sheet), not an
  * auto-open deep link on load; the editor starts blank. See `helvety-docs-shell.tsx`.
  * Do not pass `/docs` to the App Router or navigation becomes `/docs/docs`.
  */

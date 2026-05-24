@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 import { DocsCommandBar } from "@/components/docs-command-bar";
 import { SaveVaultDialog } from "@/components/save-vault-dialog";
-import { VaultPanel } from "@/components/vault-panel";
+import { VaultDocumentsSheet } from "@/components/vault-documents-sheet";
 import { useDocs } from "@/hooks/use-docs";
 import { MAX_DOCX_BYTES } from "@/lib/constants";
 import { normalizeDocxSaveResult } from "@/lib/docx-bytes";
@@ -93,6 +93,7 @@ export function HelvetyDocsShell({
   const [isSaving, setIsSaving] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [pendingSaveTitle, setPendingSaveTitle] = useState("Untitled");
+  const [vaultSheetOpen, setVaultSheetOpen] = useState(false);
   /** First-paint `?doc=` only; do not strip when the user opens a vault doc later. */
   const initialDocIdRef = useRef(searchParams.get("doc"));
   const strippedInitialDeepLinkRef = useRef(false);
@@ -270,6 +271,7 @@ export function HelvetyDocsShell({
       setVaultDocId(doc.id);
       setLocalFileName(`${doc.title}.docx`);
       setDocInUrl(id);
+      setVaultSheetOpen(false);
     },
     [bumpEditorSession, loadDocument, setDocInUrl, validateDocxSize]
   );
@@ -303,10 +305,12 @@ export function HelvetyDocsShell({
         isSaving={isSaving}
         canSaveToVault={vaultEnabled}
         vaultDocId={vaultDocId}
+        showMyDocuments={!!initialUser}
         onNewDocument={handleNewDocument}
         onOpenFile={handleOpenFile}
         onDownload={() => void handleDownload()}
         onSaveToVault={handleSaveToVault}
+        onOpenMyDocuments={() => setVaultSheetOpen(true)}
       />
       <input
         ref={fileInputRef}
@@ -316,7 +320,16 @@ export function HelvetyDocsShell({
         onChange={(e) => void handleFileChange(e)}
       />
       <div className="bg-background flex min-h-0 flex-1">
-        <VaultPanel
+        <DocxEditorWorkspace
+          ref={editorRef}
+          documentBuffer={documentBuffer}
+          sessionKey={editorSessionKey}
+        />
+      </div>
+      {initialUser ? (
+        <VaultDocumentsSheet
+          open={vaultSheetOpen}
+          onOpenChange={setVaultSheetOpen}
           initialUser={initialUser}
           activeDocId={vaultDocId}
           documents={documents}
@@ -325,12 +338,7 @@ export function HelvetyDocsShell({
           onOpenDocument={(id) => void handleOpenVaultDocument(id)}
           onDeleteDocument={(id) => void handleDeleteVaultDocument(id)}
         />
-        <DocxEditorWorkspace
-          ref={editorRef}
-          documentBuffer={documentBuffer}
-          sessionKey={editorSessionKey}
-        />
-      </div>
+      ) : null}
       <SaveVaultDialog
         open={saveDialogOpen}
         defaultTitle={pendingSaveTitle}

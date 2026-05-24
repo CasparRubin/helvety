@@ -8,13 +8,13 @@ Browser-based `.docx` editor with optional encrypted vault save.
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` (vault save uses the same passkey-derived keys as Tasks/Notes). That session also feeds the navbar user snapshot (`<Navbar initialUser={initialUser} />`). The main editor route stays public (no full-app `EncryptionGate`). `app/page.tsx` calls `bootstrapPublicLayoutUser()` only for the vault shell’s `initialUser` prop (sidebar sign-in state), not for the navbar.
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` (vault save uses the same passkey-derived keys as Tasks/Notes). That session also feeds the navbar user snapshot (`<Navbar initialUser={initialUser} />`). The main editor route stays public (no full-app `EncryptionGate`). `app/page.tsx` calls `bootstrapPublicLayoutUser()` for the vault sheet’s `initialUser` prop and the navbar.
 - SEO description: `DOCS_APP_DESCRIPTION` in `@helvety/shared/app-product-descriptions` (used by `app/layout.tsx` metadata and JSON-LD). [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports that constant for tests and defines `DOCS_PWA_MANIFEST_DESCRIPTION` for [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`). Crawler and LLM hints: [`public/llms.txt`](./public/llms.txt) (vault bookmarks, theme, licensing).
 - `@eigenpal/docx-editor-react` loads via `dynamic(..., { ssr: false })` per vendor Next.js guidance.
 - **Local editing:** open, create, upload, and download `.docx` files without signing in; bytes stay in the browser for editing. The editor **always opens to a blank document** (logged in or not). **New** resets to a fresh blank page.
 - **Light / dark theme:** navbar **ThemeSwitcher** (system, light, or dark). Helvety chrome uses `@helvety/ui` tokens; the Eigenpal editor shell is themed via [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (see [Theme](#theme-light--dark) below). The printable page stays white in both modes.
-- **Vault save (optional):** when signed in and vault-unlocked, encrypted display title + encrypted `.docx` bytes in Postgres (`docs` table). `EncryptionGateApp` is scoped to the vault sidebar only, not the whole app.
-- **Vault bookmarks (`?doc=`):** `https://helvety.com/docs?doc=<uuid>` can appear in shared links and auth return URLs. The editor **always starts with a blank page** on load (including when `?doc=` is present); open saved documents from **My documents** in the vault sidebar after sign-in and vault unlock. The URL updates to `?doc=<uuid>` when you open or save a vault document from the app (not on initial landing).
+- **Vault save (optional):** when signed in and vault-unlocked, encrypted display title + encrypted `.docx` bytes in Postgres (`docs` table). `EncryptionGateApp` is scoped to the **My documents** sheet only, not the whole app.
+- **Vault bookmarks (`?doc=`):** `https://helvety.com/docs?doc=<uuid>` can appear in shared links and auth return URLs. The editor **always starts with a blank page** on load (including when `?doc=` is present); open saved documents from **My documents** in the command bar sheet after sign-in and vault unlock. The URL updates to `?doc=<uuid>` when you open or save a vault document from the app (not on initial landing).
 
 ## Routing (`basePath: /docs`)
 
@@ -29,13 +29,14 @@ This app uses Next.js `basePath: /docs`. Path rules differ by API:
 
 Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `basePath` again and the browser lands on `/docs/docs` (404). CI guards this in [`lib/docs-zone-routing.test.ts`](./lib/docs-zone-routing.test.ts).
 
-**`?doc=` is not an auto-open deep link** (unlike Tasks `?item=`, Notes `?note=`, or Contacts `?contact=` sheet links). Landing with `?doc=<uuid>` strips the query and leaves a blank editor; only explicit sidebar open or save sets `?doc=` while you work.
+**`?doc=` is not an auto-open deep link** (unlike Tasks `?item=`, Notes `?note=`, or Contacts `?contact=` sheet links). Landing with `?doc=<uuid>` strips the query and leaves a blank editor; only explicit sheet open or save sets `?doc=` while you work.
 
 ## Editor behavior (maintainers)
 
 - **Blank default:** [`components/docx-editor-workspace.tsx`](./components/docx-editor-workspace.tsx) mounts Eigenpal’s `createEmptyDocument()` when there is no loaded buffer. Do **not** pass `documentBuffer={null}` alone; that shows Eigenpal’s empty state, not an editable page.
 - **New / remount:** [`components/helvety-docs-shell.tsx`](./components/helvety-docs-shell.tsx) bumps `editorSessionKey` on **New**, local open, and vault open so the editor remounts cleanly.
-- **Public route:** [`app/page.tsx`](./app/page.tsx) stays public; vault is sidebar-only. Auth does not gate the blank editor.
+- **Public route:** [`app/page.tsx`](./app/page.tsx) stays public; vault is a sheet opened from the command bar when signed in. Auth does not gate the blank editor.
+- **Comments:** Helvety hides Eigenpal comment UI (CSS Layer 6 plus `comments={[]}` in the workspace). Users cannot add, view, or edit comments in the app. Comment markup inside an imported `.docx` may still exist in file bytes; downloads reflect the editor’s export behavior and are not stripped automatically.
 
 ## Limits
 
@@ -58,8 +59,8 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 ## Theme (light / dark)
 
-- **Helvety chrome** (navbar, command bar, vault sidebar, dialogs, toasts, loading states) uses `@helvety/ui` semantic tokens via `HelvetyPublicShellRootLayout` and the navbar **ThemeSwitcher** (`next-themes`, `html.dark`). No app-local `ThemeProvider`.
-- **Eigenpal editor chrome** (formatting toolbar, menus, dialogs, workspace gutter) is themed in [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css), imported from [`app/globals.css`](./app/globals.css) after vendor styles. The bridge sets HSL channel variables on `.ep-root` aligned with [`packages/ui/globals.css`](../../packages/ui/globals.css); editor `--doc-*` chrome tokens alias those semantics. Maintainer token reference (tests): [`lib/docx-editor-theme-tokens.ts`](./lib/docx-editor-theme-tokens.ts). The bridge also hides Eigenpal’s default title-bar doc icon and **Help** menu (New/Open/Download and vault save use the pinned Helvety command bar above the editor).
+- **Helvety chrome** (navbar, command bar, vault sheet, dialogs, toasts, loading states) uses `@helvety/ui` semantic tokens via `HelvetyPublicShellRootLayout` and the navbar **ThemeSwitcher** (`next-themes`, `html.dark`). No app-local `ThemeProvider`.
+- **Eigenpal editor chrome** (formatting toolbar, menus, dialogs, workspace gutter) is themed in [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css), imported from [`app/globals.css`](./app/globals.css) after vendor styles. The bridge sets HSL channel variables on `.ep-root` aligned with [`packages/ui/globals.css`](../../packages/ui/globals.css); title-bar and formatting toolbar use `--surface-toolbar` so they align flush with the Helvety command bar. Maintainer token reference (tests): [`lib/docx-editor-theme-tokens.ts`](./lib/docx-editor-theme-tokens.ts). The bridge hides Eigenpal’s default title-bar doc icon and **Help** menu, suppresses **comment** UI, and uses square corners (New/Open/Download/vault save live in the pinned Helvety command bar).
 - **Document page** (`.layout-page`) stays **white paper with dark body text** in both themes so downloaded `.docx` files match print expectations. The workspace gutter (`--doc-bg`) follows the app background in light and dark; only the page surface stays white.
 
 **When changing brand colors:** update `packages/ui/globals.css`, then `lib/docx-editor-theme-tokens.ts` and `styles/docx-editor-helvety-bridge.css`, and run `bun test lib/docx-editor-theme.test.ts lib/docx-editor-theme-tokens.test.ts`.
@@ -74,10 +75,11 @@ After bumping `@eigenpal/docx-editor-react`, verify visually (light + dark):
 4. Dark mode: warm dark gutter, **white page**, readable text on the page
 5. Downloaded `.docx` still has a white page background
 6. **Blank on load** and **New** show an editable empty page (toolbar + ruler), not a placeholder or empty buffer state
-7. Eigenpal title bar: no default doc icon column, no **Help** menu (Helvety uses the command bar for file actions)
-8. Menus and dialogs: readable contrast in dark mode (no white panels with light-grey text)
+7. Eigenpal title bar: no default doc icon column, no **Help** menu, no **comment** UI (Helvety uses the command bar for file actions)
+8. Command bar + Eigenpal toolbars: seamless stack (no color band or gap between rows)
+9. Menus and dialogs: readable contrast in dark mode (no white panels with light-grey text; toolbar hovers readable)
 
-Then run `bun test apps/docs` (theme bridge in `lib/docx-editor-theme.test.ts`, including every eigenpal `slate-*` dark remap; token parity in `lib/docx-editor-theme-tokens.test.ts`). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layer 4 for toolbar surfaces and inline `white` menu/dialog panels).
+Then run `bun test apps/docs` (theme bridge in `lib/docx-editor-theme.test.ts`, including every eigenpal `slate-*` dark remap; token parity in `lib/docx-editor-theme-tokens.test.ts`). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layers 4–7 for toolbar surfaces, comment hides, and inline `white` menu/dialog panels).
 
 ## Third-Party
 

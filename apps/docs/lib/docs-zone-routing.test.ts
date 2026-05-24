@@ -9,7 +9,8 @@ const componentsDir = join(libDir, "../components");
 const hooksDir = join(libDir, "../hooks");
 
 const shellPath = join(componentsDir, "helvety-docs-shell.tsx");
-const vaultPanelPath = join(componentsDir, "vault-panel.tsx");
+const vaultSheetPath = join(componentsDir, "vault-documents-sheet.tsx");
+const shellSrc = () => readFileSync(shellPath, "utf8");
 const useDocsPath = join(hooksDir, "use-docs.ts");
 
 /**
@@ -43,13 +44,18 @@ describe("docs zone routing invariants", () => {
     expect(src).toMatch(/performVaultSave[\s\S]*?setDocInUrl\(id\)/);
   });
 
-  it("vault sign-in uses buildDocsPublicPath for post-login return", () => {
-    const src = readFileSync(vaultPanelPath, "utf8");
+  it("vault sheet is gated to signed-in users via command bar", () => {
+    const shell = shellSrc();
+    const sheet = readFileSync(vaultSheetPath, "utf8");
 
-    expect(src).toContain("buildDocsPublicPath");
-    expect(src).toContain("getLoginUrl");
-    expect(src).not.toMatch(/getLoginUrl\(returnPath/);
-    expect(src).not.toMatch(/returnPath \|\| ["'`]\/docs["'`]/);
+    expect(shell).toContain("showMyDocuments={!!initialUser}");
+    expect(shell).toContain("VaultDocumentsSheet");
+    expect(shell).toContain("setVaultSheetOpen");
+    expect(shell).toMatch(
+      /handleOpenVaultDocument[\s\S]*?setVaultSheetOpen\(false\)/
+    );
+    expect(sheet).toContain("EncryptionGateApp");
+    expect(sheet).not.toContain("getLoginUrl");
   });
 
   it("use-docs fetches via shared getDocsApiPath helper", () => {

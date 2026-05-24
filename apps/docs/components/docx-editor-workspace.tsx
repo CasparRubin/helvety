@@ -8,6 +8,11 @@ import {
 import { cn } from "@helvety/shared/utils";
 import { forwardRef, useMemo } from "react";
 
+/** Controlled empty comments: Helvety disables comment UI via the theme bridge. */
+function noopCommentsChange(): void {
+  /* comment UI suppressed in docx-editor-helvety-bridge.css Layer 6 */
+}
+
 /** Props for {@link DocxEditorWorkspace}. */
 interface DocxEditorWorkspaceProps {
   /** Loaded `.docx` bytes; `null` selects a fresh blank doc via `createEmptyDocument()`. */
@@ -49,6 +54,8 @@ export const DocxEditorWorkspace = forwardRef<
         showToolbar
         showRuler
         showZoomControl
+        comments={[]}
+        onCommentsChange={noopCommentsChange}
         {...editorProps}
       />
     </div>

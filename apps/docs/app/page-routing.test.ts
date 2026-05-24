@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const pagePath = join(dirname(fileURLToPath(import.meta.url)), "page.tsx");
-const vaultPanelPath = join(
+const vaultSheetPath = join(
   dirname(fileURLToPath(import.meta.url)),
-  "../components/vault-panel.tsx"
+  "../components/vault-documents-sheet.tsx"
 );
 
 describe("docs hybrid routing", () => {
@@ -19,8 +19,8 @@ describe("docs hybrid routing", () => {
     expect(src).toMatch(/starts blank|Editor starts blank/i);
   });
 
-  it("scopes EncryptionGateApp to the vault panel only", () => {
-    const src = readFileSync(vaultPanelPath, "utf8");
+  it("scopes EncryptionGateApp to the vault sheet only", () => {
+    const src = readFileSync(vaultSheetPath, "utf8");
     expect(src).toContain("EncryptionGateApp");
   });
 });

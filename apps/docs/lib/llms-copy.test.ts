@@ -19,12 +19,13 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/before storage/i);
   });
 
-  it("documents vault bookmarks, blank-on-load, and sidebar open flow", () => {
+  it("documents vault bookmarks, blank-on-load, and sheet open flow", () => {
     expect(source).toMatch(/\?doc=/);
     expect(source).toMatch(/starts blank on load/i);
     expect(source).toMatch(/not auto-opened/i);
     expect(source).toMatch(/\*\*New\*\*/);
-    expect(source).toMatch(/vault sidebar/i);
+    expect(source).toMatch(/My documents/i);
+    expect(source).toMatch(/command bar sheet/i);
     expect(source).toMatch(/signed in and vault-unlocked/i);
     expect(source).not.toMatch(
       /opens a saved document when you are signed in/i
@@ -43,6 +44,9 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/## User Interface/);
     expect(source).toMatch(/light and dark mode/i);
     expect(source).toMatch(/pinned command bar/i);
+    expect(source).toMatch(/comment UI is disabled/i);
+    expect(source).toMatch(/seamless stack/i);
+    expect(source).not.toMatch(/vault sidebar/i);
     expect(source).toMatch(/Help menu are hidden/i);
     expect(source).toMatch(/printable document page stays white/i);
     expect(source).toMatch(/print-accurate/i);

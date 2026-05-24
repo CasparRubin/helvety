@@ -180,6 +180,9 @@ describe("docx editor Helvety theme bridge", () => {
   it("bridge remaps chrome surfaces and inline white panels to semantic tokens", () => {
     expect(bridge).toContain('[data-testid="editor-toolbar"]');
     expect(bridge).toMatch(
+      /\[data-testid="editor-toolbar"\][\s\S]*background-color:\s*hsl\(var\(--surface-toolbar\)\)/
+    );
+    expect(bridge).toMatch(
       /\.ep-root \.bg-white\s*\{[\s\S]*background-color:\s*hsl\(var\(--card\)\)/
     );
     expect(bridge).toContain('div[style*="background-color: white"]');
@@ -227,9 +230,10 @@ describe("docx editor Helvety theme bridge", () => {
     expect(readme).toMatch(/Eigenpal upgrade checklist/i);
     expect(readme).toMatch(/white page|white paper/i);
     expect(readme).toMatch(/no default doc icon column/i);
-    expect(readme).toMatch(/no \*\*Help\*\* menu/i);
+    expect(readme).toMatch(/no \*\*comment\*\* UI/i);
+    expect(readme).toMatch(/seamless stack/i);
     expect(readme).toMatch(
-      /readable contrast in dark mode \(no white panels with light-grey text\)/i
+      /toolbar hovers readable|no white panels with light-grey text/i
     );
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
@@ -244,5 +248,38 @@ describe("docx editor Helvety theme bridge", () => {
     expect(bridge).toMatch(/Layer 3: remap eigenpal hardcoded slate/);
     expect(bridge).toMatch(/Layer 4: theme-agnostic chrome surfaces/);
     expect(bridge).toMatch(/Layer 5: Eigenpal title-bar chrome hides/);
+    expect(bridge).toMatch(/Layer 6: comment suppression/);
+    expect(bridge).toMatch(/Layer 7: seamless toolbar stack/);
+  });
+
+  it("bridge suppresses comment UI", () => {
+    expect(bridge).toContain(".docx-comments-sidebar");
+    expect(bridge).toContain('[data-action="addComment"]');
+    expect(bridge).toContain('button[title="Add comment"]');
+  });
+
+  it("bridge aligns Eigenpal toolbar chrome with surface-toolbar and collapses seams", () => {
+    const lightVars = parseCssCustomProperties(
+      extractCssBlock(bridge, ".ep-root")
+    );
+    expect(lightVars.get("surface-toolbar")).toBe(
+      EP_EDITOR_THEME_LIGHT.surfaceToolbar
+    );
+
+    expect(bridge).toMatch(
+      /\[data-testid="editor-toolbar"\][\s\S]*border-top:\s*none/
+    );
+  });
+
+  it("bridge zeroes common rounded utilities under ep-root", () => {
+    expect(bridge).toContain(".ep-root .rounded,");
+    expect(bridge).toContain(".ep-root .rounded-full,");
+  });
+
+  it("bridge scopes dark toolbar hovers for readable contrast", () => {
+    expect(bridge).toContain(
+      'html.dark .ep-root [data-testid="editor-toolbar"] .hover\\:bg-slate-50:hover'
+    );
+    expect(bridge).toContain('html.dark .ep-root [role="menuitem"]:hover');
   });
 });

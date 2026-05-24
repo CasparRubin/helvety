@@ -1,6 +1,5 @@
 "use client";
 
-import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { cn } from "@helvety/shared/utils";
 import {
   AlertDialog,
@@ -16,19 +15,24 @@ import { Button } from "@helvety/ui/button";
 import { EncryptionGateApp } from "@helvety/ui/encryption-gate-app";
 import { ListEmptyState, ListLoadingState } from "@helvety/ui/list-states";
 import { ScrollArea } from "@helvety/ui/scroll-area";
-import { LogIn, Trash2 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@helvety/ui/sheet";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
-
-import { buildDocsPublicPath } from "@/lib/docs-zone-path";
 
 import type { DocListItem } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
 
-/** Props for {@link VaultPanel}. */
-interface VaultPanelProps {
-  readonly initialUser: User | null;
+/** Props for {@link VaultDocumentsSheet}. */
+interface VaultDocumentsSheetProps {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly initialUser: User;
   readonly activeDocId: string | null;
   readonly documents: DocListItem[];
   readonly isLoading: boolean;
@@ -37,7 +41,7 @@ interface VaultPanelProps {
   readonly onDeleteDocument: (id: string) => void;
 }
 
-/** Encrypted document list inside the vault sidebar. */
+/** Encrypted document list inside the vault sheet. */
 function VaultDocumentList({
   documents,
   activeDocId,
@@ -134,8 +138,10 @@ function VaultDocumentList({
   );
 }
 
-/** Sidebar listing encrypted vault documents (sign-in required; list and save require vault unlock via EncryptionGateApp). */
-export function VaultPanel({
+/** Right sheet listing encrypted vault documents (sign-in required; list requires vault unlock). */
+export function VaultDocumentsSheet({
+  open,
+  onOpenChange,
   initialUser,
   activeDocId,
   documents,
@@ -143,36 +149,22 @@ export function VaultPanel({
   vaultEnabled,
   onOpenDocument,
   onDeleteDocument,
-}: VaultPanelProps): React.JSX.Element {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  // Gateway-visible /docs… so sign-in returns to this zone (preserves query for context; editor still starts blank until the user picks a document).
-  const loginHref = getLoginUrl(
-    buildDocsPublicPath(pathname, searchParams.toString())
-  );
-
+}: VaultDocumentsSheetProps): React.JSX.Element {
   return (
-    <aside className="border-border bg-card flex w-72 shrink-0 flex-col border-r">
-      <div className="border-border border-b px-4 py-3">
-        <h2 className="text-sm font-semibold">My documents</h2>
-        <p className="text-muted-foreground text-xs">
-          Optional encrypted cloud save
-        </p>
-      </div>
-      <ScrollArea className="min-h-0 flex-1">
-        {!initialUser ? (
-          <div className="flex flex-col gap-3 p-4">
-            <p className="text-muted-foreground text-sm">
-              Sign in to save documents encrypted in your vault.
-            </p>
-            <Button size="sm" asChild>
-              <Link href={loginHref}>
-                <LogIn className="mr-2 size-4" />
-                Sign in
-              </Link>
-            </Button>
-          </div>
-        ) : (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="flex h-full w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-sm"
+      >
+        <SheetHeader className="border-border shrink-0 border-b px-4 py-3 text-left">
+          <SheetTitle className="text-sm font-semibold">
+            My documents
+          </SheetTitle>
+          <SheetDescription className="text-xs">
+            Optional encrypted cloud save
+          </SheetDescription>
+        </SheetHeader>
+        <ScrollArea className="min-h-0 flex-1">
           <EncryptionGateApp userId={initialUser.id}>
             <VaultDocumentList
               documents={vaultEnabled ? documents : []}
@@ -182,8 +174,8 @@ export function VaultPanel({
               onDeleteDocument={onDeleteDocument}
             />
           </EncryptionGateApp>
-        )}
-      </ScrollArea>
-    </aside>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   );
 }
