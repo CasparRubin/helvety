@@ -59,19 +59,37 @@ describe("docs workspace UX invariants", () => {
 
   it("command bar stacks flush with Eigenpal toolbar chrome", () => {
     const commandBar = readFileSync(commandBarPath, "utf8");
+    const workspace = readFileSync(workspacePath, "utf8");
     const bridge = readFileSync(bridgePath, "utf8");
 
     expect(commandBar).toContain('className="border-b-0"');
     expect(commandBar).toContain("showMyDocuments");
     expect(commandBar).toContain("onOpenMyDocuments");
+    expect(workspace).toMatch(/File\/Format\/Insert title-bar menus/i);
     expect(bridge).toContain(
       '[data-testid="title-bar"] [role="menubar"] > :last-child'
     );
+    expect(bridge).toContain('[role="menubar"] > div > button');
+    expect(bridge).toContain("min-width: max-content");
     expect(bridge).not.toContain(
       '[data-testid="title-bar"] .flex.items-center.px-1 > :last-child'
     );
     expect(bridge).toContain("Layer 7: seamless toolbar stack");
     expect(bridge).toContain("Layer 8: overlay parity");
+
+    const titleBarBorder = bridge.match(
+      /\[data-testid="title-bar"\][\s\S]*?border-left: 1px solid hsl\(var\(--border\)\)/
+    );
+    const formattingBarBorder = bridge.match(
+      /\[data-testid="formatting-bar"\][\s\S]*?border-left: 1px solid hsl\(var\(--border\)\)/
+    );
+    const editorToolbarNoSideBorder = bridge.match(
+      /\[data-testid="editor-toolbar"\][\s\S]*?border-left: none/
+    );
+
+    expect(titleBarBorder).not.toBeNull();
+    expect(formattingBarBorder).not.toBeNull();
+    expect(editorToolbarNoSideBorder).not.toBeNull();
   });
 
   it("vault list uses shared list states and delete confirmation", () => {

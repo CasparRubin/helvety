@@ -179,6 +179,9 @@ describe("docx editor Helvety theme bridge", () => {
     expect(layer5).toContain(
       '[data-testid="title-bar"] [role="menubar"] > :last-child'
     );
+    expect(layer5).toContain('[role="menubar"] > div > button');
+    expect(layer5).toContain("color: hsl(var(--foreground)) !important");
+    expect(layer5).toContain("min-width: max-content");
     expect(layer5).not.toContain(".flex.items-center.px-1 > :last-child");
     expect(layer5).toMatch(
       /\[data-testid="title-bar"\] > div:first-child[\s\S]*display:\s*none\s*!important/
@@ -249,7 +252,7 @@ describe("docx editor Helvety theme bridge", () => {
     expect(readme).toMatch(/Eigenpal upgrade checklist/i);
     expect(readme).toMatch(/white page|white paper/i);
     expect(readme).toMatch(/no default doc icon column/i);
-    expect(readme).toMatch(/\*\*Format\*\* and \*\*Insert\*\*/);
+    expect(readme).toMatch(/\*\*File\*\*, \*\*Format\*\*, and \*\*Insert\*\*/);
     expect(readme).toMatch(/no \*\*comment\*\* UI/i);
     expect(readme).toMatch(/seamless stack/i);
     expect(readme).toMatch(/Layer 8/);
@@ -261,7 +264,7 @@ describe("docx editor Helvety theme bridge", () => {
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
     expect(llms).toMatch(/pinned command bar/i);
-    expect(llms).toMatch(/Format and Insert/i);
+    expect(llms).toMatch(/File\/Format\/Insert/i);
     expect(llms).toMatch(/Help menu are hidden/i);
     expect(llms).toMatch(/printable document page stays white/i);
   });
@@ -299,20 +302,19 @@ describe("docx editor Helvety theme bridge", () => {
     expect(titleBar).toContain("padding-left: 1rem !important");
     expect(titleBar).toContain("padding-right: 1rem !important");
     expect(titleBar).toContain("padding-top: 0 !important");
-    expect(titleBar).toContain("min-height: 3rem");
+    expect(titleBar).toContain("min-height: 2.5rem");
+    expect(titleBar).toContain("border-left: 1px solid hsl(var(--border))");
+    expect(titleBar).toContain("border-right: 1px solid hsl(var(--border))");
 
     const editorToolbar = extractCssBlock(
       layer7,
       '[data-testid="editor-toolbar"]'
     );
+    expect(editorToolbar).toContain("width: 100%");
     expect(editorToolbar).toContain("border-top: none");
     expect(editorToolbar).toContain("box-shadow: none !important");
-    expect(editorToolbar).toContain(
-      "border-left: 1px solid hsl(var(--border))"
-    );
-    expect(editorToolbar).toContain(
-      "border-right: 1px solid hsl(var(--border))"
-    );
+    expect(editorToolbar).toContain("border-left: none");
+    expect(editorToolbar).toContain("border-right: none");
 
     const formattingBar = extractCssBlock(
       layer7,
@@ -321,6 +323,12 @@ describe("docx editor Helvety theme bridge", () => {
     expect(formattingBar).toContain("margin: 0 !important");
     expect(formattingBar).toContain("padding-left: 1rem !important");
     expect(formattingBar).toContain("border-radius: 0 !important");
+    expect(formattingBar).toContain(
+      "border-left: 1px solid hsl(var(--border))"
+    );
+    expect(formattingBar).toContain(
+      "border-right: 1px solid hsl(var(--border))"
+    );
     expect(formattingBar).toContain("hsl(var(--surface-toolbar))");
   });
 

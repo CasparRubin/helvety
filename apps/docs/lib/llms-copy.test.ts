@@ -44,13 +44,15 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/## User Interface/);
     expect(source).toMatch(/light and dark mode/i);
     expect(source).toMatch(/pinned command bar/i);
-    expect(source).toMatch(/Format and Insert/i);
-    expect(source).toMatch(/not File or Help/i);
+    expect(source).toMatch(/File\/Format\/Insert/i);
+    expect(source).toMatch(/not Help/i);
+    expect(source).toMatch(/matching left\/right borders/i);
     expect(source).toMatch(/comment UI is disabled/i);
     expect(source).toMatch(/seamless stack/i);
     expect(source).toMatch(/menus, dropdowns, and tooltips/i);
     expect(source).not.toMatch(/vault sidebar/i);
     expect(source).toMatch(/Help menu are hidden/i);
+    expect(source).not.toMatch(/not File or Help/i);
     expect(source).toMatch(/printable document page stays white/i);
     expect(source).toMatch(/print-accurate/i);
     expect(source).not.toMatch(/menus are hidden/i);

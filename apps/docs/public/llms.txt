@@ -9,7 +9,7 @@
 ## User Interface
 - Light and dark mode via the navbar theme switcher (system, light, or dark)
 - Pinned command bar (New, Open, Download, My documents when signed in, Save to vault) and dialogs use the shared Helvety design system (square corners, warm neutrals, red accent)
-- Eigenpal editor chrome (formatting toolbar, visible Format and Insert menus, not File or Help; workspace gutter) follows the selected theme via a CSS bridge aligned with the command bar (seamless stack with the pinned command bar); menus, dropdowns, and tooltips use the same semantic tokens in light and dark; comment UI is disabled in Helvety (no add/view/edit in the app); the vendor default title-bar doc icon and Help menu are hidden (New/Open/Download/vault save live in the command bar)
+- Eigenpal editor chrome (formatting toolbar, visible File/Format/Insert menus, not Help; workspace gutter) follows the selected theme via a CSS bridge aligned with the command bar (seamless stack with the pinned command bar; title-bar and formatting-toolbar rows use matching left/right borders); menus, dropdowns, and tooltips use the same semantic tokens in light and dark; comment UI is disabled in Helvety (no add/view/edit in the app); the vendor default title-bar doc icon and Help menu are hidden (vault save and My documents live in the command bar)
 - The printable document page stays white with dark text in both themes so exported .docx files remain print-accurate
 
 ## Crawling And Indexing
