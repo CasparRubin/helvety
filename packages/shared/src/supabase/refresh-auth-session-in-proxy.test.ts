@@ -108,6 +108,33 @@ describe("refreshSupabaseAuthSession", () => {
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
+  it("clears sb-* cookies on definitive auth failure when fail-closed", async () => {
+    createServerClientMock.mockImplementation(() => ({
+      auth: {
+        getUser: async () => ({
+          data: { user: null },
+          error: {
+            message: "session is invalid",
+            status: 401,
+            name: "AuthError",
+          },
+        }),
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const baseResponse = NextResponse.next({ request });
+
+    const response = await refreshSupabaseAuthSession(request, baseResponse, {
+      failClosedOnAuthError: true,
+    });
+
+    expect(response.cookies.get("sb-example-auth-token")?.value).toBe("");
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
+  });
+
   it("sets the auth-refreshed header only after a successful getUser()", async () => {
     createServerClientMock.mockImplementation(() => ({
       auth: {

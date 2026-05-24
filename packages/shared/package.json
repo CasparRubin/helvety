@@ -43,6 +43,7 @@
     "./e2ee-draft": "./src/e2ee-draft.ts",
     "./constants": "./src/constants.ts",
     "./dashboard-prefetch": "./src/dashboard-prefetch.ts",
+    "./encrypted-prefetch-api": "./src/encrypted-prefetch-api.ts",
     "./dates": "./src/dates.ts",
     "./csrf": "./src/csrf.ts",
     "./cached-server": "./src/cached-server.ts",

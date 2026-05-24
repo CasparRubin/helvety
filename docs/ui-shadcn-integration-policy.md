@@ -36,7 +36,7 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 ## Styling And Composition Rules
 
 - **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss`. Production `tailwindcss` and `@tailwindcss/postcss` live on `@helvety/ui` so Vercel/Turbopack can resolve the plugin from each app; see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
-- Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes.
+- Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes. Gateway marketing accents use `--brand-swiss-red` / `text-brand-swiss-red` from `packages/ui/globals.css` (not raw `#FF0000` in components).
 - Prefer reusable state primitives for list surfaces (`ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`).
 - Use shared dashboard primitives (`EntityDashboardShell`) and command bars (`EntityCommandBar`) for list-centric entity apps.
 - Pin command bars **outside** scroll: E2EE list/editor pages wrap toolbar + body in `CommandBarPageLayout` (scrolls via `@helvety/ui/scroll-area`); Store uses `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` with `CommandBar` `variant="solid"` on `StoreNav` (opaque section nav); PDF/image-upscaler pin `CommandBar` (`variant="solid"`) as a flex sibling above an `overflow-hidden` workspace. Do not rely on CSS `sticky` on `CommandBar` for page-level pinning.

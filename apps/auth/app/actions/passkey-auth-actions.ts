@@ -204,7 +204,7 @@ export async function generatePasskeyAuthOptions(
       if (credentialsError || !credentials || credentials.length === 0) {
         logger.error("No passkey credentials found for expected user", {
           credentialsError,
-          userId: user.id,
+          credentialCount: credentials?.length ?? 0,
         });
         return {
           success: false,

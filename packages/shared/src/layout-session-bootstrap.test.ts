@@ -11,6 +11,7 @@ vi.mock("./cached-server", () => ({
 }));
 
 import {
+  bootstrapAuthLayoutSession,
   bootstrapE2eeLayoutSession,
   bootstrapPublicLayoutUser,
 } from "./layout-session-bootstrap";
@@ -39,6 +40,24 @@ describe("bootstrapPublicLayoutUser", () => {
       "Layout initialization failed",
       error
     );
+  });
+});
+
+describe("bootstrapAuthLayoutSession", () => {
+  beforeEach(() => {
+    getCachedCSRFTokenMock.mockReset();
+    getCachedUserMock.mockReset();
+    vi.spyOn(logger, "logUnexpectedError").mockImplementation(() => {});
+  });
+
+  it("returns the same CSRF + user contract as bootstrapE2eeLayoutSession", async () => {
+    getCachedCSRFTokenMock.mockResolvedValue("csrf-token");
+    getCachedUserMock.mockResolvedValue({ id: "user-1" });
+
+    await expect(bootstrapAuthLayoutSession()).resolves.toEqual({
+      csrfToken: "csrf-token",
+      initialUser: { id: "user-1" },
+    });
   });
 });
 

@@ -1,11 +1,23 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { shouldForceHardLogout } from "../auth-errors";
 import { COOKIE_DOMAIN } from "../config";
 import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
 import { logger } from "../logger";
 
+import { clearSupabaseAuthCookies } from "./clear-supabase-auth-cookies";
+
 import type { DatabaseSchema } from "../types/database.types";
+
+/** Options for {@link refreshSupabaseAuthSession}. */
+export type RefreshSupabaseAuthSessionOptions = Readonly<{
+  /**
+   * When true and the request had session cookies, clear invalid `sb-*` cookies
+   * on definitive auth failures instead of leaving a stale session.
+   */
+  failClosedOnAuthError?: boolean;
+}>;
 
 /**
  * Request header set after the proxy successfully calls `supabase.auth.getUser()`.
@@ -25,6 +37,22 @@ export function requestMayHaveSupabaseAuthCookie(
     .some((c) => c.name.startsWith("sb-") && c.name.includes("auth"));
 }
 
+/** True when a stale or revoked session cookie should be cleared at the edge. */
+function isDefinitiveAuthRefreshFailure(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+  const record = error as { message?: string; status?: number; name?: string };
+  const message = record.message ?? "";
+  if (shouldForceHardLogout(message)) {
+    return true;
+  }
+  if (record.status === 401 || record.status === 403) {
+    return true;
+  }
+  return record.name === "AuthSessionMissingError";
+}
+
 /**
  * Refreshes Supabase auth cookies on the outgoing response and syncs cookie
  * mutations onto `request` for downstream Server Components, per @supabase/ssr
@@ -36,10 +64,13 @@ export function requestMayHaveSupabaseAuthCookie(
  */
 export async function refreshSupabaseAuthSession(
   request: NextRequest,
-  response: NextResponse
+  response: NextResponse,
+  options: RefreshSupabaseAuthSessionOptions = {}
 ): Promise<NextResponse> {
+  const { failClosedOnAuthError = false } = options;
   let nextResponse = response;
   const cookieDomain = COOKIE_DOMAIN;
+  const hadAuthCookies = requestMayHaveSupabaseAuthCookie(request);
 
   try {
     const supabaseUrl = getSupabaseUrl();
@@ -74,9 +105,29 @@ export async function refreshSupabaseAuthSession(
       }
     );
 
-    await supabase.auth.getUser();
+    const { error } = await supabase.auth.getUser();
+    if (error) {
+      if (
+        failClosedOnAuthError &&
+        hadAuthCookies &&
+        isDefinitiveAuthRefreshFailure(error)
+      ) {
+        clearSupabaseAuthCookies(request, nextResponse);
+        return nextResponse;
+      }
+      logger.logUnexpectedError("Supabase session refresh in proxy", error);
+      return nextResponse;
+    }
     request.headers.set(AUTH_REFRESHED_HEADER_NAME, "1");
   } catch (error) {
+    if (
+      failClosedOnAuthError &&
+      hadAuthCookies &&
+      isDefinitiveAuthRefreshFailure(error)
+    ) {
+      clearSupabaseAuthCookies(request, nextResponse);
+      return nextResponse;
+    }
     logger.logUnexpectedError("Supabase session refresh in proxy", error);
   }
 

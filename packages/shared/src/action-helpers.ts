@@ -68,6 +68,9 @@ interface AuthGuardOptions {
  * `csrfToken` is omitted (read-only actions), CSRF is skipped; the read bucket
  * applies (`readRateLimitConfig`, default `RATE_LIMITS.READ`). Encrypted bulk
  * export actions should pass `readRateLimitConfig: RATE_LIMITS.EXPORT`.
+ * Encrypted dashboard prefetch GET routes should use
+ * `encryptedPrefetchAuthOptions` from `@helvety/shared/encrypted-prefetch-api`
+ * (`RATE_LIMITS.PREFETCH`).
  *
  * @example Mutation (CSRF + per-user API limits)
  * ```ts

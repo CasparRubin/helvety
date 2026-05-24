@@ -4,13 +4,9 @@ import {
   AUTH_DESCRIPTION,
   AUTH_PWA_MANIFEST_DESCRIPTION,
 } from "@helvety/shared/app-product-descriptions";
-import {
-  getCachedCSRFToken,
-  getCachedUser,
-} from "@helvety/shared/cached-server";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
-import { logger } from "@helvety/shared/logger";
+import { bootstrapAuthLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
@@ -47,17 +43,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  let csrfToken = "";
-  let initialUser: Awaited<ReturnType<typeof getCachedUser>> = null;
-
-  try {
-    [csrfToken, initialUser] = await Promise.all([
-      getCachedCSRFToken().then((t) => t ?? ""),
-      getCachedUser(),
-    ]);
-  } catch (error) {
-    logger.logUnexpectedError("Layout initialization failed", error);
-  }
+  const { csrfToken, initialUser } = await bootstrapAuthLayoutSession();
 
   return HelvetyPublicShellRootLayout({
     children,

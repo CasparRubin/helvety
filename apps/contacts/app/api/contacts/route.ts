@@ -1,5 +1,9 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
+import {
+  ENCRYPTED_PREFETCH_COLUMNS,
+  encryptedPrefetchAuthOptions,
+} from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -16,9 +20,9 @@ export async function GET(): Promise<
   NextResponse<ActionResponse<ContactRow[]>>
 > {
   try {
-    const auth = await authenticateAndRateLimit({
-      rateLimitPrefix: "contacts",
-    });
+    const auth = await authenticateAndRateLimit(
+      encryptedPrefetchAuthOptions("contacts")
+    );
     if (!auth.ok) {
       return NextResponse.json(auth.response, { headers: NO_STORE_HEADERS });
     }
@@ -26,7 +30,7 @@ export async function GET(): Promise<
 
     const { data: contacts, error } = await supabase
       .from("contacts")
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.contacts)
       .eq("user_id", user.id)
       .order("category_id", { ascending: true })
       .order("sort_order", { ascending: true })

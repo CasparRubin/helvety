@@ -20,10 +20,21 @@ export async function bootstrapPublicLayoutUser(): Promise<User | null> {
 }
 
 /**
- * Loads CSRF token + session user in parallel for layouts that wrap content in `CSRFProvider`.
- * Used by `apps/store`, `apps/docs` (optional vault save), and
- * `@helvety/ui/e2ee-app-root-layout` (tasks, contacts, notes, links).
- * Logs and returns empty CSRF / null user on failure.
+ * CSRF + user bootstrap for the auth gateway layout (delegates to
+ * {@link bootstrapE2eeLayoutSession}).
+ */
+export async function bootstrapAuthLayoutSession(): Promise<{
+  csrfToken: string;
+  initialUser: User | null;
+}> {
+  return bootstrapE2eeLayoutSession();
+}
+
+/**
+ * Loads CSRF token + session user in parallel for layouts that wrap content in
+ * `CSRFProvider`. Used by `apps/store`, `apps/docs` (optional vault save), and
+ * `@helvety/ui/e2ee-app-root-layout` (tasks, contacts, notes, links). Logs and
+ * returns empty CSRF / null user on failure.
  */
 export async function bootstrapE2eeLayoutSession(): Promise<{
   csrfToken: string;

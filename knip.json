@@ -83,7 +83,8 @@
   "ignoreDependencies": ["@helvety/dev-deps"],
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
-    "apps/pdf/lib/empty-canvas-stub.mjs"
+    "apps/pdf/lib/empty-canvas-stub.mjs",
+    "apps/*/lib/utils.ts"
   ],
   "ignoreIssues": {
     "packages/shared/src/types/database.types.ts": [

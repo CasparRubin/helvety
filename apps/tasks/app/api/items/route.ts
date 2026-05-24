@@ -1,4 +1,8 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  ENCRYPTED_PREFETCH_COLUMNS,
+  encryptedPrefetchAuthOptions,
+} from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -13,7 +17,9 @@ const NO_STORE_HEADERS = { "cache-control": "no-store, max-age=0" };
 /** Returns encrypted tasks for the current user. */
 export async function GET(): Promise<NextResponse<ActionResponse<ItemRow[]>>> {
   try {
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    const auth = await authenticateAndRateLimit(
+      encryptedPrefetchAuthOptions("tasks")
+    );
     if (!auth.ok) {
       return NextResponse.json(auth.response, { headers: NO_STORE_HEADERS });
     }
@@ -21,7 +27,7 @@ export async function GET(): Promise<NextResponse<ActionResponse<ItemRow[]>>> {
 
     const { data: items, error } = await supabase
       .from("items")
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.items)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })

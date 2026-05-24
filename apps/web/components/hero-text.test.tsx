@@ -53,7 +53,8 @@ describe("hero-text", () => {
 
       expect(html).toContain("Software products");
       expect(html).toContain("Switzerland");
-      expect(html).toContain('class="font-medium text-[#FF0000]"');
+      expect(html).toContain("text-brand-swiss-red");
+      expect(html).toContain("font-medium");
       expect(html).toContain("private · simple · clean");
       expect(html).toContain('data-testid="shuffle"');
       expect(html).toContain('data-testid="shiny"');
@@ -135,7 +136,8 @@ describe("hero-text", () => {
         </>
       );
 
-      expect(html).toContain('class="font-medium text-[#FF0000]"');
+      expect(html).toContain("text-brand-swiss-red");
+      expect(html).toContain("font-medium");
       expect(html).toContain("Switzerland");
       expect(html).toContain("text-foreground/85");
       expect(html).toContain("private · simple · clean");

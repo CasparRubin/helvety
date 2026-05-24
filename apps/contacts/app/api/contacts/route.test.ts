@@ -1,3 +1,4 @@
+import { RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -21,6 +22,20 @@ import { GET as getContacts } from "./route";
 describe("contacts api routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("uses encrypted prefetch auth and rate limits", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: false,
+      response: { success: false, error: "Rate limited" },
+    });
+
+    await getContacts();
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      rateLimitPrefix: "contacts",
+      readRateLimitConfig: RATE_LIMITS.PREFETCH,
+    });
   });
 
   it("returns contacts list with no-store header", async () => {

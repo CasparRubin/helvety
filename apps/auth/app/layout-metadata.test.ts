@@ -10,13 +10,11 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
-vi.mock("@helvety/shared/cached-server", () => ({
-  getCachedCSRFToken: vi.fn().mockResolvedValue(""),
-  getCachedUser: vi.fn().mockResolvedValue(null),
-}));
-
-vi.mock("@helvety/shared/logger", () => ({
-  logger: { logUnexpectedError: vi.fn() },
+vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
+  bootstrapAuthLayoutSession: vi.fn().mockResolvedValue({
+    csrfToken: "",
+    initialUser: null,
+  }),
 }));
 
 import { AUTH_DESCRIPTION, metadata } from "./layout";

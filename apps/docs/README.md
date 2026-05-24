@@ -53,7 +53,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 - Local editing does not upload document bytes to Helvety for editing.
 - Vault fields use client-side encryption with the same passkey-derived master key pattern as Tasks, Contacts, Notes, and Links; this is **not** a full-app E2EE product (local mode works without login).
 - `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
-- Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary.
+- Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary. Vault list/detail GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, explicit column selects on `public.docs`).
 - Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Theme (light / dark)
@@ -62,7 +62,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 - **Eigenpal editor chrome** (formatting toolbar, menus, dialogs, workspace gutter) is themed in [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css), imported from [`app/globals.css`](./app/globals.css) after vendor styles. The bridge sets HSL channel variables on `.ep-root` aligned with [`packages/ui/globals.css`](../../packages/ui/globals.css); editor `--doc-*` chrome tokens alias those semantics. Maintainer token reference (tests): [`lib/docx-editor-theme-tokens.ts`](./lib/docx-editor-theme-tokens.ts). The bridge also hides Eigenpal’s default title-bar doc icon and **Help** menu (New/Open/Download and vault save use the pinned Helvety command bar above the editor).
 - **Document page** (`.layout-page`) stays **white paper with dark body text** in both themes so downloaded `.docx` files match print expectations. The workspace gutter (`--doc-bg`) follows the app background in light and dark; only the page surface stays white.
 
-**When changing brand colors:** update `packages/ui/globals.css`, then `lib/docx-editor-theme-tokens.ts` and `styles/docx-editor-helvety-bridge.css`, and run `bun test lib/docx-editor-theme.test.ts`.
+**When changing brand colors:** update `packages/ui/globals.css`, then `lib/docx-editor-theme-tokens.ts` and `styles/docx-editor-helvety-bridge.css`, and run `bun test lib/docx-editor-theme.test.ts lib/docx-editor-theme-tokens.test.ts`.
 
 ### Eigenpal upgrade checklist
 
@@ -77,7 +77,7 @@ After bumping `@eigenpal/docx-editor-react`, verify visually (light + dark):
 7. Eigenpal title bar: no default doc icon column, no **Help** menu (Helvety uses the command bar for file actions)
 8. Menus and dialogs: readable contrast in dark mode (no white panels with light-grey text)
 
-Then run `bun test apps/docs` (theme bridge coverage in `lib/docx-editor-theme.test.ts`, including a check that every eigenpal `slate-*` utility has a dark remap). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layer 4 for toolbar surfaces and inline `white` menu/dialog panels).
+Then run `bun test apps/docs` (theme bridge in `lib/docx-editor-theme.test.ts`, including every eigenpal `slate-*` dark remap; token parity in `lib/docx-editor-theme-tokens.test.ts`). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layer 4 for toolbar surfaces and inline `white` menu/dialog panels).
 
 ## Third-Party
 

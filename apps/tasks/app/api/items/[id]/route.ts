@@ -1,4 +1,8 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  ENCRYPTED_PREFETCH_COLUMNS,
+  encryptedPrefetchAuthOptions,
+} from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
@@ -23,7 +27,9 @@ export async function GET(
       );
     }
 
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "tasks" });
+    const auth = await authenticateAndRateLimit(
+      encryptedPrefetchAuthOptions("tasks")
+    );
     if (!auth.ok) {
       return NextResponse.json(auth.response, { headers: NO_STORE_HEADERS });
     }
@@ -31,7 +37,7 @@ export async function GET(
 
     const { data: item, error } = await supabase
       .from("items")
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.items)
       .eq("id", id)
       .eq("user_id", user.id)
       .single();

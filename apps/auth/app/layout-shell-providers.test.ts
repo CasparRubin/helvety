@@ -12,6 +12,9 @@ describe("auth root layout shell providers", () => {
 
     expect(src).not.toContain("@helvety/light-pillar");
     expect(src).not.toContain("HelvetyShellWithLightPillarBackdrop");
+    expect(src).toContain("bootstrapAuthLayoutSession");
+    expect(src).not.toContain("getCachedCSRFToken");
+    expect(src).not.toContain("getCachedUser");
     expect(src).toContain("<CSRFProvider csrfToken={csrfToken}>");
     expect(src).toContain("<EncryptionProvider>{shell}</EncryptionProvider>");
     expect(src).toContain("wrapInsideTooltipProvider");

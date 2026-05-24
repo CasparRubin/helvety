@@ -7,7 +7,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`; `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`). The layout loads CSRF and user via `getCachedCSRFToken` / `getCachedUser` from `@helvety/shared/cached-server` (equivalent data to `bootstrapE2eeLayoutSession()`, but fetched inline here) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`; `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider` and `EncryptionProvider`). The layout calls `bootstrapAuthLayoutSession()` from `@helvety/shared/layout-session-bootstrap` (CSRF + user in parallel, same contract as store/E2EE layouts) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); zone is not indexable. Navbar encryption tooltip reuses `@helvety/ui/encryption-tooltip-content` with the same passkey disclaimer as E2EE product apps; the badge only shows when the vault is unlocked for the signed-in user.
 - Metadata / OG / JSON-LD use `AUTH_DESCRIPTION` in [`app/layout.tsx`](./app/layout.tsx); PWA [`public/manifest.json`](./public/manifest.json) matches the shorter `AUTH_PWA_MANIFEST_DESCRIPTION`. Root `bun run consistency:install-manifest-metadata` fails if those diverge.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
@@ -40,7 +40,7 @@ Trusted-device shortcut:
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
+- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. The `auth-gateway` profile uses **fail-closed** auth refresh: when Supabase session refresh fails, stale `sb-*` cookies are cleared instead of leaving a broken session on the client. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Rate limits apply to OTP send/verify and passkey operations.
 - CSRF is required for state-changing actions; read-only actions use authenticated read model. The proxy bootstraps or re-issues signed `csrf_token` cookies when missing or invalid for the current `HELVETY_COOKIE_SIGNING_SECRET`.
 - Server authorization reads use `getAuthUser` from `@helvety/shared/auth-retry` (wraps `supabase.auth.getUser()`); never `auth.getSession()` for access decisions.
@@ -98,7 +98,7 @@ Notable tests include layout shell providers without WebGL backdrop (`app/layout
 Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
 Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts` and `lib/extension-passkey-challenge.test.ts`.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
-`components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots (mocks `@helvety/shared/cached-server` because this layout reads CSRF/user inline).
+`components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots (mocks `@helvety/shared/layout-session-bootstrap` → `bootstrapAuthLayoutSession`).
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

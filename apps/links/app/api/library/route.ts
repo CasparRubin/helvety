@@ -1,6 +1,10 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { isDashboardPrefetchOverCap } from "@helvety/shared/dashboard-prefetch";
+import {
+  ENCRYPTED_PREFETCH_COLUMNS,
+  encryptedPrefetchAuthOptions,
+} from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -23,7 +27,9 @@ export async function GET(): Promise<
   NextResponse<ActionResponse<LinksDashboardData>>
 > {
   try {
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "links" });
+    const auth = await authenticateAndRateLimit(
+      encryptedPrefetchAuthOptions("links")
+    );
     if (!auth.ok) {
       return NextResponse.json(auth.response, { headers: NO_STORE_HEADERS });
     }
@@ -32,7 +38,7 @@ export async function GET(): Promise<
     const [foldersResult, linksResult] = await Promise.all([
       supabase
         .from("link_folders")
-        .select("*")
+        .select(ENCRYPTED_PREFETCH_COLUMNS.link_folders)
         .eq("user_id", user.id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
@@ -40,7 +46,7 @@ export async function GET(): Promise<
         .overrideTypes<LinkFolderRow[], { merge: false }>(),
       supabase
         .from("links")
-        .select("*")
+        .select(ENCRYPTED_PREFETCH_COLUMNS.links)
         .eq("user_id", user.id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })

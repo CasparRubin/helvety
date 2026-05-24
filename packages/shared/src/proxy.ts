@@ -128,6 +128,10 @@ export const SECURITY_PROXY_PROFILE_OPTIONS: Record<
   },
 };
 
+/** Profiles that clear invalid `sb-*` cookies when edge session refresh fails. */
+const FAIL_CLOSED_AUTH_REFRESH_PROFILES: ReadonlySet<SecurityProxyProfile> =
+  new Set(["e2ee-app", "auth-gateway"]);
+
 /**
  * Build the canonical security proxy from a named profile, with optional
  * per-app overrides. Prefer this over calling createSecurityProxy directly
@@ -137,10 +141,13 @@ export function createProfiledSecurityProxy(
   profile: SecurityProxyProfile,
   overrides?: Partial<CreateSecurityProxyOptions>
 ) {
-  return createSecurityProxy({
-    ...SECURITY_PROXY_PROFILE_OPTIONS[profile],
-    ...overrides,
-  });
+  return createSecurityProxy(
+    {
+      ...SECURITY_PROXY_PROFILE_OPTIONS[profile],
+      ...overrides,
+    },
+    { failClosedOnAuthRefresh: FAIL_CLOSED_AUTH_REFRESH_PROFILES.has(profile) }
+  );
 }
 
 /** Redirect direct root requests to the app basePath, if configured. */
@@ -165,15 +172,23 @@ export function redirectRootToBasePath(
 export function createAppProxy(options: {
   securityProxy: (request: NextRequest) => Promise<NextResponse>;
   defaultBasePath?: string;
+  /** Clear stale `sb-*` cookies when session refresh fails (e2ee + auth zones). */
+  failClosedOnAuthRefresh?: boolean;
 }) {
-  const { securityProxy, defaultBasePath } = options;
+  const {
+    securityProxy,
+    defaultBasePath,
+    failClosedOnAuthRefresh = false,
+  } = options;
 
   return async function proxy(request: NextRequest): Promise<NextResponse> {
     if (defaultBasePath) {
       const rootRedirect = redirectRootToBasePath(request, defaultBasePath);
       if (rootRedirect) {
         if (requestMayHaveSupabaseAuthCookie(request)) {
-          return refreshSupabaseAuthSession(request, rootRedirect);
+          return refreshSupabaseAuthSession(request, rootRedirect, {
+            failClosedOnAuthError: failClosedOnAuthRefresh,
+          });
         }
         return rootRedirect;
       }
@@ -216,12 +231,16 @@ export function createAppProxy(options: {
  * };
  * ```
  */
-export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
+export function createSecurityProxy(
+  options: CreateSecurityProxyOptions = {},
+  refreshOptions: { failClosedOnAuthRefresh?: boolean } = {}
+) {
   const {
     buildCspOptions = {},
     includeHelvetyUrl = true,
     includeCsrf = true,
   } = options;
+  const { failClosedOnAuthRefresh = false } = refreshOptions;
 
   return async function proxy(request: NextRequest) {
     const nonce = toBase64(getRandomBytes(CSP_NONCE_LENGTH));
@@ -256,7 +275,9 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
     });
 
     if (requestMayHaveSupabaseAuthCookie(request)) {
-      response = await refreshSupabaseAuthSession(request, response);
+      response = await refreshSupabaseAuthSession(request, response, {
+        failClosedOnAuthError: failClosedOnAuthRefresh,
+      });
       if (request.headers.get(AUTH_REFRESHED_HEADER_NAME) === "1") {
         requestHeaders.set(AUTH_REFRESHED_HEADER_NAME, "1");
         const priorCookies = response.cookies.getAll();

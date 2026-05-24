@@ -1,9 +1,9 @@
 import { Loader2 } from "lucide-react";
 
 /**
- * Centered spinner for nested route segments and tool apps. Public shells (`web`,
- * `auth`, `store`) use {@link ./helvety-shell-route-loading} at the root `app/loading.tsx`
- * boundary so the full viewport stays on `bg-background` during transitions.
+ * Centered spinner for root `app/loading.tsx` on tool and E2EE zones. Gateway,
+ * auth, and store use {@link ./helvety-shell-route-loading} instead so the full
+ * viewport stays on `bg-background` during transitions.
  */
 export function LoadingSpinner() {
   return (

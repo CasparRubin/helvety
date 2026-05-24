@@ -1,4 +1,8 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import {
+  ENCRYPTED_PREFETCH_COLUMNS,
+  encryptedPrefetchAuthOptions,
+} from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -14,7 +18,9 @@ const NO_STORE_HEADERS = { "cache-control": "no-store, max-age=0" };
 /** Returns encrypted vault documents for the current user. */
 export async function GET(): Promise<NextResponse<ActionResponse<DocRow[]>>> {
   try {
-    const auth = await authenticateAndRateLimit({ rateLimitPrefix: "docs" });
+    const auth = await authenticateAndRateLimit(
+      encryptedPrefetchAuthOptions("docs")
+    );
     if (!auth.ok) {
       return NextResponse.json(auth.response, { headers: NO_STORE_HEADERS });
     }
@@ -22,7 +28,7 @@ export async function GET(): Promise<NextResponse<ActionResponse<DocRow[]>>> {
 
     const { data: docs, error } = await supabase
       .from("docs")
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.docs)
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false })
       .limit(MAX_DOC_ROWS + 1)

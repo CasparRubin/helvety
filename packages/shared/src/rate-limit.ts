@@ -709,6 +709,11 @@ export const RATE_LIMITS = {
    * `authenticateAndRateLimit` - export actions are read-only (no CSRF token).
    */
   EXPORT: { maxRequests: 5, windowMs: 60 * 1000 },
+  /**
+   * Encrypted dashboard prefetch (list GET APIs). Tighter than READ to limit
+   * session-hijack blast radius; looser than EXPORT for normal navigation.
+   */
+  PREFETCH: { maxRequests: 20, windowMs: 60 * 1000 },
   /** Encryption unlock attempts: 5 per minute per user */
   ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;

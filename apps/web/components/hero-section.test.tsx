@@ -54,7 +54,10 @@ vi.mock("@/components/hero-text", () => ({
     <p data-testid="hero-software-products">Software products</p>
   ),
   HeroSwitzerland: () => (
-    <span className="font-medium text-[#FF0000]" data-testid="hero-switzerland">
+    <span
+      className="text-brand-swiss-red font-medium"
+      data-testid="hero-switzerland"
+    >
       Switzerland
     </span>
   ),

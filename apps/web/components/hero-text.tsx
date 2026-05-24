@@ -4,7 +4,7 @@
  * Helvety presets for React Bits hero text on `/` (see {@link ./hero-section}).
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
- * - **Switzerland**: static Helvety red (`#FF0000`).
+ * - **Switzerland**: static Helvety red (`--brand-swiss-red` from `@helvety/ui/globals.css`).
  * - **Shiny Text**: tagline (white/red or black/red shine per theme); muted static paragraph when `useReducedMotion()` is true.
  *
  * Upstream: https://reactbits.dev/text-animations. Refresh via `bunx shadcn add @react-bits/…` (see `apps/web` README).
@@ -50,7 +50,7 @@ export function HeroSoftwareProducts() {
 
 /** Headline accent: static Helvety red. */
 export function HeroSwitzerland() {
-  return <span className="font-medium text-[#FF0000]">Switzerland</span>;
+  return <span className="text-brand-swiss-red font-medium">Switzerland</span>;
 }
 
 /** Tagline: React Bits Shiny Text (https://reactbits.dev/text-animations/shiny-text) */

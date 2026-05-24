@@ -92,6 +92,23 @@ describe("RATE_LIMITS.EXPORT", () => {
   });
 });
 
+describe("RATE_LIMITS.PREFETCH", () => {
+  it("is stricter than READ and looser than EXPORT", async () => {
+    const { RATE_LIMITS } = await import("./rate-limit");
+
+    expect(RATE_LIMITS.PREFETCH).toEqual({
+      maxRequests: 20,
+      windowMs: 60_000,
+    });
+    expect(RATE_LIMITS.PREFETCH.maxRequests).toBeLessThan(
+      RATE_LIMITS.READ.maxRequests
+    );
+    expect(RATE_LIMITS.PREFETCH.maxRequests).toBeGreaterThan(
+      RATE_LIMITS.EXPORT.maxRequests
+    );
+  });
+});
+
 describe("rate-limit internals", () => {
   it("uses consistent key namespaces for all key types", async () => {
     const { rateLimitInternals } = await import("./rate-limit");

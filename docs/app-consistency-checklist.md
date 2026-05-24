@@ -34,14 +34,14 @@ Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layou
 
 Every zone asserts layouts omit `@helvety/light-pillar` and `HelvetyShellWithLightPillarBackdrop` (gateway WebGL stays on `web` route components only).
 
-| Family                | Apps                                  | Also assert                                                    |
-| --------------------- | ------------------------------------- | -------------------------------------------------------------- |
-| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}` |
-| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`    |
-| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`    |
-| Auth gateway          | `auth`                                | CSRF wraps `EncryptionProvider`; nesting order                 |
-| Store gateway         | `store`                               | CSRF wraps `{shell}`                                           |
-| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order                     |
+| Family                | Apps                                  | Also assert                                                                  |
+| --------------------- | ------------------------------------- | ---------------------------------------------------------------------------- |
+| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`               |
+| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                  |
+| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                  |
+| Auth gateway          | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order |
+| Store gateway         | `store`                               | CSRF wraps `{shell}`                                                         |
+| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order                                   |
 
 Copy an existing test from the same family when adding a zone.
 
@@ -49,13 +49,13 @@ Copy an existing test from the same family when adding a zone.
 
 Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests import `metadata`, not the default layout):
 
-| Layout pattern                                                   | Mock                                                                      |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `bootstrapPublicLayoutUser()`                                    | `@helvety/shared/layout-session-bootstrap`                                |
-| `bootstrapE2eeLayoutSession()`                                   | `@helvety/shared/layout-session-bootstrap`                                |
-| Inline `getCachedUser` / `getCachedCSRFToken` (auth layout only) | `@helvety/shared/cached-server` (+ `logger` if the layout catches errors) |
-| Docs public `page.tsx` session                                   | `@helvety/shared/layout-session-bootstrap` (`bootstrapPublicLayoutUser`)  |
-| `E2eeAppRootLayout` only (no session in layout module)           | `next/font/google` only                                                   |
+| Layout pattern                                         | Mock                                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `bootstrapPublicLayoutUser()`                          | `@helvety/shared/layout-session-bootstrap`                               |
+| `bootstrapE2eeLayoutSession()`                         | `@helvety/shared/layout-session-bootstrap`                               |
+| `bootstrapAuthLayoutSession()` (auth layout only)      | `@helvety/shared/layout-session-bootstrap`                               |
+| Docs public `page.tsx` session                         | `@helvety/shared/layout-session-bootstrap` (`bootstrapPublicLayoutUser`) |
+| `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                                                  |
 
 Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync.
 
@@ -72,6 +72,7 @@ Colocate **`route.test.ts` beside the list handler**. Import `[id]/route` from t
 | Case                                                | Required?                              | Reference                                      |
 | --------------------------------------------------- | -------------------------------------- | ---------------------------------------------- |
 | List success + `cache-control: no-store, max-age=0` | Yes                                    | `apps/contacts/app/api/contacts/route.test.ts` |
+| Encrypted prefetch auth + `RATE_LIMITS.PREFETCH`    | Yes (E2EE + docs vault list routes)    | Same parent `route.test.ts` files              |
 | Auth failure (no Supabase query)                    | Yes                                    | `apps/links/app/api/library/route.test.ts`     |
 | `[id]` invalid UUID + no-store header               | Yes                                    | Same parent file imports `./[id]/route`        |
 | CSP wiring (`runtime`, domain, `POST`)              | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`    |
@@ -136,6 +137,8 @@ Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`)
 | `public-tool`      | `pdf`, `image-upscaler`; `docs` adds doc-editor CSP options |
 
 Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config = { matcher: [...] }` (Next.js requirement). `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
+
+**Fail-closed auth refresh:** `auth-gateway` and `e2ee-app` profiles clear stale `sb-*` cookies when Supabase session refresh fails (`failClosedOnAuthRefresh` on `createAppProxy` / `createProfiledSecurityProxy`). E2EE zone `proxy.ts` files also set `failClosedOnAuthRefresh: true` explicitly; wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
 
 ## Root layout shell
 
