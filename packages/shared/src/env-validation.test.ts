@@ -121,20 +121,48 @@ describe("env-validation", () => {
     expect(hasSigning()).toBe(true);
   });
 
-  it("validateCookieSigningEnv uses CI placeholder when signing secret is unset", async () => {
+  it("createAppUpstashCookieEnv uses CI placeholder when signing secret is unset", async () => {
     vi.stubEnv("SKIP_ENV_VALIDATION", "1");
     vi.stubEnv("VERCEL", "");
     delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
-    const { validateCookieSigningEnv } = await import("./env-validation");
+    const { createAppUpstashCookieEnv, upstashCookieSigningEnvSchema } =
+      await import("./env-validation");
 
-    const env = validateCookieSigningEnv({
+    const env = createAppUpstashCookieEnv({
       appName: "pdf",
       envTemplatePath: "apps/pdf/env.template",
-    });
+      schema: upstashCookieSigningEnvSchema,
+    })();
     expect(env.HELVETY_COOKIE_SIGNING_SECRET).toMatch(
       /^ci_build_placeholder_cookie_signing/
     );
+    expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
+  });
+
+  it("createAppUserScopedEnv caches validated env without admin secret for vault zones", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "1");
+    vi.stubEnv("VERCEL", "");
+    delete process.env.SUPABASE_SECRET_KEY;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+
+    const { createAppUserScopedEnv, userScopedServerEnvSchema } =
+      await import("./env-validation");
+
+    const getValidated = createAppUserScopedEnv({
+      appName: "docs",
+      envTemplatePath: "apps/docs/env.template",
+      schema: userScopedServerEnvSchema,
+    });
+
+    const env = getValidated();
+    expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
+    expect(env.HELVETY_COOKIE_SIGNING_SECRET.length).toBeGreaterThanOrEqual(32);
+    expect("SUPABASE_SECRET_KEY" in env).toBe(false);
   });
 
   it("createAppServerUpstashEnv caches validated env on first call", async () => {
@@ -149,8 +177,8 @@ describe("env-validation", () => {
       await import("./env-validation");
 
     const getValidated = createAppServerUpstashEnv({
-      appName: "notes",
-      envTemplatePath: "apps/notes/env.template",
+      appName: "store",
+      envTemplatePath: "apps/store/env.template",
       schema: serverUpstashMergedSchema,
     });
 
@@ -160,19 +188,66 @@ describe("env-validation", () => {
     expect(first.SUPABASE_SECRET_KEY).toMatch(/^ci_build_placeholder/);
   });
 
-  it("validateCookieSigningEnv rejects short signing secrets in production-like runs", async () => {
+  it("createAppUpstashCookieEnv caches validated env without admin secret", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "1");
+    vi.stubEnv("VERCEL", "");
+    delete process.env.SUPABASE_SECRET_KEY;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+
+    const { createAppUpstashCookieEnv, upstashCookieSigningEnvSchema } =
+      await import("./env-validation");
+
+    const getValidated = createAppUpstashCookieEnv({
+      appName: "pdf",
+      envTemplatePath: "apps/pdf/env.template",
+      schema: upstashCookieSigningEnvSchema,
+    });
+
+    const env = getValidated();
+    expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
+    expect(env.HELVETY_COOKIE_SIGNING_SECRET.length).toBeGreaterThanOrEqual(32);
+    expect("SUPABASE_SECRET_KEY" in env).toBe(false);
+  });
+
+  it("exposes Upstash+cookie placeholder for public-tool env modules", async () => {
+    const { getCiPlaceholderUpstashCookieEnv } =
+      await import("./env-validation");
+
+    const env = getCiPlaceholderUpstashCookieEnv();
+    expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
+    expect(env.UPSTASH_REDIS_REST_TOKEN.length).toBeGreaterThan(0);
+    expect(env.HELVETY_COOKIE_SIGNING_SECRET.length).toBeGreaterThanOrEqual(32);
+  });
+
+  it("getValidatedGatewayEnv uses placeholders in development", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    delete process.env.AUTH_URL;
+
+    const { getValidatedGatewayEnv } = await import("./env-validation");
+    const env = getValidatedGatewayEnv();
+    expect(env.AUTH_URL).toMatch(/^https:\/\//);
+    expect(env.LINKS_URL).toMatch(/^https:\/\//);
+  });
+
+  it("createAppUpstashCookieEnv rejects short signing secrets in production-like runs", async () => {
     vi.stubEnv("SKIP_ENV_VALIDATION", "");
     vi.stubEnv("VERCEL", "");
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("HELVETY_COOKIE_SIGNING_SECRET", "too-short");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "token");
 
-    const { validateCookieSigningEnv } = await import("./env-validation");
+    const { createAppUpstashCookieEnv, upstashCookieSigningEnvSchema } =
+      await import("./env-validation");
 
     expect(() =>
-      validateCookieSigningEnv({
+      createAppUpstashCookieEnv({
         appName: "pdf",
         envTemplatePath: "apps/pdf/env.template",
-      })
+        schema: upstashCookieSigningEnvSchema,
+      })()
     ).toThrow(/Invalid environment variables/i);
   });
 });

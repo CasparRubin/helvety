@@ -55,7 +55,23 @@ describe("env.template consistency", () => {
     }
   });
 
-  it("lib/env.ts envTemplatePath values point at existing templates with expected keys", async () => {
+  it("documents SUPABASE_SECRET_KEY only on auth and store", () => {
+    for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
+      const hasSecret = keys.includes("SUPABASE_SECRET_KEY");
+      expect(hasSecret).toBe(app === "auth" || app === "store");
+    }
+  });
+
+  it("documents Upstash Redis keys on all server-validated zones except web", () => {
+    for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
+      const hasUpstash =
+        keys.includes("UPSTASH_REDIS_REST_URL") &&
+        keys.includes("UPSTASH_REDIS_REST_TOKEN");
+      expect(hasUpstash).toBe(app !== "web");
+    }
+  });
+
+  it("env.template files include expected keys per app", async () => {
     const envModules: Array<{ app: string; templatePath: string }> = [
       { app: "auth", templatePath: "apps/auth/env.template" },
       { app: "notes", templatePath: "apps/notes/env.template" },
@@ -69,6 +85,7 @@ describe("env.template consistency", () => {
         app: "image-upscaler",
         templatePath: "apps/image-upscaler/env.template",
       },
+      { app: "web", templatePath: "apps/web/env.template" },
     ];
 
     for (const { app, templatePath } of envModules) {

@@ -3,7 +3,14 @@ import { resolve } from "node:path";
 
 const rootDir = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
-const TEST_FILE_SUFFIX = [".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx"];
+const TEST_FILE_SUFFIX = [
+  ".test.ts",
+  ".test.tsx",
+  ".test.mjs",
+  ".spec.ts",
+  ".spec.tsx",
+  ".spec.mjs",
+];
 const SKIP_DIR_NAMES = new Set(["node_modules", ".next", ".turbo", "dist"]);
 const FORBIDDEN_PATTERNS = [
   { name: "test.only", regex: /\b(?:it|test)\.only\(/ },

@@ -130,14 +130,15 @@ Quality gates run locally and on GitHub Actions (`.github/workflows/ci.yml`). De
 - Copy each app's `env.template` to `.env.local` before running that app (see setup commands above). `bun run consistency:env-templates` (in `ci:check`) keeps every template aligned with startup validation in `lib/env.ts` and gateway config in `apps/web/next.config.ts`.
 - App URL and cookie domain logic are derived from `NODE_ENV` via shared config (`packages/shared/src/config.ts`).
 - **Per-app tiers** (see each `apps/*/env.template`, app README, and [`docs/turbo-env-tiers.md`](docs/turbo-env-tiers.md) for how Turbo `build.env` relates to runtime requirements):
-  - **Full stack** (`auth`, `notes`, `tasks`, `contacts`, `links`, `store`, `docs`): public Supabase keys, `SUPABASE_SECRET_KEY`, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET`.
+  - **Admin + rate limit** (`auth`, `store`): public Supabase keys, `SUPABASE_SECRET_KEY`, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET`.
+  - **User-scoped + rate limit** (`notes`, `tasks`, `contacts`, `links`, `docs`): public Supabase keys, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET` (no admin client; vault CRUD uses user client + RLS).
   - **Auth only** adds `DEVICE_TRUST_COOKIE_SECRET` (separate from CSRF signing; min 32 characters).
-  - **Public tools** (`pdf`, `image-upscaler`): public Supabase keys and `HELVETY_COOKIE_SIGNING_SECRET` only (no server admin client or Upstash rate limiting).
+  - **Public tools + rate limit** (`pdf`, `image-upscaler`): public Supabase keys, Upstash Redis, and `HELVETY_COOKIE_SIGNING_SECRET` (no `SUPABASE_SECRET_KEY`; auth callbacks require Upstash strict rate limiting).
   - **Gateway** (`web`): public Supabase keys plus internal rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `DOCS_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`.
 - **Optional** (commented in every `env.template`; not required for normal local dev): `SKIP_ENV_VALIDATION=1` (local build smoke tests only, off Vercel; `ci:release` uses real validation), and `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` (comma-separated Server Actions origin override; on Vercel, defaults come from deployment URLs plus `https://helvety.com`).
 - `apps/web` requires `AUTH_URL`, `STORE_URL`, `PDF_URL`, `DOCS_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, and `LINKS_URL` when `VERCEL=1` so multi-zone rewrites can resolve trusted internal origins. Local dev falls back to localhost ports (Docs: `3010`).
 - `HELVETY_COOKIE_SIGNING_SECRET` (min 32 characters; generate with `openssl rand -base64 48`) is required on every zone whose proxy profile enables CSRF (`e2ee-app`, `auth-gateway`, `store-gateway`, `public-tool`). It is **not** interchangeable with `SUPABASE_SECRET_KEY`. The gateway (`apps/web`, `public-marketing` profile) does not bootstrap CSRF cookies and does not need this variable.
-- `SUPABASE_SECRET_KEY` is server-only and used for privileged Supabase admin/storage operations (for example signed package downloads in Store). The Store public download API may respond with an HTTP redirect to a signed Supabase Storage URL; that redirect target must match the project origin from `NEXT_PUBLIC_SUPABASE_URL` only (not a separate `SUPABASE_URL`). Store also requires `NEXT_PUBLIC_SUPABASE_URL` on Vercel builds for Next.js image `remotePatterns`.
+- `SUPABASE_SECRET_KEY` is server-only and required on **admin-tier** zones (`auth`, `store`) for privileged Supabase admin/storage operations (for example signed package downloads in Store). E2EE vault zones and Docs use the user-scoped client + RLS instead and do not deploy this key.
 
 ## Supabase Workflow (Remote-First)
 

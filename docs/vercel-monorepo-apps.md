@@ -34,3 +34,12 @@ Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs).
 ## CI guardrail
 
 `bun run consistency:vercel-apps` asserts identical `vercel.json` files and `env.template` Vercel lines for every zone. `consistency:guardrails` asserts `postcss.config.mjs` parity and `@helvety/ui` on every zone that uses shared PostCSS. See [`scripts/vercel-app-expectations.mjs`](../scripts/vercel-app-expectations.mjs).
+
+## Environment variables (Vercel ops)
+
+Copy keys from each zone’s `apps/<slug>/env.template` into that Vercel project (not the repo root). Tier reference: [`turbo-env-tiers.md`](./turbo-env-tiers.md).
+
+- **Admin tier** (`helvety-auth`, `helvety-store`): needs `SUPABASE_SECRET_KEY`, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` (auth also needs `DEVICE_TRUST_COOKIE_SECRET`).
+- **User-scoped tier** (E2EE apps + `helvety-docs`): Upstash + `HELVETY_COOKIE_SIGNING_SECRET` only; do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
+- **Public tools** (`helvety-pdf`, `helvety-image-upscaler`): same as user-scoped tier (Upstash required for auth callback rate limiting).
+- **Gateway** (`helvety-com`): public Supabase keys + zone rewrite URLs (`AUTH_URL`, `STORE_URL`, …) when `VERCEL=1`; no `HELVETY_COOKIE_SIGNING_SECRET`.

@@ -1,6 +1,7 @@
 import {
   CUSTOMER_COPY_EM_DASH,
   CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX,
+  CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS,
 } from "@helvety/shared/customer-copy-guardrails";
 import {
   HELVETY_FREE_AGPL_FEATURE,
@@ -317,6 +318,25 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
       HELVETY_FREE_AGPL_FEATURE
     );
+  });
+
+  it("Helvety Docs About copy uses My documents command bar sheet (not vault sidebar)", () => {
+    const product = getProductBySlug("helvety-docs");
+    expect(product).toBeDefined();
+    if (!product) return;
+
+    const blob = [
+      product.description.intro,
+      ...(product.description.sections ?? []).flatMap((s) =>
+        s.kind === "paragraph" ? [s.body] : s.items
+      ),
+    ].join("\n");
+
+    expect(blob).toMatch(/My documents/i);
+    expect(blob).toMatch(/command bar sheet/i);
+    for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS) {
+      expect(blob).not.toContain(term);
+    }
   });
 
   it("Power Platform Configurator publicPackageId matches downloadable package config key", () => {

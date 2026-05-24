@@ -90,14 +90,13 @@ Then run `cd apps/docs && bun run test` (theme bridge in `lib/docx-editor-theme.
 
 Copy [`env.template`](./env.template) to `.env.local`.
 
-This app uses the **full stack** env tier (same validation as Store and E2EE zones): Supabase publishable + secret keys, Upstash Redis, and cookie signing for CSRF in the proxy. Vault handlers use the user-scoped Supabase client; `SUPABASE_SECRET_KEY` is required by shared startup validation, not for vault database access.
+This app uses the **user-scoped server** env tier (same as E2EE vault zones): Supabase publishable key, Upstash Redis, and cookie signing for CSRF in the proxy. Vault handlers use the user-scoped Supabase client + RLS; no `SUPABASE_SECRET_KEY` is required.
 
 | Variable                               | Required | Server-only | Description                                                                                      |
 | -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key (user-scoped vault client)                                              |
-| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Full-stack tier validation; Docs vault does **not** call the admin client for CRUD               |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Rate limiting for server actions and API routes                                                  |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Rate limiting for server actions, API routes, and auth callbacks                                 |
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash REST token                                                                               |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 

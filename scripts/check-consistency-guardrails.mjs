@@ -297,22 +297,29 @@ async function main() {
     );
   }
 
-  const serverUpstashEnvModules = [
+  const adminServerUpstashEnvModules = [
     "apps/auth/lib/env.ts",
+    "apps/store/lib/env.ts",
+  ];
+  const userScopedEnvModules = [
     "apps/contacts/lib/env.ts",
     "apps/docs/lib/env.ts",
     "apps/links/lib/env.ts",
     "apps/notes/lib/env.ts",
-    "apps/store/lib/env.ts",
     "apps/tasks/lib/env.ts",
   ];
-  const serverUpstashEnvContents = await Promise.all(
-    serverUpstashEnvModules.map(async (relativePath) => ({
+  const upstashCookieEnvModules = [
+    "apps/pdf/lib/env.ts",
+    "apps/image-upscaler/lib/env.ts",
+  ];
+
+  const adminServerUpstashEnvContents = await Promise.all(
+    adminServerUpstashEnvModules.map(async (relativePath) => ({
       relativePath,
       content: await readFile(resolve(rootDir, relativePath), "utf8"),
     }))
   );
-  for (const file of serverUpstashEnvContents) {
+  for (const file of adminServerUpstashEnvContents) {
     if (
       !/validateServerUpstashEnv\(|createAppServerUpstashEnv\(/.test(
         file.content
@@ -322,29 +329,59 @@ async function main() {
         `${file.relativePath} must validate env via validateServerUpstashEnv or createAppServerUpstashEnv from @helvety/shared/env-validation.`
       );
     }
-    if (
-      !/serverUpstashMergedSchema|cookieSigningEnvSchema/.test(file.content)
-    ) {
+    if (!/serverUpstashMergedSchema|authEnvSchema/.test(file.content)) {
       throw new Error(
-        `${file.relativePath} must include HELVETY_COOKIE_SIGNING_SECRET in its env schema (serverUpstashMergedSchema or cookieSigningEnvSchema).`
+        `${file.relativePath} must use an admin-tier env schema (serverUpstashMergedSchema or authEnvSchema).`
       );
     }
   }
 
-  const cookieSigningEnvModules = [
-    "apps/pdf/lib/env.ts",
-    "apps/image-upscaler/lib/env.ts",
-  ];
-  const cookieSigningEnvContents = await Promise.all(
-    cookieSigningEnvModules.map(async (relativePath) => ({
+  const userScopedEnvContents = await Promise.all(
+    userScopedEnvModules.map(async (relativePath) => ({
       relativePath,
       content: await readFile(resolve(rootDir, relativePath), "utf8"),
     }))
   );
-  for (const file of cookieSigningEnvContents) {
-    if (!/validateCookieSigningEnv\(/.test(file.content)) {
+  for (const file of userScopedEnvContents) {
+    if (
+      !/validateUpstashCookieEnv\(|createAppUserScopedEnv\(|createAppUpstashCookieEnv\(/.test(
+        file.content
+      )
+    ) {
       throw new Error(
-        `${file.relativePath} must validate env via validateCookieSigningEnv from @helvety/shared/env-validation.`
+        `${file.relativePath} must validate env via createAppUserScopedEnv from @helvety/shared/env-validation.`
+      );
+    }
+    if (
+      !/userScopedServerEnvSchema|upstashCookieSigningEnvSchema/.test(
+        file.content
+      )
+    ) {
+      throw new Error(
+        `${file.relativePath} must use userScopedServerEnvSchema (no admin client).`
+      );
+    }
+  }
+
+  const upstashCookieEnvContents = await Promise.all(
+    upstashCookieEnvModules.map(async (relativePath) => ({
+      relativePath,
+      content: await readFile(resolve(rootDir, relativePath), "utf8"),
+    }))
+  );
+  for (const file of upstashCookieEnvContents) {
+    if (
+      !/validateUpstashCookieEnv\(|createAppUpstashCookieEnv\(/.test(
+        file.content
+      )
+    ) {
+      throw new Error(
+        `${file.relativePath} must validate env via createAppUpstashCookieEnv from @helvety/shared/env-validation.`
+      );
+    }
+    if (!/upstashCookieSigningEnvSchema/.test(file.content)) {
+      throw new Error(
+        `${file.relativePath} must use upstashCookieSigningEnvSchema (Upstash + cookie signing).`
       );
     }
   }
@@ -565,7 +602,7 @@ async function main() {
     }
   }
 
-  const fullStackEnvComment =
+  const userScopedEnvComment =
     "See repository root `README.md` → Automation (`ci:release`).";
   for (const appName of [
     "contacts",
@@ -574,12 +611,14 @@ async function main() {
     "links",
     "store",
     "docs",
+    "pdf",
+    "image-upscaler",
   ]) {
     const envPath = resolve(rootDir, "apps", appName, "lib/env.ts");
     const envSource = await readFile(envPath, "utf8");
-    if (!envSource.includes(fullStackEnvComment)) {
+    if (!envSource.includes(userScopedEnvComment)) {
       throw new Error(
-        `apps/${appName}/lib/env.ts must document SKIP_ENV_VALIDATION / ci:release (match other full-stack zones).`
+        `apps/${appName}/lib/env.ts must document SKIP_ENV_VALIDATION / ci:release (match other validated env zones).`
       );
     }
   }

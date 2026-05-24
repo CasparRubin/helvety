@@ -6,18 +6,20 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-const SERVER_UPSTASH_APPS = [
-  "auth",
+const ADMIN_SERVER_UPSTASH_APPS = ["auth", "store"] as const;
+
+const USER_SCOPED_SERVER_APPS = [
   "contacts",
   "docs",
   "links",
   "notes",
-  "store",
   "tasks",
 ] as const;
 
+const UPSTASH_COOKIE_APPS = ["pdf", "image-upscaler"] as const;
+
 describe("zone lib/env factory wiring", () => {
-  it.each(SERVER_UPSTASH_APPS)(
+  it.each(ADMIN_SERVER_UPSTASH_APPS)(
     "apps/%s/lib/env.ts uses createAppServerUpstashEnv",
     (app) => {
       const src = readFileSync(
@@ -29,14 +31,36 @@ describe("zone lib/env factory wiring", () => {
     }
   );
 
-  it.each(["pdf", "image-upscaler"] as const)(
-    "apps/%s/lib/env.ts uses validateCookieSigningEnv",
+  it.each(USER_SCOPED_SERVER_APPS)(
+    "apps/%s/lib/env.ts uses createAppUserScopedEnv",
     (app) => {
       const src = readFileSync(
         join(repoRoot, "apps", app, "lib/env.ts"),
         "utf8"
       );
-      expect(src).toContain("validateCookieSigningEnv");
+      expect(src).toContain("createAppUserScopedEnv");
+      expect(src).toMatch(/export const getValidated\w+Env/);
     }
   );
+
+  it.each(UPSTASH_COOKIE_APPS)(
+    "apps/%s/lib/env.ts uses createAppUpstashCookieEnv",
+    (app) => {
+      const src = readFileSync(
+        join(repoRoot, "apps", app, "lib/env.ts"),
+        "utf8"
+      );
+      expect(src).toContain("createAppUpstashCookieEnv");
+      expect(src).toMatch(/export const getValidated\w+Env/);
+    }
+  );
+
+  it("apps/web/lib/env.ts uses getValidatedGatewayEnv", () => {
+    const src = readFileSync(
+      join(repoRoot, "apps", "web", "lib/env.ts"),
+      "utf8"
+    );
+    expect(src).toContain("getValidatedGatewayEnv");
+    expect(src).toMatch(/export const getValidatedWebEnv/);
+  });
 });

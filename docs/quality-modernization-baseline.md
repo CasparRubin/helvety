@@ -20,7 +20,7 @@
   - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`); **`auth-gateway`** / **`e2ee-app`** profiles clear stale `sb-*` cookies when refresh fails (fail-closed)
   - `@helvety/shared/encrypted-prefetch-api` for vault/list GET routes (`RATE_LIMITS.PREFETCH`, explicit column lists); `bootstrapAuthLayoutSession()` for the auth layout
   - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
-  - server env validation and Supabase client factories; `createAppServerUpstashEnv` for full-stack zones; per-app `env.template` parity (`consistency:env-templates`)
+  - server env validation and Supabase client factories; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); per-app `env.template` parity (`consistency:env-templates`)
   - `defineEntityDeleteRegistry` (`entity-delete-message`) for E2EE delete copy
   - `app-product-descriptions` for shared SEO/PWA strings (pdf/image-upscaler re-export via thin `lib/product-copy.ts`)
 - `@helvety/ui`
@@ -70,4 +70,4 @@
 - **Dead code:** schedule `bun run deps:unused` quarterly (already in `ci:check`); triage Knip findings before major releases
 - **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
 - Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `RATE_LIMITS.PREFETCH`, route tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; `public.docs` migrations (`create_docs_table` + `harden_docs_and_revoke_anon_grants`) + `consistency:supabase-schema`
-- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; `createAppServerUpstashEnv`; Next config presets; navbar factories; centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps
+- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); Next config presets; navbar factories; centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps

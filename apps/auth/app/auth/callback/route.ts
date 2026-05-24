@@ -72,6 +72,10 @@ async function buildPostAuthRedirect(
  * verification flows. The primary sign-in UX still centers typed OTP codes
  * followed by passkey setup/sign-in after callback completion.
  *
+ * OTP allowlist intentionally excludes `"email"`: primary OTP verification uses
+ * server actions (`verifyOtp` with `type: "email"`), not this GET handler.
+ * Link-based callbacks here accept magiclink/signup/recovery/invite/email_change only.
+ *
  * It handles:
  * - Account recovery, invite, and email change confirmation links
  * - OAuth flows

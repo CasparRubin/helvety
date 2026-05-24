@@ -97,12 +97,14 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 
 Copy `env.template` to `.env.local`.
 
-This app does not use `SUPABASE_SECRET_KEY` or Upstash (no server admin client or distributed rate limiting).
+This app does not use `SUPABASE_SECRET_KEY` (no server admin client). Upstash is required for auth callback strict rate limiting and CSRF cookie signing in the proxy.
 
 | Variable                               | Required | Server-only | Description                                                                                      |
 | -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                         |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting                                                         |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token for rate limiting                                                       |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 
 Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model.

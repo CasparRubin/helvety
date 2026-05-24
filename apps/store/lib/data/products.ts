@@ -1128,7 +1128,7 @@ const helvetyDocs: SaaSProduct = {
         items: [
           "Edit .docx in the tab with familiar word-processor controls.",
           "Upload or start a new document, then download when you are done.",
-          "Open saved vault documents from the sidebar after sign-in (URLs may show `?doc=` after you open or save).",
+          "Open saved documents from My documents in the command bar sheet when signed in and vault-unlocked (URLs may show `?doc=` after you open or save).",
           "Save to your vault when signed in (titles and .docx bytes encrypted client-side).",
           "Per-file ceiling of 20 MB. Large documents still depend on device RAM and your browser.",
         ],

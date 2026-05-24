@@ -103,6 +103,7 @@ Three legacy browser-extension listings were merged into **Power Platform Config
 
 - **Client-exposed**: `NEXT_PUBLIC_*` (Supabase URL/key, etc.).
 - **Server-only secrets and URLs**: `UPPER_SNAKE_CASE` without `NEXT_PUBLIC_`.
+- **Per-zone tiers** (which keys each app validates at startup): root [`README.md`](../README.md) § Environment Model, [`turbo-env-tiers.md`](./turbo-env-tiers.md), and each `apps/<zone>/env.template` (enforced by `bun run consistency:env-templates`). `SUPABASE_SECRET_KEY` is required only on **admin-tier** zones (`auth`, `store`); E2EE vault zones and Docs use the user-scoped client + RLS instead.
 
 ## Workspace packages
 

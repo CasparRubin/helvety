@@ -12,6 +12,19 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EM_DASH = "\u2014";
 
+/** Keep in sync with `customer-copy-guardrails.ts`. */
+const FORBIDDEN_DOCS_VAULT_TERMS = [
+  "vault sidebar",
+  "from the sidebar after sign-in",
+  "VaultPanel",
+];
+
+/** Store/catalog paths scanned for forbidden Docs vault UX terms. */
+const DOCS_VAULT_COPY_PATHS = [
+  "apps/store/lib/data/products.ts",
+  "packages/shared/src/store-catalog.ts",
+];
+
 /** Keep in sync with `customer-copy-guardrails.ts` (`CUSTOMER_COPY_README_RELATIVE_PATHS`). */
 const README_RELATIVE_PATHS = [
   "README.md",
@@ -137,22 +150,46 @@ function scanFiles() {
 }
 
 function main() {
-  const violations = [];
+  const emDashViolations = [];
+  const docsVaultViolations = [];
+
   for (const filePath of scanFiles()) {
     const content = readFileSync(filePath, "utf8");
+    const rel = path.relative(root, filePath);
+
     if (content.includes(EM_DASH)) {
-      violations.push(path.relative(root, filePath));
+      emDashViolations.push(rel);
+    }
+
+    if (DOCS_VAULT_COPY_PATHS.includes(rel)) {
+      for (const term of FORBIDDEN_DOCS_VAULT_TERMS) {
+        if (content.includes(term)) {
+          docsVaultViolations.push(`${rel} (forbidden: "${term}")`);
+        }
+      }
     }
   }
-  if (violations.length > 0) {
+
+  if (emDashViolations.length > 0) {
     console.error(
       "Em-dash (U+2014) in user-facing copy; use commas, periods, or parentheses:"
     );
-    for (const rel of violations.sort()) {
+    for (const rel of emDashViolations.sort()) {
       console.error(`  ${rel}`);
     }
     process.exit(1);
   }
+
+  if (docsVaultViolations.length > 0) {
+    console.error(
+      "Forbidden legacy Docs vault UX terms in store/catalog copy (use My documents command bar sheet):"
+    );
+    for (const rel of docsVaultViolations.sort()) {
+      console.error(`  ${rel}`);
+    }
+    process.exit(1);
+  }
+
   console.log("customer copy style OK (no em-dashes in user-facing copy)");
 }
 

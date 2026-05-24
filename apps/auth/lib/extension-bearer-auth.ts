@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createClient } from "@supabase/supabase-js";
 
 import type { User } from "@supabase/supabase-js";
@@ -30,12 +31,8 @@ export async function authenticateBearerRequest(
     return { ok: false, error: NOT_AUTHENTICATED };
   }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !publishableKey) {
-    return { ok: false, error: "Auth service is not configured" };
-  }
-
+  const url = getSupabaseUrl();
+  const publishableKey = getSupabaseKey();
   const supabase = createClient(url, publishableKey, {
     auth: {
       persistSession: false,

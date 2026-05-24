@@ -169,7 +169,15 @@ E2EE zones re-export the client provider from `@/lib/crypto` and pass `encryptio
 
 ## `lib/env.ts` factory
 
-Full-stack apps use `createAppServerUpstashEnv` from `@helvety/shared/env-validation` (see any E2EE `lib/env.ts` or `apps/store/lib/env.ts`). Auth extends the merged schema for `DEVICE_TRUST_COOKIE_SECRET`. Public tools (`pdf`, `image-upscaler`) call `validateCookieSigningEnv` directly (no Upstash tier).
+| Tier                          | Factory                                                        | Apps                                  |
+| ----------------------------- | -------------------------------------------------------------- | ------------------------------------- |
+| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                               |
+| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`) |
+| User-scoped + rate limit      | `createAppUserScopedEnv` + `userScopedServerEnvSchema`         | E2EE apps, `docs`                     |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`               |
+| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                 |
+
+Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
 
 ## Next.js config presets
 
@@ -207,23 +215,24 @@ See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
 Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.json) so cached builds invalidate when any zone secret changes. See [`turbo-env-tiers.md`](./turbo-env-tiers.md). **Required keys at runtime** still follow each app's `env.template`:
 
-| Tier             | Apps                               | Required secrets (typical)                                                                                                                   |
-| ---------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Full stack**   | `auth`, E2EE apps, `store`, `docs` | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` (Docs vault CRUD uses user client + RLS, not admin client) |
-| **Auth extra**   | `auth`                             | `DEVICE_TRUST_COOKIE_SECRET`                                                                                                                 |
-| **Public tools** | `pdf`, `image-upscaler`            | Supabase public + `HELVETY_COOKIE_SIGNING_SECRET` only                                                                                       |
-| **Gateway**      | `web`                              | Public Supabase + zone rewrite URLs when `VERCEL=1`                                                                                          |
+| Tier                         | Apps                    | Required secrets (typical)                                                        |
+| ---------------------------- | ----------------------- | --------------------------------------------------------------------------------- |
+| **Admin + rate limit**       | `auth`, `store`         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` |
+| **User-scoped + rate limit** | E2EE apps, `docs`       | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET` (no admin client)      |
+| **Public tool + rate limit** | `pdf`, `image-upscaler` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                        |
+| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET`                                                      |
+| **Gateway**                  | `web`                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                               |
 
 See root [`README.md`](../README.md) § Environment Model.
 
 ## `lib/env.ts` JSDoc
 
-| Tier         | Apps                       | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION`        |
-| ------------ | -------------------------- | -------------------------------------------------------------- |
-| Full stack   | E2EE apps, `store`, `docs` | Yes (`createAppServerUpstashEnv` / `validateServerUpstashEnv`) |
-| Public tools | `pdf`, `image-upscaler`    | Yes (`validateCookieSigningEnv`)                               |
-| Auth         | `auth`                     | Yes (extended schema)                                          |
-| Gateway      | `web`                      | No `lib/env.ts`                                                |
+| Tier                     | Apps                    | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION` |
+| ------------------------ | ----------------------- | ------------------------------------------------------- |
+| Admin + rate limit       | `auth`, `store`         | Yes (`createAppServerUpstashEnv`)                       |
+| User-scoped + rate limit | E2EE apps, `docs`       | Yes (`createAppUserScopedEnv`)                          |
+| Public tool + rate limit | `pdf`, `image-upscaler` | Yes (`createAppUpstashCookieEnv`)                       |
+| Gateway                  | `web`                   | Yes (`getValidatedWebEnv`)                              |
 
 ## E2EE UX patterns
 

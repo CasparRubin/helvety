@@ -9,6 +9,13 @@
 /** U+2014 em-dash; must not appear in user-facing copy. */
 export const CUSTOMER_COPY_EM_DASH = "\u2014";
 
+/** Forbidden legacy Docs vault UX terms in store/catalog copy. */
+export const CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS = [
+  "vault sidebar",
+  "from the sidebar after sign-in",
+  "VaultPanel",
+] as const;
+
 /** Repo-relative app and root README intros. */
 export const CUSTOMER_COPY_README_RELATIVE_PATHS = [
   "README.md",

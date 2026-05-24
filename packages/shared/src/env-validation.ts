@@ -137,6 +137,14 @@ export const serverUpstashMergedSchema = serverEnvSchema
   .merge(upstashEnvSchema)
   .merge(cookieSigningEnvSchema);
 
+/** Upstash + cookie signing without `SUPABASE_SECRET_KEY` (public tools and user-scoped vault zones). */
+export const upstashCookieSigningEnvSchema = upstashEnvSchema.merge(
+  cookieSigningEnvSchema
+);
+
+/** Alias: user-scoped Supabase client + RLS only (no `createAdminClient`). */
+export const userScopedServerEnvSchema = upstashCookieSigningEnvSchema;
+
 /**
  * When `SKIP_ENV_VALIDATION=1` and not on Vercel (`VERCEL=1`), apps may use
  * schema-valid placeholder values for **missing** `NEXT_PUBLIC_*` vars so
@@ -183,9 +191,34 @@ export function hasRealServerUpstashEnv(): boolean {
   );
 }
 
-/** True when HELVETY_COOKIE_SIGNING_SECRET is set (public-tool apps without Upstash). */
+/** True when HELVETY_COOKIE_SIGNING_SECRET is set (used by deprecated {@link validateCookieSigningEnv}). */
 export function hasRealCookieSigningEnv(): boolean {
   return Boolean(process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim());
+}
+
+/** Raw Upstash + cookie signing read from `process.env` (trimmed, may be empty). */
+export function readUpstashCookieEnvFromProcess(): {
+  UPSTASH_REDIS_REST_URL: string;
+  UPSTASH_REDIS_REST_TOKEN: string;
+  HELVETY_COOKIE_SIGNING_SECRET: string;
+} {
+  return {
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL?.trim() ?? "",
+    UPSTASH_REDIS_REST_TOKEN:
+      process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ?? "",
+    HELVETY_COOKIE_SIGNING_SECRET:
+      process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim() ?? "",
+  };
+}
+
+/** True when Upstash REST credentials and cookie signing secret are all set. */
+export function hasRealUpstashCookieEnv(): boolean {
+  const r = readUpstashCookieEnvFromProcess();
+  return Boolean(
+    r.UPSTASH_REDIS_REST_URL &&
+    r.UPSTASH_REDIS_REST_TOKEN &&
+    r.HELVETY_COOKIE_SIGNING_SECRET
+  );
 }
 
 const CI_PLACEHOLDER_PUBLIC = {
@@ -222,6 +255,34 @@ export function getCiPlaceholderServerUpstashEnv(): z.infer<
   }
   cachedCiPlaceholderServerUpstash = result.data;
   return cachedCiPlaceholderServerUpstash;
+}
+
+let cachedCiPlaceholderUpstashCookie: z.infer<
+  typeof upstashCookieSigningEnvSchema
+> | null = null;
+
+/** Placeholder Upstash + cookie signing env for local build smoke tests only. */
+export function getCiPlaceholderUpstashCookieEnv(): z.infer<
+  typeof upstashCookieSigningEnvSchema
+> {
+  if (cachedCiPlaceholderUpstashCookie) {
+    return cachedCiPlaceholderUpstashCookie;
+  }
+  const raw = {
+    UPSTASH_REDIS_REST_URL: "https://ci-build-placeholder.upstash.io",
+    UPSTASH_REDIS_REST_TOKEN:
+      "ci_build_placeholder_upstash_token_not_for_production_use_",
+    HELVETY_COOKIE_SIGNING_SECRET:
+      "ci_build_placeholder_cookie_signing_secret_not_for_production_use_!!",
+  };
+  const result = upstashCookieSigningEnvSchema.safeParse(raw);
+  if (!result.success) {
+    throw new Error(
+      `Internal error: CI placeholder upstash/cookie env: ${result.error.message}`
+    );
+  }
+  cachedCiPlaceholderUpstashCookie = result.data;
+  return cachedCiPlaceholderUpstashCookie;
 }
 
 /** Shared parser for app server env modules (Supabase secret + Upstash + optional extras). */
@@ -304,7 +365,196 @@ export function createAppServerUpstashEnv<
   };
 }
 
-/** Validates cookie signing env for public-tool apps (PDF, image-upscaler). */
+/** Shared parser for Upstash + cookie signing env (no admin client). */
+export function validateUpstashCookieEnv<
+  TSchema extends z.ZodTypeAny,
+>(options: {
+  appName: string;
+  envTemplatePath: string;
+  schema: TSchema;
+  readExtraFromProcess?: () => Record<string, string>;
+  ciPlaceholderExtra?: Record<string, string>;
+}): z.infer<TSchema> {
+  const {
+    appName,
+    envTemplatePath,
+    schema,
+    readExtraFromProcess,
+    ciPlaceholderExtra,
+  } = options;
+
+  const rawBase =
+    isCiBuildPlaceholderEnvEnabled() && !hasRealUpstashCookieEnv()
+      ? {
+          ...getCiPlaceholderUpstashCookieEnv(),
+          ...(ciPlaceholderExtra ?? {}),
+        }
+      : {
+          ...readUpstashCookieEnvFromProcess(),
+          ...(readExtraFromProcess ? readExtraFromProcess() : {}),
+        };
+
+  const result = schema.safeParse(rawBase);
+  if (!result.success) {
+    const errors = result.error.issues
+      .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
+      .join("\n");
+    throw new Error(
+      `[${appName}] Invalid environment variables:\n${errors}\n\nSee ${envTemplatePath} for required values.`
+    );
+  }
+
+  return result.data;
+}
+
+/**
+ * Factory for app `lib/env.ts` modules that validate Upstash + cookie signing
+ * (public tools with auth callbacks, or user-scoped vault zones without admin client).
+ */
+export function createAppUpstashCookieEnv<
+  TSchema extends z.ZodTypeAny,
+>(options: {
+  appName: string;
+  envTemplatePath: string;
+  schema: TSchema;
+  readExtraFromProcess?: () => Record<string, string>;
+  ciPlaceholderExtra?: Record<string, string>;
+}): () => z.infer<TSchema> {
+  const {
+    appName,
+    envTemplatePath,
+    schema,
+    readExtraFromProcess,
+    ciPlaceholderExtra,
+  } = options;
+
+  let validated: z.infer<TSchema> | null = null;
+
+  return function getValidatedAppEnv(): z.infer<TSchema> {
+    if (validated) {
+      return validated;
+    }
+    validated = validateUpstashCookieEnv({
+      appName,
+      envTemplatePath,
+      schema,
+      readExtraFromProcess,
+      ciPlaceholderExtra,
+    });
+    return validated;
+  };
+}
+
+/** Alias for E2EE + docs zones (user-scoped Supabase client + RLS only). */
+export const createAppUserScopedEnv = createAppUpstashCookieEnv;
+
+/** Gateway zone rewrite URLs (apps/web production rewrites). */
+export const WEB_GATEWAY_KEYS = [
+  "AUTH_URL",
+  "STORE_URL",
+  "PDF_URL",
+  "DOCS_URL",
+  "IMAGE_UPSCALER_URL",
+  "TASKS_URL",
+  "CONTACTS_URL",
+  "NOTES_URL",
+  "LINKS_URL",
+] as const;
+
+const gatewayUrlSchema = z
+  .string()
+  .url()
+  .refine((url) => url.startsWith("https://") || url.startsWith("http://"), {
+    message: "Gateway rewrite URLs must start with http:// or https://",
+  })
+  .refine(
+    (url) =>
+      process.env.NODE_ENV !== "production" || url.startsWith("https://"),
+    { message: "Gateway rewrite URLs must use HTTPS in production" }
+  );
+
+const gatewayEnvShape = Object.fromEntries(
+  WEB_GATEWAY_KEYS.map((key) => [key, gatewayUrlSchema])
+) as Record<(typeof WEB_GATEWAY_KEYS)[number], typeof gatewayUrlSchema>;
+
+export const gatewayEnvSchema = z.object(gatewayEnvShape);
+
+/** Validated gateway rewrite URL env shape for apps/web. */
+type GatewayEnv = z.infer<typeof gatewayEnvSchema>;
+
+/** Placeholder gateway rewrite URLs for local build smoke tests only. */
+const CI_PLACEHOLDER_GATEWAY: GatewayEnv = {
+  AUTH_URL: "https://ci-build-placeholder-auth.vercel.app",
+  STORE_URL: "https://ci-build-placeholder-store.vercel.app",
+  PDF_URL: "https://ci-build-placeholder-pdf.vercel.app",
+  DOCS_URL: "https://ci-build-placeholder-docs.vercel.app",
+  IMAGE_UPSCALER_URL: "https://ci-build-placeholder-image-upscaler.vercel.app",
+  TASKS_URL: "https://ci-build-placeholder-tasks.vercel.app",
+  CONTACTS_URL: "https://ci-build-placeholder-contacts.vercel.app",
+  NOTES_URL: "https://ci-build-placeholder-notes.vercel.app",
+  LINKS_URL: "https://ci-build-placeholder-links.vercel.app",
+};
+
+/** True when every gateway rewrite URL env var is set. */
+export function hasRealGatewayEnv(): boolean {
+  return WEB_GATEWAY_KEYS.every((key) => Boolean(process.env[key]?.trim()));
+}
+
+/** Reads gateway rewrite URLs from `process.env` (trimmed, may be empty). */
+function readGatewayEnvFromProcess(): GatewayEnv {
+  const raw = {} as Record<string, string>;
+  for (const key of WEB_GATEWAY_KEYS) {
+    raw[key] = process.env[key]?.trim() ?? "";
+  }
+  return raw as GatewayEnv;
+}
+
+/** Cached validated gateway env for apps/web instrumentation. */
+let validatedGatewayEnv: GatewayEnv | null = null;
+
+/**
+ * Validates gateway rewrite URLs on first call, then caches.
+ *
+ * Skips strict validation in development (next.config uses localhost fallbacks).
+ * On Vercel production, all zone URLs are required. With `SKIP_ENV_VALIDATION=1`
+ * off Vercel, uses CI placeholders when gateway vars are missing.
+ */
+export function getValidatedGatewayEnv(): GatewayEnv {
+  if (validatedGatewayEnv) {
+    return validatedGatewayEnv;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    validatedGatewayEnv = gatewayEnvSchema.parse(CI_PLACEHOLDER_GATEWAY);
+    return validatedGatewayEnv;
+  }
+
+  const raw =
+    isCiBuildPlaceholderEnvEnabled() && !hasRealGatewayEnv()
+      ? CI_PLACEHOLDER_GATEWAY
+      : readGatewayEnvFromProcess();
+
+  const result = gatewayEnvSchema.safeParse(raw);
+  if (!result.success) {
+    const errors = result.error.issues
+      .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
+      .join("\n");
+    throw new Error(
+      `[web] Invalid gateway environment variables:\n${errors}\n\nSee apps/web/env.template for required values.`
+    );
+  }
+
+  if (process.env.VERCEL === "1" && !hasRealGatewayEnv()) {
+    throw new Error(
+      "[web] Gateway rewrite URLs are required on Vercel in production. See apps/web/env.template."
+    );
+  }
+
+  validatedGatewayEnv = result.data;
+  return validatedGatewayEnv;
+}
+
+/** Validates cookie signing env for legacy cookie-only tiers (deprecated). */
 export function validateCookieSigningEnv(options: {
   appName: string;
   envTemplatePath: string;

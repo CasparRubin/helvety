@@ -3,5 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["vitest.server-only-mock.ts"]
+  "include": ["vitest.server-only-mock.ts", "vitest.setup.ts"]
 }

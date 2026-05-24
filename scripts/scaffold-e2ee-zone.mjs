@@ -19,7 +19,7 @@ console.log(`# E2EE zone scaffold: ${appName}
 Copy from apps/contacts and adapt:
 
 - apps/${appName}/next.config.ts → createE2eeZoneNextConfig({ appName: "${appName}" })
-- apps/${appName}/lib/env.ts → createAppServerUpstashEnv({ appName: "${appName}", envTemplatePath: "apps/${appName}/env.template" })
+- apps/${appName}/lib/env.ts → createAppUserScopedEnv({ appName: "${appName}", envTemplatePath: "apps/${appName}/env.template", schema: userScopedServerEnvSchema })
 - apps/${appName}/components/navbar.tsx → createE2eeAppNavbar({ currentApp: "${title}", titleText: "${title}", ... })
 - apps/${appName}/app/layout.tsx → <E2eeAppRootLayout encryptionProvider={EncryptionProvider} />
 - apps/${appName}/app/loading.tsx → export E2eeShellRouteLoading
