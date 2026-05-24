@@ -6,20 +6,12 @@ This policy defines where UI primitives live and how apps should consume them.
 
 - Shared primitives and cross-app compositions live in `packages/ui/src`.
 - App code should import shared primitives from `@helvety/ui/*`.
-- **New shadcn CLI adds** should target `packages/ui/components.json` first, then re-export from `@helvety/ui/*`. App `components.json` files stay aligned for local aliases; `consistency:guardrails` enforces `rsc: true`, `tsx: true`, and a `registries` object on every app UI surface.
-- App-local `@/components/ui/*` is reserved for feature-specific wrappers that are not reusable across multiple apps.
+- **New shadcn CLI adds** should target `packages/ui/components.json` first, then re-export from `@helvety/ui/*`. App `components.json` files keep shadcn aliases (for example `"ui": "@/components/ui"`) for CLI compatibility only; **do not** create `apps/*/components/ui/` directories or import `@/components/ui/*` from app code. `consistency:guardrails` enforces `rsc: true`, `tsx: true`, and a `registries` object on every app UI surface.
+- Shared date pickers live in `@helvety/ui/date-picker` and `@helvety/ui/date-time-picker` (not under any app).
 
-## Allowed App-Local UI Wrappers
+## App-local UI (disallowed)
 
-Only the following app-local wrappers are currently allowed:
-
-- `apps/contacts/components/ui/date-picker.tsx`
-- `apps/tasks/components/ui/date-time-picker.tsx`
-
-Reason: both are app-specific UX wrappers around shared primitives (`@helvety/ui/calendar`, `@helvety/ui/popover`, `@helvety/ui/input`) and are intentionally tuned to domain workflows.
-
-If a wrapper becomes shared across apps, migrate it into `packages/ui/src` and expose it via `@helvety/ui/*`.
-If a new app-local wrapper is needed, add it deliberately with a short rationale and update this policy in the same PR.
+Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/components/ui`. Import shared primitives from `@helvety/ui/*` only. `consistency:guardrails` fails on any `@/components/ui/*` or `../ui/*` import under `apps/*/components/`.
 
 ## Gateway React Bits vendor folder (`apps/web`)
 
@@ -30,7 +22,7 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 
 ## Calendar and icon primitives
 
-- **`@helvety/ui/calendar`** wraps **react-day-picker v10** (shadcn-style `classNames`, including `month_grid`). App date pickers (`contacts` `date-picker`, `tasks` `date-time-picker`) compose this export; do not pin day-picker v9 APIs or class keys.
+- **`@helvety/ui/calendar`** wraps **react-day-picker v10** (shadcn-style `classNames`, including `month_grid`). Use `@helvety/ui/date-picker` / `@helvety/ui/date-time-picker` for forms; do not pin day-picker v9 APIs or class keys.
 - **Kebab-case icon names** in E2EE seed data (categories, stages, labels) resolve through **`@helvety/ui/icon-renderer`** (`getLucideIcon`, `renderIcon`). **lucide-react v1** removed brand icons; keep user data on supported names and add **aliases** in `packages/ui/src/icon-renderer.tsx` when legacy stored names must keep working (for example `pocket` → `BookmarkIcon`).
 
 ## Styling And Composition Rules
@@ -47,4 +39,4 @@ If a new app-local wrapper is needed, add it deliberately with a short rationale
 - `scripts/check-consistency-guardrails.mjs` enforces:
   - `components.json` parity across every `apps/*` package that ships a UI surface.
   - `postcss.config.mjs` parity and `@helvety/ui` in production dependencies on every zone that uses shared PostCSS.
-  - import-policy violations for app-local `@/components/ui/*` usage outside the allowlist.
+  - zero app imports from `@/components/ui/*` (shared primitives must come from `@helvety/ui/*`).

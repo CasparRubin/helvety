@@ -235,6 +235,19 @@ async function main() {
         `apps/${entry.name}/proxy.ts exists but apps/${entry.name}/proxy.test.ts is missing (required by test hygiene; web may use gateway-specific assertions).`
       );
     }
+
+    for (const requiredTest of [
+      "app/layout-metadata.test.ts",
+      "app/layout-shell-providers.test.ts",
+      "app/seo-routes.test.ts",
+    ]) {
+      const requiredPath = resolve(appRoot, requiredTest);
+      if (!(await fileExists(requiredPath))) {
+        issues.push(
+          `apps/${entry.name}/${requiredTest} is missing (required app test floor; see docs/app-consistency-checklist.md).`
+        );
+      }
+    }
   }
 
   if (issues.length > 0) {

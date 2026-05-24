@@ -1,2 +1,0 @@
--- Superseded by 20260524120000_harden_docs_and_revoke_anon_grants.sql
--- (create migration now includes authenticated policies + grants; hardening migration covers production).

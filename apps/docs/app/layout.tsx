@@ -51,27 +51,30 @@ export default async function RootLayout({
 }>): Promise<React.JSX.Element> {
   const { csrfToken, initialUser } = await bootstrapE2eeLayoutSession();
 
-  return HelvetyPublicShellRootLayout({
-    children,
-    organizationLogoUrl: brandAssets.identifierLogo,
-    jsonLdGraphTail: [
-      {
-        "@type": "WebApplication",
-        name: "Helvety Docs",
-        url: urls.docs,
-        description: DOCS_APP_DESCRIPTION,
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Any",
-        isAccessibleForFree: true,
-        browserRequirements: "Requires a modern web browser",
-      },
-    ],
-    renderNavbar: <Navbar initialUser={initialUser} />,
-    mainVariant: "overflow-main",
-    wrapInsideTooltipProvider: (shell) => (
-      <CSRFProvider csrfToken={csrfToken}>
-        <EncryptionProvider>{shell}</EncryptionProvider>
-      </CSRFProvider>
-    ),
-  });
+  return (
+    <HelvetyPublicShellRootLayout
+      organizationLogoUrl={brandAssets.identifierLogo}
+      jsonLdGraphTail={[
+        {
+          "@type": "WebApplication",
+          name: "Helvety Docs",
+          url: urls.docs,
+          description: DOCS_APP_DESCRIPTION,
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Any",
+          isAccessibleForFree: true,
+          browserRequirements: "Requires a modern web browser",
+        },
+      ]}
+      renderNavbar={<Navbar initialUser={initialUser} />}
+      mainVariant="overflow-main"
+      wrapInsideTooltipProvider={(shell) => (
+        <CSRFProvider csrfToken={csrfToken}>
+          <EncryptionProvider>{shell}</EncryptionProvider>
+        </CSRFProvider>
+      )}
+    >
+      {children}
+    </HelvetyPublicShellRootLayout>
+  );
 }

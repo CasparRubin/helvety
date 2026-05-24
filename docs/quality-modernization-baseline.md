@@ -12,7 +12,7 @@
   - canonical semver ranges for `eslint`, `typescript`, `vitest`, `prettier`, testing-library, `tailwindcss`, `@tailwindcss/postcss`, and related toolchain packages
   - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift` in `ci:check`); zone apps do not declare Tailwind packages directly
 - `@helvety/config`
-  - `createHelvetyNextConfig`
+  - `createHelvetyNextConfig` (base); zone presets `createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig` (`web` / `store` keep bespoke `createHelvetyNextConfig` overrides)
   - `createSecurityHeaders`
   - shared ESLint/TypeScript/Vitest/PostCSS **config** entrypoints (not pinned toolchain versions; those live in `@helvety/dev-deps`)
 - `@helvety/shared`
@@ -20,10 +20,12 @@
   - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`); **`auth-gateway`** / **`e2ee-app`** profiles clear stale `sb-*` cookies when refresh fails (fail-closed)
   - `@helvety/shared/encrypted-prefetch-api` for vault/list GET routes (`RATE_LIMITS.PREFETCH`, explicit column lists); `bootstrapAuthLayoutSession()` for the auth layout
   - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
-  - server env validation and Supabase client factories; per-app `env.template` parity (`consistency:env-templates`)
+  - server env validation and Supabase client factories; `createAppServerUpstashEnv` for full-stack zones; per-app `env.template` parity (`consistency:env-templates`)
+  - `defineEntityDeleteRegistry` (`entity-delete-message`) for E2EE delete copy
+  - `app-product-descriptions` for shared SEO/PWA strings (pdf/image-upscaler re-export via thin `lib/product-copy.ts`)
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
-  - shared navigation/session UX behavior
+  - shared navigation/session UX behavior (`create-app-navbar` factories; `E2eeShellRouteLoading` / `HelvetyShellRouteLoading` loading matrix)
   - production `tailwindcss` and `@tailwindcss/postcss` so Turbopack/Vercel can resolve PostCSS plugins from zone apps that re-export `@helvety/config/postcss` (versions still canonical in `@helvety/dev-deps`; `deps:drift` allows both only on `packages/ui`)
 
 ## Phase Success Criteria
@@ -39,8 +41,10 @@
 5. **E2EE convergence** — done (URL-synced sheets)
    - Tasks/notes/contacts: `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl`; cross-link editor panels use `dynamic(..., { ssr: false })`. Links: discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
 6. **Verification/guardrails** — ongoing
-   - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+   - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
    - `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
+   - **Supabase release:** before schema migrations, run Supabase security/performance advisors (Dashboard or MCP) and address critical findings.
+   - **Remote CI:** `.github/workflows/ci.yml` runs `bun run ci:check` on push/PR.
 
 ## Multi-zone static assets (`assetPrefix`)
 
@@ -63,4 +67,7 @@
 - Store product catalog caching
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
 - UI majors: lucide-react v1 (`icon-renderer` aliases), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
+- **Dead code:** schedule `bun run deps:unused` quarterly (already in `ci:check`); triage Knip findings before major releases
+- **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
 - Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `RATE_LIMITS.PREFETCH`, route tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; `public.docs` migrations (`create_docs_table` + `harden_docs_and_revoke_anon_grants`) + `consistency:supabase-schema`
+- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; `createAppServerUpstashEnv`; Next config presets; navbar factories; centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps

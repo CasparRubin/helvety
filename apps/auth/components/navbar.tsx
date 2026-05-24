@@ -5,48 +5,19 @@ import {
   AUTH_NAVBAR_ENCRYPTION_TOOLTIP,
 } from "@helvety/shared/app-navbar-about";
 import { urls } from "@helvety/shared/config";
-import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context";
-import { EncryptionTooltipContent } from "@helvety/ui/encryption-tooltip-content";
-import { HelvetyShellNavbar } from "@helvety/ui/helvety-shell-navbar";
+import { createVaultAwareShellNavbar } from "@helvety/ui/create-app-navbar";
 
 import { VERSION } from "@/lib/config/version";
 
-import type { User as SupabaseUser } from "@supabase/supabase-js";
-
-const encryptionTooltipContent = (
-  <EncryptionTooltipContent body={<p>{AUTH_NAVBAR_ENCRYPTION_TOOLTIP}</p>} />
-);
-
 /** Main navigation bar for the Auth app - see `HelvetyShellNavbar` in `@helvety/ui`. */
-export function Navbar({
-  initialUser = null,
-}: {
-  initialUser?: SupabaseUser | null;
-}) {
-  const {
-    isUnlocked,
-    isLoading: encryptionLoading,
-    unlockedForUserId,
-  } = useEncryptionContext();
-
-  return (
-    <HelvetyShellNavbar
-      initialUser={initialUser}
-      brand={{
-        currentApp: "Auth",
-        homeHref: urls.home,
-        homeAriaLabel: "Visit Helvety.com",
-      }}
-      aboutDescription={AUTH_NAVBAR_ABOUT}
-      navigationMenuDescription="Auth navigation menu"
-      versionLabel={VERSION ?? null}
-      account={{ variant: "external-store" }}
-      loginReturnUrl="current"
-      encryption={({ user }) => ({
-        loading: encryptionLoading,
-        showBadge: isUnlocked && !!user?.id && unlockedForUserId === user.id,
-        tooltipContent: encryptionTooltipContent,
-      })}
-    />
-  );
-}
+export const Navbar = createVaultAwareShellNavbar({
+  brand: {
+    currentApp: "Auth",
+    homeHref: urls.home,
+    homeAriaLabel: "Visit Helvety.com",
+  },
+  aboutDescription: AUTH_NAVBAR_ABOUT,
+  encryptionTooltipBody: AUTH_NAVBAR_ENCRYPTION_TOOLTIP,
+  navigationMenuDescription: "Auth navigation menu",
+  versionLabel: VERSION ?? null,
+});

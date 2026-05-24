@@ -7,31 +7,16 @@
  * 2. Update parent entity's childExamples if the new entity is a child
  */
 
-import {
-  buildEntityDeleteMessage,
-  type EntityDeleteConfig,
-} from "@helvety/shared/entity-delete-message";
+import { defineEntityDeleteRegistry } from "@helvety/shared/entity-delete-message";
 
-/**
- * Configuration for an entity type
- */
-type EntityConfig = EntityDeleteConfig;
-
-/**
- * Entity type identifiers
- * Extend this union type when adding new entity types
- */
+/** Entity type identifiers */
 export type EntityTypeId = "item" | "stage" | "label";
 
-/**
- * Centralized entity configuration registry
- * Used by DeleteConfirmationDialog and other dynamic UI components
- */
-const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
+const { buildDeleteMessage } = defineEntityDeleteRegistry<EntityTypeId>({
   item: {
     name: "task",
     plural: "tasks",
-    hasChildren: false, // Currently leaf node - update when sub-items are added
+    hasChildren: false,
   },
   stage: {
     name: "stage",
@@ -43,17 +28,6 @@ const ENTITY_CONFIG: Record<EntityTypeId, EntityConfig> = {
     plural: "labels",
     hasChildren: false,
   },
-};
+});
 
-/**
- * Build a delete confirmation message for an entity
- * @param entityType - The type of entity being deleted
- * @param entityName - Optional specific name of the entity
- * @returns Object with title and description for the confirmation dialog
- */
-export function buildDeleteMessage(
-  entityType: EntityTypeId,
-  entityName?: string
-): { title: string; description: string } {
-  return buildEntityDeleteMessage(ENTITY_CONFIG, entityType, entityName);
-}
+export { buildDeleteMessage };

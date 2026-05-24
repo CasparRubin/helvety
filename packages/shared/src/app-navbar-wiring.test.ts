@@ -61,7 +61,7 @@ describe("app navbar wiring", () => {
     }
   );
 
-  it("E2EE app navbars use shared encryption tooltip body", () => {
+  it("E2EE app navbars use createE2eeAppNavbar factory", () => {
     for (const rel of [
       "apps/tasks/components/navbar.tsx",
       "apps/contacts/components/navbar.tsx",
@@ -69,17 +69,44 @@ describe("app navbar wiring", () => {
       "apps/links/components/navbar.tsx",
     ] as const) {
       const source = readFileSync(join(repoRoot, rel), "utf8");
-      expect(source).toContain("E2EE_NAVBAR_ENCRYPTION_TOOLTIP");
-      expect(source).toContain("E2eeAppNavbar");
+      expect(source).toContain("createE2eeAppNavbar");
     }
+    const factorySource = readFileSync(
+      join(repoRoot, "packages/ui/src/create-app-navbar.tsx"),
+      "utf8"
+    );
+    expect(factorySource).toContain("E2EE_NAVBAR_ENCRYPTION_TOOLTIP");
+    expect(factorySource).toContain("E2eeAppNavbar");
   });
 
-  it("auth navbar uses shared encryption tooltip copy", () => {
+  it.each([
+    "apps/web/components/navbar.tsx",
+    "apps/store/components/navbar.tsx",
+    "apps/pdf/components/navbar.tsx",
+    "apps/image-upscaler/components/navbar.tsx",
+  ] as const)("public-shell %s uses createPublicShellNavbar", (rel) => {
+    const source = readFileSync(join(repoRoot, rel), "utf8");
+    expect(source).toContain("createPublicShellNavbar");
+  });
+
+  it.each([
+    "apps/auth/components/navbar.tsx",
+    "apps/docs/components/navbar.tsx",
+  ] as const)("vault-aware %s uses createVaultAwareShellNavbar", (rel) => {
+    const source = readFileSync(join(repoRoot, rel), "utf8");
+    expect(source).toContain("createVaultAwareShellNavbar");
+  });
+
+  it("auth navbar passes encryption tooltip into vault-aware factory", () => {
     const source = readFileSync(
       join(repoRoot, "apps/auth/components/navbar.tsx"),
       "utf8"
     );
     expect(source).toContain("AUTH_NAVBAR_ENCRYPTION_TOOLTIP");
-    expect(source).toContain('loginReturnUrl="current"');
+    const factorySource = readFileSync(
+      join(repoRoot, "packages/ui/src/create-app-navbar.tsx"),
+      "utf8"
+    );
+    expect(factorySource).toContain('loginReturnUrl="current"');
   });
 });

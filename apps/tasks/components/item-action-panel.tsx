@@ -17,6 +17,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
+import { DateTimePicker } from "@helvety/ui/date-time-picker";
 import { renderIcon as renderStageIcon } from "@helvety/ui/icon-renderer";
 import { Label as FormLabel } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
@@ -29,7 +30,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { PRIORITIES, getPriorityConfig } from "@/lib/priorities";
 
 import type { Item, Stage, Label } from "@/lib/types";

@@ -74,25 +74,27 @@ export default async function RootLayout({
 }>): Promise<React.JSX.Element> {
   const initialUser = await bootstrapPublicLayoutUser();
 
-  return HelvetyPublicShellRootLayout({
-    children,
-    /* Full-bleed Hyperspeed: `100svw` breakout + lateral CSS mask; defeats shell + Radix overflow clipping. */
-    shellColumnClassName: "!overflow-visible",
-    bodyClassName: "overflow-x-clip",
-    scrollAreaRootClassName: "!overflow-visible",
-    scrollAreaViewportClassName: "!overflow-visible bg-background",
-    organizationLogoUrl: brandAssets.identifierLogo,
-    jsonLdGraphTail: [
-      {
-        "@type": "WebSite",
-        name: "Helvety",
-        url: urls.home,
-        description: WEB_SITE_DESCRIPTION,
-      },
-    ],
-    renderNavbar: <Navbar initialUser={initialUser} />,
-    mainVariant: "scroll-area",
-    footerExternal: false,
-    analytics: "with-speed-insights",
-  });
+  return (
+    <HelvetyPublicShellRootLayout
+      shellColumnClassName="!overflow-visible"
+      bodyClassName="overflow-x-clip"
+      scrollAreaRootClassName="!overflow-visible"
+      scrollAreaViewportClassName="!overflow-visible bg-background"
+      organizationLogoUrl={brandAssets.identifierLogo}
+      jsonLdGraphTail={[
+        {
+          "@type": "WebSite",
+          name: "Helvety",
+          url: urls.home,
+          description: WEB_SITE_DESCRIPTION,
+        },
+      ]}
+      renderNavbar={<Navbar initialUser={initialUser} />}
+      mainVariant="scroll-area"
+      footerExternal={false}
+      analytics="with-speed-insights"
+    >
+      {children}
+    </HelvetyPublicShellRootLayout>
+  );
 }

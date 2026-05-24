@@ -112,7 +112,7 @@ Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/compo
 ### Lib / copy / crypto
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
-- `lib/product-copy.test.ts`: only apps with local PWA wrappers (`docs`, `pdf`, `image-upscaler`).
+- `lib/product-copy.test.ts`: `docs` (local PWA wrapper constants); `pdf` / `image-upscaler` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
 - `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`docs`, `links`).
 - Crypto: `buildAAD` + module surface tests in `lib/crypto/` (see `apps/notes/lib/crypto/encryption.test.ts`).
 
@@ -151,6 +151,51 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 
 Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
 
+Use JSX for root layouts: `<HelvetyPublicShellRootLayout>` or `<E2eeAppRootLayout>` (not `return HelvetyPublicShellRootLayout({...})`). E2EE zones use `export default async function RootLayout`. Enforced by `consistency:zone-modernization`.
+
+## Root `app/loading.tsx` matrix
+
+| Shell family                 | Apps                                  | Export                     |
+| ---------------------------- | ------------------------------------- | -------------------------- |
+| Gateway / scroll-area public | `web`, `auth`, `store`                | `HelvetyShellRouteLoading` |
+| Public tools                 | `pdf`, `docs`, `image-upscaler`       | `LoadingSpinner`           |
+| E2EE                         | `tasks`, `contacts`, `notes`, `links` | `E2eeShellRouteLoading`    |
+
+Nested routes (e.g. store products) use `LoadingSpinner`. Enforced by `consistency:zone-modernization`.
+
+## E2EE `EncryptionProvider`
+
+E2EE zones re-export the client provider from `@/lib/crypto` and pass `encryptionProvider={EncryptionProvider}` into `E2eeAppRootLayout` (test mocking + app boundary).
+
+## `lib/env.ts` factory
+
+Full-stack apps use `createAppServerUpstashEnv` from `@helvety/shared/env-validation` (see any E2EE `lib/env.ts` or `apps/store/lib/env.ts`). Auth extends the merged schema for `DEVICE_TRUST_COOKIE_SECRET`. Public tools (`pdf`, `image-upscaler`) call `validateCookieSigningEnv` directly (no Upstash tier).
+
+## Next.js config presets
+
+| Preset                         | Apps                                            |
+| ------------------------------ | ----------------------------------------------- |
+| `createE2eeZoneNextConfig`     | `tasks`, `contacts`, `notes`, `links`           |
+| `createPublicToolNextConfig`   | `pdf`, `docs`, `image-upscaler`                 |
+| `createAuthGatewayNextConfig`  | `auth`                                          |
+| `createHelvetyNextConfig` only | `web`, `store` (bespoke `overrides` / rewrites) |
+
+Wired by `packages/shared/src/zone-next-config-wiring.test.ts` and `consistency:zone-modernization` (`optimizePackageImports` must match declared dependencies).
+
+## Navbar factories
+
+Zone `components/navbar.tsx` files are thin wrappers around `@helvety/ui/create-app-navbar`:
+
+- E2EE: `createE2eeAppNavbar`
+- Public tools: `createPublicShellNavbar` + `publicToolNavbarBrand`
+- Docs vault: `createVaultAwareShellNavbar`
+
+Wired by `packages/shared/src/app-navbar-wiring.test.ts` and `packages/ui/src/e2ee-dashboard-wiring.test.ts`.
+
+## Centralized zone wiring tests
+
+In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
+
 ## Multi-zone static assets (`assetPrefix`)
 
 - **Use** `assetPrefix` + gateway `*-static` rewrites for heavy client bundles: `auth`, `tasks`, `contacts`, `notes`, `links`.
@@ -173,12 +218,12 @@ See root [`README.md`](../README.md) § Environment Model.
 
 ## `lib/env.ts` JSDoc
 
-| Tier         | Apps                       | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION` |
-| ------------ | -------------------------- | ------------------------------------------------------- |
-| Full stack   | E2EE apps, `store`, `docs` | Yes (`validateServerUpstashEnv`)                        |
-| Public tools | `pdf`, `image-upscaler`    | Yes (`validateCookieSigningEnv`)                        |
-| Auth         | `auth`                     | Yes (extended schema)                                   |
-| Gateway      | `web`                      | No `lib/env.ts`                                         |
+| Tier         | Apps                       | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION`        |
+| ------------ | -------------------------- | -------------------------------------------------------------- |
+| Full stack   | E2EE apps, `store`, `docs` | Yes (`createAppServerUpstashEnv` / `validateServerUpstashEnv`) |
+| Public tools | `pdf`, `image-upscaler`    | Yes (`validateCookieSigningEnv`)                               |
+| Auth         | `auth`                     | Yes (extended schema)                                          |
+| Gateway      | `web`                      | No `lib/env.ts`                                                |
 
 ## E2EE UX patterns
 
@@ -192,9 +237,13 @@ See root [`README.md`](../README.md) § Environment Model.
 ## Validation before merge
 
 ```bash
-bun run ci:check    # includes deps:drift, consistency:filenames, test:hygiene
+bun run ci:check    # includes zone-modernization, deps:drift, test:hygiene
 bun run ci:release  # ci:check + build (before push / Vercel)
 ```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `ci:check` on push/PR with `SKIP_ENV_VALIDATION=1`.
+
+Optional local E2E: `bun run test:e2e` (Playwright gateway smoke; requires `@helvety/web` dev server). New E2EE zones: `bun run scaffold:e2ee-zone <slug>` prints the copy-from-contacts checklist.
 
 ## See also
 

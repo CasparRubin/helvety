@@ -313,9 +313,13 @@ async function main() {
     }))
   );
   for (const file of serverUpstashEnvContents) {
-    if (!/validateServerUpstashEnv\(/.test(file.content)) {
+    if (
+      !/validateServerUpstashEnv\(|createAppServerUpstashEnv\(/.test(
+        file.content
+      )
+    ) {
       throw new Error(
-        `${file.relativePath} must validate env via validateServerUpstashEnv from @helvety/shared/env-validation.`
+        `${file.relativePath} must validate env via validateServerUpstashEnv or createAppServerUpstashEnv from @helvety/shared/env-validation.`
       );
     }
     if (
@@ -463,13 +467,7 @@ async function main() {
       ...source.matchAll(/from\s+["']@\/components\/ui\/([^"']+)["'];?/gu),
       ...source.matchAll(/from\s+["']\.\.\/ui\/([^"']+)["'];?/gu),
     ];
-    if (localUiImports.length === 0) {
-      continue;
-    }
-    const onlyApprovedWrappers = localUiImports.every((match) =>
-      /^(date-picker|date-time-picker)$/u.test(match[1] ?? "")
-    );
-    if (!onlyApprovedWrappers) {
+    if (localUiImports.length > 0) {
       const relativePath = tsxPath.replace(`${rootDir}/`, "");
       throw new Error(
         `${relativePath} imports app-local UI primitives. Use @helvety/ui/* for shared primitives.`

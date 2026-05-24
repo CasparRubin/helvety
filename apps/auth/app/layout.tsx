@@ -45,25 +45,28 @@ export default async function RootLayout({
 }>): Promise<React.JSX.Element> {
   const { csrfToken, initialUser } = await bootstrapAuthLayoutSession();
 
-  return HelvetyPublicShellRootLayout({
-    children,
-    organizationLogoUrl: brandAssets.identifierLogo,
-    jsonLdGraphTail: [
-      {
-        "@type": "WebApplication",
-        name: "Helvety Auth",
-        url: urls.auth,
-        description: AUTH_DESCRIPTION,
-        applicationCategory: "SecurityApplication",
-        operatingSystem: "Any",
-      },
-    ],
-    renderNavbar: <Navbar initialUser={initialUser} />,
-    mainVariant: "scroll-area",
-    wrapInsideTooltipProvider: (shell) => (
-      <CSRFProvider csrfToken={csrfToken}>
-        <EncryptionProvider>{shell}</EncryptionProvider>
-      </CSRFProvider>
-    ),
-  });
+  return (
+    <HelvetyPublicShellRootLayout
+      organizationLogoUrl={brandAssets.identifierLogo}
+      jsonLdGraphTail={[
+        {
+          "@type": "WebApplication",
+          name: "Helvety Auth",
+          url: urls.auth,
+          description: AUTH_DESCRIPTION,
+          applicationCategory: "SecurityApplication",
+          operatingSystem: "Any",
+        },
+      ]}
+      renderNavbar={<Navbar initialUser={initialUser} />}
+      mainVariant="scroll-area"
+      wrapInsideTooltipProvider={(shell) => (
+        <CSRFProvider csrfToken={csrfToken}>
+          <EncryptionProvider>{shell}</EncryptionProvider>
+        </CSRFProvider>
+      )}
+    >
+      {children}
+    </HelvetyPublicShellRootLayout>
+  );
 }

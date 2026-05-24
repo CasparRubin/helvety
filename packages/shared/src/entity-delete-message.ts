@@ -44,3 +44,20 @@ export function buildEntityDeleteMessage<EntityTypeId extends string>(
     description: `This will permanently delete this ${config.name}. This action is permanent and cannot be undone.`,
   };
 }
+
+/**
+ * Defines an entity delete registry and returns `buildDeleteMessage` bound to it.
+ */
+export function defineEntityDeleteRegistry<EntityTypeId extends string>(
+  configMap: Record<EntityTypeId, EntityDeleteConfig>
+): {
+  buildDeleteMessage: (
+    entityType: EntityTypeId,
+    entityName?: string
+  ) => { title: string; description: string };
+} {
+  return {
+    buildDeleteMessage: (entityType, entityName) =>
+      buildEntityDeleteMessage(configMap, entityType, entityName),
+  };
+}

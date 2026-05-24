@@ -70,26 +70,29 @@ export default async function RootLayout({
 }>): Promise<React.JSX.Element> {
   const { csrfToken, initialUser } = await bootstrapE2eeLayoutSession();
 
-  return HelvetyPublicShellRootLayout({
-    children,
-    organizationLogoUrl: brandAssets.identifierLogo,
-    jsonLdGraphTail: [
-      {
-        "@type": "WebApplication",
-        name: "Helvety Store",
-        url: urls.store,
-        description: STORE_DESCRIPTION,
-        applicationCategory: "ShoppingApplication",
-        operatingSystem: "Any",
-      },
-    ],
-    renderNavbar: <Navbar initialUser={initialUser} />,
-    mainVariant: "scroll-area",
-    themeProviderScope: "navbar-only",
-    scrollAreaMainPrefix: <StoreNav initialUser={initialUser} />,
-    scrollAreaMainClassName: "min-w-0",
-    wrapInsideTooltipProvider: (shell) => (
-      <CSRFProvider csrfToken={csrfToken}>{shell}</CSRFProvider>
-    ),
-  });
+  return (
+    <HelvetyPublicShellRootLayout
+      organizationLogoUrl={brandAssets.identifierLogo}
+      jsonLdGraphTail={[
+        {
+          "@type": "WebApplication",
+          name: "Helvety Store",
+          url: urls.store,
+          description: STORE_DESCRIPTION,
+          applicationCategory: "ShoppingApplication",
+          operatingSystem: "Any",
+        },
+      ]}
+      renderNavbar={<Navbar initialUser={initialUser} />}
+      mainVariant="scroll-area"
+      themeProviderScope="navbar-only"
+      scrollAreaMainPrefix={<StoreNav initialUser={initialUser} />}
+      scrollAreaMainClassName="min-w-0"
+      wrapInsideTooltipProvider={(shell) => (
+        <CSRFProvider csrfToken={csrfToken}>{shell}</CSRFProvider>
+      )}
+    >
+      {children}
+    </HelvetyPublicShellRootLayout>
+  );
 }

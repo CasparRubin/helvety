@@ -53,22 +53,25 @@ export default async function RootLayout({
 }>): Promise<React.JSX.Element> {
   const initialUser = await bootstrapPublicLayoutUser();
 
-  return HelvetyPublicShellRootLayout({
-    children,
-    organizationLogoUrl: brandAssets.identifierLogo,
-    jsonLdGraphTail: [
-      {
-        "@type": "WebApplication",
-        name: "Helvety PDF",
-        url: urls.pdf,
-        description: PDF_APP_DESCRIPTION,
-        applicationCategory: "UtilitiesApplication",
-        operatingSystem: "Any",
-        isAccessibleForFree: true,
-        browserRequirements: "Requires a modern web browser",
-      },
-    ],
-    renderNavbar: <Navbar initialUser={initialUser} />,
-    mainVariant: "overflow-main",
-  });
+  return (
+    <HelvetyPublicShellRootLayout
+      organizationLogoUrl={brandAssets.identifierLogo}
+      jsonLdGraphTail={[
+        {
+          "@type": "WebApplication",
+          name: "Helvety PDF",
+          url: urls.pdf,
+          description: PDF_APP_DESCRIPTION,
+          applicationCategory: "UtilitiesApplication",
+          operatingSystem: "Any",
+          isAccessibleForFree: true,
+          browserRequirements: "Requires a modern web browser",
+        },
+      ]}
+      renderNavbar={<Navbar initialUser={initialUser} />}
+      mainVariant="overflow-main"
+    >
+      {children}
+    </HelvetyPublicShellRootLayout>
+  );
 }

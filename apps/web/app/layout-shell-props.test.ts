@@ -13,14 +13,14 @@ const layoutPath = join(dirname(fileURLToPath(import.meta.url)), "layout.tsx");
 describe("web root layout shell props", () => {
   it("keeps scroll viewport overflow-visible and bg-background for Hyperspeed bleed", () => {
     const src = readFileSync(layoutPath, "utf8");
-    expect(src).toContain(
-      'scrollAreaViewportClassName: "!overflow-visible bg-background"'
+    expect(src).toMatch(
+      /scrollAreaViewportClassName[=:]\s*["']!overflow-visible bg-background["']/
     );
   });
 
   it("keeps horizontal clip on body without dropping shell body background", () => {
     const src = readFileSync(layoutPath, "utf8");
-    expect(src).toContain('bodyClassName: "overflow-x-clip"');
+    expect(src).toMatch(/bodyClassName[=:]\s*["']overflow-x-clip["']/);
   });
 
   it("documents head theme init for correct tokens before body paint", () => {

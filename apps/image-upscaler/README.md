@@ -1,8 +1,8 @@
 # Helvety Image Upscaler
 
-Browser-based image upscaler for PNG/JPEG/WebP. Shopper-facing summaries live in
-[`lib/product-copy.ts`](./lib/product-copy.ts) and the Helvety Store catalog;
-this README documents implementation details.
+Browser-based image upscaler for PNG/JPEG/WebP. Shopper-facing summaries are canonical in
+[`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts);
+[`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
 
 Runs the Real-ESRGAN General x4v3 ONNX model locally via `onnxruntime-web`
 (WebGPU with WASM fallback) or a high-quality canvas resample when WebAssembly is
@@ -14,7 +14,7 @@ unavailable. No image data ever leaves the client.
 ## Key Features
 
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `bootstrapPublicLayoutUser()` supplies an optional SSR session snapshot to the navbar (no login required for upscaling). `ImageUpscalerCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll).
-- User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`IMAGE_UPSCALER_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
+- User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports shared `IMAGE_UPSCALER_*` strings for metadata / JSON-LD and PWA [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Single user-facing AI engine (`realesr-general-x4v3`) with an automatic no-AI canvas fallback for browsers that cannot run WebAssembly
 - AI inference runs entirely in a Web Worker via `onnxruntime-web` (`webgpu` -> `wasm` execution providers)
 - Tiled inference with linear-blend stitching to keep memory usage bounded on large images; tile geometry adapts to fixed-shape ONNX inputs when required

@@ -7,7 +7,7 @@ import { ItemActionPanel } from "./item-action-panel";
 
 import type { Item } from "@/lib/types";
 
-vi.mock("@/components/ui/date-time-picker", () => ({
+vi.mock("@helvety/ui/date-time-picker", () => ({
   DateTimePicker: ({
     value,
     placeholder,

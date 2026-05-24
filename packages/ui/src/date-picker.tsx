@@ -1,18 +1,16 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
-import { Button } from "@helvety/ui/button";
-import { Calendar } from "@helvety/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
 import { format, isValid, parse } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon, XIcon } from "lucide-react";
 
-/**
- * DatePicker - A date-only picker using shadcn Calendar + Popover.
- * Stores and returns ISO date strings (e.g. "2000-01-15").
- */
-interface DatePickerProps {
+import { Button } from "./button";
+import { Calendar } from "./calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+
+/** Props for {@link DatePicker}. */
+export type DatePickerProps = Readonly<{
   /** ISO date string (e.g. "2000-01-15") or null */
   value: string | null;
   /** Called with ISO date string or null when cleared */
@@ -21,23 +19,24 @@ interface DatePickerProps {
   placeholder?: string;
   /** Whether the picker is disabled */
   disabled?: boolean;
-}
+}>;
 
-/** Date-only picker backed by shadcn Calendar + Popover. */
+/**
+ * Date-only picker using shadcn Calendar + Popover.
+ * Stores and returns ISO date strings (e.g. "2000-01-15").
+ */
 export function DatePicker({
   value,
   onChange,
   placeholder = "Pick a date",
   disabled,
 }: DatePickerProps) {
-  // Parse the ISO date string into a Date object for the calendar
   const selectedDate = value
     ? parse(value, "yyyy-MM-dd", new Date())
     : undefined;
 
   const handleSelect = (date: Date | undefined) => {
     if (date && isValid(date)) {
-      // Format as ISO date string (yyyy-MM-dd)
       onChange(format(date, "yyyy-MM-dd"));
     } else {
       onChange(null);
@@ -65,12 +64,12 @@ export function DatePicker({
           {selectedDate && isValid(selectedDate)
             ? format(selectedDate, "dd.MM.yyyy", { locale: de })
             : placeholder}
-          {value && (
+          {value ? (
             <XIcon
               className="text-muted-foreground hover:text-foreground ml-auto size-4"
               onClick={handleClear}
             />
-          )}
+          ) : null}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

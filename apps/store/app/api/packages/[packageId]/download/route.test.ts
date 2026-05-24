@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getPackageDownloadUrl: vi.fn(),
@@ -30,11 +30,25 @@ vi.mock("@helvety/shared/logger", () => ({
 
 import { GET } from "./route";
 
+const TRUSTED_DOWNLOAD_URL =
+  "https://abc123.supabase.co/storage/v1/object/sign/packages/test.sppkg";
+
 describe("GET /api/packages/[packageId]/download", () => {
+  const originalEnv = { ...process.env };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env = {
+      ...originalEnv,
+      NEXT_PUBLIC_SUPABASE_URL: "https://abc123.supabase.co",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_testkey1234567890",
+    };
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.10");
     mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 1 });
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
   });
 
   it("returns 400 when client IP is missing", async () => {
@@ -72,7 +86,7 @@ describe("GET /api/packages/[packageId]/download", () => {
   it("redirects with no-store cache headers on success", async () => {
     mocks.getPackageDownloadUrl.mockResolvedValue({
       success: true,
-      data: { downloadUrl: "https://download.example/file.sppkg" },
+      data: { downloadUrl: TRUSTED_DOWNLOAD_URL },
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -80,16 +94,17 @@ describe("GET /api/packages/[packageId]/download", () => {
     });
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe(
-      "https://download.example/file.sppkg"
-    );
+    expect(response.headers.get("location")).toBe(TRUSTED_DOWNLOAD_URL);
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
   });
 
   it("redirects for power-platform-configurator package id", async () => {
     mocks.getPackageDownloadUrl.mockResolvedValue({
       success: true,
-      data: { downloadUrl: "https://download.example/extension.zip" },
+      data: {
+        downloadUrl:
+          "https://abc123.supabase.co/storage/v1/object/sign/packages/extension.zip",
+      },
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -103,7 +118,7 @@ describe("GET /api/packages/[packageId]/download", () => {
       "power-platform-configurator"
     );
     expect(response.headers.get("location")).toBe(
-      "https://download.example/extension.zip"
+      "https://abc123.supabase.co/storage/v1/object/sign/packages/extension.zip"
     );
   });
 

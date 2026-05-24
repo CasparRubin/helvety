@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePicker } from "@helvety/ui/date-picker";
 import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
@@ -15,7 +16,6 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { ContactActionPanel } from "@/components/contact-action-panel";
 import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { DatePicker } from "@/components/ui/date-picker";
 import { useContact } from "@/hooks/use-contacts";
 import { DEFAULT_CATEGORIES } from "@/lib/config/default-categories";
 

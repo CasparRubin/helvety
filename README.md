@@ -83,6 +83,12 @@ bun run lint
 bun run type-check
 bun run test
 bun run format
+
+# optional: Playwright gateway smoke (@helvety/web on :3001 by default)
+HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
+
+# print E2EE zone scaffold checklist (copy from apps/contacts)
+bun run scaffold:e2ee-zone <app-slug>
 ```
 
 ## Testing Consistency
@@ -99,15 +105,15 @@ bun run format
 ## Monorepo Conventions
 
 - ESLint boundary rules enforce that apps do not import code directly from other apps; shared logic must live in workspace packages.
-- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). **New or audited apps**: [`docs/app-consistency-checklist.md`](docs/app-consistency-checklist.md). Company SEO uses **Private, simple, clean** and **Engineered, designed and made in Switzerland**; AGPL belongs on legal pages, Store product About copy, and `llms.txt` licensing sections, not in site titles or metadata descriptions. Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and root `consistency:*` scripts such as `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:supabase-auth`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:filenames`, and `consistency:project-naming` (retired Power Platform Configurator slugs); see `package.json` for the full list.
-- **UI/shadcn integration boundaries** (shared-vs-local primitive ownership, allowed app-local wrappers, and guardrail expectations): [`docs/ui-shadcn-integration-policy.md`](docs/ui-shadcn-integration-policy.md).
+- **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). **New or audited apps**: [`docs/app-consistency-checklist.md`](docs/app-consistency-checklist.md). Company SEO uses **Private, simple, clean** and **Engineered, designed and made in Switzerland**; AGPL belongs on legal pages, Store product About copy, and `llms.txt` licensing sections, not in site titles or metadata descriptions. Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and root `consistency:*` scripts such as `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:zone-modernization`, `consistency:supabase-auth`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:filenames`, and `consistency:project-naming` (retired Power Platform Configurator slugs); see `package.json` for the full list.
+- **UI/shadcn integration boundaries** (shared primitives in `@helvety/ui/*` only; no `apps/*/components/ui/`): [`docs/ui-shadcn-integration-policy.md`](docs/ui-shadcn-integration-policy.md).
 - Workspace layout, per-app entry points, and CI/release expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
 
 ## Automation
 
-All quality gates run locally. There is no GitHub Actions or other remote CI in this repo; deployment is handled by Vercel from the pushed commit.
+Quality gates run locally and on GitHub Actions (`.github/workflows/ci.yml`). Deployment is handled by Vercel from the pushed commit.
 
-- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:supabase-auth`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `consistency:project-naming`, `consistency:filenames`, `test:hygiene`, `deps:drift`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:zone-modernization`, `consistency:supabase-auth`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `consistency:project-naming`, `consistency:filenames`, `test:hygiene`, `deps:drift`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
   - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`, keeps this README's documented `ci:check` step order aligned with `package.json`, and keeps Tailwind/PostCSS Vercel guidance aligned across root, [`packages/ui/README.md`](packages/ui/README.md), and [`packages/dev-deps/README.md`](packages/dev-deps/README.md).
 - `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.

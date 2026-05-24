@@ -1,15 +1,9 @@
 import "server-only";
 
 import {
+  createAppServerUpstashEnv,
   serverUpstashMergedSchema,
-  validateServerUpstashEnv,
 } from "@helvety/shared/env-validation";
-
-import type { z } from "zod";
-
-const storeEnvSchema = serverUpstashMergedSchema;
-
-let validated: z.infer<typeof storeEnvSchema> | null = null;
 
 /**
  * Validates server-only Supabase + Upstash env on first call, then caches.
@@ -18,12 +12,8 @@ let validated: z.infer<typeof storeEnvSchema> | null = null;
  * required server env values are missing; otherwise validates `process.env` with Zod.
  * See repository root `README.md` → Automation (`ci:release`).
  */
-export function getValidatedStoreEnv(): z.infer<typeof storeEnvSchema> {
-  if (validated) return validated;
-  validated = validateServerUpstashEnv({
-    appName: "store",
-    envTemplatePath: "apps/store/env.template",
-    schema: storeEnvSchema,
-  });
-  return validated;
-}
+export const getValidatedStoreEnv = createAppServerUpstashEnv({
+  appName: "store",
+  envTemplatePath: "apps/store/env.template",
+  schema: serverUpstashMergedSchema,
+});

@@ -266,6 +266,44 @@ export function validateServerUpstashEnv<
   return result.data;
 }
 
+/**
+ * Factory for app `lib/env.ts` modules that validate Supabase secret + Upstash + cookie signing.
+ * Returns a cached getter (e.g. `getValidatedContactsEnv`).
+ */
+export function createAppServerUpstashEnv<
+  TSchema extends z.ZodTypeAny,
+>(options: {
+  appName: string;
+  envTemplatePath: string;
+  schema: TSchema;
+  readExtraFromProcess?: () => Record<string, string>;
+  ciPlaceholderExtra?: Record<string, string>;
+}): () => z.infer<TSchema> {
+  const {
+    appName,
+    envTemplatePath,
+    schema,
+    readExtraFromProcess,
+    ciPlaceholderExtra,
+  } = options;
+
+  let validated: z.infer<TSchema> | null = null;
+
+  return function getValidatedAppEnv(): z.infer<TSchema> {
+    if (validated) {
+      return validated;
+    }
+    validated = validateServerUpstashEnv({
+      appName,
+      envTemplatePath,
+      schema,
+      readExtraFromProcess,
+      ciPlaceholderExtra,
+    });
+    return validated;
+  };
+}
+
 /** Validates cookie signing env for public-tool apps (PDF, image-upscaler). */
 export function validateCookieSigningEnv(options: {
   appName: string;

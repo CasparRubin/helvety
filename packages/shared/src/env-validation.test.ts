@@ -137,6 +137,29 @@ describe("env-validation", () => {
     );
   });
 
+  it("createAppServerUpstashEnv caches validated env on first call", async () => {
+    vi.stubEnv("SKIP_ENV_VALIDATION", "1");
+    vi.stubEnv("VERCEL", "");
+    delete process.env.SUPABASE_SECRET_KEY;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+
+    const { createAppServerUpstashEnv, serverUpstashMergedSchema } =
+      await import("./env-validation");
+
+    const getValidated = createAppServerUpstashEnv({
+      appName: "notes",
+      envTemplatePath: "apps/notes/env.template",
+      schema: serverUpstashMergedSchema,
+    });
+
+    const first = getValidated();
+    const second = getValidated();
+    expect(second).toBe(first);
+    expect(first.SUPABASE_SECRET_KEY).toMatch(/^ci_build_placeholder/);
+  });
+
   it("validateCookieSigningEnv rejects short signing secrets in production-like runs", async () => {
     vi.stubEnv("SKIP_ENV_VALIDATION", "");
     vi.stubEnv("VERCEL", "");

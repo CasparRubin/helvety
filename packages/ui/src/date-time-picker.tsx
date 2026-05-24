@@ -1,19 +1,17 @@
 "use client";
 
 import { cn } from "@helvety/shared/utils";
-import { Button } from "@helvety/ui/button";
-import { Calendar } from "@helvety/ui/calendar";
-import { Input } from "@helvety/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
 import { format, isValid } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon, XIcon } from "lucide-react";
 
-/**
- * DateTimePicker - A date + time picker using shadcn Calendar + Popover + time input.
- * Stores and returns ISO datetime strings (e.g. "2026-02-15T14:30:00.000Z").
- */
-interface DateTimePickerProps {
+import { Button } from "./button";
+import { Calendar } from "./calendar";
+import { Input } from "./input";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+
+/** Props for {@link DateTimePicker}. */
+export type DateTimePickerProps = Readonly<{
   /** ISO datetime string or null */
   value: string | null;
   /** Called with ISO datetime string or null when cleared */
@@ -22,20 +20,20 @@ interface DateTimePickerProps {
   placeholder?: string;
   /** Whether the picker is disabled */
   disabled?: boolean;
-}
+}>;
 
-/** Date + time picker backed by shadcn Calendar + Popover + time input. */
+/**
+ * Date + time picker using shadcn Calendar + Popover + time input.
+ * Stores and returns ISO datetime strings (e.g. "2026-02-15T14:30:00.000Z").
+ */
 export function DateTimePicker({
   value,
   onChange,
   placeholder = "Pick date & time",
   disabled,
 }: DateTimePickerProps) {
-  // Parse the ISO datetime string into a Date object
   const selectedDate = value ? new Date(value) : undefined;
   const isValidDate = selectedDate && isValid(selectedDate);
-
-  // Extract time string (HH:mm) from the date
   const timeValue = isValidDate ? format(selectedDate, "HH:mm") : "00:00";
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -44,7 +42,6 @@ export function DateTimePicker({
       return;
     }
 
-    // Preserve existing time when changing date
     if (isValidDate) {
       date.setHours(selectedDate.getHours(), selectedDate.getMinutes(), 0, 0);
     }
@@ -55,7 +52,6 @@ export function DateTimePicker({
     const [hours, minutes] = e.target.value.split(":").map(Number);
     if (hours === undefined || minutes === undefined) return;
 
-    // If no date is selected yet, use today
     const date = isValidDate ? new Date(selectedDate) : new Date();
     date.setHours(hours, minutes, 0, 0);
     onChange(date.toISOString());
@@ -82,12 +78,12 @@ export function DateTimePicker({
           {isValidDate
             ? format(selectedDate, "dd.MM.yyyy HH:mm", { locale: de })
             : placeholder}
-          {value && (
+          {value ? (
             <XIcon
               className="text-muted-foreground hover:text-foreground ml-auto size-4"
               onClick={handleClear}
             />
-          )}
+          ) : null}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

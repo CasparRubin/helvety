@@ -2,8 +2,16 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
-      "entry": ["scripts/**/*.{mjs,js}"],
-      "project": ["scripts/**/*.{mjs,js}"]
+      "entry": [
+        "scripts/**/*.{mjs,js}",
+        "playwright.config.ts",
+        "e2e/**/*.{ts,tsx}"
+      ],
+      "project": [
+        "scripts/**/*.{mjs,js}",
+        "playwright.config.ts",
+        "e2e/**/*.{ts,tsx}"
+      ]
     },
     "packages/dev-deps": {
       "entry": [],

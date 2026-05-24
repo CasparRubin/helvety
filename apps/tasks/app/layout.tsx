@@ -43,11 +43,11 @@ export const metadata = createHelvetyProductMetadata({
 /**
  * Root layout: fixed header (Navbar), overflow-hidden main (pages own scroll via CommandBarPageLayout), fixed footer.
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): Promise<React.JSX.Element> {
   return (
     <E2eeAppRootLayout
       organizationLogoUrl={brandAssets.identifierLogo}

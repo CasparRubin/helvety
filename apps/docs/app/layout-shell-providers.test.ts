@@ -15,6 +15,8 @@ describe("docs root layout shell providers", () => {
     expect(src).toContain("<CSRFProvider csrfToken={csrfToken}>");
     expect(src).toContain("<EncryptionProvider>");
     expect(src).toContain("wrapInsideTooltipProvider");
+    expect(src).toContain("<HelvetyPublicShellRootLayout");
+    expect(src).not.toMatch(/return\s+HelvetyPublicShellRootLayout\s*\(/);
 
     const csrfOpen = src.indexOf("<CSRFProvider");
     const encryptionOpen = src.indexOf("<EncryptionProvider>");
