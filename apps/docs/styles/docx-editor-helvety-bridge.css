@@ -7,7 +7,8 @@
  * Layers: (1) semantic HSL on `.ep-root`, (2) white paper on `.layout-page`,
  * (3) dark `slate-*` remaps, (4) chrome surfaces + inline white panels,
  * (5) hide vendor title-bar doc icon and Help menu,
- * (6) comment suppression, (7) seamless toolbar stack with Helvety command bar.
+ * (6) comment suppression, (7) seamless toolbar stack with Helvety command bar,
+ * (8) overlay parity (menus, dropdowns, tooltips; light + dark).
  */
 
 /* --- Layer 1: semantic shadcn variables (light) --- */
@@ -96,7 +97,8 @@ html.dark .ep-root {
 }
 
 .ep-root [data-testid="title-bar"],
-.ep-root [data-testid="editor-toolbar"] {
+.ep-root [data-testid="editor-toolbar"],
+.ep-root [data-testid="formatting-bar"] {
   border-radius: 0;
 }
 
@@ -183,8 +185,9 @@ html.dark .ep-root .focus\:ring-slate-400:focus {
   --tw-ring-color: hsl(var(--ring)) !important;
 }
 
-html.dark .ep-root .bg-\[\#f1f5f9\] {
-  background-color: hsl(var(--muted)) !important;
+/* Formatting bar pill: theme-agnostic surface-toolbar (light + dark) */
+.ep-root .bg-\[\#f1f5f9\] {
+  background-color: hsl(var(--surface-toolbar)) !important;
 }
 
 /* Dark toolbar / menu hovers: readable accent pair (no white-on-white) */
@@ -214,34 +217,38 @@ html.dark .ep-root [data-testid="title-bar"] .hover\:text-white:hover {
 
 html.dark .ep-root [role="menuitem"]:hover,
 html.dark .ep-root [data-radix-collection-item]:hover {
+  background-color: hsl(var(--accent)) !important;
   color: hsl(var(--accent-foreground)) !important;
 }
 
 /* --- Layer 4: theme-agnostic chrome surfaces (light + dark) --- */
 .ep-root [data-testid="title-bar"],
-.ep-root [data-testid="editor-toolbar"] {
+.ep-root [data-testid="editor-toolbar"],
+.ep-root [data-testid="formatting-bar"] {
   background-color: hsl(var(--surface-toolbar)) !important;
 }
 
-.ep-root .bg-white {
+.ep-root
+  .bg-white:not([data-testid="title-bar"]):not([data-testid="editor-toolbar"]) {
   background-color: hsl(var(--card)) !important;
 }
 
 .ep-root div[style*="background-color: white"],
 .ep-root div[style*="background-color:white"] {
   background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
   border-color: hsl(var(--border)) !important;
 }
 
 /* --- Layer 5: Eigenpal title-bar chrome hides --- */
 /* Hide default doc icon column (logo + left padding) */
 .ep-root [data-testid="title-bar"] > div:first-child {
-  display: none;
+  display: none !important;
 }
 
-/* Hide Help — last menubar item when File menu is omitted (Helvety does not pass onOpen/onSave/onPrint) */
-.ep-root [data-testid="title-bar"] .flex.items-center.px-1 > :last-child {
-  display: none;
+/* Help only: File is omitted by props; Format + Insert remain */
+.ep-root [data-testid="title-bar"] [role="menubar"] > :last-child {
+  display: none !important;
 }
 
 /* --- Layer 6: comment suppression --- */
@@ -264,10 +271,13 @@ html.dark .ep-root [data-radix-collection-item]:hover {
 }
 
 .ep-root [data-testid="title-bar"] {
+  align-items: center;
   min-height: 3rem;
   margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
   border-bottom: 1px solid hsl(var(--border));
   gap: 0;
 }
@@ -283,6 +293,46 @@ html.dark .ep-root [data-radix-collection-item]:hover {
   padding-top: 0;
   padding-bottom: 0;
   border-top: none;
+  border-left: 1px solid hsl(var(--border));
+  border-right: 1px solid hsl(var(--border));
+  box-shadow: none !important;
+}
+
+.ep-root [data-testid="formatting-bar"] {
+  margin: 0 !important;
+  min-height: 3rem;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  border-radius: 0 !important;
+  background-color: hsl(var(--surface-toolbar)) !important;
+}
+
+/* --- Layer 8: overlay parity (menus, dropdowns, tooltips; light + dark) --- */
+.ep-root .fixed.z-50.bg-slate-900.text-white {
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Light toolbar / menu hovers: semantic accent pair */
+.ep-root [data-testid="editor-toolbar"] .hover\:bg-slate-50:hover,
+.ep-root [data-testid="editor-toolbar"] .hover\:bg-slate-100:hover,
+.ep-root [data-testid="editor-toolbar"] .focus\:bg-white:focus,
+.ep-root [data-testid="editor-toolbar"] .hover\:bg-slate-100\/80:hover,
+.ep-root [data-testid="editor-toolbar"] .focus\:bg-slate-100\/80:focus,
+.ep-root [data-testid="title-bar"] .hover\:bg-slate-50:hover,
+.ep-root [data-testid="title-bar"] .hover\:bg-slate-100:hover,
+.ep-root [data-testid="title-bar"] .focus\:bg-white:focus {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.ep-root [role="menuitem"]:hover,
+.ep-root [data-radix-collection-item]:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
 }
 
 /* --- Global eigenpal hovers (scoped to .ep-root for HSL channel tokens) --- */

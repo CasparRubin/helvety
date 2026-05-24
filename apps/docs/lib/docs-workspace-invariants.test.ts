@@ -11,6 +11,7 @@ const shellPath = join(componentsDir, "helvety-docs-shell.tsx");
 const workspacePath = join(componentsDir, "docx-editor-workspace.tsx");
 const commandBarPath = join(componentsDir, "docs-command-bar.tsx");
 const vaultSheetPath = join(componentsDir, "vault-documents-sheet.tsx");
+const bridgePath = join(libDir, "../styles/docx-editor-helvety-bridge.css");
 
 /**
  * High-value source invariants for Docs editor UX (blank-on-load, remount, vault UX).
@@ -58,10 +59,19 @@ describe("docs workspace UX invariants", () => {
 
   it("command bar stacks flush with Eigenpal toolbar chrome", () => {
     const commandBar = readFileSync(commandBarPath, "utf8");
+    const bridge = readFileSync(bridgePath, "utf8");
 
     expect(commandBar).toContain('className="border-b-0"');
     expect(commandBar).toContain("showMyDocuments");
     expect(commandBar).toContain("onOpenMyDocuments");
+    expect(bridge).toContain(
+      '[data-testid="title-bar"] [role="menubar"] > :last-child'
+    );
+    expect(bridge).not.toContain(
+      '[data-testid="title-bar"] .flex.items-center.px-1 > :last-child'
+    );
+    expect(bridge).toContain("Layer 7: seamless toolbar stack");
+    expect(bridge).toContain("Layer 8: overlay parity");
   });
 
   it("vault list uses shared list states and delete confirmation", () => {

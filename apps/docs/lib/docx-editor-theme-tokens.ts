@@ -2,6 +2,7 @@
  * HSL channel strings for `@eigenpal/docx-editor-react` (`.ep-root` uses `hsl(var(--token))`).
  * Values approximate `packages/ui/globals.css` oklch semantic tokens.
  * Update `styles/docx-editor-helvety-bridge.css` when these change.
+ * User-facing behavior is documented in `apps/docs/README.md` and `apps/docs/public/llms.txt`.
  */
 
 /** Light UI chrome: maps to `:root` in `packages/ui/globals.css`. */

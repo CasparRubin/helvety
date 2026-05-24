@@ -147,7 +147,7 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 | `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler`; `docs` (+ optional `EncryptionProvider` for vault) |
 | `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`                                                               |
 
-**Docs** uses `mainVariant: "overflow-main"` (pinned Helvety command bar + Eigenpal editor workspace). Helvety chrome (command bar, vault sheet, dialogs) uses `@helvety/ui` tokens and the navbar `ThemeSwitcher`. Eigenpal editor chrome is themed in `apps/docs/styles/docx-editor-helvety-bridge.css` (semantic `--doc-*` aliases, `--surface-toolbar` alignment with the command bar, title-bar doc icon + Help hidden, comment UI suppressed, Layer 3–7 surface overrides). Printable document pages stay white in both themes.
+**Docs** uses `mainVariant: "overflow-main"` (pinned Helvety command bar + Eigenpal editor workspace). Helvety chrome (command bar, vault sheet, dialogs) uses `@helvety/ui` tokens and the navbar `ThemeSwitcher`. Eigenpal editor chrome is themed in `apps/docs/styles/docx-editor-helvety-bridge.css` (semantic `--doc-*` aliases, `--surface-toolbar` alignment with the command bar, Format/Insert title-bar menus visible, doc icon + Help hidden, comment UI suppressed, Layers 3–8 for slate remaps, chrome surfaces, seamless toolbar stack, and menu/dropdown/tooltip overlays). Printable document pages stay white in both themes.
 
 Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
 

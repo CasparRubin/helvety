@@ -52,14 +52,21 @@ describe("docs copy consistency", () => {
     expect(readme).toMatch(/Eigenpal upgrade checklist/i);
     expect(readme).toMatch(/no default doc icon column/i);
     expect(readme).toMatch(/no \*\*Help\*\* menu/i);
+    expect(readme).toMatch(/\*\*Format\*\* and \*\*Insert\*\*/i);
     expect(readme).toMatch(/no \*\*comment\*\* UI/i);
     expect(readme).toMatch(/My documents/i);
     expect(readme).toMatch(/seamless stack/i);
     expect(readme).toMatch(/workspace gutter/i);
+    expect(readme).toMatch(/Layer 8/i);
+    expect(readme).toMatch(/light and dark/i);
+    expect(readme).not.toMatch(/Layers 4–7/i);
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
     expect(llms).toMatch(/pinned command bar/i);
+    expect(llms).toMatch(/Format and Insert/i);
+    expect(llms).toMatch(/not File or Help/i);
     expect(llms).toMatch(/Help menu are hidden/i);
+    expect(llms).toMatch(/menus, dropdowns, and tooltips/i);
     expect(llms).toMatch(/printable document page stays white/i);
     expect(llms).toMatch(/print-accurate|exported .docx/i);
 
@@ -68,6 +75,8 @@ describe("docs copy consistency", () => {
       expect(doc).not.toMatch(/vault sidebar/i);
       expect(doc).not.toMatch(/left sidebar/i);
       expect(doc).not.toMatch(/VaultPanel/i);
+      expect(doc).not.toMatch(/all menus are hidden/i);
+      expect(doc).not.toMatch(/menus are hidden/i);
     }
   });
 
