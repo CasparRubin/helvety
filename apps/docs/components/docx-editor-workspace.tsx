@@ -1,37 +1,38 @@
 "use client";
 
-import { DocxEditor, type DocxEditorRef } from "@eigenpal/docx-editor-react";
+import {
+  createEmptyDocument,
+  DocxEditor,
+  type DocxEditorRef,
+} from "@eigenpal/docx-editor-react";
 import { cn } from "@helvety/shared/utils";
-import { Loader2 } from "lucide-react";
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 
 /** Props for {@link DocxEditorWorkspace}. */
 interface DocxEditorWorkspaceProps {
-  readonly documentBuffer: ArrayBuffer | null | undefined;
+  /** Loaded `.docx` bytes; `null` selects a fresh blank doc via `createEmptyDocument()`. */
+  readonly documentBuffer: ArrayBuffer | null;
+  /** Bumps when the editor should remount (New, open file, open vault doc). */
+  readonly sessionKey: number;
   readonly className?: string;
 }
 
 /**
  * Client-only docx editor surface (loaded via dynamic import from the page).
+ * Blank documents use Eigenpal `createEmptyDocument()` (`document` prop), not `documentBuffer={null}`.
  * Editor chrome theme comes from `styles/docx-editor-helvety-bridge.css` on `.ep-root`.
  */
 export const DocxEditorWorkspace = forwardRef<
   DocxEditorRef,
   DocxEditorWorkspaceProps
->(({ documentBuffer, className }, ref) => {
-  if (documentBuffer === undefined) {
-    return (
-      <div
-        className={cn(
-          "docx-editor-workspace bg-background text-muted-foreground flex h-full min-h-0 flex-1 items-center justify-center gap-2",
-          className
-        )}
-      >
-        <Loader2 className="size-6 animate-spin" />
-        <span>Loading editor…</span>
-      </div>
-    );
-  }
+>(({ documentBuffer, sessionKey, className }, ref) => {
+  const blankDocument = useMemo(() => {
+    void sessionKey;
+    return createEmptyDocument();
+  }, [sessionKey]);
+
+  const editorProps =
+    documentBuffer !== null ? { documentBuffer } : { document: blankDocument };
 
   return (
     <div
@@ -41,13 +42,14 @@ export const DocxEditorWorkspace = forwardRef<
       )}
     >
       <DocxEditor
+        key={sessionKey}
         ref={ref}
         className="h-full min-h-0 flex-1"
-        documentBuffer={documentBuffer}
         mode="editing"
         showToolbar
         showRuler
         showZoomControl
+        {...editorProps}
       />
     </div>
   );

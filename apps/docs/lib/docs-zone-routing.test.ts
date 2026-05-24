@@ -32,6 +32,7 @@ describe("docs zone routing invariants", () => {
     const src = readFileSync(shellPath, "utf8");
 
     expect(src).toMatch(/handleNewDocument[\s\S]*?setDocInUrl\(null\)/);
+    expect(src).toMatch(/handleNewDocument[\s\S]*?bumpEditorSession\(\)/);
     expect(src).toMatch(/handleFileChange[\s\S]*?setDocInUrl\(null\)/);
     expect(src).toMatch(/Always start blank[\s\S]*?setDocInUrl\(null\)/);
   });
@@ -71,6 +72,8 @@ describe("docs zone routing invariants", () => {
     expect(src).toMatch(/\?doc=/);
     expect(src).toMatch(/Vault bookmarks/i);
     expect(src).toMatch(/not an auto-open deep link/i);
+    expect(src).toMatch(/## Editor behavior \(maintainers\)/);
+    expect(src).toContain("createEmptyDocument");
     expect(src).not.toMatch(/Vault deep links:/i);
   });
 });

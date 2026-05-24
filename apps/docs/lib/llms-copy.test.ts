@@ -23,6 +23,7 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/\?doc=/);
     expect(source).toMatch(/starts blank on load/i);
     expect(source).toMatch(/not auto-opened/i);
+    expect(source).toMatch(/\*\*New\*\*/);
     expect(source).toMatch(/vault sidebar/i);
     expect(source).toMatch(/signed in and vault-unlocked/i);
     expect(source).not.toMatch(

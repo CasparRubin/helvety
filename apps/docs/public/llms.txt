@@ -1,6 +1,6 @@
 # Helvety Docs
 
-> Edit .docx files in the browser. Local editing needs no account. Optional vault save encrypts document titles and file bytes on your device before storage.
+> Edit .docx files in the browser. Local editing needs no account. The editor opens to a blank document; use **New** anytime for a fresh page. Optional vault save encrypts document titles and file bytes on your device before storage.
 
 ## Canonical URL
 - [Helvety Docs](https://helvety.com/docs): Browser-based Word (.docx) editor

@@ -16,6 +16,7 @@ describe("docs hybrid routing", () => {
     expect(src).toContain("bootstrapPublicLayoutUser");
     expect(src).not.toContain("requireE2eeAppPageAuth");
     expect(src).not.toContain("EncryptionGateApp");
+    expect(src).toMatch(/starts blank|Editor starts blank/i);
   });
 
   it("scopes EncryptionGateApp to the vault panel only", () => {

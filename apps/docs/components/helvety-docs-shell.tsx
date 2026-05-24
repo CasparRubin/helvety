@@ -63,7 +63,7 @@ interface HelvetyDocsShellProps {
   readonly initialUser: User | null;
 }
 
-/** Main Docs workspace: local editor plus optional encrypted vault. */
+/** Main Docs workspace: public blank local editor plus optional encrypted vault. */
 export function HelvetyDocsShell({
   initialUser,
 }: HelvetyDocsShellProps): React.JSX.Element {
@@ -84,9 +84,10 @@ export function HelvetyDocsShell({
     remove,
   } = useDocs(vaultEnabled);
 
-  const [documentBuffer, setDocumentBuffer] = useState<
-    ArrayBuffer | null | undefined
-  >(null);
+  const [documentBuffer, setDocumentBuffer] = useState<ArrayBuffer | null>(
+    null
+  );
+  const [editorSessionKey, setEditorSessionKey] = useState(0);
   const [vaultDocId, setVaultDocId] = useState<string | null>(null);
   const [localFileName, setLocalFileName] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -140,12 +141,18 @@ export function HelvetyDocsShell({
     [pathname, router, searchParams]
   );
 
+  const bumpEditorSession = useCallback(() => {
+    setEditorSessionKey((key) => key + 1);
+  }, []);
+
   const handleNewDocument = useCallback(() => {
+    // Remount editor with createEmptyDocument() (see docx-editor-workspace.tsx).
+    bumpEditorSession();
     setDocumentBuffer(null);
     setVaultDocId(null);
     setLocalFileName(null);
     setDocInUrl(null);
-  }, [setDocInUrl]);
+  }, [bumpEditorSession, setDocInUrl]);
 
   const handleOpenFile = useCallback(() => {
     fileInputRef.current?.click();
@@ -165,6 +172,7 @@ export function HelvetyDocsShell({
       try {
         const buffer = await readFileAsArrayBuffer(file);
         if (!validateDocxSize(buffer, file.name)) return;
+        bumpEditorSession();
         setDocumentBuffer(buffer);
         setVaultDocId(null);
         setLocalFileName(file.name);
@@ -175,7 +183,7 @@ export function HelvetyDocsShell({
         });
       }
     },
-    [setDocInUrl, validateDocxSize]
+    [bumpEditorSession, setDocInUrl, validateDocxSize]
   );
 
   const handleDownload = useCallback(async () => {
@@ -257,12 +265,13 @@ export function HelvetyDocsShell({
       const doc = await loadDocument(id);
       if (!doc) return;
       if (!validateDocxSize(doc.docxBytes, doc.title)) return;
+      bumpEditorSession();
       setDocumentBuffer(doc.docxBytes);
       setVaultDocId(doc.id);
       setLocalFileName(`${doc.title}.docx`);
       setDocInUrl(id);
     },
-    [loadDocument, setDocInUrl, validateDocxSize]
+    [bumpEditorSession, loadDocument, setDocInUrl, validateDocxSize]
   );
 
   const handleDeleteVaultDocument = useCallback(
@@ -290,7 +299,7 @@ export function HelvetyDocsShell({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <DocsCommandBar
-        hasDocument={documentBuffer !== undefined}
+        hasDocument={true}
         isSaving={isSaving}
         canSaveToVault={vaultEnabled}
         vaultDocId={vaultDocId}
@@ -316,7 +325,11 @@ export function HelvetyDocsShell({
           onOpenDocument={(id) => void handleOpenVaultDocument(id)}
           onDeleteDocument={(id) => void handleDeleteVaultDocument(id)}
         />
-        <DocxEditorWorkspace ref={editorRef} documentBuffer={documentBuffer} />
+        <DocxEditorWorkspace
+          ref={editorRef}
+          documentBuffer={documentBuffer}
+          sessionKey={editorSessionKey}
+        />
       </div>
       <SaveVaultDialog
         open={saveDialogOpen}

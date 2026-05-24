@@ -39,6 +39,40 @@ describe("docs workspace UX invariants", () => {
     expect(src).not.toContain("@eigenpal/docx-editor-react/styles.css");
   });
 
+  it("blank editor uses createEmptyDocument and sessionKey remount", () => {
+    const workspace = readFileSync(workspacePath, "utf8");
+    const shell = readFileSync(shellPath, "utf8");
+
+    expect(workspace).toContain("createEmptyDocument");
+    expect(workspace).toContain("sessionKey");
+    expect(workspace).toContain("document: blankDocument");
+    expect(workspace).toContain("documentBuffer !== null");
+    expect(workspace).not.toContain("documentBuffer === undefined");
+    expect(workspace).not.toContain("Loader2");
+    expect(shell).toContain("editorSessionKey");
+    expect(shell).toContain("bumpEditorSession");
+    expect(shell).toMatch(/handleNewDocument[\s\S]*?bumpEditorSession\(\)/);
+    expect(shell).toMatch(/handleFileChange[\s\S]*?bumpEditorSession\(\)/);
+    expect(shell).toMatch(
+      /handleOpenVaultDocument[\s\S]*?bumpEditorSession\(\)/
+    );
+    expect(shell).toMatch(
+      /handleDeleteVaultDocument[\s\S]*?handleNewDocument\(\)/
+    );
+    expect(shell).toContain("sessionKey={editorSessionKey}");
+    expect(shell).toContain("hasDocument={true}");
+    expect(shell).not.toContain("ArrayBuffer | null | undefined");
+    expect(shell).not.toContain("documentBuffer !== undefined");
+  });
+
+  it("page documents blank editor on load without login", () => {
+    const page = readFileSync(pagePath, "utf8");
+
+    expect(page).toMatch(/starts blank|Editor starts blank/i);
+    expect(page).toMatch(/createEmptyDocument/);
+    expect(page).toMatch(/No login required|without signing in/i);
+  });
+
   it("vault list uses shared list states and delete confirmation", () => {
     const src = readFileSync(vaultPanelPath, "utf8");
 
@@ -111,6 +145,8 @@ describe("docs workspace UX invariants", () => {
     }
 
     expect(readme).toMatch(/not an auto-open deep link/i);
+    expect(readme).toMatch(/## Editor behavior \(maintainers\)/);
+    expect(readme).toContain("createEmptyDocument");
     expect(llms).toMatch(/not auto-opened/i);
   });
 });

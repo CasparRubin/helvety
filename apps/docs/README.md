@@ -11,7 +11,7 @@ Browser-based `.docx` editor with optional encrypted vault save.
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`). The layout calls `bootstrapE2eeLayoutSession()` and wraps the shell in `CSRFProvider` plus `EncryptionProvider` so vault save can use the same passkey-derived keys as Tasks/Notes, while the main editor route stays public (no full-app `EncryptionGate`). The public `app/page.tsx` calls `bootstrapPublicLayoutUser()` for the navbar session snapshot.
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) feeds metadata / JSON-LD (`DOCS_APP_DESCRIPTION`) and PWA [`public/manifest.json`](./public/manifest.json) (`DOCS_PWA_MANIFEST_DESCRIPTION`; verified by root `bun run consistency:install-manifest-metadata`); crawler and LLM hints in [`public/llms.txt`](./public/llms.txt) (vault bookmarks, theme, licensing).
 - `@eigenpal/docx-editor-react` loads via `dynamic(..., { ssr: false })` per vendor Next.js guidance.
-- **Local editing:** open, create, upload, and download `.docx` files without signing in; bytes stay in the browser for editing.
+- **Local editing:** open, create, upload, and download `.docx` files without signing in; bytes stay in the browser for editing. The editor **always opens to a blank document** (logged in or not). **New** resets to a fresh blank page.
 - **Light / dark theme:** navbar **ThemeSwitcher** (system, light, or dark). Helvety chrome uses `@helvety/ui` tokens; the Eigenpal editor shell is themed via [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (see [Theme](#theme-light--dark) below). The printable page stays white in both modes.
 - **Vault save (optional):** when signed in and vault-unlocked, encrypted display title + encrypted `.docx` bytes in Postgres (`docs` table). `EncryptionGateApp` is scoped to the vault sidebar only, not the whole app.
 - **Vault bookmarks (`?doc=`):** `https://helvety.com/docs?doc=<uuid>` can appear in shared links and auth return URLs. The editor **always starts with a blank page** on load (including when `?doc=` is present); open saved documents from **My documents** in the vault sidebar after sign-in and vault unlock. The URL updates to `?doc=<uuid>` when you open or save a vault document from the app (not on initial landing).
@@ -30,6 +30,12 @@ This app uses Next.js `basePath: /docs`. Path rules differ by API:
 Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `basePath` again and the browser lands on `/docs/docs` (404). CI guards this in [`lib/docs-zone-routing.test.ts`](./lib/docs-zone-routing.test.ts).
 
 **`?doc=` is not an auto-open deep link** (unlike Tasks `?item=`, Notes `?note=`, or Contacts `?contact=` sheet links). Landing with `?doc=<uuid>` strips the query and leaves a blank editor; only explicit sidebar open or save sets `?doc=` while you work.
+
+## Editor behavior (maintainers)
+
+- **Blank default:** [`components/docx-editor-workspace.tsx`](./components/docx-editor-workspace.tsx) mounts Eigenpal’s `createEmptyDocument()` when there is no loaded buffer. Do **not** pass `documentBuffer={null}` alone — that shows Eigenpal’s empty state, not an editable page.
+- **New / remount:** [`components/helvety-docs-shell.tsx`](./components/helvety-docs-shell.tsx) bumps `editorSessionKey` on **New**, local open, and vault open so the editor remounts cleanly.
+- **Public route:** [`app/page.tsx`](./app/page.tsx) stays public; vault is sidebar-only. Auth does not gate the blank editor.
 
 ## Limits
 
@@ -67,6 +73,7 @@ After bumping `@eigenpal/docx-editor-react`, verify visually (light + dark):
 3. Zoom control and ruler
 4. Dark mode: warm dark gutter, **white page**, readable text on the page
 5. Downloaded `.docx` still has a white page background
+6. **Blank on load** and **New** show an editable empty page (toolbar + ruler), not a placeholder or empty buffer state
 
 Then run `bun test apps/docs` (theme bridge coverage in `lib/docx-editor-theme.test.ts`, including a check that every eigenpal `slate-*` utility has a dark remap). If that test fails after a package bump, extend the dark remap block in `docx-editor-helvety-bridge.css`.
 
