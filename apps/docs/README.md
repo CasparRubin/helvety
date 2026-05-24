@@ -53,6 +53,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 - Local editing does not upload document bytes to Helvety for editing.
 - Vault fields use client-side encryption with the same passkey-derived master key pattern as Tasks, Contacts, Notes, and Links; this is **not** a full-app E2EE product (local mode works without login).
+- Vault Postgres access uses the **authenticated user** Supabase client in server actions and `/api/docs` routes (`getUser()` + forced RLS on `public.docs`). The app does **not** use `createAdminClient()` for vault CRUD. Database policies require `(select auth.uid()) = user_id`; table privileges are granted to `authenticated` only (not `anon`).
 - `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
 - Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary. Vault list/detail GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, explicit column selects on `public.docs`).
 - Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
@@ -63,7 +64,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 - **Eigenpal editor chrome** (formatting toolbar, menus, dialogs, workspace gutter) is themed in [`styles/docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css), imported from [`app/globals.css`](./app/globals.css) after vendor styles. The bridge sets HSL channel variables on `.ep-root` aligned with [`packages/ui/globals.css`](../../packages/ui/globals.css); title-bar and formatting toolbar use `--surface-toolbar` so they align flush with the Helvety command bar. Maintainer token reference (tests): [`lib/docx-editor-theme-tokens.ts`](./lib/docx-editor-theme-tokens.ts). The bridge hides Eigenpal’s default title-bar doc icon and **Help** menu, suppresses **comment** UI, and uses square corners (New/Open/Download/vault save live in the pinned Helvety command bar).
 - **Document page** (`.layout-page`) stays **white paper with dark body text** in both themes so downloaded `.docx` files match print expectations. The workspace gutter (`--doc-bg`) follows the app background in light and dark; only the page surface stays white.
 
-**When changing brand colors:** update `packages/ui/globals.css`, then `lib/docx-editor-theme-tokens.ts` and `styles/docx-editor-helvety-bridge.css`, and run `bun test lib/docx-editor-theme.test.ts lib/docx-editor-theme-tokens.test.ts`.
+**When changing brand colors:** update `packages/ui/globals.css`, then `lib/docx-editor-theme-tokens.ts` and `styles/docx-editor-helvety-bridge.css`, and run `cd apps/docs && bun run test -- lib/docx-editor-theme.test.ts lib/docx-editor-theme-tokens.test.ts`.
 
 ### Eigenpal upgrade checklist
 
@@ -79,7 +80,7 @@ After bumping `@eigenpal/docx-editor-react`, verify visually (light + dark):
 8. Command bar + Eigenpal toolbars: seamless stack (no color band or gap between rows)
 9. Menus and dialogs: readable contrast in dark mode (no white panels with light-grey text; toolbar hovers readable)
 
-Then run `bun test apps/docs` (theme bridge in `lib/docx-editor-theme.test.ts`, including every eigenpal `slate-*` dark remap; token parity in `lib/docx-editor-theme-tokens.test.ts`). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layers 4–7 for toolbar surfaces, comment hides, and inline `white` menu/dialog panels).
+Then run `cd apps/docs && bun run test` (theme bridge in `lib/docx-editor-theme.test.ts`, including every eigenpal `slate-*` dark remap; token parity in `lib/docx-editor-theme-tokens.test.ts`). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layers 4–7 for toolbar surfaces, comment hides, and inline `white` menu/dialog panels).
 
 ## Third-Party
 
@@ -89,13 +90,13 @@ Then run `bun test apps/docs` (theme bridge in `lib/docx-editor-theme.test.ts`, 
 
 Copy [`env.template`](./env.template) to `.env.local`.
 
-This app uses the **full stack** tier (same as Store): Supabase publishable + secret, Upstash Redis, and cookie signing for CSRF in the proxy.
+This app uses the **full stack** env tier (same validation as Store and E2EE zones): Supabase publishable + secret keys, Upstash Redis, and cookie signing for CSRF in the proxy. Vault handlers use the user-scoped Supabase client; `SUPABASE_SECRET_KEY` is required by shared startup validation, not for vault database access.
 
 | Variable                               | Required | Server-only | Description                                                                                      |
 | -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                         |
-| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Server-only admin client for vault API routes                                                    |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key (user-scoped vault client)                                              |
+| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Full-stack tier validation; Docs vault does **not** call the admin client for CRUD               |
 | `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Rate limiting for server actions and API routes                                                  |
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash REST token                                                                               |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
@@ -106,4 +107,11 @@ Separate project **`helvety-docs`** with Root Directory **`apps/docs`** (same pa
 
 ## Database
 
-Apply [`supabase/migrations/20260523120000_create_docs_table.sql`](../../supabase/migrations/20260523120000_create_docs_table.sql) to your Supabase project, then refresh local schema exports if you use `supabase/getSupabase.sql` (never commit `supabase.json`).
+On the hosted **helvety** Supabase project, both docs vault migrations are applied (May 2026). For other environments, apply in order:
+
+1. [`supabase/migrations/20260523120000_create_docs_table.sql`](../../supabase/migrations/20260523120000_create_docs_table.sql): table, forced RLS, grants to `authenticated`/`service_role`, policies on `authenticated`
+2. [`supabase/migrations/20260524120000_harden_docs_and_revoke_anon_grants.sql`](../../supabase/migrations/20260524120000_harden_docs_and_revoke_anon_grants.sql): required if step 1 ran before grants existed; also revokes `anon` on legacy E2EE tables
+
+Greenfield installs that only run step 1 get the hardened shape when using the current repo file. [`20260523230000_docs_rls_auth_uid_subselect.sql`](../../supabase/migrations/20260523230000_docs_rls_auth_uid_subselect.sql) is superseded (do not apply).
+
+Then refresh local schema exports with `supabase/getSupabase.sql` (never commit `supabase.json`). CI checks types + migration SQL via `bun run consistency:supabase-schema`.

@@ -1,19 +1,14 @@
--- Helvety Docs: encrypted vault storage for document titles and .docx blobs (client-side encryption before insert).
-create table public.docs (
-  id uuid primary key,
-  user_id uuid not null references auth.users (id) on delete cascade,
-  encrypted_title text not null,
-  encrypted_docx text not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+-- Harden public.docs API access (GRANT + authenticated policies) and revoke anon on legacy E2EE tables.
 
-alter table public.docs enable row level security;
-alter table public.docs force row level security;
-
+-- A. public.docs — match links privilege pattern
 grant select, insert, update, delete on public.docs to authenticated;
 grant select, insert, update, delete on public.docs to service_role;
 revoke all on public.docs from anon;
+
+drop policy if exists "docs_select_own" on public.docs;
+drop policy if exists "docs_insert_own" on public.docs;
+drop policy if exists "docs_update_own" on public.docs;
+drop policy if exists "docs_delete_own" on public.docs;
 
 create policy "docs_select_own"
   on public.docs
@@ -40,4 +35,9 @@ create policy "docs_delete_own"
   to authenticated
   using ((select auth.uid()) = user_id);
 
-create index docs_user_updated_idx on public.docs (user_id, updated_at desc);
+-- B. Revoke anon on legacy user-data tables (RLS remains; defense in depth)
+revoke all on public.contacts from anon;
+revoke all on public.items from anon;
+revoke all on public.notes from anon;
+revoke all on public.user_profiles from anon;
+revoke all on public.user_passkey_params from anon;

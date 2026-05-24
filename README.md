@@ -152,7 +152,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 - CSRF-enabled zones sign proxy cookies with `HELVETY_COOKIE_SIGNING_SECRET` only (`packages/shared/src/cookie-signing.ts`). The proxy re-issues invalid or stale `csrf_token` cookies (not only when the cookie is absent); rotate the signing secret in Vercel rather than reusing `SUPABASE_SECRET_KEY`.
 - All ten Next.js zones mount privacy-focused Vercel Analytics via shared root layouts unless `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false`; Speed Insights is enabled on the gateway only. User-facing disclosure: Privacy §9; shared footer points to Privacy for analytics and storage ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
 - E2EE apps (`tasks`, `contacts`, `notes`, `links`) enforce server-side page guards and passkey-based unlock flows.
-- **Helvety Docs** (`docs`) is hybrid: the main `.docx` editor is public (no login); optional vault save uses the same passkey-derived encryption pattern only when you sign in, unlock, and choose to save.
+- **Helvety Docs** (`docs`) is hybrid: the main `.docx` editor is public (no login); optional vault save uses the same passkey-derived encryption pattern only when you sign in, unlock, and choose to save. Vault Postgres access uses the authenticated user client with forced RLS on `public.docs` (not the Supabase admin client).
 
 ## Project Structure
 

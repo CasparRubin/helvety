@@ -6,12 +6,14 @@ That list is a **superset** for caching—not every app reads every variable at 
 
 ## Tier reference
 
-| Tier             | Apps                                | Variables typically required                                                                                                                    |
-| ---------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Gateway**      | `web`                               | `NEXT_PUBLIC_SUPABASE_*`, zone rewrite URLs (`AUTH_URL`, `STORE_URL`, …) when `VERCEL=1`                                                        |
-| **Full stack**   | `auth`, `store`, `docs`, E2EE zones | Above public Supabase keys + `SUPABASE_SECRET_KEY`, `UPSTASH_REDIS_*`, `HELVETY_COOKIE_SIGNING_SECRET`, `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` |
-| **Auth extra**   | `auth`                              | `DEVICE_TRUST_COOKIE_SECRET`                                                                                                                    |
-| **Public tools** | `pdf`, `image-upscaler`             | `NEXT_PUBLIC_SUPABASE_*`, `HELVETY_COOKIE_SIGNING_SECRET` only                                                                                  |
+| Tier           | Apps                                | Variables typically required                                                                                                                    |
+| -------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gateway**    | `web`                               | `NEXT_PUBLIC_SUPABASE_*`, zone rewrite URLs (`AUTH_URL`, `STORE_URL`, …) when `VERCEL=1`                                                        |
+| **Full stack** | `auth`, `store`, `docs`, E2EE zones | Above public Supabase keys + `SUPABASE_SECRET_KEY`, `UPSTASH_REDIS_*`, `HELVETY_COOKIE_SIGNING_SECRET`, `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` |
+
+Docs vault CRUD uses the authenticated user Supabase client (RLS on `public.docs`); it does not call `createAdminClient()`. `SUPABASE_SECRET_KEY` is still required because Docs shares the full-stack env validation module with Store and E2EE zones.
+| **Auth extra** | `auth` | `DEVICE_TRUST_COOKIE_SECRET` |
+| **Public tools** | `pdf`, `image-upscaler` | `NEXT_PUBLIC_SUPABASE_*`, `HELVETY_COOKIE_SIGNING_SECRET` only |
 
 Copy only the keys from the relevant `apps/<zone>/env.template` into `.env.local` for local development.
 

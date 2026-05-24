@@ -13,6 +13,10 @@ describe("encryptedPrefetchAuthOptions", () => {
       rateLimitPrefix: "contacts",
       readRateLimitConfig: RATE_LIMITS.PREFETCH,
     });
+    expect(encryptedPrefetchAuthOptions("docs")).toEqual({
+      rateLimitPrefix: "docs",
+      readRateLimitConfig: RATE_LIMITS.PREFETCH,
+    });
     expect(ENCRYPTED_PREFETCH_READ_RATE_LIMIT).toBe(RATE_LIMITS.PREFETCH);
   });
 });

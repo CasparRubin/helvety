@@ -162,12 +162,12 @@ See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
 Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.json) so cached builds invalidate when any zone secret changes. See [`turbo-env-tiers.md`](./turbo-env-tiers.md). **Required keys at runtime** still follow each app's `env.template`:
 
-| Tier             | Apps                               | Required secrets (typical)                                                        |
-| ---------------- | ---------------------------------- | --------------------------------------------------------------------------------- |
-| **Full stack**   | `auth`, E2EE apps, `store`, `docs` | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` |
-| **Auth extra**   | `auth`                             | `DEVICE_TRUST_COOKIE_SECRET`                                                      |
-| **Public tools** | `pdf`, `image-upscaler`            | Supabase public + `HELVETY_COOKIE_SIGNING_SECRET` only                            |
-| **Gateway**      | `web`                              | Public Supabase + zone rewrite URLs when `VERCEL=1`                               |
+| Tier             | Apps                               | Required secrets (typical)                                                                                                                   |
+| ---------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full stack**   | `auth`, E2EE apps, `store`, `docs` | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` (Docs vault CRUD uses user client + RLS, not admin client) |
+| **Auth extra**   | `auth`                             | `DEVICE_TRUST_COOKIE_SECRET`                                                                                                                 |
+| **Public tools** | `pdf`, `image-upscaler`            | Supabase public + `HELVETY_COOKIE_SIGNING_SECRET` only                                                                                       |
+| **Gateway**      | `web`                              | Public Supabase + zone rewrite URLs when `VERCEL=1`                                                                                          |
 
 See root [`README.md`](../README.md) § Environment Model.
 

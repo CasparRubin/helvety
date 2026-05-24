@@ -22,6 +22,8 @@ vi.mock("next/cache", () => ({
   revalidatePath: mocks.revalidatePath,
 }));
 
+vi.mock("server-only", () => ({}));
+
 import { createDoc, deleteDoc, updateDoc } from "./doc-actions";
 
 const DOC_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -81,13 +83,12 @@ describe("docs doc-actions", () => {
   });
 
   it("createDoc revalidates /docs after a successful insert", async () => {
-    const from = vi.fn(() => ({
-      insert: () => ({
-        select: () => ({
-          single: () => Promise.resolve({ data: { id: DOC_ID }, error: null }),
-        }),
+    const insert = vi.fn(() => ({
+      select: () => ({
+        single: () => Promise.resolve({ data: { id: DOC_ID }, error: null }),
       }),
     }));
+    const from = vi.fn(() => ({ insert }));
 
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
@@ -108,6 +109,12 @@ describe("docs doc-actions", () => {
 
     expect(result).toEqual({ success: true, data: { id: DOC_ID } });
     expect(from).toHaveBeenCalledWith("docs");
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: DOC_ID,
+        user_id: "user-1",
+      })
+    );
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/docs");
   });
 
@@ -126,13 +133,10 @@ describe("docs doc-actions", () => {
   });
 
   it("updateDoc revalidates /docs after a successful update", async () => {
-    const from = vi.fn(() => ({
-      update: () => ({
-        eq: () => ({
-          eq: () => Promise.resolve({ error: null }),
-        }),
-      }),
-    }));
+    const eqUser = vi.fn(() => Promise.resolve({ error: null }));
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const update = vi.fn(() => ({ eq: eqId }));
+    const from = vi.fn(() => ({ update }));
 
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
@@ -149,6 +153,31 @@ describe("docs doc-actions", () => {
 
     expect(result).toEqual({ success: true });
     expect(from).toHaveBeenCalledWith("docs");
+    expect(eqId).toHaveBeenCalledWith("id", DOC_ID);
+    expect(eqUser).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/docs");
+  });
+
+  it("deleteDoc scopes delete to the authenticated user", async () => {
+    const eqUser = vi.fn(() => Promise.resolve({ error: null }));
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const del = vi.fn(() => ({ eq: eqId }));
+    const from = vi.fn(() => ({ delete: del }));
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from },
+      },
+    });
+
+    const result = await deleteDoc(DOC_ID, "csrf-token");
+
+    expect(result).toEqual({ success: true });
+    expect(from).toHaveBeenCalledWith("docs");
+    expect(eqId).toHaveBeenCalledWith("id", DOC_ID);
+    expect(eqUser).toHaveBeenCalledWith("user_id", "user-1");
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/docs");
   });
 });
