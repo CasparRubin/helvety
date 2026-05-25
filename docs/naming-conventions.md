@@ -10,7 +10,7 @@ This document is the source of truth for how we name and format code across `app
 
 ## Formatting
 
-- **Prettier** at repo root ([`.prettierrc`](../.prettierrc)): double quotes, semicolons, `trailingComma: "es5"`, `printWidth: 80`, `prettier-plugin-tailwindcss` for class order.
+- **Prettier** at repo root ([`prettier.config.mjs`](../prettier.config.mjs)): double quotes, semicolons, `trailingComma: "es5"`, `printWidth: 80`, `prettier-plugin-tailwindcss` for class order (plugin resolved via `@helvety/dev-deps`).
 - Do not duplicate formatting rules in ESLint; `eslint-config-prettier` disables stylistic ESLint rules that conflict with Prettier.
 
 ## File and directory names

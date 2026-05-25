@@ -24,8 +24,8 @@
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "test": "turbo run test --concurrency=4",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "node scripts/run-prettier.mjs --write",
+    "format:check": "node scripts/run-prettier.mjs --check",
     "consistency:env-templates": "node scripts/check-env-template-consistency.mjs",
     "consistency:guardrails": "node scripts/check-consistency-guardrails.mjs",
     "consistency:zone-modernization": "node scripts/check-zone-modernization.mjs",
@@ -58,6 +58,7 @@
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
   },
   "overrides": {
+    "@supabase/supabase-js": "2.106.2",
     "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#f6ec87ddcc0f803881959eb690a72fa09c3b4c32",
     "rollup": "4.60.4",
     "minimatch": "10.2.5",

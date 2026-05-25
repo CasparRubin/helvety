@@ -28,8 +28,12 @@ bun.lock.*.tmp
 # Vercel
 .vercel/
 
-# IDE
-.cursor/
+# IDE (track shared agent skills/rules; ignore other .cursor local state)
+.cursor/*
+!.cursor/skills/
+!.cursor/skills/**
+!.cursor/rules/
+!.cursor/rules/**
 .idea/
 .vscode/
 *.swp

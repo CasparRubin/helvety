@@ -9,11 +9,31 @@
 /** U+2014 em-dash; must not appear in user-facing copy. */
 export const CUSTOMER_COPY_EM_DASH = "\u2014";
 
-/** Forbidden legacy Docs vault UX terms in store/catalog copy. */
-export const CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS = [
+/**
+ * Forbidden legacy Helvety Docs UX phrases in customer-facing copy.
+ * Current model: title bar right slot + My documents sheet (not command bar / vault sidebar).
+ */
+export const CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS = [
   "vault sidebar",
   "from the sidebar after sign-in",
   "VaultPanel",
+  "command bar sheet",
+  "pinned command bar",
+  "pinned Helvety command bar",
+  "auto-opened on load",
+] as const;
+
+/** @deprecated Prefer {@link CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS}. */
+export const CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS =
+  CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS;
+
+/** Repo-relative paths scanned for {@link CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS}. */
+export const CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS = [
+  "apps/docs/README.md",
+  "apps/docs/public/llms.txt",
+  "apps/store/lib/data/products.ts",
+  "packages/shared/src/store-catalog.ts",
+  "packages/shared/src/app-product-descriptions.ts",
 ] as const;
 
 /** Repo-relative app and root README intros. */

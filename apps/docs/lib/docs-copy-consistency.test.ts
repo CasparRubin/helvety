@@ -3,6 +3,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { DOCS_APP_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
+import {
+  CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS,
+  CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS,
+} from "@helvety/shared/customer-copy-guardrails";
 import { describe, expect, it } from "vitest";
 
 import { DOCS_PWA_MANIFEST_DESCRIPTION } from "./product-copy";
@@ -106,6 +110,27 @@ describe("docs copy consistency", () => {
 
     expect(uiReadme).not.toMatch(/vault sidebar/i);
     expect(uiReadme).toMatch(/My documents.*vault sheet|vault sheet/i);
+  });
+
+  it("monorepo SEO and store paths avoid legacy Docs command-bar chrome phrases", () => {
+    const namingPath = join(repoRoot, "docs/naming-conventions.md");
+    const naming = readFileSync(namingPath, "utf8");
+
+    for (const rel of CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
+        expect(text, `${rel} must not contain "${term}"`).not.toContain(term);
+      }
+    }
+
+    expect(naming).toMatch(/Helvety Docs theme \(maintainers\)/i);
+    expect(naming).toMatch(/title-bar toolbar stack/i);
+    for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
+      expect(
+        naming,
+        `naming-conventions must not contain "${term}"`
+      ).not.toContain(term);
+    }
   });
 
   it("README security and database sections match vault access model", () => {

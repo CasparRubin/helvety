@@ -13,16 +13,23 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EM_DASH = "\u2014";
 
 /** Keep in sync with `customer-copy-guardrails.ts`. */
-const FORBIDDEN_DOCS_VAULT_TERMS = [
+const FORBIDDEN_DOCS_LEGACY_UX_TERMS = [
   "vault sidebar",
   "from the sidebar after sign-in",
   "VaultPanel",
+  "command bar sheet",
+  "pinned command bar",
+  "pinned Helvety command bar",
+  "auto-opened on load",
 ];
 
-/** Store/catalog paths scanned for forbidden Docs vault UX terms. */
-const DOCS_VAULT_COPY_PATHS = [
+/** Keep in sync with `CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS`. */
+const DOCS_LEGACY_UX_COPY_PATHS = [
+  "apps/docs/README.md",
+  "apps/docs/public/llms.txt",
   "apps/store/lib/data/products.ts",
   "packages/shared/src/store-catalog.ts",
+  "packages/shared/src/app-product-descriptions.ts",
 ];
 
 /** Keep in sync with `customer-copy-guardrails.ts` (`CUSTOMER_COPY_README_RELATIVE_PATHS`). */
@@ -151,7 +158,7 @@ function scanFiles() {
 
 function main() {
   const emDashViolations = [];
-  const docsVaultViolations = [];
+  const docsLegacyUxViolations = [];
 
   for (const filePath of scanFiles()) {
     const content = readFileSync(filePath, "utf8");
@@ -161,10 +168,10 @@ function main() {
       emDashViolations.push(rel);
     }
 
-    if (DOCS_VAULT_COPY_PATHS.includes(rel)) {
-      for (const term of FORBIDDEN_DOCS_VAULT_TERMS) {
+    if (DOCS_LEGACY_UX_COPY_PATHS.includes(rel)) {
+      for (const term of FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
         if (content.includes(term)) {
-          docsVaultViolations.push(`${rel} (forbidden: "${term}")`);
+          docsLegacyUxViolations.push(`${rel} (forbidden: "${term}")`);
         }
       }
     }
@@ -180,11 +187,11 @@ function main() {
     process.exit(1);
   }
 
-  if (docsVaultViolations.length > 0) {
+  if (docsLegacyUxViolations.length > 0) {
     console.error(
-      "Forbidden legacy Docs vault UX terms in store/catalog copy (use My documents title bar sheet):"
+      "Forbidden legacy Helvety Docs UX terms (use title bar right slot + My documents sheet):"
     );
-    for (const rel of docsVaultViolations.sort()) {
+    for (const rel of docsLegacyUxViolations.sort()) {
       console.error(`  ${rel}`);
     }
     process.exit(1);

@@ -320,7 +320,7 @@ describe("store product catalog", () => {
     );
   });
 
-  it("Helvety Docs About copy uses My documents title bar sheet (not vault sidebar)", () => {
+  it("Helvety Docs About copy uses My documents title bar sheet (not legacy chrome phrases)", () => {
     const product = getProductBySlug("helvety-docs");
     expect(product).toBeDefined();
     if (!product) return;

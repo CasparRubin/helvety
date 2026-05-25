@@ -37,8 +37,8 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["@testing-library/jest-dom", "^6.9.1"],
   ["@testing-library/react", "^16.3.2"],
   ["jsdom", "29.1.1"],
-  ["@supabase/supabase-js", "^2.106.0"],
-  ["date-fns", "^4.2.1"],
+  ["@supabase/supabase-js", "^2.106.2"],
+  ["date-fns", "^4.3.0"],
   ["@supabase/ssr", "^0.10.3"],
   ["@simplewebauthn/server", "^13.3.0"],
   ["@simplewebauthn/browser", "^13.3.0"],
@@ -47,7 +47,7 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["prettier-plugin-tailwindcss", "^0.8.0"],
   ["tailwindcss", "^4.3.0"],
   ["@tailwindcss/postcss", "^4.3.0"],
-  ["shadcn", "^4.7.0"],
+  ["shadcn", "^4.8.0"],
   ["babel-plugin-react-compiler", "^1.0.0"],
   ["@types/node", "^24.12.4"],
   ["lucide-react", "^1.16.0"],
@@ -104,6 +104,14 @@ async function main() {
   const manifestPaths = await collectWorkspacePackageJsonPaths();
   const devDepsManifestPath = path.join(ROOT_DIR, DEV_DEPS_PACKAGE);
   const errors = [];
+
+  const rootManifest = await readManifest(path.join(ROOT_DIR, "package.json"));
+  const rootDependencies = rootManifest.dependencies ?? {};
+  if (Object.keys(rootDependencies).length > 0) {
+    errors.push(
+      `package.json: remove root "dependencies" (found ${Object.keys(rootDependencies).join(", ")}); Helvety root must only use devDependencies plus overrides`
+    );
+  }
 
   const devDepsManifest = await readManifest(devDepsManifestPath);
   for (const dependencyName of DEV_DEPS_MANAGED) {
