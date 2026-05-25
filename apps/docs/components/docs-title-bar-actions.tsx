@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@helvety/ui/button";
-import { CommandBar, CommandBarSpacer } from "@helvety/ui/command-bar";
 import {
   CloudUploadIcon,
   DownloadIcon,
@@ -11,9 +10,8 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-/** Props for {@link DocsCommandBar}. */
-interface DocsCommandBarProps {
-  readonly hasDocument: boolean;
+/** Props for {@link DocsTitleBarActions}. */
+export interface DocsTitleBarActionsProps {
   readonly isSaving: boolean;
   readonly canSaveToVault: boolean;
   readonly vaultDocId: string | null;
@@ -25,11 +23,14 @@ interface DocsCommandBarProps {
   readonly onOpenMyDocuments: () => void;
 }
 
-const commandButtonClassName = "rounded-none";
+const actionButtonClassName =
+  "docs-title-bar-action h-8 rounded-none px-2 text-xs";
 
-/** Pinned toolbar for the Docs editor. */
-export function DocsCommandBar({
-  hasDocument,
+/**
+ * Helvety document + vault actions rendered in Eigenpal's title bar right slot
+ * (`DocxEditor` `renderTitleBarRight`). Local export: Download button and Cmd+S (`onSave`).
+ */
+export function DocsTitleBarActions({
   isSaving,
   canSaveToVault,
   vaultDocId,
@@ -39,69 +40,73 @@ export function DocsCommandBar({
   onDownload,
   onSaveToVault,
   onOpenMyDocuments,
-}: DocsCommandBarProps): React.JSX.Element {
+}: DocsTitleBarActionsProps): React.JSX.Element {
   return (
-    <CommandBar className="border-b-0">
+    <div className="docs-title-bar-actions flex shrink-0 items-center gap-1">
       <Button
+        type="button"
         size="sm"
         variant="outline"
-        className={commandButtonClassName}
+        className={actionButtonClassName}
         onClick={onNewDocument}
         aria-label="New document"
       >
-        <FilePlusIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+        <FilePlusIcon className="size-4 shrink-0 min-[400px]:mr-1" />
         <span className="sr-only min-[400px]:not-sr-only">New</span>
       </Button>
       <Button
+        type="button"
         size="sm"
         variant="outline"
-        className={commandButtonClassName}
+        className={actionButtonClassName}
         onClick={onOpenFile}
         aria-label="Open document"
       >
-        <FolderOpenIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+        <FolderOpenIcon className="size-4 shrink-0 min-[400px]:mr-1" />
         <span className="sr-only min-[400px]:not-sr-only">Open</span>
       </Button>
       <Button
+        type="button"
         size="sm"
-        className={commandButtonClassName}
+        variant="outline"
+        className={actionButtonClassName}
         onClick={onDownload}
-        disabled={!hasDocument}
         aria-label="Download document"
       >
-        <DownloadIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+        <DownloadIcon className="size-4 shrink-0 min-[400px]:mr-1" />
         <span className="sr-only min-[400px]:not-sr-only">Download</span>
       </Button>
       {showMyDocuments ? (
         <Button
+          type="button"
           size="sm"
           variant="outline"
-          className={commandButtonClassName}
+          className={actionButtonClassName}
           onClick={onOpenMyDocuments}
           aria-label="My documents"
         >
-          <FilesIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+          <FilesIcon className="size-4 shrink-0 min-[400px]:mr-1" />
           <span className="sr-only min-[400px]:not-sr-only">My documents</span>
         </Button>
       ) : null}
-      <CommandBarSpacer />
       <Button
+        type="button"
         size="sm"
         variant="secondary"
-        className={commandButtonClassName}
+        className={`${actionButtonClassName} docs-title-bar-action--vault`}
         onClick={onSaveToVault}
-        disabled={!hasDocument || !canSaveToVault || isSaving}
+        disabled={!canSaveToVault || isSaving}
         aria-label={vaultDocId ? "Update vault document" : "Save to vault"}
       >
         {isSaving ? (
-          <Loader2Icon className="size-4 shrink-0 animate-spin min-[400px]:mr-1.5" />
+          <Loader2Icon className="size-4 shrink-0 animate-spin min-[400px]:mr-1" />
         ) : (
-          <CloudUploadIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
+          <CloudUploadIcon className="size-4 shrink-0 min-[400px]:mr-1" />
         )}
         <span className="sr-only min-[400px]:not-sr-only">
           {vaultDocId ? "Update vault" : "Save to vault"}
         </span>
       </Button>
-    </CommandBar>
+    </div>
   );
 }

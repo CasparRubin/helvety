@@ -182,7 +182,7 @@ function main() {
 
   if (docsVaultViolations.length > 0) {
     console.error(
-      "Forbidden legacy Docs vault UX terms in store/catalog copy (use My documents command bar sheet):"
+      "Forbidden legacy Docs vault UX terms in store/catalog copy (use My documents title bar sheet):"
     );
     for (const rel of docsVaultViolations.sort()) {
       console.error(`  ${rel}`);

@@ -5,10 +5,9 @@ import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context"
 import { DOCS_FILE_SIZE_LIMIT_COPY } from "@helvety/shared/product-file-limit-copy";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { DocsCommandBar } from "@/components/docs-command-bar";
 import { SaveVaultDialog } from "@/components/save-vault-dialog";
 import { VaultDocumentsSheet } from "@/components/vault-documents-sheet";
 import { useDocs } from "@/hooks/use-docs";
@@ -187,26 +186,46 @@ export function HelvetyDocsShell({
     [bumpEditorSession, setDocInUrl, validateDocxSize]
   );
 
-  const handleDownload = useCallback(async () => {
-    const bytes = normalizeDocxSaveResult(await editorRef.current?.save());
-    if (!bytes) {
-      toast.error("Nothing to download yet.", {
-        duration: TOAST_DURATIONS.ERROR,
-      });
-      return;
+  const documentDisplayName = useMemo(() => {
+    if (localFileName) {
+      return localFileName.replace(/\.docx$/i, "") || "Untitled";
     }
-    if (!validateDocxSize(bytes, "Document")) return;
+    const existing = documents.find((d) => d.id === vaultDocId);
+    return existing?.title ?? defaultDocumentTitle();
+  }, [documents, localFileName, vaultDocId]);
 
-    const blob = new Blob([bytes], {
-      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = localFileName ?? `${defaultDocumentTitle()}.docx`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }, [localFileName, validateDocxSize]);
+  const handleDocumentNameChange = useCallback((name: string) => {
+    const trimmed = name.trim() || "Untitled";
+    setLocalFileName(`${trimmed}.docx`);
+  }, []);
+
+  const handleDownload = useCallback(
+    async (bufferFromSave?: ArrayBuffer) => {
+      const bytes =
+        bufferFromSave !== undefined
+          ? normalizeDocxSaveResult(bufferFromSave)
+          : normalizeDocxSaveResult(await editorRef.current?.save());
+      if (!bytes) {
+        toast.error("Nothing to download yet.", {
+          duration: TOAST_DURATIONS.ERROR,
+        });
+        return;
+      }
+      if (!validateDocxSize(bytes, "Document")) return;
+
+      const downloadName = localFileName ?? `${defaultDocumentTitle()}.docx`;
+      const blob = new Blob([bytes], {
+        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = downloadName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    },
+    [localFileName, validateDocxSize]
+  );
 
   const performVaultSave = useCallback(
     async (title: string) => {
@@ -300,18 +319,6 @@ export function HelvetyDocsShell({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <DocsCommandBar
-        hasDocument={true}
-        isSaving={isSaving}
-        canSaveToVault={vaultEnabled}
-        vaultDocId={vaultDocId}
-        showMyDocuments={!!initialUser}
-        onNewDocument={handleNewDocument}
-        onOpenFile={handleOpenFile}
-        onDownload={() => void handleDownload()}
-        onSaveToVault={handleSaveToVault}
-        onOpenMyDocuments={() => setVaultSheetOpen(true)}
-      />
       <input
         ref={fileInputRef}
         type="file"
@@ -324,6 +331,18 @@ export function HelvetyDocsShell({
           ref={editorRef}
           documentBuffer={documentBuffer}
           sessionKey={editorSessionKey}
+          documentName={documentDisplayName}
+          onDocumentNameChange={handleDocumentNameChange}
+          onDownload={(buffer) => void handleDownload(buffer)}
+          isSaving={isSaving}
+          canSaveToVault={vaultEnabled}
+          vaultDocId={vaultDocId}
+          showMyDocuments={!!initialUser}
+          onNewDocument={handleNewDocument}
+          onOpenFile={handleOpenFile}
+          onDownloadFile={() => void handleDownload()}
+          onSaveToVault={handleSaveToVault}
+          onOpenMyDocuments={() => setVaultSheetOpen(true)}
         />
       </div>
       {initialUser ? (

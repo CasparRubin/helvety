@@ -1,5 +1,9 @@
 # Helvety Monorepo Security Rules
 
+## Dependency updates
+
+When asked to update dependencies to latest stable compatible versions, use the **dependency-update** project skill (`.cursor/skills/dependency-update/SKILL.md`) and `docs/dependency-inventory.md`. Include non-npm assets (models, vendored workers/WASM, vendored UI, external repos), not only `package.json`.
+
 ## Supabase Export - NEVER COMMIT
 
 - `supabase/supabase.json` contains a full database export (schema, RLS policies, grants, etc.)

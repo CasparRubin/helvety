@@ -30,7 +30,10 @@ describe("docs copy consistency", () => {
     const src = readFileSync(shellPath, "utf8");
 
     expect(src).not.toContain("handleOpenVaultDocument(docId)");
+    expect(src).not.toContain("DocsCommandBar");
+    expect(src).not.toContain("@helvety/ui/command-bar");
     expect(src).toMatch(/Always start blank[\s\S]*?setDocInUrl\(null\)/);
+    expect(src).toContain("onOpenMyDocuments={() => setVaultSheetOpen(true)}");
   });
 
   it("SEO and PWA descriptions stay hybrid (local edit, optional vault) without implying ?doc= auto-open", () => {
@@ -55,19 +58,25 @@ describe("docs copy consistency", () => {
     expect(readme).toMatch(/\*\*File\*\*, \*\*Format\*\*, and \*\*Insert\*\*/i);
     expect(readme).toMatch(/no \*\*comment\*\* UI/i);
     expect(readme).toMatch(/My documents/i);
-    expect(readme).toMatch(/seamless stack/i);
-    expect(readme).toMatch(/matching left\/right borders/i);
+    expect(readme).toMatch(/\*\*Single toolbar:\*\*/i);
+    expect(readme).toMatch(/Print.*Page setup|Page setup.*Print/i);
+    expect(readme).toMatch(/renderTitleBarRight|title bar right slot/i);
+    expect(readme).not.toMatch(/pinned Helvety command bar/i);
+    expect(readme).not.toMatch(/command bar sheet/i);
     expect(readme).toMatch(/workspace gutter/i);
     expect(readme).toMatch(/Layer 8/i);
     expect(readme).toMatch(/light and dark/i);
     expect(readme).not.toMatch(/Layers 4–7/i);
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
-    expect(llms).toMatch(/pinned command bar/i);
+    expect(llms).toMatch(/title bar/i);
+    expect(llms).toMatch(/single toolbar stack/i);
     expect(llms).toMatch(/File\/Format\/Insert/i);
-    expect(llms).toMatch(/matching left\/right borders/i);
+    expect(llms).toMatch(/matching borders/i);
     expect(llms).toMatch(/not Help/i);
-    expect(llms).toMatch(/Help menu are hidden/i);
+    expect(llms).toMatch(
+      /Help menu.*hidden|File → Open\/Save entries are hidden/i
+    );
     expect(llms).toMatch(/menus, dropdowns, and tooltips/i);
     expect(llms).toMatch(/printable document page stays white/i);
     expect(llms).toMatch(/print-accurate|exported .docx/i);
@@ -79,6 +88,8 @@ describe("docs copy consistency", () => {
       expect(doc).not.toMatch(/VaultPanel/i);
       expect(doc).not.toMatch(/all menus are hidden/i);
       expect(doc).not.toMatch(/menus are hidden/i);
+      expect(doc).not.toMatch(/command bar sheet/i);
+      expect(doc).not.toMatch(/pinned command bar/i);
     }
   });
 

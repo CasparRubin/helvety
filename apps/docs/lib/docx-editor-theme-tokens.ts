@@ -26,7 +26,7 @@ export const EP_EDITOR_THEME_LIGHT = {
   border: "12.4 8.4% 87.2%",
   input: "12.4 8.4% 87.2%",
   ring: "0 0% 63%",
-  /** Matches `--surface-toolbar` in `packages/ui/globals.css` (command bar). */
+  /** Matches `--surface-toolbar` in `packages/ui/globals.css` (toolbar chrome). */
   surfaceToolbar: "12.4 17% 94.5%",
   radius: "0",
 } as const;
@@ -52,7 +52,7 @@ export const EP_EDITOR_THEME_DARK = {
   border: "12.4 10% 18%",
   input: "12.4 10% 22%",
   ring: "0 0% 45.2%",
-  /** Matches `--surface-toolbar` in `packages/ui/globals.css` (command bar). */
+  /** Matches `--surface-toolbar` in `packages/ui/globals.css` (toolbar chrome). */
   surfaceToolbar: "12.4 12% 8.5%",
   radius: "0",
 } as const;

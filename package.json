@@ -48,6 +48,7 @@
     "deps:security": "bun run deps:security:floors && bun run deps:audit",
     "deps:outdated": "bun outdated",
     "deps:drift": "node scripts/check-workspace-version-drift.mjs",
+    "deps:inventory": "node scripts/deps-extended-inventory.mjs",
     "deps:check": "knip --no-progress --include files,dependencies",
     "knip:exports": "knip --no-progress --include exports,types",
     "deps:unused": "bun run deps:check && bun run knip:exports",

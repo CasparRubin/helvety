@@ -9,7 +9,11 @@ const componentsDir = join(libDir, "../components");
 
 const shellPath = join(componentsDir, "helvety-docs-shell.tsx");
 const workspacePath = join(componentsDir, "docx-editor-workspace.tsx");
-const commandBarPath = join(componentsDir, "docs-command-bar.tsx");
+const titleBarActionsPath = join(componentsDir, "docs-title-bar-actions.tsx");
+const hideVendorMenuPath = join(
+  libDir,
+  "../hooks/use-hide-vendor-file-menu-items.ts"
+);
 const vaultSheetPath = join(componentsDir, "vault-documents-sheet.tsx");
 const bridgePath = join(libDir, "../styles/docx-editor-helvety-bridge.css");
 
@@ -38,7 +42,15 @@ describe("docs workspace UX invariants", () => {
       /handleDeleteVaultDocument[\s\S]*?handleNewDocument\(\)/
     );
     expect(shell).toContain("sessionKey={editorSessionKey}");
-    expect(shell).toContain("hasDocument={true}");
+    expect(shell).not.toContain("DocsCommandBar");
+    expect(shell).not.toContain("@helvety/ui/command-bar");
+    expect(shell).not.toContain("CommandBar");
+    expect(shell).toContain("documentName={documentDisplayName}");
+    expect(shell).toContain("onDocumentNameChange={handleDocumentNameChange}");
+    expect(shell).toContain(
+      "onDownload={(buffer) => void handleDownload(buffer)}"
+    );
+    expect(shell).toContain("onDownloadFile=");
     expect(shell).toContain("VaultDocumentsSheet");
     expect(shell).not.toContain("VaultPanel");
     expect(shell).toMatch(
@@ -57,18 +69,29 @@ describe("docs workspace UX invariants", () => {
     expect(workspace).toMatch(/comment UI suppressed/i);
   });
 
-  it("command bar stacks flush with Eigenpal toolbar chrome", () => {
-    const commandBar = readFileSync(commandBarPath, "utf8");
+  it("title bar actions integrate with Eigenpal toolbar chrome", () => {
+    const titleBarActions = readFileSync(titleBarActionsPath, "utf8");
     const workspace = readFileSync(workspacePath, "utf8");
     const bridge = readFileSync(bridgePath, "utf8");
+    const hideVendorMenu = readFileSync(hideVendorMenuPath, "utf8");
 
-    expect(commandBar).toContain('className="border-b-0"');
-    expect(commandBar).toContain("showMyDocuments");
-    expect(commandBar).toContain("onOpenMyDocuments");
-    expect(workspace).toMatch(/File\/Format\/Insert title-bar menus/i);
+    expect(titleBarActions).toContain("docs-title-bar-actions");
+    expect(titleBarActions).toContain("showMyDocuments");
+    expect(titleBarActions).toContain("onOpenMyDocuments");
+    expect(titleBarActions).toContain("onDownload");
+    expect(titleBarActions).toContain("docs-title-bar-action--vault");
+    expect(workspace).toContain("renderTitleBarRight");
+    expect(workspace).toContain("onSave={handleSave}");
+    expect(workspace).toContain("documentName={documentName}");
+    expect(workspace).toContain("useHideVendorFileMenuItems");
+    expect(hideVendorMenu).toContain("isVendorFileOpenItem");
+    expect(hideVendorMenu).toContain("isVendorFileSaveItem");
     expect(bridge).toContain(
       '[data-testid="title-bar"] [role="menubar"] > :last-child'
     );
+    expect(bridge).toContain('input[type="file"][accept*="docx"]');
+    expect(bridge).toContain(".docs-title-bar-actions");
+    expect(bridge).toContain(".docs-title-bar-action--vault");
     expect(bridge).toContain('[role="menubar"] > div > button');
     expect(bridge).toContain("min-width: max-content");
     expect(bridge).not.toContain(
@@ -78,6 +101,9 @@ describe("docs workspace UX invariants", () => {
     expect(bridge).toContain("Layer 8: overlay parity");
 
     const titleBarBorder = bridge.match(
+      /\[data-testid="title-bar"\][\s\S]*?border-top: 1px solid hsl\(var\(--border\)\)/
+    );
+    const titleBarSideBorder = bridge.match(
       /\[data-testid="title-bar"\][\s\S]*?border-left: 1px solid hsl\(var\(--border\)\)/
     );
     const formattingBarBorder = bridge.match(
@@ -88,6 +114,7 @@ describe("docs workspace UX invariants", () => {
     );
 
     expect(titleBarBorder).not.toBeNull();
+    expect(titleBarSideBorder).not.toBeNull();
     expect(formattingBarBorder).not.toBeNull();
     expect(editorToolbarNoSideBorder).not.toBeNull();
   });

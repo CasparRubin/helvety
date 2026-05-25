@@ -254,7 +254,7 @@ describe("docx editor Helvety theme bridge", () => {
     expect(readme).toMatch(/no default doc icon column/i);
     expect(readme).toMatch(/\*\*File\*\*, \*\*Format\*\*, and \*\*Insert\*\*/);
     expect(readme).toMatch(/no \*\*comment\*\* UI/i);
-    expect(readme).toMatch(/seamless stack/i);
+    expect(readme).toMatch(/single toolbar stack|renderTitleBarRight/i);
     expect(readme).toMatch(/Layer 8/);
     expect(readme).toMatch(
       /toolbar hovers readable|no white panels with light-grey text/i
@@ -263,9 +263,10 @@ describe("docx editor Helvety theme bridge", () => {
     expect(readme).not.toMatch(/Layers 4–7/);
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
-    expect(llms).toMatch(/pinned command bar/i);
+    expect(llms).toMatch(/title bar/i);
+    expect(llms).toMatch(/single toolbar stack/i);
     expect(llms).toMatch(/File\/Format\/Insert/i);
-    expect(llms).toMatch(/Help menu are hidden/i);
+    expect(llms).toMatch(/Help menu.*hidden|File → Open\/Save/i);
     expect(llms).toMatch(/printable document page stays white/i);
   });
 
@@ -292,7 +293,7 @@ describe("docx editor Helvety theme bridge", () => {
     expect(pillBlock).not.toContain("hsl(var(--muted))");
   });
 
-  it("Layer 7 aligns toolbar stack with command bar (padding, borders, no shadow)", () => {
+  it("Layer 7 aligns single toolbar stack (padding, borders, no shadow)", () => {
     const layer7 = extractLayerSection(
       bridge,
       "Layer 7: seamless toolbar stack"
@@ -303,8 +304,15 @@ describe("docx editor Helvety theme bridge", () => {
     expect(titleBar).toContain("padding-right: 1rem !important");
     expect(titleBar).toContain("padding-top: 0 !important");
     expect(titleBar).toContain("min-height: 2.5rem");
+    expect(titleBar).toContain("border-top: 1px solid hsl(var(--border))");
+    expect(titleBar).not.toContain("border-top: none");
     expect(titleBar).toContain("border-left: 1px solid hsl(var(--border))");
     expect(titleBar).toContain("border-right: 1px solid hsl(var(--border))");
+    expect(bridge).toContain(".docs-title-bar-actions");
+    expect(bridge).toContain(".docs-title-bar-action--vault");
+    expect(bridge).toMatch(
+      /\.docs-title-bar-action--vault[\s\S]*hsl\(var\(--primary\)\)/
+    );
 
     const editorToolbar = extractCssBlock(
       layer7,
@@ -383,7 +391,7 @@ describe("docx editor Helvety theme bridge", () => {
     );
   });
 
-  it(".ep-root light block exposes surface-toolbar token for command bar parity", () => {
+  it(".ep-root light block exposes surface-toolbar token for toolbar parity", () => {
     const lightVars = parseCssCustomProperties(
       extractCssBlock(bridge, ".ep-root")
     );

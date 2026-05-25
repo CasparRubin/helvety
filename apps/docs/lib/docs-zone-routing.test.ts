@@ -44,7 +44,7 @@ describe("docs zone routing invariants", () => {
     expect(src).toMatch(/performVaultSave[\s\S]*?setDocInUrl\(id\)/);
   });
 
-  it("vault sheet is gated to signed-in users via command bar", () => {
+  it("vault sheet is gated to signed-in users via title bar", () => {
     const shell = shellSrc();
     const sheet = readFileSync(vaultSheetPath, "utf8");
 

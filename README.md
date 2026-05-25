@@ -121,6 +121,8 @@ Quality gates run locally and on GitHub Actions (`.github/workflows/ci.yml`). De
 - Additional manual dependency/security checks:
   - `bun run deps:security` (security floors + `bun audit`)
   - `bun run deps:drift` (also runs inside `ci:check`; toolchain via `@helvety/dev-deps`)
+  - `bun run deps:inventory` (extended pins: ONNX SHA-256, vendored worker/WASM, key lockfile versions; see [`docs/dependency-inventory.md`](docs/dependency-inventory.md))
+  - Cursor **dependency-update** skill (`.cursor/skills/dependency-update/`) for full npm + extended sweeps with upstream release research
   - `bun outdated` then `bun update` before releases (manual; no Renovate/Dependabot)
   - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
   - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused` (also available individually)
