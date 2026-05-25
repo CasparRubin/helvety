@@ -8,14 +8,13 @@ import {
 } from "@helvety/shared/licensing";
 import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import {
-  compareStoreCatalogEntriesNewestFirst,
+  getStoreCatalogNewestFirst,
   requireStoreProductCard,
   type StoreProductType,
 } from "@helvety/shared/store-catalog";
 
 import { productArtwork } from "@/lib/data/product-artwork";
 import {
-  productDescriptionToPlainText,
   type Product,
   type ProductFilters,
   type SaaSProduct,
@@ -44,26 +43,22 @@ function cardCore<T extends StoreProductType>(id: string, expectedType: T) {
     type: expectedType,
     category: c.category,
     releaseDate: c.releaseDate,
+    runsOn: c.runsOn,
   };
 }
 
-/** Newest `releaseDate` first; ties match `@helvety/shared/store-catalog`. */
-function compareProductsByReleaseDateNewestFirst(
-  a: Product,
-  b: Product
-): number {
-  return compareStoreCatalogEntriesNewestFirst(
-    { id: a.id, releaseDate: a.metadata?.releaseDate ?? "" },
-    { id: b.id, releaseDate: b.metadata?.releaseDate ?? "" }
-  );
-}
-
-/** Oldest `releaseDate` first; pairs with sort direction like other sort modes. */
-function compareProductsByReleaseDateOldestFirst(
-  a: Product,
-  b: Product
-): number {
-  return compareProductsByReleaseDateNewestFirst(b, a);
+/** Maps catalog `runsOn` labels to Store `metadata.platforms` entries. */
+function platformsFromRunsOn(runsOn: string): string[] {
+  switch (runsOn) {
+    case "SharePoint Online":
+      return ["SharePoint Online", "Microsoft 365"];
+    case "Edge & Chrome":
+      return ["Microsoft Edge", "Google Chrome"];
+    case "Windows 10 & 11":
+      return ["Windows"];
+    default:
+      return ["Web"];
+  }
 }
 
 // =============================================================================
@@ -238,7 +233,7 @@ const helvetyExplorer: SoftwareProduct = {
       "IT departments",
       "Microsoft 365 users",
     ],
-    platforms: ["SharePoint Online", "Microsoft 365"],
+    platforms: platformsFromRunsOn(cHelvetyExplorer.runsOn),
     keywords: [
       "sharepoint",
       "navigation",
@@ -361,7 +356,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
       "Power Automate authors",
       "Microsoft 365 admins and makers",
     ],
-    platforms: ["Microsoft Edge", "Google Chrome"],
+    platforms: platformsFromRunsOn(cPowerPlatformConfigurator.runsOn),
     keywords: [
       "power automate",
       "browser extension",
@@ -484,7 +479,7 @@ const helvetyScreenTools: SoftwareProduct = {
       "Developers and support teams",
       "Presenters and educators",
     ],
-    platforms: ["Windows"],
+    platforms: platformsFromRunsOn(cHelvetyScreenTools.runsOn),
     keywords: [
       "screenshot",
       "screen capture",
@@ -583,7 +578,7 @@ const helvetyPdf: SaaSProduct = {
   },
   metadata: {
     targetAudience: ["Anyone who works with PDFs", "Privacy-conscious users"],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyPdf.runsOn),
     keywords: [
       "pdf",
       "merge",
@@ -684,7 +679,7 @@ const helvetyImageUpscaler: SaaSProduct = {
       "Privacy-conscious users",
       "Anyone resizing images for web or documents",
     ],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyImageUpscaler.runsOn),
     keywords: [
       "image upscaler",
       "AI image upscaler",
@@ -788,7 +783,7 @@ const helvetyTasks: SaaSProduct = {
       "Privacy-conscious professionals",
       "Teams and individuals",
     ],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyTasks.runsOn),
     keywords: [
       "tasks",
       "project management",
@@ -889,7 +884,7 @@ const helvetyContacts: SaaSProduct = {
       "Privacy-conscious professionals",
       "Individuals managing personal contacts",
     ],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyContacts.runsOn),
     keywords: [
       "contacts",
       "address book",
@@ -986,7 +981,7 @@ const helvetyNotes: SaaSProduct = {
       "Privacy-conscious professionals",
       "Individuals taking secure notes",
     ],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyNotes.runsOn),
     keywords: [
       "notes",
       "encrypted",
@@ -1078,7 +1073,7 @@ const helvetyLinks: SaaSProduct = {
   },
   metadata: {
     targetAudience: ["Privacy-conscious professionals", "Bookmark power users"],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyLinks.runsOn),
     keywords: ["bookmarks", "links", "encrypted", "e2e", "privacy", "folders"],
     featured: true,
     releaseDate: cHelvetyLinks.releaseDate,
@@ -1169,7 +1164,7 @@ const helvetyDocs: SaaSProduct = {
       "Anyone editing Word documents",
       "Privacy-conscious professionals",
     ],
-    platforms: ["Web"],
+    platforms: platformsFromRunsOn(cHelvetyDocs.runsOn),
     keywords: [
       "docx",
       "word",
@@ -1215,7 +1210,10 @@ const products: Product[] = [
  * Get all products
  */
 export function getAllProducts(): Product[] {
-  return [...products].sort(compareProductsByReleaseDateNewestFirst);
+  const byId = new Map(products.map((product) => [product.id, product]));
+  return getStoreCatalogNewestFirst()
+    .map((card) => byId.get(card.id))
+    .filter((product): product is Product => product !== undefined);
 }
 
 /**
@@ -1231,69 +1229,9 @@ export function getProductBySlug(slug: string): Product | undefined {
  * @param filters
  */
 export function getFilteredProducts(filters: ProductFilters): Product[] {
-  let filtered = [...products];
-
-  // Filter by type
-  if (filters.type && filters.type !== "all") {
-    filtered = filtered.filter((product) => product.type === filters.type);
+  const all = getAllProducts();
+  if (!filters.type || filters.type === "all") {
+    return all;
   }
-
-  // Filter by category
-  if (filters.category && filters.category !== "all") {
-    filtered = filtered.filter(
-      (product) => product.category === filters.category
-    );
-  }
-
-  // Filter by status
-  if (filters.status) {
-    filtered = filtered.filter((product) => product.status === filters.status);
-  }
-
-  // Filter by featured
-  if (filters.featured) {
-    filtered = filtered.filter(
-      (product) => product.metadata?.featured === true
-    );
-  }
-
-  // Search filter
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    filtered = filtered.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchLower) ||
-        product.shortDescription.toLowerCase().includes(searchLower) ||
-        productDescriptionToPlainText(product.description)
-          .toLowerCase()
-          .includes(searchLower)
-    );
-  }
-
-  // Sort
-  if (filters.sortBy) {
-    filtered.sort((a, b) => {
-      let comparison = 0;
-
-      switch (filters.sortBy) {
-        case "name":
-          comparison = a.name.localeCompare(b.name);
-          break;
-        case "price":
-          const aPrice = a.pricing.tiers[0]?.price ?? 0;
-          const bPrice = b.pricing.tiers[0]?.price ?? 0;
-          comparison = aPrice - bPrice;
-          break;
-        case "releaseDate":
-          comparison = compareProductsByReleaseDateOldestFirst(a, b);
-          break;
-      }
-
-      return filters.sortOrder === "desc" ? -comparison : comparison;
-    });
-  } else {
-    filtered.sort(compareProductsByReleaseDateNewestFirst);
-  }
-
-  return filtered;
+  return all.filter((product) => product.type === filters.type);
 }

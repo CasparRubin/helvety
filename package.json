@@ -39,7 +39,7 @@
     "consistency:lifecycle-scripts": "node scripts/check-lifecycle-scripts.mjs",
     "consistency:proxy-docs": "node scripts/check-proxy-readme-consistency.mjs",
     "consistency:toolchain-docs": "node scripts/check-toolchain-docs-sync.mjs",
-    "consistency:project-naming": "node scripts/verify-project-naming.mjs",
+    "consistency:project-naming": "bun scripts/verify-project-naming.mjs",
     "consistency:vercel-apps": "node scripts/check-vercel-app-config-consistency.mjs",
     "test:hygiene": "node scripts/check-test-hygiene.mjs",
     "consistency:filenames": "node scripts/check-source-filename-case.mjs",

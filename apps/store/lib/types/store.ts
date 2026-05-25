@@ -1,21 +1,8 @@
 /**
- * Store-specific type definitions
- * Types used by server actions that don't belong in entity or product types
+ * Store-specific type definitions (account export and related server-only shapes).
+ * Product and package download types live in `lib/types/products.ts` and
+ * `lib/packages/create-package-download.ts`.
  */
-
-// =============================================================================
-// DOWNLOAD TYPES
-// =============================================================================
-
-/** Download metadata for a software package. */
-export interface PackageDownloadInfo {
-  /** Signed URL for downloading the package (expires in 60 seconds) */
-  downloadUrl: string;
-  /** Filename for the download */
-  filename: string;
-  /** Package version */
-  version: string;
-}
 
 // =============================================================================
 // DATA EXPORT TYPES

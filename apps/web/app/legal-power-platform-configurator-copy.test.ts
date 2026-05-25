@@ -3,7 +3,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { CUSTOMER_COPY_EM_DASH } from "@helvety/shared/customer-copy-guardrails";
-import { POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX } from "@helvety/shared/power-platform-configurator-copy";
+import {
+  POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS,
+  POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
+  POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
+} from "@helvety/shared/power-platform-configurator-copy";
 import { RETIRED_HELVETY_EXTENSION_NAME_PATTERNS } from "@helvety/shared/retired-power-platform-extension-naming";
 import { describe, expect, it } from "vitest";
 
@@ -38,6 +42,12 @@ describe("Power Platform Configurator legal copy (extension Survey tab parity)",
     const privacy = readFileSync(join(appDir, "privacy", "page.tsx"), "utf8");
     expect(privacy).toContain(officialTitle);
     expectLegalPageUsesCanonicalPowerPlatformConfiguratorCopy(privacy);
+    for (const marker of POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS) {
+      expect(
+        POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
+        `marker "${marker}"`
+      ).toContain(marker);
+    }
     expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain(
       "Survey tab"
     );

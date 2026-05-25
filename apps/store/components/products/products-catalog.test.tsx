@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ProductsCatalog } from "./products-catalog";
 
+import type * as ProductsModule from "@/lib/data/products";
 import type { Product } from "@/lib/types/products";
 
 vi.mock("next/image", () => ({
@@ -48,12 +49,13 @@ const mockProducts: Product[] = [
   },
 ];
 
-vi.mock("@/lib/data/products", () => ({
-  getAllProducts: vi.fn(() => mockProducts),
-  getFilteredProducts: vi.fn(({ type }: { type: string }) =>
-    mockProducts.filter((p) => p.type === type)
-  ),
-}));
+vi.mock("@/lib/data/products", async (importOriginal) => {
+  const actual: typeof ProductsModule = await importOriginal();
+  return {
+    ...actual,
+    getAllProducts: vi.fn(() => mockProducts),
+  };
+});
 
 describe("ProductsCatalog", () => {
   it("renders all products from getAllProducts", () => {
@@ -63,12 +65,19 @@ describe("ProductsCatalog", () => {
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
   });
 
-  it("filters products by type", () => {
+  it("filters products by type using getFilteredProducts", () => {
     render(<ProductsCatalog />);
 
     fireEvent.click(screen.getByRole("button", { name: /Software/i }));
 
     expect(screen.queryByText("Helvety PDF")).not.toBeInTheDocument();
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
+  });
+
+  it("does not expose a physical product type filter", () => {
+    render(<ProductsCatalog />);
+
+    expect(screen.queryByRole("button", { name: /Physical/i })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /Physical/i })).toBeNull();
   });
 });

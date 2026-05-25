@@ -10,18 +10,14 @@
 
 /** Configuration for a downloadable package product */
 interface PackageInfo {
-  /** Display version fallback (resolver may return file-derived info). */
+  /** Display version string (not parsed from storage filenames). */
   version: string;
-  /** Original filename for the download */
+  /** Original filename for the download Content-Disposition header */
   filename: string;
   /** Folder in Supabase Storage bucket `packages` that contains package files. */
   storageFolderPath: string;
   /** File extension to match in storage (e.g. ".sppkg", ".zip"), case-insensitive. */
   storageFileSuffix: string;
-  /** Helvety store catalog product card `id` (see `@helvety/shared/store-catalog`). */
-  productId: string;
-  /** Human-readable product name */
-  productName: string;
   /** Whether package can be downloaded without account login */
   isPublic: boolean;
 }
@@ -36,8 +32,6 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     filename: "helvety-spo-explorer.sppkg",
     storageFolderPath: "spfx/helvety-spo-explorer",
     storageFileSuffix: ".sppkg",
-    productId: "helvety-spo-explorer",
-    productName: "Helvety SPO Explorer",
     isPublic: true,
   },
 } as const;
@@ -49,9 +43,4 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
 /** Returns package info for the given package ID, or undefined if not found */
 export function getPackageInfo(packageId: string): PackageInfo | undefined {
   return PACKAGE_CONFIG[packageId];
-}
-
-/** Returns true when package is publicly downloadable. */
-export function isPublicPackage(packageId: string): boolean {
-  return PACKAGE_CONFIG[packageId]?.isPublic === true;
 }

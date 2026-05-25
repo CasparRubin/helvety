@@ -108,7 +108,7 @@ interface ProductMedia {
 // =============================================================================
 
 /** One block inside the product detail "About" section. */
-export type ProductDescriptionSection =
+type ProductDescriptionSection =
   | { heading: string; kind: "paragraph"; body: string }
   | { heading: string; kind: "bullets"; items: string[] };
 
@@ -116,25 +116,6 @@ export type ProductDescriptionSection =
 interface ProductDescription {
   intro: string;
   sections?: ProductDescriptionSection[];
-}
-
-/**
- * Flatten {@link ProductDescription} for search and plain-text consumers.
- * @param description
- */
-export function productDescriptionToPlainText(
-  description: ProductDescription
-): string {
-  const parts: string[] = [description.intro];
-  for (const section of description.sections ?? []) {
-    parts.push(section.heading);
-    if (section.kind === "paragraph") {
-      parts.push(section.body);
-    } else {
-      parts.push(...section.items);
-    }
-  }
-  return parts.join(" ");
 }
 
 // =============================================================================
@@ -238,10 +219,6 @@ interface SoftwareInstallationStep {
  * Additional fields for downloadable software
  */
 interface SoftwareProductDetails {
-  /** Download URL (resolved when download is available for this product) */
-  downloadUrl?: string;
-  /** File size in bytes */
-  fileSize?: number;
   /** File format/type */
   fileFormat?: string;
   /** System requirements */
@@ -297,18 +274,6 @@ export interface SaaSProduct extends Product {
 export interface ProductFilters {
   /** Filter by product type */
   type?: ProductType | "all";
-  /** Filter by category */
-  category?: ProductCategory | "all";
-  /** Filter by status */
-  status?: ProductStatus;
-  /** Search query */
-  search?: string;
-  /** Only show featured products */
-  featured?: boolean;
-  /** Sort field */
-  sortBy?: "name" | "price" | "releaseDate";
-  /** Sort direction */
-  sortOrder?: "asc" | "desc";
 }
 
 // =============================================================================

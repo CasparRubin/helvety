@@ -1,6 +1,6 @@
 # Vercel environment audit checklist
 
-Use this when syncing **Production** and **Preview** env in the Vercel dashboard. Local parity: `bun run consistency:local-env`. Template guardrails: `bun run consistency:env-templates`.
+Use this when syncing **Production** and **Preview** env in the Vercel dashboard. Local parity: `bun run consistency:local-env`. Template guardrails: `bun run consistency:env-templates`. Automated Production audit (requires Vercel CLI login): `bun run consistency:vercel-prod-env` ([`scripts/audit-vercel-production-env.mjs`](../scripts/audit-vercel-production-env.mjs)).
 
 All ten zone projects exist on team **Helvety** (`helvety-com`, `helvety-auth`, `helvety-store`, `helvety-docs`, `helvety-pdf`, `helvety-image-upscaler`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`).
 

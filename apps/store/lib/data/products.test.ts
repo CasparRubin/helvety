@@ -1,7 +1,7 @@
 import {
   CUSTOMER_COPY_EM_DASH,
   CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX,
-  CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS,
+  CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS,
 } from "@helvety/shared/customer-copy-guardrails";
 import {
   HELVETY_FREE_AGPL_FEATURE,
@@ -22,7 +22,11 @@ import { describe, expect, it } from "vitest";
 import { isSoftwareProduct } from "../types/products";
 
 import { productArtwork } from "./product-artwork";
-import { getAllProducts, getProductBySlug } from "./products";
+import {
+  getAllProducts,
+  getFilteredProducts,
+  getProductBySlug,
+} from "./products";
 
 describe("store product catalog", () => {
   it("includes one store listing per shared catalog card", () => {
@@ -51,6 +55,41 @@ describe("store product catalog", () => {
     const ids = getAllProducts().map((p) => p.id);
     expect(ids[0]).toBe("helvety-docs");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
+  });
+
+  it("getFilteredProducts returns catalog-sorted listings filtered by type only", () => {
+    const all = getAllProducts();
+    expect(getFilteredProducts({ type: "all" })).toEqual(all);
+    expect(getFilteredProducts({})).toEqual(all);
+
+    const software = getFilteredProducts({ type: "software" });
+    expect(software.every((product) => product.type === "software")).toBe(true);
+    expect(software.length).toBeGreaterThan(0);
+
+    const saas = getFilteredProducts({ type: "saas" });
+    expect(saas.every((product) => product.type === "saas")).toBe(true);
+    expect(saas.length).toBeGreaterThan(0);
+
+    const softwareIds = software.map((product) => product.id);
+    expect(softwareIds).toEqual(
+      all.filter((product) => product.type === "software").map((p) => p.id)
+    );
+  });
+
+  it("derives metadata.platforms from shared catalog runsOn", () => {
+    expect(
+      getProductBySlug("helvety-spo-explorer")?.metadata?.platforms
+    ).toEqual(["SharePoint Online", "Microsoft 365"]);
+    expect(
+      getProductBySlug("helvety-power-platform-configurator")?.metadata
+        ?.platforms
+    ).toEqual(["Microsoft Edge", "Google Chrome"]);
+    expect(
+      getProductBySlug("helvety-screen-tools")?.metadata?.platforms
+    ).toEqual(["Windows"]);
+    expect(getProductBySlug("helvety-pdf")?.metadata?.platforms).toEqual([
+      "Web",
+    ]);
   });
 
   it("resolves known product slugs", () => {
@@ -335,7 +374,7 @@ describe("store product catalog", () => {
 
     expect(blob).toMatch(/My documents/i);
     expect(blob).toMatch(/title bar sheet/i);
-    for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS) {
+    for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
       expect(blob).not.toContain(term);
     }
   });

@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  getPackageDownloadUrl: vi.fn(),
+  createPackageDownload: vi.fn(),
   getTrustedClientIp: vi.fn(),
   checkRateLimit: vi.fn(),
   loggerWarn: vi.fn(),
 }));
 
-vi.mock("@/app/actions/download-actions", () => ({
-  getPackageDownloadUrl: mocks.getPackageDownloadUrl,
+vi.mock("@/lib/packages/create-package-download", () => ({
+  createPackageDownload: mocks.createPackageDownload,
 }));
 
 vi.mock("@helvety/shared/client-ip", () => ({
@@ -81,12 +81,49 @@ describe("GET /api/packages/[packageId]/download", () => {
       success: false,
       error: "Too many download requests. Wait 42 seconds, then try again.",
     });
+    expect(mocks.createPackageDownload).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when createPackageDownload rejects package id format", async () => {
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: false,
+      error: "Invalid package ID",
+      status: 400,
+    });
+
+    const response = await GET(new Request("https://helvety.com") as never, {
+      params: Promise.resolve({ packageId: "INVALID" }),
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Invalid package ID",
+    });
+  });
+
+  it("returns 500 when signed URL fails origin allowlist", async () => {
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: true,
+      downloadUrl:
+        "https://evil.example/storage/v1/object/sign/packages/x.sppkg",
+    });
+
+    const response = await GET(new Request("https://helvety.com") as never, {
+      params: Promise.resolve({ packageId: "spo-explorer" }),
+    });
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Failed to generate download link",
+    });
   });
 
   it("redirects with no-store cache headers on success", async () => {
-    mocks.getPackageDownloadUrl.mockResolvedValue({
-      success: true,
-      data: { downloadUrl: TRUSTED_DOWNLOAD_URL },
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: true,
+      downloadUrl: TRUSTED_DOWNLOAD_URL,
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -99,9 +136,10 @@ describe("GET /api/packages/[packageId]/download", () => {
   });
 
   it("returns 404 for retired power-platform-configurator package id", async () => {
-    mocks.getPackageDownloadUrl.mockResolvedValue({
-      success: false,
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: false,
       error: "Package not found",
+      status: 404,
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -111,15 +149,16 @@ describe("GET /api/packages/[packageId]/download", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(mocks.getPackageDownloadUrl).toHaveBeenCalledWith(
+    expect(mocks.createPackageDownload).toHaveBeenCalledWith(
       "power-platform-configurator"
     );
   });
 
-  it("returns 404 json for action failures", async () => {
-    mocks.getPackageDownloadUrl.mockResolvedValue({
-      success: false,
+  it("returns 404 json for download failures", async () => {
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: false,
       error: "Package not found",
+      status: 404,
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {

@@ -19,27 +19,11 @@ import { notFound } from "next/navigation";
 import { FeatureList } from "@/components/products/feature-list";
 import { ProductDetailHero } from "@/components/products/product-detail-hero";
 import { getProductBySlug } from "@/lib/data/products";
-import {
-  isSaaSProduct,
-  isSoftwareProduct,
-  type ProductDescriptionSection,
-} from "@/lib/types/products";
+import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
   slug: string;
-}
-
-/**
- * Builds a stable React key from section heading and body or bullet text.
- * @param section About subsection from the product catalog.
- * @returns String suitable as a React `key`.
- */
-function aboutSectionKey(section: ProductDescriptionSection): string {
-  if (section.kind === "paragraph") {
-    return `${section.heading}:p:${section.body}`;
-  }
-  return `${section.heading}:ul:${section.items.join("\u001e")}`;
 }
 
 /** Renders the full product detail page with access details and features. */
@@ -102,7 +86,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 {product.description.intro}
               </p>
               {product.description.sections?.map((section) => (
-                <div key={aboutSectionKey(section)}>
+                <div key={section.heading}>
                   <h3 className="text-foreground mb-2 text-base font-semibold tracking-tight">
                     {section.heading}
                   </h3>
@@ -165,12 +149,14 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                     </a>
                   </Button>
                 )}
-                {showDownload && packageDownloadUrl && downloadFormat && (
+                {showDownload && (
                   <Button
                     type="button"
                     className="w-full"
                     onClick={() => {
-                      window.location.assign(packageDownloadUrl);
+                      if (packageDownloadUrl) {
+                        window.location.assign(packageDownloadUrl);
+                      }
                     }}
                   >
                     <Download className="size-4 shrink-0" />

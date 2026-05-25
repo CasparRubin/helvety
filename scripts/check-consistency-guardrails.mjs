@@ -74,7 +74,7 @@ const filesToCheck = [
   "apps/auth/lib/login-email-bootstrap.ts",
   "apps/auth/app/actions/otp-actions.ts",
   "apps/store/lib/rate-limit.ts",
-  "apps/store/app/actions/download-actions.ts",
+  "apps/store/lib/packages/create-package-download.ts",
   "apps/store/app/actions/account-actions.ts",
   "apps/tasks/app/actions/entity-actions.ts",
   "apps/links/app/actions/entity-actions.ts",
@@ -148,26 +148,26 @@ async function main() {
   );
   if (
     storeRateLimit &&
-    !/Signed download URL generation:\s*10 per minute per IP/.test(
+    !/Public package download requests:\s*2 per minute per IP/.test(
       storeRateLimit.content
     )
   ) {
     throw new Error(
-      "apps/store/lib/rate-limit.ts must document DOWNLOAD_URL as per IP to match implementation."
+      "apps/store/lib/rate-limit.ts must document DOWNLOADS as per IP to match implementation."
     );
   }
 
-  const downloadActions = contents.find((item) =>
-    item.relativePath.endsWith("apps/store/app/actions/download-actions.ts")
+  const packageDownload = contents.find((item) =>
+    item.relativePath.endsWith(
+      "apps/store/lib/packages/create-package-download.ts"
+    )
   );
   if (
-    downloadActions &&
-    !/`download_url:ip:\$\{clientIp\}`|buildDownloadUrlRateLimitKey\(clientIp\)/.test(
-      downloadActions.content
-    )
+    packageDownload &&
+    !/Caller must enforce IP rate limits/.test(packageDownload.content)
   ) {
     throw new Error(
-      "apps/store/app/actions/download-actions.ts must enforce DOWNLOAD_URL throttling with an IP-scoped key."
+      "apps/store/lib/packages/create-package-download.ts must document that the route enforces IP rate limits before signing."
     );
   }
 

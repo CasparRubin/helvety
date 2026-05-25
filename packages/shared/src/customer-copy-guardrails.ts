@@ -23,10 +23,6 @@ export const CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS = [
   "auto-opened on load",
 ] as const;
 
-/** @deprecated Prefer {@link CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS}. */
-export const CUSTOMER_COPY_FORBIDDEN_DOCS_VAULT_TERMS =
-  CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS;
-
 /** Repo-relative paths scanned for {@link CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS}. */
 export const CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS = [
   "apps/docs/README.md",
@@ -120,8 +116,3 @@ export const CUSTOMER_COPY_USER_FACING_APP_IDS = [
 
 /** Minimum chars shared between catalog card blurb and Store About intro (see store products.test). */
 export const CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX = 60;
-
-/** Returns true when `text` includes the U+2014 em-dash character. */
-export function customerCopyContainsEmDash(text: string): boolean {
-  return text.includes(CUSTOMER_COPY_EM_DASH);
-}

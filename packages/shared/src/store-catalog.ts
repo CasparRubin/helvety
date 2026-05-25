@@ -34,7 +34,8 @@ export interface StoreProductCard {
   category: StoreProductCategory;
   /**
    * Short label for where the product runs (catalog metadata).
-   * Keep in sync with Store `metadata.platforms` intent; not rendered on Store cards today.
+   * Store maps this to `metadata.platforms` in `apps/store/lib/data/products.ts`
+   * via `platformsFromRunsOn`; not shown on product cards today.
    */
   runsOn: string;
   /** True when the product has a free tier with no paywalled feature gates. */
@@ -235,8 +236,13 @@ export function compareStoreCatalogEntriesNewestFirst(
 ): number {
   const cmp = b.releaseDate.localeCompare(a.releaseDate);
   if (cmp !== 0) return cmp;
-  const pa = PRODUCT_RELEASE_TIE_PRIORITY[a.id] ?? 0;
-  const pb = PRODUCT_RELEASE_TIE_PRIORITY[b.id] ?? 0;
+  const pa = PRODUCT_RELEASE_TIE_PRIORITY[a.id];
+  const pb = PRODUCT_RELEASE_TIE_PRIORITY[b.id];
+  if (pa === undefined || pb === undefined) {
+    throw new Error(
+      `Missing PRODUCT_RELEASE_TIE_PRIORITY for ${a.id} or ${b.id}`
+    );
+  }
   return pb - pa;
 }
 

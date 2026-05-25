@@ -35,8 +35,11 @@ export const LINKS_APP_DESCRIPTION = `Encrypted bookmarks with nested folders. N
 /** Shared docs SEO / social copy. */
 export const DOCS_APP_DESCRIPTION = `Edit Word documents in your browser. Local editing needs no account; optional vault save encrypts titles and .docx files on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
-/** Store products listing metadata. */
-export const STORE_PRODUCTS_PAGE_DESCRIPTION = `Browse free Helvety products, apps, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
+/** Store products listing metadata (products wording vs {@link STORE_DESCRIPTION} apps). */
+export const STORE_PRODUCTS_PAGE_DESCRIPTION = STORE_DESCRIPTION.replace(
+  "apps,",
+  "products,"
+);
 
 /** Shared PDF SEO / social copy. */
 export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages in the tab; add images where supported. Work stays local (${PDF_FILE_SIZE_LIMIT_COPY}). Fair-use safeguards still apply, and no Helvety subscription gates the tools. ${HELVETY_SWISS_ORIGIN_SEO}`;

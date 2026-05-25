@@ -28,14 +28,12 @@ export function ProductsCatalog() {
 
   const counts = useMemo(() => {
     let software = 0;
-    let physical = 0;
     let saas = 0;
     for (const p of allProducts) {
       if (p.type === "software") software++;
-      else if (p.type === "physical") physical++;
       else if (p.type === "saas") saas++;
     }
-    return { all: allProducts.length, software, physical, saas };
+    return { all: allProducts.length, software, saas };
   }, [allProducts]);
 
   const filteredProducts = useMemo(() => {

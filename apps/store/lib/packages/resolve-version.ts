@@ -29,7 +29,7 @@ function getNewestTimestamp(item: StorageListItem): number {
  * Result of resolving the latest package file from storage.
  */
 interface ResolvedPackageVersion {
-  /** Version string for display (currently from package config). */
+  /** Display version from package config (not parsed from storage filenames). */
   version: string;
   /** Full object path in the `packages` bucket (e.g. SPFx `.sppkg` under `spfx/`). */
   storagePath: string;

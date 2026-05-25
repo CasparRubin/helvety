@@ -4,7 +4,6 @@ import {
   AUTH_NAVBAR_ABOUT,
   CONTACTS_NAVBAR_ABOUT,
   E2EE_NAVBAR_ENCRYPTION_TOOLTIP,
-  HELVETY_NAVBAR_SWISS_CLOSING,
   LINKS_NAVBAR_ABOUT,
   NOTES_NAVBAR_ABOUT,
   STORE_NAVBAR_ABOUT,
@@ -15,6 +14,7 @@ import {
   imageUpscalerNavbarAbout,
   pdfNavbarAbout,
 } from "./app-navbar-about";
+import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-helpers";
 
 describe("app-navbar-about", () => {
@@ -45,7 +45,7 @@ describe("app-navbar-about", () => {
       NOTES_NAVBAR_ABOUT,
     ]) {
       expect(text).toMatch(/encrypted on your device before storage/i);
-      expect(text).toContain(HELVETY_NAVBAR_SWISS_CLOSING);
+      expect(text).toContain(HELVETY_SWISS_ORIGIN_SEO);
     }
   });
 

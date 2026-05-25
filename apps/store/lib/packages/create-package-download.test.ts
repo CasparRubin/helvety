@@ -15,8 +15,6 @@ const mocks = vi.hoisted(() => {
     resolveLatestPackageVersion,
     loggerInfo: vi.fn(),
     logUnexpectedError: vi.fn(),
-    getTrustedClientIp: vi.fn(() => "203.0.113.1"),
-    checkRateLimit: vi.fn(() => ({ allowed: true })),
   };
 });
 
@@ -32,28 +30,13 @@ vi.mock("@helvety/shared/logger", () => ({
   },
 }));
 
-vi.mock("@helvety/shared/client-ip", () => ({
-  getTrustedClientIp: mocks.getTrustedClientIp,
-}));
-
-vi.mock("next/headers", () => ({
-  headers: vi.fn(() => new Headers()),
-}));
-
-vi.mock("@/lib/rate-limit", () => ({
-  checkRateLimit: mocks.checkRateLimit,
-  RATE_LIMITS: {
-    DOWNLOAD_URL: { maxRequests: 10, windowMs: 60_000 },
-  },
-}));
-
 vi.mock("@/lib/packages/resolve-version", () => ({
   resolveLatestPackageVersion: mocks.resolveLatestPackageVersion,
 }));
 
-import { getPackageDownloadUrl } from "./download-actions";
+import { createPackageDownload } from "./create-package-download";
 
-describe("store download-actions", () => {
+describe("createPackageDownload", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.resolveLatestPackageVersion.mockResolvedValue({
@@ -67,14 +50,22 @@ describe("store download-actions", () => {
   });
 
   it("rejects invalid package IDs", async () => {
-    const result = await getPackageDownloadUrl("NOT_VALID");
-    expect(result).toEqual({ success: false, error: "Invalid package ID" });
+    const result = await createPackageDownload("NOT_VALID");
+    expect(result).toEqual({
+      ok: false,
+      error: "Invalid package ID",
+      status: 400,
+    });
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
   it("returns not found for unknown package IDs", async () => {
-    const result = await getPackageDownloadUrl("unknown-package");
-    expect(result).toEqual({ success: false, error: "Package not found" });
+    const result = await createPackageDownload("unknown-package");
+    expect(result).toEqual({
+      ok: false,
+      error: "Package not found",
+      status: 404,
+    });
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
@@ -87,25 +78,21 @@ describe("store download-actions", () => {
     ] as const;
 
     for (const packageId of retiredPackageIds) {
-      expect(await getPackageDownloadUrl(packageId)).toEqual({
-        success: false,
+      expect(await createPackageDownload(packageId)).toEqual({
+        ok: false,
         error: "Package not found",
+        status: 404,
       });
     }
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
   it("creates a signed URL for public packages", async () => {
-    const result = await getPackageDownloadUrl("spo-explorer");
+    const result = await createPackageDownload("spo-explorer");
 
-    expect(result.success).toBe(true);
-    if (!result.success) {
-      throw new Error("Expected successful download URL response");
-    }
-    expect(result.data).toEqual({
+    expect(result).toEqual({
+      ok: true,
       downloadUrl: "https://download.example/signed",
-      filename: "helvety-spo-explorer.sppkg",
-      version: "1.0.2.0",
     });
     expect(mocks.from).toHaveBeenCalledWith("packages");
     expect(mocks.createSignedUrl).toHaveBeenCalledWith(
@@ -115,43 +102,15 @@ describe("store download-actions", () => {
     );
   });
 
-  it("falls back to configured filename path when resolver returns null", async () => {
+  it("returns not found when resolver returns null", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue(null);
 
-    const result = await getPackageDownloadUrl("spo-explorer");
-
-    expect(result.success).toBe(true);
-    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg",
-      60,
-      { download: "helvety-spo-explorer.sppkg" }
-    );
-  });
-
-  it("rejects when client IP is unresolvable", async () => {
-    mocks.getTrustedClientIp.mockReturnValueOnce(null as unknown as string);
-
-    const result = await getPackageDownloadUrl("spo-explorer");
+    const result = await createPackageDownload("spo-explorer");
 
     expect(result).toEqual({
-      success: false,
-      error: "Unable to process request",
-    });
-    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
-    expect(mocks.adminClientFactory).not.toHaveBeenCalled();
-  });
-
-  it("rejects when rate limit is exceeded", async () => {
-    mocks.checkRateLimit.mockReturnValueOnce({
-      allowed: false,
-      retryAfter: 42,
-    } as unknown as { allowed: boolean });
-
-    const result = await getPackageDownloadUrl("spo-explorer");
-
-    expect(result).toEqual({
-      success: false,
-      error: "Too many requests. Wait 42 seconds, then try again.",
+      ok: false,
+      error: "Package not found",
+      status: 404,
     });
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
@@ -162,11 +121,12 @@ describe("store download-actions", () => {
       error: { message: "boom" },
     });
 
-    const result = await getPackageDownloadUrl("spo-explorer");
+    const result = await createPackageDownload("spo-explorer");
 
     expect(result).toEqual({
-      success: false,
+      ok: false,
       error: "Failed to generate download link",
+      status: 500,
     });
     expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
       "Error generating signed URL",

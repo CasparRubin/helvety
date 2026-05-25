@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { HELVETY_LLMS_LICENSING_NOTE } from "./licensing";
 import {
-  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
+  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE,
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
 } from "./power-platform-configurator-copy";
@@ -121,7 +121,7 @@ describe("store-catalog", () => {
       const text = readFileSync(join(repoRoot, rel), "utf8");
       expect(text).toContain(POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY);
       expect(text).toContain(
-        `Install from the Chrome Web Store: ${POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL}`
+        POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE
       );
       expect(text).toContain("## Licensing");
       expect(text).toContain(HELVETY_LLMS_LICENSING_NOTE);

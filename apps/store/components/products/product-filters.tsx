@@ -18,8 +18,8 @@ import { ChevronDownIcon, Cloud, MonitorCloud, LayoutGrid } from "lucide-react";
 
 import type { ProductType } from "@/lib/types/products";
 
-/** Product type filter including the "all" option. */
-export type FilterType = ProductType | "all";
+/** Product type filter including the "all" option (catalog has no physical products today). */
+export type FilterType = "all" | Extract<ProductType, "saas" | "software">;
 
 /** Props for the ProductFilters component. */
 interface ProductFiltersProps {

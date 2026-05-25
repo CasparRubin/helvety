@@ -3,12 +3,11 @@ import { logger } from "@helvety/shared/logger";
 import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { NextResponse } from "next/server";
 
-import { getPackageDownloadUrl } from "@/app/actions/download-actions";
 import {
   buildPublicDownloadRateLimitKey,
   isAllowedDownloadUrl,
-  packageIdSchema,
 } from "@/lib/download-security";
+import { createPackageDownload } from "@/lib/packages/create-package-download";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { NextRequest } from "next/server";
@@ -53,49 +52,30 @@ export async function GET(
   }
 
   const { packageId } = await context.params;
-  if (!packageIdSchema.safeParse(packageId).success) {
-    return NextResponse.json(
-      { success: false, error: "Invalid package ID" },
-      { status: 400 }
-    );
-  }
-  const result = await getPackageDownloadUrl(packageId);
+  const result = await createPackageDownload(packageId);
 
-  if (!result.success) {
+  if (!result.ok) {
     logger.warn("Public package download failed", {
       packageId,
       error: result.error,
     });
     return NextResponse.json(
-      {
-        success: false,
-        error: result.error ?? "Failed to generate download URL",
-      },
-      { status: 404 }
+      { success: false, error: result.error },
+      { status: result.status }
     );
   }
 
-  if (!result.data) {
-    logger.warn("Public package download failed with empty payload", {
-      packageId,
-    });
-    return NextResponse.json(
-      { success: false, error: "Failed to generate download URL" },
-      { status: 404 }
-    );
-  }
-
-  if (!isAllowedDownloadUrl(result.data.downloadUrl)) {
+  if (!isAllowedDownloadUrl(result.downloadUrl)) {
     logger.warn("Public package download produced disallowed redirect target", {
       packageId,
     });
     return NextResponse.json(
-      { success: false, error: "Failed to generate download URL" },
+      { success: false, error: "Failed to generate download link" },
       { status: 500 }
     );
   }
 
-  return NextResponse.redirect(result.data.downloadUrl, {
+  return NextResponse.redirect(result.downloadUrl, {
     headers: {
       "Cache-Control": "no-store, max-age=0",
     },

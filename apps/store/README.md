@@ -18,11 +18,11 @@ Product catalog app for Helvety products: specs, Store-hosted downloads (for exa
 
 - Download files are served from Supabase Storage bucket `packages`.
 - `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
-- **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no public ZIP in bucket `packages`). Retired `power-automate-*` and `power-platform-configurator` package ids are not served (server actions and the public download route return not-found).
-- If listing fails, resolver falls back to configured filename path.
-- Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
-- The public download route may respond with an HTTP redirect to a signed Supabase Storage URL. Redirect targets are restricted to the project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check. Retired **package/download** ids return not-found from server actions and the public download route; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs (see Key Features above).
-- Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.
+- **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no public ZIP in bucket `packages`). Retired `power-automate-*` and `power-platform-configurator` package ids are not served (`lib/packages/create-package-download.ts` and the public download route return not-found).
+- If storage listing fails, the download route returns not-found (no silent filename fallback).
+- Public package downloads use `lib/download-security.ts` (`buildPublicDownloadRateLimitKey`, `packageIdSchema`, `isAllowedDownloadUrl`) and `lib/packages/create-package-download.ts` for signing.
+- The public download route responds with an HTTP redirect to a signed Supabase Storage URL. Redirect targets are restricted to the project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check. Retired **package/download** ids return not-found; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs (see Key Features above).
+- Downloads are IP-rate-limited (2/min per IP on the route) and fail closed when trusted client IP is unavailable in production.
 
 ## Adding a New Product
 
@@ -110,7 +110,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), and opaque product-detail panels.
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), and opaque product-detail panels.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

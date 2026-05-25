@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-  buildDownloadUrlRateLimitKey,
   buildPublicDownloadRateLimitKey,
   isAllowedDownloadUrl,
   packageIdSchema,
@@ -26,10 +25,7 @@ describe("download-security", () => {
     ).toBe(true);
   });
 
-  it("builds stable rate-limit keys", () => {
-    expect(buildDownloadUrlRateLimitKey("203.0.113.7")).toBe(
-      "download_url:ip:203.0.113.7"
-    );
+  it("builds stable public download rate-limit keys", () => {
     expect(buildPublicDownloadRateLimitKey("203.0.113.7")).toBe(
       "public-download:ip:203.0.113.7"
     );

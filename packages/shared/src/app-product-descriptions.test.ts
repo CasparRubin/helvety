@@ -4,13 +4,19 @@ import {
   AUTH_DESCRIPTION,
   AUTH_PWA_MANIFEST_DESCRIPTION,
   CONTACTS_APP_DESCRIPTION,
+  DOCS_APP_DESCRIPTION,
+  IMAGE_UPSCALER_APP_DESCRIPTION,
+  IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION,
   LINKS_APP_DESCRIPTION,
   NOTES_APP_DESCRIPTION,
+  PDF_APP_DESCRIPTION,
+  PDF_PWA_MANIFEST_DESCRIPTION,
   STORE_DESCRIPTION,
   STORE_PRODUCTS_PAGE_DESCRIPTION,
   TASKS_APP_DESCRIPTION,
   WEB_SITE_DESCRIPTION,
 } from "./app-product-descriptions";
+import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import {
   assertLicenseFreeSeoCopy,
   assertNoEmDashInCustomerCopy,
@@ -27,6 +33,14 @@ const DESCRIPTIONS = [
   ["LINKS_APP_DESCRIPTION", LINKS_APP_DESCRIPTION],
   ["NOTES_APP_DESCRIPTION", NOTES_APP_DESCRIPTION],
   ["TASKS_APP_DESCRIPTION", TASKS_APP_DESCRIPTION],
+  ["DOCS_APP_DESCRIPTION", DOCS_APP_DESCRIPTION],
+  ["PDF_APP_DESCRIPTION", PDF_APP_DESCRIPTION],
+  ["PDF_PWA_MANIFEST_DESCRIPTION", PDF_PWA_MANIFEST_DESCRIPTION],
+  ["IMAGE_UPSCALER_APP_DESCRIPTION", IMAGE_UPSCALER_APP_DESCRIPTION],
+  [
+    "IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION",
+    IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION,
+  ],
 ] as const;
 
 describe("app-product-descriptions", () => {
@@ -52,6 +66,11 @@ describe("app-product-descriptions", () => {
     ] as const) {
       assertSwissOriginInSeoCopy(label, text);
     }
+  });
+
+  it("derives products listing description from store description", () => {
+    expect(STORE_PRODUCTS_PAGE_DESCRIPTION).toContain("products");
+    expect(STORE_PRODUCTS_PAGE_DESCRIPTION).toContain(HELVETY_SWISS_ORIGIN_SEO);
   });
 
   it("Links SEO copy uses storage wording for encryption", () => {

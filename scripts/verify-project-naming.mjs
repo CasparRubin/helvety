@@ -2,13 +2,19 @@
  * Fail the build if superseded Power Automate extension name strings appear outside
  * an explicit allowlist (Store redirects, redirect tests, ops README).
  *
- * Patterns mirror `power-platform-configurator-browser-extension-chromium/scripts/verify-project-naming.mjs`.
+ * Forbidden patterns and allowlist paths are imported from
+ * `packages/shared/src/retired-power-platform-extension-naming.ts`.
  *
  * Run: `bun run consistency:project-naming`
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import {
+  RETIRED_EXTENSION_NAME_ALLOWLIST_PATHS,
+  RETIRED_HELVETY_EXTENSION_NAME_PATTERNS,
+} from "../packages/shared/src/retired-power-platform-extension-naming.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const skipDirNames = new Set([
@@ -20,50 +26,8 @@ const skipDirNames = new Set([
   "coverage",
 ]);
 
-/** Paths that may contain retired slugs only for negative tests or contributor docs. */
-const allowlistPaths = new Set([
-  "scripts/verify-project-naming.mjs",
-  "docs/naming-conventions.md",
-  "packages/shared/src/retired-power-platform-extension-naming.ts",
-  "apps/store/app/actions/download-actions.test.ts",
-  "apps/store/lib/packages/config.test.ts",
-]);
-
-/**
- * Keep in sync with `packages/shared/src/retired-power-platform-extension-naming.ts`.
- * @type {{ label: string; re: RegExp }[]}
- */
-const forbidden = [
-  { label: "legacy store slug editor-preference", re: /editor-preference/i },
-  {
-    label: "legacy repo slug power-automate-v3-false",
-    re: /power-automate-v3-false/i,
-  },
-  {
-    label: "legacy repo slug power_automate_v3_false",
-    re: /power_automate_v3_false/i,
-  },
-  {
-    label: "legacy package name power-automate-v3-enforcer",
-    re: /power-automate-v3-enforcer/i,
-  },
-  {
-    label: 'legacy display title "Power Automate v3 enforcer"',
-    re: /Power Automate v3 enforcer/i,
-  },
-  {
-    label: "retired repo slug power-automate-editor-version-enforcer",
-    re: /power-automate-editor-version-enforcer/i,
-  },
-  {
-    label: 'retired display title "Power Automate Editor Version Enforcer"',
-    re: /Power Automate Editor Version Enforcer/i,
-  },
-  {
-    label: "retired copy module power-automate-editor-enforcer-copy",
-    re: /power-automate-editor-enforcer-copy/i,
-  },
-];
+const allowlistPaths = new Set(RETIRED_EXTENSION_NAME_ALLOWLIST_PATHS);
+const forbidden = RETIRED_HELVETY_EXTENSION_NAME_PATTERNS;
 
 const scanExtensions = new Set([
   ".ts",

@@ -11,12 +11,7 @@ export const packageIdSchema = z
     "Package ID must be lowercase alphanumeric with hyphens"
   );
 
-/** Shared IP-scoped key for public download-url generation throttling. */
-export function buildDownloadUrlRateLimitKey(clientIp: string): string {
-  return `download_url:ip:${clientIp}`;
-}
-
-/** Shared IP-scoped key for public download endpoint throttling. */
+/** Shared IP-scoped key for public package download throttling. */
 export function buildPublicDownloadRateLimitKey(clientIp: string): string {
   return `public-download:ip:${clientIp}`;
 }

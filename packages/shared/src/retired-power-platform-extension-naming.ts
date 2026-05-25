@@ -12,7 +12,7 @@ export type RetiredExtensionNamePattern = {
   readonly re: RegExp;
 };
 
-/** Keep in sync with `scripts/verify-project-naming.mjs` `forbidden` list. */
+/** Canonical forbidden patterns; imported by `scripts/verify-project-naming.mjs`. */
 export const RETIRED_HELVETY_EXTENSION_NAME_PATTERNS: readonly RetiredExtensionNamePattern[] =
   [
     {
@@ -54,6 +54,6 @@ export const RETIRED_EXTENSION_NAME_ALLOWLIST_PATHS = [
   "scripts/verify-project-naming.mjs",
   "docs/naming-conventions.md",
   "packages/shared/src/retired-power-platform-extension-naming.ts",
-  "apps/store/app/actions/download-actions.test.ts",
+  "apps/store/lib/packages/create-package-download.test.ts",
   "apps/store/lib/packages/config.test.ts",
 ] as const;
