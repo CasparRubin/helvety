@@ -1,3 +1,4 @@
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { createAuthSuccessContext } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -71,7 +72,9 @@ function createSupabaseMock() {
     if (table === "notes") {
       return {
         select: (selectArg: string) =>
-          selectArg === "*" ? noteListSelect() : noteSelectForLink(),
+          selectArg === ENCRYPTED_PREFETCH_COLUMNS.notes
+            ? noteListSelect()
+            : noteSelectForLink(),
       };
     }
     if (table === "items") {

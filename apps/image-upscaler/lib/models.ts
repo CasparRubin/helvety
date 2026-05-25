@@ -1,3 +1,5 @@
+import { getSupabaseUrl } from "@helvety/shared/env-validation";
+
 /**
  * Registry of available upscale engines.
  *
@@ -10,9 +12,8 @@
  * The ONNX engine is hosted in a public Supabase Storage bucket
  * ({@link UPSCALE_MODEL_BUCKET}) and downloaded lazily on first use, then
  * cached in the browser via the Cache API. URLs are derived from
- * `NEXT_PUBLIC_SUPABASE_URL` at build time so each environment (local,
- * staging, production) automatically resolves against its own Supabase
- * project.
+ * {@link getSupabaseUrl} so each environment (local, staging, production)
+ * automatically resolves against its own Supabase project.
  */
 
 /** Identifier for one of the registered upscale engines. */
@@ -145,16 +146,16 @@ export const UPSCALE_MODEL_BUCKET = "image-upscaler-models";
  * Resolves the public Storage URL for an asset stored in
  * {@link UPSCALE_MODEL_BUCKET}, based on the configured Supabase project.
  *
- * Falls back to a deterministic placeholder when `NEXT_PUBLIC_SUPABASE_URL`
- * is not set (currently only happens inside Vitest where the variable is
- * intentionally not stubbed). Production builds always have it set because
- * env-validation in `@helvety/shared` requires it.
+ * Falls back to a deterministic placeholder when env validation is unavailable
+ * (e.g. Vitest without stubbed public Supabase vars).
  */
 function resolveModelAssetUrl(filename: string): string {
-  const supabaseUrl =
-    typeof process !== "undefined"
-      ? (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
-      : "";
+  let supabaseUrl = "";
+  try {
+    supabaseUrl = getSupabaseUrl();
+  } catch {
+    supabaseUrl = "";
+  }
   const base = supabaseUrl
     ? supabaseUrl.replace(/\/+$/, "")
     : "https://supabase-not-configured.invalid";

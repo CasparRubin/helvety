@@ -1,5 +1,6 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR } from "@helvety/shared/dashboard-prefetch";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { GENERIC_USER_ERROR } from "@helvety/shared/user-facing-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,17 +23,13 @@ import { getLinksDashboardData } from "./batch-actions";
 
 import type { LinkFolderRow, LinkRow } from "@/lib/types";
 
-/**
- *
- */
+/** Supabase list query result shape used by links dashboard mocks. */
 type DashboardQueryResult<T> = {
   data: T[] | null;
   error: { message: string; code?: string } | null;
 };
 
-/**
- *
- */
+/** Minimal `link_folders` row for dashboard batch tests. */
 function makeFolderRow(
   overrides: Partial<LinkFolderRow> & Pick<LinkFolderRow, "id">
 ): LinkFolderRow {
@@ -47,9 +44,7 @@ function makeFolderRow(
   };
 }
 
-/**
- *
- */
+/** Minimal `links` row for dashboard batch tests. */
 function makeLinkRow(
   overrides: Partial<LinkRow> & Pick<LinkRow, "id">
 ): LinkRow {
@@ -65,17 +60,18 @@ function makeLinkRow(
   };
 }
 
-/**
- *
- */
+/** Supabase mock for parallel folder + link dashboard prefetch queries. */
 function createLinksDashboardSupabaseMock(
   foldersResult: DashboardQueryResult<LinkFolderRow>,
   linksResult: DashboardQueryResult<LinkRow>
 ) {
+  const folderSelect = vi.fn();
+  const linkSelect = vi.fn();
   const makeQuery = (
-    result: DashboardQueryResult<LinkFolderRow | LinkRow>
-  ) => ({
-    select: () => ({
+    result: DashboardQueryResult<LinkFolderRow | LinkRow>,
+    selectSpy: ReturnType<typeof vi.fn>
+  ) => {
+    selectSpy.mockImplementation(() => ({
       eq: () => ({
         order: () => ({
           order: () => ({
@@ -85,19 +81,25 @@ function createLinksDashboardSupabaseMock(
           }),
         }),
       }),
-    }),
-  });
+    }));
+    return selectSpy;
+  };
+
+  makeQuery(foldersResult, folderSelect);
+  makeQuery(linksResult, linkSelect);
 
   return {
     from: (table: string) => {
       if (table === "link_folders") {
-        return makeQuery(foldersResult);
+        return { select: folderSelect };
       }
       if (table === "links") {
-        return makeQuery(linksResult);
+        return { select: linkSelect };
       }
       throw new Error(`Unexpected table ${table}`);
     },
+    folderSelect,
+    linkSelect,
   };
 }
 
@@ -138,6 +140,30 @@ describe("links batch-actions", () => {
     expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
       "Error in getLinksDashboardData (folders)",
       dbError
+    );
+  });
+
+  it("uses explicit prefetch columns for folders and links", async () => {
+    const folders = [
+      makeFolderRow({ id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" }),
+    ];
+    const links = [makeLinkRow({ id: "b2c3d4e5-f6a7-8901-bcde-f12345678901" })];
+    const supabase = createLinksDashboardSupabaseMock(
+      { data: folders, error: null },
+      { data: links, error: null }
+    );
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    await getLinksDashboardData();
+
+    expect(supabase.folderSelect).toHaveBeenCalledWith(
+      ENCRYPTED_PREFETCH_COLUMNS.link_folders
+    );
+    expect(supabase.linkSelect).toHaveBeenCalledWith(
+      ENCRYPTED_PREFETCH_COLUMNS.links
     );
   });
 

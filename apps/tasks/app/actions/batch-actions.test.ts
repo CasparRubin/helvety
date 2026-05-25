@@ -1,5 +1,6 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR } from "@helvety/shared/dashboard-prefetch";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createDashboardListSupabaseMock,
   createRejectingDashboardListSupabaseMock,
@@ -105,9 +106,10 @@ describe("tasks batch-actions", () => {
       .mockImplementationOnce(() => query);
     query.limit = vi.fn(() => query);
     query.overrideTypes = overrideTypes;
+    const select = vi.fn(() => query);
     const supabase = {
       from: vi.fn(() => ({
-        select: vi.fn(() => query),
+        select,
       })),
     };
     mocks.authenticateAndRateLimit.mockResolvedValue({
@@ -117,6 +119,7 @@ describe("tasks batch-actions", () => {
 
     await getFlatItemsDashboardData();
 
+    expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.items);
     expect(supabase.from).toHaveBeenCalledWith("items");
     expect(query.eq).toHaveBeenCalledWith("user_id", "user-1");
     expect(query.order).toHaveBeenNthCalledWith(1, "sort_order", {

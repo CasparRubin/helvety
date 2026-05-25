@@ -1,5 +1,7 @@
 "use server";
 
+import "server-only";
+
 import { getValidDeviceTrustCookie } from "./device-trust-cookie";
 
 import type { ActionResponse } from "@helvety/shared/types/entities";

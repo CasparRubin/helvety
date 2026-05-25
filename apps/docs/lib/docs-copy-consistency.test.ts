@@ -102,11 +102,9 @@ describe("docs copy consistency", () => {
 
     expect(readme).toMatch(/authenticated user[\s\S]*Supabase client/i);
     expect(readme).toMatch(/does \*\*not\*\* use `createAdminClient\(\)`/i);
-    expect(readme).toMatch(
-      /20260524120000_harden_docs_and_revoke_anon_grants\.sql/
-    );
-    expect(readme).toContain("20260523230000_docs_rls_auth_uid_subselect.sql");
-    expect(readme).toMatch(/superseded/i);
+    expect(readme).toMatch(/hosted \*\*helvety\*\* Supabase project/i);
+    expect(readme).toMatch(/getSupabase\.sql/);
+    expect(readme).not.toMatch(/supabase\/migrations\//);
     expect(readme).not.toMatch(/admin client for vault/i);
     expect(readme).not.toMatch(/production already has these via MCP/i);
   });

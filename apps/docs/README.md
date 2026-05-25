@@ -54,8 +54,8 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 - Local editing does not upload document bytes to Helvety for editing.
 - Vault fields use client-side encryption with the same passkey-derived master key pattern as Tasks, Contacts, Notes, and Links; this is **not** a full-app E2EE product (local mode works without login).
 - Vault Postgres access uses the **authenticated user** Supabase client in server actions and `/api/docs` routes (`getUser()` + forced RLS on `public.docs`). The app does **not** use `createAdminClient()` for vault CRUD. Database policies require `(select auth.uid()) = user_id`; table privileges are granted to `authenticated` only (not `anon`).
-- `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
-- Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary. Vault list/detail GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, explicit column selects on `public.docs`).
+- `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). The profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
+- Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary. Vault list/detail GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS.docs`).
 - Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Theme (light / dark)
@@ -106,11 +106,4 @@ Separate project **`helvety-docs`** with Root Directory **`apps/docs`** (same pa
 
 ## Database
 
-On the hosted **helvety** Supabase project, both docs vault migrations are applied (May 2026). For other environments, apply in order:
-
-1. [`supabase/migrations/20260523120000_create_docs_table.sql`](../../supabase/migrations/20260523120000_create_docs_table.sql): table, forced RLS, grants to `authenticated`/`service_role`, policies on `authenticated`
-2. [`supabase/migrations/20260524120000_harden_docs_and_revoke_anon_grants.sql`](../../supabase/migrations/20260524120000_harden_docs_and_revoke_anon_grants.sql): required if step 1 ran before grants existed; also revokes `anon` on legacy E2EE tables
-
-Greenfield installs that only run step 1 get the hardened shape when using the current repo file. [`20260523230000_docs_rls_auth_uid_subselect.sql`](../../supabase/migrations/20260523230000_docs_rls_auth_uid_subselect.sql) is superseded (do not apply).
-
-Then refresh local schema exports with `supabase/getSupabase.sql` (never commit `supabase.json`). CI checks types + migration SQL via `bun run consistency:supabase-schema`.
+Schema and RLS for `public.docs` (and all user-data tables) are managed on the hosted **helvety** Supabase project, not via SQL files in this repo. To audit production shape locally, run [`supabase/getSupabase.sql`](../../supabase/getSupabase.sql) in the SQL editor and save the JSON as `supabase/supabase.json` (gitignored; never commit). Regenerate shared types after schema changes (`bun run db:gen-types`). CI checks expected tables in `packages/shared/src/types/database.types.ts` via `bun run consistency:supabase-schema`.

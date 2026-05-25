@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   fetchOwnedEncryptedExport,
   logEncryptedExportRequested,
@@ -167,6 +168,7 @@ export async function getAllTaskDataForExport(): Promise<
       supabase,
       userId: user.id,
       tableName: "items",
+      selectColumns: ENCRYPTED_PREFETCH_COLUMNS.items,
       logScope: "Error fetching task data for export",
       loadErrorMessage: "Failed to load task data",
     });

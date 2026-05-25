@@ -12,15 +12,13 @@ const FAIL_CLOSED_PROXY_APPS = [
   "contacts",
   "notes",
   "links",
-] as const;
-
-const OPEN_REFRESH_PROXY_APPS = [
-  "web",
   "store",
   "docs",
   "pdf",
   "image-upscaler",
 ] as const;
+
+const OPEN_REFRESH_PROXY_APPS = ["web"] as const;
 
 /** Reads `apps/<app>/proxy.ts` for static wiring assertions. */
 function readProxySource(app: string): string {

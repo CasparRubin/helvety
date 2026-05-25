@@ -90,7 +90,7 @@ vi.mock("@helvety/shared/logger", () => ({
 
 ### Server actions (`app/actions/*-actions.ts`)
 
-One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/contacts/app/actions/contact-actions.test.ts` and helpers from `@helvety/shared/test-utils/action-test-helpers`.
+One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/contacts/app/actions/contact-actions.test.ts` and helpers from `@helvety/shared/test-utils/action-test-helpers`. For Supabase list/export reads, assert explicit `.select(...)` column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS`, or `ENTITY_LINK_COLUMNS`) rather than `*`. Examples: `apps/tasks/app/actions/entity-actions.test.ts`, `apps/contacts/app/api/contacts/route.test.ts`, `apps/links/app/actions/batch-actions.test.ts`.
 
 ### Primary data hooks (E2EE + docs)
 
@@ -101,11 +101,12 @@ Docs uses a custom `useDocs` hook (mock `fetch` + `getDocsApiPath` instead of `u
 
 ### Components
 
-| Type                   | E2EE reference                                      | Cases                                                                          |
-| ---------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
-| List                   | `apps/contacts/components/contact-list.test.tsx`    | Refresh visibility, grouped empty, global empty guard, search empty, flat list |
-| Editor command bar     | `apps/tasks/components/item-command-bar.test.tsx`   | Back, Save, Refresh, Delete accessible names                                   |
-| Cross-app links panels | `apps/notes/components/contact-links-panel.test.ts` | `buildE2eeDeepLink` contract only                                              |
+| Type                   | E2EE reference                                        | Cases                                                                          |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------ |
+| List                   | `apps/contacts/components/contact-list.test.tsx`      | Refresh visibility, grouped empty, global empty guard, search empty, flat list |
+| Editor command bar     | `apps/tasks/components/item-command-bar.test.tsx`     | Back, Save, Refresh, Delete accessible names                                   |
+| Cross-app links panels | `apps/notes/components/contact-links-panel.test.ts`   | `buildE2eeDeepLink` contract only                                              |
+| Contact picker columns | `apps/tasks/app/actions/contact-link-actions.test.ts` | `CONTACT_LINK_PICKER_COLUMNS` on `getContacts`                                 |
 
 Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`).
 
@@ -138,7 +139,7 @@ Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`)
 
 Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config = { matcher: [...] }` (Next.js requirement). `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
-**Fail-closed auth refresh:** `auth-gateway` and `e2ee-app` profiles clear stale `sb-*` cookies when Supabase session refresh fails (`failClosedOnAuthRefresh` on `createAppProxy` / `createProfiledSecurityProxy`). E2EE zone `proxy.ts` files also set `failClosedOnAuthRefresh: true` explicitly; wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
+**Fail-closed auth refresh:** All session-bearing profiles (`auth-gateway`, `e2ee-app`, `store-gateway`, `public-tool`) clear stale `sb-*` cookies when Supabase session refresh fails (`FAIL_CLOSED_AUTH_REFRESH_PROFILES` in `@helvety/shared/proxy` plus `failClosedOnAuthRefresh: true` on `createAppProxy` for root redirects). **`public-marketing`** (`web`) omits fail-closed. Wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
 
 ## Root layout shell
 

@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createCanonicalLink,
   deleteCanonicalLink,
@@ -49,7 +50,7 @@ export async function getNotes(): Promise<ActionResponse<NoteRow[]>> {
 
     const { data: notes, error } = await supabase
       .from("notes")
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.notes)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })

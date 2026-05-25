@@ -34,11 +34,6 @@ import { useNoteLinks } from "@/hooks/use-note-links";
 
 import type { LinkedNote, PickerNote } from "@/hooks/use-note-links";
 
-/** @deprecated Import from `@helvety/shared/e2ee-deep-link` */
-export function getNoteDeepLink(noteId: string): string {
-  return buildE2eeDeepLink("notes", noteId);
-}
-
 function NoteRow({
   title,
   href,
@@ -248,7 +243,7 @@ export function NoteLinksPanel({
               <NoteRow
                 key={note.link_id}
                 title={note.title}
-                href={getNoteDeepLink(note.id)}
+                href={buildE2eeDeepLink("notes", note.id)}
                 onUnlink={() =>
                   setUnlinkTarget({ linkId: note.link_id, title: note.title })
                 }

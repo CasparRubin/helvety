@@ -22,6 +22,34 @@ import { validatePostcssZoneApps } from "./postcss-app-expectations.mjs";
 const rootDir = process.cwd();
 const appsDir = resolve(rootDir, "apps");
 
+/** Recursively lists `.ts` files under an app `app/actions` directory. */
+async function collectActionFiles(actionsDir) {
+  const files = [];
+  async function walk(dir) {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch (error) {
+      if (error && typeof error === "object" && error.code === "ENOENT") {
+        return;
+      }
+      throw error;
+    }
+    for (const entry of entries) {
+      const fullPath = resolve(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+        continue;
+      }
+      if (entry.isFile() && entry.name.endsWith(".ts")) {
+        files.push(fullPath);
+      }
+    }
+  }
+  await walk(actionsDir);
+  return files;
+}
+
 async function listTsxFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
@@ -620,6 +648,23 @@ async function main() {
       throw new Error(
         `apps/${appName}/lib/env.ts must document SKIP_ENV_VALIDATION / ci:release (match other validated env zones).`
       );
+    }
+  }
+
+  for (const entry of appDirectories.filter((item) => item.isDirectory())) {
+    const actionsDir = resolve(appsDir, entry.name, "app/actions");
+    const actionFiles = await collectActionFiles(actionsDir);
+    for (const actionPath of actionFiles) {
+      const relativePath = actionPath.replace(`${rootDir}/`, "");
+      const source = await readFile(actionPath, "utf8");
+      if (
+        /["']use server["']/.test(source) &&
+        !/import\s+["']server-only["']/.test(source)
+      ) {
+        throw new Error(
+          `${relativePath} must import "server-only" when using "use server".`
+        );
+      }
     }
   }
 

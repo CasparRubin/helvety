@@ -1,3 +1,4 @@
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -81,6 +82,28 @@ describe("notes entity-actions reorderEntities", () => {
       category_id: "work",
     });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/notes");
+  });
+
+  it("exports notes with explicit prefetch columns", async () => {
+    const notes = [{ id: NOTE_ID, encrypted_title: "enc" }];
+    const select = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        order: vi.fn(() => ({
+          limit: vi.fn(() => Promise.resolve({ data: notes, error: null })),
+        })),
+      })),
+    }));
+    const from = vi.fn(() => ({ select }));
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase: { from } },
+    });
+
+    const result = await getAllNoteDataForExport();
+
+    expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.notes);
+    expect(from).toHaveBeenCalledWith("notes");
+    expect(result).toEqual({ success: true, data: { items: notes } });
   });
 
   it("uses EXPORT readRateLimitConfig for getAllNoteDataForExport", async () => {

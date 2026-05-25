@@ -10,6 +10,7 @@ export const proxy = createAppProxy({
     buildCspOptions: { wasmUnsafeEval: true },
   }),
   defaultBasePath: "/image-upscaler",
+  failClosedOnAuthRefresh: true,
 });
 
 /** Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal). */

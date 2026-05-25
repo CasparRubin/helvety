@@ -1,3 +1,4 @@
+import { CONTACT_LINK_PICKER_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createAuthSuccessContext,
   createOrderedContactListSupabaseMock,
@@ -34,6 +35,7 @@ vi.mock("@helvety/shared/entity-links", () => ({
 }));
 
 import {
+  getContacts,
   getItemContactLinks,
   linkContact,
   unlinkContact,
@@ -48,6 +50,18 @@ describe("tasks contact-link-actions", () => {
     const result = await getItemContactLinks("invalid-id");
     expect(result).toEqual({ success: false, error: "Invalid task ID" });
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("loads contacts with explicit prefetch columns", async () => {
+    const supabase = createOrderedContactListSupabaseMock();
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
+
+    const result = await getContacts();
+
+    expect(result.success).toBe(true);
+    expect(supabase.getLastSelectColumns()).toBe(CONTACT_LINK_PICKER_COLUMNS);
   });
 
   it("uses entity link helpers for get/link/unlink flow", async () => {

@@ -9,11 +9,6 @@ import { useContactLinks } from "@/hooks/use-contact-links";
 import type { LinkedContact } from "@/hooks/use-contact-links";
 import type { Contact } from "@/lib/types";
 
-/** @deprecated Import from `@helvety/shared/e2ee-deep-link` */
-export function getContactDeepLink(contactId: string): string {
-  return buildE2eeDeepLink("contacts", contactId);
-}
-
 /** Formats a contact display name for link panels. */
 function formatContactName(contact: Contact | LinkedContact): string {
   return `${contact.first_name} ${contact.last_name}`.trim();

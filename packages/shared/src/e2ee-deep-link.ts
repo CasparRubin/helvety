@@ -27,18 +27,3 @@ export function buildE2eeDeepLink(
   });
   return `${ZONE_BASE_URL[zone]}?${params.toString()}`;
 }
-
-/** @deprecated Use `buildE2eeDeepLink("notes", noteId)` */
-export function getNoteDeepLink(noteId: string): string {
-  return buildE2eeDeepLink("notes", noteId);
-}
-
-/** @deprecated Use `buildE2eeDeepLink("tasks", itemId)` */
-export function getItemDeepLink(itemId: string): string {
-  return buildE2eeDeepLink("tasks", itemId);
-}
-
-/** @deprecated Use `buildE2eeDeepLink("contacts", contactId)` */
-export function getContactDeepLink(contactId: string): string {
-  return buildE2eeDeepLink("contacts", contactId);
-}

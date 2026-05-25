@@ -7,6 +7,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Entity types that can be linked through `entity_links`. */
 export type LinkEntityType = "notes" | "items" | "contacts";
 
+/** Explicit column list for `entity_links` queries (no `select("*")`). */
+export const ENTITY_LINK_COLUMNS =
+  "id,user_id,source_entity_type,source_entity_id,target_entity_type,target_entity_id,relation_type,metadata,created_at" as const;
+
 /** Row shape returned by the `entity_links` table. */
 export interface EntityLinkRow {
   id: string;
@@ -205,7 +209,7 @@ export async function getEntityLinksForEndpoint({
 
   let query = supabase
     .from("entity_links")
-    .select("*")
+    .select(ENTITY_LINK_COLUMNS)
     .eq("user_id", userId)
     .or(
       `and(source_entity_type.eq.${entityType},source_entity_id.eq.${entityId}),and(target_entity_type.eq.${entityType},target_entity_id.eq.${entityId})`

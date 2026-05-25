@@ -8,6 +8,7 @@ import {
   CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
   isDashboardPrefetchOverCap,
 } from "@helvety/shared/dashboard-prefetch";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
@@ -43,7 +44,7 @@ export async function getContactsDashboardData(): Promise<
 
     const contactsResult = await supabase
       .from("contacts")
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.contacts)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })

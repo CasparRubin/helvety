@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   assignDefinedField,
   isExportWithinCap,
@@ -391,7 +392,7 @@ export async function getAllContactDataForExport(): Promise<
 
     const { data: contacts, error } = await supabase
       .from(CONTACTS_TABLE)
-      .select("*")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.contacts)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)

@@ -1,3 +1,4 @@
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -227,5 +228,50 @@ describe("links entity-actions", () => {
         readRateLimitConfig: { maxRequests: 5, windowMs: 60_000 },
       })
     );
+  });
+
+  it("exports link library rows with explicit column lists", async () => {
+    const makeExportQuery = (
+      rows: Array<{ id: string }>,
+      selectSpy: ReturnType<typeof vi.fn>
+    ) => {
+      selectSpy.mockImplementation(() => ({
+        eq: () => ({
+          order: () => ({
+            limit: () => ({
+              overrideTypes: () => Promise.resolve({ data: rows, error: null }),
+            }),
+          }),
+        }),
+      }));
+    };
+    const folderSelect = vi.fn();
+    const linkSelect = vi.fn();
+    makeExportQuery([{ id: FOLDER_ID }], folderSelect);
+    makeExportQuery([{ id: LINK_ID }], linkSelect);
+    const from = vi.fn((table: string) => {
+      if (table === "link_folders") {
+        return { select: folderSelect };
+      }
+      if (table === "links") {
+        return { select: linkSelect };
+      }
+      throw new Error(`Unexpected table ${table}`);
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase: { from } },
+    });
+
+    const result = await getAllLinkDataForExport();
+
+    expect(folderSelect).toHaveBeenCalledWith(
+      ENCRYPTED_PREFETCH_COLUMNS.link_folders
+    );
+    expect(linkSelect).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.links);
+    expect(result).toEqual({
+      success: true,
+      data: { folders: [{ id: FOLDER_ID }], links: [{ id: LINK_ID }] },
+    });
   });
 });

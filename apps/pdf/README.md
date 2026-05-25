@@ -33,7 +33,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 ## Security Model
 
 - File conversion is client-side for supported operations.
-- `proxy.ts` provides request bootstrap and headers; this app does not require login. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, copied from `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build, which PDF.js loads from `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
+- `proxy.ts` provides request bootstrap (CSP, CSRF cookie bootstrap/re-issue, optional session refresh) via the `public-tool` profile with **fail-closed** auth refresh when `sb-*` cookies are present; this app does not require login for PDF workflows. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, copied from `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build, which PDF.js loads from `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
 - Full-app E2EE is not used here (E2EE apps are `tasks`, `contacts`, `notes`, `links`). Helvety Docs offers optional encrypted vault save only.
 - Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 

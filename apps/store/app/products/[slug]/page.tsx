@@ -2,6 +2,7 @@ import { urls } from "@helvety/shared/config";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
+import { notFound } from "next/navigation";
 
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -68,26 +69,25 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const [{ slug }, nonce] = await Promise.all([params, getRequestCspNonce()]);
 
   const card = findStoreProductCardBySlug(slug);
+  if (!card) {
+    notFound();
+  }
 
-  const productJsonLd = card
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        name: card.name,
-        description: card.shortDescription,
-        url: `${urls.store}/products/${card.slug}`,
-        brand: {
-          "@type": "Organization",
-          name: "Helvety",
-        },
-      }
-    : null;
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: card.name,
+    description: card.shortDescription,
+    url: `${urls.store}/products/${card.slug}`,
+    brand: {
+      "@type": "Organization",
+      name: "Helvety",
+    },
+  };
 
   return (
     <>
-      {productJsonLd && (
-        <JsonLdScript nonce={nonce ?? undefined} json={productJsonLd} />
-      )}
+      <JsonLdScript nonce={nonce ?? undefined} json={productJsonLd} />
       <ProductDetailClient slug={slug} />
     </>
   );

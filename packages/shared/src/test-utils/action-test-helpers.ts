@@ -18,7 +18,7 @@ export function createAuthSuccessContext<TSupabase>(
 /** Minimal Supabase mock for ordered encrypted contact list reads in link tests. */
 export function createOrderedContactListSupabaseMock(): {
   from: (table: string) => {
-    select: () => {
+    select: (columns: string) => {
       eq: () => {
         order: () => {
           order: () => {
@@ -35,7 +35,10 @@ export function createOrderedContactListSupabaseMock(): {
       };
     };
   };
+  /** Column list from the most recent `select()` call. */
+  getLastSelectColumns: () => string | undefined;
 } {
+  let lastSelectColumns: string | undefined;
   const contactListReturns = async () => ({
     data: [
       {
@@ -54,17 +57,21 @@ export function createOrderedContactListSupabaseMock(): {
       }
 
       return {
-        select: () => ({
-          eq: () => ({
-            order: () => ({
+        select: (columns: string) => {
+          lastSelectColumns = columns;
+          return {
+            eq: () => ({
               order: () => ({
-                overrideTypes: contactListReturns,
+                order: () => ({
+                  overrideTypes: contactListReturns,
+                }),
               }),
             }),
-          }),
-        }),
+          };
+        },
       };
     },
+    getLastSelectColumns: () => lastSelectColumns,
   };
 }
 

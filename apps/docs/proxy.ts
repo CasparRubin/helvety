@@ -13,6 +13,7 @@ export const proxy = createAppProxy({
     },
   }),
   defaultBasePath: "/docs",
+  failClosedOnAuthRefresh: true,
 });
 
 /** Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal). */

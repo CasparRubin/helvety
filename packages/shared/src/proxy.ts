@@ -130,7 +130,7 @@ export const SECURITY_PROXY_PROFILE_OPTIONS: Record<
 
 /** Profiles that clear invalid `sb-*` cookies when edge session refresh fails. */
 const FAIL_CLOSED_AUTH_REFRESH_PROFILES: ReadonlySet<SecurityProxyProfile> =
-  new Set(["e2ee-app", "auth-gateway"]);
+  new Set(["e2ee-app", "auth-gateway", "store-gateway", "public-tool"]);
 
 /**
  * Build the canonical security proxy from a named profile, with optional
@@ -172,7 +172,7 @@ export function redirectRootToBasePath(
 export function createAppProxy(options: {
   securityProxy: (request: NextRequest) => Promise<NextResponse>;
   defaultBasePath?: string;
-  /** Clear stale `sb-*` cookies when session refresh fails (e2ee + auth zones). */
+  /** Clear stale `sb-*` cookies when session refresh fails (profiles in `FAIL_CLOSED_AUTH_REFRESH_PROFILES`). */
   failClosedOnAuthRefresh?: boolean;
 }) {
   const {

@@ -11,7 +11,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 - Public product catalog at `/store/products` with product cards that overlay badges on artwork: per-type tinted labels (sky / violet / amber) and a frosted “Art by …” artist credit ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
 - Public package download endpoints (no login required)
 - Optional authenticated account page at `/store/account`
-- Product-detail pages with statically imported artwork
+- Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
 - Product listing loads the grid client-only (`next/dynamic` with `ssr: false` on `/products`); detail SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only (no server import of `products.ts`); sitemap still uses `lib/data/product-catalog-cache.ts` at build time
 
 ## Package Download Behavior
@@ -21,7 +21,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 - `browserExtensions/power-platform-configurator`: upload **`power-platform-configurator.zip`** here (Supabase bucket `packages`). The resolver picks the newest `.zip` by timestamp/name. Retired `power-automate-*` product slugs and package ids are not served (server actions and the public download route return not-found).
 - If listing fails, resolver falls back to configured filename path.
 - Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
-- The public download route may respond with an HTTP redirect to a signed Supabase Storage URL. Redirect targets are restricted to the project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check. This is unrelated to Next.js route redirects (retired product/package URLs are not rewritten; they return not-found).
+- The public download route may respond with an HTTP redirect to a signed Supabase Storage URL. Redirect targets are restricted to the project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check. Retired **package/download** ids return not-found from server actions and the public download route; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs (see Key Features above).
 - Download URL generation is IP-rate-limited and fails closed when trusted client IP is unavailable in production.
 
 ## Adding a New Product
@@ -94,7 +94,7 @@ Optional CI/monorepo variables are documented as comments in [`env.template`](./
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, Supabase session refresh via `store-gateway`), not full auth enforcement. `createAppProxy` also refreshes sessions on direct root hits (`/` → `/store`) when auth cookies are present. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
+- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, Supabase session refresh via `store-gateway`), not full auth enforcement. The `store-gateway` profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `createAppProxy` also refreshes sessions on direct root hits (`/` → `/store`) when auth cookies are present. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Account actions enforce authz in pages/server actions/route handlers.
 - Public download endpoints use explicit abuse protections and rate limiting.
 - Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
@@ -110,7 +110,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), and opaque product-detail panels.
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), and opaque product-detail panels.
 
 For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
 

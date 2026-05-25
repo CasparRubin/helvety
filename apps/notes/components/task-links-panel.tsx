@@ -34,11 +34,6 @@ import { useTaskLinks } from "@/hooks/use-task-links";
 
 import type { LinkedItem, PickerItem } from "@/lib/types";
 
-/** @deprecated Import from `@helvety/shared/e2ee-deep-link` */
-export function getItemDeepLink(itemId: string): string {
-  return buildE2eeDeepLink("tasks", itemId);
-}
-
 function ItemRow({
   title,
   href,
@@ -248,7 +243,7 @@ export function TaskLinksPanel({
               <ItemRow
                 key={item.link_id}
                 title={item.title}
-                href={getItemDeepLink(item.id)}
+                href={buildE2eeDeepLink("tasks", item.id)}
                 onUnlink={() =>
                   setUnlinkTarget({ linkId: item.link_id, title: item.title })
                 }

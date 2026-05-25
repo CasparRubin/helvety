@@ -15,6 +15,7 @@ vi.mock("./logger", () => ({
 }));
 
 import { ACTION_LIMITS } from "./constants";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "./encrypted-prefetch-api";
 import {
   areExportTablesWithinCap,
   EXPORT_TOO_LARGE_MESSAGE,
@@ -187,6 +188,7 @@ describe("entity-action-primitives", () => {
       supabase,
       userId: "user-1",
       tableName: "items",
+      selectColumns: ENCRYPTED_PREFETCH_COLUMNS.items,
       logScope: "export scope",
       loadErrorMessage: "load failed",
     });
@@ -215,6 +217,7 @@ describe("entity-action-primitives", () => {
       supabase,
       userId: "user-1",
       tableName: "notes",
+      selectColumns: ENCRYPTED_PREFETCH_COLUMNS.notes,
       logScope: "export scope",
       loadErrorMessage: "load failed",
     });

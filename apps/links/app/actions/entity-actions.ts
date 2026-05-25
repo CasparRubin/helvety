@@ -4,6 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   areExportTablesWithinCap,
   EXPORT_TOO_LARGE_MESSAGE,
@@ -292,14 +293,14 @@ export async function getAllLinkDataForExport(): Promise<
     const [foldersResult, linksResult] = await Promise.all([
       supabase
         .from(LINK_FOLDERS_TABLE)
-        .select("*")
+        .select(ENCRYPTED_PREFETCH_COLUMNS.link_folders)
         .eq("user_id", user.id)
         .order("sort_order")
         .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
         .overrideTypes<LinkFolderRow[], { merge: false }>(),
       supabase
         .from(LINKS_TABLE)
-        .select("*")
+        .select(ENCRYPTED_PREFETCH_COLUMNS.links)
         .eq("user_id", user.id)
         .order("sort_order")
         .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)

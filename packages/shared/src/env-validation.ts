@@ -191,7 +191,7 @@ export function hasRealServerUpstashEnv(): boolean {
   );
 }
 
-/** True when HELVETY_COOKIE_SIGNING_SECRET is set (used by deprecated {@link validateCookieSigningEnv}). */
+/** True when HELVETY_COOKIE_SIGNING_SECRET is set. */
 export function hasRealCookieSigningEnv(): boolean {
   return Boolean(process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim());
 }
@@ -552,37 +552,6 @@ export function getValidatedGatewayEnv(): GatewayEnv {
 
   validatedGatewayEnv = result.data;
   return validatedGatewayEnv;
-}
-
-/** Validates cookie signing env for legacy cookie-only tiers (deprecated). */
-export function validateCookieSigningEnv(options: {
-  appName: string;
-  envTemplatePath: string;
-}): z.infer<typeof cookieSigningEnvSchema> {
-  const { appName, envTemplatePath } = options;
-
-  const raw =
-    isCiBuildPlaceholderEnvEnabled() && !hasRealCookieSigningEnv()
-      ? {
-          HELVETY_COOKIE_SIGNING_SECRET:
-            "ci_build_placeholder_cookie_signing_secret_not_for_production_use_!!",
-        }
-      : {
-          HELVETY_COOKIE_SIGNING_SECRET:
-            process.env.HELVETY_COOKIE_SIGNING_SECRET?.trim() ?? "",
-        };
-
-  const result = cookieSigningEnvSchema.safeParse(raw);
-  if (!result.success) {
-    const errors = result.error.issues
-      .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
-      .join("\n");
-    throw new Error(
-      `[${appName}] Invalid environment variables:\n${errors}\n\nSee ${envTemplatePath} for required values.`
-    );
-  }
-
-  return result.data;
 }
 
 /** Validated environment variable types */

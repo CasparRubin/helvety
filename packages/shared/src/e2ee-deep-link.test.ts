@@ -1,22 +1,23 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildE2eeDeepLink,
-  getContactDeepLink,
-  getItemDeepLink,
-  getNoteDeepLink,
-} from "./e2ee-deep-link";
+import { buildE2eeDeepLink } from "./e2ee-deep-link";
 
 describe("buildE2eeDeepLink", () => {
-  it("builds zone-specific query params", () => {
-    expect(buildE2eeDeepLink("tasks", "abc")).toMatch(/\?item=abc$/);
-    expect(buildE2eeDeepLink("notes", "abc")).toMatch(/\?note=abc$/);
-    expect(buildE2eeDeepLink("contacts", "abc")).toMatch(/\?contact=abc$/);
+  it("builds tasks deep links with item query param", () => {
+    const url = new URL(buildE2eeDeepLink("tasks", "item-123"));
+    expect(url.pathname).toBe("/tasks");
+    expect(url.searchParams.get("item")).toBe("item-123");
   });
 
-  it("legacy helpers match buildE2eeDeepLink", () => {
-    expect(getNoteDeepLink("x")).toBe(buildE2eeDeepLink("notes", "x"));
-    expect(getItemDeepLink("x")).toBe(buildE2eeDeepLink("tasks", "x"));
-    expect(getContactDeepLink("x")).toBe(buildE2eeDeepLink("contacts", "x"));
+  it("builds notes deep links with note query param", () => {
+    const url = new URL(buildE2eeDeepLink("notes", "note-456"));
+    expect(url.pathname).toBe("/notes");
+    expect(url.searchParams.get("note")).toBe("note-456");
+  });
+
+  it("builds contacts deep links with contact query param", () => {
+    const url = new URL(buildE2eeDeepLink("contacts", "contact-789"));
+    expect(url.pathname).toBe("/contacts");
+    expect(url.searchParams.get("contact")).toBe("contact-789");
   });
 });

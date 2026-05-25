@@ -131,6 +131,7 @@ export async function fetchOwnedEncryptedExport<T>({
   supabase,
   userId,
   tableName,
+  selectColumns,
   orderColumn = "sort_order",
   logScope,
   loadErrorMessage,
@@ -138,13 +139,14 @@ export async function fetchOwnedEncryptedExport<T>({
   supabase: SupabaseClient;
   userId: string;
   tableName: string;
+  selectColumns: string;
   orderColumn?: string;
   logScope: string;
   loadErrorMessage: string;
 }): Promise<OwnedEncryptedExportResult<T>> {
   const { data, error } = await supabase
     .from(tableName)
-    .select("*")
+    .select(selectColumns)
     .eq("user_id", userId)
     .order(orderColumn)
     .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1);

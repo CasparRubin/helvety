@@ -19,14 +19,34 @@ vi.mock("./product-detail-client", () => ({
   ),
 }));
 
+const notFound = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error("NOT_FOUND");
+  })
+);
+
+vi.mock("next/navigation", () => ({
+  notFound,
+}));
+
 const pagePath = join(dirname(fileURLToPath(import.meta.url)), "page.tsx");
 
 describe("store product SEO", () => {
   it("does not import products.ts on the server page module", () => {
     const src = readFileSync(pagePath, "utf8");
     expect(src).toContain("findStoreProductCardBySlug");
+    expect(src).toContain("notFound");
     expect(src).not.toContain("@/lib/data/products");
     expect(src).not.toContain("product-catalog-cache");
+  });
+
+  it("calls notFound for unknown product slugs on the server", async () => {
+    await expect(
+      ProductDetailPage({
+        params: Promise.resolve({ slug: "missing-product" }),
+      })
+    ).rejects.toThrow("NOT_FOUND");
+    expect(notFound).toHaveBeenCalledTimes(1);
   });
 
   it("returns indexable canonical metadata for a valid product", async () => {

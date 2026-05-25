@@ -1,3 +1,4 @@
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -38,15 +39,14 @@ describe("tasks entity-actions getAllTaskDataForExport", () => {
 
   it("returns exported items and logs the export request", async () => {
     const items = [{ id: TASK_ID, title: "encrypted" }];
-    const from = vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            limit: vi.fn(() => Promise.resolve({ data: items, error: null })),
-          })),
+    const select = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        order: vi.fn(() => ({
+          limit: vi.fn(() => Promise.resolve({ data: items, error: null })),
         })),
       })),
     }));
+    const from = vi.fn(() => ({ select }));
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
       ctx: {
@@ -57,6 +57,8 @@ describe("tasks entity-actions getAllTaskDataForExport", () => {
 
     const result = await getAllTaskDataForExport();
 
+    expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.items);
+    expect(from).toHaveBeenCalledWith("items");
     expect(result).toEqual({ success: true, data: { items } });
     expect(loggerMocks.info).toHaveBeenCalledWith("Data export requested", {
       source: "tasks",

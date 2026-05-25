@@ -8,6 +8,7 @@ import {
   DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
   isDashboardPrefetchOverCap,
 } from "@helvety/shared/dashboard-prefetch";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
@@ -32,7 +33,7 @@ export async function getLinksDashboardData(): Promise<
     const [foldersResult, linksResult] = await Promise.all([
       supabase
         .from("link_folders")
-        .select("*")
+        .select(ENCRYPTED_PREFETCH_COLUMNS.link_folders)
         .eq("user_id", user.id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
@@ -40,7 +41,7 @@ export async function getLinksDashboardData(): Promise<
         .overrideTypes<LinkFolderRow[], { merge: false }>(),
       supabase
         .from("links")
-        .select("*")
+        .select(ENCRYPTED_PREFETCH_COLUMNS.links)
         .eq("user_id", user.id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })

@@ -1,9 +1,12 @@
 "use client";
 
 /**
- * Product detail client component
+ * Product detail client component.
  * Displays full product information with free download/app actions.
- * Package downloads use a click-only button (no `<a href>` to the download API) to avoid prefetch.
+ * The server page calls `notFound()` when the slug is absent from
+ * `@helvety/shared/store-catalog`; this client guard covers rare
+ * catalog vs `products.ts` drift. Package downloads use a click-only button
+ * (no `<a href>` to the download API) to avoid prefetch.
  */
 
 import { Button } from "@helvety/ui/button";

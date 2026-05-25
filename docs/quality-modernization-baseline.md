@@ -17,7 +17,7 @@
   - shared ESLint/TypeScript/Vitest/PostCSS **config** entrypoints (not pinned toolchain versions; those live in `@helvety/dev-deps`)
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
-  - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`); **`auth-gateway`** / **`e2ee-app`** profiles clear stale `sb-*` cookies when refresh fails (fail-closed)
+  - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`); **`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, and **`public-tool`** profiles clear stale `sb-*` cookies when refresh fails (fail-closed); **`public-marketing`** (`web`) does not
   - `@helvety/shared/encrypted-prefetch-api` for vault/list GET routes (`RATE_LIMITS.PREFETCH`, explicit column lists); `bootstrapAuthLayoutSession()` for the auth layout
   - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
   - server env validation and Supabase client factories; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); per-app `env.template` parity (`consistency:env-templates`)
@@ -43,6 +43,7 @@
 6. **Verification/guardrails** — ongoing
    - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
    - `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
+   - Fail-closed auth refresh on all session-bearing proxy profiles; deprecated E2EE deep-link helpers removed; prefetch/export/pickers use explicit Supabase column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` for Tasks contact picker, `ENTITY_LINK_COLUMNS` for `entity_links` reads).
    - **Supabase release:** before schema migrations, run Supabase security/performance advisors (Dashboard or MCP) and address critical findings.
    - **Remote CI:** `.github/workflows/ci.yml` runs `bun run ci:check` on push/PR.
 
@@ -69,5 +70,5 @@
 - UI majors: lucide-react v1 (`icon-renderer` aliases), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
 - **Dead code:** schedule `bun run deps:unused` quarterly (already in `ci:check`); triage Knip findings before major releases
 - **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
-- Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `RATE_LIMITS.PREFETCH`, route tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; `public.docs` migrations (`create_docs_table` + `harden_docs_and_revoke_anon_grants`) + `consistency:supabase-schema`
+- Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `RATE_LIMITS.PREFETCH`, route tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; `public.docs` on hosted Supabase + `consistency:supabase-schema` (types guardrail)
 - **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); Next config presets; navbar factories; centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps

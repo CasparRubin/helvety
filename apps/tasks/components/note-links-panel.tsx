@@ -8,11 +8,6 @@ import { useNoteLinks } from "@/hooks/use-note-links";
 
 import type { LinkedNote } from "@/hooks/use-note-links";
 
-/** @deprecated Import from `@helvety/shared/e2ee-deep-link` */
-export function getNoteDeepLink(noteId: string): string {
-  return buildE2eeDeepLink("notes", noteId);
-}
-
 /** Adapts `useNoteLinks` to the shared entity links panel hook shape. */
 function useNoteLinksAdapter(entityId: string, options: { enabled: boolean }) {
   const { allNotes, linkedNotes, isLoading, link, unlink } = useNoteLinks(

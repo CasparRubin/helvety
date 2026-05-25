@@ -38,7 +38,7 @@ Plaintext structural fields:
 - `proxy.ts` handles request bootstrap with **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails); authz enforcement lives in pages/actions/route handlers. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - State-changing actions require CSRF; the proxy re-issues invalid `csrf_token` cookies.
 - Shared site footer and Vercel Analytics mount via `E2eeAppRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
-- Read paths use authenticated read model with rate limiting. List/detail prefetch GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, explicit column selects).
+- Read paths use authenticated read model with rate limiting. List/detail prefetch GET routes and `getContacts` in contact-link actions use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS`).
 - Bulk export uses tighter export rate limits.
 
 ## Crawl and Indexing

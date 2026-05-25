@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { CONTACT_LINK_PICKER_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createEntityLink,
   deleteEntityLink,
@@ -53,9 +54,7 @@ export async function getContacts(): Promise<
 
     const { data: contacts, error } = await supabase
       .from("contacts")
-      .select(
-        "id,user_id,encrypted_first_name,encrypted_last_name,encrypted_email,sort_order,created_at,updated_at"
-      )
+      .select(CONTACT_LINK_PICKER_COLUMNS)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
