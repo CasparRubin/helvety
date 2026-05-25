@@ -47,8 +47,9 @@ export function generateSalt(length: number = 16): Uint8Array<ArrayBuffer> {
  * Security note on IV reuse bounds:
  * With a 96-bit random IV, the birthday bound is ~2^48 encryptions per key
  * before a collision becomes probable (at probability ~2^-32). Given that:
- * - Master keys are cached in IndexedDB for up to 30 minutes (key-storage.ts)
- *   and re-derived from passkey PRF + salt when needed (cache TTL != key rotation)
+ * - Master keys may be cached in IndexedDB per vault-session policy (12h sliding
+ *   idle, 30d max per unlock; see vault-session.ts and key-storage.ts) and are
+ *   re-derived from passkey PRF + salt when the cache expires or is cleared
  * - Typical usage is expected to remain well under 1 million encryptions per
  *   key lifetime (operational estimate, not a hard runtime cap)
  * - Each user has their own key (no key sharing between users)

@@ -1,16 +1,16 @@
+import { getAuthUser } from "@helvety/shared/auth-retry";
 import { urls } from "@helvety/shared/config";
 import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
+import { createServerClient } from "@helvety/shared/supabase/server";
 import { redirect } from "next/navigation";
+
+import { buildAuthLoginPath, resolveLoginEntryStep } from "@/lib/login-entry";
 
 import { getDeviceTrustStatus } from "./actions/device-trust-actions";
 
 /**
- * Root page - redirects to login with any redirect_uri preserved
- *
- * The login page handles authentication logic including:
- * - Checking if user is authenticated
- * - Checking passkey/encryption status
- * - Choosing passkey sign-in vs redirect (E2EE app destinations do not skip passkey)
+ * Root page - redirects to login with any redirect_uri preserved.
+ * Entry step is resolved server-side (device trust → passkey-first when applicable).
  */
 export default async function Page({
   searchParams,
@@ -19,17 +19,37 @@ export default async function Page({
 }) {
   const params = await searchParams;
   const rawRedirectUri = params.redirect_uri;
-
-  // Validate redirect URI against allowlist
   const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, null);
-
-  // Build login URL with redirect_uri if valid
   const redirectTarget = safeRedirectUri ?? urls.home;
-  const trust = await getDeviceTrustStatus();
-  const stepParam =
-    trust.success && trust.data?.trusted ? "&step=passkey-signin" : "";
-  const loginUrl = `/login?redirect_uri=${encodeURIComponent(redirectTarget)}${stepParam}`;
 
-  // Redirect to login page - it handles all auth logic
-  redirect(loginUrl);
+  const supabase = await createServerClient();
+  const { user } = await getAuthUser(supabase);
+  const trustResult = await getDeviceTrustStatus();
+  const trust =
+    trustResult.success && trustResult.data.trusted
+      ? {
+          trusted: true as const,
+          userId: trustResult.data.userId,
+        }
+      : { trusted: false as const, userId: null };
+
+  const entry = resolveLoginEntryStep({
+    urlStep: null,
+    hasSession: Boolean(user),
+    trust,
+    forceLogin: false,
+    requiredAuthStep: null,
+    redirectUri: redirectTarget,
+  });
+
+  if (entry.kind === "redirect") {
+    redirect(entry.redirectTo);
+  }
+
+  redirect(
+    buildAuthLoginPath({
+      redirectUri: redirectTarget,
+      step: entry.step,
+    })
+  );
 }

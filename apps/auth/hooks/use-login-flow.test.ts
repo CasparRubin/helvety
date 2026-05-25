@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import { resolveLoginEntryStep } from "@/lib/login-entry";
+
 import {
   isRateLimitedLoginAuthSession,
   shouldResetLoginAuthSession,
   withLoginAuthProbeTimeout,
 } from "./use-login-flow";
+
+const TRUSTED_USER = "550e8400-e29b-41d4-a716-446655440000";
 
 describe("use-login-flow auth bootstrap guards", () => {
   it("detects terminal refresh/session errors", () => {
@@ -44,5 +48,41 @@ describe("use-login-flow auth bootstrap guards", () => {
     await expect(
       withLoginAuthProbeTimeout(Promise.resolve("ok"), 100)
     ).resolves.toBe("ok");
+  });
+});
+
+describe("use-login-flow bootstrap alignment", () => {
+  it("bare /auth/login with trust lands on passkey-signin (not email)", () => {
+    expect(
+      resolveLoginEntryStep({
+        urlStep: null,
+        hasSession: false,
+        trust: { trusted: true, userId: TRUSTED_USER },
+        forceLogin: false,
+        requiredAuthStep: null,
+        redirectUri: "https://helvety.com/tasks",
+      })
+    ).toEqual({
+      kind: "step",
+      step: "passkey-signin",
+      trustedUserId: TRUSTED_USER,
+    });
+  });
+
+  it("force_login with trust still skips email before passkey", () => {
+    expect(
+      resolveLoginEntryStep({
+        urlStep: null,
+        hasSession: false,
+        trust: { trusted: true, userId: TRUSTED_USER },
+        forceLogin: true,
+        requiredAuthStep: null,
+        redirectUri: "https://helvety.com/tasks",
+      })
+    ).toEqual({
+      kind: "step",
+      step: "passkey-signin",
+      trustedUserId: TRUSTED_USER,
+    });
   });
 });

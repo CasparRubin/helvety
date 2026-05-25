@@ -1,6 +1,6 @@
 /**
  * Key Storage Module
- * Manages temporary master-key caching in IndexedDB (TTL-based, cross-tab aware)
+ * Manages temporary master-key caching in IndexedDB (vault session policy, cross-tab aware)
  *
  * Resilience: All IndexedDB operations include retry logic and timeouts to
  * handle Safari-specific quirks (background tab eviction, iOS suspend/resume,
@@ -10,13 +10,16 @@
 import { logger } from "../logger";
 
 import { CryptoError, CryptoErrorType } from "./types";
+import {
+  createVaultSession,
+  isVaultSessionValid,
+  normalizeVaultSessionTimestamps,
+  touchVaultSession,
+} from "./vault-session";
 
 const DB_NAME = "helvety-crypto";
 const DB_VERSION = 1;
 const MASTER_KEY_STORE = "master-keys";
-
-/** Cache duration for keys (30 minutes) */
-const KEY_CACHE_DURATION = 30 * 60 * 1000;
 
 // =============================================================================
 // Cross-Tab Coordination via BroadcastChannel
@@ -33,6 +36,16 @@ type KeyChannelMessage =
 
 /** Callbacks registered for cross-tab key events */
 type KeyEventListener = (message: KeyChannelMessage) => void;
+
+/** Stored master key row in IndexedDB. */
+type StoredMasterKeyRecord = {
+  userId: string;
+  key: CryptoKey;
+  unlockedAt: number;
+  lastActiveAt: number;
+  /** Legacy field; kept in sync with `lastActiveAt` on write. */
+  cachedAt: number;
+};
 
 let keyChannel: BroadcastChannel | null = null;
 const keyEventListeners: Set<KeyEventListener> = new Set();
@@ -176,6 +189,93 @@ async function openDatabase(retries = 1): Promise<IDBDatabase> {
 }
 
 /**
+ *
+ */
+function buildStoredRecord(
+  userId: string,
+  key: CryptoKey,
+  session = createVaultSession()
+): StoredMasterKeyRecord {
+  return {
+    userId,
+    key,
+    unlockedAt: session.unlockedAt,
+    lastActiveAt: session.lastActiveAt,
+    cachedAt: session.lastActiveAt,
+  };
+}
+
+/**
+ *
+ */
+function isRecordVaultValid(
+  record: StoredMasterKeyRecord | null | undefined
+): boolean {
+  if (!record) return false;
+  const timestamps = normalizeVaultSessionTimestamps(record);
+  if (!timestamps) return false;
+  return isVaultSessionValid(timestamps);
+}
+
+/**
+ * Renew vault session timestamps in IndexedDB without changing the key.
+ * Keeps inactivity lock and cached key expiry aligned.
+ */
+export async function touchVaultSessionInStorage(
+  userId: string
+): Promise<void> {
+  try {
+    const db = await openDatabase();
+
+    await new Promise<void>((resolve) => {
+      const transaction = db.transaction(MASTER_KEY_STORE, "readwrite");
+      const store = transaction.objectStore(MASTER_KEY_STORE);
+      const getRequest = store.get(userId);
+
+      getRequest.onerror = () => resolve();
+
+      getRequest.onsuccess = () => {
+        const existing = getRequest.result as StoredMasterKeyRecord | undefined;
+        if (!existing?.key) {
+          resolve();
+          return;
+        }
+
+        const timestamps = normalizeVaultSessionTimestamps(existing);
+        if (!timestamps || !isVaultSessionValid(timestamps)) {
+          resolve();
+          return;
+        }
+
+        const touched = touchVaultSession(timestamps);
+        const updated: StoredMasterKeyRecord = {
+          ...existing,
+          unlockedAt: touched.unlockedAt,
+          lastActiveAt: touched.lastActiveAt,
+          cachedAt: touched.lastActiveAt,
+        };
+
+        const putRequest = store.put(updated);
+        putRequest.onerror = () => resolve();
+        putRequest.onsuccess = () => {
+          broadcastKeyEvent({ type: "master-key-stored", userId });
+          resolve();
+        };
+      };
+
+      transaction.oncomplete = () => {
+        db.close();
+      };
+    });
+  } catch (error) {
+    logger.logUnexpectedError(
+      "Failed to touch vault session in storage",
+      error
+    );
+  }
+}
+
+/**
  * Store the master key in IndexedDB
  * Note: CryptoKey objects can be stored directly in IndexedDB
  *
@@ -193,11 +293,7 @@ export async function storeMasterKey(
       const transaction = db.transaction(MASTER_KEY_STORE, "readwrite");
       const store = transaction.objectStore(MASTER_KEY_STORE);
 
-      const request = store.put({
-        userId,
-        key,
-        cachedAt: Date.now(),
-      });
+      const request = store.put(buildStoredRecord(userId, key));
 
       request.onerror = () => {
         reject(
@@ -242,7 +338,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
     const db = await openDatabase();
 
     return new Promise((resolve) => {
-      const transaction = db.transaction(MASTER_KEY_STORE, "readonly");
+      const transaction = db.transaction(MASTER_KEY_STORE, "readwrite");
       const store = transaction.objectStore(MASTER_KEY_STORE);
 
       const request = store.get(userId);
@@ -255,15 +351,13 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
       };
 
       request.onsuccess = () => {
-        const result = request.result;
-        if (!result) {
+        const result = request.result as StoredMasterKeyRecord | undefined;
+        if (!result?.key) {
           resolve(null);
           return;
         }
 
-        // Check if key has expired
-        if (Date.now() - result.cachedAt > KEY_CACHE_DURATION) {
-          // Key expired, clean it up
+        if (!isRecordVaultValid(result)) {
           void deleteMasterKey(userId).catch((err) =>
             logger.logUnexpectedError(
               "Failed to delete expired master key",
@@ -274,7 +368,29 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
           return;
         }
 
-        resolve(result.key);
+        const timestamps = normalizeVaultSessionTimestamps(result);
+        if (!timestamps) {
+          resolve(null);
+          return;
+        }
+
+        const touched = touchVaultSession(timestamps);
+        const updated: StoredMasterKeyRecord = {
+          ...result,
+          unlockedAt: touched.unlockedAt,
+          lastActiveAt: touched.lastActiveAt,
+          cachedAt: touched.lastActiveAt,
+        };
+
+        const putRequest = store.put(updated);
+        putRequest.onerror = () => {
+          // Fail toward passkey unlock if touch write fails
+          resolve(null);
+        };
+        putRequest.onsuccess = () => {
+          broadcastKeyEvent({ type: "master-key-stored", userId });
+          resolve(result.key);
+        };
       };
 
       transaction.oncomplete = () => {

@@ -59,6 +59,12 @@ describe("getLoginUrl", () => {
     expect(url).toContain("force_login=1");
   });
 
+  it("does not embed passkey step; auth login gate resolves trust server-side", () => {
+    const url = getLoginUrl("https://helvety.com/tasks");
+    expect(url).not.toContain("step=passkey-signin");
+    expect(url).not.toContain("step=email");
+  });
+
   it("canonicalizes trusted direct app domains to helvety.com", () => {
     const url = getLoginUrl(
       "https://helvety-tasks.vercel.app/tasks?view=board"

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="May 23, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="May 25, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -215,8 +215,11 @@ export default function PrivacyPage() {
           account creation. After this confirmation, verification codes
           (numeric, typically 6–8 digits per service configuration) are sent by
           email, and OTP verification is followed by one passkey step (setup for
-          first-time users or sign-in verification for existing users). We
-          store:
+          first-time users or sign-in verification for existing users). On a
+          browser where you have previously completed email verification, we may
+          store a signed trusted-device cookie that lets you start directly at
+          passkey sign-in without re-entering your email until that cookie
+          expires or you sign out (passkey is still required). We store:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -1066,6 +1069,13 @@ export default function PrivacyPage() {
             <strong className="text-foreground">Preference storage:</strong> To
             remember your settings (e.g., theme preference in localStorage).
           </li>
+          <li>
+            <strong className="text-foreground">
+              E2EE vault session storage:
+            </strong>{" "}
+            Temporary cache of derived encryption keys in IndexedDB for Helvety
+            Tasks, Contacts, Notes, and Links (see table below).
+          </li>
         </ul>
         <div className="legal-table-wrap mb-4 overflow-x-auto">
           <table className="border-border w-full border text-sm">
@@ -1122,8 +1132,9 @@ export default function PrivacyPage() {
                   helvety_device_trust
                 </td>
                 <td className="border-border border-b p-3">
-                  Trusted-device marker for passkey-first sign-in (signed,
-                  httpOnly)
+                  Trusted-device marker after email verification; allows
+                  passkey-first sign-in on return visits from any `/auth/login`
+                  entry (signed, httpOnly; UX only, not authorization)
                 </td>
                 <td className="border-border border-b p-3">.helvety.com</td>
                 <td className="border-border border-b p-3">30 days</td>
@@ -1147,6 +1158,20 @@ export default function PrivacyPage() {
                 </td>
                 <td className="border-border border-b p-3">helvety.com</td>
                 <td className="border-border border-b p-3">Persistent</td>
+              </tr>
+              <tr>
+                <td className="border-border border-b p-3">
+                  helvety-crypto (IndexedDB)
+                </td>
+                <td className="border-border border-b p-3">
+                  Temporary cache of derived encryption keys for E2EE apps
+                  (Helvety Tasks, Contacts, Notes, Links); cleared on logout
+                </td>
+                <td className="border-border border-b p-3">helvety.com</td>
+                <td className="border-border border-b p-3">
+                  Up to 12 hours idle (extended on use), 30 days maximum per
+                  unlock session
+                </td>
               </tr>
               <tr>
                 <td className="p-3">helvety-pdf-columns (localStorage)</td>
@@ -1339,6 +1364,12 @@ export default function PrivacyPage() {
           <li>
             Your passkey (stored on your device) is required to access encrypted
             content
+          </li>
+          <li>
+            After unlock, a derived master key may be cached locally in your
+            browser (IndexedDB) for up to 12 hours of inactivity (extended when
+            you use the app) and for at most 30 days from the unlock session;
+            this cache is cleared when you sign out
           </li>
           <li>
             Additional Authenticated Data (AAD) binds each ciphertext to a

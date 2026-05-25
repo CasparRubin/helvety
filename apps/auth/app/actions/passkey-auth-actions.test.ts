@@ -354,7 +354,13 @@ describe("passkey-auth-actions", () => {
     }
   });
 
-  it("restricts auth options to trusted user credentials when expectedUserId is provided", async () => {
+  it("restricts auth options to trusted user credentials from device trust cookie", async () => {
+    mocks.getValidDeviceTrustCookie.mockResolvedValue({
+      v: 1,
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      iat: 1,
+      exp: 2,
+    });
     mocks.credentialEq.mockResolvedValue({
       data: [{ credential_id: "cred-a", transports: ["internal"] }],
       error: null,
@@ -363,14 +369,40 @@ describe("passkey-auth-actions", () => {
     const result = await generatePasskeyAuthOptions(
       "csrf-token",
       "https://helvety.com",
-      "https://helvety.com/tasks",
-      { expectedUserId: "550e8400-e29b-41d4-a716-446655440000" }
+      "https://helvety.com/tasks"
     );
 
     expect(result.success).toBe(true);
     expect(mocks.generateAuthenticationOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         allowCredentials: [{ id: "cred-a", transports: ["internal"] }],
+      })
+    );
+    expect(mocks.storeChallenge).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedUserId: "550e8400-e29b-41d4-a716-446655440000",
+      })
+    );
+  });
+
+  it("ignores client-supplied user binding without a valid trust cookie", async () => {
+    mocks.getValidDeviceTrustCookie.mockResolvedValue(null);
+
+    const result = await generatePasskeyAuthOptions(
+      "csrf-token",
+      "https://helvety.com",
+      "https://helvety.com/tasks"
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.generateAuthenticationOptions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        allowCredentials: [],
+      })
+    );
+    expect(mocks.storeChallenge).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedUserId: undefined,
       })
     );
   });

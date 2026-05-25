@@ -28,13 +28,24 @@ Primary login flow:
    - Returning users: passkey sign-in directly
 4. Redirect to requested destination
 
-Trusted-device shortcut:
+Trusted-device shortcut (all `/auth/login` entry paths):
 
-- After a successful OTP verification, the auth service stores a **signed HttpOnly `helvety_device_trust` cookie** (see [`device-trust-cookie.ts`](./app/actions/device-trust-cookie.ts)).
-- On that same device, subsequent sign-ins may start at passkey sign-in (no email entry) as long as the device-trust cookie is still valid.
-- The trust window is **30 days** and renews (sliding window) on successful passkey sign-in.
+- After email verification (OTP action or `/auth/callback`), the auth service stores a **signed HttpOnly `helvety_device_trust` cookie** (see [`device-trust-cookie.ts`](./app/actions/device-trust-cookie.ts)).
+- Any Sign in link (`getLoginUrl` → `/auth/login`) is resolved by [`lib/login-entry.ts`](./lib/login-entry.ts) on the server login gate: trusted devices without a session go straight to passkey sign-in (no email entry).
+- The trust window is **30 days** and renews (sliding window) on successful passkey sign-in. Passkey auth options bind `expectedUserId` from the trust cookie server-side, not from client input.
 - Manual logout clears the trust cookie for this device.
 - User-facing disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies) (cookie table). Developer reference: [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md).
+
+Auth layers (independent mechanisms):
+
+```text
+1. Supabase session (sb-* cookies)     → API / RLS / requireAuth
+2. Device trust (helvety_device_trust) → skip email OTP on /auth/login (UX)
+3. Vault session (IndexedDB + idle)    → skip passkey re-unlock on E2EE apps (UX)
+4. Passkey ceremony (WebAuthn)         → proof of possession
+```
+
+Vault session policy (E2EE apps): **12h sliding idle**, **30d absolute max** (see `@helvety/shared/crypto/vault-session.ts`).
 
 `/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
 
@@ -94,8 +105,8 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop (`components/auth-stepper.test.tsx`).
-Passkey action tests also cover malformed payload handling, account mismatch protection, and transport sanitization behavior.
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), login entry resolution and URL builders (`lib/login-entry.test.ts`), login server gate guardrails (`app/login/page.test.ts`), login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop (`components/auth-stepper.test.tsx`).
+Passkey action tests also cover malformed payload handling, account mismatch protection, device-trust cookie binding for passkey options (not client `expectedUserId`), and transport sanitization behavior. Auth callback tests cover OTP allowlist wiring (`app/auth/callback/route.test.ts`) and post-verify device-trust minting (`app/auth/callback/callback-success.test.ts`).
 Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts` and `lib/extension-passkey-challenge.test.ts`.
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 `components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots (mocks `@helvety/shared/layout-session-bootstrap` → `bootstrapAuthLayoutSession`).

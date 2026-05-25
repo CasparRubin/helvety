@@ -39,5 +39,6 @@ export const HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS = [
   "helvety_device_trust",
   "Theme preference (localStorage)",
   "helvety-prf-salt (localStorage)",
+  "helvety-crypto (IndexedDB)",
   "helvety-pdf-columns (localStorage)",
 ] as const;

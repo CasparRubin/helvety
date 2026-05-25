@@ -26,12 +26,12 @@ Gateway referer routing: [`apps/web/lib/zone-analytics-referer.ts`](../apps/web/
 
 ## First-party HTTP cookies (summary)
 
-| Cookie                 | Apps                          | Purpose                                                |
-| ---------------------- | ----------------------------- | ------------------------------------------------------ |
-| `sb-*-auth-token`      | Any zone when signed in       | Supabase session (httpOnly)                            |
-| `csrf_token`           | All except `apps/web` gateway | CSRF double-submit (signed, httpOnly)                  |
-| `webauthn_challenge`   | `auth`                        | Passkey ceremony (3 min, signed)                       |
-| `helvety_device_trust` | `auth`                        | Trusted-device passkey-first sign-in (30 days, signed) |
+| Cookie                 | Apps                          | Purpose                                                                                 |
+| ---------------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
+| `sb-*-auth-token`      | Any zone when signed in       | Supabase session (httpOnly)                                                             |
+| `csrf_token`           | All except `apps/web` gateway | CSRF double-submit (signed, httpOnly)                                                   |
+| `webauthn_challenge`   | `auth`                        | Passkey ceremony (3 min, signed)                                                        |
+| `helvety_device_trust` | `auth`                        | Trusted-device passkey-first sign-in on all `/auth/login` entry paths (30 days, signed) |
 
 `apps/web` uses the `public-marketing` proxy profile: **no** CSRF cookie bootstrap (no `HELVETY_COOKIE_SIGNING_SECRET` on the gateway).
 
@@ -39,7 +39,9 @@ Production cookie domain: `.helvety.com` (`packages/shared/src/config.ts`).
 
 ## Browser storage (not cookies)
 
-Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows), `helvety-pdf-columns` (PDF viewer).
+Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows), `helvety-crypto` (IndexedDB master-key cache for E2EE apps), `helvety-pdf-columns` (PDF viewer).
+
+E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **12h sliding idle** and **30d absolute max** lifetime (`@helvety/shared/crypto/vault-session.ts`). Cleared on logout / hard logout.
 
 ## When to update legal copy
 

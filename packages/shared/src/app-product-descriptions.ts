@@ -12,7 +12,7 @@ export const WEB_SITE_DESCRIPTION =
   "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF, Word (.docx), and image work, extensions, and desktop tools.";
 
 /** Shared auth SEO / social copy. */
-export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: OTP, passkeys, and session recovery where your platform allows. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: email verification and passkeys; returning browsers may skip re-entering email after device verification. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shorter auth PWA install line; must match `public/manifest.json`. */
 export const AUTH_PWA_MANIFEST_DESCRIPTION = `Passwordless Helvety sign-in: OTP and passkeys for encrypted apps. ${HELVETY_SWISS_BUILT_SUFFIX}`;

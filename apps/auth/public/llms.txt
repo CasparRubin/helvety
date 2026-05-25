@@ -1,9 +1,9 @@
 # Helvety Auth
 
-> Passwordless Helvety Auth for OTP and passkey flows across Tasks, Contacts, Notes, and Links. Engineered, designed and made in Switzerland.
+> Passwordless Helvety Auth for email verification and passkey flows across Tasks, Contacts, Notes, and Links. After email verification on a browser, trusted devices may start at passkey sign-in without re-entering email. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
-- [Sign In](https://helvety.com/auth/login): Primary sign-in page
+- [Sign In](https://helvety.com/auth/login): Primary sign-in page (entry step resolved server-side, including trusted-device passkey-first)
 
 ## Crawling And Indexing
 - Auth routes are intended not to be indexed.

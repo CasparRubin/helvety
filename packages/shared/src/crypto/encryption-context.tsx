@@ -15,6 +15,7 @@ import {
   deleteMasterKey,
   clearAllKeys,
   isStorageAvailable,
+  touchVaultSessionInStorage,
 } from "./key-storage";
 import { isPasskeySupported } from "./passkey";
 import {
@@ -22,6 +23,7 @@ import {
   isPRFSupported,
   type PRFSupportInfo,
 } from "./prf-key-derivation";
+import { VAULT_SLIDING_IDLE_MS } from "./vault-session";
 
 /** Internal state for the encryption context */
 interface EncryptionState {
@@ -67,8 +69,6 @@ const EncryptionContext = createContext<EncryptionContextValue | null>(null);
 interface EncryptionProviderProps {
   children: ReactNode;
 }
-
-const INACTIVITY_LOCK_MS = 15 * 60 * 1000;
 
 /**
  * Provider component for end-to-end encryption state management.
@@ -213,12 +213,13 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     const activeUserId = state.unlockedForUserId;
 
     const scheduleIdleLock = () => {
+      void touchVaultSessionInStorage(activeUserId);
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
       timeoutId = setTimeout(() => {
         void lockEncryption(activeUserId);
-      }, INACTIVITY_LOCK_MS);
+      }, VAULT_SLIDING_IDLE_MS);
     };
 
     const activityEvents: Array<keyof WindowEventMap> = [

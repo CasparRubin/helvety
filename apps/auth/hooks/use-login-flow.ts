@@ -45,6 +45,7 @@ import {
 import { getRequiredAuthStep } from "@/lib/auth-utils";
 import { isMobileDevice } from "@/lib/device-utils";
 import { resolveAuthenticatedEmailBootstrap } from "@/lib/login-email-bootstrap";
+import { resolveLoginEntryStep } from "@/lib/login-entry";
 import {
   resolveLoginCurrentAuthStep,
   resolveLoginStepperMode,
@@ -67,20 +68,6 @@ const RATE_LIMIT_AUTH_ERROR_TOKENS = [
   "request rate limit reached",
   "429",
 ] as const;
-const AUTH_ERROR_MESSAGES: Record<string, string> = {
-  auth_failed: "Authentication failed. Please try again.",
-  missing_params: "Invalid authentication link.",
-  logout_failed: "We couldn't complete sign-out. Please sign in and try again.",
-  rate_limited:
-    "Too many sign-in attempts. Please wait a moment and try again.",
-  missing_client_ip: "We couldn't verify your connection. Please try again.",
-  server_error: "Authentication is temporarily unavailable. Please try again.",
-  invalid_type:
-    "This verification link is invalid or expired. Please request a new sign-in code and try again.",
-  invalid_otp_type:
-    "This verification link is invalid or expired. Please request a new sign-in code and try again.",
-};
-
 /** Return type of the useLoginFlow hook */
 interface LoginFlowState {
   step: LoginStep;
@@ -150,8 +137,32 @@ export async function withLoginAuthProbeTimeout<T>(
   }
 }
 
+/**
+ *
+ */
+export type UseLoginFlowOptions = {
+  initialStep: LoginStep;
+  initialTrustedUserId: string | null;
+  initialError?: string;
+};
+
+/**
+ *
+ */
+function parseUrlLoginStep(value: string | null): LoginStep | null {
+  if (
+    value === "email" ||
+    value === "verify-code" ||
+    value === "passkey-signin" ||
+    value === "encryption-setup"
+  ) {
+    return value;
+  }
+  return null;
+}
+
 /** Hook encapsulating the entire login flow state and handlers. */
-export function useLoginFlow(): LoginFlowState {
+export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const searchParams = useSearchParams();
   const supabase = createBrowserClient();
   const csrfToken = useCSRFToken();
@@ -168,22 +179,11 @@ export function useLoginFlow(): LoginFlowState {
     ? rawRedirectUri
     : null;
   const forceLogin = searchParams.get("force_login") === "1";
-  const stepParam = searchParams.get("step") as LoginStep | null;
-  const authError = searchParams.get("error");
+  const urlStep = parseUrlLoginStep(searchParams.get("step"));
 
-  // Compute initial step from URL or default to email
-  const initialStep: LoginStep =
-    stepParam === "passkey-signin" || stepParam === "encryption-setup"
-      ? stepParam
-      : "email";
-
-  // Compute initial error from URL
-  const initialError = authError ? (AUTH_ERROR_MESSAGES[authError] ?? "") : "";
-
-  const [step, setStep] = useState<LoginStep>(initialStep);
-  const [error, setError] = useState(initialError);
+  const [step, setStep] = useState<LoginStep>(options.initialStep);
+  const [error, setError] = useState(options.initialError ?? "");
   const [userId, setUserId] = useState<string | null>(null);
-  const [trustedUserId, setTrustedUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const hasAutoRetriedMismatch = useRef(false);
   const lastAuthBootstrapKey = useRef<string | null>(null);
@@ -194,7 +194,7 @@ export function useLoginFlow(): LoginFlowState {
   /** After OTP: direct to sign-in vs setup then sign-in (drives 3- vs 4-step stepper). */
   const [postOtpPasskeyPath, setPostOtpPasskeyPath] =
     useState<PostOtpPasskeyPath>(null);
-  const authBootstrapKey = `${step}|${redirectUri ?? ""}|${forceLogin ? "1" : "0"}`;
+  const authBootstrapKey = `${urlStep ?? ""}|${redirectUri ?? ""}|${forceLogin ? "1" : "0"}|${options.initialStep}|${options.initialTrustedUserId ?? ""}`;
 
   // Device detection for passkey flow (client-only, set on mount)
   useEffect(() => {
@@ -263,52 +263,10 @@ export function useLoginFlow(): LoginFlowState {
           return;
         }
 
-        // Step-specific URLs are only valid with an authenticated session.
-        // If the session is missing, restart from email (full login flow).
-        if (
-          !user &&
-          (step === "passkey-signin" || step === "encryption-setup")
-        ) {
-          if (step === "passkey-signin") {
-            const trust = await getDeviceTrustStatus();
-            const isTrusted = trust.success && trust.data.trusted;
-            if (!cancelled) {
-              if (isTrusted) {
-                setTrustedUserId(trust.data.userId);
-                setStep("passkey-signin");
-              } else {
-                setStep("email");
-              }
-            }
-            return;
-          }
-          if (!cancelled) setStep("email");
-          return;
-        }
-
-        // If user is authenticated and we're on passkey or encryption step, stay on that step
-        if (
-          user &&
-          (step === "passkey-signin" || step === "encryption-setup")
-        ) {
-          if (!cancelled) {
-            setEmail(user.email ?? "");
-            setUserId(user.id);
-            setTrustedUserId(null);
-          }
-          return;
-        }
-
-        // If user is authenticated but on email step, check what they need to complete
-        if (user && step === "email") {
-          if (!cancelled) {
-            setEmail(user.email ?? "");
-            setUserId(user.id);
-            setTrustedUserId(null);
-          }
-
+        let requiredAuthStep: "passkey-signin" | "encryption-setup" | null =
+          null;
+        if (user) {
           const probe = await getRequiredAuthStep();
-
           if (probe.status === "not_authenticated") {
             try {
               await supabase.auth.signOut({ scope: "local" });
@@ -339,18 +297,50 @@ export function useLoginFlow(): LoginFlowState {
             return;
           }
 
-          const action = resolveAuthenticatedEmailBootstrap({
-            requiredStep: probe.step,
-          });
-          if (!cancelled) {
+          if (probe.status === "ok") {
+            requiredAuthStep = probe.step;
+          }
+        }
+
+        const trustStatus = await getDeviceTrustStatus();
+        const trust =
+          trustStatus.success && trustStatus.data.trusted
+            ? {
+                trusted: true as const,
+                userId: trustStatus.data.userId,
+              }
+            : { trusted: false as const, userId: null };
+
+        const entry = resolveLoginEntryStep({
+          urlStep,
+          hasSession: Boolean(user),
+          trust,
+          forceLogin,
+          requiredAuthStep,
+          redirectUri,
+        });
+
+        if (entry.kind === "redirect") {
+          window.location.href = entry.redirectTo;
+          return;
+        }
+
+        if (!cancelled) {
+          if (user) {
+            setEmail(user.email ?? "");
+            setUserId(user.id);
+          }
+          setStep(entry.step);
+          if (user && requiredAuthStep) {
+            const bootstrap = resolveAuthenticatedEmailBootstrap({
+              requiredStep: requiredAuthStep,
+            });
             setPostOtpPasskeyPath(
-              action.step === "passkey-signin"
+              bootstrap.step === "passkey-signin"
                 ? "direct_signin"
                 : "setup_then_signin"
             );
-            setStep(action.step);
           }
-          return;
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -397,7 +387,7 @@ export function useLoginFlow(): LoginFlowState {
     return () => {
       cancelled = true;
     };
-  }, [authBootstrapKey, forceLogin, redirectUri, step, supabase]);
+  }, [authBootstrapKey, forceLogin, redirectUri, urlStep, supabase]);
 
   // Handle email submission; on success continue to OTP verification.
   const handleEmailSubmit = useCallback(
@@ -536,7 +526,6 @@ export function useLoginFlow(): LoginFlowState {
           {
             isMobile: isMobileDevice(),
             expectedEmail: email ? email.toLowerCase().trim() : undefined,
-            expectedUserId: !email && trustedUserId ? trustedUserId : undefined,
           }
         );
         if (!optionsResult.success) {
@@ -767,7 +756,6 @@ export function useLoginFlow(): LoginFlowState {
     email,
     passkeySupported,
     redirectUri,
-    trustedUserId,
   ]);
 
   const handlePasskeyRegistrationComplete = useCallback(() => {

@@ -1,10 +1,11 @@
 import { createAuthCallbackHandler } from "@helvety/shared/auth-callback";
 import { getAuthUser } from "@helvety/shared/auth-retry";
-import { urls } from "@helvety/shared/config";
 
 import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
+import { setDeviceTrustCookie } from "@/app/actions/device-trust-cookie";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 import { resolveAuthStep } from "@/lib/auth-step";
+import { buildAuthLoginUrl } from "@/lib/login-entry";
 
 import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
@@ -18,32 +19,18 @@ const ALLOWED_OTP_TYPES: EmailOtpType[] = [
   "email_change",
 ];
 
-/** Builds a login redirect URL with optional error and original redirect target. */
-function buildErrorRedirect(
-  authBase: string,
-  error?: string,
-  redirectUri?: string | null
-): string {
-  const loginUrl = new URL(`${authBase}/login`);
-  if (error) {
-    loginUrl.searchParams.set("error", error);
-  }
-  if (redirectUri) {
-    loginUrl.searchParams.set("redirect_uri", redirectUri);
-  }
-  return loginUrl.toString();
-}
-
 /** Resolves the post-session redirect URL after callback auth succeeds. */
 async function buildPostAuthRedirect(
-  authBase: string,
   safeRedirectUri: string | null,
   supabase: SupabaseClient
 ): Promise<string> {
   const { user } = await getAuthUser(supabase);
 
   if (!user) {
-    return buildErrorRedirect(authBase, "auth_failed", safeRedirectUri);
+    return buildAuthLoginUrl({
+      redirectUri: safeRedirectUri,
+      error: "auth_failed",
+    });
   }
 
   const [passkeyResult, encryptionResult] = await Promise.all([
@@ -57,12 +44,10 @@ async function buildPostAuthRedirect(
     hasEncryption: Boolean(hasEncryption),
   });
 
-  const loginUrl = new URL(`${authBase}/login`);
-  loginUrl.searchParams.set("step", step);
-  if (safeRedirectUri) {
-    loginUrl.searchParams.set("redirect_uri", safeRedirectUri);
-  }
-  return loginUrl.toString();
+  return buildAuthLoginUrl({
+    redirectUri: safeRedirectUri,
+    step,
+  });
 }
 
 /**
@@ -84,10 +69,11 @@ async function buildPostAuthRedirect(
  * creates the session directly server-side in verifyPasskeyAuthentication()
  * and returns a redirect URL to the client without going through this callback.
  *
- * After successful email auth, checks if user has passkey and encryption:
+ * After successful email auth, mints `helvety_device_trust` (same as OTP verify) and
+ * checks if user has passkey and encryption:
  * - If no passkey: redirects to login with step=encryption-setup (new user flow)
  * - If has passkey but no encryption: redirects to login with step=encryption-setup
- * - If has passkey and encryption: redirects to passkey-signin step
+ * - If has passkey and encryption: redirects to login with step=passkey-signin
  *
  * Supports redirect_uri query param for returning users to the originating app after sign-in.
  * Redirect URIs are validated against an allowlist to prevent open redirects.
@@ -96,7 +82,12 @@ async function buildPostAuthRedirect(
 export const GET = createAuthCallbackHandler({
   allowedOtpTypes: ALLOWED_OTP_TYPES,
   buildLoginUrl: (redirectUri) =>
-    buildErrorRedirect(urls.auth, undefined, redirectUri),
-  onAuthSuccessRedirect: async ({ safeRedirectUri, supabase }) =>
-    buildPostAuthRedirect(urls.auth, safeRedirectUri, supabase),
+    buildAuthLoginUrl({ redirectUri: redirectUri ?? undefined }),
+  onAuthSuccessRedirect: async ({ safeRedirectUri, supabase }) => {
+    const { user } = await getAuthUser(supabase);
+    if (user) {
+      await setDeviceTrustCookie(user.id);
+    }
+    return buildPostAuthRedirect(safeRedirectUri, supabase);
+  },
 });

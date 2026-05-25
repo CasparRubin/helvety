@@ -22,4 +22,18 @@ describe("auth callback route", () => {
     expect(route.runtime).toBe("nodejs");
     expect(typeof route.GET).toBe("function");
   });
+
+  it("mints device trust after successful email verification", () => {
+    const src = readFileSync(routePath, "utf8");
+
+    expect(src).toContain("setDeviceTrustCookie");
+    expect(src).toMatch(/onAuthSuccessRedirect[\s\S]*setDeviceTrustCookie/);
+  });
+
+  it("builds login redirects via buildAuthLoginUrl", () => {
+    const src = readFileSync(routePath, "utf8");
+
+    expect(src).toContain("buildAuthLoginUrl");
+    expect(src).not.toContain("new URL(`${authBase}/login`)");
+  });
 });

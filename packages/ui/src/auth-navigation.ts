@@ -15,7 +15,11 @@ type NavigationSource = string;
 interface AuthNavigationOptions {
   expectedRoute?: string;
   requestStartedAt?: number;
-  /** When true, appends `force_login=1` to enforce an explicit re-auth cycle. */
+  /**
+   * When true, appends `force_login=1` so `/auth/login` does not auto-redirect away
+   * from the login UI (explicit passkey re-auth). Does not force email OTP; trusted
+   * devices still resolve to passkey-first at the auth login gate.
+   */
   forceLogin?: boolean;
 }
 

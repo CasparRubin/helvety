@@ -41,8 +41,9 @@ type RedirectIntent = "unknown" | "login" | "logout" | "none";
 /**
  * Gate component that requires encryption setup/unlock in this UI flow before
  * rendering children. Unlock/setup is completed in `/auth`; when the user must
- * return to auth, navigation uses `redirectToLoginOnce` with `force_login` so
- * E2EE flows perform an explicit re-auth cycle before unlock.
+ * return to auth, navigation uses `redirectToLoginOnce` with `force_login` so the
+ * login UI is not skipped when a session still exists locally. Trusted devices may
+ * skip email OTP but still require passkey sign-in before unlock.
  */
 export function EncryptionGate({
   userId,

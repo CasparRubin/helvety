@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="May 23, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="May 25, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -271,9 +271,13 @@ export default function TermsPage() {
           not located in the EU/EEA; this confirmation is required before a new
           account is created. After confirmation, all users complete email
           verification-code authentication. Existing users then continue with
-          passkey sign-in, while first-time users complete passkey setup. You
-          then authenticate using your device&apos;s biometrics (Face ID,
-          fingerprint, or PIN) to set up or use your passkey.
+          passkey sign-in, while first-time users complete passkey setup. On
+          return visits from the same browser, after prior email verification,
+          sign-in may begin at passkey confirmation without asking for your
+          email again until you sign out or the trusted-device cookie expires
+          (passkey is still required). You then authenticate using your
+          device&apos;s biometrics (Face ID, fingerprint, or PIN) to set up or
+          use your passkey.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           By creating an account, you agree to:

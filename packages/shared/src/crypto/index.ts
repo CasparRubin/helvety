@@ -42,7 +42,19 @@ export {
   clearAllKeys,
   isStorageAvailable,
   onKeyEvent,
+  touchVaultSessionInStorage,
 } from "./key-storage";
+
+// Vault session policy (IndexedDB master-key retention)
+export {
+  VAULT_SLIDING_IDLE_MS,
+  VAULT_MAX_LIFETIME_MS,
+  createVaultSession,
+  touchVaultSession,
+  isVaultSessionValid,
+  normalizeVaultSessionTimestamps,
+} from "./vault-session";
+export type { VaultSessionTimestamps } from "./vault-session";
 
 // Encoding Utilities
 export {

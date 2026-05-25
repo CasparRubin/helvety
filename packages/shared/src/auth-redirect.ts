@@ -121,8 +121,9 @@ function resolveRedirectUri(
  * Get the login URL for redirecting to the auth service.
  * Includes the current URL as redirect_uri parameter for post-login return.
  * Optionally appends `force_login=1` so `/auth/login` does not auto-redirect
- * away from passkey sign-in (e.g. after logout, or when EncryptionGate needs
- * a fresh passkey unlock for E2EE apps).
+ * completed sessions back to the app (e.g. after logout, or when EncryptionGate
+ * needs a fresh passkey unlock). It does **not** force email OTP; trusted devices
+ * still resolve to passkey-first at the auth login gate.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
  * open redirect attacks. Invalid URIs fall back to the default app URL.

@@ -122,7 +122,7 @@ const PASSKEY_VERIFY_GENERIC_ERROR =
  * @param csrfToken - CSRF token for request validation
  * @param origin - The origin URL
  * @param redirectUri - Optional redirect URI to preserve through auth flow
- * @param authOptions - Optional { isMobile, expectedEmail, expectedUserId } to choose platform/hybrid and bind passkey to account (email-bound or trusted-device user-bound)
+ * @param authOptions - Optional { isMobile, expectedEmail } to choose platform/hybrid and bind passkey to account (email-bound or trusted-device via server trust cookie)
  * @returns Authentication options for WebAuthn
  */
 export async function generatePasskeyAuthOptions(
@@ -132,7 +132,6 @@ export async function generatePasskeyAuthOptions(
   authOptions?: {
     isMobile?: boolean;
     expectedEmail?: string;
-    expectedUserId?: string;
   }
 ): Promise<ActionResponse<PasskeyAuthOptionsResponse>> {
   const originParse = OriginUrlSchema.safeParse(origin);
@@ -148,7 +147,6 @@ export async function generatePasskeyAuthOptions(
   const normalizedExpectedEmail = authOptions?.expectedEmail
     ?.toLowerCase()
     .trim();
-  const expectedUserId = authOptions?.expectedUserId;
   const guard = await runAuthActionGuards({ csrfToken });
   if (!guard.ok) return guard.response;
   const clientIP = guard.clientIP;
@@ -218,32 +216,31 @@ export async function generatePasskeyAuthOptions(
           transports: toAuthenticatorTransports(item.transports),
         })
       );
-    } else if (expectedUserId) {
-      // Trusted-device passkey-first path: bind allowCredentials to the trusted user
-      // without requiring the user to re-enter email on this device.
-      const userIdParse = z.string().uuid().safeParse(expectedUserId);
-      if (!userIdParse.success) {
-        return { success: false, error: PASSKEY_OPTIONS_GENERIC_ERROR };
-      }
-      expectedUserIdForChallenge = userIdParse.data;
-      const scopedAdmin = createScopedAdminQuery(userIdParse.data);
-      const { data: credentials, error: credentialsError } = await scopedAdmin
-        .from("user_auth_credentials")
-        .select("credential_id, transports");
+    } else {
+      // Trusted-device passkey-first path: bind only from a valid server trust cookie
+      // (never from client-supplied user id).
+      const trust = await getValidDeviceTrustCookie();
+      if (trust) {
+        expectedUserIdForChallenge = trust.userId;
+        const scopedAdmin = createScopedAdminQuery(trust.userId);
+        const { data: credentials, error: credentialsError } = await scopedAdmin
+          .from("user_auth_credentials")
+          .select("credential_id, transports");
 
-      if (credentialsError || !credentials || credentials.length === 0) {
-        return {
-          success: false,
-          error: PASSKEY_OPTIONS_GENERIC_ERROR,
-        };
-      }
+        if (credentialsError || !credentials || credentials.length === 0) {
+          return {
+            success: false,
+            error: PASSKEY_OPTIONS_GENERIC_ERROR,
+          };
+        }
 
-      allowCredentials = credentials.map(
-        (item: { credential_id: string; transports: string[] | null }) => ({
-          id: item.credential_id,
-          transports: toAuthenticatorTransports(item.transports),
-        })
-      );
+        allowCredentials = credentials.map(
+          (item: { credential_id: string; transports: string[] | null }) => ({
+            id: item.credential_id,
+            transports: toAuthenticatorTransports(item.transports),
+          })
+        );
+      }
     }
 
     const opts: GenerateAuthenticationOptionsOpts = {
@@ -583,7 +580,7 @@ export async function verifyPasskeyAuthentication(
 
       // Sliding device-trust renewal: renew only if an existing valid trust cookie
       // is present and matches the authenticated user. Never create trust on
-      // passkey auth alone (trust is minted on email OTP verification).
+      // passkey auth alone (trust is minted on email verification: OTP or auth callback).
       const existingTrust = await getValidDeviceTrustCookie();
       if (existingTrust) {
         if (existingTrust.userId === credential.user_id) {

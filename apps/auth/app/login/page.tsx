@@ -1,152 +1,116 @@
-"use client";
+import { getAuthUser } from "@helvety/shared/auth-retry";
+import { urls } from "@helvety/shared/config";
+import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
+import { createServerClient } from "@helvety/shared/supabase/server";
+import { redirect } from "next/navigation";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@helvety/ui/card";
-import { Loader2 } from "lucide-react";
-import { Suspense } from "react";
+import { getDeviceTrustStatus } from "@/app/actions/device-trust-actions";
+import { getRequiredAuthStep } from "@/lib/auth-utils";
+import { buildAuthLoginPath, resolveLoginEntryStep } from "@/lib/login-entry";
 
-import { AuthStepper } from "@/components/auth-stepper";
-import { EncryptionSetup } from "@/components/encryption-setup";
-import { EmailStep } from "@/components/login/email-step";
-import { PasskeySignInStep } from "@/components/login/passkey-signin-step";
-import { VerifyCodeStep } from "@/components/login/verify-code-step";
-import { useLoginFlow } from "@/hooks/use-login-flow";
+import { LoginClient } from "./login-client";
 
+import type { RequiredAuthStep } from "@/lib/auth-step";
 import type { LoginStep } from "@/lib/login-flow-stepper";
 
-/** Card titles when the outer card is shown (not on encryption-setup). */
-function loginStepTitle(step: LoginStep): string {
-  switch (step) {
-    case "email":
-      return "Welcome to Helvety";
-    case "verify-code":
-      return "Check Your Email";
-    case "passkey-signin":
-      return "Confirm with your passkey";
-    case "encryption-setup":
-      return "";
-    default: {
-      const _exhaustive: never = step;
-      return _exhaustive;
-    }
+const LOGIN_STEPS = new Set<LoginStep>([
+  "email",
+  "verify-code",
+  "passkey-signin",
+  "encryption-setup",
+]);
+
+/**
+ *
+ */
+function parseUrlStep(value: string | undefined): LoginStep | null {
+  if (value && LOGIN_STEPS.has(value as LoginStep)) {
+    return value as LoginStep;
   }
+  return null;
 }
 
-/** Card descriptions for the same steps as `loginStepTitle`. */
-function loginStepDescription(step: LoginStep, email: string): string {
-  switch (step) {
-    case "email":
-      return "Enter your email and confirm your location to continue";
-    case "verify-code":
-      return `We sent a verification code to ${email}. Check your spam folder if you don\u2019t see it.`;
-    case "passkey-signin":
-      return "Use your passkey to complete sign-in. This confirms the passkey you use for your account.";
-    case "encryption-setup":
-      return "";
-    default: {
-      const _exhaustive: never = step;
-      return _exhaustive;
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  auth_failed: "Authentication failed. Please try again.",
+  missing_params: "Invalid authentication link.",
+  logout_failed: "We couldn't complete sign-out. Please sign in and try again.",
+  rate_limited:
+    "Too many sign-in attempts. Please wait a moment and try again.",
+  missing_client_ip: "We couldn't verify your connection. Please try again.",
+  server_error: "Authentication is temporarily unavailable. Please try again.",
+  invalid_type:
+    "This verification link is invalid or expired. Please request a new sign-in code and try again.",
+  invalid_otp_type:
+    "This verification link is invalid or expired. Please request a new sign-in code and try again.",
+};
+
+/** Server gate for `/auth/login`: resolves entry step and canonicalizes trusted URLs. */
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    redirect_uri?: string;
+    step?: string;
+    force_login?: string;
+    error?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const rawRedirectUri = params.redirect_uri;
+  const safeRedirectUri = getSafeRedirectUri(rawRedirectUri, urls.home);
+  const forceLogin = params.force_login === "1";
+  const urlStep = parseUrlStep(params.step);
+  const authError = params.error;
+  const initialError = authError ? (AUTH_ERROR_MESSAGES[authError] ?? "") : "";
+
+  const supabase = await createServerClient();
+  const { user } = await getAuthUser(supabase);
+  const trustResult = await getDeviceTrustStatus();
+  const trust =
+    trustResult.success && trustResult.data.trusted
+      ? {
+          trusted: true as const,
+          userId: trustResult.data.userId,
+        }
+      : { trusted: false as const, userId: null };
+
+  let requiredAuthStep: RequiredAuthStep | null = null;
+  if (user) {
+    const probe = await getRequiredAuthStep();
+    if (probe.status === "ok") {
+      requiredAuthStep = probe.step;
     }
   }
-}
 
-/** Main login page: email → OTP → passkey (with optional encryption setup between OTP and sign-in when required). */
-function LoginContent() {
-  const flow = useLoginFlow();
+  const entry = resolveLoginEntryStep({
+    urlStep,
+    hasSession: Boolean(user),
+    trust,
+    forceLogin,
+    requiredAuthStep,
+    redirectUri: safeRedirectUri,
+  });
 
-  if (flow.checkingAuth) {
-    return (
-      <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-      </div>
+  if (entry.kind === "redirect") {
+    redirect(entry.redirectTo);
+  }
+
+  if (entry.step === "passkey-signin" && urlStep !== "passkey-signin") {
+    redirect(
+      buildAuthLoginPath({
+        redirectUri: safeRedirectUri,
+        forceLogin,
+        step: "passkey-signin",
+        error: authError,
+      })
     );
   }
 
-  const title = loginStepTitle(flow.step);
-  const description = loginStepDescription(flow.step, flow.email);
-
   return (
-    <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-      <div className="flex w-full max-w-md flex-col items-center space-y-6">
-        <AuthStepper
-          mode={flow.stepperMode}
-          currentStep={flow.currentAuthStep}
-        />
-
-        {flow.step === "encryption-setup" && flow.userId && (
-          <EncryptionSetup
-            userId={flow.userId}
-            onRegistrationComplete={flow.handlePasskeyRegistrationComplete}
-          />
-        )}
-
-        {flow.step !== "encryption-setup" && (
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle>{title}</CardTitle>
-              <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {flow.step === "email" && (
-                <EmailStep
-                  email={flow.email}
-                  onEmailChange={flow.setEmail}
-                  nonEUEEAConfirmed={flow.nonEUEEAConfirmed}
-                  onNonEUEEAConfirmedChange={flow.setNonEUEEAConfirmed}
-                  onSubmit={flow.handleEmailSubmit}
-                  isLoading={flow.isLoading}
-                  error={flow.error}
-                  showRedirectNotice={!!flow.redirectUri}
-                />
-              )}
-
-              {flow.step === "verify-code" && (
-                <VerifyCodeStep
-                  email={flow.email}
-                  otpCode={flow.otpCode}
-                  onOtpCodeChange={flow.setOtpCode}
-                  onSubmit={flow.handleCodeVerify}
-                  onResend={flow.handleResendCode}
-                  onBack={flow.handleBack}
-                  isLoading={flow.isLoading}
-                  error={flow.error}
-                  resendCooldown={flow.resendCooldown}
-                />
-              )}
-
-              {flow.step === "passkey-signin" && (
-                <PasskeySignInStep
-                  onSignIn={flow.handlePasskeySignIn}
-                  isLoading={flow.isLoading}
-                  error={flow.error}
-                  passkeySupported={flow.passkeySupported}
-                  isMobile={flow.isMobile}
-                />
-              )}
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/** Login page wrapped in Suspense (required by useSearchParams). */
-export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
-          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-        </div>
-      }
-    >
-      <LoginContent />
-    </Suspense>
+    <LoginClient
+      initialStep={entry.step}
+      initialTrustedUserId={entry.trustedUserId}
+      initialError={initialError || undefined}
+    />
   );
 }
