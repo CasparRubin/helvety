@@ -20,7 +20,7 @@
   - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present) and sets `x-helvety-auth-refreshed` for RSC clients — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`); **`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, and **`public-tool`** profiles clear stale `sb-*` cookies when refresh fails (fail-closed); **`public-marketing`** (`web`) does not
   - `@helvety/shared/encrypted-prefetch-api` for vault/list GET routes (`RATE_LIMITS.PREFETCH`, explicit column lists); `bootstrapAuthLayoutSession()` for the auth layout
   - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
-  - server env validation and Supabase client factories; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); per-app `env.template` parity (`consistency:env-templates`)
+  - server env validation and Supabase client factories; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); per-app `env.template` parity (`consistency:env-templates`); local/Vercel env ops (`consistency:local-env`, [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))
   - `defineEntityDeleteRegistry` (`entity-delete-message`) for E2EE delete copy
   - `app-product-descriptions` for shared SEO/PWA strings (pdf/image-upscaler re-export via thin `lib/product-copy.ts`)
 - `@helvety/ui`

@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   EXPECTED_KEYS_BY_APP,
+  FORBIDDEN_KEYS_BY_APP,
   parseTemplateKeys,
   validateEnvTemplates,
   validateTurboGatewayBuildEnv,
@@ -37,6 +38,15 @@ describe("env.template consistency", () => {
     expect([...WEB_GATEWAY_KEYS].sort()).toEqual(
       WEB_GATEWAY_KEYS.filter((key) => buildEnv.includes(key)).sort()
     );
+    expect(WEB_GATEWAY_KEYS).toContain("DOCS_URL");
+  });
+
+  it("turbo.json build env includes optional analytics flag for cache invalidation", async () => {
+    const turbo = JSON.parse(
+      await readFile(resolve(repoRoot, "turbo.json"), "utf8")
+    ) as { tasks?: { build?: { env?: string[] } } };
+    const buildEnv = turbo.tasks?.build?.env ?? [];
+    expect(buildEnv).toContain("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS");
   });
 
   it("documents DEVICE_TRUST_COOKIE_SECRET only on auth", () => {
@@ -71,24 +81,25 @@ describe("env.template consistency", () => {
     }
   });
 
-  it("env.template files include expected keys per app", async () => {
-    const envModules: Array<{ app: string; templatePath: string }> = [
-      { app: "auth", templatePath: "apps/auth/env.template" },
-      { app: "notes", templatePath: "apps/notes/env.template" },
-      { app: "tasks", templatePath: "apps/tasks/env.template" },
-      { app: "contacts", templatePath: "apps/contacts/env.template" },
-      { app: "links", templatePath: "apps/links/env.template" },
-      { app: "store", templatePath: "apps/store/env.template" },
-      { app: "pdf", templatePath: "apps/pdf/env.template" },
-      { app: "docs", templatePath: "apps/docs/env.template" },
-      {
-        app: "image-upscaler",
-        templatePath: "apps/image-upscaler/env.template",
-      },
-      { app: "web", templatePath: "apps/web/env.template" },
-    ];
+  it("defines forbidden keys for every app in EXPECTED_KEYS_BY_APP", () => {
+    expect(Object.keys(FORBIDDEN_KEYS_BY_APP).sort()).toEqual(
+      Object.keys(EXPECTED_KEYS_BY_APP).sort()
+    );
+  });
 
-    for (const { app, templatePath } of envModules) {
+  it("web env.template documents gateway tier (no cookie signing / Upstash)", async () => {
+    const content = await readFile(
+      resolve(repoRoot, "apps/web/env.template"),
+      "utf8"
+    );
+    expect(content).toContain("intentionally omits");
+    expect(content).toContain("HELVETY_COOKIE_SIGNING_SECRET");
+    expect(parseTemplateKeys(content)).not.toContain("UPSTASH_REDIS_REST_URL");
+  });
+
+  it("env.template files include expected keys per app", async () => {
+    for (const app of Object.keys(EXPECTED_KEYS_BY_APP)) {
+      const templatePath = `apps/${app}/env.template`;
       const absolutePath = resolve(repoRoot, templatePath);
       const content = await readFile(absolutePath, "utf8");
       const templateKeys = parseTemplateKeys(content);
@@ -100,5 +111,69 @@ describe("env.template consistency", () => {
       }
       expect(templateKeys.sort()).toEqual([...expectedKeys].sort());
     }
+  });
+
+  it("env documentation references tiers, DOCS_URL gateway, and local/Vercel audit commands", async () => {
+    const docsWithAuditCommands = [
+      "README.md",
+      "docs/env-vercel-audit-checklist.md",
+      "docs/naming-conventions.md",
+    ] as const;
+
+    for (const relativePath of docsWithAuditCommands) {
+      const content = await readFile(resolve(repoRoot, relativePath), "utf8");
+      expect(content, relativePath).toContain("consistency:env-templates");
+      expect(content, relativePath).toContain("consistency:local-env");
+      if (relativePath !== "docs/env-vercel-audit-checklist.md") {
+        expect(content, relativePath).toContain(
+          "env-vercel-audit-checklist.md"
+        );
+      }
+    }
+
+    const readme = await readFile(resolve(repoRoot, "README.md"), "utf8");
+    expect(readme).toContain("DOCS_URL");
+
+    const turboTiers = await readFile(
+      resolve(repoRoot, "docs/turbo-env-tiers.md"),
+      "utf8"
+    );
+    expect(turboTiers).toContain("consistency:local-env");
+    expect(turboTiers).toContain("DOCS_URL");
+    expect(turboTiers).toContain(
+      "tasks`, `contacts`, `notes`, `links`, `docs`"
+    );
+    expect(turboTiers).toContain("env-vercel-audit-checklist.md");
+
+    const vercelApps = await readFile(
+      resolve(repoRoot, "docs/vercel-monorepo-apps.md"),
+      "utf8"
+    );
+    expect(vercelApps).toContain("DOCS_URL");
+    expect(vercelApps).toContain("env-vercel-audit-checklist.md");
+
+    const auditChecklist = await readFile(
+      resolve(repoRoot, "docs/env-vercel-audit-checklist.md"),
+      "utf8"
+    );
+    expect(auditChecklist).toContain("helvety-com");
+    expect(auditChecklist).not.toContain("helvety-web");
+  });
+
+  it("EXPECTED_KEYS_BY_APP covers every zone app directory", () => {
+    expect(Object.keys(EXPECTED_KEYS_BY_APP).sort()).toEqual(
+      [
+        "auth",
+        "contacts",
+        "docs",
+        "image-upscaler",
+        "links",
+        "notes",
+        "pdf",
+        "store",
+        "tasks",
+        "web",
+      ].sort()
+    );
   });
 });

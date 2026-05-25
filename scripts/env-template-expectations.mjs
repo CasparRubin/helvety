@@ -51,6 +51,26 @@ export const EXPECTED_KEYS_BY_APP = {
   web: [...PUBLIC_SUPABASE_KEYS, ...WEB_GATEWAY_KEYS],
 };
 
+/** Keys that must not appear in a zone’s `.env.local` / Vercel env (tier violations). */
+export const FORBIDDEN_KEYS_BY_APP = {
+  web: [
+    "SUPABASE_SECRET_KEY",
+    "UPSTASH_REDIS_REST_URL",
+    "UPSTASH_REDIS_REST_TOKEN",
+    "HELVETY_COOKIE_SIGNING_SECRET",
+    "DEVICE_TRUST_COOKIE_SECRET",
+  ],
+  auth: [],
+  store: ["DEVICE_TRUST_COOKIE_SECRET"],
+  notes: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  tasks: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  contacts: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  links: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  docs: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  pdf: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  "image-upscaler": ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+};
+
 /**
  * @param {string} content
  * @returns {string[]}

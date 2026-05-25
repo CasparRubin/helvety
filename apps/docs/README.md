@@ -103,7 +103,7 @@ This app uses the **user-scoped server** env tier (same as E2EE vault zones): Su
 
 ## Vercel deployment
 
-Separate project **`helvety-docs`** with Root Directory **`apps/docs`** (same pattern as PDF, Tasks, etc.). See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md). Production env from [`env.template`](./env.template); gateway needs `DOCS_URL` when `VERCEL=1`.
+Separate project **`helvety-docs`** with Root Directory **`apps/docs`** (same pattern as PDF, Tasks, etc.). See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md) and [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Production env from [`env.template`](./env.template); gateway **`helvety-com`** needs `DOCS_URL` when `VERCEL=1` (redeploy the gateway after changing rewrite URLs). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
 ## Database
 

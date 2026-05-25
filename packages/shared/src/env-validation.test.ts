@@ -228,6 +228,7 @@ describe("env-validation", () => {
     const { getValidatedGatewayEnv } = await import("./env-validation");
     const env = getValidatedGatewayEnv();
     expect(env.AUTH_URL).toMatch(/^https:\/\//);
+    expect(env.DOCS_URL).toMatch(/^https:\/\//);
     expect(env.LINKS_URL).toMatch(/^https:\/\//);
   });
 

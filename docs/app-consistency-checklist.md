@@ -4,20 +4,20 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 
 ## Required files (every Next.js zone)
 
-| File                 | Purpose                                                                                                                                                  |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `proxy.ts`           | Zone security proxy (`createAppProxy` or profiled variant); **no** `middleware.ts`                                                                       |
-| `proxy.test.ts`      | Matcher parity with `SECURITY_PROXY_MATCHER` (gateway: zone exclusions + static extensions)                                                              |
-| `env.template`       | Documented env keys; validated by `bun run consistency:env-templates`                                                                                    |
-| `eslint.config.mjs`  | `createEslintConfig(import.meta.dirname)` from `@helvety/config/eslint`                                                                                  |
-| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest`; workspaces with real tests pass `{ passWithNoTests: false }`                              |
-| `vitest.setup.ts`    | `@testing-library/jest-dom` + RTL `cleanup()`                                                                                                            |
-| `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                          |
-| `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                             |
-| `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage |
-| `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                      |
-| `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                   |
-| `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                            |
+| File                 | Purpose                                                                                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `proxy.ts`           | Zone security proxy (`createAppProxy` or profiled variant); **no** `middleware.ts`                                                                                                                                        |
+| `proxy.test.ts`      | Matcher parity with `SECURITY_PROXY_MATCHER` (gateway: zone exclusions + static extensions)                                                                                                                               |
+| `env.template`       | Documented env keys; validated by `bun run consistency:env-templates`; local `.env.local` tier parity via `bun run consistency:local-env` ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md) for Vercel) |
+| `eslint.config.mjs`  | `createEslintConfig(import.meta.dirname)` from `@helvety/config/eslint`                                                                                                                                                   |
+| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest`; workspaces with real tests pass `{ passWithNoTests: false }`                                                                                               |
+| `vitest.setup.ts`    | `@testing-library/jest-dom` + RTL `cleanup()`                                                                                                                                                                             |
+| `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                                                                                           |
+| `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                                                                                              |
+| `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage                                                                  |
+| `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                                                                                       |
+| `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                                                                                    |
+| `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                             |
 
 ## Required tests (minimum floor)
 
@@ -214,7 +214,7 @@ See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
 ## Environment tiers and Turbo
 
-Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.json) so cached builds invalidate when any zone secret changes. See [`turbo-env-tiers.md`](./turbo-env-tiers.md). **Required keys at runtime** still follow each app's `env.template`:
+Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.json) so cached builds invalidate when any zone secret changes. See [`turbo-env-tiers.md`](./turbo-env-tiers.md) and [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md). **Required keys at runtime** still follow each app's `env.template` (`bun run consistency:env-templates`; local `.env.local`: `bun run consistency:local-env`):
 
 | Tier                         | Apps                    | Required secrets (typical)                                                        |
 | ---------------------------- | ----------------------- | --------------------------------------------------------------------------------- |

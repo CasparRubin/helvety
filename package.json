@@ -27,6 +27,7 @@
     "format": "node scripts/run-prettier.mjs --write",
     "format:check": "node scripts/run-prettier.mjs --check",
     "consistency:env-templates": "node scripts/check-env-template-consistency.mjs",
+    "consistency:local-env": "node scripts/audit-local-env.mjs",
     "consistency:guardrails": "node scripts/check-consistency-guardrails.mjs",
     "consistency:zone-modernization": "node scripts/check-zone-modernization.mjs",
     "consistency:supabase-auth": "node scripts/check-supabase-auth-patterns.mjs",
