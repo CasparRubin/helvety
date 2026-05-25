@@ -195,6 +195,8 @@ interface ProductLinks {
   demo?: string;
   /** Link to GitHub/source code */
   github?: string;
+  /** Link to Chrome Web Store listing (browser extensions) */
+  chromeWebStore?: string;
   /** Link to support/help */
   support?: string;
 }

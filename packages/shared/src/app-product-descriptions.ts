@@ -18,7 +18,7 @@ export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: OTP, passk
 export const AUTH_PWA_MANIFEST_DESCRIPTION = `Passwordless Helvety sign-in: OTP and passkeys for encrypted apps. ${HELVETY_SWISS_BUILT_SUFFIX}`;
 
 /** Shared store SEO / social copy. */
-export const STORE_DESCRIPTION = `Browse free Helvety apps and downloads. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const STORE_DESCRIPTION = `Browse free Helvety apps, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared contacts SEO / social copy. */
 export const CONTACTS_APP_DESCRIPTION = `Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups. ${HELVETY_SWISS_ORIGIN_SEO}`;
@@ -36,7 +36,7 @@ export const LINKS_APP_DESCRIPTION = `Encrypted bookmarks with nested folders. N
 export const DOCS_APP_DESCRIPTION = `Edit Word documents in your browser. Local editing needs no account; optional vault save encrypts titles and .docx files on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Store products listing metadata. */
-export const STORE_PRODUCTS_PAGE_DESCRIPTION = `Browse free Helvety products and apps. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const STORE_PRODUCTS_PAGE_DESCRIPTION = `Browse free Helvety products, apps, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared PDF SEO / social copy. */
 export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages in the tab; add images where supported. Work stays local (${PDF_FILE_SIZE_LIMIT_COPY}). Fair-use safeguards still apply, and no Helvety subscription gates the tools. ${HELVETY_SWISS_ORIGIN_SEO}`;

@@ -1,5 +1,6 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import {
+  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE,
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
 } from "@helvety/shared/power-platform-configurator-copy";
@@ -136,8 +137,10 @@ export default function ImpressumPage() {
             <strong className="text-foreground">
               Power Platform Configurator
             </strong>
-            : {POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} Edge/Chrome
-            extension. {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}
+            : {POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} Edge/Chrome extension
+            available on the Chrome Web Store.{" "}
+            {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}{" "}
+            {POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE}
           </li>
           <li>
             <strong className="text-foreground">Helvety PDF</strong>: in-browser

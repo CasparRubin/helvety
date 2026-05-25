@@ -5,7 +5,8 @@
  * `apps/store/components/products/product-badge.tsx`.
  * Power Platform Configurator card blurbs are composed from
  * `./power-platform-configurator-copy` so they stay aligned with the Chromium extension manifest
- * (`CasparRubin/power-platform-configurator-browser-extension-chromium`).
+ * (`CasparRubin/power-platform-configurator-browser-extension-chromium`);
+ * public install is the Chrome Web Store (see `power-platform-configurator-copy.ts`).
  */
 
 import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";

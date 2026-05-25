@@ -6,6 +6,7 @@ import {
   HELVETY_FREE_AGPL_FEATURE,
   HELVETY_FREE_AGPL_INLINE,
 } from "@helvety/shared/licensing";
+import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import {
   compareStoreCatalogEntriesNewestFirst,
   requireStoreProductCard,
@@ -279,7 +280,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
       {
         heading: "Getting it",
         kind: "paragraph",
-        body: `${HELVETY_FREE_AGPL_FEATURE}. Download the ZIP from this Store page, load it unpacked with developer mode in Edge or Chrome, then track issues on GitHub. No Helvety account is involved.`,
+        body: `${HELVETY_FREE_AGPL_FEATURE}. Install from the Chrome Web Store using the button on this page, then track issues on GitHub. No Helvety account is involved.`,
       },
       {
         heading: "Scope",
@@ -294,7 +295,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
       {
         heading: "Vendor reality check",
         kind: "paragraph",
-        body: "Microsoft can change URLs or the editor at any time. Validate against the exact build you install and the vendor documentation you rely on.",
+        body: "Microsoft can change URLs or the editor at any time. The Chrome Web Store delivers updates automatically; validate behavior against the vendor documentation you rely on.",
       },
     ],
   },
@@ -305,7 +306,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
     "Covers flow and run pages on supported Power Automate sites",
     "Popup appearance preference stored locally on your device",
     "For Microsoft Edge and Google Chrome",
-    "No account required for download",
+    "No account required to install",
     HELVETY_FREE_AGPL_FEATURE,
   ],
   pricing: {
@@ -320,50 +321,33 @@ const powerPlatformConfigurator: SoftwareProduct = {
         isFree: true,
         features: [
           "Full extension behavior",
-          "No account required for download",
+          "No account required to install",
           "Free to use",
         ],
       },
     ],
   },
   links: {
+    chromeWebStore: POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
     github:
       "https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium",
   },
   software: {
-    fileFormat: "zip",
-    publicPackageId: "power-platform-configurator",
     requirements: [
       "Microsoft Edge or Google Chrome",
       "Access to https://make.powerautomate.com/",
-      "Permission to turn on developer mode and load unpacked extensions",
     ],
     licenseType: "free",
     installationSteps: [
       {
-        title: "Download the ZIP",
+        title: "Install from the Chrome Web Store (Chrome)",
         description:
-          "Use the Download button on this page to save power-platform-configurator.zip to your computer.",
+          "Use Add to Chrome on this page to open the official listing, then choose Add to Chrome in the store. Pin the extension from the toolbar menu if you want it always visible.",
       },
       {
-        title: "Extract the archive",
+        title: "Install in Microsoft Edge",
         description:
-          'Unzip the file into a folder you can keep permanently (for example under Documents). Chromium requires a real folder on disk. You cannot point "Load unpacked" at the ZIP file itself.',
-      },
-      {
-        title: "Open the extensions page (Edge)",
-        description:
-          "In Microsoft Edge, go to edge://extensions (paste into the address bar). Turn on Developer mode using the toggle in the sidebar.",
-      },
-      {
-        title: "Open the extensions page (Chrome)",
-        description:
-          "In Google Chrome, go to chrome://extensions and enable Developer mode.",
-      },
-      {
-        title: "Load the extension",
-        description:
-          "Click Load unpacked and select the extracted folder, the one that contains manifest.json (not a parent directory).",
+          'In Edge, go to edge://extensions and turn on "Allow extensions from other stores" in the sidebar. Open the same Chrome Web Store listing from this page and choose Get to install the extension.',
       },
       {
         title: "Verify in Power Automate",
@@ -381,6 +365,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
     keywords: [
       "power automate",
       "browser extension",
+      "chrome web store",
       "v3",
       "classic editor",
       "new designer",

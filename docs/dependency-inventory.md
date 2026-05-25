@@ -80,11 +80,11 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 Listed in Store catalog / extension docs; bump or release separately from `helvety` npm.
 
-| Product                               | Repository                                                                            | Check URL                             |
-| ------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------- |
-| Helvety Chromium extension            | https://github.com/CasparRubin/helvety-browser-extension-chromium                     | GitHub releases                       |
-| Power Platform Configurator extension | https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium | GitHub releases                       |
-| Shared extension chrome               | Consumes `@helvety/extension-chrome` from this repo                                   | `packages/extension-chrome/README.md` |
+| Product                               | Repository                                                                            | Check URL                                                                                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Helvety Chromium extension            | https://github.com/CasparRubin/helvety-browser-extension-chromium                     | GitHub releases                                                                                                                        |
+| Power Platform Configurator extension | https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium | [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang); GitHub source |
+| Shared extension chrome               | Consumes `@helvety/extension-chrome` from this repo                                   | `packages/extension-chrome/README.md`                                                                                                  |
 
 When `@helvety/extension-chrome` changes, coordinate releases in those external repos.
 

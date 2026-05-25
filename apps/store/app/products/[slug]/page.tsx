@@ -1,5 +1,6 @@
 import { urls } from "@helvety/shared/config";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
+import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { notFound } from "next/navigation";
@@ -83,6 +84,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       "@type": "Organization",
       name: "Helvety",
     },
+    ...(card.slug === "helvety-power-platform-configurator"
+      ? { sameAs: [POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL] }
+      : {}),
   };
 
   return (

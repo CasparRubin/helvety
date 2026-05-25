@@ -23,7 +23,7 @@ export const WEB_NAVBAR_ABOUT =
   "Home base for Helvety on helvety.com. Move between apps, discover tools, and open your account from one place." as const;
 
 export const STORE_NAVBAR_ABOUT =
-  "Browse Helvety products, downloads, and your account. Listings stay straightforward so you can find what you need quickly." as const;
+  "Browse Helvety products, Store downloads, install links, and your account. Listings stay straightforward so you can find what you need quickly." as const;
 
 export const AUTH_NAVBAR_ABOUT =
   "Sign-in for Helvety web apps on helvety.com. One account and shared sessions across those apps." as const;

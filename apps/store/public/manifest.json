@@ -1,7 +1,7 @@
 {
   "name": "Helvety Store",
   "short_name": "Helvety Store",
-  "description": "Browse free Helvety apps and downloads. Engineered, designed and made in Switzerland.",
+  "description": "Browse free Helvety apps, downloads, and install links. Engineered, designed and made in Switzerland.",
   "start_url": "/store",
   "display": "standalone",
   "background_color": "#faf8f7",

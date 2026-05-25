@@ -2,7 +2,8 @@
 
 /**
  * Product detail client component.
- * Displays full product information with free download/app actions.
+ * Displays full product information with free actions: Chrome Web Store install
+ * links where configured, Store-hosted SPFx package downloads, or app deep links.
  * The server page calls `notFound()` when the slug is absent from
  * `@helvety/shared/store-catalog`; this client guard covers rare
  * catalog vs `products.ts` drift. Package downloads use a click-only button
@@ -68,9 +69,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       ? product.software.installationSteps
       : null;
   const githubUrl = product.links?.github;
+  const chromeWebStoreUrl = product.links?.chromeWebStore;
 
   const showDownload = Boolean(packageDownloadUrl && downloadFormat);
   const showAppLink = Boolean(appUrl);
+  const showChromeWebStore = Boolean(chromeWebStoreUrl);
 
   return (
     <div className="mx-auto max-w-6xl px-0 py-6 sm:py-8">
@@ -150,6 +153,18 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 paid tiers or subscriptions.
               </p>
               <div className="flex flex-col gap-2">
+                {showChromeWebStore && chromeWebStoreUrl && (
+                  <Button className="w-full" asChild>
+                    <a
+                      href={chromeWebStoreUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="size-4 shrink-0" />
+                      Add to Chrome
+                    </a>
+                  </Button>
+                )}
                 {showDownload && packageDownloadUrl && downloadFormat && (
                   <Button
                     type="button"

@@ -1,3 +1,4 @@
+import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -58,8 +59,17 @@ describe("ProductDetailClient", () => {
     expect(document.querySelector('a[href*="/api/packages/"]')).toBeNull();
   });
 
-  it("renders a GitHub source link when the product lists a repository URL", () => {
+  it("renders Chrome Web Store and GitHub links without a package download for Power Platform Configurator", () => {
     render(<ProductDetailClient slug="helvety-power-platform-configurator" />);
+
+    const chromeWebStore = screen.getByRole("link", {
+      name: /Add to Chrome/i,
+    });
+    expect(chromeWebStore).toHaveAttribute(
+      "href",
+      POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL
+    );
+    expect(chromeWebStore).toHaveAttribute("target", "_blank");
 
     const github = screen.getByRole("link", {
       name: /View source code on GitHub/i,
@@ -68,7 +78,10 @@ describe("ProductDetailClient", () => {
       "href",
       "https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium"
     );
-    expect(github).toHaveAttribute("target", "_blank");
+
+    expect(
+      screen.queryByRole("button", { name: /Download \./i })
+    ).not.toBeInTheDocument();
   });
 
   it("uses opaque surface panels for About and Installation", () => {

@@ -33,7 +33,7 @@ import type { PackageDownloadInfo } from "@/lib/types/store";
  * Get a signed download URL for a package
  * Public packages can be downloaded without login.
  *
- * @param packageId - Public download package id configured in `lib/packages/config.ts` (e.g. `spo-explorer`, `power-platform-configurator`). Legacy ids are rejected here with not-found.
+ * @param packageId - Public download package id configured in `lib/packages/config.ts` (e.g. `spo-explorer`). Retired ids are rejected here with not-found.
  * @returns Signed download URL with metadata
  */
 export async function getPackageDownloadUrl(

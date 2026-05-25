@@ -1,4 +1,3 @@
-import { requireStoreProductCard } from "@helvety/shared/store-catalog";
 import { describe, expect, it } from "vitest";
 
 import { getPackageInfo, isPublicPackage } from "./config";
@@ -6,7 +5,7 @@ import { getPackageInfo, isPublicPackage } from "./config";
 describe("store package config", () => {
   it("exposes only canonical public download package ids", () => {
     expect(getPackageInfo("spo-explorer")).toBeDefined();
-    expect(getPackageInfo("power-platform-configurator")).toBeDefined();
+    expect(getPackageInfo("power-platform-configurator")).toBeUndefined();
     expect(getPackageInfo("power-automate-editor-preference")).toBeUndefined();
     expect(getPackageInfo("power-automate-force-v3-false")).toBeUndefined();
     expect(
@@ -14,24 +13,18 @@ describe("store package config", () => {
     ).toBeUndefined();
   });
 
-  it("links Power Platform Configurator package to the store catalog card", () => {
-    const info = getPackageInfo("power-platform-configurator");
-    expect(info).toBeDefined();
-    if (!info) {
-      return;
-    }
-    const card = requireStoreProductCard("helvety-power-platform-configurator");
-    expect(info.productId).toBe(card.id);
-    expect(info.productName).toBe(card.name);
-    expect(info.filename).toBe("power-platform-configurator.zip");
-    expect(info.storageFolderPath).toBe(
-      "browserExtensions/power-platform-configurator"
-    );
-    expect(isPublicPackage("power-platform-configurator")).toBe(true);
+  it("does not serve Power Platform Configurator as a public zip package", () => {
+    expect(isPublicPackage("power-platform-configurator")).toBe(false);
   });
 
-  it("keeps fallback version aligned with the shipped extension manifest", () => {
-    const info = getPackageInfo("power-platform-configurator");
-    expect(info?.version).toBe("2.8.6");
+  it("only spo-explorer is publicly downloadable from package config", () => {
+    expect(isPublicPackage("spo-explorer")).toBe(true);
+    for (const packageId of [
+      "power-platform-configurator",
+      "power-automate-editor-preference",
+      "unknown-package",
+    ] as const) {
+      expect(isPublicPackage(packageId)).toBe(false);
+    }
   });
 });

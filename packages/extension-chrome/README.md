@@ -5,7 +5,7 @@ Shared **Chromium extension popup chrome** for Helvety products: CSP-safe theme 
 Used by:
 
 - [helvety-browser-extension-chromium](https://github.com/CasparRubin/helvety-browser-extension-chromium)
-- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium)
+- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) ([Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang))
 
 ## Exports
 

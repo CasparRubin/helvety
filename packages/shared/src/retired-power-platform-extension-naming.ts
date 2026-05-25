@@ -1,9 +1,9 @@
 /**
  * Retired Helvety browser-extension product slugs and display titles.
  * Merged into **Power Platform Configurator**; must not appear in customer-facing copy.
- *
- * Negative download tests may still reference these strings; see
- * `docs/naming-conventions.md` and `scripts/verify-project-naming.mjs`.
+ * Public install is the Chrome Web Store; the `power-platform-configurator` download
+ * package id is also retired (404). Negative tests may still reference these strings;
+ * see `docs/naming-conventions.md` and `scripts/verify-project-naming.mjs`.
  */
 
 /** One forbidden retired slug or display title plus its detection regex. */

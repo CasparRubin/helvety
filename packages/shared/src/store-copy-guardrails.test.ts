@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { STORE_DESCRIPTION } from "./app-product-descriptions";
 import {
   CUSTOMER_COPY_EM_DASH,
   CUSTOMER_COPY_LLMS_RELATIVE_PATHS,
@@ -86,6 +87,20 @@ describe("store copy guardrails", () => {
       const tagline = text.match(/^> (.+)$/m)?.[1] ?? "";
       assertLicenseFreeSeoCopy(`${rel} tagline`, tagline);
     }
+  });
+
+  it("store llms.txt tagline reflects Chrome Web Store install paths", () => {
+    const text = readFileSync(
+      join(repoRoot, "apps/store/public/llms.txt"),
+      "utf8"
+    );
+    const tagline = text.match(/^> (.+)$/m)?.[1] ?? "";
+    expect(tagline).toMatch(/Chrome Web Store/i);
+    expect(tagline).not.toMatch(/installers and deep links only/i);
+  });
+
+  it("store SEO description mentions install links", () => {
+    expect(STORE_DESCRIPTION).toMatch(/install links/i);
   });
 
   it("app README intros avoid AGPL marketing outside the License section", () => {

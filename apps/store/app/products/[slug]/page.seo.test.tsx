@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { urls } from "@helvety/shared/config";
+import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -91,5 +92,22 @@ describe("store product SEO", () => {
     expect(html).toContain('"@type":"Product"');
     expect(html).toContain(`"url":"${urls.store}/products/${card.slug}"`);
     expect(html).toContain(card.name);
+  });
+
+  it("renders Chrome Web Store sameAs in JSON-LD for Power Platform Configurator", async () => {
+    const card = findStoreProductCardBySlug(
+      "helvety-power-platform-configurator"
+    );
+    if (!card) {
+      throw new Error("Expected Power Platform Configurator product card");
+    }
+
+    const element = await ProductDetailPage({
+      params: Promise.resolve({ slug: card.slug }),
+    });
+    const html = renderToStaticMarkup(element);
+
+    expect(html).toContain('"sameAs"');
+    expect(html).toContain(POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL);
   });
 });

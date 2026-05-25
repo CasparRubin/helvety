@@ -40,15 +40,6 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     productName: "Helvety SPO Explorer",
     isPublic: true,
   },
-  "power-platform-configurator": {
-    version: "2.8.6",
-    filename: "power-platform-configurator.zip",
-    storageFolderPath: "browserExtensions/power-platform-configurator",
-    storageFileSuffix: ".zip",
-    productId: "helvety-power-platform-configurator",
-    productName: "Power Platform Configurator",
-    isPublic: true,
-  },
 } as const;
 
 // =============================================================================

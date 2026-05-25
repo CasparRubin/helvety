@@ -78,16 +78,20 @@ describe("store download-actions", () => {
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
-  it("returns not found for legacy package ids removed from config", async () => {
-    expect(
-      await getPackageDownloadUrl("power-automate-editor-preference")
-    ).toEqual({ success: false, error: "Package not found" });
-    expect(
-      await getPackageDownloadUrl("power-automate-force-v3-false")
-    ).toEqual({ success: false, error: "Package not found" });
-    expect(
-      await getPackageDownloadUrl("power-automate-editor-version-enforcer")
-    ).toEqual({ success: false, error: "Package not found" });
+  it("returns not found for legacy and retired package ids removed from config", async () => {
+    const retiredPackageIds = [
+      "power-automate-editor-preference",
+      "power-automate-force-v3-false",
+      "power-automate-editor-version-enforcer",
+      "power-platform-configurator",
+    ] as const;
+
+    for (const packageId of retiredPackageIds) {
+      expect(await getPackageDownloadUrl(packageId)).toEqual({
+        success: false,
+        error: "Package not found",
+      });
+    }
     expect(mocks.adminClientFactory).not.toHaveBeenCalled();
   });
 
@@ -111,31 +115,6 @@ describe("store download-actions", () => {
     );
   });
 
-  it("creates a signed URL for the Power Platform Configurator zip package", async () => {
-    mocks.resolveLatestPackageVersion.mockResolvedValue({
-      version: "2.8.6",
-      storagePath:
-        "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
-    });
-
-    const result = await getPackageDownloadUrl("power-platform-configurator");
-
-    expect(result.success).toBe(true);
-    if (!result.success) {
-      throw new Error("Expected successful download URL response");
-    }
-    expect(result.data).toEqual({
-      downloadUrl: "https://download.example/signed",
-      filename: "power-platform-configurator.zip",
-      version: "2.8.6",
-    });
-    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
-      60,
-      { download: "power-platform-configurator.zip" }
-    );
-  });
-
   it("falls back to configured filename path when resolver returns null", async () => {
     mocks.resolveLatestPackageVersion.mockResolvedValue(null);
 
@@ -146,27 +125,6 @@ describe("store download-actions", () => {
       "spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg",
       60,
       { download: "helvety-spo-explorer.sppkg" }
-    );
-  });
-
-  it("falls back to configured zip path when resolver returns null for Power Platform Configurator package", async () => {
-    mocks.resolveLatestPackageVersion.mockResolvedValue(null);
-
-    const result = await getPackageDownloadUrl("power-platform-configurator");
-
-    expect(result.success).toBe(true);
-    if (!result.success) {
-      throw new Error("Expected successful download URL response");
-    }
-    expect(result.data).toEqual({
-      downloadUrl: "https://download.example/signed",
-      filename: "power-platform-configurator.zip",
-      version: "2.8.6",
-    });
-    expect(mocks.createSignedUrl).toHaveBeenCalledWith(
-      "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
-      60,
-      { download: "power-platform-configurator.zip" }
     );
   });
 

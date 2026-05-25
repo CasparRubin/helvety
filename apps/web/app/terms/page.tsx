@@ -431,11 +431,12 @@ export default function TermsPage() {
           4.5 Software extensions and downloadable packages
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain products are distributed as extensions or downloadable
-          packages (for example Helvety SPO Explorer for SharePoint Online, or
-          Power Platform Configurator for supported Chromium-based browsers, and
-          Helvety Screen Tools for Windows). The following additional terms
-          apply to these products:
+          Certain products are distributed as browser extensions (including via
+          the Chrome Web Store), downloadable packages (for example Helvety SPO
+          Explorer for SharePoint Online), or desktop installers (for example
+          Helvety Screen Tools for Windows). Power Platform Configurator is
+          offered for supported Chromium-based browsers through the Chrome Web
+          Store. The following additional terms apply to these products:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -875,7 +876,8 @@ export default function TermsPage() {
             or download.
           </li>
           <li>
-            Start access from the product page (for example by opening an app or
+            Start access from the product page (for example by opening an app,
+            installing a browser extension from the Chrome Web Store, or
             requesting a package download).
           </li>
           <li>
@@ -883,12 +885,13 @@ export default function TermsPage() {
             of Service and Privacy Policy before continuing.
           </li>
           <li>
-            For downloadable packages, a secure, short-lived download URL is
-            generated.
+            For Store-hosted downloadable packages (for example SharePoint
+            .sppkg files), a secure, short-lived download URL is generated.
           </li>
           <li>
             Download the package and deploy or use it according to the product
-            documentation.
+            documentation. Browser extensions installed from the Chrome Web
+            Store follow the store install flow described on the product page.
           </li>
           <li>
             For account-based apps, sign in with your passkey to access data.
@@ -990,9 +993,9 @@ export default function TermsPage() {
           <li>
             <strong className="text-foreground">Helvety Store</strong> mixes
             SaaS listings with downloadable artifacts; public package downloads
-            (for example SharePoint .sppkg files and browser-extension ZIP
-            archives) stay reachable without signing in unless a particular
-            workflow says otherwise.
+            (for example SharePoint .sppkg files) and browser extensions
+            installed from the Chrome Web Store stay reachable without signing
+            in unless a particular workflow says otherwise.
           </li>
           <li>
             <strong className="text-foreground">

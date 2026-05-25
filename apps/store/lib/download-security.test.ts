@@ -14,13 +14,16 @@ describe("download-security", () => {
     process.env = { ...originalEnv };
   });
 
-  it("validates package ids with strict lowercase format", () => {
+  it("validates active and retired package id strings with strict lowercase format", () => {
     expect(packageIdSchema.safeParse("spo-explorer").success).toBe(true);
+    expect(packageIdSchema.safeParse("UPPERCASE").success).toBe(false);
+    expect(packageIdSchema.safeParse("bad_id").success).toBe(false);
+  });
+
+  it("still accepts retired power-platform-configurator id format for download routes", () => {
     expect(
       packageIdSchema.safeParse("power-platform-configurator").success
     ).toBe(true);
-    expect(packageIdSchema.safeParse("UPPERCASE").success).toBe(false);
-    expect(packageIdSchema.safeParse("bad_id").success).toBe(false);
   });
 
   it("builds stable rate-limit keys", () => {

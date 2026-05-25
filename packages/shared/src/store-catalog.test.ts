@@ -5,7 +5,11 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { HELVETY_LLMS_LICENSING_NOTE } from "./licensing";
-import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";
+import {
+  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
+  POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
+  POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
+} from "./power-platform-configurator-copy";
 import {
   PRODUCT_RELEASE_TIE_PRIORITY,
   STORE_PRODUCT_CARDS,
@@ -100,11 +104,14 @@ describe("store-catalog", () => {
     expect(text).toContain("https://helvety.com/store/products/helvety-docs");
   });
 
-  it("Power Platform Configurator card and llms.txt use canonical store short description", () => {
+  it("Power Platform Configurator card uses canonical short description and llms lists Chrome Web Store install", () => {
     const card = requireStoreProductCard("helvety-power-platform-configurator");
     expect(card.name).toBe("Power Platform Configurator");
     expect(card.shortDescription).toBe(
       POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION
+    );
+    expect(card.shortDescription).toContain(
+      "Install from the Chrome Web Store"
     );
 
     for (const rel of [
@@ -112,8 +119,9 @@ describe("store-catalog", () => {
       "apps/web/public/llms.txt",
     ] as const) {
       const text = readFileSync(join(repoRoot, rel), "utf8");
+      expect(text).toContain(POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY);
       expect(text).toContain(
-        POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION
+        `Install from the Chrome Web Store: ${POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL}`
       );
       expect(text).toContain("## Licensing");
       expect(text).toContain(HELVETY_LLMS_LICENSING_NOTE);

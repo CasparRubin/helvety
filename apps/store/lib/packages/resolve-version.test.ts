@@ -107,46 +107,4 @@ describe("resolveLatestPackageVersion", () => {
 
     expect(result).toBeNull();
   });
-
-  it("selects the newest .zip by timestamp for browser extension packages", async () => {
-    mocks.list.mockResolvedValue({
-      data: [
-        {
-          name: "readme.txt",
-          id: "x0",
-          created_at: "2026-04-01T10:00:00.000Z",
-        },
-        {
-          name: "power-platform-configurator-old.zip",
-          id: "x1",
-          created_at: "2026-04-02T10:00:00.000Z",
-        },
-        {
-          name: "power-platform-configurator.zip",
-          id: "x2",
-          created_at: "2026-04-04T10:00:00.000Z",
-          updated_at: "2026-04-04T10:00:00.000Z",
-        },
-        { name: "subfolder", id: null },
-      ],
-      error: null,
-    });
-
-    const result = await resolveLatestPackageVersion(
-      "power-platform-configurator"
-    );
-
-    expect(mocks.list).toHaveBeenCalledWith(
-      "browserExtensions/power-platform-configurator",
-      {
-        limit: 500,
-        sortBy: { column: "name", order: "asc" },
-      }
-    );
-    expect(result).toEqual({
-      version: "2.8.6",
-      storagePath:
-        "browserExtensions/power-platform-configurator/power-platform-configurator.zip",
-    });
-  });
 });

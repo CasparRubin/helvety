@@ -1,6 +1,6 @@
 # Helvety Store
 
-> Catalog pages with installers and deep links; product prose is aligned with each app’s documentation. Hosted from Switzerland.
+> Catalog pages with product specs, Store-hosted downloads (for example SPFx packages), and install links (for example the Chrome Web Store). Product prose is aligned with each app’s documentation. Hosted from Switzerland.
 
 ## Canonical URLs
 - [Store Home](https://helvety.com/store): Main store entry
@@ -17,7 +17,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)
 - [Helvety Notes](https://helvety.com/store/products/helvety-notes)
 - [Helvety Links](https://helvety.com/store/products/helvety-links)
-- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed.
+- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 
 ## Crawling And Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.

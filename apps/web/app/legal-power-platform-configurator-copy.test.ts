@@ -23,6 +23,14 @@ function expectLegalPageUsesCanonicalPowerPlatformConfiguratorCopy(
   expect(source).not.toContain(CUSTOMER_COPY_EM_DASH);
 }
 
+/** Asserts impressum sources Chrome Web Store install constants. */
+function expectImpressumUsesChromeWebStoreCopy(source: string) {
+  expect(source).toContain(
+    "POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE"
+  );
+  expect(source).toContain("Chrome Web Store");
+}
+
 describe("Power Platform Configurator legal copy (extension Survey tab parity)", () => {
   const officialTitle = "Power Platform Configurator";
 
@@ -43,12 +51,15 @@ describe("Power Platform Configurator legal copy (extension Survey tab parity)",
     );
     expect(impressum).toContain(officialTitle);
     expectLegalPageUsesCanonicalPowerPlatformConfiguratorCopy(impressum);
+    expectImpressumUsesChromeWebStoreCopy(impressum);
     expect(impressum).toContain("Edge/Chrome");
   });
 
-  it("terms page uses the canonical product title and not retired extension names", () => {
+  it("terms page uses the canonical product title and Chrome Web Store distribution", () => {
     const terms = readFileSync(join(appDir, "terms", "page.tsx"), "utf8");
     expect(terms).toContain(officialTitle);
+    expect(terms).toContain("Chrome Web Store");
+    expect(terms).not.toMatch(/browser-extension ZIP/i);
     for (const { label, re } of RETIRED_HELVETY_EXTENSION_NAME_PATTERNS) {
       expect(re.test(terms), `terms must not contain ${label}`).toBe(false);
     }

@@ -319,8 +319,11 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Helvety-hosted support scope:
             </strong>{" "}
-            technical metadata required for package delivery, download
-            reliability, and abuse prevention
+            technical metadata required for Store-hosted package delivery (for
+            example SharePoint .sppkg downloads), download reliability, and
+            abuse prevention; browser extensions installed from the Chrome Web
+            Store are delivered by Google and Microsoft store runtimes, not
+            Helvety ZIP downloads
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">

@@ -31,7 +31,7 @@ function getNewestTimestamp(item: StorageListItem): number {
 interface ResolvedPackageVersion {
   /** Version string for display (currently from package config). */
   version: string;
-  /** Full object path in the `packages` bucket (e.g. SPFx `.sppkg` or browser extension `.zip`). */
+  /** Full object path in the `packages` bucket (e.g. SPFx `.sppkg` under `spfx/`). */
   storagePath: string;
 }
 
@@ -39,7 +39,7 @@ interface ResolvedPackageVersion {
  * Resolve the latest package file from Supabase Storage for a package.
  * Lists the package folder and picks the newest file matching `storageFileSuffix` by timestamp.
  *
- * @param packageId - Public download package id (keys in `lib/packages/config.ts`, e.g. `spo-explorer`, `power-platform-configurator`).
+ * @param packageId - Public download package id (keys in `lib/packages/config.ts`, e.g. `spo-explorer`).
  * @returns Resolved version/path or null when package/listing/file lookup fails
  */
 export async function resolveLatestPackageVersion(

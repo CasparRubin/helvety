@@ -1,6 +1,6 @@
 # Helvety Store
 
-Product catalog and package-download app for Helvety products: specs and artifacts for helvety.com web apps **and** separately distributed software (extensions, SPFx, Windows tools, and more), including items whose primary source lives outside this monorepo.
+Product catalog app for Helvety products: specs, Store-hosted downloads (for example SPFx), and install links (for example the Chrome Web Store for browser extensions) for helvety.com web apps **and** separately distributed software, including items whose primary source lives outside this monorepo.
 
 **App URL:** <https://helvety.com/store>  
 **Monorepo path:** `apps/store`
@@ -9,7 +9,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`) with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`; `bootstrapE2eeLayoutSession()` from `@helvety/shared/layout-session-bootstrap` feeds CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products` with product cards that overlay badges on artwork: per-type tinted labels (sky / violet / amber) and a frosted “Art by …” artist credit ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
-- Public package download endpoints (no login required)
+- Public SPFx package download endpoints (no login required); browser extensions link to vendor stores (for example Chrome Web Store) from product pages
 - Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
 - Product listing loads the grid client-only (`next/dynamic` with `ssr: false` on `/products`); detail SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only (no server import of `products.ts`); sitemap still uses `lib/data/product-catalog-cache.ts` at build time
@@ -18,7 +18,7 @@ Product catalog and package-download app for Helvety products: specs and artifac
 
 - Download files are served from Supabase Storage bucket `packages`.
 - `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
-- `browserExtensions/power-platform-configurator`: upload **`power-platform-configurator.zip`** here (Supabase bucket `packages`). The resolver picks the newest `.zip` by timestamp/name. Retired `power-automate-*` product slugs and package ids are not served (server actions and the public download route return not-found).
+- **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no public ZIP in bucket `packages`). Retired `power-automate-*` and `power-platform-configurator` package ids are not served (server actions and the public download route return not-found).
 - If listing fails, resolver falls back to configured filename path.
 - Download URL generation and public download endpoint throttling both use centralized helpers in `lib/download-security.ts` (`buildDownloadUrlRateLimitKey`, `buildPublicDownloadRateLimitKey`) to keep key naming and validation rules consistent.
 - The public download route may respond with an HTTP redirect to a signed Supabase Storage URL. Redirect targets are restricted to the project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); a separate `SUPABASE_URL` env var is not used for this check. Retired **package/download** ids return not-found from server actions and the public download route; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs (see Key Features above).
@@ -60,7 +60,7 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
    - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json` (SEO describes the product; do not add AGPL to metadata or manifest `description`)
    - `public/llms.txt` for that app or Store/web crawler files (`>` tagline = product/company summary; license text under `## Licensing` only)
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
-   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside the allowlisted negative-test paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
+   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and Chrome Web Store listing URL; run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside the allowlisted negative-test paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`
 4. **(Optional) Add a switcher entry** in

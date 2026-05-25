@@ -98,13 +98,10 @@ describe("GET /api/packages/[packageId]/download", () => {
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
   });
 
-  it("redirects for power-platform-configurator package id", async () => {
+  it("returns 404 for retired power-platform-configurator package id", async () => {
     mocks.getPackageDownloadUrl.mockResolvedValue({
-      success: true,
-      data: {
-        downloadUrl:
-          "https://abc123.supabase.co/storage/v1/object/sign/packages/extension.zip",
-      },
+      success: false,
+      error: "Package not found",
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -113,12 +110,9 @@ describe("GET /api/packages/[packageId]/download", () => {
       }),
     });
 
-    expect(response.status).toBe(307);
+    expect(response.status).toBe(404);
     expect(mocks.getPackageDownloadUrl).toHaveBeenCalledWith(
       "power-platform-configurator"
-    );
-    expect(response.headers.get("location")).toBe(
-      "https://abc123.supabase.co/storage/v1/object/sign/packages/extension.zip"
     );
   });
 

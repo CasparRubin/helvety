@@ -28,9 +28,9 @@ Per-zone `llms.txt` summaries (linked from each app's sitemap when indexable):
 - Helvety web zones use essential and authentication cookies, browser storage for preferences, and privacy-focused Vercel Analytics on all ten Next.js apps (Speed Insights on the main site). Full disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies).
 
 ## Related apps and tools
-- [Helvety Store](https://helvety.com/store): Specs plus .sppkg / ZIP artifacts straight from the catalog
+- [Helvety Store](https://helvety.com/store): Product specs, SPFx and other Store-hosted downloads, and install links (for example Chrome Web Store) from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
-- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed.
+- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots and on-screen drawing
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
 - [Helvety Docs](https://helvety.com/docs): Edit Word (.docx) in the browser; optional encrypted vault save

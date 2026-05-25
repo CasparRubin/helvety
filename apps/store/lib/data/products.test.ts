@@ -8,6 +8,7 @@ import {
   HELVETY_FREE_AGPL_INLINE,
 } from "@helvety/shared/licensing";
 import {
+  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
 } from "@helvety/shared/power-platform-configurator-copy";
@@ -339,14 +340,74 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Power Platform Configurator publicPackageId matches downloadable package config key", () => {
+  it("Power Platform Configurator links to the Chrome Web Store and has no package download", () => {
     const product = getProductBySlug("helvety-power-platform-configurator");
     expect(product).toBeDefined();
     if (!product || !isSoftwareProduct(product)) {
       throw new Error("Expected Power Platform Configurator software product");
     }
-    expect(product.software.publicPackageId).toBe(
-      "power-platform-configurator"
+    expect(product.links?.chromeWebStore).toBe(
+      POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL
     );
+    expect(product.software.publicPackageId).toBeUndefined();
+    expect(product.software.fileFormat).toBeUndefined();
+  });
+
+  it("Power Platform Configurator installation copy describes Chrome Web Store install", () => {
+    const product = getProductBySlug("helvety-power-platform-configurator");
+    if (!product || !isSoftwareProduct(product)) {
+      throw new Error("Expected Power Platform Configurator software product");
+    }
+
+    const steps = product.software.installationSteps ?? [];
+    expect(steps.length).toBeGreaterThan(0);
+
+    const blob = [
+      product.description.intro,
+      ...(product.description.sections ?? [])
+        .filter((s) => s.kind === "paragraph")
+        .map((s) => s.body),
+      ...steps.flatMap((step) => [step.title, step.description]),
+    ].join("\n");
+
+    expect(blob).toMatch(/Chrome Web Store/i);
+    expect(blob).toMatch(/Add to Chrome/i);
+    expect(blob).toMatch(/edge:\/\/extensions/i);
+    expect(blob).toMatch(/Allow extensions from other stores/i);
+  });
+
+  it("Power Platform Configurator copy does not describe sideload or ZIP install", () => {
+    const product = getProductBySlug("helvety-power-platform-configurator");
+    expect(product).toBeDefined();
+    if (!product || !isSoftwareProduct(product)) {
+      throw new Error("Expected Power Platform Configurator software product");
+    }
+
+    const blob = [
+      product.description.intro,
+      ...product.features,
+      ...(product.description.sections ?? []).flatMap((s) =>
+        s.kind === "paragraph" ? [s.body] : s.items
+      ),
+      ...(product.software.installationSteps ?? []).flatMap((step) => [
+        step.title,
+        step.description,
+      ]),
+      ...(product.software.requirements ?? []),
+    ].join("\n");
+
+    const forbidden = [
+      "developer mode",
+      "Load unpacked",
+      "power-platform-configurator.zip",
+      "Download button on this page",
+      "chrome://extensions",
+      "Enable Developer mode",
+    ];
+    for (const phrase of forbidden) {
+      expect(blob, `must not contain "${phrase}"`).not.toMatch(
+        new RegExp(phrase, "i")
+      );
+    }
   });
 });
