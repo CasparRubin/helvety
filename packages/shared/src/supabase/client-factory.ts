@@ -23,7 +23,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * @returns Promise that resolves to a Supabase client instance
  */
-export async function createServerComponentClient(): Promise<
+export async function createServerSupabaseClient(): Promise<
   SupabaseClient<DatabaseSchema>
 > {
   const supabaseUrl = getSupabaseUrl();
@@ -65,7 +65,7 @@ export async function createServerComponentClient(): Promise<
             handleSupabaseCookieWriteFailure({
               error,
               cookieCount: cookiesToSet.length,
-              context: "createServerComponentClient.setAll",
+              context: "createServerSupabaseClient.setAll",
             });
           }
         },
@@ -73,3 +73,6 @@ export async function createServerComponentClient(): Promise<
     }
   );
 }
+
+/** @deprecated Use {@link createServerSupabaseClient}. */
+export const createServerComponentClient = createServerSupabaseClient;

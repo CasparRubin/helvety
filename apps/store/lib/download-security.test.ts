@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
+import * as envValidation from "@helvety/shared/env-validation";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildPublicDownloadRateLimitKey,
@@ -53,6 +54,20 @@ describe("download-security", () => {
         "https://malicious.example/storage/v1/object/sign/packages/test.sppkg"
       )
     ).toBe(false);
+  });
+
+  it("rejects redirects when getSupabaseUrl is unavailable", () => {
+    vi.spyOn(envValidation, "getSupabaseUrl").mockImplementation(() => {
+      throw new Error("NEXT_PUBLIC_SUPABASE_URL is not configured");
+    });
+
+    expect(
+      isAllowedDownloadUrl(
+        "https://abc123.supabase.co/storage/v1/object/sign/packages/test.sppkg"
+      )
+    ).toBe(false);
+
+    vi.restoreAllMocks();
   });
 
   it("does not trust SUPABASE_URL when it differs from NEXT_PUBLIC_SUPABASE_URL", () => {

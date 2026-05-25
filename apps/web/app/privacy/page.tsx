@@ -328,6 +328,15 @@ export default function PrivacyPage() {
             Store are delivered by Google and Microsoft store runtimes, not
             Helvety ZIP downloads
           </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety account unlock in browser extensions:
+            </strong>{" "}
+            where an extension uses your Helvety passkey, Helvety Auth processes
+            WebAuthn ceremony data and bearer-authenticated API requests on
+            helvety.com; extension passkey verification does not by itself set a
+            helvety.com web session cookie
+          </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
           Helvety Screen Tools (Windows desktop app) is distributed outside this

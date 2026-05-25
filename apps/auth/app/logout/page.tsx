@@ -4,7 +4,7 @@ import { getLoginUrl } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
 import { clearAllKeys } from "@helvety/shared/crypto/key-storage";
 import { clearCachedPRFSalt } from "@helvety/shared/crypto/prf-salt-cache";
-import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
+import { getSafeRedirectUri } from "@helvety/shared/redirect-validation";
 import { useCSRFSafe } from "@helvety/ui/csrf-provider";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
@@ -65,8 +65,9 @@ function LogoutHandler() {
       const rawRedirectUri = searchParams.get("redirect_uri");
       const defaultRedirect = urls.home;
       const redirectTarget =
-        rawRedirectUri && isValidRedirectUri(rawRedirectUri)
-          ? rawRedirectUri
+        rawRedirectUri != null
+          ? (getSafeRedirectUri(rawRedirectUri, defaultRedirect) ??
+            defaultRedirect)
           : defaultRedirect;
       const loginUrl = getLoginUrl(redirectTarget, { forceLogin: true });
       const signOutResult = await signOutAction(

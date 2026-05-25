@@ -18,6 +18,7 @@ the following:
 - AI training, fine-tuning, or dataset retention using user-provided content
 - material changes to telemetry, tracking, or profiling scope (including Vercel Analytics zone coverage, new cookies/localStorage keys, or shared footer disclosure text)
 - changes to account/login requirements for public tools
+- new Helvety browser-extension auth surfaces (for example extension passkey APIs, allowlisted `chrome-extension://` origins, or bearer-token scope)
 - active EU/EEA market targeting, localized campaigns, or equivalent
   jurisdiction-focused expansion
 - new subprocessors or changed cross-border transfer patterns

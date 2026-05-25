@@ -135,7 +135,39 @@ describe("refreshSupabaseAuthSession", () => {
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
-  it("sets the auth-refreshed header only after a successful getUser()", async () => {
+  it("uses getClaims when available on the auth client", async () => {
+    const getClaims = vi.fn(async () => ({ error: null }));
+    const getUser = vi.fn();
+    createServerClientMock.mockImplementation(() => ({
+      auth: { getClaims, getUser },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    await refreshSupabaseAuthSession(request, NextResponse.next({ request }));
+
+    expect(getClaims).toHaveBeenCalled();
+    expect(getUser).not.toHaveBeenCalled();
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+  });
+
+  it("falls back to getUser when getClaims is not available", async () => {
+    const getUser = vi.fn(async () => ({ data: { user: null }, error: null }));
+    createServerClientMock.mockImplementation(() => ({
+      auth: { getUser },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    await refreshSupabaseAuthSession(request, NextResponse.next({ request }));
+
+    expect(getUser).toHaveBeenCalled();
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+  });
+
+  it("sets the auth-refreshed header only after a successful session verify", async () => {
     createServerClientMock.mockImplementation(() => ({
       auth: {
         getUser: async () => ({ data: { user: null }, error: null }),

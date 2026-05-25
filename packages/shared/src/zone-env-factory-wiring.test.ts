@@ -31,6 +31,15 @@ describe("zone lib/env factory wiring", () => {
     }
   );
 
+  it("apps/auth/lib/env.ts validates HELVETY_CHROME_EXTENSION_ORIGINS", () => {
+    const src = readFileSync(
+      join(repoRoot, "apps", "auth", "lib/env.ts"),
+      "utf8"
+    );
+    expect(src).toContain("HELVEETY_CHROME_EXTENSION_ORIGINS");
+    expect(src).toContain("parseChromeExtensionOriginsEnv");
+  });
+
   it.each(USER_SCOPED_SERVER_APPS)(
     "apps/%s/lib/env.ts uses createAppUserScopedEnv",
     (app) => {

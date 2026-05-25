@@ -2,6 +2,8 @@ import "server-only";
 
 import { DEV_PORTS, DOMAIN } from "@helvety/shared/config";
 
+import { isAllowedChromeExtensionOrigin } from "@/lib/chrome-extension-origin";
+
 export const RP_NAME = "Helvety";
 
 /**
@@ -42,7 +44,7 @@ export function getExpectedOrigins(
 
   if (
     clientOrigin &&
-    clientOrigin.startsWith("chrome-extension://") &&
+    isAllowedChromeExtensionOrigin(clientOrigin) &&
     !origins.includes(clientOrigin)
   ) {
     return [...origins, clientOrigin];

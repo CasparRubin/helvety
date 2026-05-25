@@ -38,6 +38,14 @@ const OPTIONAL_KEYS = new Set([
   "NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS",
 ]);
 
+/** Legacy Supabase key names — migrate to publishable/secret env vars. */
+const LEGACY_SUPABASE_KEY_NAMES = new Set([
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SERVICE_ROLE_KEY",
+]);
+
 /**
  * @param {string} cwd
  * @param {string[]} args
@@ -175,6 +183,13 @@ async function main() {
       for (const key of unexpected) {
         warnings.push(
           `${project}: review extra production key (not in env.template tier): ${key}`
+        );
+      }
+    }
+    for (const key of keys) {
+      if (LEGACY_SUPABASE_KEY_NAMES.has(key)) {
+        warnings.push(
+          `${project}: legacy Supabase key name ${key} — use NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY / SUPABASE_SECRET_KEY`
         );
       }
     }

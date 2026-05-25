@@ -74,7 +74,11 @@
         "**/*.{test,spec}.{ts,tsx}"
       ],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreDependencies": ["@helvety/dev-deps", "@tailwindcss/postcss"]
+      "ignoreDependencies": [
+        "@helvety/dev-deps",
+        "@tailwindcss/postcss",
+        "@types/dompurify"
+      ]
     },
     "packages/extension-chrome": {
       "entry": [

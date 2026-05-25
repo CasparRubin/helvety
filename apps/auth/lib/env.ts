@@ -8,6 +8,8 @@ import {
 } from "@helvety/shared/env-validation";
 import { z } from "zod";
 
+import { parseChromeExtensionOriginsEnv } from "@/lib/chrome-extension-origin-parse";
+
 const authEnvSchema = serverEnvSchema
   .merge(upstashEnvSchema)
   .merge(cookieSigningEnvSchema)
@@ -19,6 +21,23 @@ const authEnvSchema = serverEnvSchema
           32,
           "DEVICE_TRUST_COOKIE_SECRET must be at least 32 characters (used to sign device trust cookies)"
         ),
+      HELVETY_CHROME_EXTENSION_ORIGINS: z
+        .string()
+        .min(1, "HELVEETY_CHROME_EXTENSION_ORIGINS is required")
+        .transform((raw, ctx) => {
+          try {
+            return parseChromeExtensionOriginsEnv(raw);
+          } catch (error) {
+            ctx.addIssue({
+              code: "custom",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Invalid HELVETY_CHROME_EXTENSION_ORIGINS",
+            });
+            return z.NEVER;
+          }
+        }),
     })
   );
 
@@ -36,9 +55,13 @@ export const getValidatedAuthEnv = createAppServerUpstashEnv({
   readExtraFromProcess: () => ({
     DEVICE_TRUST_COOKIE_SECRET:
       process.env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "",
+    HELVETY_CHROME_EXTENSION_ORIGINS:
+      process.env.HELVETY_CHROME_EXTENSION_ORIGINS?.trim() ?? "",
   }),
   ciPlaceholderExtra: {
     DEVICE_TRUST_COOKIE_SECRET:
       "ci_build_placeholder_device_trust_cookie_secret_not_for_production",
+    HELVETY_CHROME_EXTENSION_ORIGINS:
+      "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef",
   },
 });

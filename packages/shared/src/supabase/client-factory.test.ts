@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { logger } from "../logger";
 
-import { createServerComponentClient } from "./client-factory";
+import {
+  createServerComponentClient,
+  createServerSupabaseClient,
+} from "./client-factory";
 import { handleSupabaseCookieWriteFailure } from "./cookie-write-failure";
 import { AUTH_REFRESHED_HEADER_NAME } from "./refresh-auth-session-in-proxy";
 
@@ -26,11 +29,12 @@ vi.mock("../env-validation", () => ({
   getSupabaseKey: () => "anon-key",
 }));
 
-describe("createServerComponentClient", () => {
+const cookieSetSpy = vi.fn(() => {
+  throw new Error("Cookies can only be modified in a Server Action");
+});
+
+describe("createServerSupabaseClient (via createServerComponentClient alias)", () => {
   const originalNodeEnv = process.env.NODE_ENV;
-  const cookieSetSpy = vi.fn(() => {
-    throw new Error("Cookies can only be modified in a Server Action");
-  });
 
   beforeEach(() => {
     createServerClientMock.mockReset();
@@ -156,5 +160,23 @@ describe("handleSupabaseCookieWriteFailure", () => {
         context: "test-context",
       })
     );
+  });
+});
+
+describe("createServerSupabaseClient export", () => {
+  it("is the canonical export; createServerComponentClient is a deprecated alias", () => {
+    expect(createServerSupabaseClient).toBe(createServerComponentClient);
+  });
+
+  it("alias delegates to the same implementation", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: { getUser: async () => ({ data: { user: null }, error: null }) },
+      _options: options,
+    }));
+    cookiesMock.mockResolvedValue({ getAll: () => [], set: cookieSetSpy });
+    headersMock.mockResolvedValue(new Headers());
+
+    await createServerSupabaseClient();
+    expect(createServerClientMock).toHaveBeenCalled();
   });
 });

@@ -3,6 +3,9 @@
  * getSession() reads unverified cookie data and must not be used for authorization.
  * Enforced in CI via `bun run consistency:supabase-auth` (included in `ci:check`).
  *
+ * Proxy session refresh uses getClaims() when supabase-js exposes it, else getUser().
+ * Never use getSession() for authorization.
+ *
  * @see https://supabase.com/docs/guides/auth/server-side/nextjs
  */
 import { readdir, readFile } from "node:fs/promises";

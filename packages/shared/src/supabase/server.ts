@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createServerComponentClient } from "./client-factory";
+import { createServerSupabaseClient } from "./client-factory";
 
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -29,5 +29,5 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export async function createServerClient(): Promise<
   SupabaseClient<DatabaseSchema>
 > {
-  return createServerComponentClient();
+  return createServerSupabaseClient();
 }

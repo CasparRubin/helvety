@@ -15,6 +15,7 @@ import {
 import { z } from "zod";
 
 import { getRpId, getExpectedOrigins } from "@/app/actions/auth-rp-config";
+import { isAllowedChromeExtensionOrigin } from "@/lib/chrome-extension-origin";
 import {
   challengeFromClientDataJSON,
   createExtensionChallengeEnvelope,
@@ -39,12 +40,7 @@ const ExtensionOriginSchema = z
   .min(1)
   .refine((value) => {
     if (value.startsWith("chrome-extension://")) {
-      try {
-        const parsed = new URL(value);
-        return parsed.protocol === "chrome-extension:" && Boolean(parsed.host);
-      } catch {
-        return false;
-      }
+      return isAllowedChromeExtensionOrigin(value);
     }
     try {
       const parsed = new URL(value);
@@ -56,7 +52,7 @@ const ExtensionOriginSchema = z
     } catch {
       return false;
     }
-  }, "Invalid origin URL");
+  }, "Invalid or disallowed origin URL");
 
 const ExtensionPasskeyOptionsBodySchema = z.object({
   origin: ExtensionOriginSchema,
@@ -143,6 +139,17 @@ async function checkPasskeyRateLimit(
   return null;
 }
 
+/** Validates extension/WebAuthn caller origin (allowlisted chrome-extension or dev https). */
+function parseExtensionOrigin(
+  origin: string
+): { ok: true; origin: string } | { ok: false; error: string } {
+  const parsed = ExtensionOriginSchema.safeParse(origin);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid or disallowed origin URL" };
+  }
+  return { ok: true, origin: parsed.data };
+}
+
 /**
  * WebAuthn authentication options for the Chromium extension (Bearer session).
  * Returns flat `PublicKeyCredentialRequestOptionsJSON` including `challenge` for
@@ -160,8 +167,13 @@ export async function generateExtensionPasskeyOptions(input: {
   );
   if (rateLimited) return rateLimited;
 
+  const originResult = parseExtensionOrigin(input.origin);
+  if (!originResult.ok) {
+    return { success: false, error: originResult.error };
+  }
+
   const isMobile = input.isMobile === true;
-  const safeOrigin = input.origin;
+  const safeOrigin = originResult.origin;
   const rpId = getRpId(safeOrigin);
 
   try {
@@ -243,7 +255,12 @@ export async function verifyExtensionPasskey(input: {
   );
   if (rateLimited) return rateLimited;
 
-  const safeOrigin = input.origin;
+  const originResult = parseExtensionOrigin(input.origin);
+  if (!originResult.ok) {
+    return { success: false, error: originResult.error };
+  }
+
+  const safeOrigin = originResult.origin;
   const rpId = getRpId(safeOrigin);
   const expectedOrigins = getExpectedOrigins(rpId, safeOrigin);
   const credentialId = input.credential.id;

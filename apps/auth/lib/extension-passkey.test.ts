@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const chromeOriginMocks = vi.hoisted(() => ({
+  isAllowedChromeExtensionOrigin: vi.fn(
+    (origin: string) =>
+      origin === "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef"
+  ),
+}));
+
 const mocks = vi.hoisted(() => {
   const credentialUpdateMaybeSingle = vi.fn();
   const credentialUpdateSelect = vi.fn(() => ({
@@ -81,6 +88,11 @@ vi.mock("@/lib/rate-limit", () => ({
 vi.mock("@/app/actions/auth-rp-config", () => ({
   getRpId: mocks.getRpId,
   getExpectedOrigins: mocks.getExpectedOrigins,
+}));
+
+vi.mock("@/lib/chrome-extension-origin", () => ({
+  isAllowedChromeExtensionOrigin:
+    chromeOriginMocks.isAllowedChromeExtensionOrigin,
 }));
 
 import {
@@ -191,6 +203,20 @@ describe("extension-passkey", () => {
       error: "Passkey authentication failed. Please try again.",
     });
     expect(mocks.verifyAuthenticationResponse).not.toHaveBeenCalled();
+  });
+
+  it("rejects options when origin is not on the extension allowlist", async () => {
+    const result = await generateExtensionPasskeyOptions({
+      userId: USER_ID,
+      origin: "chrome-extension://not-on-allowlist000000000000",
+      clientIP: CLIENT_IP,
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Invalid or disallowed origin URL",
+    });
+    expect(mocks.generateAuthenticationOptions).not.toHaveBeenCalled();
   });
 
   it("rejects verify when assertion challenge does not match envelope", async () => {

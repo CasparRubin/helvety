@@ -160,6 +160,18 @@ describe("env.template consistency", () => {
     expect(auditChecklist).not.toContain("helvety-web");
   });
 
+  it("env.template files do not document legacy Supabase key names", async () => {
+    const legacyKeyPattern =
+      /^(NEXT_PUBLIC_SUPABASE_ANON_KEY|SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY)=/m;
+    for (const app of Object.keys(EXPECTED_KEYS_BY_APP)) {
+      const content = await readFile(
+        resolve(repoRoot, `apps/${app}/env.template`),
+        "utf8"
+      );
+      expect(content, `apps/${app}/env.template`).not.toMatch(legacyKeyPattern);
+    }
+  });
+
   it("EXPECTED_KEYS_BY_APP covers every zone app directory", () => {
     expect(Object.keys(EXPECTED_KEYS_BY_APP).sort()).toEqual(
       [

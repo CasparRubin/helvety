@@ -69,13 +69,14 @@ Beyond the required floor above, match these templates when adding or auditing t
 
 Colocate **`route.test.ts` beside the list handler**. Import `[id]/route` from the same file when a detail route exists (see `apps/contacts/app/api/contacts/route.test.ts`).
 
-| Case                                                | Required?                              | Reference                                      |
-| --------------------------------------------------- | -------------------------------------- | ---------------------------------------------- |
-| List success + `cache-control: no-store, max-age=0` | Yes                                    | `apps/contacts/app/api/contacts/route.test.ts` |
-| Encrypted prefetch auth + `RATE_LIMITS.PREFETCH`    | Yes (E2EE + docs vault list routes)    | Same parent `route.test.ts` files              |
-| Auth failure (no Supabase query)                    | Yes                                    | `apps/links/app/api/library/route.test.ts`     |
-| `[id]` invalid UUID + no-store header               | Yes                                    | Same parent file imports `./[id]/route`        |
-| CSP wiring (`runtime`, domain, `POST`)              | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`    |
+| Case                                                | Required?                              | Reference                                             |
+| --------------------------------------------------- | -------------------------------------- | ----------------------------------------------------- |
+| List success + `cache-control: no-store, max-age=0` | Yes                                    | `apps/contacts/app/api/contacts/route.test.ts`        |
+| Encrypted prefetch auth + `RATE_LIMITS.PREFETCH`    | Yes (E2EE + docs vault list routes)    | Same parent `route.test.ts` files                     |
+| Auth failure (no Supabase query)                    | Yes                                    | `apps/links/app/api/library/route.test.ts`            |
+| Bearer + allowlisted origin (extension passkey)     | When present                           | `apps/auth/app/api/extension/passkey/*/route.test.ts` |
+| `[id]` invalid UUID + no-store header               | Yes                                    | Same parent file imports `./[id]/route`               |
+| CSP wiring (`runtime`, domain, `POST`)              | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`           |
 
 Data-route mock stack:
 
@@ -170,13 +171,13 @@ E2EE zones and vault-aware zones (`auth`, `docs`) re-export the client provider 
 
 ## `lib/env.ts` factory
 
-| Tier                          | Factory                                                        | Apps                                  |
-| ----------------------------- | -------------------------------------------------------------- | ------------------------------------- |
-| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                               |
-| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`) |
-| User-scoped + rate limit      | `createAppUserScopedEnv` + `userScopedServerEnvSchema`         | E2EE apps, `docs`                     |
-| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`               |
-| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                 |
+| Tier                          | Factory                                                        | Apps                                                                       |
+| ----------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                    |
+| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVEETY_CHROME_EXTENSION_ORIGINS`) |
+| User-scoped + rate limit      | `createAppUserScopedEnv` + `userScopedServerEnvSchema`         | E2EE apps, `docs`                                                          |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                    |
+| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                      |
 
 Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
 
@@ -221,7 +222,7 @@ Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.jso
 | **Admin + rate limit**       | `auth`, `store`         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` |
 | **User-scoped + rate limit** | E2EE apps, `docs`       | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET` (no admin client)      |
 | **Public tool + rate limit** | `pdf`, `image-upscaler` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                        |
-| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET`                                                      |
+| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET`, `HELVEETY_CHROME_EXTENSION_ORIGINS`                 |
 | **Gateway**                  | `web`                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                               |
 
 See root [`README.md`](../README.md) § Environment Model.

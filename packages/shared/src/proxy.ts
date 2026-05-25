@@ -206,7 +206,7 @@ export function createAppProxy(options: {
  * signature/format checks under the current `HELVETY_COOKIE_SIGNING_SECRET`
  * (not merely when a cookie name is present). Server Components must not persist refreshed
  * session cookies: the proxy calls `getUser()` early, sets `x-helvety-auth-refreshed`, and
- * `createServerComponentClient` no-ops `setAll` when that header is present (dev throws if
+ * `createServerSupabaseClient` no-ops `setAll` when that header is present (dev throws if
  * the proxy did not refresh and RSC still attempts a write).
  * Still no application DB or business logic in the proxy-only Supabase Auth HTTP.
  *

@@ -9,6 +9,29 @@ import { logger } from "../logger";
 import { clearSupabaseAuthCookies } from "./clear-supabase-auth-cookies";
 
 import type { DatabaseSchema } from "../types/database.types";
+import type { AuthError, SupabaseClient } from "@supabase/supabase-js";
+
+/** Auth client shape including optional `getClaims` from newer supabase-js. */
+type AuthClientWithOptionalClaims = SupabaseClient<DatabaseSchema>["auth"] & {
+  getClaims?: () => Promise<{ error: AuthError | null }>;
+};
+
+/**
+ * Verifies/refreshes the session at the proxy edge. Prefers `getClaims()` when
+ * available (Supabase Next.js SSR docs); falls back to `getUser()` on current
+ * pinned `supabase-js` until `getClaims` ships in our version floor.
+ */
+async function verifyAuthSessionAtProxy(
+  supabase: SupabaseClient<DatabaseSchema>
+): Promise<{ error: AuthError | null }> {
+  const auth = supabase.auth as AuthClientWithOptionalClaims;
+  if (typeof auth.getClaims === "function") {
+    const { error } = await auth.getClaims();
+    return { error: error ?? null };
+  }
+  const { error } = await supabase.auth.getUser();
+  return { error: error ?? null };
+}
 
 /** Options for {@link refreshSupabaseAuthSession}. */
 export type RefreshSupabaseAuthSessionOptions = Readonly<{
@@ -20,8 +43,8 @@ export type RefreshSupabaseAuthSessionOptions = Readonly<{
 }>;
 
 /**
- * Request header set after the proxy successfully calls `supabase.auth.getUser()`.
- * `createServerComponentClient` reads this via `headers()` and no-ops `setAll` when present.
+ * Request header set after the proxy successfully refreshes the session.
+ * `createServerSupabaseClient` reads this via `headers()` and no-ops `setAll` when present.
  */
 export const AUTH_REFRESHED_HEADER_NAME = "x-helvety-auth-refreshed";
 
@@ -57,8 +80,10 @@ function isDefinitiveAuthRefreshFailure(error: unknown): boolean {
  * Refreshes Supabase auth cookies on the outgoing response and syncs cookie
  * mutations onto `request` for downstream Server Components, per @supabase/ssr
  * guidance for early session refresh at the request edge. Helvety wires this
- * through Next.js `proxy.ts` (not deprecated `middleware.ts`); call `getUser()`
- * early so refresh runs before the response is finalized.
+ * through Next.js `proxy.ts` (not deprecated `middleware.ts`). Uses
+ * {@link verifyAuthSessionAtProxy} (`getClaims()` when the installed
+ * `supabase-js` exposes it, otherwise `getUser()`) so refresh runs before the
+ * response is finalized. See Supabase Next.js SSR guide.
  *
  * @returns The response to return from the proxy (may be replaced when cookies are written).
  */
@@ -105,7 +130,7 @@ export async function refreshSupabaseAuthSession(
       }
     );
 
-    const { error } = await supabase.auth.getUser();
+    const { error } = await verifyAuthSessionAtProxy(supabase);
     if (error) {
       if (
         failClosedOnAuthError &&

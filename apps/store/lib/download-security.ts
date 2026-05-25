@@ -34,7 +34,7 @@ export function isAllowedDownloadUrl(rawUrl: string): boolean {
     }
 
     if (allowedOrigins.size === 0) {
-      return process.env.NODE_ENV !== "production";
+      return false;
     }
 
     if (!allowedOrigins.has(parsed.origin)) {

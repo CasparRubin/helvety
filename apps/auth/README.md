@@ -13,7 +13,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 - Account-bound returning-user passkey sign-in
 - Trusted-device optimization (rolling 30-day device email verification) to allow passkey-first sign-in on previously verified devices
 - Session sharing across Helvety path-routed apps
-- Redirect URI validation for cross-app sign-in flows
+- Redirect URI validation for cross-app sign-in flows (`getSafeRedirectUri` on login, callback, passkey completion, and `/logout`)
 - Auth-step resolution for passkey setup vs passkey sign-in
 - Logout (`/logout`): clears local crypto artifacts in the browser, then calls the server action in [`app/logout/logout-actions.ts`](app/logout/logout-actions.ts) to end the Supabase session (CSRF-protected)
 
@@ -72,7 +72,7 @@ Bearer-authenticated JSON routes for the Helvety browser extension (separate fro
 | `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`)                       |
 | `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; update counter; **does not** create a Supabase session |
 
-Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` when the client sends that origin ([`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
+Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is listed in `HELVEETY_CHROME_EXTENSION_ORIGINS` ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
 
 ## Crawl and Indexing
 
@@ -93,6 +93,7 @@ Copy `env.template` to `.env.local`.
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                                                      |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF/proxy cookies; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 | `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (separate from CSRF signing; min 32 chars)                         |
+| `HELVEETY_CHROME_EXTENSION_ORIGINS`    | Yes      | Yes         | Comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs                |
 
 Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
@@ -111,7 +112,7 @@ bun run test:coverage
 
 Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), login entry resolution and URL builders (`lib/login-entry.test.ts`), login server gate guardrails (`app/login/page.test.ts`), login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop (`components/auth-stepper.test.tsx`).
 Passkey action tests also cover malformed payload handling, account mismatch protection, device-trust cookie binding for passkey options (not client `expectedUserId`), and transport sanitization behavior. Auth callback tests cover OTP allowlist wiring (`app/auth/callback/route.test.ts`) and post-verify device-trust minting (`app/auth/callback/callback-success.test.ts`).
-Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts` and `lib/extension-passkey-challenge.test.ts`.
+Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts`, `lib/extension-passkey-challenge.test.ts`, `lib/chrome-extension-origin.test.ts`, and colocated `app/api/extension/passkey/*/route.test.ts` (real Zod allowlist + mocked handlers).
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 `components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots (mocks `@helvety/shared/layout-session-bootstrap` → `bootstrapAuthLayoutSession`).
 

@@ -22,7 +22,10 @@ export const UPSTASH_COOKIE_KEYS = [
   "HELVETY_COOKIE_SIGNING_SECRET",
 ];
 
-export const AUTH_EXTRA_KEYS = ["DEVICE_TRUST_COOKIE_SECRET"];
+export const AUTH_EXTRA_KEYS = [
+  "DEVICE_TRUST_COOKIE_SECRET",
+  "HELVEETY_CHROME_EXTENSION_ORIGINS",
+];
 
 /** Gateway zone URLs required in apps/web env.template and turbo build env (Vercel). */
 export const WEB_GATEWAY_KEYS = [

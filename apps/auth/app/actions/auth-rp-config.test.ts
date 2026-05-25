@@ -1,8 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const ALLOWED_ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
+
+vi.mock("@/lib/env", () => ({
+  getValidatedAuthEnv: vi.fn(),
+}));
+
+import { getValidatedAuthEnv } from "@/lib/env";
 
 import { getExpectedOrigins, getRpId, RP_NAME } from "./auth-rp-config";
 
 describe("auth-rp-config", () => {
+  beforeEach(() => {
+    vi.mocked(getValidatedAuthEnv).mockReturnValue({
+      HELVETY_CHROME_EXTENSION_ORIGINS: [ALLOWED_ORIGIN],
+    } as ReturnType<typeof getValidatedAuthEnv>);
+  });
+
   it("exports the canonical RP name", () => {
     expect(RP_NAME).toBe("Helvety");
   });
@@ -28,16 +42,23 @@ describe("auth-rp-config", () => {
     expect(getExpectedOrigins("helvety.com")).toEqual(["https://helvety.com"]);
   });
 
-  it("adds chrome-extension origin when clientOrigin is an extension URL", () => {
-    const extensionOrigin =
-      "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
-    expect(getExpectedOrigins("helvety.com", extensionOrigin)).toEqual([
+  it("adds chrome-extension origin when clientOrigin is on the env allowlist", () => {
+    expect(getExpectedOrigins("helvety.com", ALLOWED_ORIGIN)).toEqual([
       "https://helvety.com",
-      extensionOrigin,
+      ALLOWED_ORIGIN,
     ]);
   });
 
   it("does not add chrome-extension origin when clientOrigin is omitted", () => {
     expect(getExpectedOrigins("helvety.com")).toEqual(["https://helvety.com"]);
+  });
+
+  it("does not add disallowed chrome-extension origin", () => {
+    expect(
+      getExpectedOrigins(
+        "helvety.com",
+        "chrome-extension://not-on-allowlist000000000000"
+      )
+    ).toEqual(["https://helvety.com"]);
   });
 });
