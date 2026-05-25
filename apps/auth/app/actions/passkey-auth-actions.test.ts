@@ -449,6 +449,85 @@ describe("passkey-auth-actions", () => {
     expect(mocks.clearDeviceTrustCookie).not.toHaveBeenCalled();
   });
 
+  it("does not mint device trust when no valid trust cookie exists", async () => {
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      redirectUri: "https://helvety.com/tasks",
+      timestamp: CHALLENGE_TIMESTAMP,
+    });
+    mocks.getValidDeviceTrustCookie.mockResolvedValue(null);
+    mocks.credentialSingle.mockResolvedValue({
+      data: {
+        credential_id: "cred-a",
+        public_key: Buffer.from("public-key").toString("base64url"),
+        counter: 1,
+        transports: ["internal"],
+        user_id: "user-1",
+      },
+      error: null,
+    });
+    mocks.verifyAuthenticationResponse.mockResolvedValue({
+      verified: true,
+      authenticationInfo: { newCounter: 2 },
+    });
+    mocks.credentialEq.mockResolvedValue({
+      data: { credential_id: "cred-a" },
+      error: null,
+    });
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      buildVerifyResponse({ id: "cred-a" }),
+      "https://helvety.com"
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.setDeviceTrustCookie).not.toHaveBeenCalled();
+    expect(mocks.clearDeviceTrustCookie).not.toHaveBeenCalled();
+  });
+
+  it("clears device trust when trust cookie user does not match authenticated user", async () => {
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      redirectUri: "https://helvety.com/tasks",
+      timestamp: CHALLENGE_TIMESTAMP,
+    });
+    mocks.getValidDeviceTrustCookie.mockResolvedValue({
+      v: 1,
+      userId: "other-user",
+      iat: 1,
+      exp: 2,
+    });
+    mocks.credentialSingle.mockResolvedValue({
+      data: {
+        credential_id: "cred-a",
+        public_key: Buffer.from("public-key").toString("base64url"),
+        counter: 1,
+        transports: ["internal"],
+        user_id: "user-1",
+      },
+      error: null,
+    });
+    mocks.verifyAuthenticationResponse.mockResolvedValue({
+      verified: true,
+      authenticationInfo: { newCounter: 2 },
+    });
+    mocks.credentialEq.mockResolvedValue({
+      data: { credential_id: "cred-a" },
+      error: null,
+    });
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      buildVerifyResponse({ id: "cred-a" }),
+      "https://helvety.com"
+    );
+
+    expect(result.success).toBe(true);
+    expect(mocks.setDeviceTrustCookie).not.toHaveBeenCalled();
+    expect(mocks.clearDeviceTrustCookie).toHaveBeenCalled();
+  });
+
   it("filters unsupported transports before generating auth options", async () => {
     mocks.adminRpc.mockResolvedValue({
       data: [{ id: "user-1", email: "user@example.com" }],

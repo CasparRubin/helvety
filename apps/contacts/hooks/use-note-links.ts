@@ -2,6 +2,7 @@
 
 import { safeDecryptDisplayField } from "@helvety/shared/crypto";
 import {
+  guardE2eeMasterKey,
   reportE2eeActionFailure,
   reportE2eeHookError,
 } from "@helvety/ui/auth-navigation";
@@ -122,7 +123,13 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !contactId) {
+    if (!contactId) {
+      setNotes([]);
+      setIsLoading(false);
+      return;
+    }
+    if (!masterKey || !isUnlocked) {
+      guardE2eeMasterKey(masterKey, isUnlocked, "contacts-use-note-links");
       setNotes([]);
       setIsLoading(false);
       return;
@@ -191,7 +198,11 @@ export function useNoteLinks(contactId: string): UseNoteLinksReturn {
       setAllEntities(entitiesCacheRef.current);
       return;
     }
-    if (!masterKey || !isUnlocked) return;
+    if (
+      !guardE2eeMasterKey(masterKey, isUnlocked, "contacts-use-note-links-load")
+    ) {
+      return;
+    }
 
     const requestId = ++latestEntitiesRequestRef.current;
     const routeAtStart = window.location.href;

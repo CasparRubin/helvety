@@ -351,9 +351,10 @@ export async function verifyEmailCode(
     // Rotate CSRF token after successful auth state change.
     await generateCSRFToken();
 
-    // Mark this device as email-verified for this user (sliding window renewed
-    // on subsequent passkey sign-ins). This does not grant access by itself;
-    // it only allows passkey-first UX on this device for returning sign-ins.
+    // Mint device trust after email verification (fresh 30-day window). Sliding
+    // renewal happens only on subsequent passkey sign-ins when a valid trust
+    // cookie for this user already exists — passkey alone never mints trust.
+    // This does not grant access by itself; it only allows passkey-first UX.
     await setDeviceTrustCookie(user.id);
 
     // Reset rate limit and escalating lockout on successful verification

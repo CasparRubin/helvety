@@ -38,12 +38,14 @@ export {
 export {
   storeMasterKey,
   getMasterKey,
+  getCachedMasterKey,
   deleteMasterKey,
   clearAllKeys,
   isStorageAvailable,
   onKeyEvent,
   touchVaultSessionInStorage,
 } from "./key-storage";
+export type { CachedMasterKey } from "./key-storage";
 
 // Vault session policy (IndexedDB master-key retention)
 export {
@@ -52,6 +54,8 @@ export {
   createVaultSession,
   touchVaultSession,
   isVaultSessionValid,
+  isVaultMaxLifetimeExceeded,
+  getVaultLockDelayMs,
   normalizeVaultSessionTimestamps,
 } from "./vault-session";
 export type { VaultSessionTimestamps } from "./vault-session";

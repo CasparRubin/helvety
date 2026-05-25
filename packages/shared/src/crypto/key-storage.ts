@@ -188,9 +188,7 @@ async function openDatabase(retries = 1): Promise<IDBDatabase> {
   );
 }
 
-/**
- *
- */
+/** Build an IndexedDB master-key row with a new vault session. */
 function buildStoredRecord(
   userId: string,
   key: CryptoKey,
@@ -205,9 +203,7 @@ function buildStoredRecord(
   };
 }
 
-/**
- *
- */
+/** True when stored vault timestamps are within policy. */
 function isRecordVaultValid(
   record: StoredMasterKeyRecord | null | undefined
 ): boolean {
@@ -323,17 +319,22 @@ export async function storeMasterKey(
   }
 }
 
+/** Cached master key plus vault session anchor for in-memory lock timers. */
+export type CachedMasterKey = {
+  key: CryptoKey;
+  unlockedAt: number;
+};
+
 /**
- * Retrieve the master key from IndexedDB
+ * Retrieve a valid cached master key and its vault `unlockedAt` anchor.
  *
  * Returns null on any transient storage error instead of throwing, so the
  * EncryptionGate can gracefully fall back to the passkey unlock flow rather
  * than showing an error screen.
- *
- * @param userId - The user's ID
- * @returns The master key if found and not expired, null otherwise
  */
-export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
+export async function getCachedMasterKey(
+  userId: string
+): Promise<CachedMasterKey | null> {
   try {
     const db = await openDatabase();
 
@@ -389,7 +390,7 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
         };
         putRequest.onsuccess = () => {
           broadcastKeyEvent({ type: "master-key-stored", userId });
-          resolve(result.key);
+          resolve({ key: result.key, unlockedAt: touched.unlockedAt });
         };
       };
 
@@ -403,6 +404,17 @@ export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
     logger.logUnexpectedError("Failed to access key storage", error);
     return null;
   }
+}
+
+/**
+ * Retrieve the master key from IndexedDB
+ *
+ * @param userId - The user's ID
+ * @returns The master key if found and not expired, null otherwise
+ */
+export async function getMasterKey(userId: string): Promise<CryptoKey | null> {
+  const cached = await getCachedMasterKey(userId);
+  return cached?.key ?? null;
 }
 
 /**

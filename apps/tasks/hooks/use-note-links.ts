@@ -2,6 +2,7 @@
 
 import { safeDecryptDisplayField } from "@helvety/shared/crypto";
 import {
+  guardE2eeMasterKey,
   reportE2eeActionFailure,
   reportE2eeHookError,
 } from "@helvety/ui/auth-navigation";
@@ -102,7 +103,14 @@ export function useNoteLinks(
   const enabled = options?.enabled ?? true;
 
   const refresh = useCallback(async () => {
-    if (!enabled || !masterKey || !isUnlocked || !itemId) {
+    if (!enabled || !itemId) {
+      setAllNotes([]);
+      setLinks([]);
+      setIsLoading(false);
+      return;
+    }
+    if (!masterKey || !isUnlocked) {
+      guardE2eeMasterKey(masterKey, isUnlocked, "tasks-use-note-links");
       setAllNotes([]);
       setLinks([]);
       setIsLoading(false);

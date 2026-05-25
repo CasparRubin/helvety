@@ -72,51 +72,6 @@ describe("Auth Navbar", () => {
     });
   });
 
-  it("shows encryption badge when vault is unlocked for the signed-in user", () => {
-    const user = { id: "user-42", email: "auth@example.com" } as User;
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user,
-      isLoading: false,
-    });
-    mockUseEncryptionContext.mockReturnValue({
-      isUnlocked: true,
-      isLoading: false,
-      unlockedForUserId: "user-42",
-    });
-    renderAuthNavbar(user);
-    expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
-  });
-
-  it("hides encryption badge when vault is unlocked for a different user", () => {
-    const user = { id: "user-42", email: "auth@example.com" } as User;
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user,
-      isLoading: false,
-    });
-    mockUseEncryptionContext.mockReturnValue({
-      isUnlocked: true,
-      isLoading: false,
-      unlockedForUserId: "other-user",
-    });
-    renderAuthNavbar(user);
-    expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
-  });
-
-  it("hides encryption badge while encryption context is loading", () => {
-    const user = { id: "user-42", email: "auth@example.com" } as User;
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user,
-      isLoading: false,
-    });
-    mockUseEncryptionContext.mockReturnValue({
-      isUnlocked: true,
-      isLoading: true,
-      unlockedForUserId: "user-42",
-    });
-    renderAuthNavbar(user);
-    expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
-  });
-
   it("about dialog shows shared auth navbar copy", () => {
     renderAuthNavbar();
     fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));

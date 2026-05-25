@@ -4,8 +4,10 @@ import {
 } from "@helvety/shared/cookie-signing";
 import { z } from "zod";
 
+import { WEBAUTHN_CHALLENGE_EXPIRY_MS } from "@/lib/webauthn-challenge-ttl";
+
 /** Matches web login challenge cookie TTL (`auth-action-helpers`). */
-export const EXTENSION_CHALLENGE_EXPIRY_MS = 3 * 60 * 1000;
+export const EXTENSION_CHALLENGE_EXPIRY_MS = WEBAUTHN_CHALLENGE_EXPIRY_MS;
 
 const ExtensionChallengePayloadSchema = z.object({
   challenge: z.string().min(1),

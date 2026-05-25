@@ -74,6 +74,20 @@ describe("E2EE page Suspense boundaries", () => {
   );
 });
 
+describe("E2EE cross-link panel hooks", () => {
+  it.each([
+    ["notes", "hooks/use-contact-links.ts"],
+    ["notes", "hooks/use-task-links.ts"],
+    ["contacts", "hooks/use-note-links.ts"],
+    ["contacts", "hooks/use-task-links.ts"],
+    ["tasks", "hooks/use-note-links.ts"],
+    ["tasks", "hooks/use-contact-links.ts"],
+  ] as const)("apps/%s/%s uses guardE2eeMasterKey", (app, hookPath) => {
+    const src = readAppFile(app, hookPath);
+    expect(src).toContain("guardE2eeMasterKey");
+  });
+});
+
 describe("E2EE hook documentation", () => {
   it("useE2eeEntityPanelWithUrl references useSyncE2eeEntityPanelFromUrl, not a raw dashboard useEffect", () => {
     const src = readFileSync(

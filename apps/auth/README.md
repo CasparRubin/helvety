@@ -32,8 +32,11 @@ Trusted-device shortcut (all `/auth/login` entry paths):
 
 - After email verification (OTP action or `/auth/callback`), the auth service stores a **signed HttpOnly `helvety_device_trust` cookie** (see [`device-trust-cookie.ts`](./app/actions/device-trust-cookie.ts)).
 - Any Sign in link (`getLoginUrl` → `/auth/login`) is resolved by [`lib/login-entry.ts`](./lib/login-entry.ts) on the server login gate: trusted devices without a session go straight to passkey sign-in (no email entry).
-- The trust window is **30 days** and renews (sliding window) on successful passkey sign-in. Passkey auth options bind `expectedUserId` from the trust cookie server-side, not from client input.
+- The trust window is **30 days**. It **slides** (full reset) on passkey sign-in **only when** a valid `helvety_device_trust` cookie for that user already exists. Trust is **minted** after email verification (OTP or `/auth/callback`), not by passkey alone. Passkey auth options bind `expectedUserId` from the trust cookie server-side, not from client input.
 - Manual logout clears the trust cookie for this device.
+
+**Hard-logout chain (E2EE apps → auth):** client `forceHardLogout` / `triggerHardLogoutOnce` clears IndexedDB keys and PRF salt, then redirects to `/auth/logout` (global sign-out). The auth logout page clears keys again (idempotent), runs `signOutAction` (Supabase sign-out + `clearDeviceTrustCookie` + challenge cookie). Device trust is **not** cleared until that auth page runs; if a redirect is blocked, call sites should still reach `/auth/logout` or sign out locally.
+
 - User-facing disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies) (cookie table). Developer reference: [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md).
 
 Auth layers (independent mechanisms):
@@ -53,6 +56,7 @@ Vault session policy (E2EE apps): **12h sliding idle**, **30d absolute max** (se
 
 - `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. The `auth-gateway` profile uses **fail-closed** auth refresh: when Supabase session refresh fails, stale `sb-*` cookies are cleared instead of leaving a broken session on the client. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Rate limits apply to OTP send/verify and passkey operations.
+- OTP UI and email templates state a **1-hour** code lifetime (`OTP_USER_VISIBLE_EXPIRY_LABEL` in `lib/otp-code.ts`); keep Supabase Auth email OTP expiry aligned with that copy.
 - CSRF is required for state-changing actions; read-only actions use authenticated read model. The proxy bootstraps or re-issues signed `csrf_token` cookies when missing or invalid for the current `HELVETY_COOKIE_SIGNING_SECRET`.
 - Server authorization reads use `getAuthUser` from `@helvety/shared/auth-retry` (wraps `supabase.auth.getUser()`); never `auth.getSession()` for access decisions.
 - Redirect URIs are allowlist-validated via shared redirect-validation logic.

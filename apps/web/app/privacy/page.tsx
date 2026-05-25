@@ -1074,7 +1074,8 @@ export default function PrivacyPage() {
               E2EE vault session storage:
             </strong>{" "}
             Temporary cache of derived encryption keys in IndexedDB for Helvety
-            Tasks, Contacts, Notes, and Links (see table below).
+            Tasks, Contacts, Notes, and Links, and for Helvety Docs when you use
+            optional vault save (see table below).
           </li>
         </ul>
         <div className="legal-table-wrap mb-4 overflow-x-auto">
@@ -1137,7 +1138,10 @@ export default function PrivacyPage() {
                   entry (signed, httpOnly; UX only, not authorization)
                 </td>
                 <td className="border-border border-b p-3">.helvety.com</td>
-                <td className="border-border border-b p-3">30 days</td>
+                <td className="border-border border-b p-3">
+                  30 days (sliding renewal on passkey sign-in when already
+                  trusted)
+                </td>
               </tr>
               <tr>
                 <td className="border-border border-b p-3">
@@ -1157,7 +1161,7 @@ export default function PrivacyPage() {
                   Cache PRF salt for passkey login unlock (auth flows)
                 </td>
                 <td className="border-border border-b p-3">helvety.com</td>
-                <td className="border-border border-b p-3">Persistent</td>
+                <td className="border-border border-b p-3">7 days</td>
               </tr>
               <tr>
                 <td className="border-border border-b p-3">
@@ -1165,7 +1169,8 @@ export default function PrivacyPage() {
                 </td>
                 <td className="border-border border-b p-3">
                   Temporary cache of derived encryption keys for E2EE apps
-                  (Helvety Tasks, Contacts, Notes, Links); cleared on logout
+                  (Helvety Tasks, Contacts, Notes, Links) and Helvety Docs
+                  optional vault save; cleared on logout
                 </td>
                 <td className="border-border border-b p-3">helvety.com</td>
                 <td className="border-border border-b p-3">
@@ -1369,7 +1374,8 @@ export default function PrivacyPage() {
             After unlock, a derived master key may be cached locally in your
             browser (IndexedDB) for up to 12 hours of inactivity (extended when
             you use the app) and for at most 30 days from the unlock session;
-            this cache is cleared when you sign out
+            Helvety Docs uses the same cache when you unlock optional vault
+            save; this cache is cleared when you sign out
           </li>
           <li>
             Additional Authenticated Data (AAD) binds each ciphertext to a

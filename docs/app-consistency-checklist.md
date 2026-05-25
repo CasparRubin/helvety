@@ -166,7 +166,7 @@ Nested routes (e.g. store products) use `LoadingSpinner`. Enforced by `consisten
 
 ## E2EE `EncryptionProvider`
 
-E2EE zones re-export the client provider from `@/lib/crypto` and pass `encryptionProvider={EncryptionProvider}` into `E2eeAppRootLayout` (test mocking + app boundary).
+E2EE zones and vault-aware zones (`auth`, `docs`) re-export the client provider from `@/lib/crypto` and pass `encryptionProvider={EncryptionProvider}` into their root layout (test mocking + app boundary). Do not import `EncryptionProvider` directly from `@helvety/shared/crypto/encryption-context` in `app/layout.tsx`.
 
 ## `lib/env.ts` factory
 
@@ -237,12 +237,14 @@ See root [`README.md`](../README.md) § Environment Model.
 
 ## E2EE UX patterns
 
-| Pattern               | Canonical                                                       | Apps                                                                                   |
-| --------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)       | `tasks`, `notes`, `contacts`, `links`                                                  |
-| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks | E2EE apps                                                                              |
-| Vault delete confirm  | `AlertDialog` before vault document delete                      | `docs`                                                                                 |
-| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + per-app hooks             | `tasks`, `notes` contact/note panels; contacts→notes/tasks use bespoke lazy-load hooks |
+| Pattern               | Canonical                                                                                                                                     | Apps                                                                                   |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)                                                                                     | `tasks`, `notes`, `contacts`, `links`                                                  |
+| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks                                                                               | E2EE apps                                                                              |
+| Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems` | E2EE apps + cross-link panel hooks                                                     |
+| Vault session TTL     | `vault-session.ts` (12h sliding idle, 30d max); enforced in `encryption-context` + IndexedDB                                                  | All zones using `EncryptionProvider`                                                   |
+| Vault delete confirm  | `AlertDialog` before vault document delete                                                                                                    | `docs`                                                                                 |
+| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + per-app hooks                                                                                           | `tasks`, `notes` contact/note panels; contacts→notes/tasks use bespoke lazy-load hooks |
 
 ## Validation before merge
 

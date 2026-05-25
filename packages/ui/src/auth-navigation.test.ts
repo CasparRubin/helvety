@@ -23,12 +23,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   getE2eeHookErrorMessage,
+  guardE2eeMasterKey,
   redirectToLoginOnce,
   reportE2eeActionFailure,
   reportE2eeHookError,
   resetGlobalRedirectLockForTests,
   triggerHardLogoutOnce,
 } from "./auth-navigation";
+import { forceHardLogout } from "./hard-logout";
 
 beforeEach(() => {
   resetGlobalRedirectLockForTests();
@@ -112,6 +114,31 @@ describe("global redirect lock", () => {
     expect(window.location.replace).toHaveBeenCalledWith(
       expect.stringContaining("force_login=1")
     );
+  });
+});
+
+describe("guardE2eeMasterKey", () => {
+  beforeEach(() => {
+    vi.mocked(forceHardLogout).mockClear();
+  });
+
+  it("returns false without hard logout when vault is locked", () => {
+    const result = guardE2eeMasterKey(null, false, "test-guard");
+    expect(result).toBe(false);
+    expect(forceHardLogout).not.toHaveBeenCalled();
+  });
+
+  it("triggers hard logout when unlocked in context but master key is missing", () => {
+    const result = guardE2eeMasterKey(null, true, "test-guard-stale");
+    expect(result).toBe(false);
+    expect(forceHardLogout).toHaveBeenCalledTimes(1);
+    expect(forceHardLogout).toHaveBeenCalledWith("https://helvety.com/tasks");
+  });
+
+  it("returns true when master key is present", () => {
+    const key = {} as CryptoKey;
+    expect(guardE2eeMasterKey(key, true, "test-guard-ok")).toBe(true);
+    expect(window.location.replace).not.toHaveBeenCalled();
   });
 });
 

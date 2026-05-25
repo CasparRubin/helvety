@@ -45,6 +45,29 @@ export function isVaultSessionValid(
   );
 }
 
+/** True when the absolute vault session cap from `unlockedAt` has elapsed. */
+export function isVaultMaxLifetimeExceeded(
+  unlockedAt: number,
+  now = Date.now()
+): boolean {
+  return now - unlockedAt > VAULT_MAX_LIFETIME_MS;
+}
+
+/**
+ * Milliseconds until the client should lock the vault (idle or max lifetime,
+ * whichever comes first). Returns 0 when already past max lifetime.
+ */
+export function getVaultLockDelayMs(
+  unlockedAt: number,
+  now = Date.now()
+): number {
+  const maxLifetimeRemaining = unlockedAt + VAULT_MAX_LIFETIME_MS - now;
+  if (maxLifetimeRemaining <= 0) {
+    return 0;
+  }
+  return Math.min(VAULT_SLIDING_IDLE_MS, maxLifetimeRemaining);
+}
+
 /**
  * Normalize legacy records that only stored `cachedAt`.
  * Uses that value for both anchors when newer fields are absent.

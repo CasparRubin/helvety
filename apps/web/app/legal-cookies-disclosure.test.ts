@@ -61,6 +61,24 @@ describe("privacy policy cookies disclosure", () => {
     expect(HELVETY_WEB_ZONE_APP_SLUGS).toHaveLength(10);
   });
 
+  it("§9 documents vault and PRF salt retention durations", async () => {
+    const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
+    const cookiesSection = source.slice(source.indexOf('id="cookies"'));
+
+    expect(cookiesSection).toContain("helvety-prf-salt (localStorage)");
+    expect(cookiesSection).toMatch(/helvety-prf-salt[\s\S]*?7 days/);
+    expect(cookiesSection).toContain("helvety-crypto (IndexedDB)");
+    expect(cookiesSection).toMatch(
+      /helvety-crypto[\s\S]*?Helvety Docs[\s\S]*?optional vault save/
+    );
+    expect(cookiesSection).toMatch(
+      /helvety-crypto[\s\S]*?12 hours idle[\s\S]*?30 days maximum/
+    );
+    expect(cookiesSection).toMatch(
+      /helvety_device_trust[\s\S]*?sliding renewal on passkey sign-in when already/
+    );
+  });
+
   it("§9 does not use outdated partial analytics surface list", async () => {
     const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
     const cookiesSection = source.slice(source.indexOf('id="cookies"'));

@@ -67,8 +67,8 @@ type SetupStep = "initial" | "registering" | "complete";
  * After passkey registration, the credential and PRF params are stored server-side.
  * The PRF salt is also cached in localStorage so that subsequent logins include
  * the PRF extension for single-touch encryption unlock (no separate passkey
- * prompt in E2EE apps like helvety.com/tasks, helvety.com/contacts,
- * helvety.com/notes, or helvety.com/links).
+ * prompt in E2EE apps (helvety.com/tasks, helvety.com/contacts,
+ * helvety.com/notes, helvety.com/links) and Helvety Docs optional vault save).
  *
  * In many modern browser flows, PRF output is returned during registration.
  * When available, the master encryption key is derived and stored in

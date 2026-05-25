@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  guardE2eeMasterKey,
   reportE2eeActionFailure,
   reportE2eeHookError,
 } from "@helvety/ui/auth-navigation";
@@ -96,7 +97,13 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !contactId) {
+    if (!contactId) {
+      setItems([]);
+      setIsLoading(false);
+      return;
+    }
+    if (!masterKey || !isUnlocked) {
+      guardE2eeMasterKey(masterKey, isUnlocked, "contacts-use-task-links");
       setItems([]);
       setIsLoading(false);
       return;
@@ -165,7 +172,11 @@ export function useTaskLinks(contactId: string): UseTaskLinksReturn {
       setAllEntities(entitiesCacheRef.current);
       return;
     }
-    if (!masterKey || !isUnlocked) return;
+    if (
+      !guardE2eeMasterKey(masterKey, isUnlocked, "contacts-use-task-links-load")
+    ) {
+      return;
+    }
 
     const requestId = ++latestEntitiesRequestRef.current;
     const routeAtStart = window.location.href;

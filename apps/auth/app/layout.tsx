@@ -5,13 +5,13 @@ import {
   AUTH_PWA_MANIFEST_DESCRIPTION,
 } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
 import { bootstrapAuthLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
+import { EncryptionProvider } from "@/lib/crypto";
 
 export { AUTH_DESCRIPTION, AUTH_PWA_MANIFEST_DESCRIPTION };
 

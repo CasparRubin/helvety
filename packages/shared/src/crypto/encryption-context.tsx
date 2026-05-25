@@ -11,7 +11,7 @@ import {
 } from "react";
 
 import {
-  getMasterKey,
+  getCachedMasterKey,
   deleteMasterKey,
   clearAllKeys,
   isStorageAvailable,
@@ -23,7 +23,10 @@ import {
   isPRFSupported,
   type PRFSupportInfo,
 } from "./prf-key-derivation";
-import { VAULT_SLIDING_IDLE_MS } from "./vault-session";
+import {
+  getVaultLockDelayMs,
+  isVaultMaxLifetimeExceeded,
+} from "./vault-session";
 
 /** Internal state for the encryption context */
 interface EncryptionState {
@@ -35,6 +38,8 @@ interface EncryptionState {
   masterKey: CryptoKey | null;
   /** The userId for which the current masterKey was derived/loaded */
   unlockedForUserId: string | null;
+  /** Vault session anchor (`unlockedAt`) for max-lifetime client lock */
+  vaultUnlockedAt: number | null;
   /** User-visible error when the last encryption check failed */
   error: string | null;
   /** Whether passkey/PRF is supported on this device */
@@ -80,6 +85,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     isLoading: true,
     masterKey: null,
     unlockedForUserId: null,
+    vaultUnlockedAt: null,
     error: null,
     prfSupported: null,
     prfSupportInfo: null,
@@ -118,6 +124,24 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
   }, []);
 
   /**
+   * Lock encryption (clear keys)
+   */
+  const lockEncryption = useCallback(async (userId: string) => {
+    await deleteMasterKey(userId);
+    await clearAllKeys();
+
+    setState((prev) => ({
+      ...prev,
+      isUnlocked: false,
+      isLoading: false,
+      masterKey: null,
+      unlockedForUserId: null,
+      vaultUnlockedAt: null,
+      error: null,
+    }));
+  }, []);
+
+  /**
    * Check if we have a cached master key
    */
   const checkEncryptionState = useCallback(
@@ -132,6 +156,13 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
         current.unlockedForUserId === userId &&
         current.masterKey
       ) {
+        if (
+          current.vaultUnlockedAt !== null &&
+          isVaultMaxLifetimeExceeded(current.vaultUnlockedAt)
+        ) {
+          await lockEncryption(userId);
+          return;
+        }
         if (current.isLoading) {
           setState((prev) => ({ ...prev, isLoading: false }));
         }
@@ -154,14 +185,15 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
         // Also check PRF support while we're at it
         void checkPRFSupport();
 
-        const cachedKey = await getMasterKey(userId);
-        if (cachedKey) {
+        const cached = await getCachedMasterKey(userId);
+        if (cached) {
           setState((prev) => ({
             ...prev,
             isUnlocked: true,
             isLoading: false,
-            masterKey: cachedKey,
+            masterKey: cached.key,
             unlockedForUserId: userId,
+            vaultUnlockedAt: cached.unlockedAt,
             error: null,
           }));
         } else {
@@ -171,6 +203,7 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
             isLoading: false,
             masterKey: null,
             unlockedForUserId: null,
+            vaultUnlockedAt: null,
             error: null,
           }));
         }
@@ -180,46 +213,41 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
           isUnlocked: false,
           isLoading: false,
           masterKey: null,
+          unlockedForUserId: null,
+          vaultUnlockedAt: null,
           error: "Failed to check encryption status",
         }));
       }
     },
-    [checkPRFSupport]
+    [checkPRFSupport, lockEncryption]
   );
 
-  /**
-   * Lock encryption (clear keys)
-   */
-  const lockEncryption = useCallback(async (userId: string) => {
-    await deleteMasterKey(userId);
-    await clearAllKeys();
-
-    setState((prev) => ({
-      ...prev,
-      isUnlocked: false,
-      isLoading: false,
-      masterKey: null,
-      unlockedForUserId: null,
-      error: null,
-    }));
-  }, []);
-
   useEffect(() => {
-    if (!state.isUnlocked || !state.unlockedForUserId) {
+    if (
+      !state.isUnlocked ||
+      !state.unlockedForUserId ||
+      state.vaultUnlockedAt === null
+    ) {
       return;
     }
 
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     const activeUserId = state.unlockedForUserId;
+    const vaultUnlockedAt = state.vaultUnlockedAt;
 
     const scheduleIdleLock = () => {
       void touchVaultSessionInStorage(activeUserId);
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
+      const delayMs = getVaultLockDelayMs(vaultUnlockedAt);
+      if (delayMs <= 0) {
+        void lockEncryption(activeUserId);
+        return;
+      }
       timeoutId = setTimeout(() => {
         void lockEncryption(activeUserId);
-      }, VAULT_SLIDING_IDLE_MS);
+      }, delayMs);
     };
 
     const activityEvents: Array<keyof WindowEventMap> = [
@@ -243,7 +271,12 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
         window.removeEventListener(eventName, scheduleIdleLock);
       }
     };
-  }, [lockEncryption, state.isUnlocked, state.unlockedForUserId]);
+  }, [
+    lockEncryption,
+    state.isUnlocked,
+    state.unlockedForUserId,
+    state.vaultUnlockedAt,
+  ]);
 
   const value: EncryptionContextValue = {
     ...state,

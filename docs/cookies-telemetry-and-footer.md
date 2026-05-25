@@ -39,9 +39,9 @@ Production cookie domain: `.helvety.com` (`packages/shared/src/config.ts`).
 
 ## Browser storage (not cookies)
 
-Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows), `helvety-crypto` (IndexedDB master-key cache for E2EE apps), `helvety-pdf-columns` (PDF viewer).
+Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps and Docs optional vault save), `helvety-pdf-columns` (PDF viewer).
 
-E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **12h sliding idle** and **30d absolute max** lifetime (`@helvety/shared/crypto/vault-session.ts`). Cleared on logout / hard logout.
+E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **12h sliding idle** and **30d absolute max** lifetime (`@helvety/shared/crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, and Docs vault unlock. Cleared on logout / hard logout.
 
 ## When to update legal copy
 

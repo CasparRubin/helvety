@@ -17,6 +17,10 @@ describe("auth root layout shell providers", () => {
     expect(src).not.toContain("getCachedUser");
     expect(src).toContain("<CSRFProvider csrfToken={csrfToken}>");
     expect(src).toContain("<EncryptionProvider>{shell}</EncryptionProvider>");
+    expect(src).toContain('from "@/lib/crypto"');
+    expect(src).not.toMatch(
+      /import\s*\{[^}]*EncryptionProvider[^}]*\}\s*from\s*"@helvety\/shared\/crypto\/encryption-context"/
+    );
     expect(src).toContain("wrapInsideTooltipProvider");
 
     const csrfOpen = src.indexOf("<CSRFProvider");

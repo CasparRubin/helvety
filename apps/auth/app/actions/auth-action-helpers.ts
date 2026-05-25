@@ -14,6 +14,7 @@ import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
 import { checkRateLimit } from "@/lib/rate-limit";
+import { WEBAUTHN_CHALLENGE_EXPIRY_MS } from "@/lib/webauthn-challenge-ttl";
 
 import type { RateLimitPolicy } from "@helvety/shared/rate-limit";
 import type { ActionResponse } from "@helvety/shared/types/entities";
@@ -40,7 +41,7 @@ type StoredChallenge = {
 // =============================================================================
 
 const CHALLENGE_COOKIE_NAME = "webauthn_challenge";
-const CHALLENGE_EXPIRY_MS = 3 * 60 * 1000; // 3 minutes
+const CHALLENGE_EXPIRY_MS = WEBAUTHN_CHALLENGE_EXPIRY_MS;
 const PRF_SALT_LENGTH = 32; // PRF salt length in bytes
 
 const StoredChallengeSchema = z.object({

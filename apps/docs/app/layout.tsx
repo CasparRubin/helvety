@@ -2,13 +2,13 @@ import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { DOCS_APP_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { EncryptionProvider } from "@helvety/shared/crypto/encryption-context";
 import { bootstrapE2eeLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
+import { EncryptionProvider } from "@/lib/crypto";
 
 export const viewport = sharedViewport;
 

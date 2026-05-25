@@ -143,6 +143,24 @@ export function redirectToLoginOnce(
   return true;
 }
 
+/**
+ * Returns true when `masterKey` is present. If the vault is unlocked in context
+ * but the key is missing, triggers hard logout (stale client state).
+ */
+export function guardE2eeMasterKey(
+  masterKey: CryptoKey | null,
+  isUnlocked: boolean,
+  source: NavigationSource
+): masterKey is CryptoKey {
+  if (masterKey) {
+    return true;
+  }
+  if (isUnlocked && typeof window !== "undefined") {
+    triggerHardLogoutOnce(window.location.href, source);
+  }
+  return false;
+}
+
 /** Performs an idempotent hard-logout redirect for terminal auth states. */
 export function triggerHardLogoutOnce(
   redirectUri?: string,

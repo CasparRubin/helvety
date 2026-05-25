@@ -2,6 +2,7 @@
 
 import { safeDecryptDisplayField } from "@helvety/shared/crypto";
 import {
+  guardE2eeMasterKey,
   reportE2eeActionFailure,
   reportE2eeHookError,
 } from "@helvety/ui/auth-navigation";
@@ -104,8 +105,16 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !noteId) {
+    if (!noteId) {
       setItems([]);
+      setAllEntities(EMPTY_ENTITIES);
+      setIsLoading(false);
+      return;
+    }
+    if (!masterKey || !isUnlocked) {
+      guardE2eeMasterKey(masterKey, isUnlocked, "notes-use-task-links");
+      setItems([]);
+      setAllEntities(EMPTY_ENTITIES);
       setIsLoading(false);
       return;
     }
@@ -173,7 +182,11 @@ export function useTaskLinks(noteId: string): UseTaskLinksReturn {
       setAllEntities(entitiesCacheRef.current);
       return;
     }
-    if (!masterKey || !isUnlocked) return;
+    if (
+      !guardE2eeMasterKey(masterKey, isUnlocked, "notes-use-task-links-load")
+    ) {
+      return;
+    }
 
     const requestId = ++latestEntitiesRequestRef.current;
     const routeAtStart = window.location.href;

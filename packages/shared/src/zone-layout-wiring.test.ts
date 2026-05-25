@@ -39,6 +39,16 @@ describe("zone root layout wiring", () => {
       expect(src).toMatch(/export default async function RootLayout/);
       expect(src).toContain("<E2eeAppRootLayout");
       expect(src).toContain("encryptionProvider={EncryptionProvider}");
+      expect(src).toContain('from "@/lib/crypto"');
+    }
+  );
+
+  it.each(["auth", "docs"] as const)(
+    "apps/%s imports EncryptionProvider via @/lib/crypto re-export",
+    (app) => {
+      const src = readLayout(app);
+      expect(src).toContain('from "@/lib/crypto"');
+      expect(src).toContain("EncryptionProvider");
     }
   );
 });

@@ -163,6 +163,18 @@ describe("auth-action-helpers", () => {
     vi.useRealTimers();
   });
 
+  it("rejects challenge cookies after the 3-minute TTL", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    await storeChallenge({
+      challenge: "ch",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    vi.advanceTimersByTime(3 * 60 * 1000 + 1);
+    await expect(getStoredChallenge()).resolves.toBeNull();
+    vi.useRealTimers();
+  });
+
   it("rejects tampered challenge cookies", async () => {
     await storeChallenge({
       challenge: "ch",

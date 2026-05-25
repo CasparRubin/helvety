@@ -4,6 +4,8 @@ import {
   VAULT_MAX_LIFETIME_MS,
   VAULT_SLIDING_IDLE_MS,
   createVaultSession,
+  getVaultLockDelayMs,
+  isVaultMaxLifetimeExceeded,
   isVaultSessionValid,
   normalizeVaultSessionTimestamps,
   touchVaultSession,
@@ -56,5 +58,31 @@ describe("vault-session", () => {
 
   it("normalizeVaultSessionTimestamps returns null without timestamps", () => {
     expect(normalizeVaultSessionTimestamps({})).toBeNull();
+  });
+
+  it("isVaultMaxLifetimeExceeded after 30d from unlockedAt", () => {
+    const session = createVaultSession(t0);
+    expect(isVaultMaxLifetimeExceeded(session.unlockedAt, t0)).toBe(false);
+    expect(
+      isVaultMaxLifetimeExceeded(session.unlockedAt, t0 + VAULT_MAX_LIFETIME_MS)
+    ).toBe(false);
+    expect(
+      isVaultMaxLifetimeExceeded(
+        session.unlockedAt,
+        t0 + VAULT_MAX_LIFETIME_MS + 1
+      )
+    ).toBe(true);
+  });
+
+  it("getVaultLockDelayMs uses the sooner of idle and max lifetime", () => {
+    const session = createVaultSession(t0);
+    expect(getVaultLockDelayMs(session.unlockedAt, t0)).toBe(
+      VAULT_SLIDING_IDLE_MS
+    );
+    const nearMax = t0 + VAULT_MAX_LIFETIME_MS - 60_000;
+    expect(getVaultLockDelayMs(session.unlockedAt, nearMax)).toBe(60_000);
+    expect(
+      getVaultLockDelayMs(session.unlockedAt, t0 + VAULT_MAX_LIFETIME_MS + 1)
+    ).toBe(0);
   });
 });

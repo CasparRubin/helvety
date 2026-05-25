@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  guardE2eeMasterKey,
   reportE2eeActionFailure,
   reportE2eeHookError,
 } from "@helvety/ui/auth-navigation";
@@ -80,7 +81,14 @@ export function useContactLinks(itemId: string): UseContactLinksReturn {
    * Fetch and decrypt all contacts + fetch note links
    */
   const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !itemId) {
+    if (!itemId) {
+      setAllContacts([]);
+      setLinks([]);
+      setIsLoading(false);
+      return;
+    }
+    if (!masterKey || !isUnlocked) {
+      guardE2eeMasterKey(masterKey, isUnlocked, "notes-use-contact-links");
       setAllContacts([]);
       setLinks([]);
       setIsLoading(false);

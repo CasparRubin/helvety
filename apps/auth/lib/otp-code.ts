@@ -1,3 +1,9 @@
+/**
+ * User-facing OTP lifetime copy in login UI and email templates ("1 hour").
+ * Must match Supabase Auth email OTP expiry (Dashboard → Authentication → Email).
+ */
+export const OTP_USER_VISIBLE_EXPIRY_LABEL = "1 hour" as const;
+
 /** Lower bound for email OTP length (matches Supabase / server validation). */
 const OTP_CODE_MIN_LENGTH = 6;
 /** Upper bound for email OTP length. */

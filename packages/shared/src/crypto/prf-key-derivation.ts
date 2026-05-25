@@ -19,7 +19,7 @@ const PRF_SALT_LENGTH = 32;
 
 /**
  * HKDF info string for cross-app compatibility
- * Shared across E2EE apps (Tasks, Contacts, Notes, Links) and Auth (for setup)
+ * Shared across E2EE apps (Tasks, Contacts, Notes, Links), Docs vault save, and Auth (setup)
  */
 const HKDF_INFO = "helvety-e2ee-v1";
 
