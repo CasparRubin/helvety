@@ -27,7 +27,7 @@ interface NoteRow {
   created_at: string;
 }
 
-/** Raw link row from `note_item_links`. */
+/** Raw link row from `entity_links`. */
 interface NoteItemLinkRow {
   id: string;
   note_id: string;

@@ -24,10 +24,7 @@ const authEnvSchema = serverEnvSchema
         ),
       HELVETY_CHROME_EXTENSION_ORIGINS: z
         .string()
-        .min(
-          1,
-          "HELVETY_CHROME_EXTENSION_ORIGINS (or legacy HELVEETY_CHROME_EXTENSION_ORIGINS) is required"
-        )
+        .min(1, "HELVETY_CHROME_EXTENSION_ORIGINS is required")
         .transform((raw, ctx) => {
           try {
             return parseChromeExtensionOriginsEnv(raw);

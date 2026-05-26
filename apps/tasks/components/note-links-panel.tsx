@@ -10,13 +10,13 @@ import type { LinkedNote } from "@/hooks/use-note-links";
 
 /** Adapts `useNoteLinks` to the shared entity links panel hook shape. */
 function useNoteLinksAdapter(entityId: string, options: { enabled: boolean }) {
-  const { allNotes, linkedNotes, isLoading, link, unlink } = useNoteLinks(
+  const { allItems, linkedItems, isLoading, link, unlink } = useNoteLinks(
     entityId,
     options
   );
   return {
-    allItems: allNotes,
-    linkedItems: linkedNotes,
+    allItems,
+    linkedItems,
     isLoading,
     link,
     unlink,

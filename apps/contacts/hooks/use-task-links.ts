@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  guardE2eeMasterKey,
-  reportE2eeActionFailure,
-  reportE2eeHookError,
-} from "@helvety/ui/auth-navigation";
-import { useCSRFToken } from "@helvety/ui/csrf-provider";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { decryptItemDisplayTitle } from "@helvety/shared/crypto";
+import { createE2eeEntityLinksHook } from "@helvety/ui/create-e2ee-entity-links-hook";
 
 import {
   getContactTaskLinks,
@@ -14,291 +9,64 @@ import {
   linkTaskEntity,
   unlinkTaskEntity,
 } from "@/app/actions/task-link-actions";
-import { useEncryptionContext } from "@/lib/crypto";
-import { decryptItemTitle } from "@/lib/decrypt-item-title";
 
 import type {
   LinkedItem,
-  TaskLinkData,
   PickerItem,
   TaskEntitiesData,
+  TaskLinkData,
 } from "@/lib/types";
 
-/** All decrypted picker entities available for linking. */
-interface AllEntities {
-  items: PickerItem[];
-}
-
-/** Return shape for `useTaskLinks`. */
-interface UseTaskLinksReturn {
-  items: LinkedItem[];
-  totalCount: number;
-  allEntities: AllEntities;
-  isLoading: boolean;
-  isLoadingEntities: boolean;
-  error: string | null;
-  refresh: () => Promise<void>;
-  loadEntities: () => Promise<void>;
-  link: (itemId: string) => Promise<boolean>;
-  unlink: (linkId: string) => Promise<boolean>;
-}
-
-/** Decrypt linked task-item data for UI usage. */
-async function decryptTaskLinkData(
-  data: TaskLinkData,
-  key: CryptoKey
-): Promise<LinkedItem[]> {
-  return Promise.all(
-    data.items.map(async (item) => ({
-      id: item.id,
-      title: await decryptItemTitle(item.encrypted_title, item.id, key),
-      link_id: item.link_id,
-      linked_at: item.linked_at,
-    }))
-  );
-}
-
-/** Decrypt picker item data for linking popover. */
-async function decryptEntitiesData(
-  data: TaskEntitiesData,
-  key: CryptoKey
-): Promise<AllEntities> {
-  return {
-    items: await Promise.all(
+const useTaskLinksHook = createE2eeEntityLinksHook<
+  PickerItem,
+  LinkedItem,
+  { id: string },
+  TaskLinkData,
+  TaskEntitiesData
+>({
+  fetchMode: "lazyCatalog",
+  source: "contacts-use-task-links",
+  messages: {
+    loadLinks: "Failed to load task links",
+    loadCatalog: "Failed to load tasks",
+    link: "Failed to link task",
+    unlink: "Failed to unlink task",
+  },
+  loadLinks: getContactTaskLinks,
+  loadCatalog: getTaskEntities,
+  decryptLinked: async (data, key) =>
+    Promise.all(
       data.items.map(async (item) => ({
         id: item.id,
-        title: await decryptItemTitle(item.encrypted_title, item.id, key),
+        title: await decryptItemDisplayTitle(
+          item.encrypted_title,
+          item.id,
+          key
+        ),
+        link_id: item.link_id,
+        linked_at: item.linked_at,
       }))
     ),
-  };
-}
+  decryptCatalog: async (data, key) =>
+    Promise.all(
+      data.items.map(async (item) => ({
+        id: item.id,
+        title: await decryptItemDisplayTitle(
+          item.encrypted_title,
+          item.id,
+          key
+        ),
+      }))
+    ),
+  link: (contactId, itemId, csrfToken) =>
+    linkTaskEntity(itemId, contactId, csrfToken),
+  unlink: unlinkTaskEntity,
+});
 
-const EMPTY_ENTITIES: AllEntities = { items: [] };
-
-/** Hook to fetch, decrypt, link, and unlink task-item links for a contact. */
-export function useTaskLinks(contactId: string): UseTaskLinksReturn {
-  const { masterKey, isUnlocked } = useEncryptionContext();
-  const csrfToken = useCSRFToken();
-
-  const [items, setItems] = useState<LinkedItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [allEntities, setAllEntities] = useState<AllEntities>(EMPTY_ENTITIES);
-  const [isLoadingEntities, setIsLoadingEntities] = useState(false);
-  const entitiesCacheRef = useRef<AllEntities | null>(null);
-  const mountedRef = useRef(true);
-  const latestRefreshRequestRef = useRef(0);
-  const latestEntitiesRequestRef = useRef(0);
-
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const refresh = useCallback(async () => {
-    if (!contactId) {
-      setItems([]);
-      setIsLoading(false);
-      return;
-    }
-    if (!masterKey || !isUnlocked) {
-      guardE2eeMasterKey(masterKey, isUnlocked, "contacts-use-task-links");
-      setItems([]);
-      setIsLoading(false);
-      return;
-    }
-
-    const requestId = ++latestRefreshRequestRef.current;
-    const routeAtStart = window.location.href;
-    const requestStartedAt = Date.now();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await getContactTaskLinks(contactId);
-      if (
-        !mountedRef.current ||
-        requestId !== latestRefreshRequestRef.current
-      ) {
-        return;
-      }
-      if (!result.success) {
-        reportE2eeActionFailure(result.error, {
-          source: "contacts-use-task-links",
-          fallback: "Failed to load task links",
-          setError,
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        });
-        setItems([]);
-        return;
-      }
-
-      const decrypted = await decryptTaskLinkData(result.data, masterKey);
-      if (
-        !mountedRef.current ||
-        requestId !== latestRefreshRequestRef.current
-      ) {
-        return;
-      }
-      setItems(decrypted);
-    } catch (err) {
-      if (
-        !mountedRef.current ||
-        requestId !== latestRefreshRequestRef.current
-      ) {
-        return;
-      }
-      reportE2eeHookError(err, {
-        source: "contacts-use-task-links",
-        fallback: "Failed to load task links",
-        setError,
-        redirectUri: routeAtStart,
-        expectedRoute: routeAtStart,
-        requestStartedAt,
-      });
-      setItems([]);
-    } finally {
-      if (mountedRef.current && requestId === latestRefreshRequestRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [contactId, masterKey, isUnlocked]);
-
-  const loadEntities = useCallback(async () => {
-    if (entitiesCacheRef.current) {
-      setAllEntities(entitiesCacheRef.current);
-      return;
-    }
-    if (
-      !guardE2eeMasterKey(masterKey, isUnlocked, "contacts-use-task-links-load")
-    ) {
-      return;
-    }
-
-    const requestId = ++latestEntitiesRequestRef.current;
-    const routeAtStart = window.location.href;
-    const requestStartedAt = Date.now();
-    setIsLoadingEntities(true);
-
-    try {
-      const result = await getTaskEntities();
-      if (
-        !mountedRef.current ||
-        requestId !== latestEntitiesRequestRef.current
-      ) {
-        return;
-      }
-      if (!result.success) {
-        reportE2eeActionFailure(result.error, {
-          source: "contacts-use-task-links",
-          fallback: "Failed to load tasks",
-          redirectUri: routeAtStart,
-          expectedRoute: routeAtStart,
-          requestStartedAt,
-        });
-        return;
-      }
-
-      const decrypted = await decryptEntitiesData(result.data, masterKey);
-      if (
-        !mountedRef.current ||
-        requestId !== latestEntitiesRequestRef.current
-      ) {
-        return;
-      }
-      entitiesCacheRef.current = decrypted;
-      setAllEntities(decrypted);
-    } catch (err) {
-      if (
-        !mountedRef.current ||
-        requestId !== latestEntitiesRequestRef.current
-      ) {
-        return;
-      }
-      reportE2eeHookError(err, {
-        source: "contacts-use-task-links",
-        fallback: "Failed to load tasks",
-        redirectUri: routeAtStart,
-        expectedRoute: routeAtStart,
-        requestStartedAt,
-      });
-    } finally {
-      if (
-        mountedRef.current &&
-        requestId === latestEntitiesRequestRef.current
-      ) {
-        setIsLoadingEntities(false);
-      }
-    }
-  }, [masterKey, isUnlocked]);
-
-  const link = useCallback(
-    async (itemId: string): Promise<boolean> => {
-      try {
-        const result = await linkTaskEntity(itemId, contactId, csrfToken);
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-task-links",
-            fallback: "Failed to link task",
-          });
-          return false;
-        }
-        await refresh();
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "contacts-use-task-links",
-          fallback: "Failed to link task",
-        });
-        return false;
-      }
-    },
-    [contactId, csrfToken, refresh]
-  );
-
-  const unlink = useCallback(
-    async (linkId: string): Promise<boolean> => {
-      try {
-        const result = await unlinkTaskEntity(linkId, csrfToken);
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-task-links",
-            fallback: "Failed to unlink task",
-          });
-          return false;
-        }
-        setItems((prev) => prev.filter((item) => item.link_id !== linkId));
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "contacts-use-task-links",
-          fallback: "Failed to unlink task",
-        });
-        return false;
-      }
-    },
-    [csrfToken]
-  );
-
-  useEffect(() => {
-    if (isUnlocked && masterKey && contactId) {
-      void refresh();
-    }
-  }, [isUnlocked, masterKey, contactId, refresh]);
-
-  return {
-    items,
-    totalCount: items.length,
-    allEntities,
-    isLoading,
-    isLoadingEntities,
-    error,
-    refresh,
-    loadEntities,
-    link,
-    unlink,
-  };
+/** Hook to fetch, decrypt, link, and unlink task links for a contact. */
+export function useTaskLinks(
+  contactId: string,
+  options?: { enabled?: boolean }
+) {
+  return useTaskLinksHook(contactId, options);
 }

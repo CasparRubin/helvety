@@ -1,7 +1,7 @@
-import { safeDecryptDisplayField } from "@helvety/shared/crypto";
+import { safeDecryptDisplayField } from "./safe-decrypt-display-field";
 
-/** Decrypt a single encrypted item title for linking UI. */
-export async function decryptItemTitle(
+/** Decrypt a single encrypted item title for cross-app linking UI. */
+export async function decryptItemDisplayTitle(
   encryptedTitle: string,
   itemId: string,
   key: CryptoKey

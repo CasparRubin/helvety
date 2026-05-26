@@ -28,23 +28,11 @@ export const AUTH_EXTRA_KEYS = [
 ];
 
 /**
- * Production may use the preferred key or a legacy alias (auth extension allowlist).
- * @type {Record<string, string>}
- */
-export const PRODUCTION_ENV_KEY_ALIASES = {
-  HELVETY_CHROME_EXTENSION_ORIGINS: "HELVEETY_CHROME_EXTENSION_ORIGINS",
-};
-
-/**
  * @param {string} expectedKey
  * @param {Set<string>} presentKeys
  */
 export function productionEnvKeyIsPresent(expectedKey, presentKeys) {
-  if (presentKeys.has(expectedKey)) {
-    return true;
-  }
-  const alias = PRODUCTION_ENV_KEY_ALIASES[expectedKey];
-  return alias ? presentKeys.has(alias) : false;
+  return presentKeys.has(expectedKey);
 }
 
 /**
@@ -52,15 +40,7 @@ export function productionEnvKeyIsPresent(expectedKey, presentKeys) {
  * @param {Set<string>} expectedKeys
  */
 export function productionEnvKeyIsExpectedOrAlias(key, expectedKeys) {
-  if (expectedKeys.has(key)) {
-    return true;
-  }
-  for (const expected of expectedKeys) {
-    if (PRODUCTION_ENV_KEY_ALIASES[expected] === key) {
-      return true;
-    }
-  }
-  return false;
+  return expectedKeys.has(key);
 }
 
 /** Gateway zone URLs required in apps/web env.template and turbo build env (Vercel). */

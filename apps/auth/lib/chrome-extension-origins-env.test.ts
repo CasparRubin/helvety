@@ -5,26 +5,18 @@ import { readChromeExtensionOriginsFromProcessEnv } from "./chrome-extension-ori
 describe("readChromeExtensionOriginsFromProcessEnv", () => {
   afterEach(() => {
     delete process.env.HELVETY_CHROME_EXTENSION_ORIGINS;
-    delete process.env.HELVEETY_CHROME_EXTENSION_ORIGINS;
   });
 
-  it("prefers HELVETY_CHROME_EXTENSION_ORIGINS over legacy spelling", () => {
-    process.env.HELVEETY_CHROME_EXTENSION_ORIGINS =
-      "chrome-extension://legacy-id";
+  it("reads HELVETY_CHROME_EXTENSION_ORIGINS from process env", () => {
     process.env.HELVETY_CHROME_EXTENSION_ORIGINS =
-      "chrome-extension://preferred-id";
+      "chrome-extension://extension-id";
 
     expect(readChromeExtensionOriginsFromProcessEnv()).toBe(
-      "chrome-extension://preferred-id"
+      "chrome-extension://extension-id"
     );
   });
 
-  it("falls back to HELVEETY_CHROME_EXTENSION_ORIGINS when preferred is unset", () => {
-    process.env.HELVEETY_CHROME_EXTENSION_ORIGINS =
-      "chrome-extension://legacy-id";
-
-    expect(readChromeExtensionOriginsFromProcessEnv()).toBe(
-      "chrome-extension://legacy-id"
-    );
+  it("returns empty string when unset", () => {
+    expect(readChromeExtensionOriginsFromProcessEnv()).toBe("");
   });
 });

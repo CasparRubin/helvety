@@ -19,11 +19,13 @@ function useContactLinksAdapter(
   entityId: string,
   options: { enabled: boolean }
 ) {
-  const { allContacts, linkedContacts, isLoading, link, unlink } =
-    useContactLinks(entityId, options);
+  const { allItems, linkedItems, isLoading, link, unlink } = useContactLinks(
+    entityId,
+    options
+  );
   return {
-    allItems: allContacts,
-    linkedItems: linkedContacts,
+    allItems,
+    linkedItems,
     isLoading,
     link,
     unlink,

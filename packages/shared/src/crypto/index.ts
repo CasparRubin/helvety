@@ -103,3 +103,6 @@ export {
   safeDecryptDisplayField,
   type SafeDecryptDisplayAadTable,
 } from "./safe-decrypt-display-field";
+
+export { decryptItemDisplayTitle } from "./decrypt-item-display-title";
+export { decryptNoteDisplayTitle } from "./decrypt-note-display-title";

@@ -35,9 +35,9 @@ Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECUR
 
 ## Auth / extension
 
-- `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` matches the published Chrome extension ID only (legacy `HELVEETY_CHROME_EXTENSION_ORIGINS` is still read if the preferred name is unset).
+- `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` matches the published Chrome extension ID only (legacy `HELVEETY_CHROME_EXTENSION_ORIGINS` is not supported).
 - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` on `helvety-auth` are required in production for extension passkey single-use challenges (`consumeSingleUseKey` with `strict` policy).
-- `bun run consistency:vercel-prod-env` must pass for `helvety-auth`: set `HELVETY_CHROME_EXTENSION_ORIGINS` (or legacy `HELVEETY_CHROME_EXTENSION_ORIGINS`) to the published extension ID.
+- `bun run consistency:vercel-prod-env` must pass for `helvety-auth`: set `HELVETY_CHROME_EXTENSION_ORIGINS` to the published extension ID.
 - Extension Bearer tokens rotated if leaked.
 - Extension passkey `challengeEnvelope` values are single-use within their TTL (Upstash `consumeSingleUseKey`; dev uses in-memory fallback).
 - Spot-check sign-in, callback, passkey session mint, and logout with existing `sb-*` cookies (mutating client must persist session changes).

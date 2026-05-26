@@ -29,7 +29,7 @@ interface ContactPickerRow {
   updated_at: string;
 }
 
-/** Raw link row from `item_contact_links`. */
+/** Raw link row from `entity_links`. */
 interface ItemContactLinkRow {
   id: string;
   item_id: string;

@@ -125,7 +125,7 @@ Quality gates run locally and on GitHub Actions (`.github/workflows/ci.yml`). De
   - Cursor **dependency-update** skill (`.cursor/skills/dependency-update/`) for full npm + extended sweeps with upstream release research
   - `bun outdated` then `bun update` before releases (manual; no Renovate/Dependabot)
   - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
-  - `bun run deps:check` / `bun run knip:exports` / `bun run deps:unused` (also available individually)
+  - `bun run deps:check` / `bun run knip:exports` / `bun run knip:full` / `bun run deps:unused` (also available individually; `knip:full` scans the whole monorepo without CI entry filters)
 
 ## Environment Model
 
@@ -134,7 +134,7 @@ Quality gates run locally and on GitHub Actions (`.github/workflows/ci.yml`). De
 - **Per-app tiers** (see each `apps/*/env.template`, app README, [`docs/turbo-env-tiers.md`](docs/turbo-env-tiers.md), and [`docs/env-vercel-audit-checklist.md`](docs/env-vercel-audit-checklist.md) for how Turbo `build.env` relates to runtime requirements and Vercel project setup):
   - **Admin + rate limit** (`auth`, `store`): public Supabase keys, `SUPABASE_SECRET_KEY`, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET`.
   - **User-scoped + rate limit** (`notes`, `tasks`, `contacts`, `links`, `docs`): public Supabase keys, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET` (no admin client; vault CRUD uses user client + RLS).
-  - **Auth only** adds `DEVICE_TRUST_COOKIE_SECRET` (separate from CSRF signing; min 32 characters) and `HELVETY_CHROME_EXTENSION_ORIGINS` (legacy `HELVEETY_CHROME_EXTENSION_ORIGINS` accepted; comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs).
+  - **Auth only** adds `DEVICE_TRUST_COOKIE_SECRET` (separate from CSRF signing; min 32 characters) and `HELVETY_CHROME_EXTENSION_ORIGINS` (comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs).
   - **Public tools + rate limit** (`pdf`, `image-upscaler`): public Supabase keys, Upstash Redis, and `HELVETY_COOKIE_SIGNING_SECRET` (no `SUPABASE_SECRET_KEY`; auth callbacks require Upstash strict rate limiting).
   - **Gateway** (`web`): public Supabase keys plus internal rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `DOCS_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`.
 - **Optional** (commented in every `env.template`; not required for normal local dev): `SKIP_ENV_VALIDATION=1` (local build smoke tests only, off Vercel; `ci:release` uses real validation), and `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` (comma-separated Server Actions origin override; on Vercel, defaults come from deployment URLs plus `https://helvety.com`).

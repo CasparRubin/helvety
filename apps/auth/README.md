@@ -86,16 +86,16 @@ Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description                                                                                                                          |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                                                 |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                                                             |
-| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key                                                                                                     |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting                                                                                             |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                                                                                             |
-| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF/proxy cookies; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`)                                        |
-| `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (separate from CSRF signing; min 32 chars)                                                                |
-| `HELVETY_CHROME_EXTENSION_ORIGINS`     | Yes      | Yes         | Comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs (legacy `HELVEETY_CHROME_EXTENSION_ORIGINS` accepted) |
+| Variable                               | Required | Server-only | Description                                                                                   |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                          |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                      |
+| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key                                                              |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting                                                      |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                                                      |
+| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF/proxy cookies; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
+| `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (separate from CSRF signing; min 32 chars)                         |
+| `HELVETY_CHROME_EXTENSION_ORIGINS`     | Yes      | Yes         | Comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs                |
 
 Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 

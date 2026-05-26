@@ -291,6 +291,7 @@ export function createEslintConfig(rootDir) {
       files: [
         "**/note-link-actions.ts",
         "**/task-link-actions.ts",
+        "**/use-contact-links.ts",
         "**/use-note-links.ts",
         "**/use-task-links.ts",
         "**/note-links-panel.tsx",

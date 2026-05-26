@@ -54,6 +54,7 @@
     "deps:check": "knip --no-progress --include files,dependencies",
     "knip:exports": "knip --no-progress --include exports,types",
     "deps:unused": "bun run deps:check && bun run knip:exports",
+    "knip:full": "knip --no-progress",
     "deadcode:sweep": "bun run deps:unused && bun run lint && bun run type-check",
     "test:e2e": "playwright test",
     "scaffold:e2ee-zone": "node scripts/scaffold-e2ee-zone.mjs",

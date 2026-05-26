@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { logger } from "../logger";
 
 import {
-  createServerComponentClient,
   createServerMutatingSupabaseClient,
   createServerSupabaseClient,
 } from "./client-factory";
@@ -34,7 +33,7 @@ const cookieSetSpy = vi.fn(() => {
   throw new Error("Cookies can only be modified in a Server Action");
 });
 
-describe("createServerSupabaseClient (via createServerComponentClient alias)", () => {
+describe("createServerSupabaseClient", () => {
   const originalNodeEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
@@ -65,7 +64,7 @@ describe("createServerSupabaseClient (via createServerComponentClient alias)", (
       return {};
     });
 
-    await createServerComponentClient();
+    await createServerSupabaseClient();
 
     expect(capturedSetAll).toBeDefined();
     expect(() =>
@@ -83,7 +82,7 @@ describe("createServerSupabaseClient (via createServerComponentClient alias)", (
       return {};
     });
 
-    await createServerComponentClient();
+    await createServerSupabaseClient();
 
     expect(() =>
       capturedSetAll?.([
@@ -131,7 +130,7 @@ describe("createServerSupabaseClient (via createServerComponentClient alias)", (
 
     const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
 
-    await createServerComponentClient();
+    await createServerSupabaseClient();
 
     expect(() =>
       capturedSetAll?.([
@@ -185,23 +184,5 @@ describe("handleSupabaseCookieWriteFailure", () => {
         context: "test-context",
       })
     );
-  });
-});
-
-describe("createServerSupabaseClient export", () => {
-  it("is the canonical export; createServerComponentClient is a deprecated alias", () => {
-    expect(createServerSupabaseClient).toBe(createServerComponentClient);
-  });
-
-  it("alias delegates to the same implementation", async () => {
-    createServerClientMock.mockImplementation((_url, _key, options) => ({
-      auth: { getUser: async () => ({ data: { user: null }, error: null }) },
-      _options: options,
-    }));
-    cookiesMock.mockResolvedValue({ getAll: () => [], set: cookieSetSpy });
-    headersMock.mockResolvedValue(new Headers());
-
-    await createServerSupabaseClient();
-    expect(createServerClientMock).toHaveBeenCalled();
   });
 });

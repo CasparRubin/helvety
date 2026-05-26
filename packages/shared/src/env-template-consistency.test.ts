@@ -9,6 +9,7 @@ import {
   FORBIDDEN_KEYS_BY_APP,
   parseTemplateKeys,
   productionEnvKeyIsPresent,
+  productionEnvKeyIsExpectedOrAlias,
   validateEnvTemplates,
   validateTurboGatewayBuildEnv,
   WEB_GATEWAY_KEYS,
@@ -173,19 +174,46 @@ describe("env.template consistency", () => {
     }
   });
 
-  it("productionEnvKeyIsPresent accepts legacy auth extension origin alias", () => {
-    const legacyOnly = new Set(["HELVEETY_CHROME_EXTENSION_ORIGINS"]);
-    expect(
-      productionEnvKeyIsPresent("HELVETY_CHROME_EXTENSION_ORIGINS", legacyOnly)
-    ).toBe(true);
-
-    const preferredOnly = new Set(["HELVETY_CHROME_EXTENSION_ORIGINS"]);
+  it("productionEnvKeyIsPresent requires the expected key", () => {
     expect(
       productionEnvKeyIsPresent(
         "HELVETY_CHROME_EXTENSION_ORIGINS",
-        preferredOnly
+        new Set(["HELVETY_CHROME_EXTENSION_ORIGINS"])
       )
     ).toBe(true);
+    expect(
+      productionEnvKeyIsPresent(
+        "HELVETY_CHROME_EXTENSION_ORIGINS",
+        new Set<string>()
+      )
+    ).toBe(false);
+  });
+
+  it("productionEnvKeyIsPresent does not accept HELVEETY_CHROME_EXTENSION_ORIGINS alias", () => {
+    expect(
+      productionEnvKeyIsPresent(
+        "HELVETY_CHROME_EXTENSION_ORIGINS",
+        new Set(["HELVEETY_CHROME_EXTENSION_ORIGINS"])
+      )
+    ).toBe(false);
+  });
+
+  it("productionEnvKeyIsExpectedOrAlias does not treat HELVEETY as an alias", () => {
+    expect(
+      productionEnvKeyIsExpectedOrAlias(
+        "HELVEETY_CHROME_EXTENSION_ORIGINS",
+        new Set(["HELVETY_CHROME_EXTENSION_ORIGINS"])
+      )
+    ).toBe(false);
+  });
+
+  it("auth env.template documents HELVETY_CHROME_EXTENSION_ORIGINS only", async () => {
+    const content = await readFile(
+      resolve(repoRoot, "apps/auth/env.template"),
+      "utf8"
+    );
+    expect(content).toContain("HELVETY_CHROME_EXTENSION_ORIGINS");
+    expect(content).not.toContain("HELVEETY_CHROME_EXTENSION_ORIGINS");
   });
 
   it("EXPECTED_KEYS_BY_APP covers every zone app directory", () => {

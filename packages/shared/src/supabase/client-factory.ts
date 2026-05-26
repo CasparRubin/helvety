@@ -97,6 +97,3 @@ export async function createServerMutatingSupabaseClient(): Promise<
 > {
   return buildServerSupabaseClient({ allowCookieWrites: true });
 }
-
-/** @deprecated Use {@link createServerSupabaseClient}. */
-export const createServerComponentClient = createServerSupabaseClient;

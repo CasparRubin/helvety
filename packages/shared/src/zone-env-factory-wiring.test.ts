@@ -36,8 +36,8 @@ describe("zone lib/env factory wiring", () => {
       join(repoRoot, "apps", "auth", "lib/env.ts"),
       "utf8"
     );
-    expect(src).toContain("HELVEETY_CHROME_EXTENSION_ORIGINS");
     expect(src).toContain("HELVETY_CHROME_EXTENSION_ORIGINS");
+    expect(src).not.toContain("HELVEETY_CHROME_EXTENSION_ORIGINS");
     expect(src).toContain("readChromeExtensionOriginsFromProcessEnv");
     expect(src).toContain("parseChromeExtensionOriginsEnv");
   });

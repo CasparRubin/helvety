@@ -1,17 +1,16 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": ["eslint", "tsc", "vitest", "prettier"],
+  "ignoreUnresolved": [
+    "@testing-library/react",
+    "@testing-library/jest-dom/vitest",
+    "shadcn/tailwind.css",
+    "onnxruntime-web"
+  ],
   "workspaces": {
     ".": {
-      "entry": [
-        "scripts/**/*.{mjs,js}",
-        "playwright.config.ts",
-        "e2e/**/*.{ts,tsx}"
-      ],
-      "project": [
-        "scripts/**/*.{mjs,js}",
-        "playwright.config.ts",
-        "e2e/**/*.{ts,tsx}"
-      ]
+      "entry": ["scripts/**/*.{mjs,js}", "e2e/**/*.{ts,tsx}"],
+      "project": ["scripts/**/*.{mjs,js}", "e2e/**/*.{ts,tsx}"]
     },
     "packages/dev-deps": {
       "entry": [],
@@ -68,7 +67,6 @@
       "entry": [
         "src/**/*.{ts,tsx,js,jsx,mjs,cjs}",
         "*.{ts,tsx,js,jsx,mjs,cjs}",
-        "globals.css",
         "eslint.config.mjs",
         "vitest.config.{ts,js,mjs,cjs}",
         "**/*.{test,spec}.{ts,tsx}"

@@ -17,13 +17,15 @@ function formatContactName(contact: Contact | LinkedContact): string {
 /** Adapts `useContactLinks` to the shared entity links panel hook shape. */
 function useContactLinksForPanel(
   entityId: string,
-  _options: { enabled: boolean }
+  options: { enabled: boolean }
 ) {
-  const { allContacts, linkedContacts, isLoading, link, unlink } =
-    useContactLinks(entityId);
+  const { allItems, linkedItems, isLoading, link, unlink } = useContactLinks(
+    entityId,
+    options
+  );
   return {
-    allItems: allContacts,
-    linkedItems: linkedContacts,
+    allItems,
+    linkedItems,
     isLoading,
     link,
     unlink,

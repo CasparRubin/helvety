@@ -82,9 +82,34 @@ describe("E2EE cross-link panel hooks", () => {
     ["contacts", "hooks/use-task-links.ts"],
     ["tasks", "hooks/use-note-links.ts"],
     ["tasks", "hooks/use-contact-links.ts"],
-  ] as const)("apps/%s/%s uses guardE2eeMasterKey", (app, hookPath) => {
-    const src = readAppFile(app, hookPath);
+  ] as const)(
+    "apps/%s/%s uses createE2eeEntityLinksHook factory",
+    (app, hookPath) => {
+      const src = readAppFile(app, hookPath);
+      expect(src).toContain("createE2eeEntityLinksHook");
+    }
+  );
+
+  it("createE2eeEntityLinksHook enforces guardE2eeMasterKey and CSRF", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/ui/src/create-e2ee-entity-links-hook.ts"),
+      "utf8"
+    );
     expect(src).toContain("guardE2eeMasterKey");
+    expect(src).toContain("useCSRFToken");
+  });
+
+  it.each([
+    ["contacts", "components/task-links-panel.tsx"],
+    ["contacts", "components/note-links-panel.tsx"],
+    ["notes", "components/task-links-panel.tsx"],
+    ["notes", "components/contact-links-panel.tsx"],
+    ["tasks", "components/contact-links-panel.tsx"],
+    ["tasks", "components/note-links-panel.tsx"],
+  ] as const)("apps/%s/%s uses EntityLinksPanel", (app, panelPath) => {
+    const src = readAppFile(app, panelPath);
+    expect(src).toContain("EntityLinksPanel");
+    expect(src).toContain("@helvety/ui/entity-links-panel");
   });
 });
 
