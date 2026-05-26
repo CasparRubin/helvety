@@ -360,7 +360,7 @@ describe("store product catalog", () => {
     );
   });
 
-  it("Helvety Docs About copy uses My documents title bar sheet (not legacy chrome phrases)", () => {
+  it("Helvety Docs About copy uses My documents vault sheet via command bar (not legacy chrome phrases)", () => {
     const product = getProductBySlug("helvety-docs");
     expect(product).toBeDefined();
     if (!product) return;
@@ -373,7 +373,9 @@ describe("store product catalog", () => {
     ].join("\n");
 
     expect(blob).toMatch(/My documents/i);
-    expect(blob).toMatch(/title bar sheet/i);
+    expect(blob).toMatch(/vault sheet/i);
+    expect(blob).toMatch(/command bar/i);
+    expect(blob).not.toMatch(/title bar sheet/i);
     for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
       expect(blob).not.toContain(term);
     }

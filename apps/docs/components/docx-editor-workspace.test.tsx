@@ -17,15 +17,6 @@ const chromeProps = {
   documentName: "Untitled",
   onDocumentNameChange: vi.fn(),
   onDownload: vi.fn(),
-  isSaving: false,
-  canSaveToVault: false,
-  vaultDocId: null,
-  showMyDocuments: false,
-  onNewDocument: vi.fn(),
-  onOpenFile: vi.fn(),
-  onDownloadFile: vi.fn(),
-  onSaveToVault: vi.fn(),
-  onOpenMyDocuments: vi.fn(),
 };
 
 describe("DocxEditorWorkspace", () => {
@@ -46,7 +37,7 @@ describe("DocxEditorWorkspace", () => {
         documentName: "Untitled",
         onDocumentNameChange: chromeProps.onDocumentNameChange,
         onSave: expect.any(Function),
-        renderTitleBarRight: expect.any(Function),
+        showToolbar: true,
       })
     );
     expect(docxEditorMock).toHaveBeenCalledWith(
@@ -56,7 +47,7 @@ describe("DocxEditorWorkspace", () => {
     );
   });
 
-  it("invokes renderTitleBarRight with title bar actions", () => {
+  it("does not inject Helvety actions into the Eigenpal title bar", () => {
     render(
       <DocxEditorWorkspace
         documentBuffer={null}
@@ -65,11 +56,11 @@ describe("DocxEditorWorkspace", () => {
       />
     );
 
-    const lastCall = docxEditorMock.mock.calls.at(-1)?.[0] as {
-      renderTitleBarRight?: () => unknown;
-    };
-    expect(lastCall.renderTitleBarRight).toEqual(expect.any(Function));
-    expect(lastCall.renderTitleBarRight?.()).toBeTruthy();
+    const lastCall = docxEditorMock.mock.calls.at(-1)?.[0] as Record<
+      string,
+      unknown
+    >;
+    expect(lastCall.renderTitleBarRight).toBeUndefined();
   });
 
   it("wires onSave to the download handler", () => {

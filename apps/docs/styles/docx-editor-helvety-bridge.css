@@ -7,7 +7,7 @@
  * Layers: (1) semantic HSL on `.ep-root`, (2) white paper on `.layout-page`,
  * (3) dark `slate-*` remaps, (4) chrome surfaces + inline white panels,
  * (5) hide vendor title-bar doc icon, Help menu, and internal docx file input; keep File/Format/Insert visible,
- * (6) comment suppression, (7) seamless toolbar stack — title bar is top app chrome (per-row border-x),
+ * (6) comment suppression, (7) Eigenpal toolbar stack below Helvety CommandBar (per-row border-x),
  * (8) overlay parity (menus, dropdowns, tooltips; light + dark).
  */
 
@@ -260,49 +260,6 @@ html.dark .ep-root [data-radix-collection-item]:hover {
   pointer-events: none !important;
 }
 
-/* Helvety title-bar actions (renderTitleBarRight) */
-.ep-root [data-testid="title-bar"] .docs-title-bar-actions {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 0.25rem;
-  margin-left: auto;
-  margin-right: 0.5rem;
-}
-
-.ep-root [data-testid="title-bar"] .docs-title-bar-action {
-  height: 2rem;
-  border-radius: 0;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  border-color: hsl(var(--border)) !important;
-  background-color: hsl(var(--secondary)) !important;
-  color: hsl(var(--secondary-foreground)) !important;
-}
-
-.ep-root [data-testid="title-bar"] .docs-title-bar-action:hover:not(:disabled) {
-  background-color: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
-}
-
-.ep-root [data-testid="title-bar"] .docs-title-bar-action:disabled {
-  opacity: 0.5;
-}
-
-/* Vault CTA: primary accent (theme-agnostic via .ep-root semantic tokens) */
-.ep-root [data-testid="title-bar"] .docs-title-bar-action--vault {
-  background-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
-  border-color: hsl(var(--primary)) !important;
-}
-
-.ep-root
-  [data-testid="title-bar"]
-  .docs-title-bar-action--vault:hover:not(:disabled) {
-  background-color: hsl(var(--doc-primary-hover, var(--primary))) !important;
-  color: hsl(var(--primary-foreground)) !important;
-}
-
 /* Menubar labels must stay visible (vendor middle column uses min-w-0) */
 .ep-root [data-testid="title-bar"] > div.flex-1 {
   min-width: max-content;
@@ -336,7 +293,7 @@ html.dark .ep-root [data-radix-collection-item]:hover {
   display: none !important;
 }
 
-/* --- Layer 7: seamless toolbar stack (title bar is top app chrome; no Helvety command row) --- */
+/* --- Layer 7: Eigenpal toolbar stack (below pinned Helvety CommandBar) --- */
 .docx-editor-workspace .ep-root {
   height: 100%;
   min-height: 0;
@@ -352,7 +309,7 @@ html.dark .ep-root [data-radix-collection-item]:hover {
   padding-bottom: 0 !important;
   padding-left: 1rem !important;
   padding-right: 1rem !important;
-  border-top: 1px solid hsl(var(--border));
+  border-top: none;
   border-left: 1px solid hsl(var(--border));
   border-right: 1px solid hsl(var(--border));
   border-bottom: 1px solid hsl(var(--border));

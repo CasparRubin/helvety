@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { DocsCommandBar } from "@/components/docs-command-bar";
 import { SaveVaultDialog } from "@/components/save-vault-dialog";
 import { VaultDocumentsSheet } from "@/components/vault-documents-sheet";
 import { useDocs } from "@/hooks/use-docs";
@@ -326,7 +327,18 @@ export function HelvetyDocsShell({
         className="sr-only"
         onChange={(e) => void handleFileChange(e)}
       />
-      <div className="bg-background flex min-h-0 flex-1">
+      <DocsCommandBar
+        isSaving={isSaving}
+        canSaveToVault={vaultEnabled}
+        vaultDocId={vaultDocId}
+        showMyDocuments={!!initialUser}
+        onNewDocument={handleNewDocument}
+        onOpenFile={handleOpenFile}
+        onDownload={() => void handleDownload()}
+        onSaveToVault={handleSaveToVault}
+        onOpenMyDocuments={() => setVaultSheetOpen(true)}
+      />
+      <div className="bg-background flex min-h-0 flex-1 overflow-hidden">
         <DocxEditorWorkspace
           ref={editorRef}
           documentBuffer={documentBuffer}
@@ -334,15 +346,6 @@ export function HelvetyDocsShell({
           documentName={documentDisplayName}
           onDocumentNameChange={handleDocumentNameChange}
           onDownload={(buffer) => void handleDownload(buffer)}
-          isSaving={isSaving}
-          canSaveToVault={vaultEnabled}
-          vaultDocId={vaultDocId}
-          showMyDocuments={!!initialUser}
-          onNewDocument={handleNewDocument}
-          onOpenFile={handleOpenFile}
-          onDownloadFile={() => void handleDownload()}
-          onSaveToVault={handleSaveToVault}
-          onOpenMyDocuments={() => setVaultSheetOpen(true)}
         />
       </div>
       {initialUser ? (

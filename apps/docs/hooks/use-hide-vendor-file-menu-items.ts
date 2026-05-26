@@ -8,15 +8,26 @@ function isVendorFileOpenItem(text: string): boolean {
   return normalized === "Open" || normalized.startsWith("Open ");
 }
 
-/** Vendor File → Save bypasses `onSave`; Helvety export uses title bar + Cmd+S. */
+/** Vendor File → Save bypasses `onSave`; Helvety export uses command bar + Cmd+S. */
 function isVendorFileSaveItem(text: string): boolean {
   const normalized = text.replace(/\s+/g, " ").trim();
   return normalized === "Save" || normalized.startsWith("Save ");
 }
 
+/** Vendor File → New duplicates Helvety command bar New. */
+function isVendorFileNewItem(text: string): boolean {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  return (
+    normalized === "New" ||
+    normalized.startsWith("New ") ||
+    normalized === "New document" ||
+    normalized.startsWith("New document ")
+  );
+}
+
 /**
- * Hides Eigenpal File → Open / Save entries that conflict with Helvety-controlled
- * open (parent `documentBuffer`) and validated `onSave` export.
+ * Hides Eigenpal File → Open / Save / New entries that conflict with Helvety-controlled
+ * open (parent `documentBuffer`), validated `onSave` export, and command bar New.
  */
 export function useHideVendorFileMenuItems(
   rootRef: RefObject<HTMLElement | null>
@@ -29,7 +40,11 @@ export function useHideVendorFileMenuItems(
       root.querySelectorAll('[role="menuitem"]').forEach((node) => {
         const el = node as HTMLElement;
         const text = el.textContent ?? "";
-        if (isVendorFileOpenItem(text) || isVendorFileSaveItem(text)) {
+        if (
+          isVendorFileOpenItem(text) ||
+          isVendorFileSaveItem(text) ||
+          isVendorFileNewItem(text)
+        ) {
           el.style.display = "none";
         }
       });

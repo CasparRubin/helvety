@@ -7,7 +7,7 @@ import { HelvetyDocsShell } from "@/components/helvety-docs-shell";
 /**
  * Main page: public .docx editor with optional encrypted vault save.
  * No login required for local editing. Editor starts blank on each load (Eigenpal createEmptyDocument).
- * New resets to a fresh blank document. Theme: shared public shell + navbar ThemeSwitcher; Eigenpal bridge in `styles/docx-editor-helvety-bridge.css` (File/Format/Insert menus, title-bar document actions).
+ * New resets to a fresh blank document. Theme: shared public shell + navbar ThemeSwitcher; Helvety `DocsCommandBar` for document/vault actions; Eigenpal bridge in `styles/docx-editor-helvety-bridge.css` (File/Format/Insert + formatting toolbar below).
  */
 export default async function Page(): Promise<React.JSX.Element> {
   const initialUser = await bootstrapPublicLayoutUser();

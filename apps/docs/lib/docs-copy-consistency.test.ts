@@ -6,6 +6,8 @@ import { DOCS_APP_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import {
   CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS,
   CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS,
+  DOCS_MAINTAINER_COPY_RELATIVE_PATHS,
+  DOCS_MAINTAINER_FORBIDDEN_UX_PHRASES,
 } from "@helvety/shared/customer-copy-guardrails";
 import { describe, expect, it } from "vitest";
 
@@ -30,12 +32,26 @@ describe("docs copy consistency", () => {
     expect(src).toMatch(/starts blank/i);
   });
 
+  it("maintainer Docs source avoids stale title-bar integration phrases", () => {
+    for (const rel of DOCS_MAINTAINER_COPY_RELATIVE_PATHS) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      for (const phrase of DOCS_MAINTAINER_FORBIDDEN_UX_PHRASES) {
+        expect(text, `${rel} must not contain "${phrase}"`).not.toContain(
+          phrase
+        );
+      }
+    }
+  });
+
   it("shell does not auto-open vault documents on sign-in", () => {
     const src = readFileSync(shellPath, "utf8");
 
     expect(src).not.toContain("handleOpenVaultDocument(docId)");
-    expect(src).not.toContain("DocsCommandBar");
-    expect(src).not.toContain("@helvety/ui/command-bar");
+    expect(src).toContain("DocsCommandBar");
+    expect(
+      readFileSync(join(libDir, "../components/docs-command-bar.tsx"), "utf8")
+    ).toContain("@helvety/ui/command-bar");
+    expect(src).not.toContain("renderTitleBarRight");
     expect(src).toMatch(/Always start blank[\s\S]*?setDocInUrl\(null\)/);
     expect(src).toContain("onOpenMyDocuments={() => setVaultSheetOpen(true)}");
   });
@@ -62,10 +78,10 @@ describe("docs copy consistency", () => {
     expect(readme).toMatch(/\*\*File\*\*, \*\*Format\*\*, and \*\*Insert\*\*/i);
     expect(readme).toMatch(/no \*\*comment\*\* UI/i);
     expect(readme).toMatch(/My documents/i);
-    expect(readme).toMatch(/\*\*Single toolbar:\*\*/i);
+    expect(readme).toMatch(/DocsCommandBar|Helvety command bar/i);
     expect(readme).toMatch(/Print.*Page setup|Page setup.*Print/i);
-    expect(readme).toMatch(/renderTitleBarRight|title bar right slot/i);
-    expect(readme).not.toMatch(/pinned Helvety command bar/i);
+    expect(readme).not.toMatch(/renderTitleBarRight/i);
+    expect(readme).not.toMatch(/title bar right slot/i);
     expect(readme).not.toMatch(/command bar sheet/i);
     expect(readme).toMatch(/workspace gutter/i);
     expect(readme).toMatch(/Layer 8/i);
@@ -73,13 +89,13 @@ describe("docs copy consistency", () => {
     expect(readme).not.toMatch(/Layers 4–7/i);
     expect(llms).toMatch(/## User Interface/);
     expect(llms).toMatch(/light and dark mode/i);
-    expect(llms).toMatch(/title bar/i);
-    expect(llms).toMatch(/single toolbar stack/i);
+    expect(llms).toMatch(/command bar/i);
+    expect(llms).toMatch(/Eigenpal editor chrome/i);
     expect(llms).toMatch(/File\/Format\/Insert/i);
     expect(llms).toMatch(/matching borders/i);
     expect(llms).toMatch(/not Help/i);
     expect(llms).toMatch(
-      /Help menu.*hidden|File → Open\/Save entries are hidden/i
+      /Help menu.*hidden|File → Open\/Save\/New entries are hidden/i
     );
     expect(llms).toMatch(/menus, dropdowns, and tooltips/i);
     expect(llms).toMatch(/printable document page stays white/i);
@@ -124,7 +140,9 @@ describe("docs copy consistency", () => {
     }
 
     expect(naming).toMatch(/Helvety Docs theme \(maintainers\)/i);
-    expect(naming).toMatch(/title-bar toolbar stack/i);
+    expect(naming).toMatch(/Helvety command bar/i);
+    expect(naming).toMatch(/Eigenpal title\/formatting toolbar/i);
+    expect(naming).not.toMatch(/title-bar toolbar stack/i);
     for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
       expect(
         naming,

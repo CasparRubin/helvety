@@ -11,7 +11,7 @@ export const CUSTOMER_COPY_EM_DASH = "\u2014";
 
 /**
  * Forbidden legacy Helvety Docs UX phrases in customer-facing copy.
- * Current model: title bar right slot + My documents sheet (not command bar / vault sidebar).
+ * Current model: Helvety command bar + My documents vault sheet (not vault sidebar / embedded title-bar actions).
  */
 export const CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS = [
   "vault sidebar",
@@ -30,6 +30,21 @@ export const CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS = [
   "apps/store/lib/data/products.ts",
   "packages/shared/src/store-catalog.ts",
   "packages/shared/src/app-product-descriptions.ts",
+] as const;
+
+/** Maintainer-facing Docs source scanned for stale Eigenpal/title-bar integration phrases. */
+export const DOCS_MAINTAINER_COPY_RELATIVE_PATHS = [
+  "apps/docs/app/page.tsx",
+  "apps/docs/components/helvety-docs-shell.tsx",
+  "apps/docs/components/docx-editor-workspace.tsx",
+] as const;
+
+/** Phrases that must not appear in {@link DOCS_MAINTAINER_COPY_RELATIVE_PATHS}. */
+export const DOCS_MAINTAINER_FORBIDDEN_UX_PHRASES = [
+  "renderTitleBarRight",
+  "title bar right slot",
+  "title-bar document actions",
+  "docs-title-bar-actions",
 ] as const;
 
 /** Repo-relative app and root README intros. */

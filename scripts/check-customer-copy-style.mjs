@@ -189,7 +189,7 @@ function main() {
 
   if (docsLegacyUxViolations.length > 0) {
     console.error(
-      "Forbidden legacy Helvety Docs UX terms (use title bar right slot + My documents sheet):"
+      "Forbidden legacy Helvety Docs UX terms (use Helvety command bar + My documents vault sheet):"
     );
     for (const rel of docsLegacyUxViolations.sort()) {
       console.error(`  ${rel}`);

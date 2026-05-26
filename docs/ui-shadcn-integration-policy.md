@@ -31,7 +31,7 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 - Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes. Gateway marketing accents use `--brand-swiss-red` / `text-brand-swiss-red` from `packages/ui/globals.css` (not raw `#FF0000` in components).
 - Prefer reusable state primitives for list surfaces (`ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`).
 - Use shared dashboard primitives (`EntityDashboardShell`) and command bars (`EntityCommandBar`) for list-centric entity apps.
-- Pin command bars **outside** scroll: E2EE list/editor pages wrap toolbar + body in `CommandBarPageLayout` (scrolls via `@helvety/ui/scroll-area`); Store uses `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` with `CommandBar` `variant="solid"` on `StoreNav` (opaque section nav); PDF/image-upscaler pin `CommandBar` (`variant="solid"`) as a flex sibling above an `overflow-hidden` workspace. Do not rely on CSS `sticky` on `CommandBar` for page-level pinning.
+- Pin command bars **outside** scroll: E2EE list/editor pages wrap toolbar + body in `CommandBarPageLayout` (scrolls via `@helvety/ui/scroll-area`); Store uses `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` with `CommandBar` `variant="solid"` on `StoreNav` (opaque section nav); PDF, Docs, and image-upscaler pin `CommandBar` (`variant="solid"`) as a flex sibling above an `overflow-hidden` workspace (`mainVariant: "overflow-main"` on the public shell). Do not rely on CSS `sticky` on `CommandBar` for page-level pinning.
 - Use `NativeSelect` from `@helvety/ui/native-select` for consistent native select styling when the full custom select is not required.
 
 ## Enforcement

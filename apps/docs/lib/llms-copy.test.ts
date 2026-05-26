@@ -25,7 +25,7 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/not auto-opened/i);
     expect(source).toMatch(/\*\*New\*\*/);
     expect(source).toMatch(/My documents/i);
-    expect(source).toMatch(/title bar sheet/i);
+    expect(source).toMatch(/vault sheet/i);
     expect(source).toMatch(/signed in and vault-unlocked/i);
     expect(source).not.toMatch(
       /opens a saved document when you are signed in/i
@@ -43,8 +43,8 @@ describe("Helvety Docs llms.txt", () => {
   it("documents light/dark UI and white document page for export", () => {
     expect(source).toMatch(/## User Interface/);
     expect(source).toMatch(/light and dark mode/i);
-    expect(source).toMatch(/Eigenpal title bar/i);
-    expect(source).toMatch(/single toolbar stack/i);
+    expect(source).toMatch(/Helvety command bar/i);
+    expect(source).toMatch(/Eigenpal editor chrome/i);
     expect(source).toMatch(/File\/Format\/Insert/i);
     expect(source).toMatch(/not Help/i);
     expect(source).toMatch(/matching borders/i);
@@ -53,7 +53,7 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).not.toMatch(/vault sidebar/i);
     expect(source).not.toMatch(/command bar sheet/i);
     expect(source).not.toMatch(/pinned command bar/i);
-    expect(source).toMatch(/Help menu.*hidden|File → Open\/Save/i);
+    expect(source).toMatch(/Help menu.*hidden|File → Open\/Save\/New/i);
     expect(source).not.toMatch(/not File or Help/i);
     expect(source).toMatch(/printable document page stays white/i);
     expect(source).toMatch(/print-accurate/i);

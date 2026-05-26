@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { forwardRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -34,7 +34,7 @@ const workspacePropsMock = vi.fn();
 vi.mock("next/dynamic", () => ({
   default: () => {
     const MockDocxEditorWorkspace = forwardRef(
-      (props: { showMyDocuments?: boolean }) => {
+      (props: Record<string, unknown>) => {
         workspacePropsMock(props);
         return <div data-testid="docx-editor-workspace" />;
       }
@@ -65,7 +65,7 @@ describe("HelvetyDocsShell", () => {
     expect(loadDocumentMock).not.toHaveBeenCalled();
   });
 
-  it("passes title-bar chrome props to the editor workspace (guest)", () => {
+  it("passes document chrome props only to the editor workspace (guest)", () => {
     render(<HelvetyDocsShell initialUser={null} />);
 
     expect(workspacePropsMock).toHaveBeenCalledWith(
@@ -73,28 +73,34 @@ describe("HelvetyDocsShell", () => {
         documentName: expect.any(String),
         onDocumentNameChange: expect.any(Function),
         onDownload: expect.any(Function),
-        onDownloadFile: expect.any(Function),
-        showMyDocuments: false,
-        onNewDocument: expect.any(Function),
-        onOpenFile: expect.any(Function),
-        onSaveToVault: expect.any(Function),
-        onOpenMyDocuments: expect.any(Function),
       })
     );
+    expect(workspacePropsMock).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        showMyDocuments: expect.anything(),
+        onNewDocument: expect.any(Function),
+      })
+    );
+    expect(
+      screen.getByRole("button", { name: "New document" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "My documents" })
+    ).not.toBeInTheDocument();
   });
 
-  it("passes vault chrome props to the editor workspace when signed in", () => {
+  it("shows vault actions in the command bar when signed in", () => {
     render(
       <HelvetyDocsShell
         initialUser={{ id: "user-1", email: "user@example.com" } as User}
       />
     );
 
-    expect(workspacePropsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        showMyDocuments: true,
-        onOpenMyDocuments: expect.any(Function),
-      })
-    );
+    expect(
+      screen.getByRole("button", { name: "My documents" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Save to vault" })
+    ).toBeInTheDocument();
   });
 });

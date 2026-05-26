@@ -9,7 +9,7 @@ const componentsDir = join(libDir, "../components");
 
 const shellPath = join(componentsDir, "helvety-docs-shell.tsx");
 const workspacePath = join(componentsDir, "docx-editor-workspace.tsx");
-const titleBarActionsPath = join(componentsDir, "docs-title-bar-actions.tsx");
+const commandBarPath = join(componentsDir, "docs-command-bar.tsx");
 const hideVendorMenuPath = join(
   libDir,
   "../hooks/use-hide-vendor-file-menu-items.ts"
@@ -42,15 +42,17 @@ describe("docs workspace UX invariants", () => {
       /handleDeleteVaultDocument[\s\S]*?handleNewDocument\(\)/
     );
     expect(shell).toContain("sessionKey={editorSessionKey}");
-    expect(shell).not.toContain("DocsCommandBar");
-    expect(shell).not.toContain("@helvety/ui/command-bar");
-    expect(shell).not.toContain("CommandBar");
+    expect(shell).toContain("DocsCommandBar");
+    expect(readFileSync(commandBarPath, "utf8")).toContain(
+      "@helvety/ui/command-bar"
+    );
+    expect(shell).not.toContain("renderTitleBarRight");
     expect(shell).toContain("documentName={documentDisplayName}");
     expect(shell).toContain("onDocumentNameChange={handleDocumentNameChange}");
     expect(shell).toContain(
       "onDownload={(buffer) => void handleDownload(buffer)}"
     );
-    expect(shell).toContain("onDownloadFile=");
+    expect(shell).not.toContain("onDownloadFile=");
     expect(shell).toContain("VaultDocumentsSheet");
     expect(shell).not.toContain("VaultPanel");
     expect(shell).toMatch(
@@ -69,39 +71,35 @@ describe("docs workspace UX invariants", () => {
     expect(workspace).toMatch(/comment UI suppressed/i);
   });
 
-  it("title bar actions integrate with Eigenpal toolbar chrome", () => {
-    const titleBarActions = readFileSync(titleBarActionsPath, "utf8");
+  it("Helvety command bar is separate from Eigenpal toolbar chrome", () => {
+    const commandBar = readFileSync(commandBarPath, "utf8");
     const workspace = readFileSync(workspacePath, "utf8");
     const bridge = readFileSync(bridgePath, "utf8");
     const hideVendorMenu = readFileSync(hideVendorMenuPath, "utf8");
 
-    expect(titleBarActions).toContain("docs-title-bar-actions");
-    expect(titleBarActions).toContain("showMyDocuments");
-    expect(titleBarActions).toContain("onOpenMyDocuments");
-    expect(titleBarActions).toContain("onDownload");
-    expect(titleBarActions).toContain("docs-title-bar-action--vault");
-    expect(workspace).toContain("renderTitleBarRight");
+    expect(commandBar).toContain("CommandBar");
+    expect(commandBar).toContain("showMyDocuments");
+    expect(commandBar).toContain("onOpenMyDocuments");
+    expect(commandBar).toContain("onDownload");
+    expect(workspace).not.toContain("renderTitleBarRight");
     expect(workspace).toContain("onSave={handleSave}");
     expect(workspace).toContain("documentName={documentName}");
     expect(workspace).toContain("useHideVendorFileMenuItems");
     expect(hideVendorMenu).toContain("isVendorFileOpenItem");
     expect(hideVendorMenu).toContain("isVendorFileSaveItem");
+    expect(hideVendorMenu).toContain("isVendorFileNewItem");
     expect(bridge).toContain(
       '[data-testid="title-bar"] [role="menubar"] > :last-child'
     );
     expect(bridge).toContain('input[type="file"][accept*="docx"]');
-    expect(bridge).toContain(".docs-title-bar-actions");
-    expect(bridge).toContain(".docs-title-bar-action--vault");
+    expect(bridge).not.toContain(".docs-title-bar-actions");
     expect(bridge).toContain('[role="menubar"] > div > button');
     expect(bridge).toContain("min-width: max-content");
-    expect(bridge).not.toContain(
-      '[data-testid="title-bar"] .flex.items-center.px-1 > :last-child'
-    );
-    expect(bridge).toContain("Layer 7: seamless toolbar stack");
+    expect(bridge).toContain("Layer 7: Eigenpal toolbar stack");
     expect(bridge).toContain("Layer 8: overlay parity");
 
     const titleBarBorder = bridge.match(
-      /\[data-testid="title-bar"\][\s\S]*?border-top: 1px solid hsl\(var\(--border\)\)/
+      /\[data-testid="title-bar"\][\s\S]*?border-top: none/
     );
     const titleBarSideBorder = bridge.match(
       /\[data-testid="title-bar"\][\s\S]*?border-left: 1px solid hsl\(var\(--border\)\)/
