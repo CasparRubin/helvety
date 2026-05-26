@@ -85,7 +85,7 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
 /**
  * Approved `createAdminClient()` call sites (grep-backed; update when adding new uses):
  *
- * - `apps/auth/app/actions/otp-actions.ts` — OTP verify / session bootstrap
+ * - `apps/auth/app/actions/otp-actions.ts` — OTP send (admin); verify uses mutating server client
  * - `apps/auth/app/actions/passkey-auth-actions.ts` — passkey sign-in (via `lookupCredentialByCredentialId`)
  * - `apps/auth/app/actions/user-lookup.ts` — credential lookup by id/email
  * - `apps/store/lib/packages/create-package-download.ts` — signed download URLs

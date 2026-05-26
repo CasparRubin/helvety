@@ -138,17 +138,26 @@ export async function withLoginAuthProbeTimeout<T>(
 }
 
 /**
- *
+ * Returns true when an OTP verify response should update UI state.
+ * When `requestId` is less than `latestRequestId`, the response is from a
+ * superseded in-flight call (e.g. duplicate submit after the code was consumed)
+ * and must be ignored so a late failure cannot toast after success.
  */
+export function shouldApplyOtpVerifyResponse(
+  requestId: number,
+  latestRequestId: number
+): boolean {
+  return requestId === latestRequestId;
+}
+
+/** Options for {@link useLoginFlow} (server-provided login gate state). */
 export type UseLoginFlowOptions = {
   initialStep: LoginStep;
   initialTrustedUserId: string | null;
   initialError?: string;
 };
 
-/**
- *
- */
+/** Parses `?step=` on `/auth/login` into a known login step, if valid. */
 function parseUrlLoginStep(value: string | null): LoginStep | null {
   if (
     value === "email" ||
@@ -188,6 +197,8 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const hasAutoRetriedMismatch = useRef(false);
   const lastAuthBootstrapKey = useRef<string | null>(null);
   const hasRecoveredTerminalAuth = useRef(false);
+  const verifyCodeInProgressRef = useRef(false);
+  const verifyCodeRequestIdRef = useRef(0);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -429,21 +440,38 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const handleCodeVerify = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+
+      // Prevent duplicate in-flight submits (e.g. double-click or Enter + click)
+      if (verifyCodeInProgressRef.current) return;
+      verifyCodeInProgressRef.current = true;
+
+      // Ignore responses superseded by a newer submit (same code consumed twice).
+      const requestId = ++verifyCodeRequestIdRef.current;
+
       setError("");
       setIsLoading(true);
 
       try {
         const result = await verifyEmailCode(csrfToken, email, otpCode);
 
+        // Discard result if a newer request has already claimed ownership
+        if (
+          !shouldApplyOtpVerifyResponse(
+            requestId,
+            verifyCodeRequestIdRef.current
+          )
+        )
+          return;
+
         if (!result.success) {
           const msg = result.error ?? "Verification failed";
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-          setIsLoading(false);
           return;
         }
 
         if (result.data) {
+          setError("");
           setUserId(result.data.userId);
           setPostOtpPasskeyPath(
             result.data.nextStep === "passkey-signin"
@@ -452,13 +480,28 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
           );
           setStep(result.data.nextStep);
         }
-        setIsLoading(false);
       } catch (err) {
+        if (
+          !shouldApplyOtpVerifyResponse(
+            requestId,
+            verifyCodeRequestIdRef.current
+          )
+        )
+          return;
         logger.logUnexpectedError("Code verification error", err);
         const msg = "Couldn't verify your code. Please try again.";
         setError(msg);
         toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-        setIsLoading(false);
+      } finally {
+        verifyCodeInProgressRef.current = false;
+        if (
+          shouldApplyOtpVerifyResponse(
+            requestId,
+            verifyCodeRequestIdRef.current
+          )
+        ) {
+          setIsLoading(false);
+        }
       }
     },
     [email, otpCode, csrfToken]

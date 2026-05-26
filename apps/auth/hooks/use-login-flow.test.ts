@@ -4,6 +4,7 @@ import { resolveLoginEntryStep } from "@/lib/login-entry";
 
 import {
   isRateLimitedLoginAuthSession,
+  shouldApplyOtpVerifyResponse,
   shouldResetLoginAuthSession,
   withLoginAuthProbeTimeout,
 } from "./use-login-flow";
@@ -48,6 +49,23 @@ describe("use-login-flow auth bootstrap guards", () => {
     await expect(
       withLoginAuthProbeTimeout(Promise.resolve("ok"), 100)
     ).resolves.toBe("ok");
+  });
+});
+
+describe("shouldApplyOtpVerifyResponse (OTP duplicate-submit guard)", () => {
+  it("applies state and toasts when this request is still the latest", () => {
+    expect(shouldApplyOtpVerifyResponse(1, 1)).toBe(true);
+    expect(shouldApplyOtpVerifyResponse(5, 5)).toBe(true);
+  });
+
+  it("ignores stale failures so they cannot toast after a newer verify succeeded", () => {
+    // Simulates request 1 failing after request 2 already advanced the login step.
+    expect(shouldApplyOtpVerifyResponse(1, 2)).toBe(false);
+    expect(shouldApplyOtpVerifyResponse(3, 7)).toBe(false);
+  });
+
+  it("ignores stale successes so they cannot regress step after a newer verify", () => {
+    expect(shouldApplyOtpVerifyResponse(2, 3)).toBe(false);
   });
 });
 

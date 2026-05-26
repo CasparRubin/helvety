@@ -272,6 +272,46 @@ describe("otp-actions", () => {
     expect(verifyOtp).not.toHaveBeenCalled();
   });
 
+  it("returns failure when Supabase rejects the OTP without post-auth side effects", async () => {
+    const verifyOtp = vi.fn().mockResolvedValue({
+      data: { user: null },
+      error: { message: "Token has expired or is invalid" },
+    });
+    mocks.createServerMutatingClient.mockResolvedValue({
+      auth: { verifyOtp },
+    });
+
+    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+
+    expect(result).toEqual({
+      error: "Invalid or expired code. Please try again.",
+      success: false,
+    });
+    expect(verifyOtp).toHaveBeenCalledOnce();
+    expect(mocks.generateCSRFToken).not.toHaveBeenCalled();
+    expect(mocks.setDeviceTrustCookie).not.toHaveBeenCalled();
+    expect(mocks.checkUserPasskeyStatus).not.toHaveBeenCalled();
+    expect(mocks.recordOtpFailureAndCheckLockout).toHaveBeenCalledWith(
+      "user@ex.com:203.0.113.15"
+    );
+  });
+
+  it("returns failure when verifyOtp throws before a session is established", async () => {
+    const verifyOtp = vi.fn().mockRejectedValue(new Error("network error"));
+    mocks.createServerMutatingClient.mockResolvedValue({
+      auth: { verifyOtp },
+    });
+
+    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+
+    expect(result).toEqual({
+      error: "Verification failed. Please try again.",
+      success: false,
+    });
+    expect(mocks.generateCSRFToken).not.toHaveBeenCalled();
+    expect(mocks.loggerError).toHaveBeenCalled();
+  });
+
   it("accepts 8-digit OTP and verifies with Supabase", async () => {
     const verifyOtp = vi.fn().mockResolvedValue({
       data: { user: { id: "user-123" } },
@@ -364,6 +404,127 @@ describe("otp-actions", () => {
         userId: "user-123",
       },
       success: true,
+    });
+  });
+
+  describe("verifyEmailCode after session is established", () => {
+    const securedUserMocks = () => {
+      mocks.checkUserPasskeyStatus.mockResolvedValue({
+        data: { hasPasskey: true },
+        success: true,
+      });
+      mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
+    };
+
+    it("still returns success when generateCSRFToken throws", async () => {
+      securedUserMocks();
+      mocks.generateCSRFToken.mockRejectedValue(
+        new Error("csrf rotation failed")
+      );
+
+      const result = await verifyEmailCode(
+        "csrf-token",
+        "user@ex.com",
+        "123456"
+      );
+
+      expect(result).toEqual({
+        data: {
+          isNewUser: false,
+          nextStep: "passkey-signin",
+          userId: "user-123",
+        },
+        success: true,
+      });
+      expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith("user-123");
+      expect(mocks.loggerError).toHaveBeenCalled();
+    });
+
+    it("still returns success when setDeviceTrustCookie throws", async () => {
+      securedUserMocks();
+      mocks.setDeviceTrustCookie.mockRejectedValue(
+        new Error("[auth] Missing DEVICE_TRUST_COOKIE_SECRET")
+      );
+
+      const result = await verifyEmailCode(
+        "csrf-token",
+        "user@ex.com",
+        "123456"
+      );
+
+      expect(result).toEqual({
+        data: {
+          isNewUser: false,
+          nextStep: "passkey-signin",
+          userId: "user-123",
+        },
+        success: true,
+      });
+      expect(mocks.loggerError).toHaveBeenCalled();
+    });
+
+    it("still returns success when rate-limit reset throws", async () => {
+      securedUserMocks();
+      mocks.resetRateLimit.mockRejectedValue(new Error("redis unavailable"));
+
+      const result = await verifyEmailCode(
+        "csrf-token",
+        "user@ex.com",
+        "123456"
+      );
+
+      expect(result).toEqual({
+        data: {
+          isNewUser: false,
+          nextStep: "passkey-signin",
+          userId: "user-123",
+        },
+        success: true,
+      });
+      expect(mocks.loggerError).toHaveBeenCalled();
+    });
+
+    it("falls back to encryption-setup when checkUserPasskeyStatus throws", async () => {
+      mocks.checkUserPasskeyStatus.mockRejectedValue(
+        new Error("DB unavailable")
+      );
+
+      const result = await verifyEmailCode(
+        "csrf-token",
+        "user@ex.com",
+        "123456"
+      );
+
+      expect(result).toEqual({
+        data: {
+          isNewUser: true,
+          nextStep: "encryption-setup",
+          userId: "user-123",
+        },
+        success: true,
+      });
+      expect(mocks.loggerError).toHaveBeenCalled();
+    });
+
+    it("routes to encryption-setup when only hasEncryptionSetup throws but passkey exists", async () => {
+      securedUserMocks();
+      mocks.hasEncryptionSetup.mockRejectedValue(new Error("DB unavailable"));
+
+      const result = await verifyEmailCode(
+        "csrf-token",
+        "user@ex.com",
+        "123456"
+      );
+
+      expect(result).toEqual({
+        data: {
+          isNewUser: false,
+          nextStep: "encryption-setup",
+          userId: "user-123",
+        },
+        success: true,
+      });
+      expect(mocks.loggerError).toHaveBeenCalled();
     });
   });
 });

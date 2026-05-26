@@ -216,8 +216,14 @@ export async function sendVerificationCode(
  * Security:
  * - CSRF token validation
  * - Rate limited to prevent brute force attacks
- * - Uses server Supabase client for proper session/cookie handling
+ * - Uses `createServerMutatingClient` so session cookies persist correctly
  * - Logs all attempts for audit trail
+ *
+ * After `verifyOtp` succeeds, the user is authenticated. Failures in
+ * post-verify work (CSRF rotation, device trust, rate-limit reset, passkey/
+ * encryption probes) are logged but still return `{ success: true }` so the
+ * client does not show a false failure toast. Only invalid or expired codes
+ * (and pre-verify guard failures) return `{ success: false }`.
  *
  * @param csrfToken - CSRF token for request validation
  * @param email - The user's email address
@@ -348,21 +354,44 @@ export async function verifyEmailCode(
 
     const user = data.user;
 
+    // Session is established; post-verify failures must not return success:false.
+
     // Rotate CSRF token after successful auth state change.
-    await generateCSRFToken();
+    try {
+      await generateCSRFToken();
+    } catch (csrfError) {
+      logger.logUnexpectedError(
+        "Failed to rotate CSRF token after OTP verify",
+        csrfError
+      );
+    }
 
     // Mint device trust after email verification (fresh 30-day window). Sliding
     // renewal happens only on subsequent passkey sign-ins when a valid trust
     // cookie for this user already exists — passkey alone never mints trust.
     // This does not grant access by itself; it only allows passkey-first UX.
-    await setDeviceTrustCookie(user.id);
+    try {
+      await setDeviceTrustCookie(user.id);
+    } catch (trustError) {
+      logger.logUnexpectedError(
+        "Failed to set device trust cookie after OTP verify",
+        trustError
+      );
+    }
 
     // Reset rate limit and escalating lockout on successful verification
-    await Promise.all([
-      resetRateLimit(`otp_verify:email:${normalizedEmail}`),
-      resetRateLimit(`otp_verify:ip:${clientIP}`),
-      resetEscalatingLockout(otpLockoutKey),
-    ]);
+    try {
+      await Promise.all([
+        resetRateLimit(`otp_verify:email:${normalizedEmail}`),
+        resetRateLimit(`otp_verify:ip:${clientIP}`),
+        resetEscalatingLockout(otpLockoutKey),
+      ]);
+    } catch (rlError) {
+      logger.logUnexpectedError(
+        "Failed to reset rate limits after OTP verify",
+        rlError
+      );
+    }
 
     logAuthEvent("login_success", {
       userId: user.id,
@@ -370,16 +399,34 @@ export async function verifyEmailCode(
       ip: clientIP,
     });
 
-    // Check passkey/encryption status to determine next step
-    const passkeyResult = await checkUserPasskeyStatus(user.id);
-    const hasPasskey = passkeyResult.success && passkeyResult.data?.hasPasskey;
-
-    const encryptionResult = await hasEncryptionSetup();
-    const hasEncryption = encryptionResult.success && encryptionResult.data;
+    let hasPasskey = false;
+    let hasEncryption = false;
+    try {
+      const passkeyResult = await checkUserPasskeyStatus(user.id);
+      hasPasskey = Boolean(
+        passkeyResult.success && passkeyResult.data?.hasPasskey
+      );
+    } catch (probeError) {
+      logger.logUnexpectedError(
+        "Failed to check passkey status after OTP verify",
+        probeError
+      );
+    }
+    try {
+      const encryptionResult = await hasEncryptionSetup();
+      hasEncryption = Boolean(
+        encryptionResult.success && encryptionResult.data
+      );
+    } catch (probeError) {
+      logger.logUnexpectedError(
+        "Failed to check encryption status after OTP verify",
+        probeError
+      );
+    }
 
     const nextStep = resolveAuthStep({
-      hasPasskey: Boolean(hasPasskey),
-      hasEncryption: Boolean(hasEncryption),
+      hasPasskey,
+      hasEncryption,
     });
 
     return {
