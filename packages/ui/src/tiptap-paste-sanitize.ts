@@ -54,10 +54,24 @@ function sanitizeRichTextNode(node: JSONContent): JSONContent {
   return sanitized;
 }
 
-/** Strip unsafe link `href` values from stored ProseMirror JSON before render. */
-export function sanitizeRichTextJson(doc: JSONContent): JSONContent {
-  if (doc.type !== "doc") {
-    return doc;
+/** Normalizes any ProseMirror JSON root into a sanitized `doc` tree. */
+function asSanitizedDocRoot(node: JSONContent): JSONContent {
+  if (node.type === "doc") {
+    return sanitizeRichTextNode(node);
   }
-  return sanitizeRichTextNode(doc);
+  if (Array.isArray(node.content)) {
+    return {
+      type: "doc",
+      content: node.content.map((child) => sanitizeRichTextNode(child)),
+    };
+  }
+  return {
+    type: "doc",
+    content: [sanitizeRichTextNode(node)],
+  };
+}
+
+/** Strip unsafe link `href` values from stored ProseMirror JSON before render or persist. */
+export function sanitizeRichTextJson(doc: JSONContent): JSONContent {
+  return asSanitizedDocRoot(doc);
 }

@@ -13,7 +13,7 @@ import { E2eeAppNavbar } from "./e2ee-app-navbar";
 import { TooltipProvider } from "./tooltip";
 import { useNavbarAuthState } from "./use-navbar-auth-state";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 vi.mock("./use-navbar-auth-state");
 

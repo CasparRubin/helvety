@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { consumeSingleUseMock } = vi.hoisted(() => ({
+  consumeSingleUseMock: vi.fn(),
+}));
+
+vi.mock("@helvety/shared/rate-limit", () => ({
+  consumeSingleUseKey: consumeSingleUseMock,
+}));
 
 import {
   challengeFromClientDataJSON,
@@ -14,6 +22,8 @@ describe("extension-passkey-challenge", () => {
   beforeEach(() => {
     process.env.HELVETY_COOKIE_SIGNING_SECRET =
       "test-signing-secret-32chars-min";
+    consumeSingleUseMock.mockReset();
+    consumeSingleUseMock.mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -43,6 +53,7 @@ describe("extension-passkey-challenge", () => {
       origin: ORIGIN,
     });
     expect(verified).toEqual({ challenge });
+    expect(consumeSingleUseMock).toHaveBeenCalledOnce();
   });
 
   it("rejects tampered envelopes", async () => {
@@ -81,6 +92,10 @@ describe("extension-passkey-challenge", () => {
   });
 
   it("rejects replay of the same envelope", async () => {
+    consumeSingleUseMock
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false);
+
     const envelope = await createExtensionChallengeEnvelope({
       challenge: "abc",
       expectedUserId: USER_ID,
@@ -98,6 +113,7 @@ describe("extension-passkey-challenge", () => {
       origin: ORIGIN,
     });
     expect(second).toBeNull();
+    expect(consumeSingleUseMock).toHaveBeenCalledTimes(2);
   });
 
   it("rejects expired envelopes", async () => {

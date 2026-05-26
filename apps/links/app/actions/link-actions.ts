@@ -15,7 +15,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import type { ActionResponse } from "@/lib/types";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@helvety/shared/supabase-types";
 
 const LINKS_TABLE = "links" as const;
 const LINK_FOLDERS_TABLE = "link_folders" as const;

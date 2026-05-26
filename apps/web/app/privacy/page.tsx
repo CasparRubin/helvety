@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="May 25, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="May 26, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -1085,6 +1085,15 @@ export default function PrivacyPage() {
             Temporary cache of derived encryption keys in IndexedDB for Helvety
             Tasks, Contacts, Notes, and Links, and for Helvety Docs when you use
             optional vault save (see table below).
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Extension passkey ceremonies:
+            </strong>{" "}
+            Short-lived signed challenge envelopes stored server-side (Upstash
+            Redis in production; about 3 minutes; single-use per ceremony).
+            These are not browser cookies and do not create a helvety.com web
+            session by themselves.
           </li>
         </ul>
         <div className="legal-table-wrap mb-4 overflow-x-auto">

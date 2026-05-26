@@ -294,6 +294,7 @@ describe("otp-actions", () => {
     );
 
     expect(result.success).toBe(true);
+    expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "user@ex.com",
       token: "12345678",

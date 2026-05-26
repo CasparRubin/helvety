@@ -7,7 +7,7 @@ Shared security, auth, runtime, and cross-app utilities used across Helvety web 
 This package centralizes:
 
 - Auth and server-action guards
-- Supabase server/client utilities
+- Supabase server/client utilities and shared auth types via `@helvety/shared/supabase-types` (`User`, `SupabaseClient`, `EmailOtpType`, `AuthError`)
 - CSRF and rate-limiting primitives
 - Logging and error-handling helpers
 - Canonical **user-visible** error strings and rate-limit copy via `@helvety/shared/user-facing-errors` (`GENERIC_USER_ERROR`, `buildRateLimitedUserMessage`) - safe to import from client components (no `server-only`)
@@ -51,7 +51,7 @@ This package centralizes:
 - Shared editor draft helper:
   - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
 - E2EE list and draft cleanup helpers via `@helvety/shared/e2ee-draft` (`getE2eeListTitle`, `isDraftSnapshotUnchanged` for pristine-draft deletion on sheet close)
-- `proxy` is request bootstrap only (CSP, CSRF cookie bootstrap/re-issue, session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`. All session-bearing profiles (**`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, **`public-tool`**) use fail-closed auth refresh (clear stale `sb-*` cookies when Supabase session refresh fails); **`public-marketing`** (`web`) does not. See `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
+- `proxy` is request bootstrap only (CSP, CSRF cookie bootstrap/re-issue, session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`. All session-bearing profiles (**`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, **`public-tool`**) use fail-closed auth refresh (clear stale `sb-*` cookies when Supabase session refresh fails); **`public-marketing`** (`web`) does not. See `packages/shared/src/proxy-fail-closed-wiring.test.ts`. Session mutations must use `createServerMutatingClient` (`packages/shared/src/zone-supabase-session-mutation-wiring.test.ts`, `bun run consistency:supabase-auth`).
 - `@helvety/shared/encrypted-prefetch-api` — `encryptedPrefetchAuthOptions`, `ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` (slim contact list for Tasks contact link picker), and `ENCRYPTED_PREFETCH_READ_RATE_LIMIT` (`RATE_LIMITS.PREFETCH`, 20/min) for encrypted dashboard list/detail GET routes (contacts, tasks, notes, links, docs vault APIs). No `select("*")` on those handlers. Docs vault routes use the authenticated user Supabase client (RLS), not `createAdminClient()`.
 - `@helvety/shared/entity-links` — cross-app link CRUD helpers; `ENTITY_LINK_COLUMNS` for explicit `entity_links` reads (no `select("*")`).
 

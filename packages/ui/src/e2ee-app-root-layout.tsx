@@ -19,7 +19,7 @@ import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "./tooltip";
 import { HelvetyVercelAnalytics } from "./vercel-analytics";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 import type { ComponentType, ReactNode } from "react";
 
 /** Second JSON-LD object: SoftwareApplication for the E2EE zone. */

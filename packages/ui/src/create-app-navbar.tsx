@@ -9,7 +9,7 @@ import { EncryptionTooltipContent } from "./encryption-tooltip-content";
 import { HelvetyShellNavbar } from "./helvety-shell-navbar";
 
 import type { HelvetyShellNavbarBrand } from "./helvety-shell-navbar";
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 import type { ComponentType } from "react";
 
 /** Config for {@link createE2eeAppNavbar}. */

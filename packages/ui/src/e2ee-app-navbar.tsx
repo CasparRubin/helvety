@@ -6,7 +6,7 @@ import { useEncryptionContext } from "@helvety/shared/crypto/encryption-context"
 import { EncryptionTooltipContent } from "./encryption-tooltip-content";
 import { HelvetyShellNavbar } from "./helvety-shell-navbar";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 /** App-specific navbar copy (Contacts / Notes / Tasks / Links). */
 export type E2eeAppNavbarLabels = {

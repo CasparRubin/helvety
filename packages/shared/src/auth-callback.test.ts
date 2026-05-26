@@ -150,8 +150,23 @@ describe("createAuthCallbackHandler", () => {
 
     await handler(new Request("https://helvety.com/auth/callback?code=abc123"));
 
-    expect(mocks.createServerMutatingClient).toHaveBeenCalled();
+    expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
     expect(mocks.exchangeCodeForSession).toHaveBeenCalled();
+    expect(mocks.verifyOtp).not.toHaveBeenCalled();
+  });
+
+  it("uses createServerMutatingClient for token_hash verifyOtp", async () => {
+    const handler = createAuthCallbackHandler();
+
+    await handler(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc123&type=signup"
+      )
+    );
+
+    expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
+    expect(mocks.verifyOtp).toHaveBeenCalled();
+    expect(mocks.exchangeCodeForSession).not.toHaveBeenCalled();
   });
 
   it("redirects to validated redirect_uri after successful exchange", async () => {

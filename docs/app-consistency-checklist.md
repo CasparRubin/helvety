@@ -142,7 +142,7 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 
 **Fail-closed auth refresh:** All session-bearing profiles (`auth-gateway`, `e2ee-app`, `store-gateway`, `public-tool`) clear stale `sb-*` cookies when Supabase session refresh fails (`FAIL_CLOSED_AUTH_REFRESH_PROFILES` in `@helvety/shared/proxy` plus `failClosedOnAuthRefresh: true` on `createAppProxy` for root redirects). **`public-marketing`** (`web`) omits fail-closed. Wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
 
-**Session cookie writes:** Proxy refresh sets `x-helvety-auth-refreshed` only when `setAll` wrote cookies. RSC and read-only server code use `createServerClient` (no-ops further writes when that header is set). Sign-in, sign-out, callbacks, OTP verify, passkey session mint, and `updateUser` use `createServerMutatingClient`. See `packages/shared/README.md` and `packages/shared/src/zone-auth-callback-wiring.test.ts`.
+**Session cookie writes:** Proxy refresh sets `x-helvety-auth-refreshed` only when `setAll` wrote cookies. RSC and read-only server code use `createServerClient` (no-ops further writes when that header is set). Sign-in, sign-out, callbacks, OTP verify, passkey session mint, and `updateUser` use `createServerMutatingClient`. See `packages/shared/README.md`, `packages/shared/src/zone-supabase-session-mutation-wiring.test.ts`, and `packages/shared/src/auth-callback.test.ts`.
 
 ## Root layout shell
 
@@ -173,13 +173,13 @@ E2EE zones and vault-aware zones (`auth`, `docs`) re-export the client provider 
 
 ## `lib/env.ts` factory
 
-| Tier                          | Factory                                                        | Apps                                                                       |
-| ----------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                    |
-| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVEETY_CHROME_EXTENSION_ORIGINS`) |
-| User-scoped + rate limit      | `createAppUserScopedEnv` + `userScopedServerEnvSchema`         | E2EE apps, `docs`                                                          |
-| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                    |
-| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                      |
+| Tier                          | Factory                                                        | Apps                                                                      |
+| ----------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                   |
+| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`) |
+| User-scoped + rate limit      | `createAppUserScopedEnv` + `userScopedServerEnvSchema`         | E2EE apps, `docs`                                                         |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                   |
+| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                     |
 
 Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
 
@@ -224,7 +224,7 @@ Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.jso
 | **Admin + rate limit**       | `auth`, `store`         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` |
 | **User-scoped + rate limit** | E2EE apps, `docs`       | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET` (no admin client)      |
 | **Public tool + rate limit** | `pdf`, `image-upscaler` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                        |
-| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET`, `HELVEETY_CHROME_EXTENSION_ORIGINS`                 |
+| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`                  |
 | **Gateway**                  | `web`                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                               |
 
 See root [`README.md`](../README.md) § Environment Model.

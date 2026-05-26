@@ -9,6 +9,7 @@ import {
 import { z } from "zod";
 
 import { parseChromeExtensionOriginsEnv } from "@/lib/chrome-extension-origin-parse";
+import { readChromeExtensionOriginsFromProcessEnv } from "@/lib/chrome-extension-origins-env";
 
 const authEnvSchema = serverEnvSchema
   .merge(upstashEnvSchema)
@@ -23,7 +24,10 @@ const authEnvSchema = serverEnvSchema
         ),
       HELVETY_CHROME_EXTENSION_ORIGINS: z
         .string()
-        .min(1, "HELVEETY_CHROME_EXTENSION_ORIGINS is required")
+        .min(
+          1,
+          "HELVETY_CHROME_EXTENSION_ORIGINS (or legacy HELVEETY_CHROME_EXTENSION_ORIGINS) is required"
+        )
         .transform((raw, ctx) => {
           try {
             return parseChromeExtensionOriginsEnv(raw);
@@ -56,7 +60,7 @@ export const getValidatedAuthEnv = createAppServerUpstashEnv({
     DEVICE_TRUST_COOKIE_SECRET:
       process.env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "",
     HELVETY_CHROME_EXTENSION_ORIGINS:
-      process.env.HELVETY_CHROME_EXTENSION_ORIGINS?.trim() ?? "",
+      readChromeExtensionOriginsFromProcessEnv(),
   }),
   ciPlaceholderExtra: {
     DEVICE_TRUST_COOKIE_SECRET:

@@ -33,6 +33,23 @@ describe("parseRichTextContent", () => {
     expect(doc?.type).toBe("doc");
   });
 
+  it("sanitizes stored JSON with a non-doc root that has content", () => {
+    const raw = JSON.stringify({
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "click",
+          marks: [{ type: "link", attrs: { href: "javascript:alert(1)" } }],
+        },
+      ],
+    });
+    const doc = parseRichTextContent(raw);
+    expect(doc?.type).toBe("doc");
+    const textNode = doc?.content?.[0]?.content?.[0];
+    expect(textNode?.marks ?? []).toHaveLength(0);
+  });
+
   it("strips unsafe link marks from stored JSON doc", () => {
     const raw = JSON.stringify({
       type: "doc",
@@ -61,6 +78,28 @@ describe("serializeRichTextContent", () => {
     expect(doc).not.toBeNull();
     const serialized = serializeRichTextContent(doc!);
     expect(parseRichTextContent(serialized)).toEqual(doc);
+  });
+
+  it("strips unsafe link marks when serializing for storage", () => {
+    const serialized = serializeRichTextContent({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "click",
+              marks: [{ type: "link", attrs: { href: "javascript:alert(1)" } }],
+            },
+          ],
+        },
+      ],
+    });
+
+    const doc = parseRichTextContent(serialized);
+    const textNode = doc?.content?.[0]?.content?.[0];
+    expect(textNode?.marks ?? []).toHaveLength(0);
   });
 });
 

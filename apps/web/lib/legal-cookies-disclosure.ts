@@ -31,6 +31,16 @@ export const HELVETY_WEB_ANALYTICS_ZONE_NAMES = [
   "Helvety Links",
 ] as const;
 
+/**
+ * Privacy §9 prose snippets for Chromium extension passkey ceremonies
+ * (server-side challenge envelopes; not browser cookies).
+ */
+export const HELVETY_PRIVACY_EXTENSION_PASSKEY_DISCLOSURE_SNIPPETS = [
+  "Extension passkey ceremonies:",
+  "stored server-side (Upstash",
+  "not browser cookies",
+] as const;
+
 /** Cookie / storage identifiers disclosed in Privacy Policy §9 table. */
 export const HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS = [
   "Supabase auth session",

@@ -1,7 +1,7 @@
 const CHROME_EXTENSION_ORIGIN_PREFIX = "chrome-extension://";
 
 /**
- * Parse comma-separated `HELVEETY_CHROME_EXTENSION_ORIGINS` for Zod env validation.
+ * Parse comma-separated Chrome extension origin allowlist for Zod env validation.
  */
 export function parseChromeExtensionOriginsEnv(raw: string): string[] {
   const origins = raw
@@ -11,14 +11,14 @@ export function parseChromeExtensionOriginsEnv(raw: string): string[] {
 
   if (origins.length === 0) {
     throw new Error(
-      "HELVEETY_CHROME_EXTENSION_ORIGINS must list at least one chrome-extension:// origin"
+      "Chrome extension origins must list at least one chrome-extension:// origin"
     );
   }
 
   for (const origin of origins) {
     if (!origin.startsWith(CHROME_EXTENSION_ORIGIN_PREFIX)) {
       throw new Error(
-        `HELVEETY_CHROME_EXTENSION_ORIGINS entries must start with ${CHROME_EXTENSION_ORIGIN_PREFIX}`
+        `Chrome extension origin entries must start with ${CHROME_EXTENSION_ORIGIN_PREFIX}`
       );
     }
     try {
@@ -28,7 +28,7 @@ export function parseChromeExtensionOriginsEnv(raw: string): string[] {
       }
     } catch {
       throw new Error(
-        `HELVEETY_CHROME_EXTENSION_ORIGINS contains invalid origin: ${origin}`
+        `Chrome extension origin allowlist contains invalid origin: ${origin}`
       );
     }
   }

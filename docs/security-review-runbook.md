@@ -35,7 +35,9 @@ Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECUR
 
 ## Auth / extension
 
-- `HELVEETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` matches the published Chrome extension ID only.
+- `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` matches the published Chrome extension ID only (legacy `HELVEETY_CHROME_EXTENSION_ORIGINS` is still read if the preferred name is unset).
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` on `helvety-auth` are required in production for extension passkey single-use challenges (`consumeSingleUseKey` with `strict` policy).
+- `bun run consistency:vercel-prod-env` must pass for `helvety-auth`: set `HELVETY_CHROME_EXTENSION_ORIGINS` (or legacy `HELVEETY_CHROME_EXTENSION_ORIGINS`) to the published extension ID.
 - Extension Bearer tokens rotated if leaked.
 - Extension passkey `challengeEnvelope` values are single-use within their TTL (Upstash `consumeSingleUseKey`; dev uses in-memory fallback).
 - Spot-check sign-in, callback, passkey session mint, and logout with existing `sb-*` cookies (mutating client must persist session changes).
@@ -49,9 +51,19 @@ Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECUR
 
 Document accepted tradeoffs in [`packages/config/next-headers.mjs`](../packages/config/next-headers.mjs): `style-src 'unsafe-inline'`, dev `unsafe-eval`, `wasm-unsafe-eval` for ONNX (image-upscaler).
 
+## Hosted Supabase Auth (GoTrue)
+
+Helvety uses email OTP and passkeys, not Apple/Azure OIDC in app code. If those providers are enabled in the Supabase Dashboard:
+
+- Confirm hosted Auth is **≥ 2.185.0** (mitigates [CVE-2026-31813](https://www.sentinelone.com/vulnerability-database/cve-2026-31813/) for crafted OIDC ID tokens).
+- Disable unused federated providers to reduce attack surface.
+
+Check version in Supabase Dashboard → Project Settings → Infrastructure, or via support if not shown.
+
 ## Quarterly cadence
 
 1. `bun run ci:check` on `main`
 2. `bun run consistency:vercel-prod-env`
 3. `bun outdated` + [`docs/dependency-inventory.md`](./dependency-inventory.md) extended assets
 4. Local Supabase policy review (export stays gitignored)
+5. Hosted GoTrue version / unused OIDC provider review (see above)

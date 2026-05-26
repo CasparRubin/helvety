@@ -15,7 +15,7 @@ import { MAX_DOCX_BYTES } from "@/lib/constants";
 import { normalizeDocxSaveResult } from "@/lib/docx-bytes";
 
 import type { DocxEditorRef } from "@eigenpal/docx-editor-react";
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 const DocxEditorWorkspace = dynamic(
   () =>

@@ -118,9 +118,7 @@ const ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
 const CHALLENGE = "server-challenge-value";
 const CLIENT_IP = "203.0.113.10";
 
-/**
- *
- */
+/** Builds base64url clientDataJSON for WebAuthn assertion tests. */
 function clientDataJSONForChallenge(challenge: string): string {
   return Buffer.from(
     JSON.stringify({ type: "webauthn.get", challenge, origin: ORIGIN }),

@@ -27,7 +27,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 const PRODUCT_LINKS = [{ href: "/products", label: "Products", icon: Package }];
 

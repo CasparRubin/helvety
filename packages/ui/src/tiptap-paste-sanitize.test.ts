@@ -53,6 +53,23 @@ describe("sanitizeRichTextJson", () => {
     expect(textNode?.marks ?? []).toHaveLength(0);
   });
 
+  it("wraps non-doc roots with content in a sanitized doc", () => {
+    const doc = sanitizeRichTextJson({
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "click",
+          marks: [{ type: "link", attrs: { href: "javascript:alert(1)" } }],
+        },
+      ],
+    });
+
+    expect(doc.type).toBe("doc");
+    const textNode = doc.content?.[0]?.content?.[0];
+    expect(textNode?.marks ?? []).toHaveLength(0);
+  });
+
   it("keeps safe https link marks", () => {
     const doc = sanitizeRichTextJson({
       type: "doc",

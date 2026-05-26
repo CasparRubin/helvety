@@ -46,7 +46,7 @@ import { ThemeSwitcher } from "./theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { useNavbarAuthState } from "./use-navbar-auth-state";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 /** Props forwarded to `NavbarBrand`. */
 export type HelvetyShellNavbarBrand = {

@@ -13,6 +13,8 @@ import { spawn } from "node:child_process";
 import {
   EXPECTED_KEYS_BY_APP,
   FORBIDDEN_KEYS_BY_APP,
+  productionEnvKeyIsExpectedOrAlias,
+  productionEnvKeyIsPresent,
   WEB_GATEWAY_KEYS,
 } from "./env-template-expectations.mjs";
 
@@ -156,11 +158,15 @@ async function main() {
     }
 
     const keySet = new Set(keys);
-    const missing = [...expected].filter((key) => !keySet.has(key));
+    const missing = [...expected].filter(
+      (key) => !productionEnvKeyIsPresent(key, keySet)
+    );
     const forbiddenPresent = keys.filter((key) => forbidden.has(key));
     const unexpected = keys.filter(
       (key) =>
-        !expected.has(key) && !forbidden.has(key) && !OPTIONAL_KEYS.has(key)
+        !productionEnvKeyIsExpectedOrAlias(key, expected) &&
+        !forbidden.has(key) &&
+        !OPTIONAL_KEYS.has(key)
     );
 
     console.log(`${project} (apps/${app}) — ${keys.length} production key(s)`);

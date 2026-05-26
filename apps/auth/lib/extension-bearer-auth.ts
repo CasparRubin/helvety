@@ -3,7 +3,7 @@ import "server-only";
 import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
 import { createClient } from "@supabase/supabase-js";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 const NOT_AUTHENTICATED = "Not authenticated";
 

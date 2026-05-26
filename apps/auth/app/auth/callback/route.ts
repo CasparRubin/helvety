@@ -7,7 +7,10 @@ import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 import { resolveAuthStep } from "@/lib/auth-step";
 import { buildAuthLoginUrl } from "@/lib/login-entry";
 
-import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
+import type {
+  EmailOtpType,
+  SupabaseClient,
+} from "@helvety/shared/supabase-types";
 
 export const runtime = "nodejs";
 

@@ -3,7 +3,7 @@ import "server-only";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@helvety/shared/supabase-types";
 
 /** Minimal user payload returned from the indexed email lookup RPC. */
 type EmailLookupUser = {

@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Navbar } from "./navbar";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 import type { ReactNode } from "react";
 
 vi.mock("@helvety/ui/use-navbar-auth-state");

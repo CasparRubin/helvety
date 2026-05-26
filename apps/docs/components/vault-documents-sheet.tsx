@@ -26,7 +26,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import type { DocListItem } from "@/lib/types";
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 /** Props for {@link VaultDocumentsSheet}. */
 interface VaultDocumentsSheetProps {

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   validateCSRFToken: vi.fn(),
   signOut: vi.fn(),
+  createServerMutatingClient: vi.fn(),
   clearDeviceTrustCookie: vi.fn(),
   clearChallenge: vi.fn(),
 }));
@@ -12,9 +13,7 @@ vi.mock("@helvety/shared/csrf", () => ({
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerMutatingClient: vi.fn(async () => ({
-    auth: { signOut: mocks.signOut },
-  })),
+  createServerMutatingClient: mocks.createServerMutatingClient,
 }));
 
 vi.mock("../actions/device-trust-cookie", () => ({
@@ -39,6 +38,9 @@ describe("signOutAction", () => {
     vi.clearAllMocks();
     mocks.validateCSRFToken.mockResolvedValue(true);
     mocks.signOut.mockResolvedValue({ error: null });
+    mocks.createServerMutatingClient.mockResolvedValue({
+      auth: { signOut: mocks.signOut },
+    });
     mocks.clearDeviceTrustCookie.mockResolvedValue(undefined);
     mocks.clearChallenge.mockResolvedValue(undefined);
   });
@@ -47,6 +49,7 @@ describe("signOutAction", () => {
     const result = await signOutAction("csrf-token");
 
     expect(result).toEqual({ success: true });
+    expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
     expect(mocks.signOut).toHaveBeenCalledWith(undefined);
     expect(mocks.clearDeviceTrustCookie).toHaveBeenCalled();
     expect(mocks.clearChallenge).toHaveBeenCalled();

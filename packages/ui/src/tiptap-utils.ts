@@ -20,8 +20,14 @@ export function parseRichTextContent(
 
   try {
     const parsed = JSON.parse(content);
-    if (parsed && typeof parsed === "object" && parsed.type === "doc") {
-      return sanitizeRichTextJson(parsed as JSONContent);
+    if (parsed && typeof parsed === "object") {
+      const json = parsed as JSONContent;
+      if (
+        json.type === "doc" ||
+        (typeof json.type === "string" && Array.isArray(json.content))
+      ) {
+        return sanitizeRichTextJson(json);
+      }
     }
     return {
       type: "doc",
@@ -43,7 +49,7 @@ export function parseRichTextContent(
  * Serialize rich text content to string for storage
  */
 export function serializeRichTextContent(content: JSONContent): string {
-  return JSON.stringify(content);
+  return JSON.stringify(sanitizeRichTextJson(content));
 }
 
 /**

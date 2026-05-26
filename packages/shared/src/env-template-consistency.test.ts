@@ -8,6 +8,7 @@ import {
   EXPECTED_KEYS_BY_APP,
   FORBIDDEN_KEYS_BY_APP,
   parseTemplateKeys,
+  productionEnvKeyIsPresent,
   validateEnvTemplates,
   validateTurboGatewayBuildEnv,
   WEB_GATEWAY_KEYS,
@@ -170,6 +171,21 @@ describe("env.template consistency", () => {
       );
       expect(content, `apps/${app}/env.template`).not.toMatch(legacyKeyPattern);
     }
+  });
+
+  it("productionEnvKeyIsPresent accepts legacy auth extension origin alias", () => {
+    const legacyOnly = new Set(["HELVEETY_CHROME_EXTENSION_ORIGINS"]);
+    expect(
+      productionEnvKeyIsPresent("HELVETY_CHROME_EXTENSION_ORIGINS", legacyOnly)
+    ).toBe(true);
+
+    const preferredOnly = new Set(["HELVETY_CHROME_EXTENSION_ORIGINS"]);
+    expect(
+      productionEnvKeyIsPresent(
+        "HELVETY_CHROME_EXTENSION_ORIGINS",
+        preferredOnly
+      )
+    ).toBe(true);
   });
 
   it("EXPECTED_KEYS_BY_APP covers every zone app directory", () => {

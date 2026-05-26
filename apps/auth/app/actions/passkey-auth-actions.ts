@@ -42,6 +42,7 @@ import {
 } from "./device-trust-cookie";
 import { findUserByEmail } from "./user-lookup";
 
+import type { EmailOtpType } from "@helvety/shared/supabase-types";
 import type {
   ActionResponse,
   UserAuthCredential,
@@ -54,7 +55,6 @@ import type {
   PublicKeyCredentialRequestOptionsJSON,
   AuthenticatorTransportFuture,
 } from "@simplewebauthn/server";
-import type { EmailOtpType } from "@supabase/supabase-js";
 
 /** Passkey auth options payload returned to the client. */
 type PasskeyAuthOptionsResponse = PublicKeyCredentialRequestOptionsJSON;
@@ -554,6 +554,20 @@ export async function verifyPasskeyAuthentication(
       });
 
       if (verifyError) {
+        const { error: rollbackError } = await scopedAdmin
+          .from("user_auth_credentials")
+          .update({
+            counter: credential.counter,
+          })
+          .eq("credential_id", credentialId)
+          .eq("counter", verification.authenticationInfo.newCounter);
+
+        if (rollbackError) {
+          logger.logUnexpectedError(
+            "Failed to rollback passkey counter after session mint failure",
+            rollbackError
+          );
+        }
         logger.logUnexpectedError("Error verifying OTP", verifyError);
         return { success: false, error: PASSKEY_VERIFY_GENERIC_ERROR };
       }

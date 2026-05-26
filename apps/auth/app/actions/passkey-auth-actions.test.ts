@@ -39,6 +39,7 @@ const mocks = vi.hoisted(() => {
     clearChallenge: vi.fn(),
     credentialEq,
     credentialSingle,
+    credentialUpdate,
     credentialUpdateMaybeSingle,
     generateAuthenticationOptions: vi.fn(),
     generateCSRFToken: vi.fn(),
@@ -50,6 +51,7 @@ const mocks = vi.hoisted(() => {
     resetRateLimit: vi.fn(),
     storeChallenge: vi.fn(),
     supabaseVerifyOtp: vi.fn(),
+    createServerMutatingClient: vi.fn(),
     verifyAuthenticationResponse: vi.fn(),
     clearDeviceTrustCookie: vi.fn(),
     getValidDeviceTrustCookie: vi.fn(),
@@ -118,11 +120,7 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerMutatingClient: vi.fn(async () => ({
-    auth: {
-      verifyOtp: mocks.supabaseVerifyOtp,
-    },
-  })),
+  createServerMutatingClient: mocks.createServerMutatingClient,
 }));
 
 vi.mock("@simplewebauthn/server", () => ({
@@ -199,6 +197,9 @@ describe("passkey-auth-actions", () => {
     mocks.clearChallenge.mockResolvedValue(undefined);
     mocks.generateCSRFToken.mockResolvedValue(undefined);
     mocks.supabaseVerifyOtp.mockResolvedValue({ error: null });
+    mocks.createServerMutatingClient.mockResolvedValue({
+      auth: { verifyOtp: mocks.supabaseVerifyOtp },
+    });
     mocks.adminGetUserById.mockResolvedValue({
       data: { user: { email: "user@example.com" } },
       error: null,
@@ -447,6 +448,54 @@ describe("passkey-auth-actions", () => {
     expect(result.success).toBe(true);
     expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith("user-1");
     expect(mocks.clearDeviceTrustCookie).not.toHaveBeenCalled();
+    expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
+    expect(mocks.supabaseVerifyOtp).toHaveBeenCalledOnce();
+  });
+
+  it("rolls back passkey counter when session mint fails", async () => {
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      redirectUri: "https://helvety.com/tasks",
+      timestamp: CHALLENGE_TIMESTAMP,
+    });
+    mocks.credentialSingle.mockResolvedValue({
+      data: {
+        credential_id: "cred-a",
+        public_key: Buffer.from("public-key").toString("base64url"),
+        counter: 1,
+        transports: ["internal"],
+        user_id: "user-1",
+      },
+      error: null,
+    });
+    mocks.verifyAuthenticationResponse.mockResolvedValue({
+      verified: true,
+      authenticationInfo: { newCounter: 2 },
+    });
+    mocks.credentialEq.mockResolvedValue({
+      data: { credential_id: "cred-a" },
+      error: null,
+    });
+    mocks.supabaseVerifyOtp.mockResolvedValue({
+      error: { message: "verify failed" },
+    });
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      buildVerifyResponse({ id: "cred-a" }),
+      "https://helvety.com"
+    );
+
+    expect(result.success).toBe(false);
+    expect(mocks.credentialUpdate).toHaveBeenCalledTimes(2);
+    expect(mocks.credentialUpdate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ counter: 2 })
+    );
+    expect(mocks.credentialUpdate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ counter: 1 })
+    );
   });
 
   it("does not mint device trust when no valid trust cookie exists", async () => {

@@ -53,7 +53,7 @@ vi.mock("sonner", () => ({
 
 import { HelvetyDocsShell } from "./helvety-docs-shell";
 
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@helvety/shared/supabase-types";
 
 describe("HelvetyDocsShell", () => {
   it("strips landing ?doc= without auto-opening vault documents", async () => {

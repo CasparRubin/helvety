@@ -31,12 +31,14 @@ describe("zone lib/env factory wiring", () => {
     }
   );
 
-  it("apps/auth/lib/env.ts validates HELVETY_CHROME_EXTENSION_ORIGINS", () => {
+  it("apps/auth/lib/env.ts validates Chrome extension origins allowlist", () => {
     const src = readFileSync(
       join(repoRoot, "apps", "auth", "lib/env.ts"),
       "utf8"
     );
     expect(src).toContain("HELVEETY_CHROME_EXTENSION_ORIGINS");
+    expect(src).toContain("HELVETY_CHROME_EXTENSION_ORIGINS");
+    expect(src).toContain("readChromeExtensionOriginsFromProcessEnv");
     expect(src).toContain("parseChromeExtensionOriginsEnv");
   });
 

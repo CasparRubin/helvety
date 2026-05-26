@@ -21,7 +21,7 @@ import {
 } from "./redirect-validation";
 import { createServerMutatingClient } from "./supabase/server";
 
-import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
+import type { EmailOtpType, SupabaseClient } from "./supabase-types";
 
 const DEFAULT_ALLOWED_OTP_TYPES: readonly EmailOtpType[] = [
   "signup",
