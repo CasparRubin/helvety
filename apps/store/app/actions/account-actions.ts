@@ -12,6 +12,7 @@ import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
+import { createServerMutatingClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
 
 import { hasAccountDeletionVerificationFailures } from "@/lib/account-deletion-compliance";
@@ -60,7 +61,7 @@ export async function updateUserEmail(
       rateLimitConfig: RATE_LIMITS.ACCOUNT_MUTATE,
     });
     if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
+    const { user } = auth.ctx;
 
     // Check if new email is same as current
     if (user.email?.toLowerCase() === newEmail.toLowerCase()) {
@@ -71,6 +72,7 @@ export async function updateUserEmail(
     }
 
     // Update email - Supabase will send confirmation email
+    const supabase = await createServerMutatingClient();
     const { error } = await supabase.auth.updateUser({
       email: newEmail,
     });

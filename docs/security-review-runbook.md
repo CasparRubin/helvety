@@ -9,7 +9,7 @@ bun run ci:check
 bun run deps:security
 ```
 
-Includes: Supabase auth patterns (`getUser` for authz, no `getSession`), proxy wiring, env template tiers, dependency floors.
+Includes: Supabase auth patterns (`getUser` for authz, no `getSession`), proxy wiring, env template tiers, dependency floors. Session **mutations** must use `createServerMutatingClient`; RSC/read paths use `createServerClient` (no-ops cookie writes when `x-helvety-auth-refreshed` is set after the proxy persisted refreshed cookies).
 
 ## Vercel production env
 
@@ -37,6 +37,13 @@ Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECUR
 
 - `HELVEETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` matches the published Chrome extension ID only.
 - Extension Bearer tokens rotated if leaked.
+- Extension passkey `challengeEnvelope` values are single-use within their TTL (Upstash `consumeSingleUseKey`; dev uses in-memory fallback).
+- Spot-check sign-in, callback, passkey session mint, and logout with existing `sb-*` cookies (mutating client must persist session changes).
+
+## Store public downloads
+
+- Signed redirect URLs from `createPackageDownload` must pass `isAllowedDownloadUrl` (nested paths under `packages/` such as `spfx/helvety-spo-explorer/*.sppkg`).
+- Reject test URLs with path traversal or wrong origin before shipping storage layout changes.
 
 ## CSP
 

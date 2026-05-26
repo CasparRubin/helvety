@@ -29,6 +29,7 @@ import { Separator } from "./separator";
 import {
   SAFE_LINK_REGEX,
   sanitizePastedHtmlForEditor,
+  sanitizeRichTextJson,
 } from "./tiptap-paste-sanitize";
 import {
   Tooltip,
@@ -356,7 +357,7 @@ export function TiptapEditor({
         },
       }),
     ],
-    content: content ?? undefined,
+    content: content ? sanitizeRichTextJson(content) : undefined,
     editable: !disabled,
     editorProps: {
       transformPastedHTML: sanitizePastedHtmlForEditor,
@@ -389,8 +390,10 @@ export function TiptapEditor({
       if (!editor) return;
       if (newContent === null) {
         editor.commands.clearContent();
-      } else {
+      } else if (typeof newContent === "string") {
         editor.commands.setContent(newContent);
+      } else {
+        editor.commands.setContent(sanitizeRichTextJson(newContent));
       }
     },
     focus: () => editor?.commands.focus(),

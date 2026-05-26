@@ -14,7 +14,24 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
   ["create" + "AdminClient"]: mocks.adminClientFactory,
 }));
 
-import { resolveLatestPackageVersion } from "./resolve-version";
+import {
+  isSafePackageStorageObjectName,
+  resolveLatestPackageVersion,
+} from "./resolve-version";
+
+describe("isSafePackageStorageObjectName", () => {
+  it("accepts normal package file names", () => {
+    expect(isSafePackageStorageObjectName("helvety-spo-explorer.sppkg")).toBe(
+      true
+    );
+  });
+
+  it("rejects traversal and path separator names", () => {
+    expect(isSafePackageStorageObjectName("../escape.sppkg")).toBe(false);
+    expect(isSafePackageStorageObjectName("nested/evil.sppkg")).toBe(false);
+    expect(isSafePackageStorageObjectName("..")).toBe(false);
+  });
+});
 
 describe("resolveLatestPackageVersion", () => {
   beforeEach(() => {
@@ -83,6 +100,28 @@ describe("resolveLatestPackageVersion", () => {
     mocks.list.mockResolvedValue({
       data: null,
       error: { message: "storage error" },
+    });
+
+    const result = await resolveLatestPackageVersion("spo-explorer");
+
+    expect(result).toBeNull();
+  });
+
+  it("ignores storage object names with path traversal segments", async () => {
+    mocks.list.mockResolvedValue({
+      data: [
+        {
+          name: "../escape.sppkg",
+          id: "x1",
+          created_at: "2026-03-20T10:00:00.000Z",
+        },
+        {
+          name: "nested/evil.sppkg",
+          id: "x2",
+          created_at: "2026-03-21T10:00:00.000Z",
+        },
+      ],
+      error: null,
     });
 
     const result = await resolveLatestPackageVersion("spo-explorer");

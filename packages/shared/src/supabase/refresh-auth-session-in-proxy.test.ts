@@ -149,7 +149,7 @@ describe("refreshSupabaseAuthSession", () => {
 
     expect(getClaims).toHaveBeenCalled();
     expect(getUser).not.toHaveBeenCalled();
-    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
   it("falls back to getUser when getClaims is not available", async () => {
@@ -164,10 +164,10 @@ describe("refreshSupabaseAuthSession", () => {
     await refreshSupabaseAuthSession(request, NextResponse.next({ request }));
 
     expect(getUser).toHaveBeenCalled();
-    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
-  it("sets the auth-refreshed header only after a successful session verify", async () => {
+  it("does not set auth-refreshed header when verify succeeds without writing cookies", async () => {
     createServerClientMock.mockImplementation(() => ({
       auth: {
         getUser: async () => ({ data: { user: null }, error: null }),
@@ -183,7 +183,7 @@ describe("refreshSupabaseAuthSession", () => {
 
     await refreshSupabaseAuthSession(request, baseResponse);
 
-    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 });
 

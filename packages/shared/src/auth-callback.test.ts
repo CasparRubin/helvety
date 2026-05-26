@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   exchangeCodeForSession: vi.fn(),
   verifyOtp: vi.fn(),
   generateCSRFToken: vi.fn(),
+  createServerMutatingClient: vi.fn(),
   loggerError: vi.fn(),
   loggerWarn: vi.fn(),
 }));
@@ -38,13 +39,7 @@ vi.mock("./redirect-validation", () => ({
 }));
 
 vi.mock("./supabase/server", () => ({
-  createServerClient: () =>
-    Promise.resolve({
-      auth: {
-        exchangeCodeForSession: mocks.exchangeCodeForSession,
-        verifyOtp: mocks.verifyOtp,
-      },
-    }),
+  createServerMutatingClient: mocks.createServerMutatingClient,
 }));
 
 vi.mock("./csrf", () => ({
@@ -72,6 +67,12 @@ describe("createAuthCallbackHandler", () => {
     mocks.exchangeCodeForSession.mockResolvedValue({ error: null });
     mocks.verifyOtp.mockResolvedValue({ error: null });
     mocks.generateCSRFToken.mockResolvedValue(undefined);
+    mocks.createServerMutatingClient.mockResolvedValue({
+      auth: {
+        exchangeCodeForSession: mocks.exchangeCodeForSession,
+        verifyOtp: mocks.verifyOtp,
+      },
+    });
   });
 
   it("uses strict policy for callback rate limiting", async () => {
@@ -142,6 +143,15 @@ describe("createAuthCallbackHandler", () => {
 
     expect(response.headers.get("location")).toContain("invalid_otp_type");
     expect(mocks.verifyOtp).not.toHaveBeenCalled();
+  });
+
+  it("uses createServerMutatingClient for PKCE code exchange", async () => {
+    const handler = createAuthCallbackHandler();
+
+    await handler(new Request("https://helvety.com/auth/callback?code=abc123"));
+
+    expect(mocks.createServerMutatingClient).toHaveBeenCalled();
+    expect(mocks.exchangeCodeForSession).toHaveBeenCalled();
   });
 
   it("redirects to validated redirect_uri after successful exchange", async () => {

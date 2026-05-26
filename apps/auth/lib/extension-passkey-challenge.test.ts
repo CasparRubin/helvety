@@ -80,6 +80,26 @@ describe("extension-passkey-challenge", () => {
     ).toBeNull();
   });
 
+  it("rejects replay of the same envelope", async () => {
+    const envelope = await createExtensionChallengeEnvelope({
+      challenge: "abc",
+      expectedUserId: USER_ID,
+      origin: ORIGIN,
+    });
+
+    const first = await verifyExtensionChallengeEnvelope(envelope, {
+      userId: USER_ID,
+      origin: ORIGIN,
+    });
+    expect(first).toEqual({ challenge: "abc" });
+
+    const second = await verifyExtensionChallengeEnvelope(envelope, {
+      userId: USER_ID,
+      origin: ORIGIN,
+    });
+    expect(second).toBeNull();
+  });
+
   it("rejects expired envelopes", async () => {
     const envelope = await createExtensionChallengeEnvelope({
       challenge: "abc",

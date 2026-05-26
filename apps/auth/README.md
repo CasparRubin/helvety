@@ -62,15 +62,16 @@ Vault session policy (E2EE apps): **12h sliding idle**, **30d absolute max** (se
 - Redirect URIs are allowlist-validated via shared redirect-validation logic.
 - Passkey presence checks for `user_auth_credentials` use trusted server-side reads (`createScopedAdminQuery`, `lookupCredentialByCredentialId`), not public client reads.
 - Passkey transport values from stored credentials and client payloads are sanitized to supported WebAuthn transport enums before verification/option generation.
+- Auth session cookie writes use `createServerMutatingClient` (`@helvety/shared/supabase/server`) in route handlers and server actions (callbacks, OTP verify, passkey session mint, logout) so sign-in and sign-out persist cookies even when the proxy already refreshed the session (`x-helvety-auth-refreshed`). Server Components and read-only actions use `createServerClient`, which no-ops `setAll` when that header is set.
 
 ## Chromium extension passkey API
 
 Bearer-authenticated JSON routes for the Helvety browser extension (separate from CSRF cookie server actions):
 
-| Route                                 | Purpose                                                                                                                  |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`)                       |
-| `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; update counter; **does not** create a Supabase session |
+| Route                                 | Purpose                                                                                                                                                                           |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`; includes single-use `nonce`)                                                   |
+| `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; **single-use** envelope (Upstash `consumeSingleUseKey`); update counter; **does not** create a Supabase session |
 
 Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is listed in `HELVEETY_CHROME_EXTENSION_ORIGINS` ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
 

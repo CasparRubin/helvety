@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     authenticateAndRateLimit: vi.fn(),
+    createServerMutatingClient: vi.fn(),
     createScopedAdminQuery: vi.fn(),
     deleteUser,
     from,
@@ -53,6 +54,10 @@ vi.mock("@/lib/rate-limit", () => ({
   },
 }));
 
+vi.mock("@helvety/shared/supabase/server", () => ({
+  createServerMutatingClient: mocks.createServerMutatingClient,
+}));
+
 import {
   exportUserData,
   requestAccountDeletion,
@@ -70,12 +75,12 @@ describe("account-actions", () => {
           email: "old@example.com",
           created_at: "2026-01-01",
         },
-        supabase: {
-          auth: {
-            updateUser: mocks.updateUser.mockResolvedValue({ error: null }),
-          },
-        },
+        supabase: {},
       },
+    });
+    mocks.updateUser.mockResolvedValue({ error: null });
+    mocks.createServerMutatingClient.mockResolvedValue({
+      auth: { updateUser: mocks.updateUser },
     });
 
     mocks.createScopedAdminQuery.mockReturnValue({
@@ -128,6 +133,13 @@ describe("account-actions", () => {
       success: false,
       error: "This email is already in use",
     });
+  });
+
+  it("uses createServerMutatingClient for email updates", async () => {
+    await updateUserEmail("new@example.com", "csrf");
+
+    expect(mocks.createServerMutatingClient).toHaveBeenCalled();
+    expect(mocks.updateUser).toHaveBeenCalledWith({ email: "new@example.com" });
   });
 
   it("fails deletion when verification detects residual issues", async () => {

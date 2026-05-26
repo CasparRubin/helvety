@@ -1,16 +1,14 @@
+import { sanitizeRichTextJson } from "./tiptap-paste-sanitize";
+
+import type { JSONContent } from "@tiptap/react";
+
 /**
  * Lightweight rich-text utility functions.
  * Separated from tiptap-editor.tsx so consumers that only need
  * parse / serialize don't pull in the full Tiptap editor bundle.
  */
 
-/** Minimal ProseMirror JSON node shape (compatible with @tiptap/core JSONContent) */
-export interface JSONContent {
-  type?: string;
-  content?: JSONContent[];
-  text?: string;
-  [key: string]: unknown;
-}
+export type { JSONContent };
 
 /**
  * Parse rich text content - handles both JSON and legacy plain text
@@ -23,7 +21,7 @@ export function parseRichTextContent(
   try {
     const parsed = JSON.parse(content);
     if (parsed && typeof parsed === "object" && parsed.type === "doc") {
-      return parsed;
+      return sanitizeRichTextJson(parsed as JSONContent);
     }
     return {
       type: "doc",

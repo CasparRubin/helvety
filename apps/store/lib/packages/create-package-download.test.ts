@@ -34,6 +34,8 @@ vi.mock("@/lib/packages/resolve-version", () => ({
   resolveLatestPackageVersion: mocks.resolveLatestPackageVersion,
 }));
 
+import { isAllowedDownloadUrl } from "@/lib/download-security";
+
 import { createPackageDownload } from "./create-package-download";
 
 describe("createPackageDownload", () => {
@@ -100,6 +102,17 @@ describe("createPackageDownload", () => {
       60,
       { download: "helvety-spo-explorer.sppkg" }
     );
+  });
+
+  it("storage paths from resolve-version match download redirect allowlist shape", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://abc123.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_testkey1234567890";
+
+    const signedUrl =
+      "https://abc123.supabase.co/storage/v1/object/sign/packages/spfx/helvety-spo-explorer/helvety-spo-explorer.sppkg";
+
+    expect(isAllowedDownloadUrl(signedUrl)).toBe(true);
   });
 
   it("returns not found when resolver returns null", async () => {

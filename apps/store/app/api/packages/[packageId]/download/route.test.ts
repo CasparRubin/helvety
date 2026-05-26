@@ -31,7 +31,10 @@ vi.mock("@helvety/shared/logger", () => ({
 import { GET } from "./route";
 
 const TRUSTED_DOWNLOAD_URL =
-  "https://abc123.supabase.co/storage/v1/object/sign/packages/test.sppkg";
+  "https://abc123.supabase.co/storage/v1/object/sign/packages/spfx/test.sppkg";
+
+const TRUSTED_NESTED_DOWNLOAD_URL =
+  "https://abc123.supabase.co/storage/v1/object/sign/packages/spfx/helvety-spo-explorer/helvety-spo-explorer-hotfix.sppkg";
 
 describe("GET /api/packages/[packageId]/download", () => {
   const originalEnv = { ...process.env };
@@ -106,7 +109,7 @@ describe("GET /api/packages/[packageId]/download", () => {
     mocks.createPackageDownload.mockResolvedValue({
       ok: true,
       downloadUrl:
-        "https://evil.example/storage/v1/object/sign/packages/x.sppkg",
+        "https://evil.example/storage/v1/object/sign/packages/spfx/evil.sppkg",
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -133,6 +136,34 @@ describe("GET /api/packages/[packageId]/download", () => {
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(TRUSTED_DOWNLOAD_URL);
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+  });
+
+  it("redirects for nested storage paths used by resolve-version", async () => {
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: true,
+      downloadUrl: TRUSTED_NESTED_DOWNLOAD_URL,
+    });
+
+    const response = await GET(new Request("https://helvety.com") as never, {
+      params: Promise.resolve({ packageId: "spo-explorer" }),
+    });
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(TRUSTED_NESTED_DOWNLOAD_URL);
+  });
+
+  it("returns 500 when signed URL escapes the packages bucket via traversal", async () => {
+    mocks.createPackageDownload.mockResolvedValue({
+      ok: true,
+      downloadUrl:
+        "https://abc123.supabase.co/storage/v1/object/sign/packages/../other-bucket/evil.sppkg",
+    });
+
+    const response = await GET(new Request("https://helvety.com") as never, {
+      params: Promise.resolve({ packageId: "spo-explorer" }),
+    });
+
+    expect(response.status).toBe(500);
   });
 
   it("returns 404 for retired power-platform-configurator package id", async () => {

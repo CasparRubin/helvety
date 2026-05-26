@@ -10,7 +10,7 @@ import {
 import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
 import { createAdminClient } from "@helvety/shared/supabase/admin";
-import { createServerClient } from "@helvety/shared/supabase/server";
+import { createServerMutatingClient } from "@helvety/shared/supabase/server";
 import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 
 import { resolveAuthStep } from "@/lib/auth-step";
@@ -312,7 +312,7 @@ export async function verifyEmailCode(
     }
 
     // Use server client (not admin) so session cookies are properly set
-    const supabase = await createServerClient();
+    const supabase = await createServerMutatingClient();
 
     const { data, error: verifyError } = await supabase.auth.verifyOtp({
       email: normalizedEmail,

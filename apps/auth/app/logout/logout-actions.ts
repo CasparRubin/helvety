@@ -4,7 +4,7 @@ import "server-only";
 
 import { validateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createServerClient } from "@helvety/shared/supabase/server";
+import { createServerMutatingClient } from "@helvety/shared/supabase/server";
 
 import { clearChallenge } from "../actions/auth-action-helpers";
 import { clearDeviceTrustCookie } from "../actions/device-trust-cookie";
@@ -30,7 +30,7 @@ export async function signOutAction(
       return { success: false, error: "invalid_csrf" };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerMutatingClient();
     const { error } = await supabase.auth.signOut(
       global ? { scope: "global" } : undefined
     );

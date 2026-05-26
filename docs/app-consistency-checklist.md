@@ -142,6 +142,8 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 
 **Fail-closed auth refresh:** All session-bearing profiles (`auth-gateway`, `e2ee-app`, `store-gateway`, `public-tool`) clear stale `sb-*` cookies when Supabase session refresh fails (`FAIL_CLOSED_AUTH_REFRESH_PROFILES` in `@helvety/shared/proxy` plus `failClosedOnAuthRefresh: true` on `createAppProxy` for root redirects). **`public-marketing`** (`web`) omits fail-closed. Wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
 
+**Session cookie writes:** Proxy refresh sets `x-helvety-auth-refreshed` only when `setAll` wrote cookies. RSC and read-only server code use `createServerClient` (no-ops further writes when that header is set). Sign-in, sign-out, callbacks, OTP verify, passkey session mint, and `updateUser` use `createServerMutatingClient`. See `packages/shared/README.md` and `packages/shared/src/zone-auth-callback-wiring.test.ts`.
+
 ## Root layout shell
 
 | Shell                          | Apps                                                                                                |

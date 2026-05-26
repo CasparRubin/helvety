@@ -30,8 +30,10 @@ Gateway referer routing: [`apps/web/lib/zone-analytics-referer.ts`](../apps/web/
 | ---------------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
 | `sb-*-auth-token`      | Any zone when signed in       | Supabase session (httpOnly)                                                             |
 | `csrf_token`           | All except `apps/web` gateway | CSRF double-submit (signed, httpOnly)                                                   |
-| `webauthn_challenge`   | `auth`                        | Passkey ceremony (3 min, signed)                                                        |
+| `webauthn_challenge`   | `auth`                        | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                     |
 | `helvety_device_trust` | `auth`                        | Trusted-device passkey-first sign-in on all `/auth/login` entry paths (30 days, signed) |
+
+**Extension passkey API** (`/api/extension/passkey/*`): challenges are signed `challengeEnvelope` values consumed once per ceremony via Upstash (`consumeSingleUseKey`, 3 min TTL; in-memory fallback in dev). They are **not** browser cookies.
 
 `apps/web` uses the `public-marketing` proxy profile: **no** CSRF cookie bootstrap (no `HELVETY_COOKIE_SIGNING_SECRET` on the gateway).
 

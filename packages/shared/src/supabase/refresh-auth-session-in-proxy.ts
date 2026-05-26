@@ -43,7 +43,7 @@ export type RefreshSupabaseAuthSessionOptions = Readonly<{
 }>;
 
 /**
- * Request header set after the proxy successfully refreshes the session.
+ * Request header set after the proxy persisted refreshed session cookies via `setAll`.
  * `createServerSupabaseClient` reads this via `headers()` and no-ops `setAll` when present.
  */
 export const AUTH_REFRESHED_HEADER_NAME = "x-helvety-auth-refreshed";
@@ -100,6 +100,7 @@ export async function refreshSupabaseAuthSession(
   try {
     const supabaseUrl = getSupabaseUrl();
     const supabaseKey = getSupabaseKey();
+    let cookiesWereWritten = false;
 
     const supabase = createServerClient<DatabaseSchema, "public">(
       supabaseUrl,
@@ -110,6 +111,9 @@ export async function refreshSupabaseAuthSession(
             return request.cookies.getAll();
           },
           setAll(cookiesToSet) {
+            if (cookiesToSet.length > 0) {
+              cookiesWereWritten = true;
+            }
             for (const { name, value } of cookiesToSet) {
               request.cookies.set(name, value);
             }
@@ -143,7 +147,9 @@ export async function refreshSupabaseAuthSession(
       logger.logUnexpectedError("Supabase session refresh in proxy", error);
       return nextResponse;
     }
-    request.headers.set(AUTH_REFRESHED_HEADER_NAME, "1");
+    if (cookiesWereWritten) {
+      request.headers.set(AUTH_REFRESHED_HEADER_NAME, "1");
+    }
   } catch (error) {
     if (
       failClosedOnAuthError &&

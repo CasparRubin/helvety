@@ -12,7 +12,7 @@ vi.mock("@helvety/shared/csrf", () => ({
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: vi.fn(async () => ({
+  createServerMutatingClient: vi.fn(async () => ({
     auth: { signOut: mocks.signOut },
   })),
 }));

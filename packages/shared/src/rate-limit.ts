@@ -688,6 +688,61 @@ export async function resetEscalatingLockout(email: string): Promise<void> {
 }
 
 // =============================================================================
+// Single-use keys (e.g. WebAuthn challenge envelopes)
+// =============================================================================
+
+const inMemorySingleUseStore = new Map<string, number>();
+
+/**
+ * Atomically marks a key as used for `ttlMs`. Returns true when this call
+ * claimed the key; false when it was already consumed within the TTL window.
+ */
+export async function consumeSingleUseKey(
+  storageKey: string,
+  ttlMs: number,
+  policy: RateLimitPolicy = "strict"
+): Promise<boolean> {
+  const normalizedKey = normalizeKeyPart(storageKey);
+  const redisClient = getRedis();
+
+  if (redisClient) {
+    try {
+      const result = await redisClient.set(normalizedKey, "1", {
+        nx: true,
+        px: ttlMs,
+      });
+      return result === "OK";
+    } catch (error) {
+      if (process.env.NODE_ENV === "production" && policy === "strict") {
+        logger.logUnexpectedError(
+          "Single-use key consume failed in production - failing closed",
+          error,
+          { storageKey: normalizedKey }
+        );
+        return false;
+      }
+      logger.warn("Single-use key consume failed - using in-memory fallback", {
+        storageKey: normalizedKey,
+        error,
+      });
+    }
+  }
+
+  if (process.env.NODE_ENV === "production" && policy === "strict") {
+    return false;
+  }
+
+  startCleanup();
+  const now = Date.now();
+  const expiresAt = inMemorySingleUseStore.get(normalizedKey);
+  if (expiresAt !== undefined && expiresAt > now) {
+    return false;
+  }
+  inMemorySingleUseStore.set(normalizedKey, now + ttlMs);
+  return true;
+}
+
+// =============================================================================
 // Common Rate Limit Configurations
 // =============================================================================
 

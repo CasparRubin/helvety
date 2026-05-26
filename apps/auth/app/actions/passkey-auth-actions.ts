@@ -16,7 +16,7 @@ import {
   createScopedAdminQuery,
   lookupCredentialByCredentialId,
 } from "@helvety/shared/supabase/admin";
-import { createServerClient } from "@helvety/shared/supabase/server";
+import { createServerMutatingClient } from "@helvety/shared/supabase/server";
 import {
   generateAuthenticationOptions as generateAuthOptions,
   verifyAuthenticationResponse,
@@ -547,7 +547,7 @@ export async function verifyPasskeyAuthentication(
 
       // Verify the auth token server-side to create the session immediately
       // This avoids the PKCE/hash fragment issue where tokens are lost on server redirect
-      const supabase = await createServerClient();
+      const supabase = await createServerMutatingClient();
       const { error: verifyError } = await supabase.auth.verifyOtp({
         token_hash: linkData.properties.hashed_token,
         type: linkData.properties.verification_type as EmailOtpType,

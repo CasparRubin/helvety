@@ -12,6 +12,20 @@ interface StorageListItem {
   updated_at?: string | null;
 }
 
+/** Rejects traversal or path-separator object names from storage listings. */
+export function isSafePackageStorageObjectName(name: string): boolean {
+  if (!name || name === "." || name === "..") {
+    return false;
+  }
+  if (name.includes("/") || name.includes("\\")) {
+    return false;
+  }
+  if (name.includes("..")) {
+    return false;
+  }
+  return true;
+}
+
 /** Returns epoch ms for available timestamps, or 0 when missing/invalid. */
 function getNewestTimestamp(item: StorageListItem): number {
   const createdAtMs = item.created_at ? Date.parse(item.created_at) : NaN;
@@ -68,6 +82,7 @@ export async function resolveLatestPackageVersion(
   for (const item of items) {
     const name = item.name;
     if (!name || typeof name !== "string") continue;
+    if (!isSafePackageStorageObjectName(name)) continue;
     // Exclude folders and keep only package files in this directory level.
     if (!item.id) continue;
     if (!name.toLowerCase().endsWith(suffixLower)) continue;

@@ -34,7 +34,7 @@ describe("createSecurityProxy Supabase auth refresh", () => {
     vi.restoreAllMocks();
   });
 
-  it("forwards x-helvety-auth-refreshed after a successful proxy session refresh", async () => {
+  it("does not forward x-helvety-auth-refreshed when verify succeeds without cookie writes", async () => {
     createServerClientMock.mockImplementation(() => ({
       auth: {
         getUser: async () => ({ data: { user: null }, error: null }),
@@ -50,8 +50,8 @@ describe("createSecurityProxy Supabase auth refresh", () => {
     await proxy(request);
 
     const forwardedHeaders = nextSpy.mock.calls.at(-1)?.[0]?.request?.headers;
-    expect(forwardedHeaders?.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
-    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+    expect(forwardedHeaders?.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
 
     nextSpy.mockRestore();
   });

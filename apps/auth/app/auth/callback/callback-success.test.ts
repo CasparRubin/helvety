@@ -32,7 +32,7 @@ vi.mock("@helvety/shared/redirect-validation", () => ({
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: () =>
+  createServerMutatingClient: () =>
     Promise.resolve({
       auth: {
         verifyOtp: mocks.verifyOtp,

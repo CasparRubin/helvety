@@ -74,8 +74,17 @@ vi.mock("@simplewebauthn/server", () => ({
   verifyAuthenticationResponse: mocks.verifyAuthenticationResponse,
 }));
 
+const singleUseConsumedKeys = new Set<string>();
+
 vi.mock("@helvety/shared/rate-limit", () => ({
   checkRateLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 9 }),
+  consumeSingleUseKey: vi.fn(async (storageKey: string) => {
+    if (singleUseConsumedKeys.has(storageKey)) {
+      return false;
+    }
+    singleUseConsumedKeys.add(storageKey);
+    return true;
+  }),
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -121,6 +130,7 @@ function clientDataJSONForChallenge(challenge: string): string {
 
 describe("extension-passkey", () => {
   beforeEach(() => {
+    singleUseConsumedKeys.clear();
     vi.clearAllMocks();
     process.env.HELVETY_COOKIE_SIGNING_SECRET =
       "test-signing-secret-32chars-min";
@@ -250,6 +260,67 @@ describe("extension-passkey", () => {
       error: "Invalid passkey authentication payload",
     });
     expect(mocks.verifyAuthenticationResponse).not.toHaveBeenCalled();
+  });
+
+  it("rejects replay of the same challenge envelope", async () => {
+    const options = await generateExtensionPasskeyOptions({
+      userId: USER_ID,
+      origin: ORIGIN,
+      clientIP: CLIENT_IP,
+    });
+    if (!options.success) throw new Error("expected options success");
+    const challengeEnvelope = options.data.challengeEnvelope;
+    const clientDataJSON = clientDataJSONForChallenge(CHALLENGE);
+
+    const credential = {
+      id: "cred-a",
+      rawId: "raw-a",
+      type: "public-key" as const,
+      response: {
+        clientDataJSON,
+        authenticatorData: "auth-data",
+        signature: "sig",
+      },
+    };
+
+    mocks.lookupCredentialByCredentialId.mockResolvedValue({
+      data: {
+        credential_id: "cred-a",
+        public_key: Buffer.from("public-key").toString("base64url"),
+        counter: 1,
+        transports: ["internal"],
+        user_id: USER_ID,
+        backed_up: false,
+      },
+      error: null,
+    });
+    mocks.verifyAuthenticationResponse.mockResolvedValue({
+      verified: true,
+      authenticationInfo: { newCounter: 2 },
+    });
+    mocks.credentialUpdateMaybeSingle.mockResolvedValue({
+      data: { credential_id: "cred-a" },
+      error: null,
+    });
+
+    const first = await verifyExtensionPasskey({
+      userId: USER_ID,
+      origin: ORIGIN,
+      challengeEnvelope,
+      credential,
+      clientIP: CLIENT_IP,
+    });
+    expect(first.success).toBe(true);
+
+    const second = await verifyExtensionPasskey({
+      userId: USER_ID,
+      origin: ORIGIN,
+      challengeEnvelope,
+      credential,
+      clientIP: CLIENT_IP,
+    });
+    expect(second.success).toBe(false);
+    expect(mocks.verifyAuthenticationResponse).toHaveBeenCalledTimes(1);
   });
 
   it("verifies with server-issued challenge and updates counter", async () => {

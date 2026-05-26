@@ -19,7 +19,7 @@ import {
   getSafeRedirectUri,
   isValidRelativePath,
 } from "./redirect-validation";
-import { createServerClient } from "./supabase/server";
+import { createServerMutatingClient } from "./supabase/server";
 
 import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
@@ -111,7 +111,7 @@ export function createAuthCallbackHandler(
         : new URL(next, origin);
 
       if (code) {
-        const supabase = await createServerClient();
+        const supabase = await createServerMutatingClient();
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
@@ -138,7 +138,7 @@ export function createAuthCallbackHandler(
           );
         }
 
-        const supabase = await createServerClient();
+        const supabase = await createServerMutatingClient();
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type,

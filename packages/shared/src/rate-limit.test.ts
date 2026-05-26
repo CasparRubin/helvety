@@ -109,6 +109,38 @@ describe("RATE_LIMITS.PREFETCH", () => {
   });
 });
 
+describe("consumeSingleUseKey", () => {
+  it("allows the first claim and rejects replay in development", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    const { consumeSingleUseKey } = await import("./rate-limit");
+
+    expect(await consumeSingleUseKey("passkey:nonce:abc", 60_000, "soft")).toBe(
+      true
+    );
+    expect(await consumeSingleUseKey("passkey:nonce:abc", 60_000, "soft")).toBe(
+      false
+    );
+    expect(await consumeSingleUseKey("passkey:nonce:def", 60_000, "soft")).toBe(
+      true
+    );
+  });
+
+  it("fails closed in production with strict policy when Redis is not configured", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    const { consumeSingleUseKey } = await import("./rate-limit");
+
+    expect(
+      await consumeSingleUseKey("passkey:nonce:abc", 60_000, "strict")
+    ).toBe(false);
+  });
+});
+
 describe("rate-limit internals", () => {
   it("uses consistent key namespaces for all key types", async () => {
     const { rateLimitInternals } = await import("./rate-limit");

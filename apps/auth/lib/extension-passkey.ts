@@ -413,6 +413,15 @@ export async function verifyExtensionPasskey(input: {
         "Extension passkey counter update failed",
         updateError
       );
+      logAuthEvent("passkey_auth_failed", {
+        userId: input.userId,
+        metadata: {
+          reason: AUTH_REASONS.verificationFailed,
+          channel: "extension",
+          detail: "counter_update_failed",
+        },
+        ip: input.clientIP ?? undefined,
+      });
       return {
         success: false,
         error: "Passkey authentication failed. Please try again.",

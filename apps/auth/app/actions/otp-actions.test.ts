@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => {
     checkRateLimit: vi.fn(),
     checkUserPasskeyStatus: vi.fn(),
     createScopedAdminQuery: vi.fn(),
-    createServerClient: vi.fn(),
+    createServerMutatingClient: vi.fn(),
     findUserByEmail: vi.fn(),
     generateCSRFToken: vi.fn(),
     hasEncryptionSetup: vi.fn(),
@@ -67,7 +67,7 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: mocks.createServerClient,
+  createServerMutatingClient: mocks.createServerMutatingClient,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -124,7 +124,7 @@ describe("otp-actions", () => {
     });
     mocks.adminCreateUser.mockResolvedValue({ error: null });
     mocks.adminSignInWithOtp.mockResolvedValue({ error: null });
-    mocks.createServerClient.mockResolvedValue({
+    mocks.createServerMutatingClient.mockResolvedValue({
       auth: {
         verifyOtp: vi.fn().mockResolvedValue({
           data: { user: { id: "user-123" } },
@@ -238,7 +238,7 @@ describe("otp-actions", () => {
 
   it("rejects malformed OTP codes before Supabase verification", async () => {
     const verifyOtp = vi.fn();
-    mocks.createServerClient.mockResolvedValue({
+    mocks.createServerMutatingClient.mockResolvedValue({
       auth: { verifyOtp },
     });
 
@@ -253,7 +253,7 @@ describe("otp-actions", () => {
 
   it("rejects OTP codes outside 6–8 digit length before Supabase", async () => {
     const verifyOtp = vi.fn();
-    mocks.createServerClient.mockResolvedValue({
+    mocks.createServerMutatingClient.mockResolvedValue({
       auth: { verifyOtp },
     });
 
@@ -277,7 +277,7 @@ describe("otp-actions", () => {
       data: { user: { id: "user-123" } },
       error: null,
     });
-    mocks.createServerClient.mockResolvedValue({
+    mocks.createServerMutatingClient.mockResolvedValue({
       auth: { verifyOtp },
     });
     mocks.findUserByEmail.mockResolvedValue({ id: "existing-user" });

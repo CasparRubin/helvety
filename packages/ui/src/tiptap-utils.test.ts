@@ -32,6 +32,27 @@ describe("parseRichTextContent", () => {
     const doc = parseRichTextContent(raw);
     expect(doc?.type).toBe("doc");
   });
+
+  it("strips unsafe link marks from stored JSON doc", () => {
+    const raw = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "click",
+              marks: [{ type: "link", attrs: { href: "javascript:alert(1)" } }],
+            },
+          ],
+        },
+      ],
+    });
+    const doc = parseRichTextContent(raw);
+    const textNode = doc?.content?.[0]?.content?.[0];
+    expect(textNode?.marks ?? []).toHaveLength(0);
+  });
 });
 
 describe("serializeRichTextContent", () => {

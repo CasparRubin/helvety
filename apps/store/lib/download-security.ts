@@ -11,6 +11,40 @@ export const packageIdSchema = z
     "Package ID must be lowercase alphanumeric with hyphens"
   );
 
+const SIGNED_PACKAGES_PREFIX = "/storage/v1/object/sign/packages/";
+
+/** Rejects literal or percent-encoded `..` segments before pathname normalization. */
+function containsPathTraversal(pathname: string): boolean {
+  const lower = pathname.toLowerCase();
+  return lower.includes("..") || lower.includes("%2e%2e");
+}
+
+/** True when pathname is a signed object under the `packages` bucket without traversal. */
+function isAllowedSignedPackagesPath(pathname: string): boolean {
+  const normalized = new URL(pathname, "https://local.invalid").pathname;
+  if (!normalized.startsWith(SIGNED_PACKAGES_PREFIX)) {
+    return false;
+  }
+
+  const objectPath = normalized.slice(SIGNED_PACKAGES_PREFIX.length);
+  if (!objectPath) {
+    return false;
+  }
+
+  const segments = objectPath.split("/");
+  if (segments.length < 2) {
+    return false;
+  }
+
+  return segments.every(
+    (segment) =>
+      segment.length > 0 &&
+      segment !== "." &&
+      segment !== ".." &&
+      !segment.includes("..")
+  );
+}
+
 /** Shared IP-scoped key for public package download throttling. */
 export function buildPublicDownloadRateLimitKey(clientIp: string): string {
   return `public-download:ip:${clientIp}`;
@@ -41,7 +75,12 @@ export function isAllowedDownloadUrl(rawUrl: string): boolean {
       return false;
     }
 
-    return parsed.pathname.startsWith("/storage/v1/object/sign/packages/");
+    if (containsPathTraversal(parsed.pathname)) {
+      return false;
+    }
+
+    const normalizedPath = new URL(parsed.pathname, parsed.origin).pathname;
+    return isAllowedSignedPackagesPath(normalizedPath);
   } catch {
     return false;
   }

@@ -4,6 +4,7 @@ import { logger } from "../logger";
 
 import {
   createServerComponentClient,
+  createServerMutatingSupabaseClient,
   createServerSupabaseClient,
 } from "./client-factory";
 import { handleSupabaseCookieWriteFailure } from "./cookie-write-failure";
@@ -90,6 +91,30 @@ describe("createServerSupabaseClient (via createServerComponentClient alias)", (
       ])
     ).toThrow("Supabase cookie write skipped");
     expect(cookieSetSpy).toHaveBeenCalled();
+  });
+
+  it("writes cookies when allowCookieWrites is set despite x-helvety-auth-refreshed", async () => {
+    headersMock.mockResolvedValue(
+      new Headers({ [AUTH_REFRESHED_HEADER_NAME]: "1" })
+    );
+    const allowCookieSetSpy = vi.fn();
+    cookiesMock.mockResolvedValue({
+      getAll: () => [],
+      set: allowCookieSetSpy,
+    });
+
+    let capturedSetAll: ((cookies: unknown[]) => void) | undefined;
+    createServerClientMock.mockImplementation((_url, _key, options) => {
+      capturedSetAll = options.cookies.setAll;
+      return {};
+    });
+
+    await createServerMutatingSupabaseClient();
+
+    capturedSetAll?.([
+      { name: "sb-example-auth-token", value: "token", options: {} },
+    ]);
+    expect(allowCookieSetSpy).toHaveBeenCalled();
   });
 
   it("no-ops setAll in production when the proxy already refreshed the session", async () => {

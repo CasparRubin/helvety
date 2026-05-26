@@ -118,7 +118,7 @@ vi.mock("@helvety/shared/supabase/admin", () => ({
 }));
 
 vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: vi.fn(async () => ({
+  createServerMutatingClient: vi.fn(async () => ({
     auth: {
       verifyOtp: mocks.supabaseVerifyOtp,
     },
@@ -558,6 +558,41 @@ describe("passkey-auth-actions", () => {
         ],
       })
     );
+  });
+
+  it("clears the stored challenge when counter update fails after verify", async () => {
+    mocks.getStoredChallenge.mockResolvedValue({
+      challenge: "challenge-123",
+      redirectUri: "https://helvety.com/tasks",
+      timestamp: CHALLENGE_TIMESTAMP,
+    });
+    mocks.credentialSingle.mockResolvedValue({
+      data: {
+        credential_id: "cred-a",
+        public_key: Buffer.from("public-key").toString("base64url"),
+        counter: 1,
+        transports: ["internal"],
+        user_id: "user-1",
+      },
+      error: null,
+    });
+    mocks.verifyAuthenticationResponse.mockResolvedValue({
+      verified: true,
+      authenticationInfo: { newCounter: 2 },
+    });
+    mocks.credentialUpdateMaybeSingle.mockResolvedValue({
+      data: null,
+      error: { message: "counter race" },
+    });
+
+    const result = await verifyPasskeyAuthentication(
+      "csrf-token",
+      buildVerifyResponse({ id: "cred-a" }),
+      "https://helvety.com"
+    );
+
+    expect(result.success).toBe(false);
+    expect(mocks.clearChallenge).toHaveBeenCalled();
   });
 
   it("returns mismatch when credential owner differs from expected user", async () => {

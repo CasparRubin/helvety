@@ -12,26 +12,30 @@ import { AUTH_REFRESHED_HEADER_NAME } from "./refresh-auth-session-in-proxy";
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/**
- * Creates a Supabase server client with cookie handling for Server Components.
- * This is the standard way to create a client in Server Components, Server Actions, etc.
- *
- * Cookies are configured for session sharing in production. Refreshed auth tokens are
- * persisted by `createSecurityProxy` / `refreshSupabaseAuthSession` (or actions/routes).
- * When the proxy set `x-helvety-auth-refreshed`, `setAll` is a no-op in layouts so RSC
- * does not retry disallowed cookie writes; otherwise failed writes log (prod) or throw (dev).
- *
- * @returns Promise that resolves to a Supabase client instance
- */
-export async function createServerSupabaseClient(): Promise<
-  SupabaseClient<DatabaseSchema>
-> {
+/** Cookie tuple passed to Supabase SSR `setAll`. */
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Record<string, unknown>;
+};
+
+/** Options for {@link buildServerSupabaseClient}. */
+type CreateServerSupabaseClientOptions = Readonly<{
+  /** When true, never skip `setAll` (route handlers / server actions that mutate sessions). */
+  allowCookieWrites?: boolean;
+}>;
+
+/** Internal factory for read-only and mutating server Supabase clients. */
+async function buildServerSupabaseClient(
+  options: CreateServerSupabaseClientOptions = {}
+): Promise<SupabaseClient<DatabaseSchema>> {
+  const { allowCookieWrites = false } = options;
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseKey();
   const [cookieStore, headersList] = await Promise.all([cookies(), headers()]);
   const cookieDomain = COOKIE_DOMAIN;
   const skipCookiePersistence =
-    headersList.get(AUTH_REFRESHED_HEADER_NAME) === "1";
+    !allowCookieWrites && headersList.get(AUTH_REFRESHED_HEADER_NAME) === "1";
 
   return createServerClient<DatabaseSchema, "public">(
     supabaseUrl,
@@ -41,37 +45,57 @@ export async function createServerSupabaseClient(): Promise<
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(
-          cookiesToSet: Array<{
-            name: string;
-            value: string;
-            options?: Record<string, unknown>;
-          }>
-        ): void {
+        setAll(cookiesToSet: CookieToSet[]): void {
           if (skipCookiePersistence) {
             return;
           }
           try {
-            for (const { name, value, options } of cookiesToSet) {
+            for (const {
+              name,
+              value,
+              options: cookieOptions,
+            } of cookiesToSet) {
               const merged = {
-                ...(options ?? {}),
+                ...(cookieOptions ?? {}),
                 ...(cookieDomain ? { domain: cookieDomain } : {}),
               };
               cookieStore.set(name, value, merged);
             }
           } catch (error) {
-            // The `setAll` method can run in a Server Component context where
-            // cookies().set() is disallowed by Next.js.
             handleSupabaseCookieWriteFailure({
               error,
               cookieCount: cookiesToSet.length,
-              context: "createServerSupabaseClient.setAll",
+              context: allowCookieWrites
+                ? "createServerMutatingSupabaseClient.setAll"
+                : "createServerSupabaseClient.setAll",
             });
           }
         },
       },
     }
   );
+}
+
+/**
+ * Supabase client for Server Components and read-mostly server code.
+ * When the proxy persisted refreshed cookies and set `x-helvety-auth-refreshed`,
+ * `setAll` is a no-op so RSC does not retry disallowed cookie writes.
+ */
+export async function createServerSupabaseClient(): Promise<
+  SupabaseClient<DatabaseSchema>
+> {
+  return buildServerSupabaseClient();
+}
+
+/**
+ * Supabase client for route handlers and server actions that create, refresh,
+ * or clear auth sessions (`exchangeCodeForSession`, `verifyOtp`, `signOut`, `updateUser`, etc.).
+ * Always persists cookie writes even when the proxy already refreshed the session.
+ */
+export async function createServerMutatingSupabaseClient(): Promise<
+  SupabaseClient<DatabaseSchema>
+> {
+  return buildServerSupabaseClient({ allowCookieWrites: true });
 }
 
 /** @deprecated Use {@link createServerSupabaseClient}. */
