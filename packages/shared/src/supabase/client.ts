@@ -152,7 +152,7 @@ async function lockWithTimeout<R>(
  * module context.
  *
  * SECURITY NOTES:
- * - This client uses the anon/publishable key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
+ * - This client uses the publishable key only (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, sb_publishable_*)
  * - This client relies on currently configured Row Level Security (RLS) policies
  * - For mutations (insert, update, delete), prefer using server actions when possible
  * - Server actions provide additional validation and authorization checks

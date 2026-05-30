@@ -25,7 +25,7 @@ describe("createAppProxy root redirect auth refresh", () => {
   it("refreshes auth cookies on root redirect when session cookies are present", async () => {
     createServerClientMock.mockImplementation((_url, _key, options) => ({
       auth: {
-        getUser: async () => {
+        getClaims: async () => {
           options.cookies.setAll([
             {
               name: "sb-example-auth-token",
@@ -33,7 +33,7 @@ describe("createAppProxy root redirect auth refresh", () => {
               options: { path: "/", httpOnly: true },
             },
           ]);
-          return { data: { user: null }, error: null };
+          return { error: null };
         },
       },
     }));

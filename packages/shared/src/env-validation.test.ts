@@ -2,19 +2,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const ORIGINAL_ENV = { ...process.env };
 
-/** Create a minimal JWT-like token with a given role claim. */
-function createLegacyJwt(role: "anon" | "authenticated" | "service_role") {
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-  const payload = btoa(JSON.stringify({ role }))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-  return `${header}.${payload}.signature`;
-}
-
 afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
   vi.resetModules();
@@ -38,33 +25,19 @@ describe("env-validation", () => {
 
     const { getSupabaseKey } = await import("./env-validation");
 
-    expect(() => getSupabaseKey()).toThrow(
-      /valid Supabase anon\/publishable key/i
-    );
+    expect(() => getSupabaseKey()).toThrow(/valid Supabase publishable key/i);
   });
 
-  it("accepts legacy anon JWT and rejects service_role JWT", async () => {
+  it("rejects JWT-shaped keys (publishable-only policy)", async () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
-    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", createLegacyJwt("anon"));
-
-    {
-      const { getSupabaseKey } = await import("./env-validation");
-      expect(getSupabaseKey()).toContain(".");
-    }
-
-    vi.resetModules();
     vi.stubEnv(
       "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-      createLegacyJwt("service_role")
+      "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vIn0.signature"
     );
 
-    {
-      const { getSupabaseKey } = await import("./env-validation");
-      expect(() => getSupabaseKey()).toThrow(
-        /valid Supabase anon\/publishable key/i
-      );
-    }
+    const { getSupabaseKey } = await import("./env-validation");
+    expect(() => getSupabaseKey()).toThrow(/valid Supabase publishable key/i);
   });
 
   it("uses schema-valid public placeholders when SKIP_ENV_VALIDATION=1 off Vercel", async () => {

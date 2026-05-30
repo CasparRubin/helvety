@@ -4,10 +4,7 @@ import { logger } from "./logger";
 
 /**
  * Validates that a key is safe for NEXT_PUBLIC usage.
- * Accepts:
- * - Modern publishable keys: sb_publishable_*
- * - Legacy anon JWTs whose payload role is anon/authenticated
- *
+ * Accepts modern publishable keys (`sb_publishable_*` only).
  * Rejects known secret/service key patterns.
  */
 function validateAnonKey(key: string): boolean {
@@ -17,7 +14,6 @@ function validateAnonKey(key: string): boolean {
 
   const trimmedKey = key.trim();
 
-  // Must not be empty
   if (trimmedKey.length === 0) {
     return false;
   }
@@ -35,36 +31,7 @@ function validateAnonKey(key: string): boolean {
     return false;
   }
 
-  // Modern publishable key format
-  if (trimmedKey.startsWith("sb_publishable_")) {
-    return true;
-  }
-
-  // Legacy JWT anon key format
-  const jwtParts = trimmedKey.split(".");
-  if (jwtParts.length !== 3) {
-    return false;
-  }
-  if (!trimmedKey.startsWith("eyJ")) {
-    return false;
-  }
-
-  try {
-    const payloadPart = jwtParts[1] ?? "";
-    const base64Payload = payloadPart
-      .replace(/-/g, "+")
-      .replace(/_/g, "/")
-      .padEnd(Math.ceil(payloadPart.length / 4) * 4, "=");
-    if (typeof atob !== "function") {
-      return false;
-    }
-    const payloadJson = atob(base64Payload);
-    const payload = JSON.parse(payloadJson) as { role?: unknown };
-    const role = payload.role;
-    return role === "anon" || role === "authenticated";
-  } catch {
-    return false;
-  }
+  return trimmedKey.startsWith("sb_publishable_");
 }
 
 /**
@@ -89,9 +56,9 @@ const envSchema = z.object({
     .min(1, "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required")
     .refine((key) => validateAnonKey(key), {
       message:
-        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a valid Supabase anon/publishable key. " +
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a valid Supabase publishable key (sb_publishable_*). " +
         "Do NOT use the Supabase secret key (legacy service_role) here - it should only be used server-side and must not be exposed to the client. " +
-        "Get your anon/publishable key from: Supabase Dashboard > Project Settings > API > Project API keys > anon/public key or Publishable key",
+        "Get your publishable key from: Supabase Dashboard > Project Settings > API > Publishable key",
     }),
 });
 
@@ -632,7 +599,7 @@ function getValidatedEnv(): Env {
       "Please check your .env.local file and ensure all required variables are set.\n" +
       "See your app's env.template (for example apps/web/env.template) for required keys.\n\n" +
       "Security Note: NEXT_PUBLIC_ variables are exposed to the client. " +
-      "Only use safe, public keys (anon/publishable keys) in these variables. " +
+      "Only use safe, public publishable keys (sb_publishable_*) in these variables. " +
       "Do not use Supabase secret keys (legacy service_role keys) or other sensitive credentials.";
 
     throw new Error(errorMessage);
@@ -653,36 +620,15 @@ export function getSupabaseUrl(): string {
 
 /**
  * Gets Supabase publishable key with validation
- * Security: Applies best-effort checks that the key looks like an anon/publishable key (not Supabase secret key / legacy service_role key)
+ * Security: Publishable key only (`sb_publishable_*`); rejects secret/service_role patterns.
  *
- * WARNING: This key will be exposed to the client. Only use the anon/publishable key here.
+ * WARNING: This key will be exposed to the client. Only use the Supabase publishable key here.
  * Do not use the Supabase secret key (legacy service_role) in NEXT_PUBLIC_ environment variables.
  */
 export function getSupabaseKey(): string {
   const env = getValidatedEnv();
   const key = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-  // Additional runtime check (in case validation was bypassed)
-  if (!validateAnonKey(key)) {
-    const errorMessage =
-      "SECURITY WARNING: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY does not appear to be a valid anon/publishable key. " +
-      "Ensure you are using the anon/public key, not the Supabase secret key (legacy service_role). " +
-      "Supabase secret keys must not be exposed to the client.";
-
-    logger.error(errorMessage);
-
-    // In development, throw an error to prevent accidental deployment
-    if (process.env.NODE_ENV === "development") {
-      throw new Error(
-        `${errorMessage}\n\n` +
-          "This error is thrown in development to prevent security issues. " +
-          "Please check your .env.local file and ensure you're using the correct key.\n" +
-          "Get your anon/publishable key from: Supabase Dashboard > Project Settings > API > Project API keys"
-      );
-    }
-  }
-
-  // Development warning for common mistakes
   if (process.env.NODE_ENV === "development") {
     const lowerKey = key.toLowerCase();
     if (
@@ -693,7 +639,7 @@ export function getSupabaseKey(): string {
       logger.warn(
         "⚠️  WARNING: Your NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to be a secret/service key. " +
           "This key must not be exposed to the client. " +
-          "Please use the anon/publishable key instead."
+          "Please use the publishable key (sb_publishable_*) instead."
       );
     }
   }

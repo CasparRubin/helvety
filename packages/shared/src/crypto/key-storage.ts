@@ -18,7 +18,7 @@ import {
 } from "./vault-session";
 
 const DB_NAME = "helvety-crypto";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const MASTER_KEY_STORE = "master-keys";
 
 // =============================================================================
@@ -43,8 +43,6 @@ type StoredMasterKeyRecord = {
   key: CryptoKey;
   unlockedAt: number;
   lastActiveAt: number;
-  /** Legacy field; kept in sync with `lastActiveAt` on write. */
-  cachedAt: number;
 };
 
 let keyChannel: BroadcastChannel | null = null;
@@ -152,8 +150,14 @@ function openDatabaseOnce(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
+      const { oldVersion } = event;
 
-      // Store for the master key (keyed by user ID)
+      if (oldVersion > 0 && oldVersion < DB_VERSION) {
+        if (db.objectStoreNames.contains(MASTER_KEY_STORE)) {
+          db.deleteObjectStore(MASTER_KEY_STORE);
+        }
+      }
+
       if (!db.objectStoreNames.contains(MASTER_KEY_STORE)) {
         db.createObjectStore(MASTER_KEY_STORE, { keyPath: "userId" });
       }
@@ -199,7 +203,6 @@ function buildStoredRecord(
     key,
     unlockedAt: session.unlockedAt,
     lastActiveAt: session.lastActiveAt,
-    cachedAt: session.lastActiveAt,
   };
 }
 
@@ -248,7 +251,6 @@ export async function touchVaultSessionInStorage(
           ...existing,
           unlockedAt: touched.unlockedAt,
           lastActiveAt: touched.lastActiveAt,
-          cachedAt: touched.lastActiveAt,
         };
 
         const putRequest = store.put(updated);
@@ -380,7 +382,6 @@ export async function getCachedMasterKey(
           ...result,
           unlockedAt: touched.unlockedAt,
           lastActiveAt: touched.lastActiveAt,
-          cachedAt: touched.lastActiveAt,
         };
 
         const putRequest = store.put(updated);

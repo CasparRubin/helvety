@@ -3,20 +3,15 @@
  */
 export type ThemePreference = "light" | "dark";
 
-/** Resolves the initial theme from OS preference (first launch, missing storage, or legacy `"system"`). */
+/** Resolves the initial theme from OS preference (first launch or missing storage). */
 export function defaultThemeFromSystem(): ThemePreference {
   return prefersDarkFromSystem() ? "dark" : "light";
 }
 
-/**
- *
- */
+/** Parses a stored theme preference (`light` or `dark` only). */
 export function parseThemePreference(value: unknown): ThemePreference {
   if (value === "light" || value === "dark") {
     return value;
-  }
-  if (value === "system") {
-    return defaultThemeFromSystem();
   }
   return defaultThemeFromSystem();
 }

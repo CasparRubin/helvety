@@ -20,6 +20,15 @@ vi.mock("../env-validation", () => ({
   getSupabaseKey: () => "anon-key",
 }));
 
+/** Mocks createServerClient with a custom `auth.getClaims` implementation. */
+function mockAuthWithGetClaims(
+  getClaims: () => Promise<{ error: unknown }>
+): void {
+  createServerClientMock.mockImplementation(() => ({
+    auth: { getClaims },
+  }));
+}
+
 describe("refreshSupabaseAuthSession", () => {
   beforeEach(() => {
     createServerClientMock.mockReset();
@@ -28,7 +37,7 @@ describe("refreshSupabaseAuthSession", () => {
   it("propagates refreshed cookies to request and response", async () => {
     createServerClientMock.mockImplementation((_url, _key, options) => ({
       auth: {
-        getUser: async () => {
+        getClaims: async () => {
           options.cookies.setAll([
             {
               name: "sb-example-auth-token",
@@ -36,7 +45,7 @@ describe("refreshSupabaseAuthSession", () => {
               options: { path: "/", httpOnly: true },
             },
           ]);
-          return { data: { user: null }, error: null };
+          return { error: null };
         },
       },
     }));
@@ -58,7 +67,7 @@ describe("refreshSupabaseAuthSession", () => {
   it("preserves redirect responses and refreshed cookies", async () => {
     createServerClientMock.mockImplementation((_url, _key, options) => ({
       auth: {
-        getUser: async () => {
+        getClaims: async () => {
           options.cookies.setAll([
             {
               name: "sb-example-auth-token",
@@ -66,7 +75,7 @@ describe("refreshSupabaseAuthSession", () => {
               options: { path: "/", httpOnly: true },
             },
           ]);
-          return { data: { user: null }, error: null };
+          return { error: null };
         },
       },
     }));
@@ -92,13 +101,9 @@ describe("refreshSupabaseAuthSession", () => {
   });
 
   it("returns the original response when auth refresh fails", async () => {
-    createServerClientMock.mockImplementation(() => ({
-      auth: {
-        getUser: async () => {
-          throw new Error("refresh failed");
-        },
-      },
-    }));
+    mockAuthWithGetClaims(async () => {
+      throw new Error("refresh failed");
+    });
 
     const request = new NextRequest("https://helvety.com/tasks");
     const baseResponse = NextResponse.next({ request });
@@ -109,16 +114,11 @@ describe("refreshSupabaseAuthSession", () => {
   });
 
   it("clears sb-* cookies on definitive auth failure when fail-closed", async () => {
-    createServerClientMock.mockImplementation(() => ({
-      auth: {
-        getUser: async () => ({
-          data: { user: null },
-          error: {
-            message: "session is invalid",
-            status: 401,
-            name: "AuthError",
-          },
-        }),
+    mockAuthWithGetClaims(async () => ({
+      error: {
+        message: "session is invalid",
+        status: 401,
+        name: "AuthError",
       },
     }));
 
@@ -135,11 +135,10 @@ describe("refreshSupabaseAuthSession", () => {
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
-  it("uses getClaims when available on the auth client", async () => {
+  it("verifies session with getClaims at the proxy edge", async () => {
     const getClaims = vi.fn(async () => ({ error: null }));
-    const getUser = vi.fn();
     createServerClientMock.mockImplementation(() => ({
-      auth: { getClaims, getUser },
+      auth: { getClaims },
     }));
 
     const request = new NextRequest("https://helvety.com/tasks", {
@@ -148,31 +147,11 @@ describe("refreshSupabaseAuthSession", () => {
     await refreshSupabaseAuthSession(request, NextResponse.next({ request }));
 
     expect(getClaims).toHaveBeenCalled();
-    expect(getUser).not.toHaveBeenCalled();
-    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
-  });
-
-  it("falls back to getUser when getClaims is not available", async () => {
-    const getUser = vi.fn(async () => ({ data: { user: null }, error: null }));
-    createServerClientMock.mockImplementation(() => ({
-      auth: { getUser },
-    }));
-
-    const request = new NextRequest("https://helvety.com/tasks", {
-      headers: { cookie: "sb-example-auth-token=stale" },
-    });
-    await refreshSupabaseAuthSession(request, NextResponse.next({ request }));
-
-    expect(getUser).toHaveBeenCalled();
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
   it("does not set auth-refreshed header when verify succeeds without writing cookies", async () => {
-    createServerClientMock.mockImplementation(() => ({
-      auth: {
-        getUser: async () => ({ data: { user: null }, error: null }),
-      },
-    }));
+    mockAuthWithGetClaims(async () => ({ error: null }));
 
     const request = new NextRequest("https://helvety.com/tasks", {
       headers: { cookie: "sb-example-auth-token=stale" },

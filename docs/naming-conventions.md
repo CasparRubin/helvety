@@ -113,7 +113,7 @@ Three legacy browser-extension listings were merged into **Power Platform Config
 ## Lucide icon names (E2EE seed data)
 
 - Category, stage, and label configs store **kebab-case** icon strings (for example `check-circle`, `flask-conical`). They resolve at runtime via `@helvety/ui/icon-renderer` (`getLucideIcon`).
-- **lucide-react v1** removed brand icons. Prefer supported Lucide names in new seed data; add aliases in `packages/ui/src/icon-renderer.tsx` when legacy stored names must keep working.
+- **lucide-react v1** removed brand icons. Use supported Lucide names in seed data only; unknown names fall back to `circle` at runtime (`getLucideIcon`).
 - Navbar chrome and the app switcher import Lucide components directly; do not assume every surface uses `icon-renderer`.
 
 ## Imports

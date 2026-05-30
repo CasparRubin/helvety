@@ -49,8 +49,8 @@ describe("vault-session", () => {
     );
   });
 
-  it("normalizeVaultSessionTimestamps reads legacy cachedAt", () => {
-    expect(normalizeVaultSessionTimestamps({ cachedAt: t0 })).toEqual({
+  it("normalizeVaultSessionTimestamps fills missing lastActiveAt from unlockedAt", () => {
+    expect(normalizeVaultSessionTimestamps({ unlockedAt: t0 })).toEqual({
       unlockedAt: t0,
       lastActiveAt: t0,
     });

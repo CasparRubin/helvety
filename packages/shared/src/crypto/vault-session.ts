@@ -68,35 +68,22 @@ export function getVaultLockDelayMs(
   return Math.min(VAULT_SLIDING_IDLE_MS, maxLifetimeRemaining);
 }
 
-/**
- * Normalize legacy records that only stored `cachedAt`.
- * Uses that value for both anchors when newer fields are absent.
- */
+/** Normalize vault timestamp fields from storage or session payloads. */
 export function normalizeVaultSessionTimestamps(
-  record: Partial<VaultSessionTimestamps> & { cachedAt?: number }
+  record: Partial<VaultSessionTimestamps>
 ): VaultSessionTimestamps | null {
-  const anchor =
-    typeof record.unlockedAt === "number"
-      ? record.unlockedAt
-      : typeof record.cachedAt === "number"
-        ? record.cachedAt
-        : typeof record.lastActiveAt === "number"
-          ? record.lastActiveAt
-          : null;
+  const unlockedAt =
+    typeof record.unlockedAt === "number" ? record.unlockedAt : null;
+  const lastActiveAt =
+    typeof record.lastActiveAt === "number" ? record.lastActiveAt : null;
 
-  if (anchor === null) {
+  if (unlockedAt === null && lastActiveAt === null) {
     return null;
   }
 
-  const lastActiveAt =
-    typeof record.lastActiveAt === "number"
-      ? record.lastActiveAt
-      : typeof record.cachedAt === "number"
-        ? record.cachedAt
-        : anchor;
-
+  const anchor = unlockedAt ?? lastActiveAt!;
   return {
     unlockedAt: anchor,
-    lastActiveAt,
+    lastActiveAt: lastActiveAt ?? anchor,
   };
 }

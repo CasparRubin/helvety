@@ -4,7 +4,7 @@
  * Session cookie mutations must use createServerMutatingClient (not createServerClient).
  * Enforced in CI via `bun run consistency:supabase-auth` (included in `ci:check`).
  *
- * Proxy session refresh uses getClaims() when supabase-js exposes it, else getUser().
+ * Proxy session refresh uses getClaims() at the edge; authorization uses getUser().
  * Never use getSession() for authorization.
  *
  * @see https://supabase.com/docs/guides/auth/server-side/nextjs

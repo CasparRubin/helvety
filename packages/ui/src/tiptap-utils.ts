@@ -10,71 +10,57 @@ import type { JSONContent } from "@tiptap/react";
 
 export type { JSONContent };
 
-/**
- * Parse rich text content - handles both JSON and legacy plain text
- */
+/** True when parsed JSON is a Tiptap doc or doc-like root node. */
+function isRichTextDoc(value: unknown): value is JSONContent {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const json = value as JSONContent;
+  return (
+    json.type === "doc" ||
+    (typeof json.type === "string" && Array.isArray(json.content))
+  );
+}
+
+/** Parse stored rich text JSON into a Tiptap doc, or null when empty/invalid. */
 export function parseRichTextContent(
   content: string | null
 ): JSONContent | null {
   if (!content) return null;
 
   try {
-    const parsed = JSON.parse(content);
-    if (parsed && typeof parsed === "object") {
-      const json = parsed as JSONContent;
-      if (
-        json.type === "doc" ||
-        (typeof json.type === "string" && Array.isArray(json.content))
-      ) {
-        return sanitizeRichTextJson(json);
-      }
+    const parsed = JSON.parse(content) as unknown;
+    if (isRichTextDoc(parsed)) {
+      return sanitizeRichTextJson(parsed);
     }
-    return {
-      type: "doc",
-      content: [
-        { type: "paragraph", content: [{ type: "text", text: content }] },
-      ],
-    };
+    return null;
   } catch {
-    return {
-      type: "doc",
-      content: [
-        { type: "paragraph", content: [{ type: "text", text: content }] },
-      ],
-    };
+    return null;
   }
 }
 
-/**
- * Serialize rich text content to string for storage
- */
+/** Serialize rich text content to string for storage. */
 export function serializeRichTextContent(content: JSONContent): string {
   return JSON.stringify(sanitizeRichTextJson(content));
 }
 
-/**
- * Extract plain text from rich text content (handles both JSON and legacy plain text)
- */
+/** Extract plain text from stored rich text JSON. */
 export function getRichTextPlainText(content: string | null): string | null {
   if (!content) return null;
 
-  try {
-    const parsed = JSON.parse(content);
-    if (parsed && typeof parsed === "object" && parsed.type === "doc") {
-      const extractText = (node: Record<string, unknown>): string => {
-        if (node.type === "text") return (node.text as string) || "";
-        if (node.content && Array.isArray(node.content)) {
-          return (node.content as Record<string, unknown>[])
-            .map(extractText)
-            .join("");
-        }
-        return "";
-      };
-      const text = extractText(parsed);
-      return text || null;
+  const doc = parseRichTextContent(content);
+  if (!doc) return null;
+
+  const extractText = (node: Record<string, unknown>): string => {
+    if (node.type === "text") return (node.text as string) || "";
+    if (node.content && Array.isArray(node.content)) {
+      return (node.content as Record<string, unknown>[])
+        .map(extractText)
+        .join("");
     }
-    return content;
-  } catch {
-    return content;
-  }
+    return "";
+  };
+
+  const text = extractText(doc);
+  return text || null;
 }

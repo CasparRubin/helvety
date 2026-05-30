@@ -9,7 +9,7 @@ bun run ci:check
 bun run deps:security
 ```
 
-Includes: Supabase auth patterns (`getUser` for authz, no `getSession`), proxy wiring, env template tiers, dependency floors. Session **mutations** must use `createServerMutatingClient`; RSC/read paths use `createServerClient` (no-ops cookie writes when `x-helvety-auth-refreshed` is set after the proxy persisted refreshed cookies).
+Includes: Supabase auth patterns (`getClaims` at the proxy edge; `getUser` for authz in RSC/actions; no `getSession` for authorization), proxy wiring, env template tiers, dependency floors. Session **mutations** must use `createServerMutatingClient`; RSC/read paths use `createServerClient` (no-ops cookie writes when `x-helvety-auth-refreshed` is set after the proxy persisted refreshed cookies).
 
 ## Vercel production env
 
@@ -19,7 +19,7 @@ Requires Vercel CLI login:
 bun run consistency:vercel-prod-env
 ```
 
-Confirm each zone uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` (not legacy `anon` / `service_role` names). The audit script warns on legacy key names.
+Confirm each zone uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; JWT `eyJ…` anon keys are rejected at startup) and `SUPABASE_SECRET_KEY` on admin tiers only (not legacy `anon` / `service_role` env var names). The audit script warns on legacy key names.
 
 ## Supabase database (local only)
 

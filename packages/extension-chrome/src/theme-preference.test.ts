@@ -12,13 +12,13 @@ describe("parseThemePreference", () => {
     expect(parseThemePreference("dark")).toBe("dark");
   });
 
-  it("maps legacy system to a concrete preference", () => {
-    const result = parseThemePreference("system");
+  it("defaults unknown values from system", () => {
+    const result = parseThemePreference(undefined);
     expect(result === "light" || result === "dark").toBe(true);
   });
 
-  it("defaults unknown values from system", () => {
-    const result = parseThemePreference(undefined);
+  it("defaults invalid stored values from system", () => {
+    const result = parseThemePreference("system");
     expect(result === "light" || result === "dark").toBe(true);
   });
 });

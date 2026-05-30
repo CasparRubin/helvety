@@ -23,7 +23,7 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 ## Calendar and icon primitives
 
 - **`@helvety/ui/calendar`** wraps **react-day-picker v10** (shadcn-style `classNames`, including `month_grid`). Use `@helvety/ui/date-picker` / `@helvety/ui/date-time-picker` for forms; do not pin day-picker v9 APIs or class keys.
-- **Kebab-case icon names** in E2EE seed data (categories, stages, labels) resolve through **`@helvety/ui/icon-renderer`** (`getLucideIcon`, `renderIcon`). **lucide-react v1** removed brand icons; keep user data on supported names and add **aliases** in `packages/ui/src/icon-renderer.tsx` when legacy stored names must keep working (for example `pocket` → `BookmarkIcon`).
+- **Kebab-case icon names** in E2EE seed data (categories, stages, labels) resolve through **`@helvety/ui/icon-renderer`** (`getLucideIcon`, `renderIcon`). Use supported **lucide-react v1** names only; unknown names fall back to `circle`.
 
 ## Styling And Composition Rules
 

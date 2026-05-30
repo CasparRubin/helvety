@@ -11,25 +11,15 @@ import { clearSupabaseAuthCookies } from "./clear-supabase-auth-cookies";
 import type { DatabaseSchema } from "../types/database.types";
 import type { AuthError, SupabaseClient } from "@supabase/supabase-js";
 
-/** Auth client shape including optional `getClaims` from newer supabase-js. */
-type AuthClientWithOptionalClaims = SupabaseClient<DatabaseSchema>["auth"] & {
-  getClaims?: () => Promise<{ error: AuthError | null }>;
-};
-
 /**
- * Verifies/refreshes the session at the proxy edge. Prefers `getClaims()` when
- * available (Supabase Next.js SSR docs); falls back to `getUser()` on current
- * pinned `supabase-js` until `getClaims` ships in our version floor.
+ * Verifies/refreshes the session at the proxy edge via `getClaims()` (Supabase
+ * Next.js SSR). App authorization still uses `getUser()` in Server Components
+ * and actions — never `getSession()`.
  */
 async function verifyAuthSessionAtProxy(
   supabase: SupabaseClient<DatabaseSchema>
 ): Promise<{ error: AuthError | null }> {
-  const auth = supabase.auth as AuthClientWithOptionalClaims;
-  if (typeof auth.getClaims === "function") {
-    const { error } = await auth.getClaims();
-    return { error: error ?? null };
-  }
-  const { error } = await supabase.auth.getUser();
+  const { error } = await supabase.auth.getClaims();
   return { error: error ?? null };
 }
 
@@ -81,8 +71,8 @@ function isDefinitiveAuthRefreshFailure(error: unknown): boolean {
  * mutations onto `request` for downstream Server Components, per @supabase/ssr
  * guidance for early session refresh at the request edge. Helvety wires this
  * through Next.js `proxy.ts` (not deprecated `middleware.ts`). Uses
- * {@link verifyAuthSessionAtProxy} (`getClaims()` when the installed
- * `supabase-js` exposes it, otherwise `getUser()`) so refresh runs before the
+ * {@link verifyAuthSessionAtProxy} (`getClaims()` at the edge; authorization
+ * elsewhere uses `getUser()`) so refresh runs before the
  * response is finalized. See Supabase Next.js SSR guide.
  *
  * @returns The response to return from the proxy (may be replaced when cookies are written).

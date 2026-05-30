@@ -37,7 +37,7 @@ describe("createSecurityProxy Supabase auth refresh", () => {
   it("does not forward x-helvety-auth-refreshed when verify succeeds without cookie writes", async () => {
     createServerClientMock.mockImplementation(() => ({
       auth: {
-        getUser: async () => ({ data: { user: null }, error: null }),
+        getClaims: async () => ({ error: null }),
       },
     }));
 
@@ -59,7 +59,7 @@ describe("createSecurityProxy Supabase auth refresh", () => {
   it("forwards refreshed auth cookies and the auth-refreshed header together", async () => {
     createServerClientMock.mockImplementation((_url, _key, options) => ({
       auth: {
-        getUser: async () => {
+        getClaims: async () => {
           options.cookies.setAll([
             {
               name: "sb-example-auth-token",
@@ -67,7 +67,7 @@ describe("createSecurityProxy Supabase auth refresh", () => {
               options: { path: "/", httpOnly: true },
             },
           ]);
-          return { data: { user: null }, error: null };
+          return { error: null };
         },
       },
     }));

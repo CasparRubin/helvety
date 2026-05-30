@@ -11,17 +11,12 @@ describe("parseRichTextContent", () => {
     expect(parseRichTextContent(null)).toBeNull();
   });
 
-  it("wraps legacy plain text in a doc paragraph", () => {
-    const doc = parseRichTextContent("hello");
-    expect(doc).toMatchObject({
-      type: "doc",
-      content: [
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "hello" }],
-        },
-      ],
-    });
+  it("returns null for plain text (non-JSON doc)", () => {
+    expect(parseRichTextContent("hello")).toBeNull();
+  });
+
+  it("returns null for invalid JSON", () => {
+    expect(parseRichTextContent("{not json")).toBeNull();
   });
 
   it("accepts stored JSON doc", () => {
@@ -73,8 +68,18 @@ describe("parseRichTextContent", () => {
 });
 
 describe("serializeRichTextContent", () => {
-  it("round-trips with parseRichTextContent for plain text", () => {
-    const doc = parseRichTextContent("hi");
+  it("round-trips with parseRichTextContent for a doc", () => {
+    const doc = parseRichTextContent(
+      JSON.stringify({
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "hi" }],
+          },
+        ],
+      })
+    );
     expect(doc).not.toBeNull();
     const serialized = serializeRichTextContent(doc!);
     expect(parseRichTextContent(serialized)).toEqual(doc);
@@ -108,6 +113,10 @@ describe("getRichTextPlainText", () => {
     expect(getRichTextPlainText(null)).toBeNull();
   });
 
+  it("returns null for non-doc content", () => {
+    expect(getRichTextPlainText("plain")).toBeNull();
+  });
+
   it("extracts text from doc JSON", () => {
     const json = JSON.stringify({
       type: "doc",
@@ -119,9 +128,5 @@ describe("getRichTextPlainText", () => {
       ],
     });
     expect(getRichTextPlainText(json)).toBe("alpha");
-  });
-
-  it("returns raw string when not doc JSON", () => {
-    expect(getRichTextPlainText("plain")).toBe("plain");
   });
 });

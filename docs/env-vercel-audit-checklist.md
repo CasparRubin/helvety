@@ -20,7 +20,7 @@ Copy exact key names and comments from each zone’s `apps/<slug>/env.template` 
 
 ## Shared values (must match across projects that use them)
 
-- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — every project
+- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; not JWT anon keys) — every project
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — every project except `helvety-com`
 - `HELVETY_COOKIE_SIGNING_SECRET` — every project except `helvety-com` (one shared value)
 - `SUPABASE_SECRET_KEY` — only `helvety-auth` and `helvety-store` (must differ from publishable key)

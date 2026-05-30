@@ -212,7 +212,6 @@ const ICON_MAP: Record<string, LucideIconComponent> = {
   play: PlayIcon,
   plus: PlusIcon,
   // lucide-react v1 removed brand icons; keep stored E2EE icon names working.
-  pocket: BookmarkIcon,
   power: PowerIcon,
   printer: PrinterIcon,
   radio: RadioIcon,
