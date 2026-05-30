@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { urls } from "@helvety/shared/config";
 import { AI_DISCOVERY_USER_AGENTS } from "@helvety/shared/seo";
+import { assertValidPublicSitemapEntries } from "@helvety/shared/test-utils/seo-route-test-helpers";
 import { describe, expect, it } from "vitest";
 
 import robots from "./robots";
@@ -60,8 +61,10 @@ describe("web SEO routes", () => {
         `${urls.home}/impressum`,
         `${urls.home}/privacy`,
         `${urls.home}/terms`,
-        `${urls.home}/llms.txt`,
       ])
     );
+    expect(entryUrls).toHaveLength(4);
+    expect(entryUrls).not.toContain(`${urls.home}/llms.txt`);
+    assertValidPublicSitemapEntries(entries);
   });
 });

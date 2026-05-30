@@ -1,5 +1,8 @@
 import { urls } from "@helvety/shared/config";
-import { expectPublicCrawlerRobots } from "@helvety/shared/test-utils/seo-route-test-helpers";
+import {
+  assertValidPublicSitemapEntries,
+  expectPublicCrawlerRobots,
+} from "@helvety/shared/test-utils/seo-route-test-helpers";
 import { describe, expect, it } from "vitest";
 
 import { getAllProducts } from "@/lib/data/products";
@@ -22,12 +25,14 @@ describe("store SEO routes", () => {
 
     expect(entryUrls.has(urls.store)).toBe(true);
     expect(entryUrls.has(`${urls.store}/products`)).toBe(true);
-    expect(entryUrls.has(`${urls.store}/llms.txt`)).toBe(true);
+    expect(entryUrls.has(`${urls.store}/llms.txt`)).toBe(false);
 
     for (const product of getAllProducts()) {
       expect(entryUrls.has(`${urls.store}/products/${product.slug}`)).toBe(
         true
       );
     }
+
+    assertValidPublicSitemapEntries(entries);
   });
 });

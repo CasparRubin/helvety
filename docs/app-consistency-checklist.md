@@ -18,15 +18,17 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                                                                                       |
 | `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                                                                                    |
 | `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                             |
+| `app/robots.ts`      | Zone crawl policy via `@helvety/shared/seo` (`createOpenRobots`, `createAppRobots`, or `createPrivateAppRobots`)                                                                                                          |
+| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `docs`, `image-upscaler`); private E2EE zones omit this file (404 avoids invalid urlset XML in Search Console)                                                    |
 
 ## Required tests (minimum floor)
 
-| Test                                 | Purpose                                                                             |
-| ------------------------------------ | ----------------------------------------------------------------------------------- |
-| `app/seo-routes.test.ts`             | Sitemap/robots/llms expectations for the zone                                       |
-| `app/layout-metadata.test.ts`        | Metadata + JSON-LD alignment; mock only what `layout.tsx` imports (see below)       |
-| `app/layout-shell-providers.test.ts` | Root layout uses the correct shell (public vs E2EE) without gateway WebGL in layout |
-| `proxy.test.ts`                      | Static matcher matches shared baseline                                              |
+| Test                                 | Purpose                                                                                                                                                       |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/seo-routes.test.ts`             | Robots + sitemap expectations for the zone (public: `expectPublicCrawlerRobots` + `assertValidPublicSitemapEntries`; private: `expectPrivateZoneRobots` only) |
+| `app/layout-metadata.test.ts`        | Metadata + JSON-LD alignment; mock only what `layout.tsx` imports (see below)                                                                                 |
+| `app/layout-shell-providers.test.ts` | Root layout uses the correct shell (public vs E2EE) without gateway WebGL in layout                                                                           |
+| `proxy.test.ts`                      | Static matcher matches shared baseline                                                                                                                        |
 
 Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layout-shell + env JSDoc), and sibling app patterns.
 
@@ -57,9 +59,9 @@ Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests
 | Docs public `page.tsx` session                         | `@helvety/shared/layout-session-bootstrap` (`bootstrapPublicLayoutUser`) |
 | `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                                                  |
 
-Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync.
+Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` and `assertValidPublicSitemapEntries` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync and sitemap entries follow Google best practices.
 
-Private E2EE zones (`auth`, `contacts`, `notes`, `tasks`, `links`) use manual robots tests: `disallow: "/"` for all user agents and an empty sitemap. Do not migrate those to `expectPublicCrawlerRobots`.
+Private E2EE zones (`auth`, `contacts`, `notes`, `tasks`, `links`) use `expectPrivateZoneRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` and **no** `app/sitemap.ts` route (private zone sitemap URLs 404). Do not migrate those to `expectPublicCrawlerRobots`.
 
 ## Cross-app test contract
 

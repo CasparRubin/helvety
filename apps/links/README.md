@@ -50,7 +50,7 @@ Plaintext structural fields:
 
 - `apps/links` is intentionally non-indexable.
 - `/links/robots.txt` disallows crawling.
-- `/links/sitemap.xml` is intentionally empty.
+- `/links/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
 
 ## Supabase schema
 

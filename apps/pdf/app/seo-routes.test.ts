@@ -1,5 +1,8 @@
 import { urls } from "@helvety/shared/config";
-import { expectPublicCrawlerRobots } from "@helvety/shared/test-utils/seo-route-test-helpers";
+import {
+  assertValidPublicSitemapEntries,
+  expectPublicCrawlerRobots,
+} from "@helvety/shared/test-utils/seo-route-test-helpers";
 import { describe, expect, it } from "vitest";
 
 import robots from "./robots";
@@ -16,11 +19,8 @@ describe("pdf SEO routes", () => {
 
   it("returns canonical sitemap entries", () => {
     const entries = sitemap();
-    expect(entries).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ url: urls.pdf }),
-        expect.objectContaining({ url: `${urls.pdf}/llms.txt` }),
-      ])
-    );
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.url).toBe(urls.pdf);
+    assertValidPublicSitemapEntries(entries);
   });
 });

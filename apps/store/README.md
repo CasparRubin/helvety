@@ -73,7 +73,7 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
 - Public/indexable: `/store`, `/store/products`, `/store/products/[slug]`
 - Non-indexable: `/store/account`
 - `/store/robots.txt` allows public crawl and disallows `/account`, `/api`, `/auth`
-- `/store/sitemap.xml` includes listing and product detail pages only
+- `/store/sitemap.xml` includes the store home, product listing, and product detail pages only (excludes `/account`, `llms.txt`, and auth/API paths).
 
 ## Environment Variables
 

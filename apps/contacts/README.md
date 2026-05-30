@@ -50,7 +50,7 @@ Plaintext structural fields:
 
 - `apps/contacts` is intentionally non-indexable.
 - `/contacts/robots.txt` disallows crawling.
-- `/contacts/sitemap.xml` is intentionally empty.
+- `/contacts/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
 
 ## Environment Variables
 

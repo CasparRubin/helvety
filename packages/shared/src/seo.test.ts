@@ -8,8 +8,8 @@ import {
   createHelvetyProductMetadata,
   createOpenRobots,
   createPrivateAppRobots,
-  createPrivateAppSitemap,
 } from "./seo";
+import { assertValidPublicSitemapEntries } from "./test-utils/seo-route-test-helpers";
 
 /** Minimal robots rule shape used by helper assertions. */
 type RobotsRule = {
@@ -87,20 +87,12 @@ describe("seo helpers", () => {
     expect(disallowedPaths).toEqual(["/api"]);
   });
 
-  it("includes app llms.txt in generated app sitemaps by default", () => {
+  it("returns canonical app root URL only in generated app sitemaps", () => {
     const sitemapEntries = createAppSitemap("/pdf")();
     const urls = sitemapEntries.map((entry) => entry.url);
 
-    expect(urls).toContain("https://helvety.com/pdf");
-    expect(urls).toContain("https://helvety.com/pdf/llms.txt");
-  });
-
-  it("allows disabling llms.txt sitemap entries when needed", () => {
-    const sitemapEntries = createAppSitemap("/auth", { includeLlms: false })();
-    const urls = sitemapEntries.map((entry) => entry.url);
-
-    expect(urls).toContain("https://helvety.com/auth");
-    expect(urls).not.toContain("https://helvety.com/auth/llms.txt");
+    expect(urls).toEqual(["https://helvety.com/pdf"]);
+    assertValidPublicSitemapEntries(sitemapEntries);
   });
 
   it("disallows all crawling for private app robots configs", () => {
@@ -113,6 +105,7 @@ describe("seo helpers", () => {
   });
 
   it("can include sitemap output for private robots when explicitly enabled", () => {
+    // Production private zones omit app/sitemap.ts and use includeSitemap: false.
     const robots = createPrivateAppRobots("/tasks/sitemap.xml", {
       includeSitemap: true,
     })();
@@ -167,11 +160,6 @@ describe("seo helpers", () => {
       );
       expect(disallowedPaths, agent).toEqual(["/"]);
     }
-  });
-
-  it("returns an empty sitemap for private apps", () => {
-    const sitemapEntries = createPrivateAppSitemap()();
-    expect(sitemapEntries).toEqual([]);
   });
 });
 

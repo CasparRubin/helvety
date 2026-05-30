@@ -48,7 +48,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 - `apps/docs` is publicly indexable (main editor route at `/docs`).
 - `/docs/robots.txt` allows crawl and advertises `/docs/sitemap.xml`; it disallows site-root `/api` and `/auth` paths (not `/docs/api`, which is auth-gated vault access).
-- `/docs/sitemap.xml` contains canonical public URLs (app root and `llms.txt`).
+- `/docs/sitemap.xml` contains the canonical public app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model
 

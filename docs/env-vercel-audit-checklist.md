@@ -32,6 +32,12 @@ Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-docs
 
 After changing any `*_URL`, **redeploy `helvety-com`** so rewrites pick up new origins. Deploying a sub-zone alone does not update `helvety.com/<path>` until the gateway is redeployed.
 
+## Vercel Web Analytics and Speed Insights (all ten projects)
+
+Helvety does not use Vercel Analytics or Speed Insights in application code. In the Vercel dashboard for **each** zone project (`helvety-com` through `helvety-links`), confirm **Analytics → Web Analytics** and **Speed Insights** are **disabled** so the platform does not inject `va.vercel-scripts.com` or related scripts outside the repo.
+
+Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview env (forbidden by `scripts/env-template-expectations.mjs`; flagged by `bun run consistency:vercel-prod-env`).
+
 ## Optional
 
 - `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` — comma-separated override (defaults on Vercel include `https://helvety.com` and deployment URLs)

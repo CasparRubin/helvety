@@ -13,7 +13,7 @@
 - Private app routes are not intended as search index targets and use noindex and auth-gated controls.
 
 ## Agent And Crawler Guides
-Per-zone `llms.txt` summaries (linked from each app's sitemap when indexable):
+Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - [Helvety Store](https://helvety.com/store/llms.txt)
 - [Helvety PDF](https://helvety.com/pdf/llms.txt)
 - [Helvety Docs](https://helvety.com/docs/llms.txt)

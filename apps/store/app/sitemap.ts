@@ -5,9 +5,9 @@ import { getCachedAllProducts } from "@/lib/data/product-catalog-cache";
 import type { MetadataRoute } from "next";
 
 /**
- * Sitemap for public pages
- * Dynamically generates entries for all products
- * Note: /account requires auth and is excluded
+ * Sitemap for public store pages.
+ * Dynamically generates entries for all products at build time.
+ * Excludes /account (auth-gated) and llms.txt.
  */
 
 /** Static build-time date for consistent sitemap caching */
@@ -20,28 +20,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${urls.store}/products/${product.slug}`,
     lastModified,
-    changeFrequency: "weekly",
-    priority: 0.8,
   }));
 
   return [
     {
       url: urls.store,
       lastModified,
-      changeFrequency: "monthly",
-      priority: 1,
     },
     {
       url: `${urls.store}/products`,
       lastModified,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${urls.store}/llms.txt`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.4,
     },
     ...productEntries,
   ];

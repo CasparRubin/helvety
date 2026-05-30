@@ -74,7 +74,7 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 
 - `apps/image-upscaler` is publicly indexable.
 - `/image-upscaler/robots.txt` allows crawl and advertises `/image-upscaler/sitemap.xml`.
-- `/image-upscaler/sitemap.xml` lists canonical public URLs.
+- `/image-upscaler/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model
 

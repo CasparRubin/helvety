@@ -25,6 +25,8 @@
   },
   "exports": {
     "./action-helpers": "./src/action-helpers.ts",
+    "./analytics-guardrails": "./src/analytics-guardrails.ts",
+    "./analytics-guardrails.mjs": "./src/analytics-guardrails.mjs",
     "./auth-callback": "./src/auth-callback.ts",
     "./client-ip": "./src/client-ip.ts",
     "./config": "./src/config.ts",

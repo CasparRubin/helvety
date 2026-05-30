@@ -2,6 +2,10 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  HELVETY_FORBIDDEN_ANALYTICS_CODE_MARKERS,
+  HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS,
+} from "@helvety/shared/analytics-guardrails";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -22,6 +26,20 @@ const ALL_SHELL_APPS = [...PUBLIC_SHELL_APPS, ...E2EE_SHELL_APPS] as const;
 /** Reads a UTF-8 source file from `apps/<app>/`. */
 function readAppFile(app: string, relativePath: string): string {
   return readFileSync(join(repoRoot, "apps", app, relativePath), "utf8");
+}
+
+/** Asserts layout/shell sources do not reference removed analytics packages or env keys. */
+function assertNoAnalyticsMarkers(
+  src: string,
+  label: string,
+  markers: readonly string[] = HELVETY_FORBIDDEN_ANALYTICS_CODE_MARKERS
+): void {
+  for (const marker of markers) {
+    expect(src, `${label} must not contain ${marker}`).not.toContain(marker);
+  }
+  for (const envKey of HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS) {
+    expect(src, `${label} must not reference ${envKey}`).not.toContain(envKey);
+  }
 }
 
 describe("Helvety layout wiring", () => {
@@ -54,13 +72,16 @@ describe("Helvety layout wiring", () => {
     expect(src).toContain("E2eeAppRootLayout");
   });
 
-  it("gateway layout does not pass analytics props", () => {
-    const webLayout = readAppFile("web", "app/layout.tsx");
-    expect(webLayout).not.toMatch(/\banalytics\s*=/);
-    expect(webLayout).not.toContain("with-speed-insights");
-  });
+  it.each(ALL_SHELL_APPS)(
+    "apps/%s root layout does not wire third-party analytics",
+    (app) => {
+      const layout = readAppFile(app, "app/layout.tsx");
+      expect(layout).not.toMatch(/\banalytics\s*=/);
+      assertNoAnalyticsMarkers(layout, `apps/${app}/app/layout.tsx`);
+    }
+  );
 
-  it("shared shells and @helvety/ui do not wire Vercel analytics", () => {
+  it("shared @helvety/ui shells and package exports do not wire third-party analytics", () => {
     const publicShell = readFileSync(
       join(repoRoot, "packages/ui/src/helvety-public-shell-root-layout.tsx"),
       "utf8"
@@ -73,23 +94,12 @@ describe("Helvety layout wiring", () => {
       join(repoRoot, "packages/ui/package.json"),
       "utf8"
     );
-    const nextConfig = readFileSync(
-      join(repoRoot, "apps/web/next.config.ts"),
-      "utf8"
+
+    assertNoAnalyticsMarkers(
+      publicShell,
+      "helvety-public-shell-root-layout.tsx"
     );
-
-    for (const src of [publicShell, e2eeShell, uiPackage, nextConfig]) {
-      expect(src).not.toMatch(/from ["']@vercel\/analytics/);
-      expect(src).not.toMatch(/from ["']@vercel\/speed-insights/);
-      expect(src).not.toContain("HelvetyVercelAnalytics");
-      expect(src).not.toContain("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS");
-      expect(src).not.toContain("zone-analytics-referer");
-    }
-
-    expect(uiPackage).not.toContain('"./vercel-analytics"');
-    expect(uiPackage).not.toContain('"@vercel/analytics"');
-    expect(uiPackage).not.toContain('"@vercel/speed-insights"');
-    expect(nextConfig).not.toContain("analyticsId");
-    expect(nextConfig).not.toContain("script.js");
+    assertNoAnalyticsMarkers(e2eeShell, "e2ee-app-root-layout.tsx");
+    assertNoAnalyticsMarkers(uiPackage, "packages/ui/package.json");
   });
 });

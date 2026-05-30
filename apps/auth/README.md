@@ -81,7 +81,7 @@ Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/
 
 - `apps/auth` is intentionally non-indexable.
 - `/auth/robots.txt` disallows crawling.
-- `/auth/sitemap.xml` is intentionally empty.
+- `/auth/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
 
 ## Environment Variables
 

@@ -48,7 +48,7 @@ Plaintext structural fields:
 
 - `apps/tasks` is intentionally non-indexable.
 - `/tasks/robots.txt` disallows crawling.
-- `/tasks/sitemap.xml` is intentionally empty.
+- `/tasks/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
 
 ## Environment Variables
 

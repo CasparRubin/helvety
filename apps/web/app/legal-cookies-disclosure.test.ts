@@ -1,12 +1,12 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { HELVETY_STALE_TRACKING_DISCLOSURE_PHRASES } from "@helvety/shared/analytics-guardrails";
 import { describe, expect, it } from "vitest";
 
 import {
   HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS,
   HELVETY_PRIVACY_EXTENSION_PASSKEY_DISCLOSURE_SNIPPETS,
-  HELVETY_STALE_TRACKING_DISCLOSURE_PHRASES,
   HELVETY_WEB_ZONE_APP_SLUGS,
 } from "@/lib/legal-cookies-disclosure";
 
@@ -26,7 +26,7 @@ describe("privacy policy cookies disclosure", () => {
     }
   });
 
-  it("§2.8 main website bullet does not disclose Vercel analytics", async () => {
+  it("§2.8 main website bullet denies third-party tracking and uses no stale analytics copy", async () => {
     const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
     const serviceSection = source.slice(
       source.indexOf("2.8 Data Processing by Service"),
@@ -37,8 +37,12 @@ describe("privacy policy cookies disclosure", () => {
     );
 
     expect(mainSiteBullet).toContain("We do not use third-party");
-    expect(mainSiteBullet).not.toContain("Vercel Analytics");
-    expect(mainSiteBullet).not.toContain("Speed Insights");
+    for (const phrase of HELVETY_STALE_TRACKING_DISCLOSURE_PHRASES) {
+      expect(
+        mainSiteBullet,
+        `§2.8 main website bullet must not contain stale phrase: ${phrase}`
+      ).not.toContain(phrase);
+    }
   });
 
   it("§9 documents extension passkey server-side challenges (not browser cookies)", async () => {

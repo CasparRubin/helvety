@@ -3,7 +3,8 @@ import { urls } from "@helvety/shared/config";
 import type { MetadataRoute } from "next";
 
 /**
- * Generates sitemap.xml with all public pages for search engines
+ * Generates sitemap.xml with indexable gateway pages for search engines.
+ * Excludes llms.txt (agent discovery uses robots.txt and gateway links).
  */
 
 /** Static build-time date for consistent sitemap caching */
@@ -15,32 +16,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: urls.home,
       lastModified,
-      changeFrequency: "monthly",
-      priority: 1,
     },
     {
       url: `${urls.home}/impressum`,
       lastModified,
-      changeFrequency: "yearly",
-      priority: 0.5,
     },
     {
       url: `${urls.home}/privacy`,
       lastModified,
-      changeFrequency: "yearly",
-      priority: 0.5,
     },
     {
       url: `${urls.home}/terms`,
       lastModified,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: `${urls.home}/llms.txt`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.4,
     },
   ];
 }

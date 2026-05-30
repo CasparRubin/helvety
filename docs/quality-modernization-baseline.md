@@ -31,7 +31,7 @@
 ## Phase Success Criteria
 
 1. **Config/shared foundation** — done
-   - `consistency:supabase-auth` bans `auth.getSession()` for authorization; admin client call sites documented in `packages/shared/src/supabase/admin.ts`; Upstash rate-limit analytics enabled in production.
+   - `consistency:supabase-auth` bans `auth.getSession()` for authorization; admin client call sites documented in `packages/shared/src/supabase/admin.ts`; Upstash rate-limit metrics/dashboard enabled in production (not site visitor analytics).
 2. **App router/fetch** — done (store catalog)
    - Store static catalog uses per-request `React.cache()` via `apps/store/lib/data/product-catalog-cache.ts` (not the Next.js `'use cache'` directive; dedupes metadata + page reads within one RSC render).
 3. **Hook correctness** — done

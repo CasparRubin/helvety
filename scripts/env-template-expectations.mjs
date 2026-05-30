@@ -3,6 +3,8 @@
  * Used by check-env-template-consistency.mjs and Vitest (packages/shared).
  */
 
+import { HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS } from "../packages/shared/src/analytics-guardrails.mjs";
+
 export const PUBLIC_SUPABASE_KEYS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
@@ -70,6 +72,11 @@ export const EXPECTED_KEYS_BY_APP = {
   web: [...PUBLIC_SUPABASE_KEYS, ...WEB_GATEWAY_KEYS],
 };
 
+/** @deprecated Import `HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS` from `@helvety/shared/analytics-guardrails`. */
+export const FORBIDDEN_ANALYTICS_ENV_KEYS = [
+  ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS,
+];
+
 /** Keys that must not appear in a zone’s `.env.local` / Vercel env (tier violations). */
 export const FORBIDDEN_KEYS_BY_APP = {
   web: [
@@ -78,16 +85,45 @@ export const FORBIDDEN_KEYS_BY_APP = {
     "UPSTASH_REDIS_REST_TOKEN",
     "HELVETY_COOKIE_SIGNING_SECRET",
     "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
   ],
-  auth: [],
-  store: ["DEVICE_TRUST_COOKIE_SECRET"],
-  notes: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
-  tasks: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
-  contacts: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
-  links: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
-  docs: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
-  pdf: ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
-  "image-upscaler": ["SUPABASE_SECRET_KEY", "DEVICE_TRUST_COOKIE_SECRET"],
+  auth: [...FORBIDDEN_ANALYTICS_ENV_KEYS],
+  store: ["DEVICE_TRUST_COOKIE_SECRET", ...FORBIDDEN_ANALYTICS_ENV_KEYS],
+  notes: [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
+  tasks: [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
+  contacts: [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
+  links: [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
+  docs: [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
+  pdf: [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
+  "image-upscaler": [
+    "SUPABASE_SECRET_KEY",
+    "DEVICE_TRUST_COOKIE_SECRET",
+    ...FORBIDDEN_ANALYTICS_ENV_KEYS,
+  ],
 };
 
 /**

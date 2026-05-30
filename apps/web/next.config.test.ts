@@ -1,3 +1,4 @@
+import { HELVETY_LEGACY_GATEWAY_ANALYTICS_REWRITE_MARKERS } from "@helvety/shared/analytics-guardrails";
 import { DEV_PORTS } from "@helvety/shared/config";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -36,16 +37,16 @@ describe("web gateway rewrites", () => {
     vi.unstubAllEnvs();
   });
 
-  it("does not proxy Vercel analytics script rewrites", async () => {
+  it("does not include legacy Vercel analytics gateway rewrite rules", async () => {
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult) ?? [];
 
-    expect(
-      beforeFiles.some((rule) => rule.source.includes("analyticsId"))
-    ).toBe(false);
-    expect(beforeFiles.some((rule) => rule.source.includes("script.js"))).toBe(
-      false
-    );
+    for (const marker of HELVETY_LEGACY_GATEWAY_ANALYTICS_REWRITE_MARKERS) {
+      expect(
+        beforeFiles.some((rule) => rule.source.includes(marker)),
+        `rewrite source must not include ${marker}`
+      ).toBe(false);
+    }
   });
 
   it("forwards auth routes and auth static assets to the auth zone", async () => {

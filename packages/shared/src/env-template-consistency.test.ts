@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   EXPECTED_KEYS_BY_APP,
+  FORBIDDEN_ANALYTICS_ENV_KEYS,
   FORBIDDEN_KEYS_BY_APP,
   parseTemplateKeys,
   productionEnvKeyIsPresent,
@@ -14,6 +15,8 @@ import {
   validateTurboGatewayBuildEnv,
   WEB_GATEWAY_KEYS,
 } from "../../../scripts/env-template-expectations.mjs";
+
+import { HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS } from "./analytics-guardrails";
 
 const testDir =
   typeof import.meta.dirname === "string"
@@ -79,6 +82,30 @@ describe("env.template consistency", () => {
     expect(Object.keys(FORBIDDEN_KEYS_BY_APP).sort()).toEqual(
       Object.keys(EXPECTED_KEYS_BY_APP).sort()
     );
+  });
+
+  it("forbids removed Vercel analytics env keys on every zone", () => {
+    expect(FORBIDDEN_ANALYTICS_ENV_KEYS).toEqual([
+      ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS,
+    ]);
+    for (const [app, keys] of Object.entries(FORBIDDEN_KEYS_BY_APP)) {
+      for (const analyticsKey of HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS) {
+        expect(keys, `apps/${app}`).toContain(analyticsKey);
+      }
+    }
+  });
+
+  it("env.template files do not document forbidden analytics env keys", async () => {
+    const keyLine = (key: string) => new RegExp(`^${key}=`, "m");
+    for (const app of Object.keys(EXPECTED_KEYS_BY_APP)) {
+      const content = await readFile(
+        resolve(repoRoot, `apps/${app}/env.template`),
+        "utf8"
+      );
+      for (const key of HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS) {
+        expect(content, `apps/${app}/env.template`).not.toMatch(keyLine(key));
+      }
+    }
   });
 
   it("web env.template documents gateway tier (no cookie signing / Upstash)", async () => {

@@ -6,7 +6,9 @@
  *
  * Public zones use explicit allow rules for major AI crawlers (in addition to
  * `*`) so agentic systems can discover `llms.txt` and indexable routes without
- * guessing. Private E2EE zones disallow those same user agents alongside `*`.
+ * guessing. Google sitemaps list indexable page URLs only (`url` + `lastmod`);
+ * `llms.txt` is not included. Private E2EE zones disallow those same user agents
+ * alongside `*` and omit `app/sitemap.ts` (empty urlsets fail Search Console).
  */
 
 import { urls } from "./config";
@@ -201,41 +203,22 @@ function sanitizeDisallowedPaths(
 }
 
 /**
- * Creates a sitemap for a helvety.com path-zone app, including:
- * - the app root URL
- * - optionally, the app's llms.txt URL
+ * Creates a sitemap for a helvety.com path-zone app with the canonical app root URL.
  *
- * @param basePath - The app's base path (e.g. "/auth", "/pdf")
+ * @param basePath - The app's base path (e.g. "/pdf", "/docs")
  */
 export function createAppSitemap(
-  basePath: string,
-  options?: {
-    includeLlms?: boolean;
-  }
+  basePath: string
 ): () => MetadataRoute.Sitemap {
   const lastModified = new Date();
-  const includeLlms = options?.includeLlms ?? true;
 
   return function sitemap(): MetadataRoute.Sitemap {
-    const entries: MetadataRoute.Sitemap = [
+    return [
       {
         url: `${DOMAIN}${basePath}`,
         lastModified,
-        changeFrequency: "monthly",
-        priority: 1,
       },
     ];
-
-    if (includeLlms) {
-      entries.push({
-        url: `${DOMAIN}${basePath}/llms.txt`,
-        lastModified,
-        changeFrequency: "weekly",
-        priority: 0.4,
-      });
-    }
-
-    return entries;
   };
 }
 
@@ -243,7 +226,7 @@ export function createAppSitemap(
  * Creates a robots.txt configuration for a helvety.com path-zone app.
  *
  * @param disallowedPaths - Paths to disallow (e.g. ["/api", "/auth/callback"])
- * @param sitemapPath - Path to the sitemap (e.g. "/auth/sitemap.xml")
+ * @param sitemapPath - Path to the sitemap (e.g. "/pdf/sitemap.xml")
  */
 export function createAppRobots(
   disallowedPaths: string[],
@@ -285,7 +268,11 @@ export function createOpenRobots(
  * Creates a robots.txt configuration for private/auth-required apps.
  * The app remains accessible to authenticated users, but is excluded from crawling.
  *
- * @param sitemapPath - Path to the sitemap (e.g. "/tasks/sitemap.xml")
+ * Production private zones omit `app/sitemap.ts` and do not advertise a sitemap
+ * (`includeSitemap` defaults to false). The optional sitemap path exists for tests
+ * and edge cases only.
+ *
+ * @param sitemapPath - Optional sitemap path when `includeSitemap` is true
  */
 export function createPrivateAppRobots(
   sitemapPath?: string,
@@ -303,15 +290,5 @@ export function createPrivateAppRobots(
         : {}),
       host: DOMAIN,
     };
-  };
-}
-
-/**
- * Creates an intentionally empty sitemap for private/auth-required apps.
- * This avoids advertising non-indexable URLs to crawlers.
- */
-export function createPrivateAppSitemap(): () => MetadataRoute.Sitemap {
-  return function sitemap(): MetadataRoute.Sitemap {
-    return [];
   };
 }

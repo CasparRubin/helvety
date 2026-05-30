@@ -59,3 +59,32 @@ export function expectPublicCrawlerRobots(
     expect(robotsOutput.sitemap).toBe(options.sitemap);
   }
 }
+
+/** Asserts public sitemap entries meet Google sitemap best practices. */
+export function assertValidPublicSitemapEntries(
+  entries: MetadataRoute.Sitemap
+): void {
+  expect(entries.length).toBeGreaterThan(0);
+  for (const entry of entries) {
+    expect(entry.url).toMatch(/^https:\/\//);
+    expect(entry.lastModified).toBeInstanceOf(Date);
+    expect(entry).not.toHaveProperty("changeFrequency");
+    expect(entry).not.toHaveProperty("priority");
+    expect(entry.url).not.toMatch(/\/llms\.txt$/);
+  }
+}
+
+/** Asserts private-zone robots: disallow all crawling and omit sitemap advertisement. */
+export function expectPrivateZoneRobots(
+  robotsOutput: MetadataRoute.Robots
+): void {
+  const rules = normalizeRobotsRules(robotsOutput);
+
+  expect(rules.map((rule) => rule.userAgent)).toEqual(
+    expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
+  );
+  for (const rule of rules) {
+    expect(rule.disallow).toBe("/");
+  }
+  expect(robotsOutput.sitemap).toBeUndefined();
+}

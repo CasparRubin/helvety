@@ -28,7 +28,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 
 - `apps/pdf` is publicly indexable.
 - `/pdf/robots.txt` allows crawl and advertises `/pdf/sitemap.xml`.
-- `/pdf/sitemap.xml` contains canonical public URLs.
+- `/pdf/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model
 

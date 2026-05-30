@@ -19,8 +19,12 @@ describe("Footer", () => {
       /This site uses essential cookies and similar storage for security/
     );
     expect(copyrightLine.textContent).toContain("© 2026\u00A0Helvety");
+    expect(copyrightLine.textContent).toContain(
+      "essential cookies and similar storage"
+    );
+    expect(copyrightLine.textContent).toContain("authentication cookies");
     expect(copyrightLine.textContent).toContain("storage details");
-    expect(copyrightLine.textContent).not.toContain("analytics");
+    expect(copyrightLine.textContent).not.toMatch(/\bthird-party analytics\b/i);
     expect(copyrightLine.textContent).not.toContain("account-based services");
     expect(copyrightLine.textContent).not.toContain(
       "similar storage technologies for security"
