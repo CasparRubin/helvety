@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="May 26, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="May 30, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -425,10 +425,9 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               helvety.com (Main Website):
             </strong>{" "}
-            Public marketing and legal pages rely on essential cookies plus
-            lightweight telemetry from Vercel Analytics and Vercel Speed
-            Insights (Speed Insights is currently enabled on helvety.com). We do
-            not use advertising trackers or cross-site profiling.
+            Public marketing and legal pages rely on essential cookies and
+            browser storage for core functionality. We do not use third-party
+            analytics, advertising trackers, or cross-site profiling.
           </li>
           <li>
             <strong className="text-foreground">
@@ -520,8 +519,8 @@ export default function PrivacyPage() {
             application functionality: record identifiers, timestamps, priority
             levels, display preferences (sort orders), and entity relationships
             (e.g., stage and label references). Business/account quotas are not
-            applied. Essential cookies, storage, and privacy-focused analytics
-            are described in Section 9 (Cookies and Tracking).
+            applied. Essential cookies and storage are described in Section 9
+            (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -545,8 +544,8 @@ export default function PrivacyPage() {
             additional non-encrypted relationship metadata (link identifiers,
             linked entity identifiers/types, and timestamps) is stored to enable
             the cross-app linking feature. Business/account quotas are not
-            applied. Essential cookies, storage, and privacy-focused analytics
-            are described in Section 9 (Cookies and Tracking).
+            applied. Essential cookies and storage are described in Section 9
+            (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -568,8 +567,8 @@ export default function PrivacyPage() {
             contacts, additional non-encrypted relationship metadata (link
             identifiers, linked entity identifiers/types, and timestamps) is
             stored to enable cross-app linking. Business/account quotas are not
-            applied. Essential cookies, storage, and privacy-focused analytics
-            are described in Section 9 (Cookies and Tracking).
+            applied. Essential cookies and storage are described in Section 9
+            (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -581,9 +580,8 @@ export default function PrivacyPage() {
             relationships, sort order, and timestamps. Deleting a folder removes
             its subfolders and links. Per-account technical limits on folder and
             link counts (currently 2,000 each) apply for platform reliability.
-            Business/account quotas are not applied. Essential cookies, storage,
-            and privacy-focused analytics are described in Section 9 (Cookies
-            and Tracking).
+            Business/account quotas are not applied. Essential cookies and
+            storage are described in Section 9 (Cookies and Tracking).
           </li>
         </ul>
         <p className="text-muted-foreground mt-4 text-sm">
@@ -777,8 +775,7 @@ export default function PrivacyPage() {
               <tr>
                 <td className="border-border border-b p-3">Vercel Inc.</td>
                 <td className="border-border border-b p-3">
-                  Website hosting, delivery, privacy-focused analytics, and
-                  performance monitoring (Speed Insights on helvety.com)
+                  Website hosting and delivery
                 </td>
                 <td className="border-border border-b p-3">USA</td>
               </tr>
@@ -1061,9 +1058,8 @@ export default function PrivacyPage() {
         <h2 className="mb-4 text-xl font-semibold">9. Cookies and Tracking</h2>
         <p className="text-muted-foreground mb-4 text-sm">
           We use essential cookies and similar storage technologies that are
-          necessary for operation and security of the Services. Depending on the
-          service, we may also use privacy-focused telemetry tools for product
-          analytics and performance monitoring. Examples include:
+          necessary for operation and security of the Services. Examples
+          include:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -1209,41 +1205,8 @@ export default function PrivacyPage() {
         </div>
 
         <p className="text-muted-foreground mb-4 text-sm">
-          We use Vercel Analytics, a privacy-focused analytics service, to
-          understand how our Services are used. Vercel Analytics collects:
-        </p>
-        <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-          <li>Page view counts and navigation patterns</li>
-          <li>Referrer URLs (how you arrived at our site)</li>
-          <li>Browser and device type</li>
-          <li>Country-level geographic location</li>
-          <li>
-            Performance metrics (via Vercel Speed Insights on helvety.com)
-          </li>
-        </ul>
-        <p className="text-muted-foreground mb-4 text-sm">
-          Based on our current implementation and vendor documentation, Vercel
-          Analytics is designed to operate without advertising trackers and
-          without cross-site profiling by us. Analytics data is typically
-          aggregated and pseudonymized/anonymized by provider tooling. You can
-          learn more at{" "}
-          <a
-            href="https://vercel.com/docs/analytics/privacy-policy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground underline transition-colors"
-          >
-            Vercel&apos;s Analytics Privacy Policy
-          </a>
-          .
-        </p>
-        <p className="text-muted-foreground mb-4 text-sm">
-          We currently use Vercel Analytics on all Helvety web zones served at
-          helvety.com, including the main website, Helvety Auth, Helvety Store,
-          Helvety PDF, Helvety Docs, Helvety Image Upscaler, Helvety Tasks,
-          Helvety Contacts, Helvety Notes, and Helvety Links. Vercel Speed
-          Insights is currently enabled on helvety.com. We do not intentionally
-          operate advertising trackers or cross-site profiling technologies.
+          We do not operate third-party analytics, advertising trackers, or
+          cross-site profiling technologies on our web Services.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are
@@ -1257,8 +1220,8 @@ export default function PrivacyPage() {
           &quot;Do Not Track&quot; (DNT) is a browser setting that requests
           websites not to track the user. We do not currently respond to DNT
           signals in a standardized manner, as there is no industry-wide
-          standard for DNT. Our current analytics configuration is described
-          above in this Section 9.
+          standard for DNT. We do not operate third-party analytics or
+          cross-site tracking on our web Services.
         </p>
 
         <h3 className="mb-3 text-lg font-medium">

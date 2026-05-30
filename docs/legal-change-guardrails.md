@@ -16,7 +16,7 @@ the following:
 - server-side processing of files or content that previously stayed local-only
   (for example Image Upscaler or PDF payload handling)
 - AI training, fine-tuning, or dataset retention using user-provided content
-- material changes to telemetry, tracking, or profiling scope (including Vercel Analytics zone coverage, new cookies/localStorage keys, or shared footer disclosure text)
+- material changes to tracking or profiling scope (including new cookies/localStorage keys, or shared footer disclosure text)
 - changes to account/login requirements for public tools
 - new Helvety browser-extension auth surfaces (for example extension passkey APIs, allowlisted `chrome-extension://` origins, or bearer-token scope)
 - active EU/EEA market targeting, localized campaigns, or equivalent
@@ -48,5 +48,5 @@ At minimum, review and update all of:
 - claims about no training/no retention are technically true
 - login/account requirement claims match actual access flow
 - telemetry/security endpoint descriptions match actual payload types
-- Privacy §9 lists all ten web zones that mount `HelvetyVercelAnalytics`; footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure` / `legal-metadata`)
+- Privacy §9 cookie/storage disclosure matches [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts); footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure` / `legal-metadata`)
 - CH-first/non-EU-targeting language is consistent wherever referenced

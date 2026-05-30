@@ -1,7 +1,6 @@
 import { DEV_PORTS } from "@helvety/shared/config";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { zoneAnalyticsReferer } from "./lib/zone-analytics-referer";
 import nextConfig from "./next.config";
 
 /** Shape of individual rewrite entries used in assertions. */
@@ -28,19 +27,6 @@ function getBeforeFiles(
   return rewritesResult.beforeFiles;
 }
 
-const ANALYTICS_SCRIPT_SOURCE = "/:analyticsId([a-z0-9]+)/script.js";
-
-const PROXIED_ANALYTICS_ZONES = [
-  ["tasks", DEV_PORTS.tasks],
-  ["contacts", DEV_PORTS.contacts],
-  ["notes", DEV_PORTS.notes],
-  ["links", DEV_PORTS.links],
-  ["store", DEV_PORTS.store],
-  ["pdf", DEV_PORTS.pdf],
-  ["docs", DEV_PORTS.docs],
-  ["image-upscaler", DEV_PORTS.imageUpscaler],
-] as const;
-
 describe("web gateway rewrites", () => {
   beforeEach(() => {
     vi.stubEnv("NODE_ENV", "development");
@@ -48,6 +34,18 @@ describe("web gateway rewrites", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+  });
+
+  it("does not proxy Vercel analytics script rewrites", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult) ?? [];
+
+    expect(
+      beforeFiles.some((rule) => rule.source.includes("analyticsId"))
+    ).toBe(false);
+    expect(beforeFiles.some((rule) => rule.source.includes("script.js"))).toBe(
+      false
+    );
   });
 
   it("forwards auth routes and auth static assets to the auth zone", async () => {
@@ -71,45 +69,9 @@ describe("web gateway rewrites", () => {
           source: "/auth-static/:path*",
           destination: `${authOrigin}/auth-static/:path*`,
         },
-        {
-          source: "/:analyticsId([a-z0-9]+)/script.js",
-          destination: `${authOrigin}/:analyticsId([a-z0-9]+)/script.js`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("auth"),
-            },
-          ],
-        },
       ])
     );
   });
-
-  it.each(PROXIED_ANALYTICS_ZONES)(
-    "forwards analytics script to %s zone by referer path",
-    async (zone, devPort) => {
-      const rewritesResult = await nextConfig.rewrites?.();
-      const beforeFiles = getBeforeFiles(rewritesResult);
-      const zoneOrigin = `http://localhost:${devPort}`;
-
-      expect(beforeFiles).toEqual(
-        expect.arrayContaining([
-          {
-            source: ANALYTICS_SCRIPT_SOURCE,
-            destination: `${zoneOrigin}${ANALYTICS_SCRIPT_SOURCE}`,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer(zone),
-              },
-            ],
-          },
-        ])
-      );
-    }
-  );
 
   it("keeps localhost auth routing in development even when AUTH_URL is set", async () => {
     vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
@@ -169,17 +131,6 @@ describe("web gateway rewrites", () => {
       expect.arrayContaining([
         { source: "/docs", destination: `${docsOrigin}/docs` },
         { source: "/docs/:path*", destination: `${docsOrigin}/docs/:path*` },
-        {
-          source: ANALYTICS_SCRIPT_SOURCE,
-          destination: `${docsOrigin}${ANALYTICS_SCRIPT_SOURCE}`,
-          has: [
-            {
-              type: "header",
-              key: "referer",
-              value: zoneAnalyticsReferer("docs"),
-            },
-          ],
-        },
       ])
     );
   });

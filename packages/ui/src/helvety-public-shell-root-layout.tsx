@@ -16,25 +16,12 @@ import { SkipToContent } from "./skip-to-content";
 import { Toaster } from "./sonner";
 import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "./tooltip";
-import {
-  HelvetyVercelAnalytics,
-  HelvetyVercelAnalyticsWithSpeedInsights,
-} from "./vercel-analytics";
 
 import type { JsonLdScriptProps } from "./json-ld-script";
 import type { ReactNode } from "react";
 
 /** Main content region: scrollable column (web) vs overflow-hidden main (PDF-style tools). */
 export type HelvetyPublicShellMainVariant = "scroll-area" | "overflow-main";
-
-/**
- * Analytics mount via {@link HelvetyVercelAnalytics} (default) or
- * {@link HelvetyVercelAnalyticsWithSpeedInsights} on the gateway. Honours
- * `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false`.
- */
-export type HelvetyPublicShellAnalyticsVariant =
-  | "default"
-  | "with-speed-insights";
 
 /**
  * Where `ThemeProvider` wraps the tree: full app (default) or navbar only
@@ -56,7 +43,6 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   footerClassName?: string;
   /** Passed to {@link Footer} `external` (gateway uses `false`). */
   footerExternal?: boolean;
-  analytics?: HelvetyPublicShellAnalyticsVariant;
   /** Sets `data-scroll-behavior="smooth"` on `<html>` when true. */
   htmlSmoothScroll?: boolean;
   /**
@@ -156,8 +142,8 @@ function buildMainBlock(
  * theme via `ThemeProvider` (see {@link HelvetyPublicShellThemeProviderScope}), auth token
  * handler, session recovery, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF and encryption; Store: `CSRFProvider`),
- * navbar + main + {@link Footer} (cookie notice; Privacy link for analytics/storage),
- * toaster, and optional `HelvetyVercelAnalytics` (Speed Insights on the gateway).
+ * navbar + main + {@link Footer} (cookie notice; Privacy link for storage),
+ * toaster.
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
  * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
@@ -181,7 +167,6 @@ export async function HelvetyPublicShellRootLayout({
   sessionRecoveryMode = "optional",
   footerClassName = "shrink-0",
   footerExternal = true,
-  analytics = "default",
   htmlSmoothScroll = false,
   wrapInsideTooltipProvider,
   themeProviderScope = "full",
@@ -242,13 +227,6 @@ export async function HelvetyPublicShellRootLayout({
     </>
   );
 
-  const analyticsBlock =
-    analytics === "with-speed-insights" ? (
-      <HelvetyVercelAnalyticsWithSpeedInsights />
-    ) : (
-      <HelvetyVercelAnalytics />
-    );
-
   if (themeProviderScope === "navbar-only") {
     const storeShell = (
       <>
@@ -283,7 +261,6 @@ export async function HelvetyPublicShellRootLayout({
           <SkipToContent />
           <JsonLdScript nonce={nonce} json={ldJson} />
           <TooltipProvider>{wrappedStore}</TooltipProvider>
-          {analyticsBlock}
         </body>
       </html>
     );
@@ -318,7 +295,6 @@ export async function HelvetyPublicShellRootLayout({
           <SessionRecovery mode={sessionRecoveryMode} />
           <TooltipProvider>{tooltipBody}</TooltipProvider>
         </ThemeProvider>
-        {analyticsBlock}
       </body>
     </html>
   );

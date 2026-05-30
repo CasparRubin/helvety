@@ -43,14 +43,6 @@ describe("env.template consistency", () => {
     expect(WEB_GATEWAY_KEYS).toContain("DOCS_URL");
   });
 
-  it("turbo.json build env includes optional analytics flag for cache invalidation", async () => {
-    const turbo = JSON.parse(
-      await readFile(resolve(repoRoot, "turbo.json"), "utf8")
-    ) as { tasks?: { build?: { env?: string[] } } };
-    const buildEnv = turbo.tasks?.build?.env ?? [];
-    expect(buildEnv).toContain("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS");
-  });
-
   it("documents DEVICE_TRUST_COOKIE_SECRET only on auth", () => {
     for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
       const hasDeviceTrust = keys.includes("DEVICE_TRUST_COOKIE_SECRET");

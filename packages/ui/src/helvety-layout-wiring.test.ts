@@ -24,8 +24,8 @@ function readAppFile(app: string, relativePath: string): string {
   return readFileSync(join(repoRoot, "apps", app, relativePath), "utf8");
 }
 
-describe("Helvety layout analytics wiring", () => {
-  it("covers all ten Helvety web zones that mount shared analytics", () => {
+describe("Helvety layout wiring", () => {
+  it("covers all ten Helvety web zones that use shared root shells", () => {
     expect(ALL_SHELL_APPS).toHaveLength(10);
     expect([...PUBLIC_SHELL_APPS, ...E2EE_SHELL_APPS]).toEqual([
       ...ALL_SHELL_APPS,
@@ -37,7 +37,6 @@ describe("Helvety layout analytics wiring", () => {
     (app) => {
       const src = readAppFile(app, "app/layout.tsx");
       expect(src).toContain("HelvetyPublicShellRootLayout");
-      expect(src).not.toMatch(/from ["']@vercel\/analytics/);
     }
   );
 
@@ -53,10 +52,15 @@ describe("Helvety layout analytics wiring", () => {
   it.each(E2EE_SHELL_APPS)("apps/%s uses E2eeAppRootLayout", (app) => {
     const src = readAppFile(app, "app/layout.tsx");
     expect(src).toContain("E2eeAppRootLayout");
-    expect(src).not.toMatch(/from ["']@vercel\/analytics/);
   });
 
-  it("shared shells mount HelvetyVercelAnalytics wrappers", () => {
+  it("gateway layout does not pass analytics props", () => {
+    const webLayout = readAppFile("web", "app/layout.tsx");
+    expect(webLayout).not.toMatch(/\banalytics\s*=/);
+    expect(webLayout).not.toContain("with-speed-insights");
+  });
+
+  it("shared shells and @helvety/ui do not wire Vercel analytics", () => {
     const publicShell = readFileSync(
       join(repoRoot, "packages/ui/src/helvety-public-shell-root-layout.tsx"),
       "utf8"
@@ -65,24 +69,27 @@ describe("Helvety layout analytics wiring", () => {
       join(repoRoot, "packages/ui/src/e2ee-app-root-layout.tsx"),
       "utf8"
     );
-    const analyticsModule = readFileSync(
-      join(repoRoot, "packages/ui/src/vercel-analytics.tsx"),
+    const uiPackage = readFileSync(
+      join(repoRoot, "packages/ui/package.json"),
+      "utf8"
+    );
+    const nextConfig = readFileSync(
+      join(repoRoot, "apps/web/next.config.ts"),
       "utf8"
     );
 
-    expect(publicShell).toContain("HelvetyVercelAnalytics");
-    expect(e2eeShell).toContain("HelvetyVercelAnalytics");
-    expect(publicShell).not.toMatch(/from ["']@vercel\/analytics/);
-    expect(e2eeShell).not.toMatch(/from ["']@vercel\/analytics/);
-    expect(analyticsModule).toContain("isHelvetyVercelAnalyticsEnabled");
-    expect(analyticsModule).toContain("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS");
-  });
-
-  it.each(ALL_SHELL_APPS)(
-    "apps/%s env.template documents analytics opt-out",
-    (app) => {
-      const src = readAppFile(app, "env.template");
-      expect(src).toContain("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS");
+    for (const src of [publicShell, e2eeShell, uiPackage, nextConfig]) {
+      expect(src).not.toMatch(/from ["']@vercel\/analytics/);
+      expect(src).not.toMatch(/from ["']@vercel\/speed-insights/);
+      expect(src).not.toContain("HelvetyVercelAnalytics");
+      expect(src).not.toContain("NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS");
+      expect(src).not.toContain("zone-analytics-referer");
     }
-  );
+
+    expect(uiPackage).not.toContain('"./vercel-analytics"');
+    expect(uiPackage).not.toContain('"@vercel/analytics"');
+    expect(uiPackage).not.toContain('"@vercel/speed-insights"');
+    expect(nextConfig).not.toContain("analyticsId");
+    expect(nextConfig).not.toContain("script.js");
+  });
 });

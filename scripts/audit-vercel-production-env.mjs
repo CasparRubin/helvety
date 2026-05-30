@@ -37,7 +37,6 @@ const PROJECT_TO_APP = {
 const OPTIONAL_KEYS = new Set([
   "SKIP_ENV_VALIDATION",
   "HELVETY_SERVER_ACTION_ALLOWED_ORIGINS",
-  "NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS",
 ]);
 
 /** Legacy Supabase key names — migrate to publishable/secret env vars. */

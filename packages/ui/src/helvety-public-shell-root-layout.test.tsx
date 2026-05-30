@@ -18,14 +18,6 @@ vi.mock("next-themes", () => ({
   }),
 }));
 
-vi.mock("@vercel/analytics/next", () => ({
-  Analytics: () => null,
-}));
-
-vi.mock("@vercel/speed-insights/next", () => ({
-  SpeedInsights: () => null,
-}));
-
 vi.mock("./session-recovery", () => ({
   SessionRecovery: () => null,
 }));

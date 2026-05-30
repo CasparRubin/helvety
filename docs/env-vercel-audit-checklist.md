@@ -34,7 +34,6 @@ After changing any `*_URL`, **redeploy `helvety-com`** so rewrites pick up new o
 
 ## Optional
 
-- `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` — disable analytics per project
 - `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` — comma-separated override (defaults on Vercel include `https://helvety.com` and deployment URLs)
 - Never set `SKIP_ENV_VALIDATION=1` on Vercel production
 

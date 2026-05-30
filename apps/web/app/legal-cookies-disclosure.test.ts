@@ -6,22 +6,39 @@ import { describe, expect, it } from "vitest";
 import {
   HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS,
   HELVETY_PRIVACY_EXTENSION_PASSKEY_DISCLOSURE_SNIPPETS,
-  HELVETY_WEB_ANALYTICS_ZONE_NAMES,
+  HELVETY_STALE_TRACKING_DISCLOSURE_PHRASES,
   HELVETY_WEB_ZONE_APP_SLUGS,
 } from "@/lib/legal-cookies-disclosure";
 
 const PRIVACY_PAGE_PATH = join(import.meta.dirname, "privacy", "page.tsx");
 
 describe("privacy policy cookies disclosure", () => {
-  it("§9 lists all Helvety web zones that mount Vercel Analytics", async () => {
+  it("§9 states we do not operate third-party analytics", async () => {
     const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
     const cookiesSection = source.slice(source.indexOf('id="cookies"'));
 
-    for (const zoneName of HELVETY_WEB_ANALYTICS_ZONE_NAMES) {
-      expect(cookiesSection, `missing analytics zone: ${zoneName}`).toContain(
-        zoneName
-      );
+    expect(cookiesSection).toContain("We do not operate third-party analytics");
+    for (const phrase of HELVETY_STALE_TRACKING_DISCLOSURE_PHRASES) {
+      expect(
+        cookiesSection,
+        `§9 must not contain stale tracking phrase: ${phrase}`
+      ).not.toContain(phrase);
     }
+  });
+
+  it("§2.8 main website bullet does not disclose Vercel analytics", async () => {
+    const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
+    const serviceSection = source.slice(
+      source.indexOf("2.8 Data Processing by Service"),
+      source.indexOf('id="cookies"')
+    );
+    const mainSiteBullet = serviceSection.slice(
+      serviceSection.indexOf("helvety.com (Main Website)")
+    );
+
+    expect(mainSiteBullet).toContain("We do not use third-party");
+    expect(mainSiteBullet).not.toContain("Vercel Analytics");
+    expect(mainSiteBullet).not.toContain("Speed Insights");
   });
 
   it("§9 documents extension passkey server-side challenges (not browser cookies)", async () => {
@@ -64,13 +81,12 @@ describe("privacy policy cookies disclosure", () => {
     );
 
     const crossRefs = serviceSection.match(
-      /described in Section 9 \(Cookies\s+and Tracking\)/g
+      /described in Section 9[\s\n]*\(Cookies\s+and Tracking\)/g
     );
     expect(crossRefs).toHaveLength(4);
   });
 
-  it("analytics zone list matches expected Helvety web zone count", () => {
-    expect(HELVETY_WEB_ANALYTICS_ZONE_NAMES).toHaveLength(10);
+  it("web zone slug list matches expected Helvety web zone count", () => {
     expect(HELVETY_WEB_ZONE_APP_SLUGS).toHaveLength(10);
   });
 
@@ -89,17 +105,6 @@ describe("privacy policy cookies disclosure", () => {
     );
     expect(cookiesSection).toMatch(
       /helvety_device_trust[\s\S]*?sliding renewal on passkey sign-in when already/
-    );
-  });
-
-  it("§9 does not use outdated partial analytics surface list", async () => {
-    const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
-    const cookiesSection = source.slice(source.indexOf('id="cookies"'));
-
-    expect(cookiesSection).toContain("all Helvety web zones served at");
-    expect(cookiesSection).not.toContain("selected Helvety web surfaces");
-    expect(cookiesSection).not.toMatch(
-      /Helvety Image Upscaler\)\. Vercel Speed Insights/
     );
   });
 });

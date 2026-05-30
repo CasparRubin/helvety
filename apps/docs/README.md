@@ -57,7 +57,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 - Vault Postgres access uses the **authenticated user** Supabase client in server actions and `/api/docs` routes (`getUser()` + forced RLS on `public.docs`). The app does **not** use `createAdminClient()` for vault CRUD. Database policies require `(select auth.uid()) = user_id`; table privileges are granted to `authenticated` only (not `anon`).
 - `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). The profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
 - Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary. Vault list/detail GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS.docs`).
-- Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
+- Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Theme (light / dark)
 

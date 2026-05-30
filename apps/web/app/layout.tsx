@@ -92,7 +92,6 @@ export default async function RootLayout({
       renderNavbar={<Navbar initialUser={initialUser} />}
       mainVariant="scroll-area"
       footerExternal={false}
-      analytics="with-speed-insights"
     >
       {children}
     </HelvetyPublicShellRootLayout>

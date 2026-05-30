@@ -1,8 +1,6 @@
 import { createHelvetyNextConfig } from "@helvety/config/next";
 import { DEV_PORTS } from "@helvety/shared/config";
 
-import { zoneAnalyticsReferer } from "./lib/zone-analytics-referer";
-
 import type { NextConfig } from "next";
 
 const DEFAULT_ALLOWED_PRODUCTION_HOST_SUFFIXES = [
@@ -98,112 +96,9 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         DEV_PORTS.imageUpscaler
       );
       const docsUrl = getAppUrl("DOCS_URL", DEV_PORTS.docs);
-      const analyticsScriptSource = "/:analyticsId([a-z0-9]+)/script.js";
 
       return {
         beforeFiles: [
-          {
-            // Vercel Analytics script (e.g. /75d1cebe0bf9989d/script.js) is root-relative on helvety.com,
-            // so proxy to the zone origin by Referer (zone path + optional ?query / #hash). The target
-            // deployment must have Web Analytics enabled for that script to exist.
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("auth"),
-              },
-            ],
-            destination: `${authUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("tasks"),
-              },
-            ],
-            destination: `${tasksUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("contacts"),
-              },
-            ],
-            destination: `${contactsUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("notes"),
-              },
-            ],
-            destination: `${notesUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("links"),
-              },
-            ],
-            destination: `${linksUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("store"),
-              },
-            ],
-            destination: `${storeUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("pdf"),
-              },
-            ],
-            destination: `${pdfUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("docs"),
-              },
-            ],
-            destination: `${docsUrl}${analyticsScriptSource}`,
-          },
-          {
-            source: analyticsScriptSource,
-            has: [
-              {
-                type: "header",
-                key: "referer",
-                value: zoneAnalyticsReferer("image-upscaler"),
-              },
-            ],
-            destination: `${imageUpscalerUrl}${analyticsScriptSource}`,
-          },
           {
             source: "/auth",
             destination: `${authUrl}/auth`,

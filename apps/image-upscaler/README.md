@@ -85,7 +85,7 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 - `proxy.ts` handles request bootstrap (CSP, CSRF cookie bootstrap/re-issue, optional session refresh) via the `public-tool` profile with **fail-closed** auth refresh when `sb-*` cookies are present. The strict CSP includes `'wasm-unsafe-eval'` for `onnxruntime-web` to compile WebAssembly, and `connect-src` is extended to the configured Supabase origin when `NEXT_PUBLIC_SUPABASE_URL` is a valid HTTPS URL (plus matching `wss://`). Like other basePath zones, its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined static literal per Next.js), so self-hosted ONNX assets under `public/ort/` (`.mjs`, `.wasm`, `.json` from `copy-ort-runtime`) skip the proxy chain.
 - Input guards enforce file type, size, and pixel limits.
 - Full-app E2EE is not used here (E2EE apps are `tasks`, `contacts`, `notes`, `links`). Helvety Docs offers optional encrypted vault save only.
-- Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
+- Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Regional Positioning
 

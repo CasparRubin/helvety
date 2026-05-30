@@ -17,7 +17,6 @@ import { SkipToContent } from "./skip-to-content";
 import { Toaster } from "./sonner";
 import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "./tooltip";
-import { HelvetyVercelAnalytics } from "./vercel-analytics";
 
 import type { User } from "@helvety/shared/supabase-types";
 import type { ComponentType, ReactNode } from "react";
@@ -50,8 +49,7 @@ export type E2eeAppRootLayoutProps = Readonly<{
  * user bootstrap via `bootstrapE2eeLayoutSession()`, JSON-LD, blocking
  * {@link HelvetyThemeInitScript} in `<head>`, `ThemeProvider`, tooltip shell,
  * app `encryptionProvider`, `EncryptionGateApp` when authenticated, shared
- * {@link Footer} (cookie notice with Privacy link), and optional
- * `HelvetyVercelAnalytics` (`NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` to skip).
+ * {@link Footer} (cookie notice with Privacy link).
  *
  * Main does not scroll at the layout level; list/editor pages pin the command bar
  * with {@link CommandBarPageLayout} and scroll body content via `ScrollArea`.
@@ -122,7 +120,6 @@ export async function E2eeAppRootLayout({
             </CSRFProvider>
           </TooltipProvider>
         </ThemeProvider>
-        <HelvetyVercelAnalytics />
       </body>
     </html>
   );

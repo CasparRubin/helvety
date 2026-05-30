@@ -59,8 +59,6 @@
 - EncryptionGate redirect intent derivation (fewer effects)
 - Hyperspeed React 19 ref-callback mount/dispose; animation timing via `THREE.Timer` (not deprecated `THREE.Clock`); sources under `apps/web/components/vendor/`
 - E2EE list hooks: `useEncryptedSortableItems` in `@helvety/ui`; tasks, notes, and contacts list hooks are thin wrappers; hook errors via `reportE2eeHookError` / `reportE2eeActionFailure` (not ad-hoc toast + redirect)
-- Gateway Vercel Analytics `/<id>/script.js` referer routing allows query/hash after zone paths (`apps/web/lib/zone-analytics-referer.ts`)
-- **Vercel Web Analytics (ops):** enable on all ten Vercel projects (`web`, `auth`, `store`, `pdf`, `docs`, `image-upscaler`, `tasks`, `contacts`, `notes`, `links`) and redeploy each so `/<id>/script.js` is served from that deployment; the gateway only proxies by Referer. Set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` locally to skip `HelvetyVercelAnalytics` in shared layouts when not using the gateway proxy.
 - **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers via `bun run ci:check`.
 - **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`).
 - **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`).

@@ -60,9 +60,10 @@ describe("buildCsp", () => {
     expect(scriptDirective).not.toContain("'unsafe-eval'");
     expect(scriptDirective).not.toContain("'unsafe-inline'");
     expect(csp).toContain(
-      "connect-src 'self' https://va.vercel-scripts.com https://project-id.supabase.co wss://project-id.supabase.co"
+      "connect-src 'self' https://project-id.supabase.co wss://project-id.supabase.co"
     );
     expect(csp).toContain("upgrade-insecure-requests");
+    expect(csp).not.toContain("va.vercel-scripts.com");
   });
 
   it("enables blob directives when requested", () => {

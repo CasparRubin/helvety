@@ -160,7 +160,7 @@ SUPABASE_PROJECT_ID=<project-ref> bun run db:gen-types
 - Proxy session refresh verifies cookies with `auth.getClaims()` at the edge; **authorization** in Server Components, Server Actions, and route handlers uses `supabase.auth.getUser()` (via `@helvety/shared/auth-retry` `getAuthUser` where shared). Never use `auth.getSession()` for access decisions (`bun run consistency:supabase-auth`).
 - CSRF-enabled zones sign proxy cookies with `HELVETY_COOKIE_SIGNING_SECRET` only (`packages/shared/src/cookie-signing.ts`). The proxy re-issues invalid or stale `csrf_token` cookies (not only when the cookie is absent); rotate the signing secret in Vercel rather than reusing `SUPABASE_SECRET_KEY`.
 - Chromium extension passkey unlock uses Bearer-authenticated JSON routes on `helvety-auth`; allowed `chrome-extension://` origins are enforced via `HELVETY_CHROME_EXTENSION_ORIGINS` (see [`apps/auth/README.md`](apps/auth/README.md)).
-- All ten Next.js zones mount privacy-focused Vercel Analytics via shared root layouts unless `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false`; Speed Insights is enabled on the gateway only. User-facing disclosure: Privacy §9; shared footer points to Privacy for analytics and storage ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
+- All ten Next.js zones share a cookie/storage notice in root layouts (no third-party analytics). User-facing disclosure: Privacy §9; shared footer points to Privacy for storage ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
 - E2EE apps (`tasks`, `contacts`, `notes`, `links`) enforce server-side page guards and passkey-based unlock flows.
 - **Helvety Docs** (`docs`) is hybrid: the main `.docx` editor is public (no login); optional vault save uses the same passkey-derived encryption pattern only when you sign in, unlock, and choose to save. Vault Postgres access uses the authenticated user client with forced RLS on `public.docs` (not the Supabase admin client).
 
@@ -188,7 +188,7 @@ strict geolocation enforcement). Legal pages are hosted on
 - Privacy: <https://helvety.com/privacy>
 - Terms: <https://helvety.com/terms>
 - Impressum (including abuse reporting): <https://helvety.com/impressum#abuse>
-- Cookies, telemetry, and shared footer (developer reference): [`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)
+- Cookies and shared footer (developer reference): [`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)
 - Internal legal update guardrails: [`docs/legal-change-guardrails.md`](docs/legal-change-guardrails.md)
 
 ## License

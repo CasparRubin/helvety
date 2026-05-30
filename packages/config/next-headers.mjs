@@ -117,7 +117,7 @@ export function buildCsp({
   const useWasmUnsafeEval = wasmUnsafeEval && !useUnsafeEval;
 
   const nonceDirective = nonce ? ` 'nonce-${nonce}'` : "";
-  const connectSources = new Set(["'self'", "https://va.vercel-scripts.com"]);
+  const connectSources = new Set(["'self'"]);
   const imageSources = new Set(["'self'", "data:", "https://helvety.com"]);
 
   if (supabaseUrl) {
@@ -142,7 +142,7 @@ export function buildCsp({
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${useWasmUnsafeEval ? " 'wasm-unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""} https://va.vercel-scripts.com`,
+    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${useWasmUnsafeEval ? " 'wasm-unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""}`,
     `style-src ${styleSources.join(" ")}`,
     `img-src ${Array.from(imageSources).join(" ")}${imgBlob ? " blob:" : ""}`,
     `font-src ${Array.from(fontSources).join(" ")}`,

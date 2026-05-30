@@ -20,6 +20,6 @@ Copy only the keys from the relevant `apps/<zone>/env.template` into `.env.local
 
 `globalEnv` in `turbo.json` includes `NODE_ENV`, `SKIP_ENV_VALIDATION`, and `VERCEL` for all tasks.
 
-`tasks.build.env` also lists optional `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS` and shared secrets used by other zones so Turbo cache keys invalidate when those values change.
+`tasks.build.env` lists shared secrets used by other zones so Turbo cache keys invalidate when those values change.
 
 See also root [`README.md`](../README.md) § Environment Model, [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md), and [`app-consistency-checklist.md`](./app-consistency-checklist.md).
