@@ -1,5 +1,5 @@
 /**
- * Cross-workspace consistency checks for CI (`bun run consistency:guardrails`).
+ * Cross-workspace consistency checks for `bun run ci:check` (`bun run consistency:guardrails`).
  * Covers invariants that are awkward for ESLint alone (legal dates, security.txt,
  * shared action limits, etc.) and enforces root `app/page.tsx` default export name
  * `Page` per `docs/naming-conventions.md`.
@@ -14,8 +14,8 @@
  * matcher but must keep the same static-file extension exclusions (e.g. `mjs`,
  * `wasm`, `json`).
  */
-import { readFile } from "node:fs/promises";
-import { readdir } from "node:fs/promises";
+import { constants } from "node:fs";
+import { access, readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { validatePostcssZoneApps } from "./postcss-app-expectations.mjs";
 
@@ -686,6 +686,76 @@ async function main() {
     throw new Error(
       `${qualityBaselinePath} must list docs among zones that omit assetPrefix by default.`
     );
+  }
+
+  try {
+    await access(resolve(rootDir, ".github/workflows"), constants.F_OK);
+    throw new Error(
+      ".github/workflows must not exist (Helvety uses local ci:check/ci:release and Vercel builds only)."
+    );
+  } catch (error) {
+    if (!(error && typeof error === "object" && error.code === "ENOENT")) {
+      throw error;
+    }
+  }
+
+  const automationDocPaths = [
+    "README.md",
+    "docs/app-consistency-checklist.md",
+    "docs/quality-modernization-baseline.md",
+    "docs/dependency-inventory.md",
+    "docs/security-review-runbook.md",
+    "docs/vercel-monorepo-apps.md",
+    "docs/naming-conventions.md",
+    "docs/quality-modernization-best-practice-mapping.md",
+  ];
+  const staleAutomationPhrases = [
+    "GitHub Actions",
+    ".github/workflows/ci.yml",
+    ".github/workflows/",
+    "Remote CI:",
+    "## Automated (CI)",
+    "## CI guardrail",
+    "Optional CI/monorepo",
+    "CI guards this",
+    "CI checks expected",
+    "CI guardrails keep",
+    "Enforced in CI",
+  ];
+  for (const relativePath of automationDocPaths) {
+    const source = await readFile(resolve(rootDir, relativePath), "utf8");
+    for (const phrase of staleAutomationPhrases) {
+      if (source.includes(phrase)) {
+        throw new Error(
+          `${relativePath} must not use stale automation wording (${phrase}). Helvety uses local ci:check/ci:release and Vercel builds only.`
+        );
+      }
+    }
+  }
+
+  const appEntries = await readdir(appsDir, { withFileTypes: true });
+  for (const entry of appEntries.filter((item) => item.isDirectory())) {
+    const readmePath = resolve(appsDir, entry.name, "README.md");
+    let source;
+    try {
+      source = await readFile(readmePath, "utf8");
+    } catch (error) {
+      if (error && typeof error === "object" && error.code === "ENOENT") {
+        continue;
+      }
+      throw error;
+    }
+    for (const phrase of [
+      "Optional CI/monorepo",
+      "CI guardrails keep",
+      "For monorepo setup and CI/release",
+    ]) {
+      if (source.includes(phrase)) {
+        throw new Error(
+          `apps/${entry.name}/README.md must not use stale automation wording (${phrase}).`
+        );
+      }
+    }
   }
 
   console.log("Consistency guardrail checks passed.");

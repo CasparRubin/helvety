@@ -1,5 +1,5 @@
 /**
- * CI guardrail: public tables referenced in generated types must stay present.
+ * Monorepo guardrail (`ci:check`): public tables referenced in generated types must stay present.
  * Live schema verification uses Supabase Dashboard / MCP or a local export from
  * `supabase/getSupabase.sql` (never commit `supabase.json`).
  */

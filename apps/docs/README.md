@@ -27,7 +27,7 @@ This app uses Next.js `basePath: /docs`. Path rules differ by API:
 | Auth sign-in return (`getLoginUrl`)            | Gateway-visible `/docs…`            | `buildDocsPublicPath()` in the same module                               |
 | `revalidatePath` after server actions          | `/docs` (includes basePath)         | `revalidateDocsRoutes()` in `doc-actions.ts`                             |
 
-Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `basePath` again and the browser lands on `/docs/docs` (404). CI guards this in [`lib/docs-zone-routing.test.ts`](./lib/docs-zone-routing.test.ts).
+Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `basePath` again and the browser lands on `/docs/docs` (404). Vitest guards this in [`lib/docs-zone-routing.test.ts`](./lib/docs-zone-routing.test.ts).
 
 **`?doc=` is not an auto-open deep link** (unlike Tasks `?item=`, Notes `?note=`, or Contacts `?contact=` sheet links). Landing with `?doc=<uuid>` strips the query and leaves a blank editor; only explicit sheet open or save sets `?doc=` while you work.
 
@@ -107,4 +107,4 @@ Separate project **`helvety-docs`** with Root Directory **`apps/docs`** (same pa
 
 ## Database
 
-Schema and RLS for `public.docs` (and all user-data tables) are managed on the hosted **helvety** Supabase project, not via SQL files in this repo. To audit production shape locally, run [`supabase/getSupabase.sql`](../../supabase/getSupabase.sql) in the SQL editor and save the JSON as `supabase/supabase.json` (gitignored; never commit). Regenerate shared types after schema changes (`bun run db:gen-types`). CI checks expected tables in `packages/shared/src/types/database.types.ts` via `bun run consistency:supabase-schema`.
+Schema and RLS for `public.docs` (and all user-data tables) are managed on the hosted **helvety** Supabase project, not via SQL files in this repo. To audit production shape locally, run [`supabase/getSupabase.sql`](../../supabase/getSupabase.sql) in the SQL editor and save the JSON as `supabase/supabase.json` (gitignored; never commit). Regenerate shared types after schema changes (`bun run db:gen-types`). `bun run ci:check` validates expected tables in `packages/shared/src/types/database.types.ts` via `bun run consistency:supabase-schema`.

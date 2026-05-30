@@ -90,11 +90,11 @@ Copy `env.template` to `.env.local`.
 
 `NEXT_PUBLIC_SUPABASE_URL` is also required on Vercel production builds so Next.js image `remotePatterns` can target your Supabase host.
 
-Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
+Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, Supabase session refresh via `store-gateway`), not full auth enforcement. The `store-gateway` profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `createAppProxy` also refreshes sessions on direct root hits (`/` → `/store`) when auth cookies are present. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
+- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, Supabase session refresh via `store-gateway`), not full auth enforcement. The `store-gateway` profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `createAppProxy` also refreshes sessions on direct root hits (`/` → `/store`) when auth cookies are present. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so `ci:check` guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Account actions enforce authz in pages/server actions/route handlers.
 - Public download endpoints use explicit abuse protections and rate limiting.
 - Shared site footer and Vercel Analytics mount via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
@@ -112,7 +112,7 @@ bun run test:coverage
 
 Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), client-only catalog (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), and opaque product-detail panels.
 
-For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
+For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 
 ## Legal and Support
 

@@ -45,7 +45,6 @@
    - `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
    - Fail-closed auth refresh on all session-bearing proxy profiles; deprecated E2EE deep-link helpers removed; prefetch/export/pickers use explicit Supabase column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` for Tasks contact picker, `ENTITY_LINK_COLUMNS` for `entity_links` reads).
    - **Supabase release:** before schema migrations, run Supabase security/performance advisors (Dashboard or MCP) and address critical findings.
-   - **Remote CI:** `.github/workflows/ci.yml` runs `bun run ci:check` on push/PR.
 
 ## Multi-zone static assets (`assetPrefix`)
 
@@ -62,7 +61,7 @@
 - E2EE list hooks: `useEncryptedSortableItems` in `@helvety/ui`; tasks, notes, and contacts list hooks are thin wrappers; hook errors via `reportE2eeHookError` / `reportE2eeActionFailure` (not ad-hoc toast + redirect)
 - Gateway Vercel Analytics `/<id>/script.js` referer routing allows query/hash after zone paths (`apps/web/lib/zone-analytics-referer.ts`)
 - **Vercel Web Analytics (ops):** enable on all ten Vercel projects (`web`, `auth`, `store`, `pdf`, `docs`, `image-upscaler`, `tasks`, `contacts`, `notes`, `links`) and redeploy each so `/<id>/script.js` is served from that deployment; the gateway only proxies by Referer. Set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS=false` locally to skip `HelvetyVercelAnalytics` in shared layouts when not using the gateway proxy.
-- **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers in CI.
+- **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers via `bun run ci:check`.
 - **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`).
 - **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`).
 - Store product catalog caching

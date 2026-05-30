@@ -107,7 +107,7 @@ This app does not use `SUPABASE_SECRET_KEY` (no server admin client). Upstash is
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token for rate limiting                                                       |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 
-Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
+Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
 ## Development and Testing
 
@@ -120,7 +120,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
+For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 
 ## Legal and Support
 

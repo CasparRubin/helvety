@@ -31,7 +31,7 @@ Canonical zone URLs (for example `https://helvety.com/docs`) are served by **`he
 
 Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs), which loads `@tailwindcss/postcss` from **`@helvety/dev-deps`** (canonical plugin path for Vitest and builds). `@helvety/ui` also declares `tailwindcss` and `@tailwindcss/postcss` in **`dependencies`** so Tailwind packages sit on each zone app’s production dependency graph for Turbopack CSS processing (`@import "tailwindcss"` in shared `globals.css`). Every zone app must keep `"@helvety/ui": "workspace:*"` in `dependencies` (not only devDependencies). Versions stay canonical in `@helvety/dev-deps`; `bun run deps:drift` and `consistency:guardrails` enforce this.
 
-## CI guardrail
+## Local guardrail (`ci:check`)
 
 `bun run consistency:vercel-apps` asserts identical `vercel.json` files and `env.template` Vercel lines for every zone. `consistency:guardrails` asserts `postcss.config.mjs` parity and `@helvety/ui` on every zone that uses shared PostCSS. See [`scripts/vercel-app-expectations.mjs`](../scripts/vercel-app-expectations.mjs).
 

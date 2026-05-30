@@ -1,8 +1,8 @@
 /**
- * CI guardrail: Supabase auth must use getUser() for authorization decisions.
+ * Monorepo guardrail (`ci:check`): Supabase auth must use getUser() for authorization decisions.
  * getSession() reads unverified cookie data and must not be used for authorization.
  * Session cookie mutations must use createServerMutatingClient (not createServerClient).
- * Enforced in CI via `bun run consistency:supabase-auth` (included in `ci:check`).
+ * Enforced via `bun run ci:check` (`consistency:supabase-auth`).
  *
  * Proxy session refresh uses getClaims() at the edge; authorization uses getUser().
  * Never use getSession() for authorization.

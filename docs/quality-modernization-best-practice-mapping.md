@@ -21,7 +21,7 @@
 ## Shared Architecture Guardrails
 
 - Added baseline/contract documentation for modernization phases.
-- Standardized Next.js `proxy.ts` matchers: basePath-mounted apps **inline** the same static pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a literal `config.matcher`, not an imported binding) so static `public/` assets (including `.mjs` / `.wasm` / `.json` for PDF.js and ONNX runtimes) skip the security proxy chain; CI guardrails parse the shared source and enforce parity.
+- Standardized Next.js `proxy.ts` matchers: basePath-mounted apps **inline** the same static pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a literal `config.matcher`, not an imported binding) so static `public/` assets (including `.mjs` / `.wasm` / `.json` for PDF.js and ONNX runtimes) skip the security proxy chain; `ci:check` guardrails parse the shared source and enforce parity.
 - Consolidated app env via tiered factories in `@helvety/shared/env-validation` (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`).
-- Added CI guardrails that enforce shared matcher parity, `apps/web` extension alignment, zone modernization (loading matrix, layout JSX, `optimizePackageImports` vs deps), and env-validation contract usage.
+- Added `ci:check` guardrails that enforce shared matcher parity, `apps/web` extension alignment, zone modernization (loading matrix, layout JSX, `optimizePackageImports` vs deps), and env-validation contract usage.
 - Navbar and Next config presets (`create-app-navbar`, `createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig`) reduce per-zone drift.

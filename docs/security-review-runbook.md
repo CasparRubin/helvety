@@ -2,7 +2,7 @@
 
 Periodic checks for the Helvety monorepo. Run locally or before major releases.
 
-## Automated (CI)
+## Automated local checks (`ci:check`)
 
 ```bash
 bun run ci:check

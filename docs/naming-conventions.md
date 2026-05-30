@@ -1,6 +1,6 @@
 # Helvety monorepo naming conventions
 
-This document is the source of truth for how we name and format code across `apps/*` and `packages/*`. Tooling enforces much of this via Prettier, ESLint (including `@typescript-eslint/naming-convention`), and CI guardrails.
+This document is the source of truth for how we name and format code across `apps/*` and `packages/*`. Tooling enforces much of this via Prettier, ESLint (including `@typescript-eslint/naming-convention`), and local `ci:check` guardrails.
 
 ## References
 
@@ -126,5 +126,5 @@ Three legacy browser-extension listings were merged into **Power Platform Config
 
 ## See also
 
-- Root monorepo overview and CI: [`README.md`](../README.md)
+- Root monorepo overview and `ci:check` / `ci:release`: [`README.md`](../README.md)
 - Per-app zone checklist: [`app-consistency-checklist.md`](./app-consistency-checklist.md)

@@ -256,7 +256,7 @@ bun run ci:check    # includes zone-modernization, deps:drift, test:hygiene
 bun run ci:release  # ci:check + build (before push / Vercel)
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) runs `ci:check` on push/PR with `SKIP_ENV_VALIDATION=1`.
+Run these locally before merge; Vercel validates builds on deploy.
 
 Optional local E2E: `bun run test:e2e` (Playwright gateway smoke; requires `@helvety/web` dev server). New E2EE zones: `bun run scaffold:e2ee-zone <slug>` prints the copy-from-contacts checklist.
 

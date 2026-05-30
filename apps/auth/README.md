@@ -54,7 +54,7 @@ Vault session policy (E2EE apps): **12h sliding idle**, **30d absolute max** (se
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. The `auth-gateway` profile uses **fail-closed** auth refresh: when Supabase session refresh fails, stale `sb-*` cookies are cleared instead of leaving a broken session on the client. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so CI guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
+- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. The `auth-gateway` profile uses **fail-closed** auth refresh: when Supabase session refresh fails, stale `sb-*` cookies are cleared instead of leaving a broken session on the client. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so `ci:check` guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Rate limits apply to OTP send/verify and passkey operations.
 - Typed OTP verify (`verifyEmailCode` in [`app/actions/otp-actions.ts`](./app/actions/otp-actions.ts)) deduplicates in-flight client submits and drops superseded responses so a consumed-code retry cannot show a false failure toast after success. After the Supabase session exists, post-verify side-effect failures are logged but still return `success: true` to the client.
 - OTP UI and email templates state a **1-hour** code lifetime (`OTP_USER_VISIBLE_EXPIRY_LABEL` in `lib/otp-code.ts`); keep Supabase Auth email OTP expiry aligned with that copy.
@@ -98,7 +98,7 @@ Copy `env.template` to `.env.local`.
 | `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (separate from CSRF signing; min 32 chars)                         |
 | `HELVETY_CHROME_EXTENSION_ORIGINS`     | Yes      | Yes         | Comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs                |
 
-Optional CI/monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
+Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
 This app uses Supabase Auth + passkeys (not NextAuth/Auth.js).
 
@@ -120,7 +120,7 @@ Extension passkey routes and challenge envelopes are covered in `lib/extension-p
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.
 `components/navbar.test.tsx` locks encryption-badge behavior (user-bound unlock, loading) to match E2EE navbars; `app/layout-metadata.test.ts` asserts SEO copy and `noindex` robots (mocks `@helvety/shared/layout-session-bootstrap` → `bootstrapAuthLayoutSession`).
 
-For monorepo setup and CI/release commands, use the root [`README.md`](../../README.md).
+For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 
 ## Legal and Support
 

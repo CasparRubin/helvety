@@ -215,7 +215,7 @@ export function createAppProxy(options: {
  * Use in each app's `proxy.ts` (canonical pattern lives on `SECURITY_PROXY_MATCHER`
  * for tests and docs). **Next.js requires `config.matcher` to be a static string
  * literal**, so zone apps must copy the same string into `matcher: [ "…" ]`
- * (see `scripts/check-consistency-guardrails.mjs` for CI parity checks):
+ * (see `scripts/check-consistency-guardrails.mjs` for matcher parity checks in `ci:check`):
  * ```ts
  * import { createAppProxy, createProfiledSecurityProxy } from "@helvety/shared/proxy";
  *
