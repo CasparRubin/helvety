@@ -1,0 +1,4 @@
+[install]
+# Flat hoisted node_modules so @types/* and vitest from @helvety/dev-deps
+# resolve for TypeScript across all workspaces (Bun default is isolated).
+linker = "hoisted"

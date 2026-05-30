@@ -1,5 +1,6 @@
 /**
  * PostCSS / Tailwind build expectations for Helvety zone apps.
+ * Shared plugin: @helvety/config/postcss loads @tailwindcss/postcss from @helvety/dev-deps.
  * Used by check-consistency-guardrails.mjs and Vitest (postcss-app-consistency.test.ts).
  */
 import { access, readFile, readdir } from "node:fs/promises";

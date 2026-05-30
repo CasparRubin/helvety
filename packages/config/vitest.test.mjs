@@ -24,8 +24,13 @@ describe("createVitestConfig", () => {
     const config = createVitestConfig(rootDir);
     const expectedRoot = path.resolve(rootDir, ".");
     const expectedSetupFile = path.resolve(rootDir, "vitest.setup.ts");
+    const aliases = config.resolve?.alias ?? [];
+    const atAlias = Array.isArray(aliases)
+      ? aliases.find((entry) => entry.find === "@")
+      : aliases["@"];
 
-    expect(config.resolve?.alias?.["@"]).toBe(expectedRoot);
+    expect(atAlias?.replacement ?? atAlias).toBe(expectedRoot);
     expect(config.test?.setupFiles).toEqual([expectedSetupFile]);
+    expect(config.test?.css).toBe(false);
   });
 });

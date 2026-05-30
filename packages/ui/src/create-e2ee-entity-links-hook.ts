@@ -547,7 +547,7 @@ export function createE2eeEntityLinksHook<
     return {
       allItems,
       linkedItems,
-      isLoading: isLoading || (catalogEnabled && isLoadingCatalog),
+      isLoading: isLoading ? true : Boolean(catalogEnabled && isLoadingCatalog),
       link,
       unlink,
     };

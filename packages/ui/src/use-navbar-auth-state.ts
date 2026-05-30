@@ -41,6 +41,7 @@ export function useNavbarAuthState<UserType extends NavbarUser>(
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
+        // Supabase User structurally matches NavbarUser; callers narrow via UserType.
         setUser((session?.user ?? null) as UserType | null);
         setIsLoading(false);
       });

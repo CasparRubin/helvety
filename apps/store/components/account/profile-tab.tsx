@@ -280,7 +280,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
                   </div>
                   <Button
                     type="submit"
-                    disabled={isChangingEmail || !newEmail.trim()}
+                    disabled={isChangingEmail ? true : !newEmail.trim()}
                   >
                     {isChangingEmail ? (
                       <>
@@ -324,7 +324,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
           <Button
             variant="outline"
             onClick={handleDataExport}
-            disabled={isExporting || isLoadingUser}
+            disabled={isExporting ? true : isLoadingUser}
           >
             {isExporting ? (
               <>

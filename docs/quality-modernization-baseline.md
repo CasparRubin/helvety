@@ -9,12 +9,12 @@
 ## Shared Contracts To Preserve
 
 - `@helvety/dev-deps`
-  - canonical semver ranges for `eslint`, `typescript`, `vitest`, `prettier`, testing-library, `tailwindcss`, `@tailwindcss/postcss`, and related toolchain packages
-  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package manifests (enforced by `bun run deps:drift` in `ci:check`); zone apps do not declare Tailwind packages directly
+  - canonical semver ranges for `eslint`, `typescript`, `vitest`, `prettier`, testing-library, `tailwindcss`, `@tailwindcss/postcss`, and related toolchain packages, pinned in this package’s own **`dependencies`** (so Bun hoists bins/types to workspaces)
+  - consumed via `"@helvety/dev-deps": "workspace:*"` in app/package **devDependencies** (enforced by `bun run deps:drift` in `ci:check`); zone apps do not declare Tailwind packages directly
 - `@helvety/config`
   - `createHelvetyNextConfig` (base); zone presets `createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig` (`web` / `store` keep bespoke `createHelvetyNextConfig` overrides)
   - `createSecurityHeaders`
-  - shared ESLint/TypeScript/Vitest/PostCSS **config** entrypoints (not pinned toolchain versions; those live in `@helvety/dev-deps`)
+  - shared ESLint/TypeScript/Vitest/PostCSS **config** entrypoints (not pinned toolchain versions; those live in `@helvety/dev-deps`; Vitest resolves testing-library from dev-deps; PostCSS plugin loaded from dev-deps)
 - `@helvety/shared`
   - `createAppProxy`, `createProfiledSecurityProxy`, and `SECURITY_PROXY_MATCHER` (canonical `proxy.ts` zone matcher pattern; apps inline the literal per Next.js)
   - auth redirect/callback behavior; **proxy refreshes sessions only** (`refreshSupabaseAuthSession`, including on `createAppProxy` root redirects when `sb-*` cookies are present), verifies with `getClaims()` when `supabase-js` exposes it else `getUser()`, and sets `x-helvety-auth-refreshed` when proxy `setAll` wrote cookies (RSC clients no-op further writes; session mutations use `createServerMutatingClient`) — **authorization uses `getUser()` in Server Components/actions** (often via `getAuthUser` from `@helvety/shared/auth-retry`), never `getSession()` (`bun run consistency:supabase-auth`); **`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, and **`public-tool`** profiles clear stale `sb-*` cookies when refresh fails (fail-closed); **`public-marketing`** (`web`) does not
@@ -26,7 +26,7 @@
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
   - shared navigation/session UX behavior (`create-app-navbar` factories; `E2eeShellRouteLoading` / `HelvetyShellRouteLoading` loading matrix)
-  - production `tailwindcss` and `@tailwindcss/postcss` so Turbopack/Vercel can resolve PostCSS plugins from zone apps that re-export `@helvety/config/postcss` (versions still canonical in `@helvety/dev-deps`; `deps:drift` allows both only on `packages/ui`)
+  - production `tailwindcss` and `@tailwindcss/postcss` on the zone production dependency graph for Turbopack CSS processing; `@helvety/config/postcss` loads the PostCSS plugin from `@helvety/dev-deps` (versions still canonical in dev-deps; `deps:drift` allows both only on `packages/ui`)
 
 ## Phase Success Criteria
 

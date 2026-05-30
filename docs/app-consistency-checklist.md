@@ -10,8 +10,8 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `proxy.test.ts`      | Matcher parity with `SECURITY_PROXY_MATCHER` (gateway: zone exclusions + static extensions)                                                                                                                               |
 | `env.template`       | Documented env keys; validated by `bun run consistency:env-templates`; local `.env.local` tier parity via `bun run consistency:local-env` ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md) for Vercel) |
 | `eslint.config.mjs`  | `createEslintConfig(import.meta.dirname)` from `@helvety/config/eslint`                                                                                                                                                   |
-| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest`; workspaces with real tests pass `{ passWithNoTests: false }`                                                                                               |
-| `vitest.setup.ts`    | `@testing-library/jest-dom` + RTL `cleanup()`                                                                                                                                                                             |
+| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest` (resolves testing-library from `@helvety/dev-deps`; stubs `.css` in unit tests); workspaces with real tests pass `{ passWithNoTests: false }`               |
+| `vitest.setup.ts`    | `@testing-library/jest-dom/vitest` + RTL `cleanup()`                                                                                                                                                                      |
 | `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                                                                                           |
 | `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                                                                                              |
 | `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage                                                                  |
@@ -120,7 +120,7 @@ Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/compo
 
 ## `package.json` conventions
 
-- **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*` (UI carries production `tailwindcss` / `@tailwindcss/postcss` so `next build` can resolve the shared PostCSS config on Vercel)
+- **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*` (UI carries production `tailwindcss` / `@tailwindcss/postcss` for Turbopack CSS; `@helvety/config/postcss` loads the plugin from `@helvety/dev-deps`)
 - **DevDependencies**: `@helvety/config`, `@helvety/dev-deps` as `workspace:*`
 - **Scripts**: `dev`, `build`, `start`, `lint`, `lint:fix`, `type-check`, `format`, `format:check`, `test`, `test:watch`, `test:coverage`
 - **Version**: align with sibling product apps (currently `3.2.0`) unless the zone is intentionally versioned separately

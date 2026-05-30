@@ -51,5 +51,5 @@ export function getHeroHyperspeedEffectOptions(
       leftCars: [HELVETY_ACCENT_RED_RGB, 0xe31b2b, 0xff3344],
       rightCars: [...headlight],
     },
-  } as unknown as HyperspeedEffectOptions;
+  } as HyperspeedEffectOptions;
 }

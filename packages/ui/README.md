@@ -67,7 +67,7 @@ Also includes reusable UI building blocks used across zones (for example `@helve
 ## Styling / Tailwind
 
 - **`globals.css`** (`@helvety/ui/globals.css`): semantic design tokens and Tailwind v4 imports for every zone app (`@import` from each app’s `app/globals.css`). Marketing accents include **`--brand-swiss-red`** (`text-brand-swiss-red` on the gateway hero).
-- **PostCSS at build time:** zone apps re-export [`@helvety/config/postcss`](../config/postcss.mjs). Turbopack resolves `@tailwindcss/postcss` from the **app** directory, so this package declares **`tailwindcss`** and **`@tailwindcss/postcss`** in **`dependencies`** (not only via `@helvety/dev-deps`). Canonical semver ranges live in [`@helvety/dev-deps`](../dev-deps/); do not add those packages to individual app manifests. See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md) and [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
+- **PostCSS at build time:** zone apps re-export [`@helvety/config/postcss`](../config/postcss.mjs), which loads `@tailwindcss/postcss` from [`@helvety/dev-deps`](../dev-deps/). This package also declares **`tailwindcss`** and **`@tailwindcss/postcss`** in **`dependencies`** so Tailwind packages sit on zone apps’ production dependency graph for Turbopack CSS processing. Do not add those packages to individual app manifests. See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md) and [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
 
 ## Testing
 

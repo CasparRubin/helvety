@@ -206,8 +206,9 @@ export function E2eeRichTextItemEditorShell({
     await persistSave(title, currentContent);
   }, [requireTitle, title, persistSave]);
 
-  const combinedUnsavedChanges =
-    hasUnsavedChanges || hasAdditionalUnsavedChanges;
+  const combinedUnsavedChanges = hasUnsavedChanges
+    ? true
+    : hasAdditionalUnsavedChanges;
 
   const doRefresh = useCallback(async () => {
     setIsRefreshing(true);

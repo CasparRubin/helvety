@@ -32,7 +32,7 @@ This package centralizes:
 - Shared action and export limits: `packages/shared/src/constants.ts`
 - Auth next-step resolver (app-owned): `apps/auth/lib/auth-step.ts`
 - Shared auth callback flow factory: `packages/shared/src/auth-callback.ts`
-- Toolchain config entrypoints: `packages/config/eslint.mjs`, `packages/config/tsconfig.base.json`, `packages/config/vitest.mjs`, `packages/config/postcss.mjs` (pinned versions in [`packages/dev-deps`](../dev-deps/); `@tailwindcss/postcss` resolved at build time via [`@helvety/ui`](../ui/) production dependencies)
+- Toolchain config entrypoints: `packages/config/eslint.mjs`, `packages/config/tsconfig.base.json`, `packages/config/vitest.mjs`, `packages/config/postcss.mjs` (pinned versions in [`packages/dev-deps`](../dev-deps/); PostCSS plugin loaded from dev-deps; `@helvety/ui` production Tailwind packages for Turbopack CSS graph)
 - E2EE server page guard and path helpers: `@helvety/shared/e2ee-page-auth` (`requireE2eeAppPageAuth`, `requiresE2eeBrowserUnlock`, `E2EE_APP_PAGE_PATHS`)
 - Passkey encryption params for E2EE apps: `@helvety/shared/encryption-actions` (`getEncryptionParams`, `getPasskeyParams`, `getPasskeyParamsWithOptions`); the auth zone wraps `getPasskeyParamsWithOptions` with auth-specific rate limits
 

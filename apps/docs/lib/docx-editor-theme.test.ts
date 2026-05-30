@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,12 +18,13 @@ const libDir = dirname(fileURLToPath(import.meta.url));
 const appDir = join(libDir, "../app");
 const stylesDir = join(libDir, "../styles");
 const readmePath = join(libDir, "../README.md");
+const docsRequire = createRequire(join(libDir, "../package.json"));
 
 const globalsPath = join(appDir, "globals.css");
 const bridgePath = join(stylesDir, "docx-editor-helvety-bridge.css");
 const eigenpalStylesPath = join(
-  libDir,
-  "../node_modules/@eigenpal/docx-editor-react/dist/styles.css"
+  dirname(docsRequire.resolve("@eigenpal/docx-editor-react")),
+  "styles.css"
 );
 
 /** camelCase token key → CSS custom property name (`cardForeground` → `card-foreground`). */

@@ -189,7 +189,8 @@ export function HelvetyDocsShell({
 
   const documentDisplayName = useMemo(() => {
     if (localFileName) {
-      return localFileName.replace(/\.docx$/i, "") || "Untitled";
+      const withoutExt = localFileName.replace(/\.docx$/i, "");
+      return withoutExt === "" ? "Untitled" : withoutExt;
     }
     const existing = documents.find((d) => d.id === vaultDocId);
     return existing?.title ?? defaultDocumentTitle();

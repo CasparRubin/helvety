@@ -1,3 +1,6 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { defineConfig, globalIgnores } from "eslint/config";
 import importPlugin from "eslint-plugin-import-x";
 import jsdoc from "eslint-plugin-jsdoc";
@@ -5,6 +8,21 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
+
+const configDir = path.dirname(fileURLToPath(import.meta.url));
+const devDepsNodeModules = path.resolve(configDir, "../dev-deps/node_modules");
+
+/** import-x resolver settings: TypeScript project + dev-deps hoisted toolchain. */
+const importResolverSettings = {
+  "import-x/resolver": {
+    typescript: {
+      project: "./tsconfig.json",
+    },
+    node: {
+      paths: [devDepsNodeModules],
+    },
+  },
+};
 
 /** Import ordering rules shared between app and package configs. */
 const importRules = {
@@ -245,13 +263,7 @@ export function createEslintConfig(rootDir) {
         "import-x": importPlugin,
         jsdoc,
       },
-      settings: {
-        "import-x/resolver": {
-          typescript: {
-            project: "./tsconfig.json",
-          },
-        },
-      },
+      settings: importResolverSettings,
       rules: {
         // eslint-plugin-react-hooks 7.x (via eslint-config-next) flags patterns that
         // are still valid pre–React Compiler (e.g. baseline refs in derived memos).
@@ -367,13 +379,7 @@ export function createPackageEslintConfig(rootDir) {
         "import-x": importPlugin,
         jsdoc,
       },
-      settings: {
-        "import-x/resolver": {
-          typescript: {
-            project: "./tsconfig.json",
-          },
-        },
-      },
+      settings: importResolverSettings,
       rules: {
         ...importRules,
         ...typescriptRules,

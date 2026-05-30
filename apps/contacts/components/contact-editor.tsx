@@ -155,12 +155,16 @@ export function ContactEditor({
         ? serializeRichTextContent(notesContent)
         : null;
 
+      const trimmedDescription = description.trim();
+      const trimmedEmail = email.trim();
+      const trimmedPhone = phone.trim();
+
       const success = await update({
         first_name: firstName.trim(),
         last_name: lastName.trim(),
-        description: description.trim() || null,
-        email: email.trim() || null,
-        phone: phone.trim() || null,
+        description: trimmedDescription === "" ? null : trimmedDescription,
+        email: trimmedEmail === "" ? null : trimmedEmail,
+        phone: trimmedPhone === "" ? null : trimmedPhone,
         birthday,
         notes,
       });
@@ -169,9 +173,9 @@ export function ContactEditor({
         savedMetadataRef.current = {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
-          description: description.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
+          description: trimmedDescription,
+          email: trimmedEmail,
+          phone: trimmedPhone,
           birthday,
         };
       }

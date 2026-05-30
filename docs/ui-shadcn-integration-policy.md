@@ -27,7 +27,7 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 
 ## Styling And Composition Rules
 
-- **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss`. Production `tailwindcss` and `@tailwindcss/postcss` live on `@helvety/ui` so Vercel/Turbopack can resolve the plugin from each app; see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
+- **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss` (plugin loaded from `@helvety/dev-deps`). Production `tailwindcss` and `@tailwindcss/postcss` on `@helvety/ui` keep Tailwind on zone apps’ production dependency graph for Turbopack; see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
 - Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes. Gateway marketing accents use `--brand-swiss-red` / `text-brand-swiss-red` from `packages/ui/globals.css` (not raw `#FF0000` in components).
 - Prefer reusable state primitives for list surfaces (`ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`).
 - Use shared dashboard primitives (`EntityDashboardShell`) and command bars (`EntityCommandBar`) for list-centric entity apps.
