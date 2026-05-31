@@ -8,7 +8,7 @@ import {
   type ThemePreference,
 } from "./theme-preference";
 
-/** Loads and persists popup light/dark preference in `chrome.storage.local`. */
+/** Loads and persists extension light/dark preference in `chrome.storage.local`. */
 export function usePopupTheme(storageKey: string): {
   themePreference: ThemePreference;
   themeLoaded: boolean;

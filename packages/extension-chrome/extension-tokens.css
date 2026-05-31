@@ -1,6 +1,6 @@
 /**
- * Extension popup token profile (strict surfaces, sharp corners).
- * Import after app globals; HSL variables for extension popup Tailwind profiles.
+ * Extension UI token profile (strict surfaces, sharp corners).
+ * Import after app globals; HSL variables for extension Tailwind profiles.
  */
 @layer base {
   :root {

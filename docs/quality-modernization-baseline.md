@@ -1,10 +1,6 @@
 # Quality Modernization Baseline
 
-## Baseline Status
-
-- `bun run lint`: passing at workspace scope
-- `bun run type-check`: passing at workspace scope
-- `bun run test`: passing at workspace scope
+Living contracts and guardrails for the Helvety monorepo. Historical modernization decisions are summarized in § Completed modernization; ongoing expectations in § Verification and guardrails.
 
 ## Shared Contracts To Preserve
 
@@ -28,24 +24,6 @@
   - shared navigation/session UX behavior (`create-app-navbar` factories; `E2eeShellRouteLoading` / `HelvetyShellRouteLoading` loading matrix)
   - production `tailwindcss` and `@tailwindcss/postcss` on the zone production dependency graph for Turbopack CSS processing; `@helvety/config/postcss` loads the PostCSS plugin from `@helvety/dev-deps` (versions still canonical in dev-deps; `deps:drift` allows both only on `packages/ui`)
 
-## Phase Success Criteria
-
-1. **Config/shared foundation** — done
-   - `consistency:supabase-auth` bans `auth.getSession()` for authorization; admin client call sites documented in `packages/shared/src/supabase/admin.ts`; Upstash rate-limit metrics/dashboard enabled in production (not site visitor analytics).
-2. **App router/fetch** — done (store catalog)
-   - Store static catalog uses per-request `React.cache()` via `apps/store/lib/data/product-catalog-cache.ts` (not the Next.js `'use cache'` directive; dedupes metadata + page reads within one RSC render).
-3. **Hook correctness** — done
-   - Tasks/notes/contacts: `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` (guarded URL→sheet sync; no dashboard `useEffect` on `useSearchParams`). Links: `useLinksPanelUrlSync` (`?link=` / `?folder=`). E2EE `app/page.tsx` files wrap dashboards in `<Suspense>`.
-4. **Domain hardening** — done
-   - Shared export/reorder helpers in `@helvety/shared/entity-action-primitives`.
-5. **E2EE convergence** — done (URL-synced sheets)
-   - Tasks/notes/contacts: `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl`; cross-link editor panels use `dynamic(..., { ssr: false })`. Links: discriminated link/folder panel state with `useLinksPanelUrlSync` and the same `E2eeEntityDetailSheet` shell.
-6. **Verification/guardrails** — ongoing
-   - Lint/type-check/tests must stay green; `consistency:env-templates`, `consistency:supabase-auth`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
-   - `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
-   - Fail-closed auth refresh on all session-bearing proxy profiles; deprecated E2EE deep-link helpers removed; prefetch/export/pickers use explicit Supabase column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` for Tasks contact picker, `ENTITY_LINK_COLUMNS` for `entity_links` reads).
-   - **Supabase release:** before schema migrations, run Supabase security/performance advisors (Dashboard or MCP) and address critical findings.
-
 ## Multi-zone static assets (`assetPrefix`)
 
 - **Use `assetPrefix` + gateway `*-static` rewrites** when a zone ships a large client bundle under a dedicated path prefix (auth, tasks, contacts, notes, links). The web gateway forwards `/auth-static`, `/tasks-static`, etc. to each deployment.
@@ -53,19 +31,33 @@
 
 ## Completed modernization (2026-05)
 
-- Foundation guardrails and Supabase auth patterns
-- Entity action export/reorder primitives
-- E2EE URL sync (tasks, notes, contacts, links)
+- Foundation guardrails and Supabase auth patterns (`consistency:supabase-auth` bans `auth.getSession()` for authorization; admin client call sites documented in `packages/shared/src/supabase/admin.ts`)
+- **Next.js App Router:** removed request-header reads from E2EE root pages to avoid forcing dynamic rendering on auth-failure redirects; preserved centralized auth redirect behavior via canonical URL config
+- **Cross-zone navigation:** shell **ecosystem** navigation (`AppSwitcher` in `@helvety/ui`) uses **absolute** `urls.*` hrefs so Next.js **`basePath`** on zoned apps does not prefix another app’s path (for example `/auth/pdf` by mistake)
+- Entity action export/reorder primitives in `@helvety/shared/entity-action-primitives`
+- E2EE URL sync (tasks, notes, contacts, links): `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl`; Links uses `useLinksPanelUrlSync` (`?link=` / `?folder=`); E2EE `app/page.tsx` files wrap dashboards in `<Suspense>`; cross-link editor panels use `dynamic(..., { ssr: false })`
+- **React 19 hook/effect hygiene:** synced dashboard selected-item state with live URL search params; timer cleanup in editors; app-local fallback navigation paths (not root-relative); mobile viewport hook via `useSyncExternalStore`
 - EncryptionGate redirect intent derivation (fewer effects)
 - Hyperspeed React 19 ref-callback mount/dispose; animation timing via `THREE.Timer` (not deprecated `THREE.Clock`); sources under `apps/web/components/vendor/`
 - E2EE list hooks: `useEncryptedSortableItems` in `@helvety/ui`; tasks, notes, and contacts list hooks are thin wrappers; hook errors via `reportE2eeHookError` / `reportE2eeActionFailure` (not ad-hoc toast + redirect)
-- **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers via `bun run ci:check`.
-- **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`).
-- **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`).
-- Store product catalog caching
+- **TypeScript safety:** removed unsafe double-cast in auth device trust cookie secret handling; reduced Supabase admin helper assertion complexity while keeping typed scoped table usage
+- **Proxy matchers:** basePath-mounted apps **inline** the same static pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a literal `config.matcher`, not an imported binding) so static `public/` assets (`.mjs` / `.wasm` / `.json` for PDF.js and ONNX) skip the security proxy chain; `ci:check` guardrails enforce parity
+- **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers via `bun run ci:check`
+- **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`)
+- **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`)
+- Store product catalog caching via per-request `React.cache()` in `apps/store/lib/data/product-catalog-cache.ts` (not the Next.js `'use cache'` directive)
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
 - UI majors: lucide-react v1 (`icon-renderer` kebab-case map), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
 - **Dead code:** schedule `bun run deps:unused` quarterly (already in `ci:check`); triage Knip findings before major releases
 - **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
 - Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `RATE_LIMITS.PREFETCH`, route tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; `public.docs` on hosted Supabase + `consistency:supabase-schema` (types guardrail)
-- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); Next config presets; navbar factories; centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps
+- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories; Next config presets (`createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig`); navbar factories (`create-app-navbar`); centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps
+
+## Verification and guardrails (ongoing)
+
+- Lint, type-check, and tests must stay green; run `bun run ci:check` during development and `bun run ci:release` before push.
+- `consistency:env-templates`, `consistency:supabase-auth`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+- `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
+- Fail-closed auth refresh on all session-bearing proxy profiles; deprecated E2EE deep-link helpers removed; prefetch/export/pickers use explicit Supabase column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` for Tasks contact picker, `ENTITY_LINK_COLUMNS` for `entity_links` reads).
+- Upstash rate-limit metrics/dashboard enabled in production (not site visitor analytics).
+- **Supabase release:** before schema migrations, run Supabase security/performance advisors (Dashboard or MCP) and address critical findings.

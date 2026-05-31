@@ -701,13 +701,14 @@ async function main() {
 
   const automationDocPaths = [
     "README.md",
+    "docs/README.md",
     "docs/app-consistency-checklist.md",
     "docs/quality-modernization-baseline.md",
     "docs/dependency-inventory.md",
     "docs/security-review-runbook.md",
     "docs/vercel-monorepo-apps.md",
     "docs/naming-conventions.md",
-    "docs/quality-modernization-best-practice-mapping.md",
+    "docs/legal-change-guardrails.md",
   ];
   const staleAutomationPhrases = [
     "GitHub Actions",

@@ -13,13 +13,14 @@ const repoRoot = resolve(testDir, "../../..");
 
 const AUTOMATION_DOC_PATHS = [
   "README.md",
+  "docs/README.md",
   "docs/app-consistency-checklist.md",
   "docs/quality-modernization-baseline.md",
   "docs/dependency-inventory.md",
   "docs/security-review-runbook.md",
   "docs/vercel-monorepo-apps.md",
   "docs/naming-conventions.md",
-  "docs/quality-modernization-best-practice-mapping.md",
+  "docs/legal-change-guardrails.md",
 ] as const;
 
 const STALE_AUTOMATION_PHRASES = [
@@ -68,6 +69,7 @@ describe("automation policy consistency", () => {
         expect(source).toContain("bun run ci:check");
         expect(source).toContain("bun run ci:release");
         expect(source).toMatch(/Vercel builds and deploys/i);
+        expect(source).toContain("docs/README.md");
       }
     }
   );

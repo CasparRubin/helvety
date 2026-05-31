@@ -32,6 +32,6 @@ Redeploy after changing env.
 
 ## 3. Extension client
 
-Build without `VITE_HELVETY_AUTH_ORIGIN` (defaults to `https://helvety.com/auth`). Load unpacked `dist/` in Edge or Chrome.
+Build without `VITE_HELVETY_AUTH_ORIGIN` (defaults to `https://helvety.com/auth`). Load unpacked `dist/` in Edge or Chrome (114+), then click the Helvety toolbar icon to open the **side panel**.
 
 See [helvety-browser-extension-chromium `docs/webauthn-extension.md`](https://github.com/CasparRubin/helvety-browser-extension-chromium/blob/main/docs/webauthn-extension.md).

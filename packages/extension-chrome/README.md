@@ -1,25 +1,25 @@
 # @helvety/extension-chrome
 
-Shared **Chromium extension popup chrome** for Helvety products: CSP-safe theme boot, local light/dark preference, 800×600 popup shell layout (Chrome action-popup maximum via `POPUP_WIDTH_CLASS`), header row, and scroll/choice utilities. All consumers of this package share the same width constant.
+Shared **Chromium extension UI chrome** for Helvety products: CSP-safe theme boot, local light/dark preference, shell layout helpers, header row, and scroll/choice utilities.
 
 Used by:
 
-- [helvety-browser-extension-chromium](https://github.com/CasparRubin/helvety-browser-extension-chromium)
-- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) ([Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang))
+- [helvety-browser-extension-chromium](https://github.com/CasparRubin/helvety-browser-extension-chromium) — **Chrome Side Panel** (full viewport height; does not use `POPUP_WIDTH_CLASS`)
+- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) — action **popup** at Chrome’s 800×600 maximum ([Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang))
 
 ## Exports
 
 | Subpath                              | Purpose                                                                                  |
 | ------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `theme-boot`                         | Sync import at popup entry (OS `prefers-color-scheme` before React)                      |
+| `theme-boot`                         | Sync import at extension UI entry (OS `prefers-color-scheme` before React)               |
 | `theme-preference`                   | Parse/apply `light` / `dark` only (invalid stored values → OS default); no `next-themes` |
 | `use-popup-theme`                    | React hook + `chrome.storage.local` persistence                                          |
-| `popup-shell`                        | `POPUP_WIDTH_CLASS`, tab panel scroll, choice row classes                                |
+| `popup-shell`                        | `POPUP_WIDTH_CLASS` (800px popups), `POPUP_SHELL_CLASS`, tab scroll, choice row classes  |
 | `popup-header`                       | Product name + icon + optional version row                                               |
 | `helvety-mark`                       | About **Developer** section mark                                                         |
-| `popup.css` / `extension-tokens.css` | Shared popup Tailwind utilities                                                          |
+| `popup.css` / `extension-tokens.css` | Shared extension Tailwind utilities                                                      |
 
-Each extension passes its own **storage key** (for example `popupThemePreference` vs `helvetyPopupThemePreference`) and icon URL into the wrappers in `src/popup/components/`.
+Each extension passes its own **storage key** (for example `popupThemePreference` vs `helvetyPopupThemePreference`) and icon URL into the wrappers in its UI module (for example `src/popup/components/` in consumer repos).
 
 ## Tests
 

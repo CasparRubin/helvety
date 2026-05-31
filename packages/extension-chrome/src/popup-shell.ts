@@ -1,9 +1,9 @@
 import { cn } from "@helvety/shared/utils";
 
-/** Fixed popup width (Chrome action popup maximum). */
+/** Fixed width for action-popup extensions (Chrome maximum). Side-panel UIs typically use `w-full` instead. */
 export const POPUP_WIDTH_CLASS = "w-[800px]";
 
-/** Outer shell padding and typography shared across Helvety extension popups. */
+/** Outer shell padding and typography shared across Helvety extension UIs. */
 export const POPUP_SHELL_CLASS =
   "flex flex-col gap-2 px-3 py-3 text-sm leading-snug";
 

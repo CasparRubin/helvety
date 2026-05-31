@@ -39,7 +39,7 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 | [`packages/shared`](packages/shared/)                     | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities                                                                                                                   |
 | [`packages/ui`](packages/ui/)                             | Shared UI components, `globals.css`, and **production** `tailwindcss` / `@tailwindcss/postcss` (Turbopack CSS graph for zone builds; PostCSS plugin path via `@helvety/config/postcss` → dev-deps)                                                                        |
 | [`packages/light-pillar`](packages/light-pillar/)         | Shared WebGL backdrop utilities for the marketing homepage Hyperspeed hero                                                                                                                                                                                                |
-| [`packages/extension-chrome`](packages/extension-chrome/) | Shared Chromium extension popup chrome (consumed by external extension repos, not by Next.js zones in this monorepo)                                                                                                                                                      |
+| [`packages/extension-chrome`](packages/extension-chrome/) | Shared Chromium extension UI chrome for external extension repos (popups and side panels; not used by Next.js zones in this monorepo)                                                                                                                                     |
 
 ## Prerequisites
 
@@ -108,6 +108,15 @@ bun run scaffold:e2ee-zone <app-slug>
 - **Naming and formatting** (files, symbols, metadata copy constants, tests): [`docs/naming-conventions.md`](docs/naming-conventions.md). **New or audited apps**: [`docs/app-consistency-checklist.md`](docs/app-consistency-checklist.md). Company SEO uses **Private, simple, clean** and **Engineered, designed and made in Switzerland**; AGPL belongs on legal pages, Store product About copy, and `llms.txt` licensing sections, not in site titles or metadata descriptions. Enforced by Prettier, shared ESLint in [`packages/config/eslint.mjs`](packages/config/eslint.mjs) (including `@typescript-eslint/naming-convention`), and root `consistency:*` scripts such as `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:local-env`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:zone-modernization`, `consistency:supabase-auth`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:filenames`, and `consistency:project-naming` (retired Power Platform Configurator slugs); see `package.json` for the full list.
 - **UI/shadcn integration boundaries** (shared primitives in `@helvety/ui/*` only; no `apps/*/components/ui/`): [`docs/ui-shadcn-integration-policy.md`](docs/ui-shadcn-integration-policy.md).
 - Workspace layout, per-app entry points, and `ci:check` / `ci:release` expectations are described in this file and in each app or package `README.md` (for example [`packages/ui/README.md`](packages/ui/README.md) for shared UI shells).
+
+## Documentation
+
+Full index: [`docs/README.md`](docs/README.md). Key references:
+
+- **New or audited apps:** [`docs/app-consistency-checklist.md`](docs/app-consistency-checklist.md)
+- **Architecture contracts:** [`docs/quality-modernization-baseline.md`](docs/quality-modernization-baseline.md)
+- **Vercel monorepo setup:** [`docs/vercel-monorepo-apps.md`](docs/vercel-monorepo-apps.md)
+- **Security review cadence:** [`docs/security-review-runbook.md`](docs/security-review-runbook.md)
 
 ## Automation
 

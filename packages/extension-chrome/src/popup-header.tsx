@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 
-/** Shared popup chrome: extension icon, product name, optional version. */
+/** Shared extension chrome: extension icon, product name, optional version. */
 export function PopupHeader({
   displayName,
   version,
