@@ -113,6 +113,27 @@ describe("refreshSupabaseAuthSession", () => {
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
   });
 
+  it("clears sb-* cookies on refresh_token_not_found without fail-closed", async () => {
+    mockAuthWithGetClaims(async () => ({
+      error: {
+        message: "Invalid Refresh Token: Refresh Token Not Found",
+        status: 400,
+        code: "refresh_token_not_found",
+        name: "AuthApiError",
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const baseResponse = NextResponse.next({ request });
+
+    const response = await refreshSupabaseAuthSession(request, baseResponse);
+
+    expect(response.cookies.get("sb-example-auth-token")?.value).toBe("");
+    expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
+  });
+
   it("clears sb-* cookies on definitive auth failure when fail-closed", async () => {
     mockAuthWithGetClaims(async () => ({
       error: {

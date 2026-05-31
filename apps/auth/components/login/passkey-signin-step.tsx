@@ -20,8 +20,22 @@ export function PasskeySignInStep({
   passkeySupported,
   isMobile,
 }: PasskeySignInStepProps) {
+  const isLocalDevHost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
   return (
     <div className="space-y-4">
+      {isLocalDevHost && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-950 dark:text-amber-100">
+          Local dev uses WebAuthn RP ID{" "}
+          <code className="text-xs">localhost</code>. Passkeys registered on{" "}
+          <code className="text-xs">helvety.com</code> do not work here. Create
+          or choose a passkey saved for localhost when prompted.
+        </div>
+      )}
+
       {!passkeySupported && (
         <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm">
           Your browser doesn&apos;t support passkeys in this flow. Please try a

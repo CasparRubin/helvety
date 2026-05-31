@@ -25,6 +25,15 @@ const SHARED_PARITY_KEYS = [
   "HELVETY_COOKIE_SIGNING_SECRET",
 ];
 
+/** User-scoped E2EE + docs zones must share auth's device-trust signing secret. */
+const DEVICE_TRUST_PARITY_APPS = new Set([
+  "tasks",
+  "contacts",
+  "notes",
+  "links",
+  "docs",
+]);
+
 /**
  * @param {string} content
  * @returns {Record<string, string>}
@@ -138,6 +147,21 @@ async function main() {
             `Shared secret mismatch: ${key} in apps/${app}/.env.local differs from apps/${referenceApp}/.env.local`
           );
         }
+      }
+    }
+  }
+
+  const authDeviceTrust = byApp.auth?.DEVICE_TRUST_COOKIE_SECRET?.trim();
+  if (authDeviceTrust) {
+    for (const app of DEVICE_TRUST_PARITY_APPS) {
+      const actual = byApp[app]?.DEVICE_TRUST_COOKIE_SECRET?.trim();
+      if (!actual) {
+        continue;
+      }
+      if (actual !== authDeviceTrust) {
+        errors.push(
+          `DEVICE_TRUST_COOKIE_SECRET in apps/${app}/.env.local must match apps/auth/.env.local (same value as helvety-auth on Vercel)`
+        );
       }
     }
   }

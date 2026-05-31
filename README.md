@@ -72,11 +72,15 @@ cp apps/docs/env.template apps/docs/.env.local
 ## Common Commands
 
 ```bash
-# run all dev servers
+# run all zone dev servers (gateway http://localhost:3001; warms ports before "ready")
 bun run dev
 
 # run one workspace
 bun run dev --filter=@helvety/web
+
+# env: audit local .env.local vs templates; resync comments/structure (keeps values)
+bun run consistency:local-env
+bun run sync:local-env
 
 # quality checks
 bun run lint
@@ -138,7 +142,7 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
 
 ## Environment Model
 
-- Copy each app's `env.template` to `.env.local` before running that app (see setup commands above). `bun run consistency:env-templates` (in `ci:check`) keeps every template aligned with startup validation in `lib/env.ts` and gateway config in `apps/web/next.config.ts`. `bun run consistency:local-env` audits local `.env.local` files against those tiers and shared-secret parity before you sync Vercel Production/Preview.
+- Copy each app's `env.template` to `.env.local` before running that app (see setup commands above). `bun run consistency:env-templates` (in `ci:check`) keeps every template aligned with startup validation in `lib/env.ts` and gateway config in `apps/web/next.config.ts`. `bun run consistency:local-env` audits local `.env.local` files against those tiers and shared-secret parity before you sync Vercel Production/Preview. `bun run sync:local-env` rewrites existing `.env.local` files from templates (comments/structure only; values preserved).
 - App URL and cookie domain logic are derived from `NODE_ENV` via shared config (`packages/shared/src/config.ts`).
 - **Per-app tiers** (see each `apps/*/env.template`, app README, [`docs/turbo-env-tiers.md`](docs/turbo-env-tiers.md), and [`docs/env-vercel-audit-checklist.md`](docs/env-vercel-audit-checklist.md) for how Turbo `build.env` relates to runtime requirements and Vercel project setup):
   - **Admin + rate limit** (`auth`, `store`): `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only), `SUPABASE_SECRET_KEY`, Upstash Redis, `HELVETY_COOKIE_SIGNING_SECRET`.

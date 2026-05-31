@@ -2,6 +2,7 @@
  * Ensures each app env.template documents exactly the env vars that app validates
  * or requires at build/runtime (see lib/env.ts, apps/web/next.config.ts).
  * Local .env.local tier parity: scripts/audit-local-env.mjs (`bun run consistency:local-env`).
+ * Resync comments/structure from templates (keep values): scripts/sync-local-env-from-template.mjs (`bun run sync:local-env`).
  * Vercel ops: docs/env-vercel-audit-checklist.md.
  */
 import {

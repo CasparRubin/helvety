@@ -26,8 +26,8 @@ async function verifyAuthSessionAtProxy(
 /** Options for {@link refreshSupabaseAuthSession}. */
 export type RefreshSupabaseAuthSessionOptions = Readonly<{
   /**
-   * When true and the request had session cookies, clear invalid `sb-*` cookies
-   * on definitive auth failures instead of leaving a stale session.
+   * Reserved for profile wiring (`failClosedOnAuthRefresh`). Definitive refresh
+   * failures (revoked or missing refresh token) always clear stale `sb-*` cookies.
    */
   failClosedOnAuthError?: boolean;
 }>;
@@ -55,7 +55,20 @@ function isDefinitiveAuthRefreshFailure(error: unknown): boolean {
   if (!error || typeof error !== "object") {
     return false;
   }
-  const record = error as { message?: string; status?: number; name?: string };
+  const record = error as {
+    message?: string;
+    status?: number;
+    name?: string;
+    code?: string;
+  };
+  const code = record.code?.toLowerCase() ?? "";
+  if (
+    code === "refresh_token_not_found" ||
+    code === "invalid_refresh_token" ||
+    code === "session_not_found"
+  ) {
+    return true;
+  }
   const message = record.message ?? "";
   if (shouldForceHardLogout(message)) {
     return true;
@@ -64,6 +77,15 @@ function isDefinitiveAuthRefreshFailure(error: unknown): boolean {
     return true;
   }
   return record.name === "AuthSessionMissingError";
+}
+
+/** Clears stale Supabase auth cookies after an unrecoverable refresh failure. */
+function handleDefinitiveAuthRefreshFailure(
+  request: NextRequest,
+  response: NextResponse
+): NextResponse {
+  clearSupabaseAuthCookies(request, response);
+  return response;
 }
 
 /**
@@ -80,9 +102,8 @@ function isDefinitiveAuthRefreshFailure(error: unknown): boolean {
 export async function refreshSupabaseAuthSession(
   request: NextRequest,
   response: NextResponse,
-  options: RefreshSupabaseAuthSessionOptions = {}
+  _options: RefreshSupabaseAuthSessionOptions = {}
 ): Promise<NextResponse> {
-  const { failClosedOnAuthError = false } = options;
   let nextResponse = response;
   const cookieDomain = COOKIE_DOMAIN;
   const hadAuthCookies = requestMayHaveSupabaseAuthCookie(request);
@@ -126,13 +147,8 @@ export async function refreshSupabaseAuthSession(
 
     const { error } = await verifyAuthSessionAtProxy(supabase);
     if (error) {
-      if (
-        failClosedOnAuthError &&
-        hadAuthCookies &&
-        isDefinitiveAuthRefreshFailure(error)
-      ) {
-        clearSupabaseAuthCookies(request, nextResponse);
-        return nextResponse;
+      if (hadAuthCookies && isDefinitiveAuthRefreshFailure(error)) {
+        return handleDefinitiveAuthRefreshFailure(request, nextResponse);
       }
       logger.logUnexpectedError("Supabase session refresh in proxy", error);
       return nextResponse;
@@ -141,13 +157,8 @@ export async function refreshSupabaseAuthSession(
       request.headers.set(AUTH_REFRESHED_HEADER_NAME, "1");
     }
   } catch (error) {
-    if (
-      failClosedOnAuthError &&
-      hadAuthCookies &&
-      isDefinitiveAuthRefreshFailure(error)
-    ) {
-      clearSupabaseAuthCookies(request, nextResponse);
-      return nextResponse;
+    if (hadAuthCookies && isDefinitiveAuthRefreshFailure(error)) {
+      return handleDefinitiveAuthRefreshFailure(request, nextResponse);
     }
     logger.logUnexpectedError("Supabase session refresh in proxy", error);
   }

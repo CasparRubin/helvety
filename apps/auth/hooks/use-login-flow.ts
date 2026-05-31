@@ -195,7 +195,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const [userId, setUserId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const hasAutoRetriedMismatch = useRef(false);
-  const lastAuthBootstrapKey = useRef<string | null>(null);
+  const hasAutoStartedPasskeySignIn = useRef(false);
   const hasRecoveredTerminalAuth = useRef(false);
   const verifyCodeInProgressRef = useRef(false);
   const verifyCodeRequestIdRef = useRef(0);
@@ -224,11 +224,8 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
 
   // Initialize: check passkey support and existing session
   useEffect(() => {
-    if (lastAuthBootstrapKey.current === authBootstrapKey) {
-      return;
-    }
-    lastAuthBootstrapKey.current = authBootstrapKey;
     let cancelled = false;
+    setCheckingAuth(true);
 
     const init = async () => {
       try {
@@ -628,11 +625,15 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
                 ? "Authentication was canceled"
                 : err.name === "AbortError"
                   ? "Authentication timed out"
-                  : "Failed to authenticate with passkey"
+                  : window.location.hostname === "localhost" ||
+                      window.location.hostname === "127.0.0.1"
+                    ? "No localhost passkey available. Create one for localhost when prompted, or test sign-in on https://helvety.com."
+                    : "Failed to authenticate with passkey"
               : "Failed to authenticate with passkey";
           setError(msg);
           toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
           setIsLoading(false);
+          hasAutoStartedPasskeySignIn.current = false;
           return;
         }
 
@@ -805,7 +806,36 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     setPostOtpPasskeyPath("setup_then_signin");
     setStep("passkey-signin");
     setError("");
+    hasAutoStartedPasskeySignIn.current = false;
   }, []);
+
+  // After OTP or trusted-device entry, start passkey ceremony once bootstrap finishes.
+  useEffect(() => {
+    if (
+      checkingAuth ||
+      step !== "passkey-signin" ||
+      isLoading ||
+      !passkeySupported
+    ) {
+      return;
+    }
+    if (!userId && !options.initialTrustedUserId) {
+      return;
+    }
+    if (hasAutoStartedPasskeySignIn.current) {
+      return;
+    }
+    hasAutoStartedPasskeySignIn.current = true;
+    void handlePasskeySignIn();
+  }, [
+    checkingAuth,
+    handlePasskeySignIn,
+    isLoading,
+    options.initialTrustedUserId,
+    passkeySupported,
+    step,
+    userId,
+  ]);
 
   const handleBack = () => {
     setStep("email");
@@ -816,6 +846,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     setResendCooldown(0);
     setPostOtpPasskeyPath(null);
     hasAutoRetriedMismatch.current = false;
+    hasAutoStartedPasskeySignIn.current = false;
   };
 
   const currentAuthStep: AuthStep = resolveLoginCurrentAuthStep(step);

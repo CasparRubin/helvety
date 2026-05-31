@@ -100,7 +100,9 @@ Copy `env.template` to `.env.local`.
 | `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (separate from CSRF signing; min 32 chars)                         |
 | `HELVETY_CHROME_EXTENSION_ORIGINS`     | Yes      | Yes         | Comma-separated extension ids (or `chrome-extension://<id>`) for extension passkey APIs       |
 
-Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
+Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files; `bun run sync:local-env` resyncs template comments/structure while keeping values.
+
+**Local passkeys:** development uses WebAuthn RP ID `localhost` (see `app/actions/auth-rp-config.ts`). Passkeys registered on `helvety.com` do not work on `http://localhost:3001`; create or choose a passkey saved for `localhost` when signing in locally, or test passkey flows on production.
 
 This app uses Supabase Auth + passkeys (not NextAuth/Auth.js).
 
