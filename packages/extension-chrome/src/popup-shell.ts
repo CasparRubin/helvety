@@ -1,7 +1,7 @@
 import { cn } from "@helvety/shared/utils";
 
-/** Fixed popup width (Power Platform Configurator canonical). */
-export const POPUP_WIDTH_CLASS = "w-[320px]";
+/** Fixed popup width (Chrome action popup maximum). */
+export const POPUP_WIDTH_CLASS = "w-[800px]";
 
 /** Outer shell padding and typography shared across Helvety extension popups. */
 export const POPUP_SHELL_CLASS =

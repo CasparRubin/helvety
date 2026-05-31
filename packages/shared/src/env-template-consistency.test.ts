@@ -233,6 +233,21 @@ describe("env.template consistency", () => {
     );
     expect(content).toContain("HELVETY_CHROME_EXTENSION_ORIGINS");
     expect(content).not.toContain("HELVEETY_CHROME_EXTENSION_ORIGINS");
+    expect(content).toMatch(/extension ids|32-char/i);
+    expect(content).toContain(
+      "HELVETY_CHROME_EXTENSION_ORIGINS=your-32-char-extension-id-here"
+    );
+  });
+
+  it("env-vercel-audit-checklist documents bare extension ids and passkey curl verify", async () => {
+    const content = await readFile(
+      resolve(repoRoot, "docs/env-vercel-audit-checklist.md"),
+      "utf8"
+    );
+    expect(content).toContain("HELVETY_CHROME_EXTENSION_ORIGINS");
+    expect(content).toContain("kjdldfioiofpblkchjodefakpopmkjjf");
+    expect(content).toContain("/api/extension/passkey/options");
+    expect(content).toMatch(/Expect \*\*`401`\*\*/);
   });
 
   it("EXPECTED_KEYS_BY_APP covers every zone app directory", () => {

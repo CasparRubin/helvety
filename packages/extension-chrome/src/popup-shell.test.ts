@@ -9,7 +9,7 @@ import {
 
 describe("popup-shell", () => {
   it("exports canonical popup width and shell classes", () => {
-    expect(POPUP_WIDTH_CLASS).toBe("w-[320px]");
+    expect(POPUP_WIDTH_CLASS).toBe("w-[800px]");
     expect(POPUP_SHELL_CLASS).toContain("px-3");
     expect(POPUP_TAB_TRIGGER_ICON_CLASS).toContain("rounded-none");
   });

@@ -68,6 +68,8 @@ Vault session policy (E2EE apps): **12h sliding idle**, **30d absolute max** (se
 
 ## Chromium extension passkey API
 
+Production deploy and Vercel env: [`docs/extension-passkey-production.md`](./docs/extension-passkey-production.md).
+
 Bearer-authenticated JSON routes for the Helvety browser extension (separate from CSRF cookie server actions):
 
 | Route                                 | Purpose                                                                                                                                                                           |
@@ -75,7 +77,7 @@ Bearer-authenticated JSON routes for the Helvety browser extension (separate fro
 | `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`; includes single-use `nonce`)                                                   |
 | `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; **single-use** envelope (Upstash `consumeSingleUseKey`); update counter; **does not** create a Supabase session |
 
-Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is listed in `HELVETY_CHROME_EXTENSION_ORIGINS` ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
+Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). Env `HELVETY_CHROME_EXTENSION_ORIGINS` accepts comma-separated extension ids or full `chrome-extension://` URLs ([`lib/chrome-extension-origin-parse.ts`](./lib/chrome-extension-origin-parse.ts)). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is allowlisted ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
 
 ## Crawl and Indexing
 
@@ -96,7 +98,7 @@ Copy `env.template` to `.env.local`.
 | `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                                                      |
 | `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF/proxy cookies; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
 | `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Signs device-trust cookies (separate from CSRF signing; min 32 chars)                         |
-| `HELVETY_CHROME_EXTENSION_ORIGINS`     | Yes      | Yes         | Comma-separated `chrome-extension://<id>` allowlist for extension passkey APIs                |
+| `HELVETY_CHROME_EXTENSION_ORIGINS`     | Yes      | Yes         | Comma-separated extension ids (or `chrome-extension://<id>`) for extension passkey APIs       |
 
 Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 

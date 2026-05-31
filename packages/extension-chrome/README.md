@@ -1,6 +1,6 @@
 # @helvety/extension-chrome
 
-Shared **Chromium extension popup chrome** for Helvety products: CSP-safe theme boot, local light/dark preference, 320px popup shell layout, header row, and scroll/choice utilities.
+Shared **Chromium extension popup chrome** for Helvety products: CSP-safe theme boot, local light/dark preference, 800×600 popup shell layout (Chrome action-popup maximum via `POPUP_WIDTH_CLASS`), header row, and scroll/choice utilities. All consumers of this package share the same width constant.
 
 Used by:
 

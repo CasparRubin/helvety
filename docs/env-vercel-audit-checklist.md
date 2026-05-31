@@ -26,6 +26,27 @@ Copy exact key names and comments from each zone’s `apps/<slug>/env.template` 
 - `SUPABASE_SECRET_KEY` — only `helvety-auth` and `helvety-store` (must differ from publishable key)
 - `DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS` — only `helvety-auth`
 
+### `HELVETY_CHROME_EXTENSION_ORIGINS` (helvety-auth only)
+
+Comma-separated **Chromium extension ids** (32 chars `a`–`p`), e.g. from `edge://extensions/?id=<id>` or `chrome://extensions`. Full `chrome-extension://<id>` URLs are also accepted.
+
+Example (Edge unpacked dev + optional second id):
+
+```text
+kjdldfioiofpblkchjodefakpopmkjjf
+```
+
+After changing this value, **redeploy `helvety-auth`**. Verify routes:
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}\n" -X POST \
+  "https://helvety.com/auth/api/extension/passkey/options" \
+  -H "Content-Type: application/json" \
+  -d '{"origin":"chrome-extension://kjdldfioiofpblkchjodefakpopmkjjf","isMobile":false,"expectedUserId":"00000000-0000-4000-8000-000000000001"}'
+```
+
+Expect **`401`** with a JSON body (not `404` or HTML).
+
 ## Gateway (`helvety-com`) rewrite URLs
 
 Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-docs.vercel.app`), not the public `helvety.com` path.

@@ -7,12 +7,21 @@ describe("readChromeExtensionOriginsFromProcessEnv", () => {
     delete process.env.HELVETY_CHROME_EXTENSION_ORIGINS;
   });
 
-  it("reads HELVETY_CHROME_EXTENSION_ORIGINS from process env", () => {
+  it("reads HELVETY_CHROME_EXTENSION_ORIGINS from process env (full origin)", () => {
     process.env.HELVETY_CHROME_EXTENSION_ORIGINS =
-      "chrome-extension://extension-id";
+      "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
 
     expect(readChromeExtensionOriginsFromProcessEnv()).toBe(
-      "chrome-extension://extension-id"
+      "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef"
+    );
+  });
+
+  it("reads bare extension id string unchanged (normalization happens in env Zod transform)", () => {
+    process.env.HELVETY_CHROME_EXTENSION_ORIGINS =
+      "kjdldfioiofpblkchjodefakpopmkjjf";
+
+    expect(readChromeExtensionOriginsFromProcessEnv()).toBe(
+      "kjdldfioiofpblkchjodefakpopmkjjf"
     );
   });
 
