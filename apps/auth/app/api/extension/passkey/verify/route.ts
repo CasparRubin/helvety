@@ -1,6 +1,5 @@
 import { getTrustedClientIp } from "@helvety/shared/client-ip";
 import { logger } from "@helvety/shared/logger";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { authenticateBearerRequest } from "@/lib/extension-bearer-auth";
@@ -40,15 +39,24 @@ export async function POST(
 
     const parsed = ExtensionPasskeyVerifyBodySchema.safeParse(body);
     if (!parsed.success) {
+      const origin =
+        typeof body === "object" &&
+        body !== null &&
+        "origin" in body &&
+        typeof (body as { origin?: unknown }).origin === "string"
+          ? (body as { origin: string }).origin
+          : null;
+      const error = origin?.startsWith("chrome-extension://")
+        ? "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy."
+        : "Invalid request body";
       return NextResponse.json(
-        { success: false, error: "Invalid request body" },
+        { success: false, error },
         { status: 400, headers: NO_STORE_HEADERS }
       );
     }
 
-    const headersList = await headers();
-    const clientIP = getTrustedClientIp(headersList, {
-      requireTrustedProxyInProduction: true,
+    const clientIP = getTrustedClientIp(request.headers, {
+      requireTrustedProxyInProduction: false,
     });
 
     const result = await verifyExtensionPasskey({

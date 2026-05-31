@@ -109,7 +109,8 @@ describe("auth extension passkey options route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: "Invalid request body",
+      error:
+        "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy.",
     });
     expect(mocks.generateExtensionPasskeyOptions).not.toHaveBeenCalled();
   });
@@ -158,6 +159,9 @@ describe("auth extension passkey options route", () => {
       origin: ALLOWED_ORIGIN,
       isMobile: true,
       clientIP: "127.0.0.1",
+    });
+    expect(mocks.getTrustedClientIp).toHaveBeenCalledWith(expect.any(Headers), {
+      requireTrustedProxyInProduction: false,
     });
   });
 });

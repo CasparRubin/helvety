@@ -119,8 +119,49 @@ describe("auth extension passkey verify route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: "Invalid request body",
+      error:
+        "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy.",
     });
     expect(mocks.verifyExtensionPasskey).not.toHaveBeenCalled();
+  });
+
+  it("delegates to verifyExtensionPasskey for allowlisted origins", async () => {
+    mocks.verifyExtensionPasskey.mockResolvedValue({
+      success: true,
+      data: { userId: USER_ID },
+    });
+
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/passkey/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          origin: ALLOWED_ORIGIN,
+          challengeEnvelope: "envelope",
+          credential: {
+            id: "cred",
+            rawId: "raw",
+            type: "public-key",
+            response: {
+              clientDataJSON: "Y2Rq",
+              authenticatorData: "YWR",
+              signature: "c2d",
+            },
+          },
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.verifyExtensionPasskey).toHaveBeenCalledWith({
+      userId: USER_ID,
+      origin: ALLOWED_ORIGIN,
+      challengeEnvelope: "envelope",
+      credential: expect.objectContaining({ id: "cred" }),
+      clientIP: "127.0.0.1",
+    });
+    expect(mocks.getTrustedClientIp).toHaveBeenCalledWith(expect.any(Headers), {
+      requireTrustedProxyInProduction: false,
+    });
   });
 });

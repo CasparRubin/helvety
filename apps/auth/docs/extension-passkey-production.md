@@ -15,8 +15,9 @@ curl -sS -w "\n%{http_code}\n" -X POST \
   -d '{"origin":"chrome-extension://kjdldfioiofpblkchjodefakpopmkjjf","isMobile":false,"expectedUserId":"00000000-0000-4000-8000-000000000001"}'
 ```
 
-- **Good:** HTTP `401` and JSON `{"success":false,"error":"Not authenticated"}` (or similar).
-- **Bad:** HTTP `404` or HTML — extension shows “Passkey API is not deployed…”.
+- **Good:** HTTP `401` and JSON `{"success":false,"error":"Not authenticated"}` (or similar) — routes exist.
+- **Bad:** HTTP `404` or HTML — extension shows “Passkey API is not deployed…” (check gateway `AUTH_URL` and `helvety-auth` deploy).
+- **After sign-in:** JSON `400` with an allowlist message means routes work but **`HELVETY_CHROME_EXTENSION_ORIGINS`** is missing your runtime extension id (copy from extension About tab).
 
 ## 2. Set `HELVETY_CHROME_EXTENSION_ORIGINS` (Production)
 

@@ -15,6 +15,10 @@ export function isAllowedChromeExtensionOrigin(origin: string): boolean {
   } catch {
     return false;
   }
-  const { HELVETY_CHROME_EXTENSION_ORIGINS } = getValidatedAuthEnv();
-  return HELVETY_CHROME_EXTENSION_ORIGINS.includes(origin);
+  try {
+    const { HELVETY_CHROME_EXTENSION_ORIGINS } = getValidatedAuthEnv();
+    return HELVETY_CHROME_EXTENSION_ORIGINS.includes(origin);
+  } catch {
+    return false;
+  }
 }

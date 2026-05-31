@@ -31,5 +31,8 @@ describe("extension passkey production docs", () => {
     expect(doc).toContain("/api/extension/passkey/options");
     expect(doc).toMatch(/401.*JSON|JSON.*401/i);
     expect(doc).not.toContain("localhost");
+    expect(doc).toMatch(/404.*HTML|HTML.*404/i);
+    expect(doc).toMatch(/allowlist/i);
+    expect(doc).toMatch(/side panel/i);
   });
 });

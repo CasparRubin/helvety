@@ -35,4 +35,11 @@ describe("isAllowedChromeExtensionOrigin", () => {
   it("rejects malformed chrome-extension URLs", () => {
     expect(isAllowedChromeExtensionOrigin("chrome-extension://")).toBe(false);
   });
+
+  it("returns false when auth env validation fails", () => {
+    vi.mocked(getValidatedAuthEnv).mockImplementation(() => {
+      throw new Error("Invalid environment variables");
+    });
+    expect(isAllowedChromeExtensionOrigin(ALLOWED)).toBe(false);
+  });
 });
