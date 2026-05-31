@@ -60,7 +60,7 @@ describe("vault-session", () => {
     expect(normalizeVaultSessionTimestamps({})).toBeNull();
   });
 
-  it("isVaultMaxLifetimeExceeded after 30d from unlockedAt", () => {
+  it("isVaultMaxLifetimeExceeded after 7d from unlockedAt", () => {
     const session = createVaultSession(t0);
     expect(isVaultMaxLifetimeExceeded(session.unlockedAt, t0)).toBe(false);
     expect(

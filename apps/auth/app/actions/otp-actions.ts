@@ -366,7 +366,7 @@ export async function verifyEmailCode(
       );
     }
 
-    // Mint device trust after email verification (fresh 30-day window). Sliding
+    // Mint device trust after email verification (fresh weekly window). Sliding
     // renewal happens only on subsequent passkey sign-ins when a valid trust
     // cookie for this user already exists — passkey alone never mints trust.
     // This does not grant access by itself; it only allows passkey-first UX.

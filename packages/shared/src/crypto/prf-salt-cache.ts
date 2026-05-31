@@ -14,10 +14,11 @@
  * during the next login on the same device.
  */
 
+import { AUTH_MAX_LIFETIME_MS } from "../auth-session-policy";
 import { logger } from "../logger";
 
 const PRF_SALT_CACHE_KEY = "helvety-prf-salt";
-const PRF_SALT_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const PRF_SALT_CACHE_MAX_AGE_MS = AUTH_MAX_LIFETIME_MS;
 
 /** Cached PRF salt stored in localStorage for single-touch unlock on subsequent logins */
 interface CachedPRFSalt {

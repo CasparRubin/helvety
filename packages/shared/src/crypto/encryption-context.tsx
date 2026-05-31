@@ -15,7 +15,6 @@ import {
   deleteMasterKey,
   clearAllKeys,
   isStorageAvailable,
-  touchVaultSessionInStorage,
 } from "./key-storage";
 import { isPasskeySupported } from "./passkey";
 import {
@@ -23,10 +22,8 @@ import {
   isPRFSupported,
   type PRFSupportInfo,
 } from "./prf-key-derivation";
-import {
-  getVaultLockDelayMs,
-  isVaultMaxLifetimeExceeded,
-} from "./vault-session";
+import { useVaultIdleLock } from "./use-vault-idle-lock";
+import { isVaultMaxLifetimeExceeded } from "./vault-session";
 
 /** Internal state for the encryption context */
 interface EncryptionState {
@@ -222,61 +219,12 @@ export function EncryptionProvider({ children }: EncryptionProviderProps) {
     [checkPRFSupport, lockEncryption]
   );
 
-  useEffect(() => {
-    if (
-      !state.isUnlocked ||
-      !state.unlockedForUserId ||
-      state.vaultUnlockedAt === null
-    ) {
-      return;
-    }
-
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    const activeUserId = state.unlockedForUserId;
-    const vaultUnlockedAt = state.vaultUnlockedAt;
-
-    const scheduleIdleLock = () => {
-      void touchVaultSessionInStorage(activeUserId);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      const delayMs = getVaultLockDelayMs(vaultUnlockedAt);
-      if (delayMs <= 0) {
-        void lockEncryption(activeUserId);
-        return;
-      }
-      timeoutId = setTimeout(() => {
-        void lockEncryption(activeUserId);
-      }, delayMs);
-    };
-
-    const activityEvents: Array<keyof WindowEventMap> = [
-      "pointerdown",
-      "keydown",
-      "touchstart",
-      "focus",
-    ];
-
-    for (const eventName of activityEvents) {
-      window.addEventListener(eventName, scheduleIdleLock, { passive: true });
-    }
-
-    scheduleIdleLock();
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      for (const eventName of activityEvents) {
-        window.removeEventListener(eventName, scheduleIdleLock);
-      }
-    };
-  }, [
-    lockEncryption,
-    state.isUnlocked,
-    state.unlockedForUserId,
-    state.vaultUnlockedAt,
-  ]);
+  useVaultIdleLock({
+    userId: state.unlockedForUserId,
+    isUnlocked: state.isUnlocked,
+    vaultUnlockedAt: state.vaultUnlockedAt,
+    onLock: lockEncryption,
+  });
 
   const value: EncryptionContextValue = {
     ...state,

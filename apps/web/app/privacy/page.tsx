@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="May 30, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="May 31, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -1091,6 +1091,15 @@ export default function PrivacyPage() {
             These are not browser cookies and do not create a helvety.com web
             session by themselves.
           </li>
+          <li>
+            <strong className="text-foreground">
+              Chromium extension sign-in storage:
+            </strong>{" "}
+            Supabase session material and a weekly email-proof anchor in{" "}
+            <code className="text-foreground">chrome.storage.local</code> (see
+            table below). The extension side panel also uses IndexedDB for the
+            same vault key cache policy as web E2EE apps.
+          </li>
         </ul>
         <div className="legal-table-wrap mb-4 overflow-x-auto">
           <table className="border-border w-full border text-sm">
@@ -1149,12 +1158,13 @@ export default function PrivacyPage() {
                 <td className="border-border border-b p-3">
                   Trusted-device marker after email verification; allows
                   passkey-first sign-in on return visits from any `/auth/login`
-                  entry (signed, httpOnly; UX only, not authorization)
+                  entry and weekly email re-proof for E2EE API access (signed,
+                  httpOnly)
                 </td>
                 <td className="border-border border-b p-3">.helvety.com</td>
                 <td className="border-border border-b p-3">
-                  30 days (sliding renewal on passkey sign-in when already
-                  trusted)
+                  7 days (sliding renewal on passkey sign-in when already
+                  trusted; required for continuing E2EE API access)
                 </td>
               </tr>
               <tr>
@@ -1183,14 +1193,44 @@ export default function PrivacyPage() {
                 </td>
                 <td className="border-border border-b p-3">
                   Temporary cache of derived encryption keys for E2EE apps
-                  (Helvety Tasks, Contacts, Notes, Links) and Helvety Docs
-                  optional vault save; cleared on logout
+                  (Helvety Tasks, Contacts, Notes, Links), Helvety Docs optional
+                  vault save, and the Helvety Chromium extension side panel;
+                  cleared on logout
                 </td>
                 <td className="border-border border-b p-3">helvety.com</td>
                 <td className="border-border border-b p-3">
-                  Up to 12 hours idle (extended on use), 30 days maximum per
+                  Up to 24 hours idle (extended on use), 7 days maximum per
                   unlock session
                 </td>
+              </tr>
+              <tr>
+                <td className="border-border border-b p-3">
+                  Supabase auth session (chrome.storage.local)
+                </td>
+                <td className="border-border border-b p-3">
+                  Keeps you signed in to the Helvety Chromium extension side
+                  panel between sessions
+                </td>
+                <td className="border-border border-b p-3">
+                  Chromium extension
+                </td>
+                <td className="border-border border-b p-3">
+                  Session (short-lived tokens with automatic refresh and
+                  expiration controls)
+                </td>
+              </tr>
+              <tr>
+                <td className="border-border border-b p-3">
+                  helvety_extension_last_email_verified (chrome.storage.local)
+                </td>
+                <td className="border-border border-b p-3">
+                  Weekly email-proof anchor after OTP verification in the
+                  Chromium extension; required to stay signed in for E2EE access
+                </td>
+                <td className="border-border border-b p-3">
+                  Chromium extension
+                </td>
+                <td className="border-border border-b p-3">7 days</td>
               </tr>
               <tr>
                 <td className="p-3">helvety-pdf-columns (localStorage)</td>
@@ -1353,8 +1393,8 @@ export default function PrivacyPage() {
           </li>
           <li>
             After unlock, a derived master key may be cached locally in your
-            browser (IndexedDB) for up to 12 hours of inactivity (extended when
-            you use the app) and for at most 30 days from the unlock session;
+            browser (IndexedDB) for up to 24 hours of inactivity (extended when
+            you use the app) and for at most 7 days from the unlock session;
             Helvety Docs uses the same cache when you unlock optional vault
             save; this cache is cleared when you sign out
           </li>

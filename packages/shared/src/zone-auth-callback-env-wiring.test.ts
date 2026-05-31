@@ -21,6 +21,7 @@ const AUTH_CALLBACK_APPS = [
 const UPSTASH_ENV_FACTORY_PATTERNS = [
   "createAppServerUpstashEnv",
   "createAppUserScopedEnv",
+  "createAppUserScopedE2eeEnv",
   "createAppUpstashCookieEnv",
 ] as const;
 

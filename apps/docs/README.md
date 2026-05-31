@@ -57,6 +57,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 - Vault Postgres access uses the **authenticated user** Supabase client in server actions and `/api/docs` routes (`getUser()` + forced RLS on `public.docs`). The app does **not** use `createAdminClient()` for vault CRUD. Database policies require `(select auth.uid()) = user_id`; table privileges are granted to `authenticated` only (not `anon`).
 - `proxy.ts` uses the `public-tool` profile plus `googleFonts` CSP for Material Symbols (docx-editor toolbar). The profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js).
 - Auth checks run in server actions and `/api/docs` route handlers, not in `proxy.ts` as the authoritative boundary. Vault list/detail GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS.docs`).
+- Valid `helvety_device_trust` cookie (weekly email proof) required for vault API routes; missing/expired trust forces global logout. Vault keys in IndexedDB: **24h sliding idle / 7d max** (`auth-session-policy.ts`).
 - Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Theme (light / dark)
@@ -91,15 +92,16 @@ Then run `cd apps/docs && bun run test` (theme bridge in `lib/docx-editor-theme.
 
 Copy [`env.template`](./env.template) to `.env.local`.
 
-This app uses the **user-scoped server** env tier (same as E2EE vault zones): Supabase publishable key, Upstash Redis, and cookie signing for CSRF in the proxy. Vault handlers use the user-scoped Supabase client + RLS; no `SUPABASE_SECRET_KEY` is required.
+This app uses the **user-scoped E2EE** env tier (same as Tasks/Contacts/Notes/Links): Supabase publishable key, Upstash Redis, CSRF cookie signing, and device-trust verification. Vault handlers use the user-scoped Supabase client + RLS; no `SUPABASE_SECRET_KEY` is required. `DEVICE_TRUST_COOKIE_SECRET` must match `helvety-auth`.
 
-| Variable                               | Required | Server-only | Description                                                                                      |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key (user-scoped vault client)                                              |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Rate limiting for server actions, API routes, and auth callbacks                                 |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash REST token                                                                               |
-| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
+| Variable                               | Required | Server-only | Description                                                                                         |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                                |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key (user-scoped vault client)                                                 |
+| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Rate limiting for server actions, API routes, and auth callbacks                                    |
+| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash REST token                                                                                  |
+| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`)    |
+| `DEVICE_TRUST_COOKIE_SECRET`           | Yes      | Yes         | Verifies weekly email-proof cookie (same value as `auth`; min 32 chars; separate from CSRF signing) |
 
 ## Vercel deployment
 

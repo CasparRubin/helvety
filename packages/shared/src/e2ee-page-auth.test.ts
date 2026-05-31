@@ -8,9 +8,24 @@ import { requireAuth } from "./auth-guard";
 import {
   requireE2eeAppPageAuth,
   requiresE2eeBrowserUnlock,
+  requiresE2eeDeviceTrust,
 } from "./e2ee-page-auth";
 
 import type { User } from "@supabase/supabase-js";
+
+describe("requiresE2eeDeviceTrust", () => {
+  it("returns true for E2EE vault rate-limit prefixes", () => {
+    expect(requiresE2eeDeviceTrust("tasks")).toBe(true);
+    expect(requiresE2eeDeviceTrust("export")).toBe(true);
+    expect(requiresE2eeDeviceTrust("contact-links")).toBe(true);
+    expect(requiresE2eeDeviceTrust("docs")).toBe(true);
+  });
+
+  it("returns false for non-E2EE prefixes", () => {
+    expect(requiresE2eeDeviceTrust("store")).toBe(false);
+    expect(requiresE2eeDeviceTrust("test")).toBe(false);
+  });
+});
 
 describe("requireE2eeAppPageAuth", () => {
   it("delegates to requireAuth with the app path", async () => {
@@ -19,7 +34,9 @@ describe("requireE2eeAppPageAuth", () => {
 
     const result = await requireE2eeAppPageAuth("/tasks");
 
-    expect(requireAuth).toHaveBeenCalledWith("/tasks");
+    expect(requireAuth).toHaveBeenCalledWith("/tasks", {
+      requireDeviceTrust: true,
+    });
     expect(result).toBe(user);
   });
 });

@@ -1,3 +1,8 @@
+import {
+  AUTH_MAX_LIFETIME_MS,
+  AUTH_SLIDING_IDLE_MS,
+} from "../auth-session-policy";
+
 /**
  * Client-side vault session policy for E2EE apps.
  *
@@ -6,10 +11,10 @@
  */
 
 /** Sliding idle window: extended on vault use and user activity. */
-export const VAULT_SLIDING_IDLE_MS = 12 * 60 * 60 * 1000;
+export const VAULT_SLIDING_IDLE_MS = AUTH_SLIDING_IDLE_MS;
 
 /** Absolute cap from first unlock in this vault session. */
-export const VAULT_MAX_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+export const VAULT_MAX_LIFETIME_MS = AUTH_MAX_LIFETIME_MS;
 
 /** Timestamps stored alongside a cached master key in IndexedDB. */
 export type VaultSessionTimestamps = {

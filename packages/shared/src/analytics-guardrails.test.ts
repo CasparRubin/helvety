@@ -5,6 +5,7 @@ import {
   HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS,
   HELVETY_LEGACY_GATEWAY_ANALYTICS_REWRITE_MARKERS,
   HELVETY_STALE_ANALYTICS_CODE_MARKERS_IN_DOCS,
+  HELVETY_STALE_COOKIE_DOC_PHRASES,
   HELVETY_STALE_TRACKING_DISCLOSURE_PHRASES,
   HELVETY_STALE_TRACKING_PHRASE_DOC_EXCLUSIONS,
 } from "./analytics-guardrails";
@@ -33,6 +34,16 @@ describe("analytics guardrails constants", () => {
     }
     expect(HELVETY_FORBIDDEN_ANALYTICS_CODE_MARKERS).toContain(
       "HelvetyVercelAnalytics"
+    );
+  });
+
+  it("lists stale session-policy cookie doc phrases", () => {
+    expect(HELVETY_STALE_COOKIE_DOC_PHRASES).toContain("Up to 12 hours idle");
+    expect(HELVETY_STALE_COOKIE_DOC_PHRASES).toContain(
+      "30 days maximum per unlock"
+    );
+    expect(HELVETY_STALE_COOKIE_DOC_PHRASES).toContain(
+      "30 days (sliding renewal"
     );
   });
 

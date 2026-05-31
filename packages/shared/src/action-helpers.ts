@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cookies } from "next/headers";
+
 import {
   buildAuthHardLogoutError,
   buildAuthRequiredError,
@@ -7,6 +9,8 @@ import {
 } from "./auth-errors";
 import { getAuthUser } from "./auth-retry";
 import { requireCSRFToken } from "./csrf";
+import { getValidDeviceTrustFromCookieStore } from "./device-trust-cookie";
+import { requiresE2eeDeviceTrust } from "./e2ee-page-auth";
 import { checkRateLimit, RATE_LIMITS } from "./rate-limit";
 import { createServerClient } from "./supabase/server";
 import { buildRateLimitedUserMessage } from "./user-facing-errors";
@@ -50,6 +54,11 @@ interface AuthGuardOptions {
   rateLimitConfig?: RateLimitThresholds;
   /** Read-only rate limit configuration (when `csrfToken` is `undefined`). Defaults to RATE_LIMITS.READ. */
   readRateLimitConfig?: RateLimitThresholds;
+  /**
+   * When true, missing/expired device trust returns AUTH_HARD_LOGOUT.
+   * Defaults to true for E2EE vault rate-limit prefixes (see `requiresE2eeDeviceTrust`).
+   */
+  requireDeviceTrust?: boolean;
 }
 
 // =============================================================================
@@ -100,6 +109,7 @@ export async function authenticateAndRateLimit(
     rateLimitPrefix,
     rateLimitConfig = RATE_LIMITS.API,
     readRateLimitConfig = RATE_LIMITS.READ,
+    requireDeviceTrust = requiresE2eeDeviceTrust(rateLimitPrefix),
   } = options;
 
   // 1. CSRF validation (skip for read-only actions that don't pass a token)
@@ -132,6 +142,20 @@ export async function authenticateAndRateLimit(
           : buildAuthRequiredError(errorMessage ?? undefined),
       },
     };
+  }
+
+  if (requireDeviceTrust) {
+    const cookieStore = await cookies();
+    const trust = getValidDeviceTrustFromCookieStore(cookieStore);
+    if (trust?.userId !== user.id) {
+      return {
+        ok: false,
+        response: {
+          success: false,
+          error: buildAuthHardLogoutError("Device trust expired"),
+        },
+      };
+    }
   }
 
   // 3. Rate limiting

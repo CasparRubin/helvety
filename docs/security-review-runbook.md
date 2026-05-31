@@ -58,6 +58,18 @@ Helvety uses email OTP and passkeys, not Apple/Azure OIDC in app code. If those 
 - Confirm hosted Auth is **≥ 2.185.0** (mitigates [CVE-2026-31813](https://www.sentinelone.com/vulnerability-database/cve-2026-31813/) for crafted OIDC ID tokens).
 - Disable unused federated providers to reduce attack surface.
 
+### Session lifetime (align with app policy)
+
+Helvety’s unified client policy is **24h sliding idle** and **7d absolute max** (`packages/shared/src/auth-session-policy.ts`). On **Supabase Pro or above**, mirror that in **Authentication → Sessions**:
+
+| Dashboard setting      | Recommended value                                                   |
+| ---------------------- | ------------------------------------------------------------------- |
+| JWT expiry             | **3600s** (1 hour; keep short access tokens with automatic refresh) |
+| Time-box user sessions | **7 days**                                                          |
+| Inactivity timeout     | **24 hours**                                                        |
+
+Checks run on session refresh (not proactively). Until Pro is enabled, Helvety enforces weekly email proof via the signed `helvety_device_trust` cookie on E2EE apps and extension-local storage in the Chromium extension.
+
 Check version in Supabase Dashboard → Project Settings → Infrastructure, or via support if not shown.
 
 ## Quarterly cadence

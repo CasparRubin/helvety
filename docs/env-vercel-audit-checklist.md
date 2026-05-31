@@ -13,7 +13,7 @@ All ten zone projects exist on team **Helvety** (`helvety-com`, `helvety-auth`, 
 | `helvety-com`                                                                         | `apps/web`     | `NEXT_PUBLIC_SUPABASE_*`, all nine `*_URL` gateway vars including **`DOCS_URL`**                                                                           | `SUPABASE_SECRET_KEY`, `UPSTASH_*`, `HELVETY_COOKIE_SIGNING_SECRET` |
 | `helvety-auth`                                                                        | `apps/auth`    | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`**, **`HELVETY_CHROME_EXTENSION_ORIGINS`** | —                                                                   |
 | `helvety-store`                                                                       | `apps/store`   | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                                           | `DEVICE_TRUST_COOKIE_SECRET`                                        |
-| `helvety-docs`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links` | `apps/<slug>`  | Public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                                                                  | `SUPABASE_SECRET_KEY`                                               |
+| `helvety-docs`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links` | `apps/<slug>`  | Public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`)                                 | `SUPABASE_SECRET_KEY`                                               |
 | `helvety-pdf`, `helvety-image-upscaler`                                               | `apps/<slug>`  | Same as user-scoped tier                                                                                                                                   | `SUPABASE_SECRET_KEY`                                               |
 
 Copy exact key names and comments from each zone’s `apps/<slug>/env.template` (for example `apps/auth/env.template`).
@@ -24,7 +24,8 @@ Copy exact key names and comments from each zone’s `apps/<slug>/env.template` 
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — every project except `helvety-com`
 - `HELVETY_COOKIE_SIGNING_SECRET` — every project except `helvety-com` (one shared value)
 - `SUPABASE_SECRET_KEY` — only `helvety-auth` and `helvety-store` (must differ from publishable key)
-- `DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS` — only `helvety-auth`
+- `DEVICE_TRUST_COOKIE_SECRET` — `helvety-auth` and all user-scoped E2EE/docs zones (same shared value; weekly email-proof gate)
+- `HELVETY_CHROME_EXTENSION_ORIGINS` — only `helvety-auth`
 
 ### `HELVETY_CHROME_EXTENSION_ORIGINS` (helvety-auth only)
 

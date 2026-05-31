@@ -43,13 +43,13 @@ describe("zone lib/env factory wiring", () => {
   });
 
   it.each(USER_SCOPED_SERVER_APPS)(
-    "apps/%s/lib/env.ts uses createAppUserScopedEnv",
+    "apps/%s/lib/env.ts uses createAppUserScopedE2eeEnv",
     (app) => {
       const src = readFileSync(
         join(repoRoot, "apps", app, "lib/env.ts"),
         "utf8"
       );
-      expect(src).toContain("createAppUserScopedEnv");
+      expect(src).toContain("createAppUserScopedE2eeEnv");
       expect(src).toMatch(/export const getValidated\w+Env/);
     }
   );

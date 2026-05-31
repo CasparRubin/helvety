@@ -46,10 +46,38 @@ describe("env.template consistency", () => {
     expect(WEB_GATEWAY_KEYS).toContain("DOCS_URL");
   });
 
-  it("documents DEVICE_TRUST_COOKIE_SECRET only on auth", () => {
+  it("documents DEVICE_TRUST_COOKIE_SECRET on auth and user-scoped E2EE zones", () => {
+    const e2eeApps = new Set([
+      "auth",
+      "tasks",
+      "contacts",
+      "notes",
+      "links",
+      "docs",
+    ]);
     for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
       const hasDeviceTrust = keys.includes("DEVICE_TRUST_COOKIE_SECRET");
-      expect(hasDeviceTrust).toBe(app === "auth");
+      expect(hasDeviceTrust).toBe(e2eeApps.has(app));
+    }
+  });
+
+  it("zone READMEs document DEVICE_TRUST_COOKIE_SECRET when env.template requires it", async () => {
+    const e2eeApps = [
+      "auth",
+      "tasks",
+      "contacts",
+      "notes",
+      "links",
+      "docs",
+    ] as const;
+    for (const app of e2eeApps) {
+      const readme = await readFile(
+        resolve(repoRoot, `apps/${app}/README.md`),
+        "utf8"
+      );
+      expect(readme, `apps/${app}/README.md`).toContain(
+        "DEVICE_TRUST_COOKIE_SECRET"
+      );
     }
   });
 

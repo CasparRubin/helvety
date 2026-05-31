@@ -55,6 +55,10 @@ export const HELVETY_STALE_COOKIE_DOC_PHRASES = [
   "account-based services also use authentication cookies",
   "similar storage technologies for security and core functionality; account-based",
   "Preference cookies:",
+  "Up to 12 hours idle",
+  "30 days maximum per unlock",
+  "30 days (sliding renewal",
+  "UX only, not authorization",
 ];
 
 /** @type {readonly string[]} */

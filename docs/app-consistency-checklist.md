@@ -175,13 +175,13 @@ E2EE zones and vault-aware zones (`auth`, `docs`) re-export the client provider 
 
 ## `lib/env.ts` factory
 
-| Tier                          | Factory                                                        | Apps                                                                      |
-| ----------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                   |
-| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`) |
-| User-scoped + rate limit      | `createAppUserScopedEnv` + `userScopedServerEnvSchema`         | E2EE apps, `docs`                                                         |
-| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                   |
-| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                     |
+| Tier                          | Factory                                                        | Apps                                                                         |
+| ----------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                      |
+| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`)    |
+| User-scoped E2EE + docs       | `createAppUserScopedE2eeEnv` + `userScopedE2eeServerEnvSchema` | E2EE apps, `docs` (`DEVICE_TRUST_COOKIE_SECRET` for weekly email-proof gate) |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                      |
+| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                        |
 
 Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
 
@@ -221,13 +221,13 @@ See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
 Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.json) so cached builds invalidate when any zone secret changes. See [`turbo-env-tiers.md`](./turbo-env-tiers.md) and [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md). **Required keys at runtime** still follow each app's `env.template` (`bun run consistency:env-templates`; local `.env.local`: `bun run consistency:local-env`):
 
-| Tier                         | Apps                    | Required secrets (typical)                                                        |
-| ---------------------------- | ----------------------- | --------------------------------------------------------------------------------- |
-| **Admin + rate limit**       | `auth`, `store`         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` |
-| **User-scoped + rate limit** | E2EE apps, `docs`       | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET` (no admin client)      |
-| **Public tool + rate limit** | `pdf`, `image-upscaler` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                        |
-| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`                  |
-| **Gateway**                  | `web`                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                               |
+| Tier                         | Apps                    | Required secrets (typical)                                                                                 |
+| ---------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Admin + rate limit**       | `auth`, `store`         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                          |
+| **User-scoped + rate limit** | E2EE apps, `docs`       | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, `DEVICE_TRUST_COOKIE_SECRET` (no admin client) |
+| **Public tool + rate limit** | `pdf`, `image-upscaler` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                 |
+| **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET` (mint), `HELVETY_CHROME_EXTENSION_ORIGINS`                                    |
+| **Gateway**                  | `web`                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                                                        |
 
 See root [`README.md`](../README.md) § Environment Model.
 
@@ -236,20 +236,20 @@ See root [`README.md`](../README.md) § Environment Model.
 | Tier                     | Apps                    | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION` |
 | ------------------------ | ----------------------- | ------------------------------------------------------- |
 | Admin + rate limit       | `auth`, `store`         | Yes (`createAppServerUpstashEnv`)                       |
-| User-scoped + rate limit | E2EE apps, `docs`       | Yes (`createAppUserScopedEnv`)                          |
+| User-scoped E2EE + docs  | E2EE apps, `docs`       | Yes (`createAppUserScopedE2eeEnv`)                      |
 | Public tool + rate limit | `pdf`, `image-upscaler` | Yes (`createAppUpstashCookieEnv`)                       |
 | Gateway                  | `web`                   | Yes (`getValidatedWebEnv`)                              |
 
 ## E2EE UX patterns
 
-| Pattern               | Canonical                                                                                                                                                                                       | Apps                                                 |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)                                                                                                                                       | `tasks`, `notes`, `contacts`, `links`                |
-| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks                                                                                                                                 | E2EE apps                                            |
-| Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems`; cross-link hooks via `createE2eeEntityLinksHook` | E2EE apps                                            |
-| Vault session TTL     | `vault-session.ts` (12h sliding idle, 30d max); enforced in `encryption-context` + IndexedDB                                                                                                    | All zones using `EncryptionProvider`                 |
-| Vault delete confirm  | `AlertDialog` before vault document delete                                                                                                                                                      | `docs`                                               |
-| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + `createE2eeEntityLinksHook` per-app hooks                                                                                                                 | `tasks`, `notes`, `contacts` (all cross-link panels) |
+| Pattern               | Canonical                                                                                                                                                                                       | Apps                                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)                                                                                                                                       | `tasks`, `notes`, `contacts`, `links`                     |
+| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks                                                                                                                                 | E2EE apps                                                 |
+| Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems`; cross-link hooks via `createE2eeEntityLinksHook` | E2EE apps                                                 |
+| Vault session TTL     | `auth-session-policy.ts` + `vault-session.ts` (24h sliding idle, 7d max); enforced in `encryption-context`, extension side panel, and IndexedDB                                                 | All zones using `EncryptionProvider` + Chromium extension |
+| Vault delete confirm  | `AlertDialog` before vault document delete                                                                                                                                                      | `docs`                                                    |
+| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + `createE2eeEntityLinksHook` per-app hooks                                                                                                                 | `tasks`, `notes`, `contacts` (all cross-link panels)      |
 
 ## Validation before merge
 

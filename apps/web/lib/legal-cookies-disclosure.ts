@@ -31,5 +31,7 @@ export const HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS = [
   "Theme preference (localStorage)",
   "helvety-prf-salt (localStorage)",
   "helvety-crypto (IndexedDB)",
+  "Supabase auth session (chrome.storage.local)",
+  "helvety_extension_last_email_verified (chrome.storage.local)",
   "helvety-pdf-columns (localStorage)",
 ] as const;

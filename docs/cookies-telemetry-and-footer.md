@@ -17,12 +17,12 @@ We do not mount third-party analytics or advertising trackers in shared root lay
 
 ## First-party HTTP cookies (summary)
 
-| Cookie                 | Apps                          | Purpose                                                                                 |
-| ---------------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
-| `sb-*-auth-token`      | Any zone when signed in       | Supabase session (httpOnly)                                                             |
-| `csrf_token`           | All except `apps/web` gateway | CSRF double-submit (signed, httpOnly)                                                   |
-| `webauthn_challenge`   | `auth`                        | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                     |
-| `helvety_device_trust` | `auth`                        | Trusted-device passkey-first sign-in on all `/auth/login` entry paths (30 days, signed) |
+| Cookie                 | Apps                                   | Purpose                                                                                                             |
+| ---------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `sb-*-auth-token`      | Any zone when signed in                | Supabase session (httpOnly)                                                                                         |
+| `csrf_token`           | All except `apps/web` gateway          | CSRF double-submit (signed, httpOnly)                                                                               |
+| `webauthn_challenge`   | `auth`                                 | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                                                 |
+| `helvety_device_trust` | `auth` (+ verified on E2EE/docs zones) | Weekly email-proof marker; passkey-first sign-in on `/auth/login`; required for continuing E2EE API access (signed) |
 
 **Extension passkey API** (`/api/extension/passkey/*`): challenges are signed `challengeEnvelope` values consumed once per ceremony via Upstash (`consumeSingleUseKey`, 3 min TTL; in-memory fallback in dev). They are **not** browser cookies.
 
@@ -32,9 +32,9 @@ Production cookie domain: `.helvety.com` (`packages/shared/src/config.ts`).
 
 ## Browser storage (not cookies)
 
-Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps and Docs optional vault save), `helvety-pdf-columns` (PDF viewer).
+Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps, Docs optional vault save, and the Chromium extension side panel), `helvety-pdf-columns` (PDF viewer). Chromium extension: Supabase auth session and `helvety_extension_last_email_verified` in `chrome.storage.local` (weekly email proof).
 
-E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **12h sliding idle** and **30d absolute max** lifetime (`@helvety/shared/crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, and Docs vault unlock. Cleared on logout / hard logout.
+E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **24h sliding idle** and **7d absolute max** lifetime (`@helvety/shared/auth-session-policy.ts`, `crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, Docs, and the Chromium extension side panel. Cleared on logout / hard logout.
 
 ## When to update legal copy
 

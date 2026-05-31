@@ -70,6 +70,14 @@ export {
 
 // Context
 export { EncryptionProvider, useEncryptionContext } from "./encryption-context";
+export { useVaultIdleLock } from "./use-vault-idle-lock";
+export type { UseVaultIdleLockOptions } from "./use-vault-idle-lock";
+
+export {
+  AUTH_SLIDING_IDLE_MS,
+  AUTH_MAX_LIFETIME_MS,
+  AUTH_MAX_LIFETIME_SECONDS,
+} from "../auth-session-policy";
 
 // PRF Key Derivation (Passkey-based)
 export {

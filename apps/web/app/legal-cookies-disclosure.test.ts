@@ -102,13 +102,23 @@ describe("privacy policy cookies disclosure", () => {
     expect(cookiesSection).toMatch(/helvety-prf-salt[\s\S]*?7 days/);
     expect(cookiesSection).toContain("helvety-crypto (IndexedDB)");
     expect(cookiesSection).toMatch(
-      /helvety-crypto[\s\S]*?Helvety Docs[\s\S]*?optional vault save/
+      /helvety-crypto[\s\S]*?Helvety Docs[\s\S]*?optional[\s\S]*?vault save/
     );
     expect(cookiesSection).toMatch(
-      /helvety-crypto[\s\S]*?12 hours idle[\s\S]*?30 days maximum/
+      /helvety-crypto[\s\S]*?24 hours idle[\s\S]*?7 days maximum/
     );
     expect(cookiesSection).toMatch(
-      /helvety_device_trust[\s\S]*?sliding renewal on passkey sign-in when already/
+      /helvety_device_trust[\s\S]*?7 days[\s\S]*?sliding renewal on passkey sign-in when already/
     );
+    expect(cookiesSection).toMatch(
+      /helvety_device_trust[\s\S]*?E2EE API access/
+    );
+    expect(cookiesSection).toContain(
+      "helvety_extension_last_email_verified (chrome.storage.local)"
+    );
+    expect(cookiesSection).toMatch(
+      /helvety_extension_last_email_verified[\s\S]*?7 days/
+    );
+    expect(cookiesSection).toMatch(/helvety-crypto[\s\S]*?Chromium extension/);
   });
 });

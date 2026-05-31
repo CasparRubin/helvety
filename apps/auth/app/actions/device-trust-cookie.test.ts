@@ -1,6 +1,7 @@
+import { AUTH_MAX_LIFETIME_SECONDS } from "@helvety/shared/auth-session-policy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const DEVICE_TRUST_TTL_SECONDS = 30 * 24 * 60 * 60;
+const DEVICE_TRUST_TTL_SECONDS = AUTH_MAX_LIFETIME_SECONDS;
 
 const mocks = vi.hoisted(() => {
   const store = new Map<string, string>();
@@ -17,16 +18,11 @@ const mocks = vi.hoisted(() => {
       ),
     },
     store,
-    getValidatedAuthEnv: vi.fn(),
   };
 });
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => mocks.cookieStore),
-}));
-
-vi.mock("@/lib/env", () => ({
-  getValidatedAuthEnv: mocks.getValidatedAuthEnv,
 }));
 
 vi.mock("@helvety/shared/config", () => ({
@@ -39,17 +35,13 @@ import {
   setDeviceTrustCookie,
 } from "./device-trust-cookie";
 
+const DEVICE_TRUST_SECRET = "dev_secret_".padEnd(40, "s");
+
 describe("device-trust-cookie", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.store.clear();
-    mocks.getValidatedAuthEnv.mockReturnValue({
-      SUPABASE_SECRET_KEY: "x".repeat(60),
-      UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
-      UPSTASH_REDIS_REST_TOKEN: "token",
-      HELVETY_COOKIE_SIGNING_SECRET: "cookie_signing_secret_".padEnd(40, "s"),
-      DEVICE_TRUST_COOKIE_SECRET: "dev_secret_".padEnd(40, "s"),
-    });
+    process.env.DEVICE_TRUST_COOKIE_SECRET = DEVICE_TRUST_SECRET;
   });
 
   it("sets and validates a trust cookie", async () => {
@@ -67,7 +59,7 @@ describe("device-trust-cookie", () => {
     expect(payload).toBeNull();
   });
 
-  it("sets maxAge and payload exp to 30 days", async () => {
+  it("sets maxAge and payload exp to 7 days", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
     const userId = "550e8400-e29b-41d4-a716-446655440000";

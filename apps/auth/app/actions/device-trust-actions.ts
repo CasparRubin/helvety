@@ -8,7 +8,7 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
 
 /**
  * Returns whether this browser/device has a currently valid device-trust cookie.
- * Used by the `/auth/login` entry resolver (all Sign in links); UX only, not authorization.
+ * Used by the `/auth/login` entry resolver (all Sign in links) and E2EE API guards.
  */
 export async function getDeviceTrustStatus(): Promise<
   ActionResponse<{ trusted: boolean; userId: string | null }>

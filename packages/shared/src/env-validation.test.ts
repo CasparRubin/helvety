@@ -115,27 +115,35 @@ describe("env-validation", () => {
     expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
   });
 
-  it("createAppUserScopedEnv caches validated env without admin secret for vault zones", async () => {
+  it("createAppUserScopedE2eeEnv caches validated env with device-trust secret for E2EE zones", async () => {
     vi.stubEnv("SKIP_ENV_VALIDATION", "1");
     vi.stubEnv("VERCEL", "");
     delete process.env.SUPABASE_SECRET_KEY;
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
     delete process.env.HELVETY_COOKIE_SIGNING_SECRET;
+    delete process.env.DEVICE_TRUST_COOKIE_SECRET;
 
-    const { createAppUserScopedEnv, userScopedServerEnvSchema } =
-      await import("./env-validation");
+    const { createAppUserScopedE2eeEnv } = await import("./env-validation");
 
-    const getValidated = createAppUserScopedEnv({
-      appName: "docs",
-      envTemplatePath: "apps/docs/env.template",
-      schema: userScopedServerEnvSchema,
+    const getValidated = createAppUserScopedE2eeEnv({
+      appName: "tasks",
+      envTemplatePath: "apps/tasks/env.template",
     });
 
     const env = getValidated();
     expect(env.UPSTASH_REDIS_REST_URL).toMatch(/^https:\/\//);
     expect(env.HELVETY_COOKIE_SIGNING_SECRET.length).toBeGreaterThanOrEqual(32);
+    expect(env.DEVICE_TRUST_COOKIE_SECRET.length).toBeGreaterThanOrEqual(32);
     expect("SUPABASE_SECRET_KEY" in env).toBe(false);
+  });
+
+  it("getCiPlaceholderUserScopedE2eeEnv includes device-trust secret", async () => {
+    const { getCiPlaceholderUserScopedE2eeEnv } =
+      await import("./env-validation");
+
+    const env = getCiPlaceholderUserScopedE2eeEnv();
+    expect(env.DEVICE_TRUST_COOKIE_SECRET.length).toBeGreaterThanOrEqual(32);
   });
 
   it("createAppServerUpstashEnv caches validated env on first call", async () => {

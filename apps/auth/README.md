@@ -11,7 +11,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 - Metadata / OG / JSON-LD use `AUTH_DESCRIPTION` in [`app/layout.tsx`](./app/layout.tsx); PWA [`public/manifest.json`](./public/manifest.json) matches the shorter `AUTH_PWA_MANIFEST_DESCRIPTION`. Root `bun run consistency:install-manifest-metadata` fails if those diverge.
 - Email OTP + passkey authentication (WebAuthn)
 - Account-bound returning-user passkey sign-in
-- Trusted-device optimization (rolling 30-day device email verification) to allow passkey-first sign-in on previously verified devices
+- Trusted-device optimization (rolling 7-day device email verification) to allow passkey-first sign-in on previously verified devices
 - Session sharing across Helvety path-routed apps
 - Redirect URI validation for cross-app sign-in flows (`getSafeRedirectUri` on login, callback, passkey completion, and `/logout`)
 - Auth-step resolution for passkey setup vs passkey sign-in
@@ -32,7 +32,7 @@ Trusted-device shortcut (all `/auth/login` entry paths):
 
 - After email verification (OTP action or `/auth/callback`), the auth service stores a **signed HttpOnly `helvety_device_trust` cookie** (see [`device-trust-cookie.ts`](./app/actions/device-trust-cookie.ts)).
 - Any Sign in link (`getLoginUrl` → `/auth/login`) is resolved by [`lib/login-entry.ts`](./lib/login-entry.ts) on the server login gate: trusted devices without a session go straight to passkey sign-in (no email entry).
-- The trust window is **30 days**. It **slides** (full reset) on passkey sign-in **only when** a valid `helvety_device_trust` cookie for that user already exists. Trust is **minted** after email verification (OTP or `/auth/callback`), not by passkey alone. Passkey auth options bind `expectedUserId` from the trust cookie server-side, not from client input.
+- The trust window is **7 days**. It **slides** (full reset) on passkey sign-in **only when** a valid `helvety_device_trust` cookie for that user already exists. Trust is **minted** after email verification (OTP or `/auth/callback`), not by passkey alone. On E2EE apps, missing or expired trust forces global logout (weekly email re-proof). Passkey auth options bind `expectedUserId` from the trust cookie server-side, not from client input.
 - Manual logout clears the trust cookie for this device.
 
 **Hard-logout chain (E2EE apps → auth):** client `forceHardLogout` / `triggerHardLogoutOnce` clears IndexedDB keys and PRF salt, then redirects to `/auth/logout` (global sign-out). The auth logout page clears keys again (idempotent), runs `signOutAction` (Supabase sign-out + `clearDeviceTrustCookie` + challenge cookie). Device trust is **not** cleared until that auth page runs; if a redirect is blocked, call sites should still reach `/auth/logout` or sign out locally.
@@ -43,12 +43,12 @@ Auth layers (independent mechanisms):
 
 ```text
 1. Supabase session (sb-* cookies)     → API / RLS / requireAuth
-2. Device trust (helvety_device_trust) → skip email OTP on /auth/login (UX)
+2. Device trust (helvety_device_trust) → skip email OTP on /auth/login; required for E2EE API access (weekly email proof)
 3. Vault session (IndexedDB + idle)    → skip passkey re-unlock on E2EE apps (UX)
 4. Passkey ceremony (WebAuthn)         → proof of possession
 ```
 
-Vault session policy (E2EE apps): **12h sliding idle**, **30d absolute max** (see `@helvety/shared/crypto/vault-session.ts`).
+Vault session policy (E2EE apps): **24h sliding idle**, **7d absolute max** (see `@helvety/shared/auth-session-policy.ts` and `crypto/vault-session.ts`).
 
 `/auth/callback` remains for compatibility callback paths (`magiclink`, `signup`, `recovery`, `invite`, `email_change`) and PKCE/OAuth-style code exchange via the shared callback handler. Primary typed email OTP code verification happens in auth actions; passkey sign-in establishes session server-side.
 

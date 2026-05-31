@@ -99,6 +99,16 @@ export const cookieSigningEnvSchema = z.object({
     ),
 });
 
+/** Device-trust cookie signing (email proof gate; separate from CSRF signing). */
+export const deviceTrustEnvSchema = z.object({
+  DEVICE_TRUST_COOKIE_SECRET: z
+    .string()
+    .min(
+      32,
+      "DEVICE_TRUST_COOKIE_SECRET must be at least 32 characters (signs device trust cookies for weekly email proof)"
+    ),
+});
+
 /** Merged schema for server-only + Upstash + cookie signing (used by app `lib/env` modules). */
 export const serverUpstashMergedSchema = serverEnvSchema
   .merge(upstashEnvSchema)
@@ -111,6 +121,10 @@ export const upstashCookieSigningEnvSchema = upstashEnvSchema.merge(
 
 /** Alias: user-scoped Supabase client + RLS only (no `createAdminClient`). */
 export const userScopedServerEnvSchema = upstashCookieSigningEnvSchema;
+
+/** User-scoped E2EE zones that enforce weekly device-trust email proof. */
+export const userScopedE2eeServerEnvSchema =
+  upstashCookieSigningEnvSchema.merge(deviceTrustEnvSchema);
 
 /**
  * When `SKIP_ENV_VALIDATION=1` and not on Vercel (`VERCEL=1`), apps may use
@@ -188,6 +202,14 @@ export function hasRealUpstashCookieEnv(): boolean {
   );
 }
 
+/** True when user-scoped E2EE env includes device-trust signing secret. */
+export function hasRealUserScopedE2eeEnv(): boolean {
+  return (
+    hasRealUpstashCookieEnv() &&
+    Boolean(process.env.DEVICE_TRUST_COOKIE_SECRET?.trim())
+  );
+}
+
 const CI_PLACEHOLDER_PUBLIC = {
   NEXT_PUBLIC_SUPABASE_URL: "https://ci-build-placeholder.supabase.co",
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
@@ -250,6 +272,32 @@ export function getCiPlaceholderUpstashCookieEnv(): z.infer<
   }
   cachedCiPlaceholderUpstashCookie = result.data;
   return cachedCiPlaceholderUpstashCookie;
+}
+
+let cachedCiPlaceholderUserScopedE2ee: z.infer<
+  typeof userScopedE2eeServerEnvSchema
+> | null = null;
+
+/** Placeholder user-scoped E2EE env for local build smoke tests only. */
+export function getCiPlaceholderUserScopedE2eeEnv(): z.infer<
+  typeof userScopedE2eeServerEnvSchema
+> {
+  if (cachedCiPlaceholderUserScopedE2ee) {
+    return cachedCiPlaceholderUserScopedE2ee;
+  }
+  const raw = {
+    ...getCiPlaceholderUpstashCookieEnv(),
+    DEVICE_TRUST_COOKIE_SECRET:
+      "ci_build_placeholder_device_trust_secret_not_for_production_use_!!",
+  };
+  const result = userScopedE2eeServerEnvSchema.safeParse(raw);
+  if (!result.success) {
+    throw new Error(
+      `Internal error: CI placeholder user-scoped E2EE env: ${result.error.message}`
+    );
+  }
+  cachedCiPlaceholderUserScopedE2ee = result.data;
+  return cachedCiPlaceholderUserScopedE2ee;
 }
 
 /** Shared parser for app server env modules (Supabase secret + Upstash + optional extras). */
@@ -341,6 +389,8 @@ export function validateUpstashCookieEnv<
   schema: TSchema;
   readExtraFromProcess?: () => Record<string, string>;
   ciPlaceholderExtra?: Record<string, string>;
+  hasRealEnv?: () => boolean;
+  getCiPlaceholderEnv?: () => Record<string, string>;
 }): z.infer<TSchema> {
   const {
     appName,
@@ -348,12 +398,14 @@ export function validateUpstashCookieEnv<
     schema,
     readExtraFromProcess,
     ciPlaceholderExtra,
+    hasRealEnv = hasRealUpstashCookieEnv,
+    getCiPlaceholderEnv = getCiPlaceholderUpstashCookieEnv,
   } = options;
 
   const rawBase =
-    isCiBuildPlaceholderEnvEnabled() && !hasRealUpstashCookieEnv()
+    isCiBuildPlaceholderEnvEnabled() && !hasRealEnv()
       ? {
-          ...getCiPlaceholderUpstashCookieEnv(),
+          ...getCiPlaceholderEnv(),
           ...(ciPlaceholderExtra ?? {}),
         }
       : {
@@ -386,6 +438,8 @@ export function createAppUpstashCookieEnv<
   schema: TSchema;
   readExtraFromProcess?: () => Record<string, string>;
   ciPlaceholderExtra?: Record<string, string>;
+  hasRealEnv?: () => boolean;
+  getCiPlaceholderEnv?: () => Record<string, string>;
 }): () => z.infer<TSchema> {
   const {
     appName,
@@ -393,6 +447,8 @@ export function createAppUpstashCookieEnv<
     schema,
     readExtraFromProcess,
     ciPlaceholderExtra,
+    hasRealEnv,
+    getCiPlaceholderEnv,
   } = options;
 
   let validated: z.infer<TSchema> | null = null;
@@ -407,13 +463,32 @@ export function createAppUpstashCookieEnv<
       schema,
       readExtraFromProcess,
       ciPlaceholderExtra,
+      hasRealEnv,
+      getCiPlaceholderEnv,
     });
     return validated;
   };
 }
 
-/** Alias for E2EE + docs zones (user-scoped Supabase client + RLS only). */
+/** Legacy alias for {@link createAppUpstashCookieEnv}. E2EE/docs vault zones use {@link createAppUserScopedE2eeEnv}. */
 export const createAppUserScopedEnv = createAppUpstashCookieEnv;
+
+/** User-scoped E2EE + docs zones with weekly device-trust email proof. */
+export function createAppUserScopedE2eeEnv(options: {
+  appName: string;
+  envTemplatePath: string;
+}): () => z.infer<typeof userScopedE2eeServerEnvSchema> {
+  return createAppUpstashCookieEnv({
+    ...options,
+    schema: userScopedE2eeServerEnvSchema,
+    readExtraFromProcess: () => ({
+      DEVICE_TRUST_COOKIE_SECRET:
+        process.env.DEVICE_TRUST_COOKIE_SECRET?.trim() ?? "",
+    }),
+    hasRealEnv: hasRealUserScopedE2eeEnv,
+    getCiPlaceholderEnv: getCiPlaceholderUserScopedE2eeEnv,
+  });
+}
 
 /** Gateway zone rewrite URLs (apps/web production rewrites). */
 export const WEB_GATEWAY_KEYS = [

@@ -25,14 +25,26 @@ vi.mock("./supabase/server", () => ({
   createServerClient: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn().mockResolvedValue({ get: () => undefined }),
+}));
+
+vi.mock("./device-trust-cookie", () => ({
+  getValidDeviceTrustFromCookieStore: vi.fn(),
+}));
+
 import { authenticateAndRateLimit } from "./action-helpers";
 import { getAuthUser } from "./auth-retry";
 import { requireCSRFToken } from "./csrf";
+import { getValidDeviceTrustFromCookieStore } from "./device-trust-cookie";
 
 import type { AuthError, User } from "@supabase/supabase-js";
 
 const mockGetAuthUser = vi.mocked(getAuthUser);
 const mockRequireCSRFToken = vi.mocked(requireCSRFToken);
+const mockGetValidDeviceTrustFromCookieStore = vi.mocked(
+  getValidDeviceTrustFromCookieStore
+);
 const buildUser = (id: string): User => ({ id }) as User;
 const buildAuthError = (message: string): AuthError =>
   ({ message }) as AuthError;
@@ -42,11 +54,25 @@ describe("authenticateAndRateLimit", () => {
     vi.clearAllMocks();
     rateLimitMocks.checkRateLimit.mockResolvedValue({ allowed: true });
     mockRequireCSRFToken.mockResolvedValue(undefined);
+    mockGetValidDeviceTrustFromCookieStore.mockReturnValue(null);
   });
+
+  /**
+   *
+   */
+  function mockDeviceTrustForUser(userId: string): void {
+    mockGetValidDeviceTrustFromCookieStore.mockReturnValue({
+      v: 1,
+      userId,
+      iat: 0,
+      exp: 9_999_999_999,
+    });
+  }
 
   it("validates CSRF and uses mutation rate-limit config for write actions", async () => {
     const user = buildUser("write-user");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
+    mockDeviceTrustForUser("write-user");
 
     await authenticateAndRateLimit({
       csrfToken: "csrf-token",
@@ -95,6 +121,7 @@ describe("authenticateAndRateLimit", () => {
   it("applies readRateLimitConfig to checkRateLimit for read-only actions", async () => {
     const user = buildUser("u1");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
+    mockDeviceTrustForUser("u1");
 
     await authenticateAndRateLimit({
       rateLimitPrefix: "export",
@@ -111,6 +138,7 @@ describe("authenticateAndRateLimit", () => {
   it("defaults read path to RATE_LIMITS.READ when readRateLimitConfig omitted", async () => {
     const user = buildUser("u2");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
+    mockDeviceTrustForUser("u2");
     rateLimitMocks.checkRateLimit.mockClear();
 
     await authenticateAndRateLimit({
@@ -127,6 +155,7 @@ describe("authenticateAndRateLimit", () => {
   it("returns mutation rate-limit error when write limit denies request", async () => {
     const user = buildUser("u3");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
+    mockDeviceTrustForUser("u3");
     rateLimitMocks.checkRateLimit.mockResolvedValueOnce({
       allowed: false,
       retryAfter: 33,
@@ -147,6 +176,7 @@ describe("authenticateAndRateLimit", () => {
   it("returns read rate-limit error when read limit denies request", async () => {
     const user = buildUser("u4");
     mockGetAuthUser.mockResolvedValue({ user, error: null });
+    mockDeviceTrustForUser("u4");
     rateLimitMocks.checkRateLimit.mockResolvedValueOnce({
       allowed: false,
       retryAfter: 45,
@@ -195,6 +225,22 @@ describe("authenticateAndRateLimit", () => {
       expect(result.response.error).toMatch(/^AUTH_HARD_LOGOUT:/);
       expect(result.response.error).toContain("refresh token not found");
     }
+  });
+
+  it("returns AUTH_HARD_LOGOUT when E2EE prefix lacks device trust", async () => {
+    const user = buildUser("u5");
+    mockGetAuthUser.mockResolvedValue({ user, error: null });
+
+    const result = await authenticateAndRateLimit({
+      rateLimitPrefix: "tasks",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.error).toMatch(/^AUTH_HARD_LOGOUT:/);
+      expect(result.response.error).toContain("Device trust expired");
+    }
+    expect(rateLimitMocks.checkRateLimit).not.toHaveBeenCalled();
   });
 
   it("returns AUTH_REQUIRED with default message when error is null", async () => {

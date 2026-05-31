@@ -8,6 +8,9 @@ vi.mock("next/headers", () => ({
   headers: vi.fn().mockResolvedValue({
     get: () => null,
   }),
+  cookies: vi.fn().mockResolvedValue({
+    get: () => undefined,
+  }),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -46,6 +49,20 @@ describe("requireAuth", () => {
 
     const result = await requireAuth("/tasks");
     expect(result).toBe(user);
+  });
+
+  it("redirects to global logout when device trust is required but missing", async () => {
+    const user = { id: "u1", email: "a@b.com" } as unknown as User;
+    mockGetCachedAuthLookup.mockResolvedValue({ user, error: null });
+    const authPromise = requireAuth("/tasks", { requireDeviceTrust: true });
+
+    await expect(authPromise).rejects.toBeInstanceOf(MockRedirect);
+    await expect(authPromise).rejects.toMatchObject({
+      url: expect.stringContaining("/auth/logout"),
+    });
+    await expect(authPromise).rejects.toMatchObject({
+      url: expect.stringContaining("scope=global"),
+    });
   });
 
   it("redirects to login when no user and no error", async () => {

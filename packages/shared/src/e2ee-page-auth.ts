@@ -33,6 +33,27 @@ export function requiresE2eeBrowserUnlock(uri: string): boolean {
 export type E2eeAppPagePath = (typeof E2EE_APP_PAGE_PATHS)[number];
 
 /**
+ * Rate-limit prefixes used by E2EE vault zones (and docs vault APIs).
+ * {@link authenticateAndRateLimit} requires weekly device-trust email proof for these by default.
+ */
+export const E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES = new Set([
+  "tasks",
+  "contacts",
+  "notes",
+  "links",
+  "docs",
+  "export",
+  "task-links",
+  "contact-links",
+  "note-links",
+]);
+
+/** True when server actions/API routes for this prefix require device-trust email proof. */
+export function requiresE2eeDeviceTrust(rateLimitPrefix: string): boolean {
+  return E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES.has(rateLimitPrefix);
+}
+
+/**
  * Server-side guard for E2EE app pages (contacts, links, notes, tasks).
  *
  * Each app’s default `page.tsx` should `await` this with its public path so
@@ -42,5 +63,5 @@ export type E2eeAppPagePath = (typeof E2EE_APP_PAGE_PATHS)[number];
 export async function requireE2eeAppPageAuth(
   currentPublicPath: E2eeAppPagePath
 ): Promise<User> {
-  return requireAuth(currentPublicPath);
+  return requireAuth(currentPublicPath, { requireDeviceTrust: true });
 }
