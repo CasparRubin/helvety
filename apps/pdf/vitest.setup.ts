@@ -1,7 +1,3 @@
-import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
+/// <reference types="@testing-library/jest-dom/vitest" />
+import "@helvety/config/vitest.setup";
 
-afterEach(() => {
-  cleanup();
-});

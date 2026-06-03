@@ -1,1 +1,3 @@
-/** Workspace Vitest setup (see scripts/check-test-hygiene.mjs). */
+/// <reference types="@testing-library/jest-dom/vitest" />
+import "@helvety/config/vitest.setup";
+

@@ -1,1 +1,3 @@
-/** Workspace Vitest setup (config package uses `.test.mjs` only). */
+/// <reference types="@testing-library/jest-dom/vitest" />
+import "@helvety/config/vitest.setup";
+

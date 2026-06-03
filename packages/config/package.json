@@ -27,6 +27,7 @@
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./eslint": "./eslint.mjs",
     "./vitest": "./vitest.mjs",
+    "./vitest.setup": "./vitest.setup.shared.ts",
     "./postcss": "./postcss.mjs",
     "./next-headers": "./next-headers.mjs",
     "./next": "./next.mjs"

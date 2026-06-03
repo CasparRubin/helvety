@@ -36,7 +36,10 @@ export async function validatePostcssZoneApps(rootDir) {
       continue;
     }
 
-    const postcssContent = await readFile(postcssPath, "utf8");
+    const postcssContent = (await readFile(postcssPath, "utf8")).replace(
+      /\r\n/g,
+      "\n"
+    );
     if (postcssContent !== CANONICAL_POSTCSS_CONFIG) {
       errors.push(
         `apps/${appName}/postcss.config.mjs must re-export @helvety/config/postcss only.`
