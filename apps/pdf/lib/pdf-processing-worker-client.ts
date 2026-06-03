@@ -97,6 +97,7 @@ export class PdfProcessingWorkerClient {
   }
 
   /** Posts a request to the worker and resolves with matched response. */
+  // fallow-ignore-next-line unused-class-member
   async postMessage(
     message: Omit<WorkerExecutableRequest, "id">
   ): Promise<WorkerResponse> {
@@ -136,6 +137,7 @@ export class PdfProcessingWorkerClient {
   }
 
   /** Cancels all work and disposes worker resources. */
+  // fallow-ignore-next-line unused-class-member
   dispose(): void {
     this.cancelAll();
     this.terminateWorker();

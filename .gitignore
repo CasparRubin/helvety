@@ -61,6 +61,9 @@ coverage/
 test-results/
 playwright-report/
 
+# Fallow (local cache; commit .fallowrc.json at repo root)
+.fallow/
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts

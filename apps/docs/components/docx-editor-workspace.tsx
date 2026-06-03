@@ -16,14 +16,14 @@ function noopCommentsChange(): void {
 }
 
 /** Editor document chrome passed from {@link HelvetyDocsShell}. */
-export interface DocxEditorChromeProps {
+interface DocxEditorChromeProps {
   readonly documentName: string;
   readonly onDocumentNameChange: (name: string) => void;
   readonly onDownload: (buffer: ArrayBuffer) => void;
 }
 
 /** Props for {@link DocxEditorWorkspace}. */
-export interface DocxEditorWorkspaceProps extends DocxEditorChromeProps {
+interface DocxEditorWorkspaceProps extends DocxEditorChromeProps {
   /** Loaded `.docx` bytes; `null` selects a fresh blank doc via `createEmptyDocument()`. */
   readonly documentBuffer: ArrayBuffer | null;
   /** Bumps when the editor should remount (New, open file, open vault doc). */

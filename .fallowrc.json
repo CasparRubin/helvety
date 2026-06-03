@@ -1,0 +1,80 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": [
+    "scripts/**/*.{mjs,js}",
+    "e2e/**/*.{ts,tsx}",
+    "apps/**/app/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+    "apps/**/{instrumentation,proxy}.{ts,tsx,js,mjs,cjs}",
+    "apps/**/next.config.{ts,js,mjs,cjs}",
+    "apps/**/eslint.config.mjs",
+    "apps/**/vitest.config.{ts,js,mjs,cjs}",
+    "apps/**/vitest.setup.ts",
+    "packages/**/src/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+    "packages/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+    "packages/**/eslint.config.mjs",
+    "packages/**/vitest.config.{ts,js,mjs,cjs}",
+    "**/*.{test,spec}.{ts,tsx,mjs}"
+  ],
+  "ignorePatterns": [
+    "apps/pdf/public/pdf.worker.min.mjs",
+    "apps/pdf/lib/empty-canvas-stub.mjs",
+    "apps/*/lib/utils.ts",
+    "apps/image-upscaler/public/ort/**",
+    "**/*.generated.ts",
+    "packages/shared/src/types/database.types.ts"
+  ],
+  "ignoreDependencies": [
+    "@helvety/dev-deps",
+    "@testing-library/jest-dom",
+    "@testing-library/react",
+    "@tailwindcss/postcss",
+    "@types/node",
+    "@types/react",
+    "@types/react-dom",
+    "@vitest/coverage-v8",
+    "babel-plugin-react-compiler",
+    "eslint",
+    "jsdom",
+    "prettier",
+    "prettier-plugin-tailwindcss",
+    "shadcn",
+    "tailwindcss",
+    "typescript",
+    "vitest",
+    "eslint-plugin-react",
+    "postcss-load-config",
+    "onnxruntime-web",
+    "@types/dompurify",
+    "@types/chrome",
+    "pdfjs-dist",
+    "next-themes"
+  ],
+  "publicPackages": ["@helvety/shared", "@helvety/ui", "@helvety/brand"],
+  "duplicates": {
+    "ignoreImports": true
+  },
+  "health": {
+    "ignore": [
+      "apps/web/app/privacy/**",
+      "apps/web/app/terms/**",
+      "apps/web/app/impressum/**",
+      "scripts/**",
+      "apps/web/components/vendor/**",
+      "apps/notes/app/actions/**",
+      "apps/notes/components/**",
+      "apps/notes/hooks/**",
+      "apps/tasks/app/actions/**",
+      "apps/tasks/components/**",
+      "apps/tasks/hooks/**",
+      "apps/contacts/app/actions/batch-actions*",
+      "apps/contacts/app/actions/note-link-actions*",
+      "apps/image-upscaler/app/layout*.ts*",
+      "apps/pdf/app/layout*.ts*"
+    ]
+  },
+  "rules": {
+    "unused-exports": "warn",
+    "unused-files": "warn",
+    "unused-dependencies": "warn"
+  }
+}

@@ -2,7 +2,6 @@ import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import {
   AUTH_DESCRIPTION,
-  AUTH_PWA_MANIFEST_DESCRIPTION,
 } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { bootstrapAuthLayoutSession } from "@helvety/shared/layout-session-bootstrap";
@@ -13,7 +12,7 @@ import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-r
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
 
-export { AUTH_DESCRIPTION, AUTH_PWA_MANIFEST_DESCRIPTION };
+export { AUTH_DESCRIPTION };
 
 export const viewport = sharedViewport;
 

@@ -57,6 +57,11 @@
     "deps:unused": "bun run deps:check && bun run knip:exports",
     "knip:full": "knip --no-progress",
     "deadcode:sweep": "bun run deps:unused && bun run lint && bun run type-check",
+    "fallow": "npx fallow",
+    "fallow:dead-code": "npx fallow dead-code",
+    "fallow:dupes": "npx fallow dupes",
+    "fallow:health": "npx fallow health",
+    "fallow:fix": "npx fallow fix --dry-run",
     "test:e2e": "playwright test",
     "scaffold:e2ee-zone": "node scripts/scaffold-e2ee-zone.mjs",
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
