@@ -1,8 +1,8 @@
 /**
  * Shared PostCSS configuration for Tailwind CSS v4.
  * Zone apps re-export this file from `postcss.config.mjs`. The plugin is loaded from
- * `@helvety/dev-deps` so Vitest and local builds resolve it even when zone apps only
- * depend on `@helvety/ui` for production Turbopack paths (see `docs/vercel-monorepo-apps.md`).
+ * `@helvety/dev-deps` so zone `postcss.config.mjs` re-exports and local/production builds
+ * resolve it even when zone apps only depend on `@helvety/ui` for production Turbopack paths
  */
 import { createRequire } from "node:module";
 import path from "node:path";

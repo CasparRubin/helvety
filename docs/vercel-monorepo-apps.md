@@ -29,7 +29,7 @@ Canonical zone URLs (for example `https://helvety.com/docs`) are served by **`he
 
 ## Tailwind / PostCSS at build time
 
-Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs), which loads `@tailwindcss/postcss` from **`@helvety/dev-deps`** (canonical plugin path for Vitest and builds). `@helvety/ui` also declares `tailwindcss` and `@tailwindcss/postcss` in **`dependencies`** so Tailwind packages sit on each zone app’s production dependency graph for Turbopack CSS processing (`@import "tailwindcss"` in shared `globals.css`). Every zone app must keep `"@helvety/ui": "workspace:*"` in `dependencies` (not only devDependencies). Versions stay canonical in `@helvety/dev-deps`; `bun run deps:drift` and `consistency:guardrails` enforce this.
+Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs), which loads `@tailwindcss/postcss` from **`@helvety/dev-deps`** (canonical plugin path for zone PostCSS configs and production builds). `@helvety/ui` also declares `tailwindcss` and `@tailwindcss/postcss` in **`dependencies`** so Tailwind packages sit on each zone app’s production dependency graph for Turbopack CSS processing (`@import "tailwindcss"` in shared `globals.css`). Every zone app must keep `"@helvety/ui": "workspace:*"` in `dependencies` (not only devDependencies). Versions stay canonical in `@helvety/dev-deps`; `bun run deps:drift` and `consistency:guardrails` enforce this.
 
 ## Local guardrail (`ci:check`)
 

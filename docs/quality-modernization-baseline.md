@@ -49,7 +49,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - Store product catalog caching via per-request `React.cache()` in `apps/store/lib/data/product-catalog-cache.ts` (not the Next.js `'use cache'` directive)
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
 - UI majors: lucide-react v1 (`icon-renderer` kebab-case map), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
-- **Dead code:** schedule `bun run deps:unused` quarterly (already in `ci:check`); triage Knip findings before major releases
+- **Dead code:** schedule `bun run deps:unused` quarterly (Knip in `ci:check`); optional local triage via `bun run fallow:*` (`.fallowrc.json`; not a CI gate)
 - **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
 - Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `RATE_LIMITS.PREFETCH`, route tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; `public.docs` on hosted Supabase + `consistency:supabase-schema` (types guardrail)
 - **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories; Next config presets (`createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig`); navbar factories (`create-app-navbar`); centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps

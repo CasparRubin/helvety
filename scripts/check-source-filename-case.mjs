@@ -3,7 +3,7 @@
  * See docs/naming-conventions.md and docs/app-consistency-checklist.md.
  */
 import { readdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { basename, relative, resolve } from "node:path";
 
 const rootDir = process.cwd();
 
@@ -65,7 +65,7 @@ const ALLOWLIST = new Set([
 ]);
 
 function toRelative(filePath) {
-  return filePath.replace(`${rootDir}/`, "");
+  return relative(rootDir, filePath).replace(/\\/g, "/");
 }
 
 function fileStem(fileName) {
@@ -118,7 +118,7 @@ async function main() {
         for (const filePath of files) {
           const relative = toRelative(filePath);
           if (ALLOWLIST.has(relative)) continue;
-          const fileName = filePath.split("/").pop() ?? "";
+          const fileName = basename(filePath);
           const stem = fileStem(fileName);
           if (NEXT_RESERVED_STEMS.has(stem)) continue;
           if (!isKebabCaseStem(stem)) {

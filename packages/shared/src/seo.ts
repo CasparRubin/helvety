@@ -7,8 +7,9 @@
  * Public zones use explicit allow rules for major AI crawlers (in addition to
  * `*`) so agentic systems can discover `llms.txt` and indexable routes without
  * guessing. Google sitemaps list indexable page URLs only (`url` + `lastmod`);
- * `llms.txt` is not included. Private E2EE zones disallow those same user agents
- * alongside `*` and omit `app/sitemap.ts` (empty urlsets fail Search Console).
+ * `llms.txt` is not included. Private non-indexable zones (auth and E2EE vault apps)
+ * disallow those same user agents alongside `*` and omit `app/sitemap.ts` (empty urlsets
+ * fail Search Console).
  */
 
 import { urls } from "./config";

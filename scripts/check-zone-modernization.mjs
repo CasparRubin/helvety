@@ -3,10 +3,15 @@
  * API route tests, instrumentation env wiring).
  */
 import { readFile, readdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { relative, resolve } from "node:path";
 
 const rootDir = process.cwd();
 const appsDir = resolve(rootDir, "apps");
+
+/** Repo-relative path with forward slashes (stable on Windows and POSIX). */
+function toPosixRelative(absolutePath) {
+  return relative(rootDir, absolutePath).replace(/\\/g, "/");
+}
 
 /** @type {Record<string, { rootLoading: string }>} */
 const LOADING_MATRIX = {
@@ -152,8 +157,8 @@ async function main() {
 
     const routeFiles = await collectRouteFiles(appDir);
     for (const routeFile of routeFiles) {
-      const relativeRoute = routeFile.replace(`${rootDir}/`, "");
-      if (relativeRoute.includes("/csp-report/")) {
+      const relativeRoute = toPosixRelative(routeFile);
+      if (relativeRoute.includes("csp-report/")) {
         continue;
       }
       if (/\/\[[^/]+\]\//u.test(relativeRoute)) {

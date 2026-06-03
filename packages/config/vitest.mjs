@@ -144,8 +144,9 @@ function vitestCssMockPlugin() {
  * Vitest’s built-in `test.typecheck` stays disabled here; TypeScript is validated
  * by `turbo run type-check` (`tsc --noEmit`) instead.
  *
- * Testing-library resolves via root hoisted `node_modules` (see resolve.alias/dedupe).
- * Layout tests stub `.css` imports; Docs theme bridge tests read CSS via `fs`.
+ * Testing-library and jest-dom resolve via `@helvety/dev-deps` (see `toolchainResolvePaths`
+ * and Vitest resolve aliases/dedupe). Layout tests stub `.css` imports; Docs theme bridge
+ * tests read CSS via `fs`.
  *
  * @param {string} rootDir - The root directory of the app (e.g. `import.meta.dirname` in ESM or `__dirname` in CJS).
  * @param {{ passWithNoTests?: boolean }} [options] - Optional overrides; set `passWithNoTests: false` when the workspace has real tests.
@@ -155,7 +156,11 @@ export function createVitestConfig(rootDir, options = {}) {
   const passWithNoTests = options.passWithNoTests ?? true;
   return defineConfig({
     css: false,
-    plugins: [forceSingleReactPlugin(toolchainResolvePaths), react(), vitestCssMockPlugin()],
+    plugins: [
+      forceSingleReactPlugin(toolchainResolvePaths),
+      react(),
+      vitestCssMockPlugin(),
+    ],
     resolve: {
       dedupe: ["react", "react-dom", "vitest"],
       alias: [

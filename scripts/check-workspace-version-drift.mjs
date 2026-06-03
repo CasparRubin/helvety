@@ -93,7 +93,7 @@ function getDependencyVersion(manifest, dependencyName) {
 }
 
 function relativePath(filePath) {
-  return path.relative(ROOT_DIR, filePath);
+  return path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 }
 
 function usesDevDepsBundle(manifest) {

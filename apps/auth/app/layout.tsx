@@ -1,8 +1,6 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
-import {
-  AUTH_DESCRIPTION,
-} from "@helvety/shared/app-product-descriptions";
+import { AUTH_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
 import { bootstrapAuthLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";

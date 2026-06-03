@@ -4,22 +4,22 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 
 ## Required files (every Next.js zone)
 
-| File                 | Purpose                                                                                                                                                                                                                   |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `proxy.ts`           | Zone security proxy (`createAppProxy` or profiled variant); **no** `middleware.ts`                                                                                                                                        |
-| `proxy.test.ts`      | Matcher parity with `SECURITY_PROXY_MATCHER` (gateway: zone exclusions + static extensions)                                                                                                                               |
-| `env.template`       | Documented env keys; validated by `bun run consistency:env-templates`; local `.env.local` tier parity via `bun run consistency:local-env` ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md) for Vercel) |
-| `eslint.config.mjs`  | `createEslintConfig(import.meta.dirname)` from `@helvety/config/eslint`                                                                                                                                                   |
-| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest` (resolves testing-library from `@helvety/dev-deps`; stubs `.css` in unit tests); workspaces with real tests pass `{ passWithNoTests: false }`               |
-| `vitest.setup.ts`    | `@testing-library/jest-dom/vitest` + RTL `cleanup()`                                                                                                                                                                      |
-| `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                                                                                           |
-| `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                                                                                              |
-| `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage                                                                  |
-| `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                                                                                       |
-| `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                                                                                    |
-| `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                             |
-| `app/robots.ts`      | Zone crawl policy via `@helvety/shared/seo` (`createOpenRobots`, `createAppRobots`, or `createPrivateAppRobots`)                                                                                                          |
-| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `docs`, `image-upscaler`); private E2EE zones omit this file (404 avoids invalid urlset XML in Search Console)                                                    |
+| File                 | Purpose                                                                                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `proxy.ts`           | Zone security proxy (`createAppProxy` or profiled variant); **no** `middleware.ts`                                                                                                                                                          |
+| `proxy.test.ts`      | Matcher parity with `SECURITY_PROXY_MATCHER` (gateway: zone exclusions + static extensions)                                                                                                                                                 |
+| `env.template`       | Documented env keys; validated by `bun run consistency:env-templates`; local `.env.local` tier parity via `bun run consistency:local-env` ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md) for Vercel)                   |
+| `eslint.config.mjs`  | `createEslintConfig(import.meta.dirname)` from `@helvety/config/eslint`                                                                                                                                                                     |
+| `vitest.config.ts`   | `createVitestConfig(__dirname)` from `@helvety/config/vitest` (resolves testing-library from `@helvety/dev-deps`; stubs `.css` in unit tests); workspaces with real tests pass `{ passWithNoTests: false }`                                 |
+| `vitest.setup.ts`    | `/// <reference types="@testing-library/jest-dom/vitest" />` + `import "@helvety/config/vitest.setup";` (jest-dom matchers + RTL `cleanup()` live in [`packages/config/vitest.setup.shared.ts`](../packages/config/vitest.setup.shared.ts)) |
+| `tsconfig.json`      | Extends `@helvety/config/tsconfig.base.json` with `@/*` → `./*`                                                                                                                                                                             |
+| `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                                                                                                                |
+| `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage                                                                                    |
+| `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                                                                                                         |
+| `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                                                                                                      |
+| `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                                               |
+| `app/robots.ts`      | Zone crawl policy via `@helvety/shared/seo` (`createOpenRobots`, `createAppRobots`, or `createPrivateAppRobots`)                                                                                                                            |
+| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `docs`, `image-upscaler`); private non-indexable zones omit this file (404 avoids invalid urlset XML in Search Console)                                                             |
 
 ## Required tests (minimum floor)
 
@@ -61,7 +61,7 @@ Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests
 
 Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` and `assertValidPublicSitemapEntries` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync and sitemap entries follow Google best practices.
 
-Private E2EE zones (`auth`, `contacts`, `notes`, `tasks`, `links`) use `expectPrivateZoneRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` and **no** `app/sitemap.ts` route (private zone sitemap URLs 404). Do not migrate those to `expectPublicCrawlerRobots`.
+Private non-indexable zones (`auth`, `contacts`, `notes`, `tasks`, `links`) use `expectPrivateZoneRobots` from `@helvety/shared/test-utils/seo-route-test-helpers` and **no** `app/sitemap.ts` route (private zone sitemap URLs 404). `auth` is not an E2EE vault app (see root README); it shares the private robots contract with E2EE vault apps. Do not migrate these zones to `expectPublicCrawlerRobots`.
 
 ## Cross-app test contract
 
@@ -254,7 +254,7 @@ See root [`README.md`](../README.md) § Environment Model.
 ## Validation before merge
 
 ```bash
-bun run ci:check    # includes zone-modernization, deps:drift, test:hygiene
+bun run ci:check    # full gate; see root README Automation for step order
 bun run ci:release  # ci:check + build (before push / Vercel)
 ```
 

@@ -1,5 +1,5 @@
 import { access, readFile, readdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { relative, resolve } from "node:path";
 
 const rootDir = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
@@ -19,6 +19,20 @@ const FORBIDDEN_PATTERNS = [
   { name: "describe.only", regex: /\bdescribe\.only\(/ },
   { name: "describe.skip", regex: /\bdescribe\.skip\(/ },
 ];
+
+/** Required lines for workspace vitest.setup.ts (jest-dom types + shared setup). */
+const CANONICAL_VITEST_SETUP_LINES = [
+  '/// <reference types="@testing-library/jest-dom/vitest" />',
+  'import "@helvety/config/vitest.setup";',
+];
+
+function isCanonicalVitestSetup(content) {
+  const lines = content.replace(/\r\n/g, "\n").trim().split("\n");
+  if (lines.length !== CANONICAL_VITEST_SETUP_LINES.length) return false;
+  return lines.every(
+    (line, index) => line === CANONICAL_VITEST_SETUP_LINES[index]
+  );
+}
 
 async function listWorkspacePackageJsonFiles() {
   const files = [];
@@ -55,7 +69,7 @@ async function hasTestFiles(startDir) {
 }
 
 function toRelative(filePath) {
-  return filePath.replace(`${rootDir}/`, "");
+  return relative(rootDir, filePath).replace(/\\/g, "/");
 }
 
 function extractMajor(versionRange) {
@@ -179,6 +193,16 @@ async function main() {
         issues.push(
           `${relativePackageJsonPath} has a Vitest test script but is missing vitest.setup.ts`
         );
+      } else {
+        const setupContent = (await readFile(vitestSetupPath, "utf8")).replace(
+          /\r\n/g,
+          "\n"
+        );
+        if (!isCanonicalVitestSetup(setupContent)) {
+          issues.push(
+            `${toRelative(vitestSetupPath)} must match the canonical Vitest setup (jest-dom types reference + import @helvety/config/vitest.setup).`
+          );
+        }
       }
     }
   }

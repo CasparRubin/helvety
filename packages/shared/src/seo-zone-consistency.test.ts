@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-/** Private E2EE/auth zones: no sitemap route (empty urlset breaks Google Search Console). */
+/** Private non-indexable zones (auth + E2EE vault apps): no sitemap route (empty urlset breaks Google Search Console). */
 const PRIVATE_ZONE_APP_IDS = [
   "auth",
   "contacts",
