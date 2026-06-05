@@ -70,7 +70,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 ### Eigenpal upgrade checklist
 
-After bumping `@eigenpal/docx-editor-react`, verify visually (light + dark):
+After bumping `@eigenpal/docx-editor-react` (current pin: `^1.3.1` in `package.json`), verify visually (light + dark):
 
 1. Toolbar and font/size/style dropdowns
 2. Find/Replace and Page setup dialogs (if reachable)

@@ -67,14 +67,14 @@
     "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
   },
   "overrides": {
-    "@supabase/supabase-js": "2.106.2",
+    "@supabase/supabase-js": "2.107.0",
     "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#f6ec87ddcc0f803881959eb690a72fa09c3b4c32",
-    "rollup": "4.60.4",
+    "rollup": "4.61.1",
     "minimatch": "10.2.5",
     "ajv": "6.14.0",
-    "hono": "4.12.19",
+    "hono": "4.12.23",
     "@hono/node-server": "1.19.13",
-    "vite": "8.0.13",
+    "vite": "8.0.16",
     "express-rate-limit": "8.5.2",
     "undici": "7.24.0",
     "flatted": "3.4.2",
@@ -86,13 +86,14 @@
     "postcss": "8.5.14",
     "protobufjs": "7.5.9",
     "qs": "6.15.2",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "pdfjs-dist": "6.0.227",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
     "@playwright/test": "^1.58.2",
-    "knip": "^6.14.2",
+    "knip": "^6.15.0",
     "turbo": "^2.9.16"
   }
 }

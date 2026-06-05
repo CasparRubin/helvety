@@ -136,7 +136,7 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
   - `bun run deps:drift` (also runs inside `ci:check`; toolchain via `@helvety/dev-deps`)
   - `bun run deps:inventory` (extended pins: ONNX SHA-256, vendored worker/WASM, key lockfile versions; see [`docs/dependency-inventory.md`](docs/dependency-inventory.md))
   - Cursor **dependency-update** skill (`.cursor/skills/dependency-update/`) for full npm + extended sweeps with upstream release research
-  - `bun outdated` then `bun update` before releases (manual; no Renovate/Dependabot)
+  - `bun run deps:outdated` then filtered `bun update <pkg...> --filter='@helvety/*'` before releases (manual; no Renovate/Dependabot; see `.cursor/skills/dependency-update/`; never bare `bun update -r` at repo root)
   - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
   - `bun run deps:check` / `bun run knip:exports` / `bun run knip:full` / `bun run deps:unused` (also available individually; `knip:full` scans the whole monorepo without `ci:check` entry filters)
   - Optional local dead-code triage: `bun run fallow` / `fallow:dead-code` / `fallow:dupes` / `fallow:health` / `fallow:fix` (`.fallowrc.json`; not in `ci:check`; Knip remains the CI gate via `deps:unused`)

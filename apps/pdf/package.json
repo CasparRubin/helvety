@@ -33,11 +33,11 @@
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
     "lucide-react": "^1.17.0",
-    "next": "^16.2.6",
+    "next": "^16.2.7",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.7.284",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "pdfjs-dist": "^6.0.227",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-pdf": "^10.4.1",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7"
@@ -47,7 +47,7 @@
     "@helvety/dev-deps": "workspace:*"
   },
   "overrides": {
-    "pdfjs-dist": "^5.7.284",
+    "pdfjs-dist": "^6.0.227",
     "node-domexception": "^2.0.2"
   }
 }

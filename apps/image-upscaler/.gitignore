@@ -7,3 +7,4 @@ public/ort/
 # we never want the .onnx graph or its `.data` sidecar committed.
 public/models/*.onnx
 public/models/*.data
+.vercel

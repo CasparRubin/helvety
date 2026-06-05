@@ -140,6 +140,8 @@ Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`)
 | `e2ee-app`         | `tasks`, `contacts`, `notes`, `links`                       |
 | `public-tool`      | `pdf`, `image-upscaler`; `docs` adds doc-editor CSP options |
 
+**PDF worker sync:** `apps/pdf` runs `bun run sync:pdf-worker` before dev/build to copy `pdfjs-dist/build/pdf.worker.min.mjs` into `public/` (must match the app's `pdfjs-dist` pin; see [`apps/pdf/README.md`](../apps/pdf/README.md) › PDF.js stack).
+
 Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config = { matcher: [...] }` (Next.js requirement). `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
 **Fail-closed auth refresh:** All session-bearing profiles (`auth-gateway`, `e2ee-app`, `store-gateway`, `public-tool`) clear stale `sb-*` cookies when Supabase session refresh fails (`FAIL_CLOSED_AUTH_REFRESH_PROFILES` in `@helvety/shared/proxy` plus `failClosedOnAuthRefresh: true` on `createAppProxy` for root redirects). **`public-marketing`** (`web`) omits fail-closed. Wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.

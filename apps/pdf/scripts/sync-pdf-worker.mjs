@@ -1,3 +1,8 @@
+/**
+ * Copy pdfjs-dist's bundled worker into apps/pdf/public for static serving.
+ * Resolves pdfjs-dist from this app workspace (see package.json + root overrides),
+ * not from react-pdf's nested dependency tree.
+ */
 import { cp, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -6,10 +11,7 @@ import process from "node:process";
 const require = createRequire(import.meta.url);
 
 async function main() {
-  const reactPdfDir = path.dirname(require.resolve("react-pdf/package.json"));
-  const pdfjsPackagePath = require.resolve("pdfjs-dist/package.json", {
-    paths: [reactPdfDir],
-  });
+  const pdfjsPackagePath = require.resolve("pdfjs-dist/package.json");
 
   const sourcePath = path.join(
     path.dirname(pdfjsPackagePath),

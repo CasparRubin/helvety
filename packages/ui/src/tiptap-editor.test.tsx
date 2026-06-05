@@ -66,4 +66,14 @@ describe("TiptapEditor toolbar accessibility", () => {
       screen.getByRole("button", { name: "Add Link" })
     ).toBeInTheDocument();
   });
+
+  it("mounts with a placeholder without throwing (TipTap 3.26 viewport tracking)", async () => {
+    render(
+      <TiptapEditor content={null} placeholder="Write something meaningful…" />
+    );
+
+    expect(
+      await screen.findByRole("button", { name: "Bold" })
+    ).toBeInTheDocument();
+  });
 });

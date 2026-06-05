@@ -6,7 +6,7 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 ## How to use
 
-1. **Npm/toolchain** — follow root `README.md` (`bun outdated`, `@helvety/dev-deps`, `bun run deps:drift`, `deps:security`, `ci:check`).
+1. **Npm/toolchain** — follow root `README.md` (`bun run deps:outdated`, `@helvety/dev-deps`, `bun run deps:drift`, `deps:security`, `ci:check`). Apply bumps with filtered `bun update <pkg...> --filter='@helvety/*'` (never bare `bun update -r` at repo root).
 2. **Extended assets** — walk each table below; check upstream `checkUrl` for releases, breaking changes, licenses, and size.
 3. **Apply updates** — follow the **Update procedure** column; re-run zone-specific verification and update this doc.
 
@@ -21,10 +21,11 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 | `@helvety/dev-deps`                  | `packages/dev-deps/package.json`                                      | Workspace                      | —                                                                | Edit dev-deps first; run `deps:drift`                                            | All workspaces       |
 | Workspace drift specifiers           | `scripts/check-workspace-version-drift.mjs` `REQUIRED_VERSION_BY_DEP` | Per package                    | npm/GitHub releases                                              | Update map + matching `package.json` / dev-deps                                  | `ci:check` fails     |
 | `eslint-plugin-react` (git override) | `f6ec87dd…` — root `package.json` `overrides`                         | jsx-eslint/eslint-plugin-react | https://github.com/jsx-eslint/eslint-plugin-react/commits/master | Change commit hash in override; lint all apps                                    | ESLint rule breakage |
-| Supabase JS client                   | `^2.106.2` (drift; security floor `2.106.0`)                          | supabase-js                    | https://github.com/supabase/supabase-js/releases                 | Bump in drift script + apps; `deps:security:floors`                              | Auth/API             |
+| Supabase JS client                   | `^2.107.0` (drift; security floor `2.107.0`; root override `2.107.0`) | supabase-js                    | https://github.com/supabase/supabase-js/releases                 | Bump in drift script + apps; `deps:security:floors`                              | Auth/API             |
 | `@supabase/ssr`                      | `^0.10.3` (drift)                                                     | supabase/ssr                   | https://github.com/supabase/ssr/releases                         | Same as above                                                                    | Cookie/session       |
-| Next.js                              | `^16.2.6` (drift; web is canonical)                                   | Vercel                         | https://github.com/vercel/next.js/releases                       | Bump apps + `docs/naming-conventions.md` doc link (`consistency:toolchain-docs`) | All zones            |
-| React / React DOM                    | `^19.2.6` (drift)                                                     | Meta                           | https://github.com/facebook/react/releases                       | Bump with Next compatibility                                                     | All apps             |
+| Next.js                              | `^16.2.7` (drift; web is canonical)                                   | Vercel                         | https://github.com/vercel/next.js/releases                       | Bump apps + `docs/naming-conventions.md` doc link (`consistency:toolchain-docs`) | All zones            |
+| React / React DOM                    | `^19.2.7` (drift)                                                     | Meta                           | https://github.com/facebook/react/releases                       | Bump with Next compatibility                                                     | All apps             |
+| Root security overrides              | `hono@4.12.23`, `vite@8.0.16`, `rollup@4.61.1`, `pdfjs-dist@6.0.227`  | npm                            | `bun audit`                                                      | Bump root `overrides`; `bun install`                                             | Transitive CVEs      |
 
 ---
 
@@ -42,13 +43,13 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 ## pdf
 
-| Name                           | Current pin                          | Upstream                 | Check URL                                       | Update procedure                                            | Risk                 |
-| ------------------------------ | ------------------------------------ | ------------------------ | ----------------------------------------------- | ----------------------------------------------------------- | -------------------- |
-| `pdfjs-dist`                   | `^5.7.284` + app `overrides`         | Mozilla pdf.js           | https://github.com/mozilla/pdf.js/releases      | Bump; `bun run sync:pdf-worker` in `apps/pdf`; smoke viewer | Worker API mismatch  |
-| PDF.js worker (vendored)       | `apps/pdf/public/pdf.worker.min.mjs` | From `pdfjs-dist/build/` | Same as pdf.js                                  | `apps/pdf/scripts/sync-pdf-worker.mjs` on dev/build         | Stale worker vs lib  |
-| `pdf-lib`                      | `^1.17.1`                            | Hopding/pdf-lib          | https://github.com/Hopding/pdf-lib/releases     | npm bump; worker merge/export tests                         | PDF corruption       |
-| `react-pdf`                    | `^10.4.1`                            | wojtekmaj/react-pdf      | https://github.com/wojtekmaj/react-pdf/releases | npm bump; ensure `pdfjs-dist` override wins                 | Nested pdfjs version |
-| `@napi-rs/canvas` (transitive) | Via `pdfjs-dist`; stubbed SSR        | napi-rs/canvas           | —                                               | No action unless removing stub; client-only                 | Build-only           |
+| Name                           | Current pin                          | Upstream                     | Check URL                                       | Update procedure                                                                     | Risk                 |
+| ------------------------------ | ------------------------------------ | ---------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ | -------------------- |
+| `pdfjs-dist`                   | `^6.0.227` + app/root `overrides`    | Mozilla pdf.js               | https://github.com/mozilla/pdf.js/releases      | Bump; `bun run sync:pdf-worker` in `apps/pdf`; smoke viewer                          | Worker API mismatch  |
+| PDF.js worker (vendored)       | `apps/pdf/public/pdf.worker.min.mjs` | From app `pdfjs-dist/build/` | Same as pdf.js                                  | `apps/pdf/scripts/sync-pdf-worker.mjs` on dev/build                                  | Stale worker vs lib  |
+| `pdf-lib`                      | `^1.17.1`                            | Hopding/pdf-lib              | https://github.com/Hopding/pdf-lib/releases     | npm bump; worker merge/export tests                                                  | PDF corruption       |
+| `react-pdf`                    | `^10.4.1`                            | wojtekmaj/react-pdf          | https://github.com/wojtekmaj/react-pdf/releases | npm bump; keep root + app `pdfjs-dist` overrides aligned; smoke viewer + merge tests | pdfjs 6 API mismatch |
+| `@napi-rs/canvas` (transitive) | Via `pdfjs-dist`; stubbed SSR        | napi-rs/canvas               | —                                               | No action unless removing stub; client-only                                          | Build-only           |
 
 ---
 
@@ -56,7 +57,7 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 | Name                          | Current pin                                                                          | Upstream             | Check URL                                        | Update procedure                                                               | Risk                 |
 | ----------------------------- | ------------------------------------------------------------------------------------ | -------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ | -------------------- |
-| `@eigenpal/docx-editor-react` | `^1.0.3` — `apps/docs/package.json`                                                  | eigenpal/docx-editor | https://github.com/eigenpal/docx-editor/releases | npm bump; **Eigenpal upgrade checklist** in `apps/docs/README.md`; theme tests | UI/theme regressions |
+| `@eigenpal/docx-editor-react` | `^1.3.1` — `apps/docs/package.json`                                                  | eigenpal/docx-editor | https://github.com/eigenpal/docx-editor/releases | npm bump; **Eigenpal upgrade checklist** in `apps/docs/README.md`; theme tests | UI/theme regressions |
 | Eigenpal theme bridge         | `apps/docs/styles/docx-editor-helvety-bridge.css`, `lib/docx-editor-theme-tokens.ts` | In-repo              | —                                                | Extend bridge if vendor class names change                                     | Dark/light contrast  |
 | Google Material Symbols (CDN) | `apps/docs/app/globals.css` `@import`                                                | Google Fonts         | https://fonts.google.com/icons                   | CSP already allows via `googleFonts` proxy profile; verify toolbar icons       | CSP block            |
 | Docx transitive stack         | `docxtemplater`, ProseMirror, etc. (lockfile)                                        | Various              | npm / Eigenpal changelog                         | Usually follows Eigenpal bump                                                  | Template/export      |

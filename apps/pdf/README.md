@@ -24,6 +24,13 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 - Capability-driven processing pipeline with fallback (`gpu-worker` -> `worker` -> `main-thread`)
 - PDF.js SSR uses a Turbopack `resolveAlias` stub for Node `canvas` (see `next.config.ts` and `lib/empty-canvas-stub.mjs`); processing remains client-side
 
+## PDF.js stack (maintainers)
+
+- **Library:** `pdfjs-dist` (^6.x) in `package.json`; root and app `overrides` keep a single lockfile version (react-pdf supplies viewer components only).
+- **Worker:** [`scripts/sync-pdf-worker.mjs`](./scripts/sync-pdf-worker.mjs) copies `pdfjs-dist/build/pdf.worker.min.mjs` into `public/pdf.worker.min.mjs` before dev/build (`bun run sync:pdf-worker`). Resolves from this app's `pdfjs-dist` install, not react-pdf's nested dependency tree.
+- **Runtime:** [`hooks/use-pdf-worker.ts`](./hooks/use-pdf-worker.ts) sets `pdfjs.GlobalWorkerOptions.workerSrc` to `/pdf/pdf.worker.min.mjs` (via `react-pdf`'s `pdfjs` export).
+- **Tests:** [`scripts/sync-pdf-worker.test.ts`](./scripts/sync-pdf-worker.test.ts), [`hooks/use-pdf-worker.test.ts`](./hooks/use-pdf-worker.test.ts), [`hooks/use-pdf-page-state.test.ts`](./hooks/use-pdf-page-state.test.ts).
+
 ## Crawl and Indexing
 
 - `apps/pdf` is publicly indexable.
@@ -33,7 +40,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 ## Security Model
 
 - File conversion is client-side for supported operations.
-- `proxy.ts` provides request bootstrap (CSP, CSRF cookie bootstrap/re-issue, optional session refresh) via the `public-tool` profile with **fail-closed** auth refresh when `sb-*` cookies are present; this app does not require login for PDF workflows. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, copied from `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build, which PDF.js loads from `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
+- `proxy.ts` provides request bootstrap (CSP, CSRF cookie bootstrap/re-issue, optional session refresh) via the `public-tool` profile with **fail-closed** auth refresh when `sb-*` cookies are present; this app does not require login for PDF workflows. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, synced from the app's `pdfjs-dist` pin by `bun run sync:pdf-worker` before dev/build and loaded at `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
 - Full-app E2EE is not used here (E2EE apps are `tasks`, `contacts`, `notes`, `links`). Helvety Docs offers optional encrypted vault save only.
 - Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 

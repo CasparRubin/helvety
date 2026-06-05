@@ -117,8 +117,13 @@ async function main() {
   const nestedPdfjs = lockText.match(
     /"react-pdf\/pdfjs-dist":\s*\["pdfjs-dist@([^"]+)"/
   );
+  const resolvedPdfjs = parseLockResolved(lockText, "pdfjs-dist");
   if (nestedPdfjs) {
     console.log(`- react-pdf/pdfjs-dist (nested): ${nestedPdfjs[1]}`);
+  } else {
+    console.log(
+      `- react-pdf/pdfjs-dist (nested): none (deduped; lockfile uses pdfjs-dist@${resolvedPdfjs})`
+    );
   }
 
   console.log("\n## Declared specifiers (package.json)\n");

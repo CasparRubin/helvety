@@ -33,12 +33,12 @@
     "@helvety/shared": "workspace:*"
   },
   "peerDependencies": {
-    "react": "^19.2.6"
+    "react": "^19.2.7"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
     "@helvety/dev-deps": "workspace:*",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }

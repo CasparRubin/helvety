@@ -29,11 +29,13 @@ vi.mock("@/hooks/use-error-handler", () => ({
 vi.mock("@/hooks/use-pdf-page-state", () => ({
   usePdfPageState: () => ({
     deletedPages: new Set<number>(),
-    pageRotations: new Map<number, number>(),
+    pageRotations: {} as Record<number, number>,
+    deletedCount: 0,
+    rotatedCount: 0,
     resetAll: vi.fn(),
     toggleDelete: vi.fn(),
     rotatePage: vi.fn(),
-    getActivePageCount: () => 0,
+    resetRotation: vi.fn(),
   }),
 }));
 

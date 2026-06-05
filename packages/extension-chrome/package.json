@@ -38,12 +38,12 @@
     "@helvety/shared": "workspace:*"
   },
   "peerDependencies": {
-    "react": "^19.2.6"
+    "react": "^19.2.7"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
     "@helvety/dev-deps": "workspace:*",
     "@types/chrome": "^0.0.328",
-    "react": "^19.2.6"
+    "react": "^19.2.7"
   }
 }

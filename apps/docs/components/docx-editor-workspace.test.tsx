@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const docxEditorMock = vi.fn((_props: Record<string, unknown>) => null);
 
@@ -20,6 +20,10 @@ const chromeProps = {
 };
 
 describe("DocxEditorWorkspace", () => {
+  beforeEach(() => {
+    docxEditorMock.mockClear();
+  });
+
   it("passes createEmptyDocument output when no buffer is loaded", () => {
     render(
       <DocxEditorWorkspace
@@ -38,6 +42,9 @@ describe("DocxEditorWorkspace", () => {
         onDocumentNameChange: chromeProps.onDocumentNameChange,
         onSave: expect.any(Function),
         showToolbar: true,
+        mode: "editing",
+        showRuler: true,
+        showZoomControl: true,
       })
     );
     expect(docxEditorMock).toHaveBeenCalledWith(
@@ -45,6 +52,28 @@ describe("DocxEditorWorkspace", () => {
         documentBuffer: expect.anything(),
       })
     );
+  });
+
+  it("remounts the editor when sessionKey changes", () => {
+    const { rerender } = render(
+      <DocxEditorWorkspace
+        documentBuffer={null}
+        sessionKey={1}
+        {...chromeProps}
+      />
+    );
+
+    expect(docxEditorMock).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <DocxEditorWorkspace
+        documentBuffer={null}
+        sessionKey={2}
+        {...chromeProps}
+      />
+    );
+
+    expect(docxEditorMock).toHaveBeenCalledTimes(2);
   });
 
   it("does not inject Helvety actions into the Eigenpal title bar", () => {

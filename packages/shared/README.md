@@ -21,7 +21,7 @@ This package centralizes:
 - App `lib/env.ts` modules use tiered factories from `@helvety/shared/env-validation`: `createAppServerUpstashEnv` (admin tier), `createAppUserScopedE2eeEnv` (E2EE + docs), `createAppUpstashCookieEnv` (public tools), `getValidatedGatewayEnv` (web)
 - E2EE delete copy: `defineEntityDeleteRegistry` in `@helvety/shared/entity-delete-message`
 - Monorepo-wide zone wiring guards: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring` (Vitest; see [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md))
-- PostCSS / Tailwind build wiring validated by `scripts/postcss-app-expectations.mjs` (`consistency:guardrails`, `deps:drift`; Vitest in `postcss-app-consistency.test.ts`)
+- PostCSS / Tailwind build wiring validated by `scripts/postcss-app-expectations.mjs` (`consistency:guardrails`, `deps:drift`; Vitest in `postcss-app-consistency.test.ts`). Drift and security-floor scripts are smoke-tested in `deps-guardrail-scripts.test.ts`.
 - Navbar About blurbs via `@helvety/shared/app-navbar-about` (per-app product copy; Swiss closing uses `HELVETY_SWISS_ORIGIN_SEO`)
 
 ## Core Contracts

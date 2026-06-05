@@ -33,7 +33,7 @@ After any root-level update, confirm root `package.json` has **no** `dependencie
 # image-upscaler — ORT WASM into public/ort/
 node scripts/copy-ort-runtime.mjs
 
-# pdf — PDF.js worker
+# pdf — PDF.js worker (from app pdfjs-dist, not react-pdf nested tree)
 cd apps/pdf && bun run sync:pdf-worker
 
 # docs — after Eigenpal bump
