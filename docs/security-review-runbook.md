@@ -35,7 +35,7 @@ bun run consistency:supabase-rls
 
 Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECURITY DEFINER` functions scoped.
 
-`consistency:supabase-rls` fails when a table from generated types (e.g. `docs`, `links`, `link_folders`) is missing from the local export — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
+`consistency:supabase-rls` checks every table in `scripts/supabase-user-tables.mjs` (`TABLES_REQUIRING_USER_RLS`, currently **10** tables: `contacts`, `items`, `notes`, `links`, `link_folders`, `entity_links`, `docs`, `user_profiles`, `user_passkey_params`, `user_auth_credentials`). It fails when a listed table is missing from the local export or lacks forced owner-scoped RLS — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
 
 ## Auth / extension
 

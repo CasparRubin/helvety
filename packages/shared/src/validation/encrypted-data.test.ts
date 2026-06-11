@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { sampleEncryptedField } from "../test-utils/action-test-helpers";
+
 import {
   createEncryptedDataSchema,
   EncryptedDataSchema,
@@ -15,6 +17,12 @@ function validEncryptedJson(ciphertextLength = 24): string {
 }
 
 describe("EncryptedDataSchema", () => {
+  it("accepts the shared action-test fixture", () => {
+    expect(EncryptedDataSchema.safeParse(sampleEncryptedField()).success).toBe(
+      true
+    );
+  });
+
   it("accepts payloads up to the default 100KB cap", () => {
     const payload = validEncryptedJson(50_000);
     expect(EncryptedDataSchema.safeParse(payload).success).toBe(true);
@@ -29,6 +37,54 @@ describe("EncryptedDataSchema", () => {
     expect(
       EncryptedDataSchema.safeParse(JSON.stringify({ iv: "short", version: 1 }))
         .success
+    ).toBe(false);
+  });
+
+  it("rejects IV shorter than 16 characters", () => {
+    expect(
+      EncryptedDataSchema.safeParse(
+        JSON.stringify({
+          iv: "c2hvcnQ=",
+          ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
+          version: 1,
+        })
+      ).success
+    ).toBe(false);
+  });
+
+  it("rejects ciphertext shorter than 24 characters", () => {
+    expect(
+      EncryptedDataSchema.safeParse(
+        JSON.stringify({
+          iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+          ciphertext: "c2hvcnQ=",
+          version: 1,
+        })
+      ).success
+    ).toBe(false);
+  });
+
+  it("rejects version below 1", () => {
+    expect(
+      EncryptedDataSchema.safeParse(
+        JSON.stringify({
+          iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+          ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
+          version: 0,
+        })
+      ).success
+    ).toBe(false);
+  });
+
+  it("rejects non-base64 IV characters", () => {
+    expect(
+      EncryptedDataSchema.safeParse(
+        JSON.stringify({
+          iv: "!!!!not-base64!!!!!!",
+          ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
+          version: 1,
+        })
+      ).success
     ).toBe(false);
   });
 });

@@ -40,6 +40,7 @@ describe("verifyRlsExport", () => {
         rlsTable("docs"),
         rlsTable("user_profiles"),
         rlsTable("user_passkey_params"),
+        rlsTable("user_auth_credentials"),
       ],
       policies: [],
     });
@@ -81,6 +82,7 @@ describe("verifyRlsExport", () => {
           rlsTable("docs"),
           rlsTable("user_profiles"),
           rlsTable("user_passkey_params"),
+          rlsTable("user_auth_credentials"),
         ],
         policies: [],
       },

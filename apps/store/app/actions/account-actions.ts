@@ -10,7 +10,10 @@ import "server-only";
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { logger } from "@helvety/shared/logger";
-import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
+import {
+  parseActionInput,
+  unexpectedActionError,
+} from "@helvety/shared/server-action-primitives";
 import { createScopedAdminQuery } from "@helvety/shared/supabase/admin";
 import { createServerMutatingClient } from "@helvety/shared/supabase/server";
 import { z } from "zod";
@@ -48,12 +51,16 @@ export async function updateUserEmail(
   csrfToken: string
 ): Promise<ActionResponse<void>> {
   try {
-    const parseResult = EmailSchema.safeParse(newEmail);
-    if (!parseResult.success) {
-      const errorMessage =
-        parseResult.error.issues[0]?.message ?? "Invalid email";
-      return { success: false, error: errorMessage };
+    const validationResult = parseActionInput({
+      schema: EmailSchema,
+      data: newEmail,
+      warnMessage: "Invalid email update data",
+      invalidDataMessage: "Invalid email format",
+    });
+    if (!validationResult.success) {
+      return validationResult;
     }
+    const validatedEmail = validationResult.data;
 
     const auth = await authenticateAndRateLimit({
       csrfToken,
@@ -64,7 +71,7 @@ export async function updateUserEmail(
     const { user } = auth.ctx;
 
     // Check if new email is same as current
-    if (user.email?.toLowerCase() === newEmail.toLowerCase()) {
+    if (user.email?.toLowerCase() === validatedEmail.toLowerCase()) {
       return {
         success: false,
         error: "New email must be different from current email",
@@ -74,7 +81,7 @@ export async function updateUserEmail(
     // Update email - Supabase will send confirmation email
     const supabase = await createServerMutatingClient();
     const { error } = await supabase.auth.updateUser({
-      email: newEmail,
+      email: validatedEmail,
     });
 
     if (error) {

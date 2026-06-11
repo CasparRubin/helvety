@@ -8,11 +8,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
-  createEntityLink: vi.fn(),
-  deleteEntityLink: vi.fn(),
   ensureOwnedEntityExists: vi.fn(),
   getEntityLinksForEndpoint: vi.fn(),
   toLinkedEntityReferences: vi.fn(),
+  createCanonicalLink: vi.fn(),
+  deleteCanonicalLink: vi.fn(),
+  validateOwnedLinkEntities: vi.fn(),
   loggerError: vi.fn(),
 }));
 
@@ -28,11 +29,15 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 vi.mock("@helvety/shared/entity-links", () => ({
-  createEntityLink: mocks.createEntityLink,
-  deleteEntityLink: mocks.deleteEntityLink,
   ensureOwnedEntityExists: mocks.ensureOwnedEntityExists,
   getEntityLinksForEndpoint: mocks.getEntityLinksForEndpoint,
   toLinkedEntityReferences: mocks.toLinkedEntityReferences,
+}));
+
+vi.mock("@helvety/shared/entity-link-action-primitives", () => ({
+  createCanonicalLink: mocks.createCanonicalLink,
+  deleteCanonicalLink: mocks.deleteCanonicalLink,
+  validateOwnedLinkEntities: mocks.validateOwnedLinkEntities,
 }));
 
 import {
@@ -99,11 +104,12 @@ describe("notes contact-link-actions", () => {
       },
     ]);
     mocks.ensureOwnedEntityExists.mockResolvedValue(true);
-    mocks.createEntityLink.mockResolvedValue({
-      data: { id: "new-link", created_at: "2026-01-01T00:00:00Z" },
-      error: null,
+    mocks.validateOwnedLinkEntities.mockResolvedValue({ success: true });
+    mocks.createCanonicalLink.mockResolvedValue({
+      success: true,
+      id: "new-link",
     });
-    mocks.deleteEntityLink.mockResolvedValue({ error: null });
+    mocks.deleteCanonicalLink.mockResolvedValue({ success: true });
 
     const links = await getItemContactLinks(
       "550e8400-e29b-41d4-a716-446655440000"
@@ -122,7 +128,52 @@ describe("notes contact-link-actions", () => {
     expect(linked).toEqual({ success: true, data: { id: "new-link" } });
     expect(unlinked).toEqual({ success: true });
     expect(mocks.getEntityLinksForEndpoint).toHaveBeenCalled();
-    expect(mocks.createEntityLink).toHaveBeenCalled();
-    expect(mocks.deleteEntityLink).toHaveBeenCalled();
+    expect(mocks.createCanonicalLink).toHaveBeenCalled();
+    expect(mocks.deleteCanonicalLink).toHaveBeenCalled();
+  });
+
+  it("forwards csrfToken to authenticateAndRateLimit on linkContact", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext({ from: vi.fn() })
+    );
+    mocks.validateOwnedLinkEntities.mockResolvedValue({ success: true });
+    mocks.createCanonicalLink.mockResolvedValue({
+      success: true,
+      id: "new-link",
+    });
+
+    await linkContact(
+      "550e8400-e29b-41d4-a716-446655440000",
+      "550e8400-e29b-41d4-a716-446655440001",
+      "csrf-token"
+    );
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "contact-links",
+    });
+  });
+
+  it("returns duplicate error when contact is already linked", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext({ from: vi.fn() })
+    );
+    mocks.validateOwnedLinkEntities.mockResolvedValue({ success: true });
+    mocks.createCanonicalLink.mockResolvedValue({
+      success: false,
+      error: "Contact is already linked",
+    });
+
+    const result = await linkContact(
+      "550e8400-e29b-41d4-a716-446655440000",
+      "550e8400-e29b-41d4-a716-446655440001",
+      "csrf-token"
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Contact is already linked",
+    });
+    expect(mocks.loggerError).not.toHaveBeenCalled();
   });
 });

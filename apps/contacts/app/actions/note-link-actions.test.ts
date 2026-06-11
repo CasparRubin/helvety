@@ -1,3 +1,5 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { createAuthSuccessContext } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -44,6 +46,8 @@ import {
 
 /** Builds a minimal Supabase mock for contact-note link actions. */
 function createSupabaseMock() {
+  let lastCatalogSelect: string | undefined;
+  let lastCatalogLimit: number | undefined;
   const contactSingle = vi
     .fn()
     .mockResolvedValue({ data: { id: "contact-1" }, error: null });
@@ -54,6 +58,21 @@ function createSupabaseMock() {
   const notesReturns = vi.fn().mockResolvedValue({
     data: [{ id: "note-1", encrypted_title: "enc-title" }],
     error: null,
+  });
+  const notesCatalogLimit = vi.fn((n: number) => {
+    lastCatalogLimit = n;
+    return { overrideTypes: notesReturns };
+  });
+  const notesCatalogOrderCreated = vi.fn(() => ({
+    limit: notesCatalogLimit,
+  }));
+  const notesCatalogOrderSort = vi.fn(() => ({
+    order: notesCatalogOrderCreated,
+  }));
+  const notesCatalogEqUser = vi.fn(() => ({ order: notesCatalogOrderSort }));
+  const notesCatalogSelect = vi.fn((columns: string) => {
+    lastCatalogSelect = columns;
+    return { eq: notesCatalogEqUser };
   });
   const notesOrder = vi.fn(() => ({ overrideTypes: notesReturns }));
   const notesEqUser = vi.fn(() => ({
@@ -78,16 +97,25 @@ function createSupabaseMock() {
     if (table === "contacts") return { select: contactSelect };
     if (table === "notes") {
       return {
-        select: (selectArg: string) =>
-          selectArg === "id, encrypted_title"
-            ? notesSelect()
-            : noteSelectForLink(),
+        select: (selectArg: string) => {
+          if (selectArg === ENCRYPTED_PREFETCH_COLUMNS.notes) {
+            return notesCatalogSelect(selectArg);
+          }
+          if (selectArg === "id, encrypted_title") {
+            return notesSelect();
+          }
+          return noteSelectForLink();
+        },
       };
     }
     throw new Error(`Unexpected table ${table}`);
   });
 
-  return { from };
+  return {
+    from,
+    getLastCatalogSelect: () => lastCatalogSelect,
+    getLastCatalogLimit: () => lastCatalogLimit,
+  };
 }
 
 describe("contacts note-link-actions", () => {
@@ -161,5 +189,11 @@ describe("contacts note-link-actions", () => {
     expect(mocks.getEntityLinksForEndpoint).toHaveBeenCalled();
     expect(mocks.createCanonicalLink).toHaveBeenCalled();
     expect(mocks.deleteCanonicalLink).toHaveBeenCalled();
+    expect(supabase.getLastCatalogSelect()).toBe(
+      ENCRYPTED_PREFETCH_COLUMNS.notes
+    );
+    expect(supabase.getLastCatalogLimit()).toBe(
+      ACTION_LIMITS.MAX_DASHBOARD_ROWS
+    );
   });
 });

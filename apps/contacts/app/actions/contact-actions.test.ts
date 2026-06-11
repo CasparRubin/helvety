@@ -1,10 +1,12 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   return {
     authenticateAndRateLimit: vi.fn(),
     logUnexpectedError: vi.fn(),
+    loggerInfo: vi.fn(),
     loggerWarn: vi.fn(),
     revalidatePath: vi.fn(),
   };
@@ -18,7 +20,7 @@ vi.mock("@helvety/shared/logger", () => ({
   logger: {
     error: vi.fn(),
     warn: mocks.loggerWarn,
-    info: vi.fn(),
+    info: mocks.loggerInfo,
     logUnexpectedError: mocks.logUnexpectedError,
   },
 }));
@@ -42,19 +44,11 @@ vi.mock("next/server", () => ({
 
 import {
   createContact,
+  deleteContact,
   getAllContactDataForExport,
   reorderContacts,
   updateContact,
 } from "./contact-actions";
-
-/** Builds a valid encrypted payload fixture used by action schemas. */
-function getEncryptedValue(): string {
-  return JSON.stringify({
-    ciphertext: "VGhpcyBpcyBhIHZhbGlkIGNpcGhlcnRleHQ=",
-    iv: "MTIzNDU2Nzg5MDEyMzQ1Ng==",
-    version: 1,
-  });
-}
 
 /** Builds a default createContact payload with optional overrides. */
 function getCreatePayload(
@@ -64,8 +58,8 @@ function getCreatePayload(
     encrypted_birthday: null,
     encrypted_description: null,
     encrypted_email: null,
-    encrypted_first_name: getEncryptedValue(),
-    encrypted_last_name: getEncryptedValue(),
+    encrypted_first_name: sampleEncryptedField(),
+    encrypted_last_name: sampleEncryptedField(),
     encrypted_notes: null,
     encrypted_phone: null,
     id: "550e8400-e29b-41d4-a716-446655440000",
@@ -127,6 +121,21 @@ function createSupabaseForCreateContact(options?: {
 describe("contact-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("forwards csrfToken and rateLimitPrefix on createContact", async () => {
+    const supabase = createSupabaseForCreateContact();
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    await createContact(getCreatePayload(), "csrf-token");
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "contacts",
+    });
   });
 
   it("returns auth response immediately when authentication fails", async () => {
@@ -272,7 +281,7 @@ describe("contact-actions", () => {
 
     const result = await updateContact(
       {
-        encrypted_first_name: getEncryptedValue(),
+        encrypted_first_name: sampleEncryptedField(),
         id: "550e8400-e29b-41d4-a716-446655440000",
       },
       "csrf-token"
@@ -280,6 +289,59 @@ describe("contact-actions", () => {
 
     expect(result).toEqual({ success: true });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
+  });
+
+  it("rejects invalid encrypted payloads on update before DB calls", async () => {
+    const update = vi.fn();
+    const supabase = { from: vi.fn(() => ({ update })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await updateContact(
+      {
+        encrypted_first_name: "not-json",
+        id: "550e8400-e29b-41d4-a716-446655440000",
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({
+      error: "Invalid contact data",
+      success: false,
+    });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("deletes a contact and revalidates the route", async () => {
+    const deleteEqUser = vi.fn().mockResolvedValue({ error: null });
+    const deleteEqId = vi.fn(() => ({ eq: deleteEqUser }));
+    const del = vi.fn(() => ({ eq: deleteEqId }));
+    const supabase = { from: vi.fn(() => ({ delete: del })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await deleteContact(
+      "550e8400-e29b-41d4-a716-446655440000",
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
+  });
+
+  it("rejects invalid contact id on deleteContact", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase: { from: vi.fn() }, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await deleteContact("not-a-uuid", "csrf-token");
+
+    expect(result).toEqual({ success: false, error: "Invalid contact ID" });
   });
 
   it("validates reorder payload size and rejects invalid UUIDs (Zod reorder schema)", async () => {
@@ -404,6 +466,42 @@ describe("contact-actions", () => {
     });
   });
 
+  it("maps reorder update failures through mapReorderOwnedEntitiesFailure", async () => {
+    const updateEqUser = vi
+      .fn()
+      .mockResolvedValue({ error: { message: "db failed" } });
+    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
+    const update = vi.fn(() => ({ eq: updateEqId }));
+    const inIds = vi.fn().mockResolvedValue({
+      data: [{ id: "550e8400-e29b-41d4-a716-446655440001" }],
+      error: null,
+    });
+    const selectEqUser = vi.fn(() => ({ in: inIds }));
+    const select = vi.fn(() => ({ eq: selectEqUser }));
+    let callCount = 0;
+    const supabase = {
+      from: vi.fn(() => {
+        callCount++;
+        return callCount === 1 ? { select } : { update };
+      }),
+    };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ctx: { supabase, user: { id: "user-1" } },
+      ok: true,
+    });
+
+    const result = await reorderContacts(
+      [{ id: "550e8400-e29b-41d4-a716-446655440001", sort_order: 0 }],
+      "csrf-token"
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Failed to reorder contacts",
+    });
+    expect(mocks.logUnexpectedError).toHaveBeenCalled();
+  });
+
   it("uses EXPORT readRateLimitConfig for getAllContactDataForExport", async () => {
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: false,
@@ -424,10 +522,7 @@ describe("contact-actions", () => {
     const rows = [
       { id: "c-1", user_id: "user-1", encrypted_first_name: "enc" },
     ];
-    const overrideTypes = vi
-      .fn()
-      .mockResolvedValue({ data: rows, error: null });
-    const limit = vi.fn(() => ({ overrideTypes }));
+    const limit = vi.fn().mockResolvedValue({ data: rows, error: null });
     const order = vi.fn(() => ({ limit }));
     const eq = vi.fn(() => ({ order }));
     const select = vi.fn(() => ({ eq }));
@@ -445,7 +540,11 @@ describe("contact-actions", () => {
     if (result.success) {
       expect(result.data).toEqual(rows);
     }
-    expect(overrideTypes).toHaveBeenCalled();
+    expect(limit).toHaveBeenCalled();
+    expect(mocks.loggerInfo).toHaveBeenCalledWith("Data export requested", {
+      source: "contacts",
+      userId: "user-1",
+    });
   });
 
   it("rejects export when row cap is exceeded", async () => {
@@ -456,10 +555,7 @@ describe("contact-actions", () => {
         user_id: "user-1",
       })
     );
-    const overrideTypes = vi
-      .fn()
-      .mockResolvedValue({ data: rows, error: null });
-    const limit = vi.fn(() => ({ overrideTypes }));
+    const limit = vi.fn().mockResolvedValue({ data: rows, error: null });
     const order = vi.fn(() => ({ limit }));
     const eq = vi.fn(() => ({ order }));
     const select = vi.fn(() => ({ eq }));

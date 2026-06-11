@@ -1,3 +1,4 @@
+import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -29,15 +30,6 @@ import { MAX_ENCRYPTED_DOCX_CHARS } from "@/lib/constants";
 import { createDoc, deleteDoc, updateDoc } from "./doc-actions";
 
 const DOC_ID = "550e8400-e29b-41d4-a716-446655440000";
-
-/** Minimal payload accepted by {@link EncryptedDataSchema}. */
-function sampleEncryptedField(): string {
-  return JSON.stringify({
-    iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
-    ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-    version: 1,
-  });
-}
 
 /** Valid encrypted payload with a ciphertext of the requested length. */
 function largeEncryptedField(ciphertextLength: number): string {
@@ -127,6 +119,54 @@ describe("docs doc-actions", () => {
       })
     );
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/docs");
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "docs",
+    });
+  });
+
+  it("rejects malformed encrypted_title before insert", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from: vi.fn() },
+      },
+    });
+
+    const result = await createDoc(
+      {
+        id: DOC_ID,
+        encrypted_title: "not-json",
+        encrypted_docx: sampleEncryptedField(),
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid document data" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("rejects malformed encrypted_docx before insert", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from: vi.fn() },
+      },
+    });
+
+    const result = await createDoc(
+      {
+        id: DOC_ID,
+        encrypted_title: sampleEncryptedField(),
+        encrypted_docx: "not-json",
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid document data" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it("createDoc accepts encrypted_docx larger than the shared 100KB cap", async () => {

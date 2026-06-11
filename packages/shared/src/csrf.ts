@@ -30,7 +30,7 @@ import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
  *
  * Read-only server actions that do not call `requireCSRFToken` still require an
  * authenticated session and should use `authenticateAndRateLimit` read-style
- * limits (see AGENTS.md and `@helvety/shared/action-helpers`).
+ * limits (see `docs/app-consistency-checklist.md` and `@helvety/shared/action-helpers`).
  */
 
 const CSRF_COOKIE_NAME = "csrf_token";

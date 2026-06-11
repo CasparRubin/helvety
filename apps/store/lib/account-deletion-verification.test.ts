@@ -18,7 +18,7 @@ const buildScopedAdmin = (from: ReturnType<typeof vi.fn>): ScopedAdmin =>
   ({ client: { from } }) as unknown as ScopedAdmin;
 
 describe("ACCOUNT_DELETION_VERIFICATION_CHECKS", () => {
-  it("covers every RLS user-data table plus auth credentials", () => {
+  it("covers every RLS user-data table including auth credentials", () => {
     const deletionTables = new Set<string>(
       ACCOUNT_DELETION_VERIFICATION_CHECKS.map((c) => c.table)
     );
@@ -26,9 +26,8 @@ describe("ACCOUNT_DELETION_VERIFICATION_CHECKS", () => {
     for (const table of TABLES_REQUIRING_USER_RLS) {
       expect(deletionTables.has(table)).toBe(true);
     }
-    expect(deletionTables.has("user_auth_credentials")).toBe(true);
     expect(ACCOUNT_DELETION_VERIFICATION_CHECKS).toHaveLength(
-      TABLES_REQUIRING_USER_RLS.length + 1
+      TABLES_REQUIRING_USER_RLS.length
     );
   });
 

@@ -7,7 +7,9 @@ import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   assignDefinedField,
-  isExportWithinCap,
+  fetchOwnedEncryptedExport,
+  logEncryptedExportRequested,
+  mapReorderOwnedEntitiesFailure,
   reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
@@ -346,15 +348,13 @@ export async function reorderContacts(
         return updateObj;
       },
     });
-    if (!reorderResult.success) {
-      if (reorderResult.cause === undefined) {
-        return { success: false, error: reorderResult.error };
-      }
-      logger.logUnexpectedError(
-        "Error reordering contact",
-        reorderResult.cause
-      );
-      return { success: false, error: "Failed to reorder contacts" };
+    const reorderFailure = mapReorderOwnedEntitiesFailure(
+      "contact",
+      reorderResult,
+      "Error reordering contact"
+    );
+    if (reorderFailure) {
+      return reorderFailure;
     }
 
     revalidateContactRoutes();
@@ -390,37 +390,21 @@ export async function getAllContactDataForExport(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const { data: contacts, error } = await supabase
-      .from(CONTACTS_TABLE)
-      .select(ENCRYPTED_PREFETCH_COLUMNS.contacts)
-      .eq("user_id", user.id)
-      .order("sort_order", { ascending: true })
-      .limit(ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE + 1)
-      .overrideTypes<ContactRow[], { merge: false }>();
-
-    if (error) {
-      logger.logUnexpectedError(
-        "Error fetching contact data for export",
-        error
-      );
-      return { success: false, error: "Failed to load contact data" };
+    const exportResult = await fetchOwnedEncryptedExport<ContactRow>({
+      supabase,
+      userId: user.id,
+      tableName: CONTACTS_TABLE,
+      selectColumns: ENCRYPTED_PREFETCH_COLUMNS.contacts,
+      logScope: "Error fetching contact data for export",
+      loadErrorMessage: "Failed to load contact data",
+    });
+    if (!exportResult.success) {
+      return { success: false, error: exportResult.error };
     }
 
-    if (!isExportWithinCap(contacts?.length ?? 0)) {
-      logger.warn("Export exceeds maximum row cap", {
-        items: contacts?.length ?? 0,
-        cap: ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE,
-      });
-      return {
-        success: false,
-        error:
-          "Export too large for a single request. Please reduce dataset size and retry.",
-      };
-    }
+    logEncryptedExportRequested("contacts", user.id);
 
-    logger.info("Data export requested", { source: "contacts" });
-
-    return { success: true, data: contacts ?? [] };
+    return { success: true, data: exportResult.rows };
   } catch (error) {
     return unexpectedActionError(
       "Unexpected error in getAllContactDataForExport",

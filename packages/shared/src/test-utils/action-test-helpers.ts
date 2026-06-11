@@ -1,3 +1,12 @@
+/** Minimal encrypted JSON payload accepted by {@link EncryptedDataSchema}. */
+export function sampleEncryptedField(ciphertextLength = 24): string {
+  return JSON.stringify({
+    iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+    ciphertext: "A".repeat(ciphertextLength),
+    version: 1,
+  });
+}
+
 /** Standard successful auth guard shape used in action tests. */
 interface AuthSuccessContext<TSupabase> {
   ok: true;

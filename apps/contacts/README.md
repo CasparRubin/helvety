@@ -44,7 +44,7 @@ Plaintext structural fields:
 - State-changing actions require CSRF; the proxy re-issues invalid `csrf_token` cookies.
 - Shared site footer via `E2eeAppRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 - Read paths use authenticated read model with rate limiting. List/detail prefetch GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS.contacts`).
-- Bulk export uses tighter export rate limits.
+- Cross-app link mutations use `@helvety/shared/entity-link-action-primitives`; bulk export uses `fetchOwnedEncryptedExport` + `logEncryptedExportRequested` from `@helvety/shared/entity-action-primitives` with `RATE_LIMITS.EXPORT`.
 - Valid `helvety_device_trust` cookie (weekly email proof) required for E2EE pages and API routes; missing/expired trust forces global logout. Vault keys in IndexedDB: **24h sliding idle / 7d max** (`auth-session-policy.ts`).
 
 ## Crawl and Indexing

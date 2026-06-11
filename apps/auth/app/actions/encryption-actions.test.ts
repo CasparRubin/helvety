@@ -3,34 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
-  checkRateLimit: vi.fn(),
-  createServerClient: vi.fn(),
   fetchUserPasskeyParamsForUser: vi.fn(),
-  getAuthUser: vi.fn(),
   logUnexpectedError: vi.fn(),
-  requireCSRFToken: vi.fn(),
 }));
 
 vi.mock("@helvety/shared/action-helpers", () => ({
   authenticateAndRateLimit: mocks.authenticateAndRateLimit,
 }));
 
-vi.mock("@helvety/shared/csrf", () => ({
-  requireCSRFToken: mocks.requireCSRFToken,
-}));
-
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
     logUnexpectedError: mocks.logUnexpectedError,
   },
-}));
-
-vi.mock("@helvety/shared/auth-retry", () => ({
-  getAuthUser: mocks.getAuthUser,
-}));
-
-vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: mocks.createServerClient,
 }));
 
 vi.mock("@helvety/shared/user-passkey-params-db", () => ({
@@ -42,7 +26,6 @@ vi.mock("@/lib/rate-limit", () => ({
     CREDENTIAL_READ: { maxRequests: 5, windowMs: 300_000 },
     ENCRYPTION: { maxRequests: 3, windowMs: 300_000 },
   },
-  checkRateLimit: mocks.checkRateLimit,
 }));
 
 import {
@@ -54,28 +37,20 @@ import {
 describe("encryption-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    const eq = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn(() => ({ eq }));
     mocks.authenticateAndRateLimit.mockResolvedValue({
       ok: true,
       ctx: {
         user: { id: "user-1" },
-        supabase: {},
+        supabase: {
+          from: vi.fn(() => ({ update })),
+        },
       },
     });
     mocks.fetchUserPasskeyParamsForUser.mockResolvedValue({
       ok: true,
       params: null,
-    });
-    mocks.requireCSRFToken.mockResolvedValue(undefined);
-    mocks.checkRateLimit.mockResolvedValue({ allowed: true });
-
-    const eq = vi.fn().mockResolvedValue({ error: null });
-    const update = vi.fn(() => ({ eq }));
-    mocks.createServerClient.mockResolvedValue({
-      from: vi.fn(() => ({ update })),
-    });
-    mocks.getAuthUser.mockResolvedValue({
-      user: { id: "user-1" },
-      error: null,
     });
   });
 
@@ -123,25 +98,45 @@ describe("encryption-actions", () => {
   });
 
   it("rejects saveKeyCheckValue when CSRF check fails", async () => {
-    mocks.requireCSRFToken.mockRejectedValueOnce(new Error("csrf"));
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: false,
+      response: {
+        success: false,
+        error: "Security validation failed. Please refresh and try again.",
+      },
+    });
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
       success: false,
-      error: "Security validation failed. Please sign in again.",
+      error: "Security validation failed. Please refresh and try again.",
     });
   });
 
-  it("rejects invalid key check value before DB calls", async () => {
+  it("rejects invalid key check value before auth", async () => {
     await expect(saveKeyCheckValue("token", "")).resolves.toEqual({
       success: false,
       error: "Invalid key check value",
     });
-    expect(mocks.createServerClient).not.toHaveBeenCalled();
+    expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("uses encryption mutation rate limits for saveKeyCheckValue", async () => {
+    await saveKeyCheckValue("csrf-token", "kcv");
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "encryption",
+      rateLimitConfig: { maxRequests: 3, windowMs: 300_000 },
+      requireDeviceTrust: false,
+    });
   });
 
   it("rejects when mutation rate limit is exceeded", async () => {
-    mocks.checkRateLimit.mockResolvedValueOnce({
-      allowed: false,
-      retryAfter: 42,
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: false,
+      response: {
+        success: false,
+        error: "Too many requests. Wait 42 seconds, then try again.",
+      },
     });
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
       success: false,
@@ -149,14 +144,54 @@ describe("encryption-actions", () => {
     });
   });
 
-  it("rejects saveKeyCheckValue when getAuthUser has no user", async () => {
-    mocks.getAuthUser.mockResolvedValue({
-      user: null,
-      error: null,
+  it("rejects saveKeyCheckValue when authenticateAndRateLimit has no user", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: false,
+      response: { success: false, error: buildAuthRequiredError() },
     });
     await expect(saveKeyCheckValue("token", "kcv")).resolves.toEqual({
       success: false,
       error: buildAuthRequiredError(),
     });
+  });
+
+  it("persists key check value on success", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn(() => ({ eq }));
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from: vi.fn(() => ({ update })) },
+      },
+    });
+
+    await expect(saveKeyCheckValue("csrf-token", "kcv-value")).resolves.toEqual(
+      {
+        success: true,
+      }
+    );
+    expect(update).toHaveBeenCalledWith({ key_check_value: "kcv-value" });
+    expect(eq).toHaveBeenCalledWith("user_id", "user-1");
+  });
+
+  it("returns failure when key check value update fails", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: { message: "db failed" } });
+    const update = vi.fn(() => ({ eq }));
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: true,
+      ctx: {
+        user: { id: "user-1" },
+        supabase: { from: vi.fn(() => ({ update })) },
+      },
+    });
+
+    await expect(saveKeyCheckValue("csrf-token", "kcv-value")).resolves.toEqual(
+      {
+        success: false,
+        error: "Failed to save key check value",
+      }
+    );
+    expect(mocks.logUnexpectedError).toHaveBeenCalled();
   });
 });

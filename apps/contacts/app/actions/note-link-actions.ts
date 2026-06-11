@@ -3,6 +3,8 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createCanonicalLink,
   deleteCanonicalLink,
@@ -142,9 +144,11 @@ export async function getNoteEntities(): Promise<
 
     const { data: notes, error } = await supabase
       .from("notes")
-      .select("id, encrypted_title")
+      .select(ENCRYPTED_PREFETCH_COLUMNS.notes)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS)
       .overrideTypes<
         { id: string; encrypted_title: string }[],
         { merge: false }

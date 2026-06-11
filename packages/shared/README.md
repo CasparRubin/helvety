@@ -20,7 +20,7 @@ This package centralizes:
 - Per-app `env.template` keys validated by root `consistency:env-templates` (`scripts/env-template-expectations.mjs`; Vitest in `env-template-consistency.test.ts`); local `.env.local` tier parity via `consistency:local-env` (`scripts/audit-local-env.mjs`)
 - App `lib/env.ts` modules use tiered factories from `@helvety/shared/env-validation`: `createAppServerUpstashEnv` (admin tier), `createAppUserScopedE2eeEnv` (E2EE + docs), `createAppUpstashCookieEnv` (public tools), `getValidatedGatewayEnv` (web)
 - E2EE delete copy: `defineEntityDeleteRegistry` in `@helvety/shared/entity-delete-message`
-- Monorepo-wide zone wiring guards: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring` (Vitest; see [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md))
+- Monorepo-wide zone wiring guards: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, `encrypted-data-wiring`, `csrf-wiring`, `supabase-rls-export` (Vitest; RLS export script: `bun run consistency:supabase-rls`; see [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md))
 - PostCSS / Tailwind build wiring validated by `scripts/postcss-app-expectations.mjs` (`consistency:guardrails`, `deps:drift`; Vitest in `postcss-app-consistency.test.ts`). Drift and security-floor scripts are smoke-tested in `deps-guardrail-scripts.test.ts`.
 - Navbar About blurbs via `@helvety/shared/app-navbar-about` (per-app product copy; Swiss closing uses `HELVETY_SWISS_ORIGIN_SEO`)
 
@@ -45,7 +45,8 @@ This package centralizes:
     - includes `reorderOwnedEntities(...)` and `mapReorderOwnedEntitiesFailure(...)` for scoped reorder mutations
     - includes `fetchOwnedEncryptedExport(...)`, `isExportWithinCap` / `areExportTablesWithinCap`, and `logEncryptedExportRequested(...)` for capped encrypted exports (used by Tasks, Notes, and Links entity actions)
     - includes `assignDefinedField(...)` for concise, consistent partial-update payload construction
-  - `entity-link-action-primitives`
+  - `validation/encrypted-data` (`EncryptedDataSchema`, `createEncryptedDataSchema`) for E2EE create/update server actions
+  - `entity-link-action-primitives` (`createCanonicalLink`, `deleteCanonicalLink`, `validateOwnedLinkEntities`) for cross-app link mutations in zone server actions
   - `entity-list-reorder`
     - includes `computeReorderUpdates(...)` for shared DnD reorder computation
 - Shared editor draft helper:
@@ -56,7 +57,7 @@ This package centralizes:
 - `@helvety/shared/encrypted-prefetch-queries` — shared Supabase list queries for encrypted dashboard batch actions and list API routes (tasks, contacts, notes, links, docs).
 - `@helvety/shared/client-env` — client-safe `NEXT_PUBLIC_*` Zod validation (`getValidatedClientEnv`, `getClientSupabaseUrl`, `getClientSupabaseKey`); used by `@helvety/shared/supabase/client`.
 - **Approved Bearer exception:** `apps/auth/lib/extension-bearer-auth.ts` is the only place that constructs a raw `@supabase/supabase-js` `createClient` (extension `Authorization: Bearer` header; no cookie session). All other app code uses `@helvety/shared/supabase/*` factories.
-- `@helvety/shared/entity-links` — cross-app link CRUD helpers; `ENTITY_LINK_COLUMNS` for explicit `entity_links` reads (no `select("*")`). Cross-link picker titles use `decryptItemDisplayTitle` / `decryptNoteDisplayTitle` from `@helvety/shared/crypto`.
+- `@helvety/shared/entity-links` — low-level link row helpers (`createEntityLink`, `deleteEntityLink`); zone server actions should call `entity-link-action-primitives` instead. `ENTITY_LINK_COLUMNS` for explicit `entity_links` reads (no `select("*")`). Cross-link picker titles use `decryptItemDisplayTitle` / `decryptNoteDisplayTitle` from `@helvety/shared/crypto`.
 
 ### Cross-app URLs (`config.ts`)
 
@@ -103,7 +104,7 @@ Vitest-only modules (not for production app bundles):
 
 - `@helvety/shared/test-utils/customer-copy-test-helpers` — em-dash, license-free SEO, Swiss-origin assertions
 - `@helvety/shared/test-utils/seo-route-test-helpers` — `expectPublicCrawlerRobots` for public-zone `robots.ts` tests (`*` plus `AI_DISCOVERY_USER_AGENTS`)
-- `@helvety/shared/test-utils/action-test-helpers` — shared server-action test utilities
+- `@helvety/shared/test-utils/action-test-helpers` — `sampleEncryptedField()`, `createAuthSuccessContext`, `createOrderedContactListSupabaseMock`, `createDashboardListSupabaseMock`, and related server-action fixtures
 
 See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md) for which layout/metadata mocks each zone needs.
 

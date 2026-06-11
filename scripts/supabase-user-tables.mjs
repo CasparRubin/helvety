@@ -15,6 +15,7 @@ export const TABLES_REQUIRING_USER_RLS = [
   "docs",
   "user_profiles",
   "user_passkey_params",
+  "user_auth_credentials",
 ];
 
 /** Ownership column per table (defaults to `user_id`). */

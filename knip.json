@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["eslint", "tsc", "vitest", "prettier"],
+  "ignoreBinaries": ["eslint", "tsc", "vitest", "prettier", "fallow"],
   "ignoreUnresolved": [
     "@testing-library/react",
     "@testing-library/jest-dom/vitest",

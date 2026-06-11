@@ -93,7 +93,7 @@ vi.mock("@helvety/shared/logger", () => ({
 
 ### Server actions (`app/actions/*-actions.ts`)
 
-One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/contacts/app/actions/contact-actions.test.ts` and helpers from `@helvety/shared/test-utils/action-test-helpers`. For Supabase list/export reads, assert explicit `.select(...)` column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS`, or `ENTITY_LINK_COLUMNS`) rather than `*`. Examples: `apps/tasks/app/actions/entity-actions.test.ts`, `apps/contacts/app/api/contacts/route.test.ts`, `apps/links/app/actions/batch-actions.test.ts`.
+One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/contacts/app/actions/contact-actions.test.ts` and helpers from `@helvety/shared/test-utils/action-test-helpers` (`sampleEncryptedField()` for valid encrypted JSON fixtures). Cross-app link mutations in zone actions use `entity-link-action-primitives` (`createCanonicalLink`, `deleteCanonicalLink`); mock those primitives in tests (see `apps/tasks/app/actions/note-link-actions.test.ts`). For Supabase list/export reads, assert explicit `.select(...)` column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS`, or `ENTITY_LINK_COLUMNS`) rather than `*`. Examples: `apps/tasks/app/actions/entity-actions.test.ts`, `apps/contacts/app/api/contacts/route.test.ts`, `apps/links/app/actions/batch-actions.test.ts`.
 
 ### Primary data hooks (E2EE + docs)
 
@@ -210,7 +210,7 @@ Wired by `packages/shared/src/app-navbar-wiring.test.ts` and `packages/ui/src/e2
 
 ## Centralized zone wiring tests
 
-In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
+In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `csrf-wiring`, and `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`). Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
 
 ## Multi-zone static assets (`assetPrefix`)
 

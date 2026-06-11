@@ -30,6 +30,7 @@ vi.mock("@helvety/shared/action-helpers", () => ({
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
     info: mocks.loggerInfo,
+    warn: vi.fn(),
     logUnexpectedError: mocks.logUnexpectedError,
   },
 }));
@@ -140,6 +141,42 @@ describe("account-actions", () => {
 
     expect(mocks.createServerMutatingClient).toHaveBeenCalled();
     expect(mocks.updateUser).toHaveBeenCalledWith({ email: "new@example.com" });
+  });
+
+  it("forwards csrfToken and ACCOUNT_MUTATE limits on updateUserEmail", async () => {
+    await updateUserEmail("new@example.com", "csrf-token");
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "acct",
+      rateLimitConfig: { maxRequests: 5, windowMs: 300_000 },
+    });
+  });
+
+  it("forwards csrfToken and ACCOUNT_MUTATE limits on requestAccountDeletion", async () => {
+    await requestAccountDeletion("csrf-token");
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "acct",
+      rateLimitConfig: { maxRequests: 5, windowMs: 300_000 },
+    });
+  });
+
+  it("uses DATA_EXPORT readRateLimitConfig for exportUserData", async () => {
+    await exportUserData();
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      rateLimitPrefix: "data-export",
+      readRateLimitConfig: { maxRequests: 3, windowMs: 300_000 },
+    });
+  });
+
+  it("completes account deletion when verification passes", async () => {
+    const result = await requestAccountDeletion("csrf-token");
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.deleteUser).toHaveBeenCalledWith("user-1");
   });
 
   it("fails deletion when verification detects residual issues", async () => {

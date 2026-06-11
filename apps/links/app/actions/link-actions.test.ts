@@ -1,3 +1,4 @@
+import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -22,18 +23,9 @@ vi.mock("next/cache", () => ({
   revalidatePath: mocks.revalidatePath,
 }));
 
-import { createLink, deleteLink } from "./link-actions";
+import { createLink, deleteLink, updateLink } from "./link-actions";
 
 const LINK_ID = "550e8400-e29b-41d4-a716-446655440000";
-
-/** Minimal payload accepted by {@link EncryptedDataSchema}. */
-function sampleEncryptedField(): string {
-  return JSON.stringify({
-    iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
-    ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-    version: 1,
-  });
-}
 
 describe("links link-actions", () => {
   beforeEach(() => {
@@ -68,5 +60,100 @@ describe("links link-actions", () => {
     const result = await deleteLink("not-a-uuid", "csrf");
 
     expect(result).toEqual({ success: false, error: "Invalid link ID" });
+  });
+
+  it("forwards csrfToken to authenticateAndRateLimit on createLink", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: { id: LINK_ID }, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    await createLink(
+      {
+        id: LINK_ID,
+        encrypted_name: sampleEncryptedField(),
+        encrypted_url: sampleEncryptedField(),
+        folder_id: null,
+      },
+      "csrf-token"
+    );
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "links",
+    });
+  });
+
+  it("creates a link and revalidates the route", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: { id: LINK_ID }, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createLink(
+      {
+        id: LINK_ID,
+        encrypted_name: sampleEncryptedField(),
+        encrypted_url: sampleEncryptedField(),
+        folder_id: null,
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true, data: { id: LINK_ID } });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
+  });
+
+  it("rejects invalid encrypted payloads before DB calls on createLink", async () => {
+    const insert = vi.fn();
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createLink(
+      {
+        id: LINK_ID,
+        encrypted_name: "not-json",
+        encrypted_url: sampleEncryptedField(),
+        folder_id: null,
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid link data" });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("updates a link and revalidates the route", async () => {
+    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
+    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
+    const update = vi.fn(() => ({ eq: updateEqId }));
+    const supabase = { from: vi.fn(() => ({ update })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await updateLink(
+      { id: LINK_ID, encrypted_name: sampleEncryptedField() },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
   });
 });

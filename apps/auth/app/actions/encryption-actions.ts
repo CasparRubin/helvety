@@ -3,17 +3,12 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
-import { getAuthUser } from "@helvety/shared/auth-retry";
-import { requireCSRFToken } from "@helvety/shared/csrf";
 import { getPasskeyParamsWithOptions } from "@helvety/shared/encryption-actions";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
-import { createServerClient } from "@helvety/shared/supabase/server";
-import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 import { fetchUserPasskeyParamsForUser } from "@helvety/shared/user-passkey-params-db";
 
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 
 import type {
   ActionResponse,
@@ -27,8 +22,8 @@ import type {
 // Read helpers: `hasEncryptionSetup` uses `authenticateAndRateLimit` here with
 // `CREDENTIAL_READ` (no CSRF). `getPasskeyParams` delegates to
 // `@helvety/shared/encryption-actions` `getPasskeyParamsWithOptions` with the
-// same auth rate-limit prefix. Mutations (`saveKeyCheckValue`) keep CSRF plus
-// `ENCRYPTION` limits in this module.
+// same auth rate-limit prefix. Mutations (`saveKeyCheckValue`) use
+// `authenticateAndRateLimit` with CSRF plus `ENCRYPTION` limits.
 
 /**
  * Check if user has encryption (PRF params) set up.
@@ -89,15 +84,6 @@ export async function saveKeyCheckValue(
   keyCheckValue: string
 ): Promise<ActionResponse> {
   try {
-    await requireCSRFToken(csrfToken);
-  } catch {
-    return {
-      success: false,
-      error: "Security validation failed. Please sign in again.",
-    };
-  }
-
-  try {
     if (
       !keyCheckValue ||
       typeof keyCheckValue !== "string" ||
@@ -106,25 +92,16 @@ export async function saveKeyCheckValue(
       return { success: false, error: "Invalid key check value" };
     }
 
-    const supabase = await createServerClient();
-
-    const { user, error: userError } = await getAuthUser(supabase);
-    if (userError || !user) {
-      return { success: false, error: buildAuthRequiredError() };
+    const auth = await authenticateAndRateLimit({
+      csrfToken,
+      rateLimitPrefix: "encryption",
+      rateLimitConfig: RATE_LIMITS.ENCRYPTION,
+      requireDeviceTrust: false,
+    });
+    if (!auth.ok) {
+      return auth.response;
     }
-
-    const rl = await checkRateLimit(
-      `encryption:user:${user.id}`,
-      RATE_LIMITS.ENCRYPTION.maxRequests,
-      RATE_LIMITS.ENCRYPTION.windowMs,
-      "encryption"
-    );
-    if (!rl.allowed) {
-      return {
-        success: false,
-        error: buildRateLimitedUserMessage(rl.retryAfter),
-      };
-    }
+    const { user, supabase } = auth.ctx;
 
     const { error } = await supabase
       .from("user_passkey_params")

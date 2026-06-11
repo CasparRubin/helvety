@@ -1,3 +1,4 @@
+import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -25,15 +26,6 @@ vi.mock("next/cache", () => ({
 import { createFolder, deleteFolder, updateFolder } from "./folder-actions";
 
 const FOLDER_ID = "550e8400-e29b-41d4-a716-446655440000";
-
-/** Minimal payload accepted by {@link EncryptedDataSchema}. */
-function sampleEncryptedField(): string {
-  return JSON.stringify({
-    iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
-    ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-    version: 1,
-  });
-}
 
 describe("links folder-actions", () => {
   beforeEach(() => {
@@ -86,5 +78,78 @@ describe("links folder-actions", () => {
     const result = await deleteFolder("not-a-uuid", "csrf");
 
     expect(result).toEqual({ success: false, error: "Invalid folder ID" });
+  });
+
+  it("forwards csrfToken to authenticateAndRateLimit on createFolder", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: { id: FOLDER_ID }, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    await createFolder(
+      {
+        id: FOLDER_ID,
+        encrypted_name: sampleEncryptedField(),
+        parent_folder_id: null,
+      },
+      "csrf-token"
+    );
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      csrfToken: "csrf-token",
+      rateLimitPrefix: "links",
+    });
+  });
+
+  it("creates a folder and revalidates the route", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: { id: FOLDER_ID }, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createFolder(
+      {
+        id: FOLDER_ID,
+        encrypted_name: sampleEncryptedField(),
+        parent_folder_id: null,
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true, data: { id: FOLDER_ID } });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
+  });
+
+  it("rejects invalid encrypted payloads before DB calls on createFolder", async () => {
+    const insert = vi.fn();
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createFolder(
+      {
+        id: FOLDER_ID,
+        encrypted_name: "not-json",
+        parent_folder_id: null,
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid folder data" });
+    expect(insert).not.toHaveBeenCalled();
   });
 });

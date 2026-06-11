@@ -38,8 +38,8 @@ Plaintext structural fields:
 - `proxy.ts` handles request bootstrap with **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails); authz enforcement lives in pages/actions/route handlers. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so `ci:check` guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - State-changing actions require CSRF; the proxy re-issues invalid `csrf_token` cookies.
 - Shared site footer via `E2eeAppRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
-- Read paths use authenticated read model with rate limiting. List/detail prefetch GET routes and cross-app link pickers (`getContacts`, `getTaskEntities`) use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS`) and cap at `ACTION_LIMITS.MAX_DASHBOARD_ROWS` (**2,000** rows per query).
-- Bulk export uses tighter export rate limits.
+- Read paths use authenticated read model with rate limiting. List/detail prefetch GET routes use `@helvety/shared/encrypted-prefetch-api` (`RATE_LIMITS.PREFETCH`, `ENCRYPTED_PREFETCH_COLUMNS`). Cross-app link pickers (`getContacts`, `getTaskEntities`) cap at `ACTION_LIMITS.MAX_DASHBOARD_ROWS` (**2,000** rows per query). The contact link picker loads the full `ENCRYPTED_PREFETCH_COLUMNS.contacts` list (Tasks uses the slimmer `CONTACT_LINK_PICKER_COLUMNS` subset; see `encrypted-prefetch-api.ts`).
+- Cross-app link mutations use `@helvety/shared/entity-link-action-primitives`; bulk export uses `fetchOwnedEncryptedExport` + `logEncryptedExportRequested` with `RATE_LIMITS.EXPORT`.
 - Valid `helvety_device_trust` cookie (weekly email proof) required for E2EE pages and API routes; missing/expired trust forces global logout. Vault keys in IndexedDB: **24h sliding idle / 7d max** (`auth-session-policy.ts`).
 
 ## Crawl and Indexing

@@ -6,8 +6,11 @@ import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
-  createEntityLink,
-  deleteEntityLink,
+  createCanonicalLink,
+  deleteCanonicalLink,
+  validateOwnedLinkEntities,
+} from "@helvety/shared/entity-link-action-primitives";
+import {
   ensureOwnedEntityExists,
   getEntityLinksForEndpoint,
   toLinkedEntityReferences,
@@ -148,36 +151,41 @@ export async function linkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [contactExists, itemExists] = await Promise.all([
-      ensureOwnedEntityExists(supabase, user.id, "contacts", contactId),
-      ensureOwnedEntityExists(supabase, user.id, "notes", itemId),
+    const ownedEntities = await validateOwnedLinkEntities(supabase, user.id, [
+      {
+        entityType: "contacts",
+        entityId: contactId,
+        notFoundMessage: "Contact not found",
+      },
+      {
+        entityType: "notes",
+        entityId: itemId,
+        notFoundMessage: "Note not found",
+      },
     ]);
-
-    if (!contactExists) {
-      return { success: false, error: "Contact not found" };
-    }
-    if (!itemExists) {
-      return { success: false, error: "Note not found" };
+    if (!ownedEntities.success) {
+      return ownedEntities;
     }
 
-    const linkResult = await createEntityLink({
+    const linkResult = await createCanonicalLink({
       supabase,
       userId: user.id,
       sourceEntityType: "notes",
       sourceEntityId: itemId,
       targetEntityType: "contacts",
       targetEntityId: contactId,
+      duplicateMessage: "Contact is already linked",
+      failureMessage: "Failed to link contact",
     });
 
-    if (linkResult.error || !linkResult.data) {
-      if (linkResult.error?.code === "23505") {
-        return { success: false, error: "Contact is already linked" };
+    if (!linkResult.success) {
+      if (linkResult.logError) {
+        logger.logUnexpectedError("Error linking contact", linkResult.logError);
       }
-      logger.logUnexpectedError("Error linking contact", linkResult.error);
-      return { success: false, error: "Failed to link contact" };
+      return { success: false, error: linkResult.error };
     }
 
-    return { success: true, data: { id: linkResult.data.id } };
+    return { success: true, data: { id: linkResult.id } };
   } catch (error) {
     return unexpectedActionError("Unexpected error in linkContact", error);
   }
@@ -202,11 +210,20 @@ export async function unlinkContact(
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const deleteResult = await deleteEntityLink(supabase, user.id, linkId);
-
-    if (deleteResult.error) {
-      logger.logUnexpectedError("Error unlinking contact", deleteResult.error);
-      return { success: false, error: "Failed to unlink contact" };
+    const deleteResult = await deleteCanonicalLink(
+      supabase,
+      user.id,
+      linkId,
+      "Failed to unlink contact"
+    );
+    if (!deleteResult.success) {
+      if (deleteResult.logError) {
+        logger.logUnexpectedError(
+          "Error unlinking contact",
+          deleteResult.logError
+        );
+      }
+      return { success: false, error: deleteResult.error };
     }
 
     return { success: true };
