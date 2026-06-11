@@ -10,6 +10,7 @@
  * Upstream: https://reactbits.dev/text-animations. Refresh via `bunx shadcn add @react-bits/…` (see `apps/web` README).
  */
 
+import { HELVETY_SWISS_ORIGIN_COUNTRY } from "@helvety/shared/licensing";
 import { cn } from "@helvety/shared/utils";
 import { useHtmlDarkTheme } from "@helvety/ui/use-html-dark-theme";
 import { useReducedMotion } from "framer-motion";
@@ -50,7 +51,11 @@ export function HeroSoftwareProducts() {
 
 /** Headline accent: static Helvety red. */
 export function HeroSwitzerland() {
-  return <span className="text-brand-swiss-red font-medium">Switzerland</span>;
+  return (
+    <span className="text-brand-swiss-red font-medium">
+      {HELVETY_SWISS_ORIGIN_COUNTRY}
+    </span>
+  );
 }
 
 /** Tagline: React Bits Shiny Text (https://reactbits.dev/text-animations/shiny-text) */

@@ -1,5 +1,5 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
-import { HELVETY_SWISS_ORIGIN_SEO } from "@helvety/shared/licensing";
+import { HELVETY_SWISS_ORIGIN_COUNTRY } from "@helvety/shared/licensing";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { ChevronRight, PackageOpen } from "lucide-react";
@@ -32,8 +32,8 @@ export function HeroMarketingShell() {
           </p>
           <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-[2.75rem] lg:leading-[1.1]">
             Engineered, designed &amp; made in{" "}
-            <span className="text-[var(--brand-swiss-red)]">
-              {HELVETY_SWISS_ORIGIN_SEO}
+            <span className="text-brand-swiss-red font-medium">
+              {HELVETY_SWISS_ORIGIN_COUNTRY}
             </span>
           </h1>
           <p className="text-muted-foreground text-base tracking-[0.08em] md:text-lg">

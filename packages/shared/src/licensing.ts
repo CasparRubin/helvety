@@ -17,6 +17,9 @@ export const HELVETY_COMPANY_VALUES_TAGLINE = "Private, simple, clean.";
 export const HELVETY_SWISS_ORIGIN_SEO =
   "Engineered, designed and made in Switzerland.";
 
+/** Country name for inline headlines (e.g. gateway hero h1); pair with a lead-in, not `HELVETY_SWISS_ORIGIN_SEO`. */
+export const HELVETY_SWISS_ORIGIN_COUNTRY = "Switzerland";
+
 /** Compact geographic closing when space is tight. */
 export const HELVETY_SWISS_BUILT_SUFFIX = "Swiss-built.";
 

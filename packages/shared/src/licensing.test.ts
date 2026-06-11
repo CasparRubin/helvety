@@ -9,6 +9,7 @@ import {
   HELVETY_FREE_AGPL_FEATURE,
   HELVETY_FREE_AGPL_INLINE,
   HELVETY_LLMS_LICENSING_NOTE,
+  HELVETY_SWISS_ORIGIN_COUNTRY,
   HELVETY_SWISS_ORIGIN_SEO,
   HELVETY_MONOREPO_LLMS_GITHUB_LINE,
   HELVETY_SOURCE_LICENSE_LABEL,
@@ -47,6 +48,8 @@ describe("licensing constants", () => {
     expect(HELVETY_SWISS_ORIGIN_SEO).toBe(
       "Engineered, designed and made in Switzerland."
     );
+    expect(HELVETY_SWISS_ORIGIN_COUNTRY).toBe("Switzerland");
+    expect(HELVETY_SWISS_ORIGIN_SEO).toContain(HELVETY_SWISS_ORIGIN_COUNTRY);
   });
 
   it("uses license-free company branding in the helvety.com gateway default title", () => {
