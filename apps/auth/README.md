@@ -63,7 +63,7 @@ Vault session policy (E2EE apps): **24h sliding idle**, **7d absolute max** (see
 - Redirect URIs are allowlist-validated via shared redirect-validation logic.
 - Passkey presence checks for `user_auth_credentials` use trusted server-side reads (`createScopedAdminQuery`, `lookupCredentialByCredentialId`), not public client reads.
 - Passkey transport values from stored credentials and client payloads are sanitized to supported WebAuthn transport enums before verification/option generation.
-- Auth session cookie writes use `createServerMutatingClient` (`@helvety/shared/supabase/server`) in route handlers and server actions (callbacks, OTP verify, passkey session mint, logout) so sign-in and sign-out persist cookies even when the proxy already refreshed the session (`x-helvety-auth-refreshed`). Server Components and read-only actions use `createServerClient`, which no-ops `setAll` when that header is set.
+- Auth session cookie writes use `createServerMutatingClient` (`@helvety/shared/supabase/server`) in route handlers and server actions (callbacks, OTP verify, passkey session mint, logout) so sign-in and sign-out persist cookies even when the proxy already refreshed the session (`x-helvety-auth-refreshed`). Server Components and read-only actions use `createServerClient`, which no-ops `setAll` when that header is set (and ignores the optional `@supabase/ssr` 0.12+ cache-header map in RSC). The proxy applies those cache headers on refresh; see `packages/shared/README.md` § Supabase SSR.
 - Web passkey sign-in bumps the WebAuthn counter before `verifyOtp` (replay protection). If session mint fails, the counter is rolled back so the user can retry the same ceremony without registering a new passkey.
 
 ## Chromium extension passkey API

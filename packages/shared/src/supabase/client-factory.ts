@@ -45,7 +45,11 @@ async function buildServerSupabaseClient(
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: CookieToSet[]): void {
+        /** Second arg is @supabase/ssr 0.12+ cache headers; ignored in RSC (no response). */
+        setAll(
+          cookiesToSet: CookieToSet[],
+          _headers?: Record<string, string>
+        ): void {
           if (skipCookiePersistence) {
             return;
           }

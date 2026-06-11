@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   EXPECTED_KEYS_BY_APP,
-  FORBIDDEN_ANALYTICS_ENV_KEYS,
   FORBIDDEN_KEYS_BY_APP,
   parseTemplateKeys,
   productionEnvKeyIsPresent,
@@ -113,9 +112,6 @@ describe("env.template consistency", () => {
   });
 
   it("forbids removed Vercel analytics env keys on every zone", () => {
-    expect(FORBIDDEN_ANALYTICS_ENV_KEYS).toEqual([
-      ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS,
-    ]);
     for (const [app, keys] of Object.entries(FORBIDDEN_KEYS_BY_APP)) {
       for (const analyticsKey of HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS) {
         expect(keys, `apps/${app}`).toContain(analyticsKey);

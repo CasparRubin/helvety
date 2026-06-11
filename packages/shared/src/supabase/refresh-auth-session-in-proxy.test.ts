@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   AUTH_REFRESHED_HEADER_NAME,
+  copySupabaseAuthRefreshResponseHeaders,
   refreshSupabaseAuthSession,
   requestMayHaveSupabaseAuthCookie,
 } from "./refresh-auth-session-in-proxy";
@@ -32,6 +33,41 @@ function mockAuthWithGetClaims(
 describe("refreshSupabaseAuthSession", () => {
   beforeEach(() => {
     createServerClientMock.mockReset();
+  });
+
+  it("applies cache headers from setAll to the outgoing response", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getClaims: async () => {
+          options.cookies.setAll(
+            [
+              {
+                name: "sb-example-auth-token",
+                value: "updated",
+                options: { path: "/", httpOnly: true },
+              },
+            ],
+            {
+              "Cache-Control": "no-cache, no-store",
+              Pragma: "no-cache",
+              Expires: "0",
+            }
+          );
+          return { error: null };
+        },
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const baseResponse = NextResponse.next({ request });
+
+    const response = await refreshSupabaseAuthSession(request, baseResponse);
+
+    expect(response.headers.get("Cache-Control")).toBe("no-cache, no-store");
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
   });
 
   it("propagates refreshed cookies to request and response", async () => {
@@ -98,6 +134,48 @@ describe("refreshSupabaseAuthSession", () => {
       "updated"
     );
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
+  });
+
+  it("applies cache headers from setAll on redirect responses", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getClaims: async () => {
+          options.cookies.setAll(
+            [
+              {
+                name: "sb-example-auth-token",
+                value: "updated",
+                options: { path: "/", httpOnly: true },
+              },
+            ],
+            {
+              "Cache-Control": "no-cache, no-store",
+              Pragma: "no-cache",
+              Expires: "0",
+            }
+          );
+          return { error: null };
+        },
+      },
+    }));
+
+    const request = new NextRequest("https://helvety.com/", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const redirectResponse = NextResponse.redirect(
+      new URL("/store", request.url)
+    );
+
+    const response = await refreshSupabaseAuthSession(
+      request,
+      redirectResponse
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://helvety.com/store");
+    expect(response.headers.get("Cache-Control")).toBe("no-cache, no-store");
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
   });
 
   it("returns the original response when auth refresh fails", async () => {
@@ -184,6 +262,24 @@ describe("refreshSupabaseAuthSession", () => {
     await refreshSupabaseAuthSession(request, baseResponse);
 
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBeNull();
+  });
+});
+
+describe("copySupabaseAuthRefreshResponseHeaders", () => {
+  it("copies Cache-Control, Pragma, and Expires when present", () => {
+    const from = NextResponse.next();
+    from.headers.set("Cache-Control", "no-cache, no-store");
+    from.headers.set("Pragma", "no-cache");
+    from.headers.set("Expires", "0");
+    from.headers.set("X-Unrelated", "keep-on-source");
+
+    const to = NextResponse.next();
+    copySupabaseAuthRefreshResponseHeaders(from, to);
+
+    expect(to.headers.get("Cache-Control")).toBe("no-cache, no-store");
+    expect(to.headers.get("Pragma")).toBe("no-cache");
+    expect(to.headers.get("Expires")).toBe("0");
+    expect(to.headers.get("X-Unrelated")).toBeNull();
   });
 });
 

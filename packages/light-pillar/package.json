@@ -28,14 +28,14 @@
     "./webgl-dynamic": "./src/create-helvety-webgl-dynamic.tsx"
   },
   "peerDependencies": {
-    "next": "^16.2.7",
+    "next": "^16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",
     "@helvety/dev-deps": "workspace:*",
-    "next": "^16.2.7",
+    "next": "^16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   }

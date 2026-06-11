@@ -17,10 +17,11 @@ describe("auth callback route", () => {
     expect(src).not.toMatch(/"email",/);
   });
 
-  it("re-exports a nodejs runtime handler", async () => {
-    const route = await import("./route");
-    expect(route.runtime).toBe("nodejs");
-    expect(typeof route.GET).toBe("function");
+  it("re-exports a nodejs runtime handler", () => {
+    const src = readFileSync(routePath, "utf8");
+
+    expect(src).toContain('export const runtime = "nodejs"');
+    expect(src).toMatch(/export const GET = createAuthCallbackHandler\(/);
   });
 
   it("mints device trust after successful email verification", () => {

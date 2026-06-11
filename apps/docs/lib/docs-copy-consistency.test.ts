@@ -18,6 +18,7 @@ const repoRoot = join(libDir, "../../..");
 const docsZonePath = join(libDir, "docs-zone-path.ts");
 const shellPath = join(libDir, "../components/helvety-docs-shell.tsx");
 const readmePath = join(libDir, "../README.md");
+const packageJsonPath = join(libDir, "../package.json");
 const llmsPath = join(libDir, "../public/llms.txt");
 const uiReadmePath = join(repoRoot, "packages/ui/README.md");
 
@@ -63,6 +64,19 @@ describe("docs copy consistency", () => {
       expect(text).not.toMatch(/\?doc=/);
       expect(text).not.toMatch(/deep link/i);
     }
+  });
+
+  it("README Eigenpal pin matches package.json", () => {
+    const pkg = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+      dependencies?: Record<string, string>;
+    };
+    const eigenpalVersion = pkg.dependencies?.["@eigenpal/docx-editor-react"];
+    expect(eigenpalVersion).toBeTruthy();
+
+    const readme = readFileSync(readmePath, "utf8");
+    expect(readme).toContain(
+      `current pin: \`${eigenpalVersion}\` in \`package.json\``
+    );
   });
 
   it("README and llms.txt document theme and white-page export behavior", () => {

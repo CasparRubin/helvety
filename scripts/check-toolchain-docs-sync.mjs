@@ -44,7 +44,7 @@ async function main() {
     typeof nextSpec === "string" ? nextSpec.match(/^\^(\d+\.\d+\.\d+)/) : null;
   if (!nextMatch) {
     throw new Error(
-      'apps/web/package.json dependencies.next must use a caret minimum with three-part semver (e.g. "^16.2.7").'
+      'apps/web/package.json dependencies.next must use a caret minimum with three-part semver (e.g. "^16.2.9").'
     );
   }
   const nextDocTag = `v${nextMatch[1]}`;

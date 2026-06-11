@@ -85,6 +85,41 @@ describe("createSecurityProxy Supabase auth refresh", () => {
     expect(request.headers.get(AUTH_REFRESHED_HEADER_NAME)).toBe("1");
   });
 
+  it("applies SSR cache headers from setAll on the proxy response", async () => {
+    createServerClientMock.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getClaims: async () => {
+          options.cookies.setAll(
+            [
+              {
+                name: "sb-example-auth-token",
+                value: "updated",
+                options: { path: "/", httpOnly: true },
+              },
+            ],
+            {
+              "Cache-Control": "no-cache, no-store",
+              Pragma: "no-cache",
+              Expires: "0",
+            }
+          );
+          return { error: null };
+        },
+      },
+    }));
+
+    const proxy = createSecurityProxy({ includeCsrf: false });
+    const request = new NextRequest("https://helvety.com/store/products", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+
+    const response = await proxy(request);
+
+    expect(response.headers.get("Cache-Control")).toBe("no-cache, no-store");
+    expect(response.headers.get("Pragma")).toBe("no-cache");
+    expect(response.headers.get("Expires")).toBe("0");
+  });
+
   it("skips Supabase client creation when there are no auth session cookies", async () => {
     const proxy = createSecurityProxy({ includeCsrf: false });
     const request = new NextRequest("https://helvety.com/store/products");

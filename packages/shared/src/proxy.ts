@@ -5,6 +5,7 @@ import { COOKIE_DOMAIN } from "./config";
 import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
 import {
   AUTH_REFRESHED_HEADER_NAME,
+  copySupabaseAuthRefreshResponseHeaders,
   refreshSupabaseAuthSession,
   requestMayHaveSupabaseAuthCookie,
 } from "./supabase/refresh-auth-session-in-proxy";
@@ -206,8 +207,11 @@ export function createAppProxy(options: {
  * signature/format checks under the current `HELVETY_COOKIE_SIGNING_SECRET`
  * (not merely when a cookie name is present). Server Components must not persist refreshed
  * session cookies: the proxy verifies/refreshes the session and sets `x-helvety-auth-refreshed`
- * only when it persisted cookies via `setAll`. `createServerSupabaseClient` no-ops `setAll` when
- * that header is present; route handlers and server actions use `createServerMutatingClient`.
+ * only when it persisted cookies via `setAll`. `@supabase/ssr` 0.12+ may pass no-store cache
+ * headers through `setAll`; those are applied on refresh and copied onto the rebuilt
+ * `NextResponse.next()` via `copySupabaseAuthRefreshResponseHeaders`. `createServerSupabaseClient`
+ * no-ops `setAll` when that header is present; route handlers and server actions use
+ * `createServerMutatingClient`.
  * Still no application DB or business logic in the proxy-only Supabase Auth HTTP.
  *
  * Config must be exported separately in each app (Next.js requires static config).
@@ -281,12 +285,14 @@ export function createSecurityProxy(
       if (request.headers.get(AUTH_REFRESHED_HEADER_NAME) === "1") {
         requestHeaders.set(AUTH_REFRESHED_HEADER_NAME, "1");
         const priorCookies = response.cookies.getAll();
+        const refreshedResponse = response;
         response = NextResponse.next({
           request: { headers: requestHeaders },
         });
         for (const cookie of priorCookies) {
           response.cookies.set(cookie);
         }
+        copySupabaseAuthRefreshResponseHeaders(refreshedResponse, response);
       }
     }
 

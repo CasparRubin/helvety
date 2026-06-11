@@ -58,7 +58,9 @@ describe("createServerSupabaseClient", () => {
       new Headers({ [AUTH_REFRESHED_HEADER_NAME]: "1" })
     );
 
-    let capturedSetAll: ((cookies: unknown[]) => void) | undefined;
+    let capturedSetAll:
+      | ((cookies: unknown[], headers?: Record<string, string>) => void)
+      | undefined;
     createServerClientMock.mockImplementation((_url, _key, options) => {
       capturedSetAll = options.cookies.setAll;
       return {};
@@ -68,9 +70,10 @@ describe("createServerSupabaseClient", () => {
 
     expect(capturedSetAll).toBeDefined();
     expect(() =>
-      capturedSetAll?.([
-        { name: "sb-example-auth-token", value: "token", options: {} },
-      ])
+      capturedSetAll?.(
+        [{ name: "sb-example-auth-token", value: "token", options: {} }],
+        { "Cache-Control": "no-cache, no-store" }
+      )
     ).not.toThrow();
     expect(cookieSetSpy).not.toHaveBeenCalled();
   });

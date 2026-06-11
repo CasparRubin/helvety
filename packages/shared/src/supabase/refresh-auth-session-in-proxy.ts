@@ -38,6 +38,26 @@ export type RefreshSupabaseAuthSessionOptions = Readonly<{
  */
 export const AUTH_REFRESHED_HEADER_NAME = "x-helvety-auth-refreshed";
 
+/** Response headers @supabase/ssr may pass via `setAll` after session refresh. */
+export const SUPABASE_AUTH_REFRESH_RESPONSE_HEADERS = [
+  "Cache-Control",
+  "Pragma",
+  "Expires",
+] as const;
+
+/** Copy SSR auth-refresh cache headers onto a rebuilt proxy response. */
+export function copySupabaseAuthRefreshResponseHeaders(
+  from: NextResponse,
+  to: NextResponse
+): void {
+  for (const name of SUPABASE_AUTH_REFRESH_RESPONSE_HEADERS) {
+    const value = from.headers.get(name);
+    if (value) {
+      to.headers.set(name, value);
+    }
+  }
+}
+
 /**
  * True when the request may include a Supabase browser session cookie (chunked
  * names included). Skips creating a client on fully anonymous hits.
@@ -91,7 +111,9 @@ function handleDefinitiveAuthRefreshFailure(
 /**
  * Refreshes Supabase auth cookies on the outgoing response and syncs cookie
  * mutations onto `request` for downstream Server Components, per @supabase/ssr
- * guidance for early session refresh at the request edge. Helvety wires this
+ * guidance for early session refresh at the request edge. When `setAll` receives
+ * a second `headers` argument (v0.12+), applies `Cache-Control` / `Pragma` /
+ * `Expires` on the outgoing response (including redirects). Helvety wires this
  * through Next.js `proxy.ts` (not deprecated `middleware.ts`). Uses
  * {@link verifyAuthSessionAtProxy} (`getClaims()` at the edge; authorization
  * elsewhere uses `getUser()`) so refresh runs before the
@@ -121,7 +143,7 @@ export async function refreshSupabaseAuthSession(
           getAll() {
             return request.cookies.getAll();
           },
-          setAll(cookiesToSet) {
+          setAll(cookiesToSet, headers) {
             if (cookiesToSet.length > 0) {
               cookiesWereWritten = true;
             }
@@ -139,6 +161,11 @@ export async function refreshSupabaseAuthSession(
                 ...(cookieDomain ? { domain: cookieDomain } : {}),
               };
               nextResponse.cookies.set(name, value, merged);
+            }
+            if (headers) {
+              for (const [key, value] of Object.entries(headers)) {
+                nextResponse.headers.set(key, value);
+              }
             }
           },
         },
