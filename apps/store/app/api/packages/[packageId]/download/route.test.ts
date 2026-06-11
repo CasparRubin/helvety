@@ -28,6 +28,12 @@ vi.mock("@helvety/shared/logger", () => ({
   },
 }));
 
+vi.mock("@/lib/env", () => ({
+  getValidatedStoreEnv: vi.fn(),
+}));
+
+import { getValidatedStoreEnv } from "@/lib/env";
+
 import { GET } from "./route";
 
 const TRUSTED_DOWNLOAD_URL =
@@ -133,6 +139,7 @@ describe("GET /api/packages/[packageId]/download", () => {
       params: Promise.resolve({ packageId: "spo-explorer" }),
     });
 
+    expect(getValidatedStoreEnv).toHaveBeenCalledTimes(1);
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(TRUSTED_DOWNLOAD_URL);
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");

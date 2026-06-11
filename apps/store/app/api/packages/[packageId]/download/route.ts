@@ -7,6 +7,7 @@ import {
   buildPublicDownloadRateLimitKey,
   isAllowedDownloadUrl,
 } from "@/lib/download-security";
+import { getValidatedStoreEnv } from "@/lib/env";
 import { createPackageDownload } from "@/lib/packages/create-package-download";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -22,6 +23,8 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ packageId: string }> }
 ) {
+  getValidatedStoreEnv();
+
   const clientIp = getTrustedClientIp(request.headers, {
     requireTrustedProxyInProduction: true,
   });

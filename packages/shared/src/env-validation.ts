@@ -1,66 +1,10 @@
 import { z } from "zod";
 
-import { logger } from "./logger";
-
-/**
- * Validates that a key is safe for NEXT_PUBLIC usage.
- * Accepts modern publishable keys (`sb_publishable_*` only).
- * Rejects known secret/service key patterns.
- */
-function validateAnonKey(key: string): boolean {
-  if (!key || typeof key !== "string") {
-    return false;
-  }
-
-  const trimmedKey = key.trim();
-
-  if (trimmedKey.length === 0) {
-    return false;
-  }
-
-  if (trimmedKey.length < 20) {
-    return false;
-  }
-
-  const lowerKey = trimmedKey.toLowerCase();
-  const hasSecretPattern =
-    lowerKey.startsWith("sb_secret_") ||
-    lowerKey.startsWith("sb_service_role_") ||
-    lowerKey.includes("service_role");
-  if (hasSecretPattern) {
-    return false;
-  }
-
-  return trimmedKey.startsWith("sb_publishable_");
-}
-
-/**
- * Environment variable schema validation
- */
-const envSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z
-    .string()
-    .url("NEXT_PUBLIC_SUPABASE_URL must be a valid URL")
-    .refine((url) => url.startsWith("https://") || url.startsWith("http://"), {
-      message: "NEXT_PUBLIC_SUPABASE_URL must start with http:// or https://",
-    })
-    .refine(
-      (url) =>
-        process.env.NODE_ENV !== "production" || url.startsWith("https://"),
-      {
-        message: "NEXT_PUBLIC_SUPABASE_URL must use HTTPS in production",
-      }
-    ),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z
-    .string()
-    .min(1, "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required")
-    .refine((key) => validateAnonKey(key), {
-      message:
-        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be a valid Supabase publishable key (sb_publishable_*). " +
-        "Do NOT use the Supabase secret key (legacy service_role) here - it should only be used server-side and must not be exposed to the client. " +
-        "Get your publishable key from: Supabase Dashboard > Project Settings > API > Publishable key",
-    }),
-});
+import {
+  getClientSupabaseKey,
+  getClientSupabaseUrl,
+  isCiBuildPlaceholderEnvEnabled,
+} from "./client-env";
 
 /**
  * Server-side env schema for apps that use SUPABASE_SECRET_KEY (admin client).
@@ -126,18 +70,7 @@ export const userScopedServerEnvSchema = upstashCookieSigningEnvSchema;
 export const userScopedE2eeServerEnvSchema =
   upstashCookieSigningEnvSchema.merge(deviceTrustEnvSchema);
 
-/**
- * When `SKIP_ENV_VALIDATION=1` and not on Vercel (`VERCEL=1`), apps may use
- * schema-valid placeholder values for **missing** `NEXT_PUBLIC_*` vars so
- * `next build` can run without real secrets (e.g. root `ci:release`). If both
- * public vars are already set, they are validated normally so local builds
- * still exercise real keys. Server + Upstash placeholders are gated in each
- * app `lib/env.ts` via {@link hasRealServerUpstashEnv}. Never rely on
- * placeholders when `VERCEL=1`.
- */
-export function isCiBuildPlaceholderEnvEnabled(): boolean {
-  return process.env.SKIP_ENV_VALIDATION === "1" && process.env.VERCEL !== "1";
-}
+export { isCiBuildPlaceholderEnvEnabled } from "./client-env";
 
 /** Raw server + Upstash + cookie signing read from `process.env` (trimmed, may be empty). */
 export function readServerUpstashEnvFromProcess(): {
@@ -209,12 +142,6 @@ export function hasRealUserScopedE2eeEnv(): boolean {
     Boolean(process.env.DEVICE_TRUST_COOKIE_SECRET?.trim())
   );
 }
-
-const CI_PLACEHOLDER_PUBLIC = {
-  NEXT_PUBLIC_SUPABASE_URL: "https://ci-build-placeholder.supabase.co",
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
-    "sb_publishable_ci_build_placeholder_only_not_for_any_real_environment",
-} as const;
 
 let cachedCiPlaceholderServerUpstash: z.infer<
   typeof serverUpstashMergedSchema
@@ -596,101 +523,12 @@ export function getValidatedGatewayEnv(): GatewayEnv {
   return validatedGatewayEnv;
 }
 
-/** Validated environment variable types */
-type Env = z.infer<typeof envSchema>;
-
-let validatedEnv: Env | null = null;
-
-/** Formats Zod env schema failures for thrown Error messages. */
-function formatEnvParseError(error: z.ZodError): string {
-  return error.issues
-    .map((err) => {
-      const path = err.path.join(".");
-      return `  - ${path}: ${err.message}`;
-    })
-    .join("\n");
-}
-
-/**
- * Validates and returns environment variables
- * Throws an error if validation fails
- *
- * Security: This function validates the expected environment variables.
- * In development, it provides helpful warnings and error messages.
- */
-function getValidatedEnv(): Env {
-  if (validatedEnv) {
-    return validatedEnv;
-  }
-
-  const rawEnv = {
-    NEXT_PUBLIC_SUPABASE_URL:
-      process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "",
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ?? "",
-  };
-
-  if (isCiBuildPlaceholderEnvEnabled()) {
-    const hasPublicSupabase =
-      Boolean(rawEnv.NEXT_PUBLIC_SUPABASE_URL) &&
-      Boolean(rawEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-
-    if (!hasPublicSupabase) {
-      const parsed = envSchema.safeParse(CI_PLACEHOLDER_PUBLIC);
-      if (!parsed.success) {
-        throw new Error(
-          `Internal error: CI placeholder public env failed schema: ${parsed.error.message}`
-        );
-      }
-      validatedEnv = parsed.data;
-      return validatedEnv;
-    }
-    // Real NEXT_PUBLIC_* present: validate them (do not override with placeholders).
-  }
-
-  // Development: Check if variables are missing before validation
-  if (process.env.NODE_ENV === "development") {
-    if (!rawEnv.NEXT_PUBLIC_SUPABASE_URL) {
-      logger.warn(
-        "⚠️  NEXT_PUBLIC_SUPABASE_URL is not set. " +
-          "Please create a .env.local file with your Supabase project URL."
-      );
-    }
-    if (!rawEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
-      logger.warn(
-        "⚠️  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is not set. " +
-          "Please create a .env.local file with your Supabase publishable key."
-      );
-    }
-  }
-
-  const result = envSchema.safeParse(rawEnv);
-
-  if (!result.success) {
-    const errors = formatEnvParseError(result.error);
-
-    const errorMessage =
-      `Invalid environment variables:\n${errors}\n\n` +
-      "Please check your .env.local file and ensure all required variables are set.\n" +
-      "See your app's env.template (for example apps/web/env.template) for required keys.\n\n" +
-      "Security Note: NEXT_PUBLIC_ variables are exposed to the client. " +
-      "Only use safe, public publishable keys (sb_publishable_*) in these variables. " +
-      "Do not use Supabase secret keys (legacy service_role keys) or other sensitive credentials.";
-
-    throw new Error(errorMessage);
-  }
-
-  validatedEnv = result.data;
-  return validatedEnv;
-}
-
 /**
  * Gets Supabase URL with validation
  * Security: This URL is safe to expose to the client as it's a public API endpoint
  */
 export function getSupabaseUrl(): string {
-  const env = getValidatedEnv();
-  return env.NEXT_PUBLIC_SUPABASE_URL;
+  return getClientSupabaseUrl();
 }
 
 /**
@@ -701,23 +539,5 @@ export function getSupabaseUrl(): string {
  * Do not use the Supabase secret key (legacy service_role) in NEXT_PUBLIC_ environment variables.
  */
 export function getSupabaseKey(): string {
-  const env = getValidatedEnv();
-  const key = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (process.env.NODE_ENV === "development") {
-    const lowerKey = key.toLowerCase();
-    if (
-      lowerKey.startsWith("sb_secret_") ||
-      lowerKey.startsWith("sb_service_role_") ||
-      lowerKey.includes("service_role")
-    ) {
-      logger.warn(
-        "⚠️  WARNING: Your NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY appears to be a secret/service key. " +
-          "This key must not be exposed to the client. " +
-          "Please use the publishable key (sb_publishable_*) instead."
-      );
-    }
-  }
-
-  return key;
+  return getClientSupabaseKey();
 }

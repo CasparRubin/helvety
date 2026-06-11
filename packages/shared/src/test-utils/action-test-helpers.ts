@@ -75,6 +75,25 @@ export function createOrderedContactListSupabaseMock(): {
   };
 }
 
+/** Fluent Supabase query mock supporting arbitrary `.order()` chains. */
+type DashboardListQueryMock<TResult> = {
+  order: () => DashboardListQueryMock<TResult>;
+  limit: () => { overrideTypes: () => Promise<TResult> };
+};
+
+/** Builds a chainable query mock ending in `.limit().overrideTypes()`. */
+function createDashboardListQueryMock<TResult>(
+  result: TResult
+): DashboardListQueryMock<TResult> {
+  const query: DashboardListQueryMock<TResult> = {
+    order: () => query,
+    limit: () => ({
+      overrideTypes: async () => result,
+    }),
+  };
+  return query;
+}
+
 /** Minimal Supabase mock for dashboard list reads ending in `.limit().overrideTypes()`. */
 export function createDashboardListSupabaseMock<
   TRow,
@@ -85,13 +104,7 @@ export function createDashboardListSupabaseMock<
 ): {
   from: (table: string) => {
     select: () => {
-      eq: () => {
-        order: () => {
-          order: () => {
-            limit: () => { overrideTypes: () => Promise<typeof result> };
-          };
-        };
-      };
+      eq: () => DashboardListQueryMock<typeof result>;
     };
   };
 } {
@@ -103,15 +116,7 @@ export function createDashboardListSupabaseMock<
 
       return {
         select: () => ({
-          eq: () => ({
-            order: () => ({
-              order: () => ({
-                limit: () => ({
-                  overrideTypes: async () => result,
-                }),
-              }),
-            }),
-          }),
+          eq: () => createDashboardListQueryMock(result),
         }),
       };
     },
@@ -125,13 +130,7 @@ export function createRejectingDashboardListSupabaseMock(
 ): {
   from: (table: string) => {
     select: () => {
-      eq: () => {
-        order: () => {
-          order: () => {
-            limit: () => { overrideTypes: () => Promise<never> };
-          };
-        };
-      };
+      eq: () => DashboardListQueryMock<never>;
     };
   };
 } {
@@ -141,17 +140,16 @@ export function createRejectingDashboardListSupabaseMock(
         throw new Error(`Unexpected table ${table}`);
       }
 
+      const rejectingQuery: DashboardListQueryMock<never> = {
+        order: () => rejectingQuery,
+        limit: () => ({
+          overrideTypes: async () => Promise.reject(error),
+        }),
+      };
+
       return {
         select: () => ({
-          eq: () => ({
-            order: () => ({
-              order: () => ({
-                limit: () => ({
-                  overrideTypes: async () => Promise.reject(error),
-                }),
-              }),
-            }),
-          }),
+          eq: () => rejectingQuery,
         }),
       };
     },

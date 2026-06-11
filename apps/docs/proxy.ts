@@ -9,7 +9,6 @@ export const proxy = createAppProxy({
       imgBlob: true,
       scriptUnsafeEval: "dev-only",
       workerBlob: true,
-      googleFonts: true,
     },
   }),
   defaultBasePath: "/docs",

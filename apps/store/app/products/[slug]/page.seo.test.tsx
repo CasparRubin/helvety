@@ -39,6 +39,7 @@ describe("store product SEO", () => {
     expect(src).toContain("notFound");
     expect(src).not.toContain("@/lib/data/products");
     expect(src).not.toContain("product-catalog-cache");
+    expect(src).toContain("ProductDetailServerHero");
   });
 
   it("calls notFound for unknown product slugs on the server", async () => {

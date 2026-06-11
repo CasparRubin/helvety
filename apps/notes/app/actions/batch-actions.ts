@@ -8,7 +8,7 @@ import {
   DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
   isDashboardPrefetchOverCap,
 } from "@helvety/shared/dashboard-prefetch";
-import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
+import { fetchNotesPrefetchRows } from "@helvety/shared/encrypted-prefetch-queries";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
@@ -31,14 +31,11 @@ export async function getFlatItemsDashboardData(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const itemsResult = await supabase
-      .from("notes")
-      .select(ENCRYPTED_PREFETCH_COLUMNS.notes)
-      .eq("user_id", user.id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false })
-      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
-      .overrideTypes<ItemRow[], { merge: false }>();
+    const itemsResult = await fetchNotesPrefetchRows<ItemRow>(
+      supabase,
+      user.id,
+      ACTION_LIMITS.MAX_DASHBOARD_ROWS
+    );
 
     if (itemsResult.error) {
       logger.logUnexpectedError(

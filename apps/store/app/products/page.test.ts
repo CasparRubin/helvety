@@ -5,20 +5,21 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const pagePath = join(dirname(fileURLToPath(import.meta.url)), "page.tsx");
-const clientPath = join(
+const catalogPath = join(
   dirname(fileURLToPath(import.meta.url)),
-  "../../components/products/products-catalog-client.tsx"
+  "../../components/products/products-catalog.tsx"
 );
 
 describe("products page", () => {
-  it("loads the catalog client-only without server products.ts import", () => {
+  it("server-renders catalog cards and hydrates the interactive catalog", () => {
     const pageSrc = readFileSync(pagePath, "utf8");
-    const clientSrc = readFileSync(clientPath, "utf8");
+    const catalogSrc = readFileSync(catalogPath, "utf8");
 
-    expect(pageSrc).toContain("ProductsCatalogClient");
-    expect(pageSrc).not.toContain("getCachedAllProducts");
-    expect(pageSrc).not.toContain("@/lib/data/products");
-    expect(clientSrc).toContain("ssr: false");
-    expect(clientSrc).toContain("dynamic(");
+    expect(pageSrc).toContain("getCachedStoreCatalogCards");
+    expect(pageSrc).toContain("ProductsCatalog");
+    expect(pageSrc).toContain("initialCards");
+    expect(pageSrc).not.toContain("ssr: false");
+    expect(catalogSrc).toContain("initialCards");
+    expect(catalogSrc).toContain("ProductCatalogTextCard");
   });
 });

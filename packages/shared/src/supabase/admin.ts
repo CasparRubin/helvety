@@ -87,7 +87,7 @@ let adminClient: SupabaseClient<DatabaseSchema> | null = null;
  *
  * - `apps/auth/app/actions/otp-actions.ts` — OTP send (admin); verify uses mutating server client
  * - `apps/auth/app/actions/passkey-auth-actions.ts` — passkey sign-in (via `lookupCredentialByCredentialId`)
- * - `apps/auth/app/actions/user-lookup.ts` — credential lookup by id/email
+ * - `apps/auth/app/actions/user-lookup.ts` — auth user lookup by email (RPC)
  * - `apps/store/lib/packages/create-package-download.ts` — signed download URLs
  * - `apps/store/lib/packages/resolve-version.ts` — package version resolution
  *

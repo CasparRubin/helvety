@@ -256,8 +256,9 @@ export function createVitestConfig(rootDir, options = {}) {
       },
       // Zone layouts import globals.css; skip PostCSS/Tailwind in unit tests (theme bridge tests read CSS via fs).
       css: false,
-      // Command-bar and layout tests can exceed 5s under full turbo parallel runs.
-      testTimeout: 10_000,
+      // Command-bar, layout, and env-module tests (dynamic import after
+      // vi.resetModules) can exceed 10s under full turbo parallel runs.
+      testTimeout: 20_000,
       // Default permissive; workspaces with coverage pass `passWithNoTests: false`.
       passWithNoTests,
       // TypeScript is checked by `turbo run type-check` (tsc --noEmit);

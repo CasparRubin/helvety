@@ -1,10 +1,13 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { ACTION_LIMITS } from "@helvety/shared/constants";
-import { isDashboardPrefetchOverCap } from "@helvety/shared/dashboard-prefetch";
 import {
-  ENCRYPTED_PREFETCH_COLUMNS,
-  encryptedPrefetchAuthOptions,
-} from "@helvety/shared/encrypted-prefetch-api";
+  DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
+  isDashboardPrefetchOverCap,
+} from "@helvety/shared/dashboard-prefetch";
+import { encryptedPrefetchAuthOptions } from "@helvety/shared/encrypted-prefetch-api";
+import {
+  ENCRYPTED_PREFETCH_API_MAX_ROWS,
+  fetchLinksLibraryPrefetchRows,
+} from "@helvety/shared/encrypted-prefetch-queries";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -20,9 +23,7 @@ export const runtime = "nodejs";
 
 const NO_STORE_HEADERS = { "cache-control": "no-store, max-age=0" };
 
-/**
- *
- */
+/** Returns encrypted folders and links for the current user. */
 export async function GET(): Promise<
   NextResponse<ActionResponse<LinksDashboardData>>
 > {
@@ -35,29 +36,15 @@ export async function GET(): Promise<
     }
     const { user, supabase } = auth.ctx;
 
-    const [foldersResult, linksResult] = await Promise.all([
-      supabase
-        .from("link_folders")
-        .select(ENCRYPTED_PREFETCH_COLUMNS.link_folders)
-        .eq("user_id", user.id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: false })
-        .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
-        .overrideTypes<LinkFolderRow[], { merge: false }>(),
-      supabase
-        .from("links")
-        .select(ENCRYPTED_PREFETCH_COLUMNS.links)
-        .eq("user_id", user.id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: false })
-        .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
-        .overrideTypes<LinkRow[], { merge: false }>(),
-    ]);
+    const { folders, links } = await fetchLinksLibraryPrefetchRows<
+      LinkFolderRow,
+      LinkRow
+    >(supabase, user.id, ENCRYPTED_PREFETCH_API_MAX_ROWS);
 
-    if (foldersResult.error || linksResult.error) {
+    if (folders.error || links.error) {
       logger.logUnexpectedError(
         "Error getting library via API route",
-        foldersResult.error ?? linksResult.error
+        folders.error ?? links.error
       );
       return NextResponse.json(
         { success: false, error: "Failed to load library" },
@@ -67,18 +54,18 @@ export async function GET(): Promise<
 
     if (
       isDashboardPrefetchOverCap(
-        foldersResult.data?.length ?? 0,
-        ACTION_LIMITS.MAX_DASHBOARD_ROWS
+        folders.data?.length ?? 0,
+        ENCRYPTED_PREFETCH_API_MAX_ROWS
       ) ||
       isDashboardPrefetchOverCap(
-        linksResult.data?.length ?? 0,
-        ACTION_LIMITS.MAX_DASHBOARD_ROWS
+        links.data?.length ?? 0,
+        ENCRYPTED_PREFETCH_API_MAX_ROWS
       )
     ) {
       return NextResponse.json(
         {
           success: false,
-          error: "Too many items to load in one request",
+          error: DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
         },
         { headers: NO_STORE_HEADERS }
       );
@@ -88,8 +75,8 @@ export async function GET(): Promise<
       {
         success: true,
         data: {
-          folders: foldersResult.data ?? [],
-          links: linksResult.data ?? [],
+          folders: folders.data ?? [],
+          links: links.data ?? [],
         },
       },
       { headers: NO_STORE_HEADERS }

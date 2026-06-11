@@ -1,3 +1,5 @@
+import { DOCS_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
+import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { RATE_LIMITS } from "@helvety/shared/rate-limit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -55,6 +57,8 @@ describe("docs api routes", () => {
     });
 
     const response = await getDocs();
+    expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.docs);
+    expect(supabase.from).toHaveBeenCalledWith("docs");
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
     await expect(response.json()).resolves.toEqual({
       success: true,
@@ -99,7 +103,7 @@ describe("docs api routes", () => {
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: "Too many documents to load in one request",
+      error: DOCS_PREFETCH_TOO_MANY_ROWS_ERROR,
     });
   });
 

@@ -16,7 +16,7 @@ type EmailLookupUser = {
  *
  * Security: call only with the Supabase **service role** client. Database grants
  * must keep EXECUTE on `public.get_auth_user_by_email` limited to `service_role`
- * (see `supabase/sql/verify_get_auth_user_by_email_grants.sql` for an audit query).
+ * (audit grants with `supabase/getSupabase.sql` locally; never commit `supabase.json`).
  */
 export async function findUserByEmail(
   email: string,

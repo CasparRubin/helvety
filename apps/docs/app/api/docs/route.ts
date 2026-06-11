@@ -1,8 +1,7 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import {
-  ENCRYPTED_PREFETCH_COLUMNS,
-  encryptedPrefetchAuthOptions,
-} from "@helvety/shared/encrypted-prefetch-api";
+import { DOCS_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
+import { encryptedPrefetchAuthOptions } from "@helvety/shared/encrypted-prefetch-api";
+import { fetchDocsPrefetchRows } from "@helvety/shared/encrypted-prefetch-queries";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -26,13 +25,11 @@ export async function GET(): Promise<NextResponse<ActionResponse<DocRow[]>>> {
     }
     const { user, supabase } = auth.ctx;
 
-    const { data: docs, error } = await supabase
-      .from("docs")
-      .select(ENCRYPTED_PREFETCH_COLUMNS.docs)
-      .eq("user_id", user.id)
-      .order("updated_at", { ascending: false })
-      .limit(MAX_DOC_ROWS + 1)
-      .overrideTypes<DocRow[], { merge: false }>();
+    const { data: docs, error } = await fetchDocsPrefetchRows<DocRow>(
+      supabase,
+      user.id,
+      MAX_DOC_ROWS
+    );
 
     if (error) {
       logger.logUnexpectedError("Error listing documents via API route", error);
@@ -45,7 +42,7 @@ export async function GET(): Promise<NextResponse<ActionResponse<DocRow[]>>> {
       return NextResponse.json(
         {
           success: false,
-          error: "Too many documents to load in one request",
+          error: DOCS_PREFETCH_TOO_MANY_ROWS_ERROR,
         },
         { headers: NO_STORE_HEADERS }
       );

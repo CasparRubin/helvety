@@ -53,6 +53,9 @@ This package centralizes:
 - E2EE list and draft cleanup helpers via `@helvety/shared/e2ee-draft` (`getE2eeListTitle`, `isDraftSnapshotUnchanged` for pristine-draft deletion on sheet close)
 - `proxy` is request bootstrap only (CSP, CSRF cookie bootstrap/re-issue, session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`. All session-bearing profiles (**`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, **`public-tool`**) use fail-closed auth refresh (clear stale `sb-*` cookies when Supabase session refresh fails); **`public-marketing`** (`web`) does not. See `packages/shared/src/proxy-fail-closed-wiring.test.ts`. Session mutations must use `createServerMutatingClient` (`packages/shared/src/zone-supabase-session-mutation-wiring.test.ts`, `bun run consistency:supabase-auth`).
 - `@helvety/shared/encrypted-prefetch-api` — `encryptedPrefetchAuthOptions`, `ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` (slim contact list for Tasks contact link picker), and `ENCRYPTED_PREFETCH_READ_RATE_LIMIT` (`RATE_LIMITS.PREFETCH`, 20/min) for encrypted dashboard list/detail GET routes (contacts, tasks, notes, links, docs vault APIs). No `select("*")` on those handlers. Docs vault routes use the authenticated user Supabase client (RLS), not `createAdminClient()`.
+- `@helvety/shared/encrypted-prefetch-queries` — shared Supabase list queries for encrypted dashboard batch actions and list API routes (tasks, contacts, notes, links, docs).
+- `@helvety/shared/client-env` — client-safe `NEXT_PUBLIC_*` Zod validation (`getValidatedClientEnv`, `getClientSupabaseUrl`, `getClientSupabaseKey`); used by `@helvety/shared/supabase/client`.
+- **Approved Bearer exception:** `apps/auth/lib/extension-bearer-auth.ts` is the only place that constructs a raw `@supabase/supabase-js` `createClient` (extension `Authorization: Bearer` header; no cookie session). All other app code uses `@helvety/shared/supabase/*` factories.
 - `@helvety/shared/entity-links` — cross-app link CRUD helpers; `ENTITY_LINK_COLUMNS` for explicit `entity_links` reads (no `select("*")`). Cross-link picker titles use `decryptItemDisplayTitle` / `decryptNoteDisplayTitle` from `@helvety/shared/crypto`.
 
 ### Cross-app URLs (`config.ts`)
@@ -72,7 +75,8 @@ This package centralizes:
 - `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
 - `@helvety/shared/layout-session-bootstrap`:
-  - `bootstrapPublicLayoutUser()` — user only (`apps/web`, `apps/pdf`, `apps/image-upscaler`, docs public `app/page.tsx`).
+  - `bootstrapPublicLayoutUser()` — user only (`apps/web`, `apps/pdf`, `apps/image-upscaler`).
+  - Docs `app/page.tsx` uses `getCachedUser()` directly (deduped with `bootstrapE2eeLayoutSession()` in the root layout).
   - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (`apps/store`, `apps/docs` layouts, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links). Docs uses this for optional vault save while keeping the main editor route public.
   - `bootstrapAuthLayoutSession()` — same CSRF + user contract as `bootstrapE2eeLayoutSession()` (`apps/auth` root layout).
   - All helpers log and return safe fallbacks on failure.
@@ -87,11 +91,11 @@ This package centralizes:
 
 ### Rate Limits and Caching
 
-- Security rate limiting is distributed via Upstash. Shared buckets include `RATE_LIMITS.API`, `READ`, `EXPORT` (tight encrypted exports), and `PREFETCH` (encrypted list prefetch GET routes via `encrypted-prefetch-api`).
+- Security rate limiting is distributed via Upstash. Shared buckets include `RATE_LIMITS.API`, `READ`, `EXPORT` (tight encrypted exports), and `PREFETCH` (encrypted list prefetch GET routes via `encrypted-prefetch-api`). List query bodies and overflow copy live in `encrypted-prefetch-queries` and `dashboard-prefetch`.
 - New shared rate-limit keys should use explicit, readable namespaces and stable key builders (for example `buildPublicDownloadRateLimitKey(...)`) to avoid string drift.
 - Security keys require explicit TTL semantics.
 - Strict production paths fail closed on rate-limit backend failure.
-- Request cache helpers are per-request only, not global data caches.
+- Request cache helpers are per-request only (`React.cache` in `@helvety/shared/cached-server` and store `getCachedAllProducts`). Public store catalog **cards** also use Next.js `unstable_cache` with a `store-catalog` tag in `apps/store/lib/data/product-catalog-cache.ts` (not for E2EE user data).
 
 ## Test helpers
 

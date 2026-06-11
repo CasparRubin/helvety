@@ -94,7 +94,7 @@ export function createSecurityHeaders({ appName } = {}) {
  * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
  * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. onnxruntime-web)
- * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts (Material Symbols for docx-editor toolbar icons)
+ * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts CDN in style-src (optional; Docs self-hosts Material Symbols via next/font/local)
  * @returns {string}
  */
 export function buildCsp({

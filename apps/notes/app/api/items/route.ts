@@ -1,8 +1,10 @@
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { NOTES_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
+import { encryptedPrefetchAuthOptions } from "@helvety/shared/encrypted-prefetch-api";
 import {
-  ENCRYPTED_PREFETCH_COLUMNS,
-  encryptedPrefetchAuthOptions,
-} from "@helvety/shared/encrypted-prefetch-api";
+  ENCRYPTED_PREFETCH_API_MAX_ROWS,
+  fetchNotesPrefetchRows,
+} from "@helvety/shared/encrypted-prefetch-queries";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { NextResponse } from "next/server";
@@ -11,7 +13,6 @@ import type { ActionResponse, ItemRow } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const MAX_ITEM_ROWS = 2000;
 const NO_STORE_HEADERS = { "cache-control": "no-store, max-age=0" };
 
 /** Returns encrypted notes for the current user. */
@@ -25,14 +26,11 @@ export async function GET(): Promise<NextResponse<ActionResponse<ItemRow[]>>> {
     }
     const { user, supabase } = auth.ctx;
 
-    const { data: items, error } = await supabase
-      .from("notes")
-      .select(ENCRYPTED_PREFETCH_COLUMNS.notes)
-      .eq("user_id", user.id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false })
-      .limit(MAX_ITEM_ROWS + 1)
-      .overrideTypes<ItemRow[], { merge: false }>();
+    const { data: items, error } = await fetchNotesPrefetchRows<ItemRow>(
+      supabase,
+      user.id,
+      ENCRYPTED_PREFETCH_API_MAX_ROWS
+    );
 
     if (error) {
       logger.logUnexpectedError("Error getting notes via API route", error);
@@ -41,11 +39,11 @@ export async function GET(): Promise<NextResponse<ActionResponse<ItemRow[]>>> {
         { headers: NO_STORE_HEADERS }
       );
     }
-    if ((items?.length ?? 0) > MAX_ITEM_ROWS) {
+    if ((items?.length ?? 0) > ENCRYPTED_PREFETCH_API_MAX_ROWS) {
       return NextResponse.json(
         {
           success: false,
-          error: "Too many notes to load in one request",
+          error: NOTES_PREFETCH_TOO_MANY_ROWS_ERROR,
         },
         { headers: NO_STORE_HEADERS }
       );

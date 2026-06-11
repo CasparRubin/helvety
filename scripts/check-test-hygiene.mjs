@@ -279,6 +279,48 @@ async function main() {
         );
       }
     }
+
+    for (const listRouteTest of [
+      "app/api/items/route.test.ts",
+      "app/api/contacts/route.test.ts",
+      "app/api/docs/route.test.ts",
+    ]) {
+      const routeTestPath = resolve(appRoot, listRouteTest);
+      if (!(await fileExists(routeTestPath))) continue;
+      const routeTestSource = await readFile(routeTestPath, "utf8");
+      if (!routeTestSource.includes("./[id]/route")) {
+        issues.push(
+          `apps/${entry.name}/${listRouteTest} must import ./[id]/route for detail-route contract tests (see docs/app-consistency-checklist.md).`
+        );
+      }
+      if (
+        !routeTestSource.includes("@helvety/shared/dashboard-prefetch") ||
+        !routeTestSource.includes("exceed")
+      ) {
+        issues.push(
+          `apps/${entry.name}/${listRouteTest} must cover prefetch overflow via @helvety/shared/dashboard-prefetch constants (see sibling contacts route.test.ts).`
+        );
+      }
+    }
+
+    const linksLibraryRouteTest = resolve(
+      appRoot,
+      "app/api/library/route.test.ts"
+    );
+    if (await fileExists(linksLibraryRouteTest)) {
+      const linksRouteTestSource = await readFile(
+        linksLibraryRouteTest,
+        "utf8"
+      );
+      if (
+        !linksRouteTestSource.includes("@helvety/shared/dashboard-prefetch") ||
+        !linksRouteTestSource.includes("exceed")
+      ) {
+        issues.push(
+          `apps/${entry.name}/app/api/library/route.test.ts must cover prefetch overflow via @helvety/shared/dashboard-prefetch constants.`
+        );
+      }
+    }
   }
 
   if (issues.length > 0) {

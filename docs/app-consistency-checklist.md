@@ -36,14 +36,14 @@ Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layou
 
 Every zone asserts layouts omit `@helvety/light-pillar` and `HelvetyShellWithLightPillarBackdrop` (gateway WebGL stays on `web` route components only).
 
-| Family                | Apps                                  | Also assert                                                                  |
-| --------------------- | ------------------------------------- | ---------------------------------------------------------------------------- |
-| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`               |
-| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                  |
-| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                  |
-| Auth gateway          | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order |
-| Store gateway         | `store`                               | CSRF wraps `{shell}`                                                         |
-| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order                                   |
+| Family                | Apps                                  | Also assert                                                                                                         |
+| --------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                      |
+| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                         |
+| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                         |
+| Auth gateway          | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order                                        |
+| Store gateway         | `store`                               | CSRF wraps `{shell}`                                                                                                |
+| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order; `app/page.tsx` uses `getCachedUser()` (not `bootstrapPublicLayoutUser`) |
 
 Copy an existing test from the same family when adding a zone.
 
@@ -51,13 +51,13 @@ Copy an existing test from the same family when adding a zone.
 
 Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests import `metadata`, not the default layout):
 
-| Layout pattern                                         | Mock                                                                     |
-| ------------------------------------------------------ | ------------------------------------------------------------------------ |
-| `bootstrapPublicLayoutUser()`                          | `@helvety/shared/layout-session-bootstrap`                               |
-| `bootstrapE2eeLayoutSession()`                         | `@helvety/shared/layout-session-bootstrap`                               |
-| `bootstrapAuthLayoutSession()` (auth layout only)      | `@helvety/shared/layout-session-bootstrap`                               |
-| Docs public `page.tsx` session                         | `@helvety/shared/layout-session-bootstrap` (`bootstrapPublicLayoutUser`) |
-| `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                                                  |
+| Layout pattern                                         | Mock                                                                   |
+| ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `bootstrapPublicLayoutUser()`                          | `@helvety/shared/layout-session-bootstrap`                             |
+| `bootstrapE2eeLayoutSession()`                         | `@helvety/shared/layout-session-bootstrap`                             |
+| `bootstrapAuthLayoutSession()` (auth layout only)      | `@helvety/shared/layout-session-bootstrap`                             |
+| Docs public `page.tsx` session                         | `@helvety/shared/cached-server` (`getCachedUser`, deduped with layout) |
+| `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                                                |
 
 Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` and `assertValidPublicSitemapEntries` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync and sitemap entries follow Google best practices.
 

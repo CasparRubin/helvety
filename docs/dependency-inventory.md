@@ -56,12 +56,12 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 ## docs
 
-| Name                          | Current pin                                                                          | Upstream             | Check URL                                        | Update procedure                                                               | Risk                 |
-| ----------------------------- | ------------------------------------------------------------------------------------ | -------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ | -------------------- |
-| `@eigenpal/docx-editor-react` | `^1.3.3` — `apps/docs/package.json`                                                  | eigenpal/docx-editor | https://github.com/eigenpal/docx-editor/releases | npm bump; **Eigenpal upgrade checklist** in `apps/docs/README.md`; theme tests | UI/theme regressions |
-| Eigenpal theme bridge         | `apps/docs/styles/docx-editor-helvety-bridge.css`, `lib/docx-editor-theme-tokens.ts` | In-repo              | —                                                | Extend bridge if vendor class names change                                     | Dark/light contrast  |
-| Google Material Symbols (CDN) | `apps/docs/app/globals.css` `@import`                                                | Google Fonts         | https://fonts.google.com/icons                   | CSP already allows via `googleFonts` proxy profile; verify toolbar icons       | CSP block            |
-| Docx transitive stack         | `docxtemplater`, ProseMirror, etc. (lockfile)                                        | Various              | npm / Eigenpal changelog                         | Usually follows Eigenpal bump                                                  | Template/export      |
+| Name                           | Current pin                                                                               | Upstream             | Check URL                                        | Update procedure                                                               | Risk                 |
+| ------------------------------ | ----------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ | -------------------- |
+| `@eigenpal/docx-editor-react`  | `^1.3.3` — `apps/docs/package.json`                                                       | eigenpal/docx-editor | https://github.com/eigenpal/docx-editor/releases | npm bump; **Eigenpal upgrade checklist** in `apps/docs/README.md`; theme tests | UI/theme regressions |
+| Eigenpal theme bridge          | `apps/docs/styles/docx-editor-helvety-bridge.css`, `lib/docx-editor-theme-tokens.ts`      | In-repo              | —                                                | Extend bridge if vendor class names change                                     | Dark/light contrast  |
+| Material Symbols (self-hosted) | `apps/docs/app/fonts/material-symbols-outlined.woff2`, `lib/fonts.ts` (`next/font/local`) | Google Fonts         | https://fonts.google.com/icons                   | WOFF2 in-repo; no CDN `@import`; Docs proxy uses `public-tool` only            | Toolbar icon regress |
+| Docx transitive stack          | `docxtemplater`, ProseMirror, etc. (lockfile)                                             | Various              | npm / Eigenpal changelog                         | Usually follows Eigenpal bump                                                  | Template/export      |
 
 ---
 

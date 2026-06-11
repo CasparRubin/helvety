@@ -1,24 +1,22 @@
 import { urls } from "@helvety/shared/config";
 
-import { getCachedAllProducts } from "@/lib/data/product-catalog-cache";
+import { getCachedStoreCatalogCards } from "@/lib/data/product-catalog-cache";
 
 import type { MetadataRoute } from "next";
 
 /**
  * Sitemap for public store pages.
- * Dynamically generates entries for all products at build time.
+ * Catalog slugs come from the tagged `unstable_cache` card list.
  * Excludes /account (auth-gated) and llms.txt.
  */
 
-/** Static build-time date for consistent sitemap caching */
-const lastModified = new Date();
-
 /** Generates the sitemap for public store pages. */
-export default function sitemap(): MetadataRoute.Sitemap {
-  const products = getCachedAllProducts();
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const cards = await getCachedStoreCatalogCards();
+  const lastModified = new Date();
 
-  const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `${urls.store}/products/${product.slug}`,
+  const productEntries: MetadataRoute.Sitemap = cards.map((card) => ({
+    url: `${urls.store}/products/${card.slug}`,
     lastModified,
   }));
 

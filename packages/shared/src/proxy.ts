@@ -27,7 +27,7 @@ export type BuildCspOptions = {
    * onnxruntime-web in the image upscaler).
    */
   wasmUnsafeEval?: boolean;
-  /** Allow Google Fonts (Material Symbols for @eigenpal/docx-editor-react). */
+  /** Allow Google Fonts CDN in CSP style-src (optional; prefer self-hosted icon fonts when possible). */
   googleFonts?: boolean;
 };
 

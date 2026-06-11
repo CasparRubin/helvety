@@ -103,6 +103,7 @@ describe("contacts batch-actions", () => {
     query.order = vi
       .fn()
       .mockImplementationOnce(() => query)
+      .mockImplementationOnce(() => query)
       .mockImplementationOnce(() => query);
     query.limit = vi.fn(() => query);
     query.overrideTypes = overrideTypes;
@@ -122,10 +123,13 @@ describe("contacts batch-actions", () => {
     expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.contacts);
     expect(supabase.from).toHaveBeenCalledWith("contacts");
     expect(query.eq).toHaveBeenCalledWith("user_id", "user-1");
-    expect(query.order).toHaveBeenNthCalledWith(1, "sort_order", {
+    expect(query.order).toHaveBeenNthCalledWith(1, "category_id", {
       ascending: true,
     });
-    expect(query.order).toHaveBeenNthCalledWith(2, "created_at", {
+    expect(query.order).toHaveBeenNthCalledWith(2, "sort_order", {
+      ascending: true,
+    });
+    expect(query.order).toHaveBeenNthCalledWith(3, "created_at", {
       ascending: false,
     });
     expect(query.limit).toHaveBeenCalledWith(

@@ -5,6 +5,23 @@ import { ProductsCatalog } from "./products-catalog";
 
 import type * as ProductsModule from "@/lib/data/products";
 import type { Product } from "@/lib/types/products";
+import type { StoreProductCardEntry } from "@helvety/shared/store-catalog";
+
+/** Maps test `Product` rows to SSR catalog card entries. */
+function toInitialCards(products: Product[]): StoreProductCardEntry[] {
+  return products.map((product) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    shortDescription: product.shortDescription,
+    releaseDate: "2025-09-14",
+    type: product.type,
+    category: product.category,
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  })) as StoreProductCardEntry[];
+}
 
 vi.mock("next/image", () => ({
   default: (props: { alt?: string }) => (
@@ -59,14 +76,14 @@ vi.mock("@/lib/data/products", async (importOriginal) => {
 
 describe("ProductsCatalog", () => {
   it("renders all products from getAllProducts", () => {
-    render(<ProductsCatalog />);
+    render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
     expect(screen.getByText("Helvety PDF")).toBeInTheDocument();
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
   });
 
   it("filters products by type using getFilteredProducts", () => {
-    render(<ProductsCatalog />);
+    render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
     fireEvent.click(screen.getByRole("button", { name: /Software/i }));
 
@@ -75,7 +92,7 @@ describe("ProductsCatalog", () => {
   });
 
   it("does not expose a physical product type filter", () => {
-    render(<ProductsCatalog />);
+    render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
     expect(screen.queryByRole("button", { name: /Physical/i })).toBeNull();
     expect(screen.queryByRole("menuitem", { name: /Physical/i })).toBeNull();

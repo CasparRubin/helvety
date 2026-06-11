@@ -165,7 +165,7 @@ async function main() {
 
   console.log("\n## Docs\n");
   console.log(
-    "- Google Fonts CDN: apps/docs/app/globals.css (Material Symbols)"
+    "- Material Symbols (self-hosted): apps/docs/app/fonts/material-symbols-outlined.woff2 + lib/fonts.ts"
   );
 
   console.log(

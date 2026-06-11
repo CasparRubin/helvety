@@ -8,24 +8,16 @@ import {
   CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
   isDashboardPrefetchOverCap,
 } from "@helvety/shared/dashboard-prefetch";
-import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
+import { fetchContactsPrefetchRows } from "@helvety/shared/encrypted-prefetch-queries";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
 import type { ActionResponse, ContactRow } from "@/lib/types";
 
-// =============================================================================
-// Batch Response Types
-// =============================================================================
-
 /** Data returned by the Contacts dashboard batch fetch */
 interface ContactsDashboardData {
   contacts: ContactRow[];
 }
-
-// =============================================================================
-// DASHBOARD PREFETCH ACTIONS
-// =============================================================================
 
 /**
  * Prefetch encrypted contacts for the dashboard's initial server render.
@@ -42,14 +34,11 @@ export async function getContactsDashboardData(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const contactsResult = await supabase
-      .from("contacts")
-      .select(ENCRYPTED_PREFETCH_COLUMNS.contacts)
-      .eq("user_id", user.id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false })
-      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
-      .overrideTypes<ContactRow[], { merge: false }>();
+    const contactsResult = await fetchContactsPrefetchRows<ContactRow>(
+      supabase,
+      user.id,
+      ACTION_LIMITS.MAX_DASHBOARD_ROWS
+    );
 
     if (contactsResult.error) {
       logger.logUnexpectedError(

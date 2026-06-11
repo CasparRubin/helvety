@@ -8,7 +8,7 @@ import {
   DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
   isDashboardPrefetchOverCap,
 } from "@helvety/shared/dashboard-prefetch";
-import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
+import { fetchLinksLibraryPrefetchRows } from "@helvety/shared/encrypted-prefetch-queries";
 import { logger } from "@helvety/shared/logger";
 import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 
@@ -20,7 +20,7 @@ import type {
 } from "@/lib/types";
 
 /**
- *
+ * Prefetch encrypted folders and links for the dashboard's initial server render.
  */
 export async function getLinksDashboardData(): Promise<
   ActionResponse<LinksDashboardData>
@@ -30,47 +30,33 @@ export async function getLinksDashboardData(): Promise<
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
 
-    const [foldersResult, linksResult] = await Promise.all([
-      supabase
-        .from("link_folders")
-        .select(ENCRYPTED_PREFETCH_COLUMNS.link_folders)
-        .eq("user_id", user.id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: false })
-        .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
-        .overrideTypes<LinkFolderRow[], { merge: false }>(),
-      supabase
-        .from("links")
-        .select(ENCRYPTED_PREFETCH_COLUMNS.links)
-        .eq("user_id", user.id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: false })
-        .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1)
-        .overrideTypes<LinkRow[], { merge: false }>(),
-    ]);
+    const { folders, links } = await fetchLinksLibraryPrefetchRows<
+      LinkFolderRow,
+      LinkRow
+    >(supabase, user.id, ACTION_LIMITS.MAX_DASHBOARD_ROWS);
 
-    if (foldersResult.error) {
+    if (folders.error) {
       logger.logUnexpectedError(
         "Error in getLinksDashboardData (folders)",
-        foldersResult.error
+        folders.error
       );
       return { success: false, error: "Failed to load dashboard data" };
     }
-    if (linksResult.error) {
+    if (links.error) {
       logger.logUnexpectedError(
         "Error in getLinksDashboardData (links)",
-        linksResult.error
+        links.error
       );
       return { success: false, error: "Failed to load dashboard data" };
     }
 
     if (
       isDashboardPrefetchOverCap(
-        foldersResult.data?.length ?? 0,
+        folders.data?.length ?? 0,
         ACTION_LIMITS.MAX_DASHBOARD_ROWS
       ) ||
       isDashboardPrefetchOverCap(
-        linksResult.data?.length ?? 0,
+        links.data?.length ?? 0,
         ACTION_LIMITS.MAX_DASHBOARD_ROWS
       )
     ) {
@@ -83,8 +69,8 @@ export async function getLinksDashboardData(): Promise<
     return {
       success: true,
       data: {
-        folders: foldersResult.data ?? [],
-        links: linksResult.data ?? [],
+        folders: folders.data ?? [],
+        links: links.data ?? [],
       },
     };
   } catch (error) {

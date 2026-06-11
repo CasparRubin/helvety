@@ -1,5 +1,8 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
+import { CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR } from "@helvety/shared/dashboard-prefetch";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { RATE_LIMITS } from "@helvety/shared/rate-limit";
+import { createDashboardListSupabaseMock } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -64,6 +67,32 @@ describe("contacts api routes", () => {
     await expect(response.json()).resolves.toEqual({
       success: true,
       data: rows,
+    });
+  });
+
+  it("rejects list responses that exceed the dashboard row cap", async () => {
+    const rows = Array.from(
+      { length: ACTION_LIMITS.MAX_DASHBOARD_ROWS + 1 },
+      (_, index) => ({
+        id: `c-${index}`,
+        user_id: "user-1",
+      })
+    );
+    const supabase = createDashboardListSupabaseMock("contacts", {
+      data: rows,
+      error: null,
+    });
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    const response = await getContacts();
+    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
     });
   });
 

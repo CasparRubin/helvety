@@ -5,9 +5,9 @@ const createSSRBrowserClientMock = vi.fn();
 vi.mock("@supabase/ssr", () => ({
   createBrowserClient: createSSRBrowserClientMock,
 }));
-vi.mock("../env-validation", () => ({
-  getSupabaseUrl: () => "https://example.supabase.co",
-  getSupabaseKey: () => "sb_publishable_test_1234567890",
+vi.mock("../client-env", () => ({
+  getClientSupabaseUrl: () => "https://example.supabase.co",
+  getClientSupabaseKey: () => "sb_publishable_test_1234567890",
 }));
 
 describe("supabase browser lock fallback", () => {

@@ -1,6 +1,6 @@
-import { HeroSection } from "@/components/hero-section";
+import { HeroMarketingShell } from "@/components/hero-marketing-shell";
 
-/** Gateway home (`/`): {@link HeroSection} with Hyperspeed (client-only; fades in after `onReady`; hides before cross-zone navigation). */
+/** Gateway home (`/`): server-rendered hero copy with client Hyperspeed backdrop. */
 export default function Page() {
-  return <HeroSection />;
+  return <HeroMarketingShell />;
 }

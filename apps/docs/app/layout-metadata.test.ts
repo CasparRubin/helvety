@@ -11,6 +11,12 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
+vi.mock("@/lib/fonts", () => ({
+  materialSymbols: {
+    variable: "--font-material-symbols",
+  },
+}));
+
 vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
   bootstrapE2eeLayoutSession: vi.fn().mockResolvedValue({
     csrfToken: "test-csrf",

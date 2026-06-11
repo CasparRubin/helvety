@@ -1,6 +1,6 @@
 import { createBrowserClient as createSSRBrowserClient } from "@supabase/ssr";
 
-import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
+import { getClientSupabaseKey, getClientSupabaseUrl } from "../client-env";
 
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -172,8 +172,8 @@ export function createBrowserClient(): SupabaseClient<DatabaseSchema> {
     return browserClient;
   }
 
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseKey = getSupabaseKey();
+  const supabaseUrl = getClientSupabaseUrl();
+  const supabaseKey = getClientSupabaseKey();
 
   browserClient = createSSRBrowserClient<DatabaseSchema, "public">(
     supabaseUrl,

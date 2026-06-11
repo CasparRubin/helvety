@@ -5,6 +5,8 @@ import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { notFound } from "next/navigation";
 
+import { ProductDetailServerHero } from "@/components/products/product-detail-server-hero";
+
 import { ProductDetailClient } from "./product-detail-client";
 
 import type { Metadata } from "next";
@@ -92,6 +94,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <>
       <JsonLdScript nonce={nonce ?? undefined} json={productJsonLd} />
+      <ProductDetailServerHero card={card} />
       <ProductDetailClient slug={slug} />
     </>
   );

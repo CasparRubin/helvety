@@ -44,7 +44,10 @@ const COPY_SHADOW_LIGHT_MOTION_SAFE =
 const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
- * Landing hero (`/`): React Bits Hyperspeed fullscreen behind copy + Store CTA (light and dark).
+ * Legacy all-client hero (tests and WebGL tuning). Production `/` uses {@link ./hero-marketing-shell}
+ * (server copy) plus {@link ./hero-hyperspeed-layer} (client WebGL).
+ *
+ * React Bits Hyperspeed fullscreen behind copy + Store CTA (light and dark).
  *
  * - **Text:** {@link ./hero-text}: Shuffle eyebrow (5s loop), static red Switzerland, Shiny Text tagline;
  *   static/muted fallbacks when `useReducedMotion()` is true (wired to `MotionConfig reducedMotion="user"`).

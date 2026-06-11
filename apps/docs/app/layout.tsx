@@ -9,6 +9,7 @@ import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-r
 
 import { Navbar } from "@/components/navbar";
 import { EncryptionProvider } from "@/lib/crypto";
+import { materialSymbols } from "@/lib/fonts";
 
 export const viewport = sharedViewport;
 
@@ -53,6 +54,7 @@ export default async function RootLayout({
 
   return (
     <HelvetyPublicShellRootLayout
+      bodyClassName={materialSymbols.variable}
       organizationLogoUrl={brandAssets.identifierLogo}
       jsonLdGraphTail={[
         {

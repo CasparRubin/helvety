@@ -1,7 +1,8 @@
 import { STORE_PRODUCTS_PAGE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { urls } from "@helvety/shared/config";
 
-import { ProductsCatalogClient } from "@/components/products/products-catalog-client";
+import { ProductsCatalog } from "@/components/products/products-catalog";
+import { getCachedStoreCatalogCards } from "@/lib/data/product-catalog-cache";
 
 import type { Metadata } from "next";
 
@@ -15,13 +16,15 @@ export const metadata: Metadata = {
 
 /**
  * Products catalog page.
- * Grid loads client-only via {@link ProductsCatalogClient} so the server never
- * imports `products.ts` (webp artwork stays in the client chunk).
+ * Server-renders card metadata from `@helvety/shared/store-catalog`; the client
+ * catalog hydrates artwork and filters after mount.
  */
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const initialCards = await getCachedStoreCatalogCards();
+
   return (
     <section>
-      <ProductsCatalogClient />
+      <ProductsCatalog initialCards={initialCards} />
     </section>
   );
 }
