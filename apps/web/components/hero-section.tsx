@@ -99,7 +99,7 @@ export function HeroSection() {
               )}
             >
               <HeroSoftwareProducts />
-              <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-[2.75rem] lg:leading-[1.1]">
+              <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-wrap lg:text-[2.75rem] lg:leading-[1.1] lg:whitespace-nowrap">
                 Engineered, designed &amp; made in <HeroSwitzerland />
               </h1>
               <HeroTagline />
