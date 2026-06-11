@@ -99,8 +99,9 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
 
 /**
  * Verifies that `bytes` matches `expectedHex` (SHA-256 hex digest) and throws
- * a descriptive error otherwise. No-ops when `crypto.subtle` is unavailable
- * (e.g. legacy webviews); failure modes cannot be tightened in that case.
+ * a descriptive error otherwise. Fails closed when `crypto.subtle` is
+ * unavailable (e.g. legacy webviews / insecure contexts): when a hash is
+ * configured, model bytes must never be used unverified.
  */
 async function verifySha256(
   bytes: Uint8Array,
@@ -108,7 +109,9 @@ async function verifySha256(
   modelId: string
 ): Promise<void> {
   if (typeof crypto === "undefined" || !crypto.subtle) {
-    return;
+    throw new Error(
+      `Cannot verify model integrity for "${modelId}": Web Crypto is unavailable in this context. Use a modern browser over HTTPS.`
+    );
   }
   const digest = await crypto.subtle.digest("SHA-256", toArrayBuffer(bytes));
   const actual = bytesToHex(new Uint8Array(digest));

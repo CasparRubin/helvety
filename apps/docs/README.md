@@ -42,6 +42,8 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 ## Limits
 
 - Maximum file size: **20MB** per `.docx` (local open and vault save); see `DOCS_FILE_SIZE_LIMIT_COPY` in `@helvety/shared/product-file-limit-copy`.
+- Vault `encrypted_docx` payloads use `MAX_ENCRYPTED_DOCX_CHARS` in [`lib/constants.ts`](./lib/constants.ts) (~1.78× double-base64 expansion of the 20MB cap plus the GCM tag and JSON envelope). The shared `EncryptedDataSchema` default (**100KB**) applies to title fields only, not document ciphertext.
+- `next.config.ts` sets `experimental.serverActions.bodySizeLimit: "40mb"` so vault saves fit the encrypted docx envelope (Next.js defaults to **1MB** for server actions).
 - Vault list capped at **500** documents per API list request (`MAX_DOC_ROWS`).
 
 ## Crawl and Indexing

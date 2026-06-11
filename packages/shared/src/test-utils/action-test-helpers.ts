@@ -22,14 +22,16 @@ export function createOrderedContactListSupabaseMock(): {
       eq: () => {
         order: () => {
           order: () => {
-            overrideTypes: () => Promise<{
-              data: Array<{
-                id: string;
-                encrypted_first_name: string;
-                encrypted_last_name: string;
+            limit: (n: number) => {
+              overrideTypes: () => Promise<{
+                data: Array<{
+                  id: string;
+                  encrypted_first_name: string;
+                  encrypted_last_name: string;
+                }>;
+                error: null;
               }>;
-              error: null;
-            }>;
+            };
           };
         };
       };
@@ -37,8 +39,11 @@ export function createOrderedContactListSupabaseMock(): {
   };
   /** Column list from the most recent `select()` call. */
   getLastSelectColumns: () => string | undefined;
+  /** Row cap from the most recent `.limit()` call. */
+  getLastLimit: () => number | undefined;
 } {
   let lastSelectColumns: string | undefined;
+  let lastLimit: number | undefined;
   const contactListReturns = async () => ({
     data: [
       {
@@ -63,7 +68,12 @@ export function createOrderedContactListSupabaseMock(): {
             eq: () => ({
               order: () => ({
                 order: () => ({
-                  overrideTypes: contactListReturns,
+                  limit: (n: number) => {
+                    lastLimit = n;
+                    return {
+                      overrideTypes: contactListReturns,
+                    };
+                  },
                 }),
               }),
             }),
@@ -72,24 +82,29 @@ export function createOrderedContactListSupabaseMock(): {
       };
     },
     getLastSelectColumns: () => lastSelectColumns,
+    getLastLimit: () => lastLimit,
   };
 }
 
 /** Fluent Supabase query mock supporting arbitrary `.order()` chains. */
 type DashboardListQueryMock<TResult> = {
   order: () => DashboardListQueryMock<TResult>;
-  limit: () => { overrideTypes: () => Promise<TResult> };
+  limit: (n: number) => { overrideTypes: () => Promise<TResult> };
 };
 
 /** Builds a chainable query mock ending in `.limit().overrideTypes()`. */
 function createDashboardListQueryMock<TResult>(
-  result: TResult
+  result: TResult,
+  onLimit?: (n: number) => void
 ): DashboardListQueryMock<TResult> {
   const query: DashboardListQueryMock<TResult> = {
     order: () => query,
-    limit: () => ({
-      overrideTypes: async () => result,
-    }),
+    limit: (n: number) => {
+      onLimit?.(n);
+      return {
+        overrideTypes: async () => result,
+      };
+    },
   };
   return query;
 }
@@ -107,7 +122,10 @@ export function createDashboardListSupabaseMock<
       eq: () => DashboardListQueryMock<typeof result>;
     };
   };
+  /** Row cap from the most recent `.limit()` call. */
+  getLastLimit: () => number | undefined;
 } {
+  let lastLimit: number | undefined;
   return {
     from: (table: string) => {
       if (table !== tableName) {
@@ -116,10 +134,14 @@ export function createDashboardListSupabaseMock<
 
       return {
         select: () => ({
-          eq: () => createDashboardListQueryMock(result),
+          eq: () =>
+            createDashboardListQueryMock(result, (n) => {
+              lastLimit = n;
+            }),
         }),
       };
     },
+    getLastLimit: () => lastLimit,
   };
 }
 
@@ -142,7 +164,7 @@ export function createRejectingDashboardListSupabaseMock(
 
       const rejectingQuery: DashboardListQueryMock<never> = {
         order: () => rejectingQuery,
-        limit: () => ({
+        limit: (_n: number) => ({
           overrideTypes: async () => Promise.reject(error),
         }),
       };

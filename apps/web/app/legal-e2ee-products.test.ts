@@ -61,6 +61,18 @@ describe("legal pages enumerate E2EE products", () => {
     );
   });
 
+  it("privacy self-service deletion lists Links and Docs data categories", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    expect(source).toContain("link data (Helvety Links)");
+    expect(source).toMatch(/document vault data \(Helvety\s+Docs\)/);
+    expect(source).not.toMatch(
+      /task data, contact data,\s+and note data\.\s+Full propagation/
+    );
+  });
+
   it("privacy does not list only three E2EE apps in shared disclosure sections", () => {
     const source = readFileSync(
       join(repoRoot, "apps/web/app/privacy/page.tsx"),

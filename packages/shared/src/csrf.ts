@@ -23,6 +23,10 @@ import { signCookiePayload, verifySignedCookiePayload } from "./cookie-signing";
  *    the bootstrap header) and pass it to `CSRFProvider` for client components.
  * 3. Server Actions validate the token with validateCSRFToken() /
  *    requireCSRFToken().
+ * 4. After auth state changes, mutating actions may call `generateCSRFToken()`
+ *    and return the new plaintext token; clients apply it with `useSetCSRFToken`
+ *    from `@helvety/ui/csrf-provider` before the next CSRF-protected action
+ *    (auth OTP verify → passkey auto-start is the primary case).
  *
  * Read-only server actions that do not call `requireCSRFToken` still require an
  * authenticated session and should use `authenticateAndRateLimit` read-style

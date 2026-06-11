@@ -36,14 +36,14 @@ Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layou
 
 Every zone asserts layouts omit `@helvety/light-pillar` and `HelvetyShellWithLightPillarBackdrop` (gateway WebGL stays on `web` route components only).
 
-| Family                | Apps                                  | Also assert                                                                                                         |
-| --------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                      |
-| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                         |
-| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                         |
-| Auth gateway          | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order                                        |
-| Store gateway         | `store`                               | CSRF wraps `{shell}`                                                                                                |
-| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order; `app/page.tsx` uses `getCachedUser()` (not `bootstrapPublicLayoutUser`) |
+| Family                | Apps                                  | Also assert                                                                                                                                               |
+| --------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                                                            |
+| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                               |
+| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                               |
+| Auth gateway          | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order; OTP verify returns rotated `csrfToken` for `useSetCSRFToken` before passkey |
+| Store gateway         | `store`                               | CSRF wraps `{shell}`                                                                                                                                      |
+| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order; `app/page.tsx` uses `getCachedUser()` (not `bootstrapPublicLayoutUser`)                                       |
 
 Copy an existing test from the same family when adding a zone.
 

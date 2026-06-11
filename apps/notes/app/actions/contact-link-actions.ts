@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createEntityLink,
@@ -27,7 +28,7 @@ interface ItemContactLinkRow {
 }
 
 /**
- * Get all Contacts for the current user.
+ * Get up to {@link ACTION_LIMITS.MAX_DASHBOARD_ROWS} contacts for the link picker.
  * Returns encrypted data that must be decrypted client-side.
  */
 export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
@@ -44,6 +45,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
+      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS)
       .overrideTypes<ContactRow[], { merge: false }>();
 
     if (error) {
@@ -73,6 +75,16 @@ export async function getItemContactLinks(
     });
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
+
+    const noteExists = await ensureOwnedEntityExists(
+      supabase,
+      user.id,
+      "notes",
+      itemId
+    );
+    if (!noteExists) {
+      return { success: false, error: "Note not found" };
+    }
 
     const linksResult = await getEntityLinksForEndpoint({
       supabase,

@@ -161,7 +161,7 @@ describe("auth extension passkey options route", () => {
       clientIP: "127.0.0.1",
     });
     expect(mocks.getTrustedClientIp).toHaveBeenCalledWith(expect.any(Headers), {
-      requireTrustedProxyInProduction: false,
+      requireTrustedProxyInProduction: true,
     });
   });
 });

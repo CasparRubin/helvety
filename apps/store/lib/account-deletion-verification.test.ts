@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  TABLE_OWNER_COLUMNS,
+  TABLES_REQUIRING_USER_RLS,
+} from "../../../scripts/supabase-user-tables.mjs";
+
+import {
   ACCOUNT_DELETION_VERIFICATION_CHECKS,
   verifyDeletionResidualCounts,
 } from "./account-deletion-verification";
@@ -13,23 +18,26 @@ const buildScopedAdmin = (from: ReturnType<typeof vi.fn>): ScopedAdmin =>
   ({ client: { from } }) as unknown as ScopedAdmin;
 
 describe("ACCOUNT_DELETION_VERIFICATION_CHECKS", () => {
-  it("matches the post-delete verification surface (update count if tables change)", () => {
-    expect(ACCOUNT_DELETION_VERIFICATION_CHECKS).toHaveLength(9);
-    const tables = new Set(
+  it("covers every RLS user-data table plus auth credentials", () => {
+    const deletionTables = new Set<string>(
       ACCOUNT_DELETION_VERIFICATION_CHECKS.map((c) => c.table)
     );
-    for (const required of [
-      "contacts",
-      "entity_links",
-      "items",
-      "link_folders",
-      "links",
-      "notes",
-      "user_auth_credentials",
-      "user_passkey_params",
-      "user_profiles",
-    ] as const) {
-      expect(tables.has(required)).toBe(true);
+
+    for (const table of TABLES_REQUIRING_USER_RLS) {
+      expect(deletionTables.has(table)).toBe(true);
+    }
+    expect(deletionTables.has("user_auth_credentials")).toBe(true);
+    expect(ACCOUNT_DELETION_VERIFICATION_CHECKS).toHaveLength(
+      TABLES_REQUIRING_USER_RLS.length + 1
+    );
+  });
+
+  it("uses the shared owner column mapping for each table", () => {
+    for (const check of ACCOUNT_DELETION_VERIFICATION_CHECKS) {
+      const ownerColumn =
+        TABLE_OWNER_COLUMNS[check.table as keyof typeof TABLE_OWNER_COLUMNS] ??
+        "user_id";
+      expect(check.column).toBe(ownerColumn);
     }
   });
 });

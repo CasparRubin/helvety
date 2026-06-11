@@ -22,7 +22,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: mocks.revalidatePath,
 }));
 
-import { createFolder, deleteFolder } from "./folder-actions";
+import { createFolder, deleteFolder, updateFolder } from "./folder-actions";
 
 const FOLDER_ID = "550e8400-e29b-41d4-a716-446655440000";
 
@@ -56,6 +56,25 @@ describe("links folder-actions", () => {
     );
 
     expect(result).toEqual({ success: false, error: "Invalid CSRF token" });
+  });
+
+  it("updateFolder rejects a folder set as its own parent", async () => {
+    const from = vi.fn();
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase: { from } },
+    });
+
+    const result = await updateFolder(
+      { id: FOLDER_ID, parent_folder_id: FOLDER_ID },
+      "csrf"
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "A folder cannot be its own parent",
+    });
+    expect(from).not.toHaveBeenCalled();
   });
 
   it("deleteFolder rejects invalid folder ids", async () => {

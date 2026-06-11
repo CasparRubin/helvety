@@ -1,9 +1,11 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import { createAuthSuccessContext } from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   authenticateAndRateLimit: vi.fn(),
+  ensureOwnedEntityExists: vi.fn(),
   getEntityLinksForEndpoint: vi.fn(),
   toLinkedEntityReferences: vi.fn(),
   createCanonicalLink: vi.fn(),
@@ -24,6 +26,7 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 vi.mock("@helvety/shared/entity-links", () => ({
+  ensureOwnedEntityExists: mocks.ensureOwnedEntityExists,
   getEntityLinksForEndpoint: mocks.getEntityLinksForEndpoint,
   toLinkedEntityReferences: mocks.toLinkedEntityReferences,
 }));
@@ -43,12 +46,16 @@ import {
 
 /** Builds a minimal Supabase mock for item-note link actions. */
 function createSupabaseMock() {
+  let lastNoteListLimit: number | undefined;
   const noteListReturns = vi.fn().mockResolvedValue({
     data: [{ id: "note-1", encrypted_title: "enc-title" }],
     error: null,
   });
   const noteListOrderCreated = vi.fn(() => ({
-    overrideTypes: noteListReturns,
+    limit: vi.fn((n: number) => {
+      lastNoteListLimit = n;
+      return { overrideTypes: noteListReturns };
+    }),
   }));
   const noteListOrderSort = vi.fn(() => ({ order: noteListOrderCreated }));
   const noteListEqUser = vi.fn(() => ({ order: noteListOrderSort }));
@@ -83,7 +90,10 @@ function createSupabaseMock() {
     throw new Error(`Unexpected table ${table}`);
   });
 
-  return { from };
+  return {
+    from,
+    getLastNoteListLimit: () => lastNoteListLimit,
+  };
 }
 
 describe("tasks note-link-actions", () => {
@@ -95,6 +105,20 @@ describe("tasks note-link-actions", () => {
     const result = await getItemNoteLinks("invalid-id");
     expect(result).toEqual({ success: false, error: "Invalid task ID" });
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("returns not found when the task does not exist for getItemNoteLinks", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext({ from: vi.fn() })
+    );
+    mocks.ensureOwnedEntityExists.mockResolvedValue(false);
+
+    const result = await getItemNoteLinks(
+      "550e8400-e29b-41d4-a716-446655440000"
+    );
+
+    expect(result).toEqual({ success: false, error: "Task not found" });
+    expect(mocks.getEntityLinksForEndpoint).not.toHaveBeenCalled();
   });
 
   it("returns note links and supports link/unlink operations", async () => {
@@ -113,6 +137,7 @@ describe("tasks note-link-actions", () => {
         linked_at: "2026-01-01T00:00:00Z",
       },
     ]);
+    mocks.ensureOwnedEntityExists.mockResolvedValue(true);
     mocks.validateOwnedLinkEntities.mockResolvedValue({ success: true });
     mocks.createCanonicalLink.mockResolvedValue({
       success: true,
@@ -135,6 +160,9 @@ describe("tasks note-link-actions", () => {
     );
 
     expect(notes.success).toBe(true);
+    expect(supabase.getLastNoteListLimit()).toBe(
+      ACTION_LIMITS.MAX_DASHBOARD_ROWS
+    );
     expect(links.success).toBe(true);
     expect(linked).toEqual({ success: true, data: { id: "new-link" } });
     expect(unlinked).toEqual({ success: true });

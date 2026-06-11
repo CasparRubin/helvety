@@ -6,24 +6,13 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { TABLES_REQUIRING_USER_RLS } from "./supabase-user-tables.mjs";
+
 const rootDir = process.cwd();
 const typesPath = resolve(
   rootDir,
   "packages/shared/src/types/database.types.ts"
 );
-
-/** Tables that must exist in generated types (forced RLS in production). */
-const TABLES_REQUIRING_USER_RLS = [
-  "contacts",
-  "items",
-  "notes",
-  "links",
-  "link_folders",
-  "entity_links",
-  "docs",
-  "user_profiles",
-  "user_passkey_params",
-];
 
 async function main() {
   const source = await readFile(typesPath, "utf8");

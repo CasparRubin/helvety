@@ -152,6 +152,9 @@ export async function updateFolder(
       validated.parent_folder_id !== undefined &&
       validated.parent_folder_id !== null
     ) {
+      if (validated.parent_folder_id === validated.id) {
+        return { success: false, error: "A folder cannot be its own parent" };
+      }
       const { data: parent, error: parentError } = await supabase
         .from(LINK_FOLDERS_TABLE)
         .select("id")

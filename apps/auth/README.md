@@ -22,7 +22,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 Primary login flow:
 
 1. Email entry + non-EU/EEA attestation
-2. OTP verification (6-8 digits)
+2. OTP verification (6-8 digits). On success, `verifyEmailCode` rotates the CSRF cookie and returns `csrfToken`; the login client applies it via `useSetCSRFToken` before advancing to passkey (see Security Model).
 3. Passkey step:
    - New/incomplete setup users: `encryption-setup` (includes passkey registration when missing), then passkey sign-in
    - Returning users: passkey sign-in directly
@@ -56,7 +56,7 @@ Vault session policy (E2EE apps): **24h sliding idle**, **7d absolute max** (see
 
 - `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, session refresh), not full auth enforcement. The `auth-gateway` profile uses **fail-closed** auth refresh: when Supabase session refresh fails, stale `sb-*` cookies are cleared instead of leaving a broken session on the client. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so `ci:check` guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Rate limits apply to OTP send/verify and passkey operations.
-- Typed OTP verify (`verifyEmailCode` in [`app/actions/otp-actions.ts`](./app/actions/otp-actions.ts)) deduplicates in-flight client submits and drops superseded responses so a consumed-code retry cannot show a false failure toast after success. After the Supabase session exists, post-verify side-effect failures are logged but still return `success: true` to the client.
+- Typed OTP verify (`verifyEmailCode` in [`app/actions/otp-actions.ts`](./app/actions/otp-actions.ts)) uses `shouldSkipOtpVerifySubmit` / `shouldApplyOtpVerifyResponse` in [`hooks/use-login-flow.ts`](./hooks/use-login-flow.ts) so duplicate or superseded submits cannot toast a false failure after success. On success it rotates the CSRF cookie and returns `csrfToken` so the login client syncs `CSRFProvider` via `useSetCSRFToken` before auto passkey (avoids a false “Security validation failed” toast). After the Supabase session exists, other post-verify side-effect failures are logged but still return `success: true` to the client.
 - OTP UI and email templates state a **1-hour** code lifetime (`OTP_USER_VISIBLE_EXPIRY_LABEL` in `lib/otp-code.ts`); keep Supabase Auth email OTP expiry aligned with that copy.
 - CSRF is required for state-changing actions; read-only actions use authenticated read model. The proxy bootstraps or re-issues signed `csrf_token` cookies when missing or invalid for the current `HELVETY_COOKIE_SIGNING_SECRET`.
 - Server authorization reads use `getAuthUser` from `@helvety/shared/auth-retry` (wraps `supabase.auth.getUser()`); never `auth.getSession()` for access decisions.
@@ -78,6 +78,8 @@ Bearer-authenticated JSON routes for the Helvety browser extension (separate fro
 | `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; **single-use** envelope (Upstash `consumeSingleUseKey`); update counter; **does not** create a Supabase session |
 
 Implementation: [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). Env `HELVETY_CHROME_EXTENSION_ORIGINS` accepts comma-separated extension ids or full `chrome-extension://` URLs ([`lib/chrome-extension-origin-parse.ts`](./lib/chrome-extension-origin-parse.ts)). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is allowlisted ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
+
+Production rate limiting on these routes requires a **trusted proxy IP** (`x-real-ip` on Vercel). `getTrustedClientIp` is called with `requireTrustedProxyInProduction: true`; when IP is unavailable the routes fail closed on strict rate-limit paths instead of trusting client-supplied headers.
 
 ## Crawl and Indexing
 
@@ -118,7 +120,7 @@ bun run test:coverage
 ```
 
 Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), login entry resolution and URL builders (`lib/login-entry.test.ts`), login server gate guardrails (`app/login/page.test.ts`), login-step mapping and auth-step resolution (`lib/login-flow-stepper.test.ts`, `lib/auth-step.test.ts`), and login stepper opaque backdrop (`components/auth-stepper.test.tsx`).
-OTP action tests (`app/actions/otp-actions.test.ts`) cover send/verify validation, real Supabase rejection paths, and post-session resilience (side-effect failures after `verifyOtp` still return success). Login hook tests (`hooks/use-login-flow.test.ts`) cover auth bootstrap guards and `shouldApplyOtpVerifyResponse` (duplicate-submit stale-response guard).
+OTP action tests (`app/actions/otp-actions.test.ts`, `app/actions/otp-actions-wiring.test.ts`) cover send/verify validation, rotated `csrfToken` in success payloads, real Supabase rejection paths, and post-session resilience (side-effect failures after `verifyOtp` still return success). Login hook tests (`hooks/use-login-flow.test.ts`, `hooks/use-login-flow-wiring.test.ts`) cover auth bootstrap guards, `shouldApplyOtpVerifyResponse` (duplicate-submit stale-response guard), `shouldSkipOtpVerifySubmit`, and CSRF sync ordering before passkey auto-start. `@helvety/ui` CSRF provider tests (`packages/ui/src/csrf-provider.test.tsx`) cover `useSetCSRFToken` client updates.
 Passkey action tests also cover malformed payload handling, account mismatch protection, device-trust cookie binding for passkey options (not client `expectedUserId`), and transport sanitization behavior. Auth callback tests cover link-based OTP allowlist wiring (`app/auth/callback/route.test.ts`) and post-verify device-trust minting (`app/auth/callback/callback-success.test.ts`); typed sign-in OTP codes are verified in server actions, not the GET callback.
 Extension passkey routes and challenge envelopes are covered in `lib/extension-passkey.test.ts`, `lib/extension-passkey-challenge.test.ts`, `lib/chrome-extension-origin.test.ts`, and colocated `app/api/extension/passkey/*/route.test.ts` (real Zod allowlist + mocked handlers).
 Relying-party/origin configuration behavior is covered in `app/actions/auth-rp-config.test.ts`.

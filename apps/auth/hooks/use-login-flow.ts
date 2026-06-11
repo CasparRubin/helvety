@@ -23,7 +23,7 @@ import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
 import { getUserSingleflight } from "@helvety/ui/auth-session-singleflight";
-import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { useCSRFToken, useSetCSRFToken } from "@helvety/ui/csrf-provider";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -140,8 +140,8 @@ export async function withLoginAuthProbeTimeout<T>(
 /**
  * Returns true when an OTP verify response should update UI state.
  * When `requestId` is less than `latestRequestId`, the response is from a
- * superseded in-flight call (e.g. duplicate submit after the code was consumed)
- * and must be ignored so a late failure cannot toast after success.
+ * superseded in-flight call and must be ignored so a late failure cannot toast
+ * after a newer verify already succeeded or advanced the flow.
  */
 export function shouldApplyOtpVerifyResponse(
   requestId: number,
@@ -149,6 +149,25 @@ export function shouldApplyOtpVerifyResponse(
 ): boolean {
   return requestId === latestRequestId;
 }
+
+/** Returns true when an OTP verify submit should be ignored (already done or in flight). */
+export function shouldSkipOtpVerifySubmit(options: {
+  otpVerifySucceeded: boolean;
+  verifyCodeInProgress: boolean;
+}): boolean {
+  return options.otpVerifySucceeded || options.verifyCodeInProgress;
+}
+
+/**
+ * Order in which OTP success handlers must run so auto passkey uses a fresh CSRF
+ * token after server-side rotation in `verifyEmailCode`.
+ */
+export const OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER = [
+  "setCsrfToken",
+  "setUserId",
+  "setPostOtpPasskeyPath",
+  "setStep",
+] as const;
 
 /** Options for {@link useLoginFlow} (server-provided login gate state). */
 export type UseLoginFlowOptions = {
@@ -175,6 +194,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const searchParams = useSearchParams();
   const supabase = createBrowserClient();
   const csrfToken = useCSRFToken();
+  const setCsrfToken = useSetCSRFToken();
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -199,6 +219,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const hasRecoveredTerminalAuth = useRef(false);
   const verifyCodeInProgressRef = useRef(false);
   const verifyCodeRequestIdRef = useRef(0);
+  const otpVerifySucceededRef = useRef(false);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -438,8 +459,14 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      // Prevent duplicate in-flight submits (e.g. double-click or Enter + click)
-      if (verifyCodeInProgressRef.current) return;
+      if (
+        shouldSkipOtpVerifySubmit({
+          otpVerifySucceeded: otpVerifySucceededRef.current,
+          verifyCodeInProgress: verifyCodeInProgressRef.current,
+        })
+      ) {
+        return;
+      }
       verifyCodeInProgressRef.current = true;
 
       // Ignore responses superseded by a newer submit (same code consumed twice).
@@ -468,7 +495,9 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
         }
 
         if (result.data) {
+          otpVerifySucceededRef.current = true;
           setError("");
+          setCsrfToken(result.data.csrfToken);
           setUserId(result.data.userId);
           setPostOtpPasskeyPath(
             result.data.nextStep === "passkey-signin"
@@ -501,7 +530,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
         }
       }
     },
-    [email, otpCode, csrfToken]
+    [email, otpCode, csrfToken, setCsrfToken]
   );
 
   // Handle resending OTP code
@@ -847,6 +876,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     setPostOtpPasskeyPath(null);
     hasAutoRetriedMismatch.current = false;
     hasAutoStartedPasskeySignIn.current = false;
+    otpVerifySucceededRef.current = false;
   };
 
   const currentAuthStep: AuthStep = resolveLoginCurrentAuthStep(step);

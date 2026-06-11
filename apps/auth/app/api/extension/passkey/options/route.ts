@@ -63,8 +63,11 @@ export async function POST(
       );
     }
 
+    // Strict mode: only trust x-real-ip from the platform proxy in production
+    // (matches callback/server-action guards); a missing IP fails closed in
+    // checkPasskeyRateLimit rather than diluting limits via spoofed headers.
     const clientIP = getTrustedClientIp(request.headers, {
-      requireTrustedProxyInProduction: false,
+      requireTrustedProxyInProduction: true,
     });
 
     const result = await generateExtensionPasskeyOptions({

@@ -1,3 +1,4 @@
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createAuthSuccessContext,
@@ -64,6 +65,21 @@ describe("notes contact-link-actions", () => {
     expect(supabase.getLastSelectColumns()).toBe(
       ENCRYPTED_PREFETCH_COLUMNS.contacts
     );
+    expect(supabase.getLastLimit()).toBe(ACTION_LIMITS.MAX_DASHBOARD_ROWS);
+  });
+
+  it("returns not found when the note does not exist for getItemContactLinks", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext({ from: vi.fn() })
+    );
+    mocks.ensureOwnedEntityExists.mockResolvedValue(false);
+
+    const result = await getItemContactLinks(
+      "550e8400-e29b-41d4-a716-446655440000"
+    );
+
+    expect(result).toEqual({ success: false, error: "Note not found" });
+    expect(mocks.getEntityLinksForEndpoint).not.toHaveBeenCalled();
   });
 
   it("uses entity link helpers for get/link/unlink flow", async () => {

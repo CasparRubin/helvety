@@ -220,15 +220,17 @@ export async function sendVerificationCode(
  * - Logs all attempts for audit trail
  *
  * After `verifyOtp` succeeds, the user is authenticated. Failures in
- * post-verify work (CSRF rotation, device trust, rate-limit reset, passkey/
- * encryption probes) are logged but still return `{ success: true }` so the
- * client does not show a false failure toast. Only invalid or expired codes
- * (and pre-verify guard failures) return `{ success: false }`.
+ * post-verify work (device trust, rate-limit reset, passkey/encryption probes)
+ * are logged but still return `{ success: true }` so the client does not show
+ * a false failure toast. CSRF rotation runs in the same success path; when it
+ * succeeds, `data.csrfToken` carries the new token for client sync (falls back
+ * to the request token if rotation throws). Only invalid or expired codes and
+ * pre-verify guard failures return `{ success: false }`.
  *
  * @param csrfToken - CSRF token for request validation
  * @param email - The user's email address
  * @param code - The OTP code from the email
- * @returns The next step the user needs to complete
+ * @returns Next auth step, user id, new-user flag, and rotated `csrfToken`
  */
 export async function verifyEmailCode(
   csrfToken: string,
@@ -239,6 +241,7 @@ export async function verifyEmailCode(
     nextStep: RequiredAuthStep;
     userId: string;
     isNewUser: boolean;
+    csrfToken: string;
   }>
 > {
   const emailParse = NormalizedEmailSchema.safeParse(email);
@@ -357,8 +360,9 @@ export async function verifyEmailCode(
     // Session is established; post-verify failures must not return success:false.
 
     // Rotate CSRF token after successful auth state change.
+    let rotatedCsrfToken = csrfToken;
     try {
-      await generateCSRFToken();
+      rotatedCsrfToken = await generateCSRFToken();
     } catch (csrfError) {
       logger.logUnexpectedError(
         "Failed to rotate CSRF token after OTP verify",
@@ -435,6 +439,7 @@ export async function verifyEmailCode(
         nextStep,
         userId: user.id,
         isNewUser: !hasPasskey,
+        csrfToken: rotatedCsrfToken,
       },
     };
   } catch (error) {

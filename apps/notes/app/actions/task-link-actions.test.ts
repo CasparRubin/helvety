@@ -95,6 +95,20 @@ describe("notes task-link-actions", () => {
     expect(mocks.authenticateAndRateLimit).not.toHaveBeenCalled();
   });
 
+  it("returns not found when the note does not exist for getNoteTaskLinks", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext({ from: vi.fn() })
+    );
+    mocks.ensureOwnedEntityExists.mockResolvedValue(false);
+
+    const result = await getNoteTaskLinks(
+      "550e8400-e29b-41d4-a716-446655440000"
+    );
+
+    expect(result).toEqual({ success: false, error: "Note not found" });
+    expect(mocks.getEntityLinksForEndpoint).not.toHaveBeenCalled();
+  });
+
   it("returns linked tasks and supports link/unlink operations", async () => {
     const supabase = createSupabaseMock();
     mocks.authenticateAndRateLimit.mockResolvedValue(

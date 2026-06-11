@@ -144,7 +144,7 @@ export async function requestAccountDeletion(
       };
     }
 
-    // 3. Post-delete verification over configured critical tables.
+    // 2. Post-delete verification over configured critical tables.
     const [residualCounts, authLookup] = await Promise.all([
       verifyDeletionResidualCounts(scopedAdmin, user.id),
       adminClient.auth.admin.getUserById(user.id),

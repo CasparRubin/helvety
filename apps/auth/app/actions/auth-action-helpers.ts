@@ -287,11 +287,19 @@ export async function getStoredChallenge(): Promise<StoredChallenge | null> {
 }
 
 /**
- * Clear the stored challenge
+ * Clear the stored challenge.
+ *
+ * Must mirror the `domain` used in storeChallenge: deleting without it leaves
+ * the production `.helvety.com` cookie in place.
  */
 export async function clearChallenge(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(CHALLENGE_COOKIE_NAME);
+  const isProduction = process.env.NODE_ENV === "production";
+  cookieStore.delete({
+    name: CHALLENGE_COOKIE_NAME,
+    path: "/",
+    ...(isProduction && COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
+  });
 }
 
 // =============================================================================

@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createCanonicalLink,
@@ -10,6 +11,7 @@ import {
   validateOwnedLinkEntities,
 } from "@helvety/shared/entity-link-action-primitives";
 import {
+  ensureOwnedEntityExists,
   getEntityLinksForEndpoint,
   toLinkedEntityReferences,
 } from "@helvety/shared/entity-links";
@@ -37,7 +39,7 @@ interface NoteItemLinkRow {
 }
 
 /**
- * Get all Notes for the current user.
+ * Get up to {@link ACTION_LIMITS.MAX_DASHBOARD_ROWS} notes for the link picker.
  * Returns encrypted data that must be decrypted client-side.
  */
 export async function getNotes(): Promise<ActionResponse<NoteRow[]>> {
@@ -54,6 +56,7 @@ export async function getNotes(): Promise<ActionResponse<NoteRow[]>> {
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })
+      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS)
       .overrideTypes<NoteRow[], { merge: false }>();
 
     if (error) {
@@ -83,6 +86,16 @@ export async function getItemNoteLinks(
     });
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth.ctx;
+
+    const itemExists = await ensureOwnedEntityExists(
+      supabase,
+      user.id,
+      "items",
+      itemId
+    );
+    if (!itemExists) {
+      return { success: false, error: "Task not found" };
+    }
 
     const linksResult = await getEntityLinksForEndpoint({
       supabase,

@@ -10,13 +10,24 @@ import {
   unexpectedActionError,
 } from "@helvety/shared/server-action-primitives";
 import { isUuidString } from "@helvety/shared/uuid-string";
-import { EncryptedDataSchema } from "@helvety/shared/validation/encrypted-data";
+import {
+  createEncryptedDataSchema,
+  EncryptedDataSchema,
+} from "@helvety/shared/validation/encrypted-data";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+
+import { MAX_ENCRYPTED_DOCX_CHARS } from "@/lib/constants";
 
 import type { ActionResponse } from "@/lib/types";
 
 const DOCS_TABLE = "docs" as const;
+
+/**
+ * Encrypted docx payloads can reach ~1.78x MAX_DOCX_BYTES once base64-encoded
+ * twice, so the shared 100KB EncryptedDataSchema cap is far too small here.
+ */
+const EncryptedDocxSchema = createEncryptedDataSchema(MAX_ENCRYPTED_DOCX_CHARS);
 
 /** Revalidate the docs zone after vault mutations (`/docs` includes Next `basePath`). */
 function revalidateDocsRoutes(): void {
@@ -27,7 +38,7 @@ const CreateDocSchema = z
   .object({
     id: z.string().uuid(),
     encrypted_title: EncryptedDataSchema,
-    encrypted_docx: EncryptedDataSchema,
+    encrypted_docx: EncryptedDocxSchema,
   })
   .strict();
 
@@ -35,7 +46,7 @@ const UpdateDocSchema = z
   .object({
     id: z.string().uuid(),
     encrypted_title: EncryptedDataSchema.optional(),
-    encrypted_docx: EncryptedDataSchema.optional(),
+    encrypted_docx: EncryptedDocxSchema.optional(),
   })
   .strict();
 

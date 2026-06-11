@@ -3,6 +3,7 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
+import { ACTION_LIMITS } from "@helvety/shared/constants";
 import {
   createCanonicalLink,
   deleteCanonicalLink,
@@ -122,6 +123,10 @@ export async function getNoteTaskLinks(
   }
 }
 
+/**
+ * Get up to {@link ACTION_LIMITS.MAX_DASHBOARD_ROWS} tasks for the link picker.
+ * Returns encrypted titles that must be decrypted client-side.
+ */
 export async function getTaskEntities(): Promise<
   ActionResponse<TaskEntitiesData>
 > {
@@ -137,6 +142,7 @@ export async function getTaskEntities(): Promise<
       .select("id, encrypted_title")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
+      .limit(ACTION_LIMITS.MAX_DASHBOARD_ROWS)
       .overrideTypes<
         { id: string; encrypted_title: string }[],
         { merge: false }

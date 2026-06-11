@@ -25,6 +25,7 @@ This package provides:
 - `@helvety/ui/loading-spinner` -> `LoadingSpinner`: Spinner only; root `app/loading.tsx` on **docs**, **pdf**, and **image-upscaler** re-export this directly. Nested routes (for example store product pages) may use `LoadingSpinner` as well.
 - `@helvety/ui/date-picker` / `@helvety/ui/date-time-picker` -> shared form date controls (promoted from app-local copies; import from here in E2EE editors).
 - `@helvety/ui/create-app-navbar` -> `createE2eeAppNavbar`, `createPublicShellNavbar`, `createVaultAwareShellNavbar`, `publicToolNavbarBrand`: thin navbar factories used by zone `components/navbar.tsx` files.
+- `@helvety/ui/csrf-provider` -> `CSRFProvider`, `useCSRFToken`, `useSetCSRFToken`, `useCSRFSafe`: layout SSR seeds the token; auth OTP success applies server-rotated tokens via `useSetCSRFToken` before the next mutating action.
 
 **E2EE zones (`tasks`, `contacts`, `notes`, `links`):**
 

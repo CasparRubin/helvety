@@ -31,7 +31,13 @@ Use your runtime id from `edge://extensions/?id=…` or `chrome://extensions`. A
 
 Redeploy after changing env.
 
-## 3. Extension client
+## 3. Trusted client IP (production rate limiting)
+
+Extension passkey routes derive the rate-limit key from **`x-real-ip`** via `getTrustedClientIp` with `requireTrustedProxyInProduction: true`. On Vercel, the platform sets `x-real-ip` for edge requests; without a trusted proxy IP the routes **fail closed** on strict rate-limit paths rather than falling back to spoofable client headers.
+
+After deploy, confirm production requests reach the routes with a non-null trusted IP (spot-check Upstash rate-limit decisions or auth logs if passkey unlock is unexpectedly rejected).
+
+## 4. Extension client
 
 Build without `VITE_HELVETY_AUTH_ORIGIN` (defaults to `https://helvety.com/auth`). Load unpacked `dist/` in Edge or Chrome (114+), then click the Helvety toolbar icon to open the **side panel**.
 

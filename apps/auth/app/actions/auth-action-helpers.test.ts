@@ -159,7 +159,10 @@ describe("auth-action-helpers", () => {
       challenge: "ch",
     });
     await clearChallenge();
-    expect(mocks.cookieStore.delete).toHaveBeenCalledWith("webauthn_challenge");
+    expect(mocks.cookieStore.delete).toHaveBeenCalledWith({
+      name: "webauthn_challenge",
+      path: "/",
+    });
     vi.useRealTimers();
   });
 

@@ -1,19 +1,33 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 /**
  * CSRF Token Context
  *
  * Provides CSRF token to client components for use with Server Actions.
- * The token is read server-side via `getCachedCSRFToken` (validated cookie, or
- * the proxy bootstrap header on the same request) and passed as a prop — no
- * client-side fetch or regeneration.
+ * The initial token is read server-side via `getCachedCSRFToken` (validated
+ * cookie, or the proxy bootstrap header on the same request) and passed as a
+ * prop. The provider does not fetch or mint tokens on its own.
+ *
+ * After auth state changes rotate the CSRF cookie server-side (for example OTP
+ * verify in `apps/auth`), apply the rotated token returned by the server action
+ * via `useSetCSRFToken` so the next mutating action matches the cookie before
+ * the layout re-renders. The prop also resyncs when a future RSC pass supplies
+ * a new layout token.
  */
 
 /** CSRF token context value. */
 interface CSRFContextValue {
   token: string;
+  setToken: (token: string) => void;
 }
 
 const CSRFContext = createContext<CSRFContextValue | null>(null);
@@ -36,7 +50,19 @@ interface CSRFProviderProps {
  * ```
  */
 export function CSRFProvider({ csrfToken, children }: CSRFProviderProps) {
-  const value = useMemo(() => ({ token: csrfToken }), [csrfToken]);
+  const [token, setToken] = useState(csrfToken);
+
+  useEffect(() => {
+    setToken(csrfToken);
+  }, [csrfToken]);
+
+  const value = useMemo(
+    () => ({
+      token,
+      setToken,
+    }),
+    [token]
+  );
 
   return <CSRFContext.Provider value={value}>{children}</CSRFContext.Provider>;
 }
@@ -53,6 +79,19 @@ export function useCSRFToken(): string {
     throw new Error("useCSRFToken must be used within a CSRFProvider");
   }
   return context.token;
+}
+
+/**
+ * Updates the client-held CSRF token after server-side rotation (e.g. post-OTP).
+ *
+ * @throws Error if used outside of CSRFProvider
+ */
+export function useSetCSRFToken(): (token: string) => void {
+  const context = useContext(CSRFContext);
+  if (context === null) {
+    throw new Error("useSetCSRFToken must be used within a CSRFProvider");
+  }
+  return context.setToken;
 }
 
 /**

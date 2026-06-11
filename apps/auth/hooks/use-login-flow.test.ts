@@ -4,8 +4,10 @@ import { resolveLoginEntryStep } from "@/lib/login-entry";
 
 import {
   isRateLimitedLoginAuthSession,
+  OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER,
   shouldApplyOtpVerifyResponse,
   shouldResetLoginAuthSession,
+  shouldSkipOtpVerifySubmit,
   withLoginAuthProbeTimeout,
 } from "./use-login-flow";
 
@@ -49,6 +51,46 @@ describe("use-login-flow auth bootstrap guards", () => {
     await expect(
       withLoginAuthProbeTimeout(Promise.resolve("ok"), 100)
     ).resolves.toBe("ok");
+  });
+});
+
+describe("shouldSkipOtpVerifySubmit", () => {
+  it("blocks when OTP already succeeded", () => {
+    expect(
+      shouldSkipOtpVerifySubmit({
+        otpVerifySucceeded: true,
+        verifyCodeInProgress: false,
+      })
+    ).toBe(true);
+  });
+
+  it("blocks when a verify request is in flight", () => {
+    expect(
+      shouldSkipOtpVerifySubmit({
+        otpVerifySucceeded: false,
+        verifyCodeInProgress: true,
+      })
+    ).toBe(true);
+  });
+
+  it("allows submit when neither guard applies", () => {
+    expect(
+      shouldSkipOtpVerifySubmit({
+        otpVerifySucceeded: false,
+        verifyCodeInProgress: false,
+      })
+    ).toBe(false);
+  });
+});
+
+describe("OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER", () => {
+  it("lists the full client sync sequence before advancing step", () => {
+    expect([...OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER]).toEqual([
+      "setCsrfToken",
+      "setUserId",
+      "setPostOtpPasskeyPath",
+      "setStep",
+    ]);
   });
 });
 

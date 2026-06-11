@@ -106,6 +106,8 @@ vi.mock("./device-trust-cookie", () => ({
 
 import { sendVerificationCode, verifyEmailCode } from "./otp-actions";
 
+const ROTATED_CSRF_TOKEN = "rotated-csrf-token";
+
 describe("otp-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -132,7 +134,7 @@ describe("otp-actions", () => {
         }),
       },
     });
-    mocks.generateCSRFToken.mockResolvedValue(undefined);
+    mocks.generateCSRFToken.mockResolvedValue(ROTATED_CSRF_TOKEN);
     mocks.resetRateLimit.mockResolvedValue(undefined);
     mocks.resetEscalatingLockout.mockResolvedValue(undefined);
     mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
@@ -333,13 +335,32 @@ describe("otp-actions", () => {
       "12345678"
     );
 
-    expect(result.success).toBe(true);
+    expect(result).toEqual({
+      data: {
+        csrfToken: ROTATED_CSRF_TOKEN,
+        isNewUser: false,
+        nextStep: "passkey-signin",
+        userId: "user-123",
+      },
+      success: true,
+    });
     expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "user@ex.com",
       token: "12345678",
       type: "email",
     });
+  });
+
+  it("returns rotated CSRF token from generateCSRFToken on verify success", async () => {
+    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+
+    expect(result.success).toBe(true);
+    if (!result.success || !result.data) {
+      throw new Error("expected verify success");
+    }
+    expect(result.data.csrfToken).toBe(ROTATED_CSRF_TOKEN);
+    expect(mocks.generateCSRFToken).toHaveBeenCalledOnce();
   });
 
   it("returns passkey-signin next step after successful OTP for secured users", async () => {
@@ -354,6 +375,7 @@ describe("otp-actions", () => {
 
     expect(result).toEqual({
       data: {
+        csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: false,
         nextStep: "passkey-signin",
         userId: "user-123",
@@ -379,6 +401,7 @@ describe("otp-actions", () => {
 
     expect(result).toEqual({
       data: {
+        csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: true,
         nextStep: "encryption-setup",
         userId: "user-123",
@@ -399,6 +422,7 @@ describe("otp-actions", () => {
 
     expect(result).toEqual({
       data: {
+        csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: false,
         nextStep: "encryption-setup",
         userId: "user-123",
@@ -430,6 +454,7 @@ describe("otp-actions", () => {
 
       expect(result).toEqual({
         data: {
+          csrfToken: "csrf-token",
           isNewUser: false,
           nextStep: "passkey-signin",
           userId: "user-123",
@@ -454,6 +479,7 @@ describe("otp-actions", () => {
 
       expect(result).toEqual({
         data: {
+          csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: false,
           nextStep: "passkey-signin",
           userId: "user-123",
@@ -475,6 +501,7 @@ describe("otp-actions", () => {
 
       expect(result).toEqual({
         data: {
+          csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: false,
           nextStep: "passkey-signin",
           userId: "user-123",
@@ -497,6 +524,7 @@ describe("otp-actions", () => {
 
       expect(result).toEqual({
         data: {
+          csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: true,
           nextStep: "encryption-setup",
           userId: "user-123",
@@ -518,6 +546,7 @@ describe("otp-actions", () => {
 
       expect(result).toEqual({
         data: {
+          csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: false,
           nextStep: "encryption-setup",
           userId: "user-123",

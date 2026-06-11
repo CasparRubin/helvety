@@ -30,7 +30,7 @@ export function HeroMarketingShell() {
           <p className="text-muted-foreground text-sm font-medium tracking-[0.12em] uppercase">
             Software products
           </p>
-          <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-wrap lg:text-[2.75rem] lg:leading-[1.1] lg:whitespace-nowrap">
+          <h1 className="text-foreground text-4xl font-semibold tracking-tight text-balance md:text-5xl lg:text-[2.75rem] lg:leading-[1.1] lg:text-wrap lg:whitespace-nowrap">
             Engineered, designed &amp; made in{" "}
             <span className="text-brand-swiss-red font-medium">
               {HELVETY_SWISS_ORIGIN_COUNTRY}

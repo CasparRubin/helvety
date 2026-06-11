@@ -29,9 +29,13 @@ Do **not** commit `supabase/supabase.json`. Generate locally:
 # From repo root, with SUPABASE_PROJECT_ID set
 bun run db:gen-types
 # Review RLS and SECURITY DEFINER via getSupabase.sql output kept local under /supabase
+# Verify the local export covers every user-data table with forced RLS
+bun run consistency:supabase-rls
 ```
 
 Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECURITY DEFINER` functions scoped.
+
+`consistency:supabase-rls` fails when a table from generated types (e.g. `docs`, `links`, `link_folders`) is missing from the local export — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
 
 ## Auth / extension
 
@@ -40,6 +44,7 @@ Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECUR
 - `bun run consistency:vercel-prod-env` must pass for `helvety-auth`: set `HELVETY_CHROME_EXTENSION_ORIGINS` to the published extension id (bare id or `chrome-extension://<id>`).
 - Extension Bearer tokens rotated if leaked.
 - Extension passkey `challengeEnvelope` values are single-use within their TTL (Upstash `consumeSingleUseKey`; dev uses in-memory fallback).
+- Extension passkey routes use `getTrustedClientIp` with `requireTrustedProxyInProduction: true` — confirm production receives trusted `x-real-ip` from Vercel (not spoofable `x-forwarded-for` alone).
 - Spot-check sign-in, callback, passkey session mint, and logout with existing `sb-*` cookies (mutating client must persist session changes).
 
 ## Store public downloads
@@ -77,5 +82,5 @@ Check version in Supabase Dashboard → Project Settings → Infrastructure, or 
 1. `bun run ci:check` on `main`
 2. `bun run consistency:vercel-prod-env`
 3. `bun outdated` + [`docs/dependency-inventory.md`](./dependency-inventory.md) extended assets
-4. Local Supabase policy review (export stays gitignored)
+4. Local Supabase policy review (export stays gitignored) + `bun run consistency:supabase-rls`
 5. Hosted GoTrue version / unused OIDC provider review (see above)

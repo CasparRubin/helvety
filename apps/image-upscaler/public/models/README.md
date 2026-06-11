@@ -132,7 +132,9 @@ Then paste the hex digests into the matching `sha256` field in
 main `.onnx` (`UpscaleModel.sha256`) and for each sidecar
 (`UpscaleModel.externalData[].sha256`). Once a hash is set, the worker
 rejects mismatched downloads with a clear error and re-downloads on the next
-attempt.
+attempt. With a configured hash, **missing Web Crypto** (`crypto.subtle`, e.g.
+insecure contexts) also rejects the model — use HTTPS in a modern browser; hash
+mismatch is not the only failure mode.
 
 Current expected digests (must match the files uploaded to Supabase):
 

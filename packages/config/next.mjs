@@ -105,6 +105,12 @@ export function createHelvetyNextConfig({
     experimentalServerActions.allowedOrigins ??
     (allowedOrigins.length > 0 ? allowedOrigins : undefined);
 
+  const mergedServerActions = {
+    ...experimentalServerActions,
+    ...explicitServerActionsOverrides,
+    ...(mergedAllowedOrigins ? { allowedOrigins: mergedAllowedOrigins } : {}),
+  };
+
   return {
     poweredByHeader: false,
     compress: true,
@@ -122,14 +128,8 @@ export function createHelvetyNextConfig({
       // May reduce unused CSS preload warnings while loading shells or encryption gates are active.
       cssChunking: "strict",
       optimizePackageImports: mergedOptimizePackageImports,
-      ...(mergedAllowedOrigins
-        ? {
-            serverActions: {
-              ...experimentalServerActions,
-              ...explicitServerActionsOverrides,
-              allowedOrigins: mergedAllowedOrigins,
-            },
-          }
+      ...(Object.keys(mergedServerActions).length > 0
+        ? { serverActions: mergedServerActions }
         : {}),
     },
     ...restOverrides,

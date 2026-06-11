@@ -1000,13 +1000,13 @@ export default function PrivacyPage() {
           . Upon confirmation, the deletion request is processed immediately and
           account-linked data is removed across Helvety services without undue
           delay, including authentication credentials, task data, contact data,
-          and note data. Full propagation across dependent systems may still
-          require technical processing time. Depending on system architecture
-          and legal obligations, some records may be deleted, de-identified, or
-          retained in restricted form for compliance, fraud-prevention, dispute
-          handling, or security purposes. This action is intended to be
-          permanent and may not be reversible. We recommend exporting your data
-          before proceeding.
+          note data, link data (Helvety Links), and document vault data (Helvety
+          Docs). Full propagation across dependent systems may still require
+          technical processing time. Depending on system architecture and legal
+          obligations, some records may be deleted, de-identified, or retained
+          in restricted form for compliance, fraud-prevention, dispute handling,
+          or security purposes. This action is intended to be permanent and may
+          not be reversible. We recommend exporting your data before proceeding.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}

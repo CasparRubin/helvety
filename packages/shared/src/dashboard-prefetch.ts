@@ -1,7 +1,7 @@
 /**
  * Shared helpers for E2EE dashboard prefetch server actions that fetch
  * `MAX_DASHBOARD_ROWS + 1` rows to detect overflow, plus the same user-facing
- * copy for the contacts list API route when its separate cap is exceeded.
+ * copy for the contacts list API route when the shared dashboard row cap is exceeded.
  */
 
 /** User-facing error when a dashboard list exceeds the configured cap. */

@@ -144,6 +144,40 @@ describe("model-cache", () => {
     expect(cache.delete).toHaveBeenCalledWith("/model.data");
   });
 
+  it("rejects model bytes when Web Crypto is unavailable but a hash is configured", async () => {
+    const { caches } = createMemoryCache();
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(body([1, 2, 3]), {
+          headers: { "content-length": "3" },
+        })
+    );
+    vi.stubGlobal("caches", caches);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const originalSubtle = crypto.subtle;
+    Object.defineProperty(crypto, "subtle", {
+      value: undefined,
+      configurable: true,
+    });
+
+    try {
+      await expect(
+        getModelBytes({
+          id: "blocked-model",
+          url: "/test/model.onnx",
+          sha256: "a".repeat(64),
+          externalData: null,
+        })
+      ).rejects.toThrow(/Web Crypto is unavailable/);
+    } finally {
+      Object.defineProperty(crypto, "subtle", {
+        value: originalSubtle,
+        configurable: true,
+      });
+    }
+  });
+
   it("evicts cached bytes and re-downloads when cached hash does not match", async () => {
     const { cache, caches, entries } = createMemoryCache();
     const staleBytes = bytes([9, 9, 9]);

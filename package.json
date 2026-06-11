@@ -34,6 +34,7 @@
     "consistency:zone-modernization": "node scripts/check-zone-modernization.mjs",
     "consistency:supabase-auth": "node scripts/check-supabase-auth-patterns.mjs",
     "consistency:supabase-schema": "node scripts/check-supabase-schema-expectations.mjs",
+    "consistency:supabase-rls": "node scripts/check-supabase-rls-export.mjs",
     "consistency:install-manifest-metadata": "bun scripts/check-install-manifest-metadata.mjs",
     "consistency:license": "node scripts/check-license-consistency.mjs",
     "consistency:customer-copy": "node scripts/check-customer-copy-style.mjs",
