@@ -58,7 +58,9 @@ export function PasskeySignInStep({
           ? isMobile
             ? "Use Face ID, fingerprint, or PIN on this device."
             : "Scan the QR code with your phone and verify with Face ID, fingerprint, or PIN."
-          : "Use your passkey to verify your identity and complete sign in."}
+          : isMobile
+            ? "Use your passkey to verify your identity and complete sign in."
+            : "Click below to scan a QR code with your phone and verify with your passkey."}
       </p>
 
       {error && (

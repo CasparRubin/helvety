@@ -22,11 +22,14 @@ import {
 import { logger } from "@helvety/shared/logger";
 import { isValidRedirectUri } from "@helvety/shared/redirect-validation";
 import { createBrowserClient } from "@helvety/shared/supabase/client";
-import { getUserSingleflight } from "@helvety/ui/auth-session-singleflight";
+import {
+  getUserSingleflight,
+  invalidateAuthUserProbeCache,
+} from "@helvety/ui/auth-session-singleflight";
 import { useCSRFToken, useSetCSRFToken } from "@helvety/ui/csrf-provider";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { getDeviceTrustStatus } from "@/app/actions/device-trust-actions";
@@ -47,11 +50,22 @@ import { isMobileDevice } from "@/lib/device-utils";
 import { resolveAuthenticatedEmailBootstrap } from "@/lib/login-email-bootstrap";
 import { resolveLoginEntryStep } from "@/lib/login-entry";
 import {
+  expectsExistingSessionOnBootstrap,
+  isRateLimitedAuthMessage,
+  mapPasskeyWebAuthnError,
+  resolveBootstrapFriendlyError,
+  shouldSurfaceLoginError,
+} from "@/lib/login-flow-errors";
+import {
   resolveLoginCurrentAuthStep,
   resolveLoginStepperMode,
 } from "@/lib/login-flow-stepper";
 
 import type { AuthStep, AuthStepperMode } from "@/components/auth-stepper";
+import type {
+  LoginErrorSource,
+  PasskeyCeremonySource,
+} from "@/lib/login-flow-errors";
 import type { LoginStep, PostOtpPasskeyPath } from "@/lib/login-flow-stepper";
 
 /** Duration (in seconds) before the user can resend an OTP code. */
@@ -62,11 +76,6 @@ const TERMINAL_AUTH_ERROR_TOKENS = [
   "invalid refresh token",
   "refresh token is invalid",
   "session is invalid",
-] as const;
-const RATE_LIMIT_AUTH_ERROR_TOKENS = [
-  "too many requests",
-  "request rate limit reached",
-  "429",
 ] as const;
 /** Return type of the useLoginFlow hook */
 interface LoginFlowState {
@@ -108,13 +117,7 @@ export function shouldResetLoginAuthSession(message: string | null): boolean {
 
 /** Returns true when auth failures indicate temporary rate-limiting. */
 export function isRateLimitedLoginAuthSession(message: string | null): boolean {
-  if (!message) {
-    return false;
-  }
-  const normalized = message.toLowerCase();
-  return RATE_LIMIT_AUTH_ERROR_TOKENS.some((token) =>
-    normalized.includes(token)
-  );
+  return isRateLimitedAuthMessage(message);
 }
 
 /** Wraps auth probe calls so login can recover from indefinite hangs. */
@@ -159,8 +162,9 @@ export function shouldSkipOtpVerifySubmit(options: {
 }
 
 /**
- * Order in which OTP success handlers must run so auto passkey uses a fresh CSRF
- * token after server-side rotation in `verifyEmailCode`.
+ * Order of state updates after OTP success (after `invalidateAuthUserProbeCache`
+ * and `hasAutoStartedPasskeySignIn` reset). Ensures auto passkey on mobile uses
+ * a fresh CSRF token from server-side rotation in `verifyEmailCode`.
  */
 export const OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER = [
   "setCsrfToken",
@@ -190,9 +194,14 @@ function parseUrlLoginStep(value: string | null): LoginStep | null {
 }
 
 /** Hook encapsulating the entire login flow state and handlers. */
+/**
+ * Client login state machine: email → OTP → passkey (and optional encryption setup).
+ * Runs a one-shot session bootstrap per mount; mobile may auto-start passkey after
+ * OTP; desktop requires the passkey button (hybrid QR needs a user gesture).
+ */
 export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const searchParams = useSearchParams();
-  const supabase = createBrowserClient();
+  const supabase = useMemo(() => createBrowserClient(), []);
   const csrfToken = useCSRFToken();
   const setCsrfToken = useSetCSRFToken();
 
@@ -220,13 +229,83 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const verifyCodeInProgressRef = useRef(false);
   const verifyCodeRequestIdRef = useRef(0);
   const otpVerifySucceededRef = useRef(false);
+  const initialBootstrapDoneRef = useRef(false);
+  const stepRef = useRef<LoginStep>(options.initialStep);
   const [otpCode, setOtpCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
   /** After OTP: direct to sign-in vs setup then sign-in (drives 3- vs 4-step stepper). */
   const [postOtpPasskeyPath, setPostOtpPasskeyPath] =
     useState<PostOtpPasskeyPath>(null);
-  const authBootstrapKey = `${urlStep ?? ""}|${redirectUri ?? ""}|${forceLogin ? "1" : "0"}|${options.initialStep}|${options.initialTrustedUserId ?? ""}`;
+
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
+  const expectsSessionRestore = useMemo(
+    () =>
+      expectsExistingSessionOnBootstrap({
+        initialStep: options.initialStep,
+        initialTrustedUserId: options.initialTrustedUserId,
+        initialError: options.initialError,
+        urlStep,
+      }),
+    [
+      options.initialError,
+      options.initialStep,
+      options.initialTrustedUserId,
+      urlStep,
+    ]
+  );
+
+  const surfaceLoginError = useCallback(
+    (
+      message: string,
+      source: LoginErrorSource,
+      extra?: {
+        ceremonySource?: PasskeyCeremonySource;
+        webAuthnErrorName?: string;
+      }
+    ) => {
+      if (
+        !shouldSurfaceLoginError({
+          otpVerifySucceeded: otpVerifySucceededRef.current,
+          step: stepRef.current,
+          source,
+          ceremonySource: extra?.ceremonySource,
+          webAuthnErrorName: extra?.webAuthnErrorName,
+        })
+      ) {
+        if (source === "passkey" && extra?.ceremonySource === "auto") {
+          logger.warn("Suppressed auto-passkey WebAuthn error.", {
+            message,
+            webAuthnErrorName: extra.webAuthnErrorName,
+          });
+        }
+        return;
+      }
+      setError(message);
+      toast.error(message, { duration: TOAST_DURATIONS.ERROR });
+    },
+    []
+  );
+
+  const applyBootstrapError = useCallback(
+    (message: string) => {
+      if (otpVerifySucceededRef.current) {
+        return;
+      }
+      const friendly = resolveBootstrapFriendlyError(
+        message,
+        expectsSessionRestore
+      );
+      if (!friendly) {
+        return;
+      }
+      surfaceLoginError(friendly, "bootstrap");
+    },
+    [expectsSessionRestore, surfaceLoginError]
+  );
 
   // Device detection for passkey flow (client-only, set on mount)
   useEffect(() => {
@@ -243,9 +322,14 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // Initialize: check passkey support and existing session
+  // Initialize once per mount: passkey support and existing session probe.
   useEffect(() => {
+    if (initialBootstrapDoneRef.current) {
+      return;
+    }
+
     let cancelled = false;
+    let bootstrapCompleted = false;
     setCheckingAuth(true);
 
     const init = async () => {
@@ -271,9 +355,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
           isRateLimitedLoginAuthSession(userError.message)
         ) {
           if (!cancelled) {
-            setError(
-              "Authentication is temporarily rate-limited. Please wait a few seconds and try again."
-            );
+            applyBootstrapError(userError.message);
           }
           return;
         }
@@ -286,8 +368,11 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
             hasRecoveredTerminalAuth.current = true;
             await supabase.auth.signOut({ scope: "local" });
           }
-          if (!cancelled) {
-            setError("Your session expired. Please sign in again.");
+          if (!cancelled && !otpVerifySucceededRef.current) {
+            surfaceLoginError(
+              "Your session expired. Please sign in again.",
+              "bootstrap"
+            );
           }
           return;
         }
@@ -312,15 +397,21 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
             }
             if (!cancelled) {
               setUserId(null);
-              setError("Your session expired. Please sign in again.");
+              if (!otpVerifySucceededRef.current) {
+                surfaceLoginError(
+                  "Your session expired. Please sign in again.",
+                  "bootstrap"
+                );
+              }
             }
             return;
           }
 
           if (probe.status === "unavailable") {
-            if (!cancelled) {
-              setError(
-                "We couldn't verify your sign-in status. Please try again in a moment."
+            if (!cancelled && !otpVerifySucceededRef.current) {
+              surfaceLoginError(
+                "We couldn't verify your sign-in status. Please try again in a moment.",
+                "bootstrap"
               );
             }
             return;
@@ -354,7 +445,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
           return;
         }
 
-        if (!cancelled) {
+        if (!cancelled && !otpVerifySucceededRef.current) {
           if (user) {
             setEmail(user.email ?? "");
             setUserId(user.id);
@@ -397,17 +488,13 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
         }
 
         if (!cancelled) {
-          const friendlyError =
-            message === "AUTH_PROBE_TIMEOUT"
-              ? "We could not restore your session in time. Please sign in."
-              : isRateLimitedLoginAuthSession(message)
-                ? "Authentication is temporarily rate-limited. Please wait a few seconds and try again."
-                : "We could not restore your session. Please sign in.";
-          setError(friendlyError);
+          applyBootstrapError(message);
         }
       } finally {
         if (!cancelled) {
           setCheckingAuth(false);
+          initialBootstrapDoneRef.current = true;
+          bootstrapCompleted = true;
         }
       }
     };
@@ -415,8 +502,19 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
 
     return () => {
       cancelled = true;
+      // Strict Mode remount: allow bootstrap to rerun if the prior run was aborted.
+      if (!bootstrapCompleted) {
+        initialBootstrapDoneRef.current = false;
+      }
     };
-  }, [authBootstrapKey, forceLogin, redirectUri, urlStep, supabase]);
+  }, [
+    applyBootstrapError,
+    forceLogin,
+    redirectUri,
+    surfaceLoginError,
+    supabase,
+    urlStep,
+  ]);
 
   // Handle email submission; on success continue to OTP verification.
   const handleEmailSubmit = useCallback(
@@ -433,8 +531,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
           const msg =
             result.error ??
             "Failed to send verification code. Please try again.";
-          setError(msg);
-          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+          surfaceLoginError(msg, "email");
           setIsLoading(false);
           return;
         }
@@ -446,12 +543,11 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
       } catch (err) {
         logger.logUnexpectedError("Email submission error", err);
         const msg = "Couldn't send your verification code. Please try again.";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        surfaceLoginError(msg, "email");
         setIsLoading(false);
       }
     },
-    [email, csrfToken, nonEUEEAConfirmed]
+    [email, csrfToken, nonEUEEAConfirmed, surfaceLoginError]
   );
 
   // Handle OTP code verification
@@ -489,14 +585,15 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
 
         if (!result.success) {
           const msg = result.error ?? "Verification failed";
-          setError(msg);
-          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+          surfaceLoginError(msg, "otp");
           return;
         }
 
         if (result.data) {
           otpVerifySucceededRef.current = true;
+          invalidateAuthUserProbeCache();
           setError("");
+          hasAutoStartedPasskeySignIn.current = false;
           setCsrfToken(result.data.csrfToken);
           setUserId(result.data.userId);
           setPostOtpPasskeyPath(
@@ -516,8 +613,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
           return;
         logger.logUnexpectedError("Code verification error", err);
         const msg = "Couldn't verify your code. Please try again.";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        surfaceLoginError(msg, "otp");
       } finally {
         verifyCodeInProgressRef.current = false;
         if (
@@ -530,7 +626,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
         }
       }
     },
-    [email, otpCode, csrfToken, setCsrfToken]
+    [email, otpCode, csrfToken, setCsrfToken, surfaceLoginError]
   );
 
   // Handle resending OTP code
@@ -547,8 +643,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
 
       if (!result.success) {
         const msg = result.error ?? "Failed to resend code";
-        setError(msg);
-        toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+        surfaceLoginError(msg, "otp");
       } else {
         setResendCooldown(RESEND_COOLDOWN_SECONDS);
         setOtpCode("");
@@ -557,11 +652,10 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     } catch (err) {
       logger.logUnexpectedError("Resend code error", err);
       const msg = "Couldn't resend the code. Please try again.";
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
+      surfaceLoginError(msg, "otp");
       setIsLoading(false);
     }
-  }, [email, resendCooldown, nonEUEEAConfirmed, csrfToken]);
+  }, [email, resendCooldown, nonEUEEAConfirmed, csrfToken, surfaceLoginError]);
 
   const clearStalePasskeyBootstrapState = useCallback(async () => {
     clearCachedPRFSalt();
@@ -571,265 +665,242 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   // Handle passkey sign-in (for existing users or verification after setup)
   // Includes PRF extension to enable single-touch encryption unlock by deriving a master key
   // when PRF output is available (server-provided PRF params preferred, local fallback).
-  const handlePasskeySignIn = useCallback(async () => {
-    if (!passkeySupported) {
-      const msg = "Your browser does not support passkeys in this flow";
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-      return;
-    }
-
-    hasAutoRetriedMismatch.current = false;
-    setError("");
-    setIsLoading(true);
-
-    try {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const origin = window.location.origin;
-
-        // Get authentication options from server
-        const optionsResult = await generatePasskeyAuthOptions(
-          csrfToken,
-          origin,
-          redirectUri ?? undefined,
-          {
-            isMobile: isMobileDevice(),
-            expectedEmail: email ? email.toLowerCase().trim() : undefined,
-          }
-        );
-        if (!optionsResult.success) {
-          const msg = optionsResult.error ?? "Failed to load passkey options";
-          setError(msg);
-          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-          setIsLoading(false);
-          return;
-        }
-
-        // Resolve PRF bootstrap params for the WebAuthn PRF extension.
-        // Prefer server-provided PRF params (authoritative, avoids stale local cache),
-        // but fall back to localStorage for resilience.
-        const authOptionsResult = optionsResult.data;
-        const authOptions = authOptionsResult;
-
-        let bootstrapSalt = getCachedPRFSalt();
-        let bootstrapSaltFromServer = false;
-
-        const passkeyParamsResult = await getPasskeyParams();
-        if (passkeyParamsResult.success && passkeyParamsResult.data?.prf_salt) {
-          bootstrapSalt = {
-            prfSalt: passkeyParamsResult.data.prf_salt,
-            version: passkeyParamsResult.data.version,
-            cachedAt: Date.now(),
-          };
-          bootstrapSaltFromServer = true;
-        }
-
-        if (bootstrapSalt) {
-          // Add PRF extension to the authentication options
-          const saltBytes = Uint8Array.from(atob(bootstrapSalt.prfSalt), (c) =>
-            c.charCodeAt(0)
-          );
-          Object.assign(authOptions, {
-            extensions: {
-              ...authOptions.extensions,
-              prf: {
-                eval: {
-                  first: saltBytes,
-                },
-              },
-            },
-          });
-        }
-
-        // Start WebAuthn authentication (with PRF when bootstrap salt exists)
-        let authResponse;
-        try {
-          authResponse = await startAuthentication({
-            optionsJSON: authOptions,
-          });
-        } catch (err) {
-          const msg =
-            err instanceof Error
-              ? err.name === "NotAllowedError"
-                ? "Authentication was canceled"
-                : err.name === "AbortError"
-                  ? "Authentication timed out"
-                  : window.location.hostname === "localhost" ||
-                      window.location.hostname === "127.0.0.1"
-                    ? "No localhost passkey available. Create one for localhost when prompted, or test sign-in on https://helvety.com."
-                    : "Failed to authenticate with passkey"
-              : "Failed to authenticate with passkey";
-          setError(msg);
-          toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-          setIsLoading(false);
-          hasAutoStartedPasskeySignIn.current = false;
-          return;
-        }
-
-        // Verify authentication server-side. Forward only required WebAuthn
-        // fields to avoid sending client extension results (PRF output, etc.).
-        const authResponseForServer = {
-          id: authResponse.id,
-          rawId: authResponse.rawId,
-          type: authResponse.type,
-          response: authResponse.response,
-        };
-        const verifyResult = await verifyPasskeyAuthentication(
-          csrfToken,
-          authResponseForServer,
-          origin
-        );
-        if (!verifyResult.success) {
-          if (
-            verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH" &&
-            attempt === 0
-          ) {
-            hasAutoRetriedMismatch.current = true;
-            await clearStalePasskeyBootstrapState();
-            setError(
-              "We detected a passkey mismatch and are retrying for your selected account."
-            );
-            continue;
-          }
-
-          if (verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH") {
-            const mismatchMsg = email
-              ? "This passkey belongs to a different account. Please use the passkey for the email you entered."
-              : "This passkey belongs to a different account. Please try a different passkey, or sign in with email.";
-            setError(mismatchMsg);
-            toast.error(mismatchMsg, { duration: TOAST_DURATIONS.ERROR });
-            hasAutoRetriedMismatch.current = false;
-          } else {
-            const msg = verifyResult.error ?? "Passkey verification failed";
-            setError(msg);
-            toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-            hasAutoRetriedMismatch.current = false;
-          }
-          setIsLoading(false);
-          return;
-        }
-
-        hasAutoRetriedMismatch.current = false;
-
-        // If PRF output was received, derive and cache the master encryption key.
-        // This enables instant encryption unlock in E2EE apps
-        // (tasks, contacts, notes, links)
-        // without requiring a separate passkey touch.
-        //
-        // Security: The cached PRF salt may belong to a different user than the
-        // one who actually authenticated (e.g., user entered Account A's email
-        // but signed in with Account B's passkey). We must verify the cached
-        // salt matches the authenticated user's actual params before deriving.
-        if (bootstrapSalt) {
-          try {
-            const clientExtResults = authResponse.clientExtensionResults as {
-              prf?: { results?: { first?: ArrayBuffer } };
-            };
-            const prfOutput = clientExtResults?.prf?.results?.first;
-
-            if (prfOutput) {
-              // Fetch the authenticated user's actual PRF params from the server
-              // and verify the cached salt matches before deriving the key.
-              const paramsResult = await getPasskeyParams();
-              const actualSalt = paramsResult.success
-                ? paramsResult.data?.prf_salt
-                : null;
-
-              const saltMatches = actualSalt
-                ? actualSalt === bootstrapSalt.prfSalt
-                : bootstrapSaltFromServer;
-
-              if (saltMatches) {
-                const prfParams: PRFKeyParams = {
-                  prfSalt: bootstrapSalt.prfSalt,
-                  version: bootstrapSalt.version,
-                };
-                const masterKey = await deriveKeyFromPRF(prfOutput, prfParams);
-
-                const keyCheckValue = paramsResult.success
-                  ? paramsResult.data?.key_check_value
-                  : null;
-                if (keyCheckValue) {
-                  const isValidKey = await verifyKeyCheckValue(
-                    masterKey,
-                    keyCheckValue
-                  );
-                  if (!isValidKey) {
-                    await clearStalePasskeyBootstrapState();
-                    setError(
-                      "This passkey does not match your encryption key. Please use the passkey for this account."
-                    );
-                    toast.error(
-                      "Passkey mismatch detected. Please try the correct passkey.",
-                      { duration: TOAST_DURATIONS.ERROR }
-                    );
-                    setIsLoading(false);
-                    return;
-                  }
-                } else {
-                  try {
-                    const newKeyCheckValue =
-                      await generateKeyCheckValue(masterKey);
-                    await saveKeyCheckValue(csrfToken, newKeyCheckValue);
-                  } catch (kcvError) {
-                    logger.warn(
-                      "Unable to save key check value during login bootstrap:",
-                      kcvError
-                    );
-                  }
-                }
-
-                await storeMasterKey(verifyResult.data.userId, masterKey);
-
-                cachePRFSalt(bootstrapSalt.prfSalt, bootstrapSalt.version);
-
-                logger.info(
-                  "Encryption key derived and cached during login (single-touch unlock)"
-                );
-              } else {
-                // If we couldn't verify the salt (actualSalt missing) we still avoid
-                // deriving from potentially stale local cache to prevent lockouts.
-                clearCachedPRFSalt();
-
-                if (!actualSalt) {
-                  logger.warn(
-                    "PRF salt verification unavailable; discarding cached salt to avoid deriving with potentially stale data."
-                  );
-                } else {
-                  logger.warn(
-                    "Cached PRF salt does not match authenticated user - skipping key derivation"
-                  );
-                }
-              }
-            }
-          } catch (prfError) {
-            // PRF key derivation failure is non-fatal. After redirect, /auth
-            // continues the required passkey/encryption step if still needed.
-            logger.warn(
-              "Failed to derive encryption key during login (will continue in /auth flow):",
-              prfError
-            );
-          }
-        }
-
-        // Redirect to final destination (session already created server-side)
-        window.location.href = verifyResult.data.redirectUrl;
+  const runPasskeySignIn = useCallback(
+    async (ceremonySource: PasskeyCeremonySource) => {
+      if (!passkeySupported) {
+        const msg = "Your browser does not support passkeys in this flow";
+        surfaceLoginError(msg, "passkey", { ceremonySource });
         return;
       }
-    } catch (err) {
-      logger.logUnexpectedError("Passkey auth error", err);
-      const msg = "Passkey sign-in failed. Please try again.";
-      setError(msg);
-      toast.error(msg, { duration: TOAST_DURATIONS.ERROR });
-      setIsLoading(false);
-    }
-  }, [
-    clearStalePasskeyBootstrapState,
-    csrfToken,
-    email,
-    passkeySupported,
-    redirectUri,
-  ]);
+
+      hasAutoRetriedMismatch.current = false;
+      setError("");
+      setIsLoading(true);
+
+      try {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          const origin = window.location.origin;
+
+          const optionsResult = await generatePasskeyAuthOptions(
+            csrfToken,
+            origin,
+            redirectUri ?? undefined,
+            {
+              isMobile: isMobileDevice(),
+              expectedEmail: email ? email.toLowerCase().trim() : undefined,
+            }
+          );
+          if (!optionsResult.success) {
+            const msg = optionsResult.error ?? "Failed to load passkey options";
+            surfaceLoginError(msg, "passkey", { ceremonySource });
+            setIsLoading(false);
+            return;
+          }
+
+          const authOptions = optionsResult.data;
+
+          let bootstrapSalt = getCachedPRFSalt();
+          let bootstrapSaltFromServer = false;
+
+          const passkeyParamsResult = await getPasskeyParams();
+          if (
+            passkeyParamsResult.success &&
+            passkeyParamsResult.data?.prf_salt
+          ) {
+            bootstrapSalt = {
+              prfSalt: passkeyParamsResult.data.prf_salt,
+              version: passkeyParamsResult.data.version,
+              cachedAt: Date.now(),
+            };
+            bootstrapSaltFromServer = true;
+          }
+
+          if (bootstrapSalt) {
+            const saltBytes = Uint8Array.from(
+              atob(bootstrapSalt.prfSalt),
+              (c) => c.charCodeAt(0)
+            );
+            Object.assign(authOptions, {
+              extensions: {
+                ...authOptions.extensions,
+                prf: {
+                  eval: {
+                    first: saltBytes,
+                  },
+                },
+              },
+            });
+          }
+
+          let authResponse;
+          try {
+            authResponse = await startAuthentication({
+              optionsJSON: authOptions,
+            });
+          } catch (err) {
+            const { message, errorName } = mapPasskeyWebAuthnError(err);
+            surfaceLoginError(message, "passkey", {
+              ceremonySource,
+              webAuthnErrorName: errorName,
+            });
+            setIsLoading(false);
+            if (ceremonySource === "user") {
+              hasAutoStartedPasskeySignIn.current = false;
+            }
+            return;
+          }
+
+          const authResponseForServer = {
+            id: authResponse.id,
+            rawId: authResponse.rawId,
+            type: authResponse.type,
+            response: authResponse.response,
+          };
+          const verifyResult = await verifyPasskeyAuthentication(
+            csrfToken,
+            authResponseForServer,
+            origin
+          );
+          if (!verifyResult.success) {
+            if (
+              verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH" &&
+              attempt === 0
+            ) {
+              hasAutoRetriedMismatch.current = true;
+              await clearStalePasskeyBootstrapState();
+              setError(
+                "We detected a passkey mismatch and are retrying for your selected account."
+              );
+              continue;
+            }
+
+            if (verifyResult.error === "PASSKEY_ACCOUNT_MISMATCH") {
+              const mismatchMsg = email
+                ? "This passkey belongs to a different account. Please use the passkey for the email you entered."
+                : "This passkey belongs to a different account. Please try a different passkey, or sign in with email.";
+              surfaceLoginError(mismatchMsg, "passkey", { ceremonySource });
+              hasAutoRetriedMismatch.current = false;
+            } else {
+              const msg = verifyResult.error ?? "Passkey verification failed";
+              surfaceLoginError(msg, "passkey", { ceremonySource });
+              hasAutoRetriedMismatch.current = false;
+            }
+            setIsLoading(false);
+            return;
+          }
+
+          hasAutoRetriedMismatch.current = false;
+
+          // If PRF output was received, derive and cache the master encryption key.
+          if (bootstrapSalt) {
+            try {
+              const clientExtResults = authResponse.clientExtensionResults as {
+                prf?: { results?: { first?: ArrayBuffer } };
+              };
+              const prfOutput = clientExtResults?.prf?.results?.first;
+
+              if (prfOutput) {
+                const paramsResult = await getPasskeyParams();
+                const actualSalt = paramsResult.success
+                  ? paramsResult.data?.prf_salt
+                  : null;
+
+                const saltMatches = actualSalt
+                  ? actualSalt === bootstrapSalt.prfSalt
+                  : bootstrapSaltFromServer;
+
+                if (saltMatches) {
+                  const prfParams: PRFKeyParams = {
+                    prfSalt: bootstrapSalt.prfSalt,
+                    version: bootstrapSalt.version,
+                  };
+                  const masterKey = await deriveKeyFromPRF(
+                    prfOutput,
+                    prfParams
+                  );
+
+                  const keyCheckValue = paramsResult.success
+                    ? paramsResult.data?.key_check_value
+                    : null;
+                  if (keyCheckValue) {
+                    const isValidKey = await verifyKeyCheckValue(
+                      masterKey,
+                      keyCheckValue
+                    );
+                    if (!isValidKey) {
+                      await clearStalePasskeyBootstrapState();
+                      surfaceLoginError(
+                        "This passkey does not match your encryption key. Please use the passkey for this account.",
+                        "passkey",
+                        { ceremonySource }
+                      );
+                      setIsLoading(false);
+                      return;
+                    }
+                  } else {
+                    try {
+                      const newKeyCheckValue =
+                        await generateKeyCheckValue(masterKey);
+                      await saveKeyCheckValue(csrfToken, newKeyCheckValue);
+                    } catch (kcvError) {
+                      logger.warn(
+                        "Unable to save key check value during login bootstrap:",
+                        kcvError
+                      );
+                    }
+                  }
+
+                  await storeMasterKey(verifyResult.data.userId, masterKey);
+                  cachePRFSalt(bootstrapSalt.prfSalt, bootstrapSalt.version);
+
+                  logger.info(
+                    "Encryption key derived and cached during login (single-touch unlock)"
+                  );
+                } else {
+                  clearCachedPRFSalt();
+
+                  if (!actualSalt) {
+                    logger.warn(
+                      "PRF salt verification unavailable; discarding cached salt to avoid deriving with potentially stale data."
+                    );
+                  } else {
+                    logger.warn(
+                      "Cached PRF salt does not match authenticated user - skipping key derivation"
+                    );
+                  }
+                }
+              }
+            } catch (prfError) {
+              logger.warn(
+                "Failed to derive encryption key during login (will continue in /auth flow):",
+                prfError
+              );
+            }
+          }
+
+          window.location.href = verifyResult.data.redirectUrl;
+          return;
+        }
+      } catch (err) {
+        logger.logUnexpectedError("Passkey auth error", err);
+        const msg = "Passkey sign-in failed. Please try again.";
+        surfaceLoginError(msg, "passkey", { ceremonySource });
+        setIsLoading(false);
+      }
+    },
+    [
+      clearStalePasskeyBootstrapState,
+      csrfToken,
+      email,
+      passkeySupported,
+      redirectUri,
+      surfaceLoginError,
+    ]
+  );
+
+  const handlePasskeySignIn = useCallback(() => {
+    return runPasskeySignIn("user");
+  }, [runPasskeySignIn]);
 
   const handlePasskeyRegistrationComplete = useCallback(() => {
     setPostOtpPasskeyPath("setup_then_signin");
@@ -838,13 +909,16 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     hasAutoStartedPasskeySignIn.current = false;
   }, []);
 
-  // After OTP or trusted-device entry, start passkey ceremony once bootstrap finishes.
+  // After OTP or trusted-device entry on mobile, start passkey once bootstrap finishes.
+  // Desktop uses WebAuthn `hints: ["hybrid"]` (QR); ceremonies require a user gesture
+  // (see W3C WebAuthn / SimpleWebAuthn) — use the sign-in button instead of auto-start.
   useEffect(() => {
     if (
       checkingAuth ||
       step !== "passkey-signin" ||
       isLoading ||
-      !passkeySupported
+      !passkeySupported ||
+      !isMobile
     ) {
       return;
     }
@@ -855,13 +929,14 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
       return;
     }
     hasAutoStartedPasskeySignIn.current = true;
-    void handlePasskeySignIn();
+    void runPasskeySignIn("auto");
   }, [
     checkingAuth,
-    handlePasskeySignIn,
     isLoading,
+    isMobile,
     options.initialTrustedUserId,
     passkeySupported,
+    runPasskeySignIn,
     step,
     userId,
   ]);

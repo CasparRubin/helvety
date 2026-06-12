@@ -1,6 +1,7 @@
 import {
   getAuthProbeBlockRemainingMs,
   getUserSingleflight,
+  invalidateAuthUserProbeCache,
   resetAuthProbeSingleflightStateForTests,
 } from "@helvety/ui/auth-session-singleflight";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -99,6 +100,33 @@ describe("auth-session-singleflight", () => {
     const secondRemaining = getAuthProbeBlockRemainingMs();
     expect(secondRemaining).toBeGreaterThanOrEqual(9_900);
     expect(secondRemaining).toBeLessThanOrEqual(10_000);
+  });
+
+  it("reuses cooldown cache until invalidateAuthUserProbeCache is called", async () => {
+    const supabase = createSupabaseMock([
+      { data: { user: null }, error: null },
+      { data: { user: { id: "u_cached" } }, error: null },
+    ]);
+
+    const first = await getUserSingleflight(supabase as never, {
+      cooldownMs: 60_000,
+    });
+    expect(first.data.user).toBeNull();
+    expect(supabase.auth.getUser).toHaveBeenCalledTimes(1);
+
+    const cached = await getUserSingleflight(supabase as never, {
+      cooldownMs: 60_000,
+    });
+    expect(cached.data.user).toBeNull();
+    expect(supabase.auth.getUser).toHaveBeenCalledTimes(1);
+
+    invalidateAuthUserProbeCache();
+
+    const fresh = await getUserSingleflight(supabase as never, {
+      cooldownMs: 60_000,
+    });
+    expect(fresh.data.user?.id).toBe("u_cached");
+    expect(supabase.auth.getUser).toHaveBeenCalledTimes(2);
   });
 
   it("treats 'request rate limit reached' as rate limited", async () => {

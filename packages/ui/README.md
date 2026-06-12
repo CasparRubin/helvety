@@ -26,6 +26,7 @@ This package provides:
 - `@helvety/ui/date-picker` / `@helvety/ui/date-time-picker` -> shared form date controls (promoted from app-local copies; import from here in E2EE editors).
 - `@helvety/ui/create-app-navbar` -> `createE2eeAppNavbar`, `createPublicShellNavbar`, `createVaultAwareShellNavbar`, `publicToolNavbarBrand`: thin navbar factories used by zone `components/navbar.tsx` files.
 - `@helvety/ui/csrf-provider` -> `CSRFProvider`, `useCSRFToken`, `useSetCSRFToken`, `useCSRFSafe`: layout SSR seeds the token; auth OTP success applies server-rotated tokens via `useSetCSRFToken` before the next mutating action.
+- `@helvety/ui/auth-session-singleflight` -> `getUserSingleflight`, `invalidateAuthUserProbeCache`: coalesces client `auth.getUser()` probes with a short cooldown; auth login calls `invalidateAuthUserProbeCache()` after OTP so bootstrap/passkey steps see the new session.
 
 **E2EE zones (`tasks`, `contacts`, `notes`, `links`):**
 

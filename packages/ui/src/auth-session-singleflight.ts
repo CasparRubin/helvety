@@ -49,6 +49,15 @@ export function getAuthProbeBlockRemainingMs(): number {
   return Math.max(0, blockedUntil - Date.now());
 }
 
+/**
+ * Clears the short-lived getUser() cache so the next probe sees a fresh session.
+ * Call after server-side auth mutations (e.g. OTP verify) set new cookies.
+ */
+export function invalidateAuthUserProbeCache(): void {
+  lastResolvedAt = 0;
+  lastResolvedResult = null;
+}
+
 /** Test-only helper to clear module-level auth probe state. */
 export function resetAuthProbeSingleflightStateForTests(): void {
   inFlightGetUser = null;

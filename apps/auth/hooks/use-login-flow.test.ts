@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveLoginEntryStep } from "@/lib/login-entry";
+import { isRateLimitedAuthMessage } from "@/lib/login-flow-errors";
 
 import {
   isRateLimitedLoginAuthSession,
@@ -27,15 +28,17 @@ describe("use-login-flow auth bootstrap guards", () => {
   });
 
   it("detects auth probe rate-limit errors separately", () => {
-    expect(
-      isRateLimitedLoginAuthSession("POST /auth/v1/token returned 429")
-    ).toBe(true);
-    expect(
-      isRateLimitedLoginAuthSession("Auth API error: too many requests")
-    ).toBe(true);
-    expect(
-      isRateLimitedLoginAuthSession("AuthApiError: Request rate limit reached")
-    ).toBe(true);
+    const samples = [
+      "POST /auth/v1/token returned 429",
+      "Auth API error: too many requests",
+      "AuthApiError: Request rate limit reached",
+    ] as const;
+
+    for (const sample of samples) {
+      expect(isRateLimitedLoginAuthSession(sample)).toBe(true);
+      expect(isRateLimitedAuthMessage(sample)).toBe(true);
+    }
+
     expect(isRateLimitedLoginAuthSession("Invalid refresh token")).toBe(false);
     expect(isRateLimitedLoginAuthSession(null)).toBe(false);
   });
