@@ -45,6 +45,21 @@ const TaskLinksPanel = dynamic(
   }
 );
 
+const LinkEntityLinksPanel = dynamic(
+  () =>
+    import("@/components/link-entity-links-panel").then(
+      (m) => m.LinkEntityLinksPanel
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 const APP_HOME_PATH = "/contacts";
 
 /** Saved contact metadata snapshot for dirty tracking outside the rich-text shell. */
@@ -360,6 +375,7 @@ export function ContactEditor({
         <>
           <TaskLinksPanel contactId={contactId} />
           <NoteLinksPanel contactId={contactId} />
+          <LinkEntityLinksPanel contactId={contactId} />
         </>
       }
       deleteDialog={

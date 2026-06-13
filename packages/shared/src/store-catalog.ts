@@ -94,7 +94,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-tasks",
     name: "Helvety Tasks",
     shortDescription:
-      "Stage-based task board with encrypted titles, descriptions, and dates. Labels, priority, and optional links to Helvety Contacts.",
+      "Stage-based task board with encrypted titles, descriptions, and dates. Labels, priority, and optional cross-app links to Helvety Contacts, Notes, and Links.",
     releaseDate: "2025-11-11",
     type: "saas",
     category: "productivity",
@@ -107,7 +107,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-contacts",
     name: "Helvety Contacts",
     shortDescription:
-      "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups, drag to reorder, and export when you need a copy.",
+      "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups, drag to reorder, optional cross-app links, and export when you need a copy.",
     releaseDate: "2025-12-02",
     type: "saas",
     category: "productivity",
@@ -120,7 +120,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-notes",
     name: "Helvety Notes",
     shortDescription:
-      "Encrypted notes with titles and rich text. Group by Personal, Work, or Other, with links to tasks or contacts when you use those apps.",
+      "Encrypted notes with titles and rich text. Group by Personal, Work, or Other, with cross-app links to Tasks, Contacts, and Links when you use those apps.",
     releaseDate: "2026-01-20",
     type: "saas",
     category: "productivity",
@@ -133,7 +133,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-links",
     name: "Helvety Links",
     shortDescription:
-      "Encrypted bookmarks in nested folders you control. Names and URLs stay encrypted on your device before storage.",
+      "Encrypted bookmarks in nested folders you control. Names and URLs stay encrypted on your device before storage, with optional cross-app links to Tasks, Contacts, and Notes.",
     releaseDate: "2026-05-16",
     type: "saas",
     category: "productivity",

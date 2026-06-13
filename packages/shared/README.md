@@ -58,7 +58,7 @@ This package centralizes:
 - `@helvety/shared/encrypted-prefetch-queries` — shared Supabase list queries for encrypted dashboard batch actions and list API routes (tasks, contacts, notes, links, docs).
 - `@helvety/shared/client-env` — client-safe `NEXT_PUBLIC_*` Zod validation (`getValidatedClientEnv`, `getClientSupabaseUrl`, `getClientSupabaseKey`); used by `@helvety/shared/supabase/client`.
 - **Approved Bearer exception:** `apps/auth/lib/extension-bearer-auth.ts` is the only place that constructs a raw `@supabase/supabase-js` `createClient` (extension `Authorization: Bearer` header; no cookie session). All other app code uses `@helvety/shared/supabase/*` factories.
-- `@helvety/shared/entity-links` — low-level link row helpers (`createEntityLink`, `deleteEntityLink`); zone server actions should call `entity-link-action-primitives` instead. `ENTITY_LINK_COLUMNS` for explicit `entity_links` reads (no `select("*")`). Cross-link picker titles use `decryptItemDisplayTitle` / `decryptNoteDisplayTitle` from `@helvety/shared/crypto`.
+- `@helvety/shared/entity-links` — low-level link row helpers (`createEntityLink`, `deleteEntityLink`); zone server actions should call `entity-link-action-primitives` instead. `ENTITY_LINK_COLUMNS` for explicit `entity_links` reads (no `select("*")`). Cross-link picker labels use `decryptItemDisplayTitle`, `decryptNoteDisplayTitle`, `decryptContactDisplayName`, and bookmark helpers `decryptLinkDisplayName` / `decryptLinkDisplayUrl` from `@helvety/shared/crypto`.
 
 ### Cross-app URLs (`config.ts`)
 
@@ -82,7 +82,7 @@ This package centralizes:
   - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (`apps/store`, `apps/docs` layouts, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links). Docs uses this for optional vault save while keeping the main editor route public.
   - `bootstrapAuthLayoutSession()` — same CSRF + user contract as `bootstrapE2eeLayoutSession()` (`apps/auth` root layout).
   - All helpers log and return safe fallbacks on failure.
-- `@helvety/shared/e2ee-deep-link` -> `buildE2eeDeepLink`: Cross-app entity deep links for tasks, notes, and contacts URL query params.
+- `@helvety/shared/e2ee-deep-link` -> `buildE2eeDeepLink`: Cross-app entity deep links for tasks, notes, contacts, and links URL query params.
 
 ### Logging and Errors
 

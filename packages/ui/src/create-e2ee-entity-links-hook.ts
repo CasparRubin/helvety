@@ -126,7 +126,7 @@ function useRequestLifecycle() {
 }
 
 /**
- * Factory for cross-app E2EE entity link hooks (tasks ↔ notes ↔ contacts).
+ * Factory for cross-app E2EE entity link hooks (tasks ↔ notes ↔ contacts ↔ links).
  * Apps inject server actions and decryptors; the factory handles CSRF, guards, and errors.
  */
 export function createE2eeEntityLinksHook<

@@ -98,6 +98,7 @@
     "./hooks/use-encrypted-single-item": "./src/hooks/use-encrypted-single-item.ts",
     "./e2ee-item-editor-shell": "./src/e2ee-item-editor-shell.tsx",
     "./entity-links-panel": "./src/entity-links-panel.tsx",
+    "./e2ee-app-link-ui": "./src/e2ee-app-link-ui.ts",
     "./create-e2ee-entity-links-hook": "./src/create-e2ee-entity-links-hook.ts",
     "./item-command-bar": "./src/item-command-bar.tsx",
     "./hooks/use-e2ee-data-export": "./src/hooks/use-e2ee-data-export.ts"

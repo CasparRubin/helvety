@@ -317,13 +317,15 @@ export default function TermsPage() {
           inaccessible. Certain non-encrypted structural metadata is stored in
           plaintext to enable application functionality; the specific fields
           depend on the product (for example, sort order and folder parent/child
-          relationships in Helvety Links, or priority levels and stage/label
-          references in Helvety Tasks). See our Privacy Policy for field-level
-          details. Other Helvety services (helvety.com, Helvety Auth, Helvety
-          PDF, Helvety Image Upscaler, Helvety Store) do not use full-app
-          end-to-end encryption. Helvety Docs supports optional client-side
-          encrypted vault storage for saved documents when you sign in and
-          unlock; local editing without an account does not use that vault.
+          relationships in Helvety Links, priority levels and stage/label
+          references in Helvety Tasks, and relationship metadata when you link
+          entities across Helvety Tasks, Contacts, Notes, and Links). See our
+          Privacy Policy for field-level details. Other Helvety services
+          (helvety.com, Helvety Auth, Helvety PDF, Helvety Image Upscaler,
+          Helvety Store) do not use full-app end-to-end encryption. Helvety Docs
+          supports optional client-side encrypted vault storage for saved
+          documents when you sign in and unlock; local editing without an
+          account does not use that vault.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -833,9 +835,10 @@ export default function TermsPage() {
             this may include record identifiers, timestamps, and display
             preferences such as sort order; for Helvety Tasks, priority levels
             and stage/label references; for Helvety Contacts and Helvety Notes,
-            immutable built-in category references and, where cross-app linking
-            is enabled, relationship metadata between entities; for Helvety
-            Links, folder parent/child relationships
+            immutable built-in category references; for Helvety Links, folder
+            parent/child relationships; and, where you use cross-app linking
+            across those apps, relationship metadata between entities (link
+            identifiers, linked entity identifiers/types, and timestamps)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">

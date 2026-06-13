@@ -5,7 +5,7 @@ import { isUuidString } from "./uuid-string";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Entity types that can be linked through `entity_links`. */
-export type LinkEntityType = "notes" | "items" | "contacts";
+export type LinkEntityType = "notes" | "items" | "contacts" | "links";
 
 /** Explicit column list for `entity_links` queries (no `select("*")`). */
 export const ENTITY_LINK_COLUMNS =
@@ -61,6 +61,7 @@ const ENTITY_TABLE_BY_TYPE: Record<LinkEntityType, string> = {
   notes: "notes",
   items: "items",
   contacts: "contacts",
+  links: "links",
 };
 
 /** Provides deterministic ordering for link endpoints. */

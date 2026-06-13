@@ -114,3 +114,7 @@ export {
 
 export { decryptItemDisplayTitle } from "./decrypt-item-display-title";
 export { decryptNoteDisplayTitle } from "./decrypt-note-display-title";
+export {
+  decryptLinkDisplayName,
+  decryptLinkDisplayUrl,
+} from "./decrypt-link-display-name";

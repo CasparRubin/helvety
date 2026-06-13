@@ -83,9 +83,10 @@ describe("privacy policy cookies disclosure", () => {
       source.indexOf("2.8 Data Processing by Service"),
       source.indexOf('id="cookies"')
     );
+    const normalized = serviceSection.replace(/\s+/g, " ");
 
-    const crossRefs = serviceSection.match(
-      /described in Section 9[\s\n]*\(Cookies\s+and Tracking\)/g
+    const crossRefs = normalized.match(
+      /described in Section 9 \(Cookies and Tracking\)/g
     );
     expect(crossRefs).toHaveLength(4);
   });

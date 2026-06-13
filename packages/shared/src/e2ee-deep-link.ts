@@ -1,18 +1,20 @@
 import { urls } from "./config";
 
 /** E2EE zones that support entity deep links in the URL query string. */
-export type E2eeDeepLinkZone = "tasks" | "notes" | "contacts";
+export type E2eeDeepLinkZone = "tasks" | "notes" | "contacts" | "links";
 
 const ZONE_BASE_URL: Record<E2eeDeepLinkZone, string> = {
   tasks: urls.tasks,
   notes: urls.notes,
   contacts: urls.contacts,
+  links: urls.links,
 };
 
 const ZONE_QUERY_PARAM: Record<E2eeDeepLinkZone, string> = {
   tasks: "item",
   notes: "note",
   contacts: "contact",
+  links: "link",
 };
 
 /**

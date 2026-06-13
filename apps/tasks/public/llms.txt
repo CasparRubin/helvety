@@ -5,7 +5,7 @@
 ## Product behavior
 - Kanban-style stages with encrypted titles, descriptions, and dates
 - Shareable links use `?item=<uuid>` to open a task in the detail sheet after sign-in and vault unlock
-- Optional links to Helvety Notes and Contacts when both apps are in use
+- Optional cross-app links to Helvety Contacts, Notes, and Links when those apps are in use
 
 ## Canonical URL
 - [Tasks App](https://helvety.com/tasks): Auth-required task management route

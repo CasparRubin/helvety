@@ -518,9 +518,12 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata is stored in plaintext to enable
             application functionality: record identifiers, timestamps, priority
             levels, display preferences (sort orders), and entity relationships
-            (e.g., stage and label references). Business/account quotas are not
-            applied. Essential cookies and storage are described in Section 9
-            (Cookies and Tracking).
+            (e.g., stage and label references). When linking with other Helvety
+            E2EE apps, additional non-encrypted relationship metadata (link
+            identifiers, linked entity identifiers/types, and timestamps) is
+            stored to enable the cross-app linking feature. Business/account
+            quotas are not applied. Essential cookies and storage are described
+            in Section 9 (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -540,12 +543,12 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata is stored in plaintext to enable
             application functionality: record identifiers, timestamps, display
             preferences (sort orders), and immutable built-in taxonomy
-            references (category IDs). When linking contacts with task entities,
-            additional non-encrypted relationship metadata (link identifiers,
-            linked entity identifiers/types, and timestamps) is stored to enable
-            the cross-app linking feature. Business/account quotas are not
-            applied. Essential cookies and storage are described in Section 9
-            (Cookies and Tracking).
+            references (category IDs). When linking with other Helvety E2EE
+            apps, additional non-encrypted relationship metadata (link
+            identifiers, linked entity identifiers/types, and timestamps) is
+            stored to enable the cross-app linking feature. Business/account
+            quotas are not applied. Essential cookies and storage are described
+            in Section 9 (Cookies and Tracking).
           </li>
           <li>
             <strong className="text-foreground">
@@ -563,8 +566,8 @@ export default function PrivacyPage() {
             your note content in plaintext during normal operation.
             Non-encrypted structural metadata is stored in plaintext to enable
             application functionality: record identifiers, timestamps, and
-            display preferences (sort order). When linking notes with tasks and
-            contacts, additional non-encrypted relationship metadata (link
+            display preferences (sort order). When linking with other Helvety
+            E2EE apps, additional non-encrypted relationship metadata (link
             identifiers, linked entity identifiers/types, and timestamps) is
             stored to enable cross-app linking. Business/account quotas are not
             applied. Essential cookies and storage are described in Section 9
@@ -577,11 +580,15 @@ export default function PrivacyPage() {
             Bookmark names and URLs are end-to-end encrypted client-side before
             storage. Folder names are encrypted as well. Non-encrypted
             structural metadata includes record identifiers, parent/folder
-            relationships, sort order, and timestamps. Deleting a folder removes
-            its subfolders and links. Per-account technical limits on folder and
-            link counts (currently 2,000 each) apply for platform reliability.
-            Business/account quotas are not applied. Essential cookies and
-            storage are described in Section 9 (Cookies and Tracking).
+            relationships, sort order, and timestamps. When linking with other
+            Helvety E2EE apps, additional non-encrypted relationship metadata
+            (link identifiers, linked entity identifiers/types, and timestamps)
+            is stored to enable the cross-app linking feature. Deleting a folder
+            removes its subfolders and links. Per-account technical limits on
+            folder and link counts (currently 2,000 each) apply for platform
+            reliability. Business/account quotas are not applied. Essential
+            cookies and storage are described in Section 9 (Cookies and
+            Tracking).
           </li>
         </ul>
         <p className="text-muted-foreground mt-4 text-sm">
@@ -722,9 +729,10 @@ export default function PrivacyPage() {
             this may include record identifiers, timestamps, and display
             preferences such as sort order; for Helvety Tasks, priority levels
             and stage/label references; for Helvety Contacts and Helvety Notes,
-            immutable built-in category references and, where cross-app linking
-            is enabled, relationship metadata between entities; for Helvety
-            Links, folder parent/child relationships
+            immutable built-in category references; for Helvety Links, folder
+            parent/child relationships; and, where you use cross-app linking
+            across those apps, relationship metadata between entities (link
+            identifiers, linked entity identifiers/types, and timestamps)
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -1418,7 +1426,10 @@ export default function PrivacyPage() {
           </strong>{" "}
           record identifiers, timestamps, priority levels, display preferences
           (sort orders), and entity relationships (e.g., stage and label
-          references).
+          references). When linking with other Helvety E2EE apps, additional
+          non-encrypted relationship metadata (link identifiers, linked entity
+          identifiers/types, and timestamps) is stored to enable the cross-app
+          linking feature where that feature is enabled.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">
@@ -1429,7 +1440,11 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata:
           </strong>{" "}
           record identifiers, timestamps, display preferences (sort orders), and
-          immutable built-in taxonomy references (category IDs).
+          immutable built-in taxonomy references (category IDs). When linking
+          with other Helvety E2EE apps, additional non-encrypted relationship
+          metadata (link identifiers, linked entity identifiers/types, and
+          timestamps) is stored to enable the cross-app linking feature where
+          that feature is enabled.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">
@@ -1441,10 +1456,10 @@ export default function PrivacyPage() {
           </strong>{" "}
           record identifiers, timestamps, display preferences (sort order), and
           immutable built-in taxonomy references (category IDs). When linking
-          notes with tasks and contacts, additional non-encrypted relationship
+          with other Helvety E2EE apps, additional non-encrypted relationship
           metadata (link identifiers, linked entity identifiers/types, and
-          timestamps) is stored to enable cross-app linking where that feature
-          is enabled.
+          timestamps) is stored to enable the cross-app linking feature where
+          that feature is enabled.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">
@@ -1455,7 +1470,11 @@ export default function PrivacyPage() {
             Non-encrypted structural metadata:
           </strong>{" "}
           record identifiers, timestamps, display preferences (sort order), and
-          folder parent/child relationships.
+          folder parent/child relationships. When linking with other Helvety
+          E2EE apps, additional non-encrypted relationship metadata (link
+          identifiers, linked entity identifiers/types, and timestamps) is
+          stored to enable the cross-app linking feature where that feature is
+          enabled.
         </p>
         <p className="text-muted-foreground text-sm">
           This approach is designed to help protect your encrypted content in

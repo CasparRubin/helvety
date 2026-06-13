@@ -20,4 +20,10 @@ describe("buildE2eeDeepLink", () => {
     expect(url.pathname).toBe("/contacts");
     expect(url.searchParams.get("contact")).toBe("contact-789");
   });
+
+  it("builds links deep links with link query param", () => {
+    const url = new URL(buildE2eeDeepLink("links", "link-abc"));
+    expect(url.pathname).toBe("/links");
+    expect(url.searchParams.get("link")).toBe("link-abc");
+  });
 });

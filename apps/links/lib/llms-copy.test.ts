@@ -23,6 +23,9 @@ describe("Helvety Links llms.txt", () => {
     expect(source).not.toMatch(/via dialogs/i);
     expect(source).toMatch(/\?link=/);
     expect(source).toMatch(/\?folder=/);
+    expect(source).toMatch(
+      /cross-app links to Helvety Tasks, Contacts, and Notes/
+    );
   });
 
   it("states non-indexable auth-required routing", () => {

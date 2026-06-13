@@ -45,6 +45,21 @@ const NoteLinksPanel = dynamic(
   }
 );
 
+const LinkEntityLinksPanel = dynamic(
+  () =>
+    import("@/components/link-entity-links-panel").then(
+      (m) => m.LinkEntityLinksPanel
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
 const APP_HOME_PATH = "/tasks";
 
 /** Task editor for title, description, dates, and metadata inside the detail sheet. */
@@ -259,8 +274,9 @@ export function ItemEditor({
       }
       renderLinks={
         <>
-          <NoteLinksPanel itemId={itemId} />
           <ContactLinksPanel itemId={itemId} />
+          <NoteLinksPanel itemId={itemId} />
+          <LinkEntityLinksPanel itemId={itemId} />
         </>
       }
       deleteDialog={

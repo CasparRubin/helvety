@@ -1,12 +1,14 @@
 "use client";
 
 import { buildE2eeDeepLink } from "@helvety/shared/e2ee-deep-link";
+import { E2EE_APP_LINK_UI } from "@helvety/ui/e2ee-app-link-ui";
 import { EntityLinksPanel } from "@helvety/ui/entity-links-panel";
-import { FileTextIcon, NotebookPenIcon } from "lucide-react";
 
 import { useNoteLinks } from "@/hooks/use-note-links";
 
 import type { LinkedNote } from "@/hooks/use-note-links";
+
+const { sectionTitle, sectionIcon, pickerItemIcon } = E2EE_APP_LINK_UI.notes;
 
 /** Adapts `useNoteLinks` to the shared entity links panel hook shape. */
 function useNoteLinksAdapter(entityId: string, options: { enabled: boolean }) {
@@ -24,7 +26,7 @@ function useNoteLinksAdapter(entityId: string, options: { enabled: boolean }) {
 }
 
 const NOTE_LINK_LABELS = {
-  sectionTitle: "Linked Notes",
+  sectionTitle,
   searchPlaceholder: "Search notes...",
   emptyCatalog: "No notes found",
   emptySearch: "No matching notes",
@@ -45,8 +47,8 @@ export function NoteLinksPanel({
     <EntityLinksPanel<{ id: string; title: string }, LinkedNote>
       entityId={itemId}
       labels={NOTE_LINK_LABELS}
-      sectionIcon={NotebookPenIcon}
-      pickerItemIcon={FileTextIcon}
+      sectionIcon={sectionIcon}
+      pickerItemIcon={pickerItemIcon}
       getDeepLink={(id) => buildE2eeDeepLink("notes", id)}
       formatName={(note) => note.title}
       useLinks={useNoteLinksAdapter}

@@ -80,7 +80,7 @@ export type EntityLinksPanelProps<
 };
 
 /**
- * Cross-app entity links panel (tasks ↔ notes ↔ contacts).
+ * Cross-app entity links panel (tasks ↔ notes ↔ contacts ↔ links).
  * Apps supply domain hooks, deep links, and formatting.
  */
 export function EntityLinksPanel<
@@ -102,14 +102,14 @@ export function EntityLinksPanel<
   const SectionGlyph = sectionIcon;
   const PickerGlyph = pickerItemIcon;
   const [isOpen, setIsOpen] = useState(variant === "static");
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const dataEnabled = variant === "static" || isOpen || isPickerOpen;
   const { allItems, linkedItems, isLoading, link, unlink } = useLinks(
     entityId,
     {
-      enabled: variant === "static" ? true : isOpen,
+      enabled: dataEnabled,
     }
   );
-
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLinking, setIsLinking] = useState(false);
 
@@ -166,7 +166,13 @@ export function EntityLinksPanel<
   }, [unlink, unlinkTarget]);
 
   const picker = (
-    <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+    <Popover
+      open={isPickerOpen}
+      onOpenChange={(open) => {
+        setIsPickerOpen(open);
+        if (!open) setSearchQuery("");
+      }}
+    >
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
           <PlusIcon className="size-3.5" />

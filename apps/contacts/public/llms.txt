@@ -6,6 +6,7 @@
 - Encrypted names, numbers, birthdays, and notes in Personal, Work, and Other groups
 - Client-side search on decrypted fields and JSON export when you need a copy
 - Shareable links use `?contact=<uuid>` to open a contact in the detail sheet after sign-in and vault unlock
+- Optional cross-app links to Helvety Tasks, Notes, and Links when those apps are in use
 
 ## Canonical URL
 - [Contacts App](https://helvety.com/contacts): Auth-required contacts route

@@ -16,6 +16,22 @@ function countSsrFalse(source: string): number {
   return (source.match(/ssr:\s*false/g) ?? []).length;
 }
 
+/** Asserts cross-link panels appear in app-switcher order (Tasks → Contacts → Notes → Links). */
+function expectCrossLinkPanelOrder(
+  source: string,
+  anchor: string,
+  panels: readonly string[]
+): void {
+  const anchorIndex = source.indexOf(anchor);
+  expect(anchorIndex).toBeGreaterThanOrEqual(0);
+  let previousIndex = anchorIndex;
+  for (const panel of panels) {
+    const panelIndex = source.indexOf(panel, previousIndex + 1);
+    expect(panelIndex).toBeGreaterThan(previousIndex);
+    previousIndex = panelIndex;
+  }
+}
+
 describe("E2EE entity detail sheet shell", () => {
   const sheetShellSrc = readFileSync(
     join(repoRoot, "packages/ui/src/e2ee-entity-detail-sheet.tsx"),
@@ -82,10 +98,16 @@ describe("E2EE cross-link panel hooks", () => {
   it.each([
     ["notes", "hooks/use-contact-links.ts"],
     ["notes", "hooks/use-task-links.ts"],
+    ["notes", "hooks/use-link-entity-links.ts"],
     ["contacts", "hooks/use-note-links.ts"],
     ["contacts", "hooks/use-task-links.ts"],
+    ["contacts", "hooks/use-link-entity-links.ts"],
     ["tasks", "hooks/use-note-links.ts"],
     ["tasks", "hooks/use-contact-links.ts"],
+    ["tasks", "hooks/use-link-entity-links.ts"],
+    ["links", "hooks/use-note-links.ts"],
+    ["links", "hooks/use-task-links.ts"],
+    ["links", "hooks/use-contact-links.ts"],
   ] as const)(
     "apps/%s/%s uses createE2eeEntityLinksHook factory",
     (app, hookPath) => {
@@ -103,18 +125,50 @@ describe("E2EE cross-link panel hooks", () => {
     expect(src).toContain("useCSRFToken");
   });
 
+  it("EntityLinksPanel loads catalog when Add picker opens", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/ui/src/entity-links-panel.tsx"),
+      "utf8"
+    );
+    expect(src).toContain("isPickerOpen");
+    expect(src).toMatch(/isOpen\s*\|\|\s*isPickerOpen/);
+  });
+
   it.each([
     ["contacts", "components/task-links-panel.tsx"],
     ["contacts", "components/note-links-panel.tsx"],
+    ["contacts", "components/link-entity-links-panel.tsx"],
     ["notes", "components/task-links-panel.tsx"],
     ["notes", "components/contact-links-panel.tsx"],
+    ["notes", "components/link-entity-links-panel.tsx"],
     ["tasks", "components/contact-links-panel.tsx"],
     ["tasks", "components/note-links-panel.tsx"],
+    ["tasks", "components/link-entity-links-panel.tsx"],
+    ["links", "components/note-links-panel.tsx"],
+    ["links", "components/task-links-panel.tsx"],
+    ["links", "components/contact-links-panel.tsx"],
   ] as const)("apps/%s/%s uses EntityLinksPanel", (app, panelPath) => {
     const src = readAppFile(app, panelPath);
     expect(src).toContain("EntityLinksPanel");
     expect(src).toContain("@helvety/ui/entity-links-panel");
+    expect(src).toContain("E2EE_APP_LINK_UI");
   });
+
+  it.each([
+    ["tasks", "app/actions/link-entity-link-actions.ts"],
+    ["notes", "app/actions/link-entity-link-actions.ts"],
+    ["contacts", "app/actions/link-entity-link-actions.ts"],
+    ["links", "app/actions/note-link-actions.ts"],
+    ["links", "app/actions/task-link-actions.ts"],
+    ["links", "app/actions/contact-link-actions.ts"],
+  ] as const)(
+    "apps/%s/%s exports bookmark cross-link actions",
+    (app, actionPath) => {
+      const src = readAppFile(app, actionPath);
+      expect(src).toContain("createCanonicalLink");
+      expect(src).toContain('"links"');
+    }
+  );
 });
 
 describe("E2EE hook documentation", () => {
@@ -132,9 +186,15 @@ describe("E2EE editor dynamic import SSR", () => {
   it("notes item-editor composes the shared shell and client-only link panels", () => {
     const src = readAppFile("notes", "components/item-editor.tsx");
     expect(src).toContain("E2eeRichTextItemEditorShell");
-    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(2);
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
     expect(src).toContain("ContactLinksPanel");
     expect(src).toContain("TaskLinksPanel");
+    expect(src).toContain("LinkEntityLinksPanel");
+    expectCrossLinkPanelOrder(src, "renderLinks", [
+      "<TaskLinksPanel",
+      "<ContactLinksPanel",
+      "<LinkEntityLinksPanel",
+    ]);
   });
 
   it("tasks item-editor composes the shared shell and client-only link panels", () => {
@@ -143,9 +203,15 @@ describe("E2EE editor dynamic import SSR", () => {
 
     const editorSrc = readAppFile("tasks", "components/item-editor.tsx");
     expect(editorSrc).toContain("E2eeRichTextItemEditorShell");
-    expect(countSsrFalse(editorSrc)).toBeGreaterThanOrEqual(2);
+    expect(countSsrFalse(editorSrc)).toBeGreaterThanOrEqual(3);
     expect(editorSrc).toContain("ContactLinksPanel");
     expect(editorSrc).toContain("NoteLinksPanel");
+    expect(editorSrc).toContain("LinkEntityLinksPanel");
+    expectCrossLinkPanelOrder(editorSrc, "renderLinks", [
+      "<ContactLinksPanel",
+      "<NoteLinksPanel",
+      "<LinkEntityLinksPanel",
+    ]);
   });
 
   it("e2ee-item-editor-shell client-only loads Tiptap", () => {
@@ -160,10 +226,29 @@ describe("E2EE editor dynamic import SSR", () => {
   it("contacts contact-editor uses dynamic link panels (Tiptap via shared shell)", () => {
     const src = readAppFile("contacts", "components/contact-editor.tsx");
     expect(src).toContain("@helvety/ui/date-picker");
-    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(2);
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
     expect(src).toContain("NoteLinksPanel");
     expect(src).toContain("TaskLinksPanel");
+    expect(src).toContain("LinkEntityLinksPanel");
     expect(src).toContain("E2eeRichTextItemEditorShell");
+    expectCrossLinkPanelOrder(src, "renderLinks", [
+      "<TaskLinksPanel",
+      "<NoteLinksPanel",
+      "<LinkEntityLinksPanel",
+    ]);
+  });
+
+  it("links link-editor uses dynamic cross-app link panels", () => {
+    const src = readAppFile("links", "components/link-editor.tsx");
+    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
+    expect(src).toContain("NoteLinksPanel");
+    expect(src).toContain("TaskLinksPanel");
+    expect(src).toContain("ContactLinksPanel");
+    expectCrossLinkPanelOrder(src, "mb-6 space-y-6", [
+      "<TaskLinksPanel",
+      "<ContactLinksPanel",
+      "<NoteLinksPanel",
+    ]);
   });
 
   it("links dashboard uses dynamic sheet editors and no redundant locked empty state", () => {

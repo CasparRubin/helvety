@@ -55,6 +55,42 @@ describe("entity link hook action argument order", () => {
       linkLine: "link: (noteId, itemId, csrfToken) =>",
       actionCall: "linkTaskEntity(itemId, noteId, csrfToken)",
     },
+    {
+      app: "notes",
+      hook: "use-link-entity-links.ts",
+      linkLine: "link: (noteId, linkId, csrfToken) =>",
+      actionCall: "linkLinkEntity(linkId, noteId, csrfToken)",
+    },
+    {
+      app: "tasks",
+      hook: "use-link-entity-links.ts",
+      linkLine: "link: (itemId, linkId, csrfToken) =>",
+      actionCall: "linkLinkEntity(linkId, itemId, csrfToken)",
+    },
+    {
+      app: "links",
+      hook: "use-note-links.ts",
+      linkLine: "link: (linkId, noteId, csrfToken) =>",
+      actionCall: "linkNoteEntity(noteId, linkId, csrfToken)",
+    },
+    {
+      app: "links",
+      hook: "use-task-links.ts",
+      linkLine: "link: (linkId, itemId, csrfToken) =>",
+      actionCall: "linkTaskEntity(itemId, linkId, csrfToken)",
+    },
+    {
+      app: "links",
+      hook: "use-contact-links.ts",
+      linkLine: "link: (linkId, contactId, csrfToken) =>",
+      actionCall: "linkContactEntity(contactId, linkId, csrfToken)",
+    },
+    {
+      app: "contacts",
+      hook: "use-link-entity-links.ts",
+      linkLine: "link: (contactId, linkId, csrfToken) =>",
+      actionCall: "linkLinkEntity(linkId, contactId, csrfToken)",
+    },
   ] as const)(
     "apps/$app hooks/$hook maps factory args to server action",
     ({ app, hook, linkLine, actionCall }) => {

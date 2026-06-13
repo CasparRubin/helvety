@@ -1,13 +1,15 @@
 "use client";
 
 import { buildE2eeDeepLink } from "@helvety/shared/e2ee-deep-link";
+import { E2EE_APP_LINK_UI } from "@helvety/ui/e2ee-app-link-ui";
 import { EntityLinksPanel } from "@helvety/ui/entity-links-panel";
-import { UsersIcon } from "lucide-react";
 
 import { useContactLinks } from "@/hooks/use-contact-links";
 
 import type { LinkedContact } from "@/hooks/use-contact-links";
 import type { Contact } from "@/lib/types";
+
+const { sectionTitle, sectionIcon, pickerItemIcon } = E2EE_APP_LINK_UI.contacts;
 
 /** Formats a contact display name for link panels. */
 function formatContactName(contact: Contact | LinkedContact): string {
@@ -33,7 +35,7 @@ function useContactLinksAdapter(
 }
 
 const CONTACT_LINK_LABELS = {
-  sectionTitle: "Contacts",
+  sectionTitle,
   searchPlaceholder: "Search contacts...",
   emptyCatalog: "No contacts found",
   emptySearch: "No matching contacts",
@@ -54,8 +56,8 @@ export function ContactLinksPanel({
     <EntityLinksPanel<Contact, LinkedContact>
       entityId={itemId}
       labels={CONTACT_LINK_LABELS}
-      sectionIcon={UsersIcon}
-      pickerItemIcon={UsersIcon}
+      sectionIcon={sectionIcon}
+      pickerItemIcon={pickerItemIcon}
       getDeepLink={(id) => buildE2eeDeepLink("contacts", id)}
       formatName={formatContactName}
       filterCatalogItem={(contact, query) => {

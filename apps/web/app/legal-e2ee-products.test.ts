@@ -6,6 +6,11 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
+/** Collapses JSX whitespace so multi-line legal copy assertions stay stable. */
+function normalizeLegalSource(source: string): string {
+  return source.replace(/\s+/g, " ");
+}
+
 const E2EE_PRODUCT_NAMES = [
   "Helvety Tasks",
   "Helvety Contacts",
@@ -85,6 +90,45 @@ describe("legal pages enumerate E2EE products", () => {
       "For Helvety Tasks, Helvety Contacts, and Helvety Notes:"
     );
   });
+
+  it("privacy documents cross-app linking metadata for every E2EE app section", () => {
+    const source = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/privacy/page.tsx"), "utf8")
+    );
+    const crossAppLinkingPhrase =
+      "When linking with other Helvety E2EE apps, additional non-encrypted relationship metadata";
+    for (const marker of [
+      "Helvety Tasks (helvety.com/tasks):",
+      "Helvety Contacts (helvety.com/contacts):",
+      "Helvety Notes (helvety.com/notes):",
+      "Helvety Links (helvety.com/links):",
+    ]) {
+      const start = source.indexOf(marker);
+      expect(start, `missing ${marker}`).toBeGreaterThanOrEqual(0);
+      const section = source.slice(start, start + 1400);
+      expect(section, `${marker} must disclose cross-app linking`).toContain(
+        crossAppLinkingPhrase
+      );
+    }
+  });
+
+  it("privacy and terms qualify cross-app linking metadata across all E2EE apps", () => {
+    for (const rel of [
+      "apps/web/app/privacy/page.tsx",
+      "apps/web/app/terms/page.tsx",
+    ] as const) {
+      const source = normalizeLegalSource(
+        readFileSync(join(repoRoot, rel), "utf8")
+      );
+      expect(source).toContain(
+        "where you use cross-app linking across those apps, relationship metadata between entities"
+      );
+      expect(source).not.toContain("When linking contacts with task entities");
+      expect(source).not.toContain(
+        "When linking notes with tasks and contacts"
+      );
+    }
+  });
 });
 
 /** Metadata types that apply only to Tasks, Contacts, or Notes—not Helvety Links. */
@@ -101,27 +145,28 @@ describe("E2EE metadata disclosures qualify fields by product", () => {
   ] as const)(
     "%s does not attribute Tasks-only metadata to all E2EE apps",
     (_label, rel) => {
-      const source = readFileSync(join(repoRoot, rel), "utf8");
+      const source = normalizeLegalSource(
+        readFileSync(join(repoRoot, rel), "utf8")
+      );
       expect(source).toContain("Depending on the app");
-      expect(source).toMatch(
-        /for Helvety\s+Links,\s+folder parent\/child relationships/
+      expect(source).toContain(
+        "for Helvety Links, folder parent/child relationships"
       );
       for (const phrase of TASKS_ONLY_METADATA_PHRASES) {
         expect(
           source,
           `${rel} must not blanket-list: ${phrase.slice(0, 40)}…`
-        ).not.toContain(phrase);
+        ).not.toContain(phrase.replace(/\s+/g, " "));
       }
     }
   );
 
   it("terms Encryption Setup qualifies metadata by product", () => {
-    const source = readFileSync(
-      join(repoRoot, "apps/web/app/terms/page.tsx"),
-      "utf8"
+    const source = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/terms/page.tsx"), "utf8")
     );
-    expect(source).toMatch(
-      /parent\/child\s+relationships in Helvety Links, or priority levels/
+    expect(source).toContain(
+      "folder parent/child relationships in Helvety Links, priority levels and stage/label references in Helvety Tasks, and relationship metadata when you link entities across Helvety Tasks, Contacts, Notes, and Links"
     );
     expect(source).not.toContain(
       "priority levels, display preferences (e.g., sort orders), and entity relationships"

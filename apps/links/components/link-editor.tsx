@@ -15,6 +15,8 @@ import {
   E2EE_EDITOR_FORM_BODY_CLASS,
   E2EE_UNSAVED_CHANGES_DIALOG,
 } from "@helvety/ui/e2ee-form-layout";
+import { Loader2Icon } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LinkFormFields } from "@/components/link-form-fields";
@@ -22,6 +24,43 @@ import { LinksEditorCommandBar } from "@/components/links-editor-command-bar";
 import { toDisplayFolderId, toStorageFolderId } from "@/lib/all-folder";
 
 import type { Link, LinkFolder } from "@/lib/types";
+
+const NoteLinksPanel = dynamic(
+  () => import("@/components/note-links-panel").then((m) => m.NoteLinksPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const TaskLinksPanel = dynamic(
+  () => import("@/components/task-links-panel").then((m) => m.TaskLinksPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const ContactLinksPanel = dynamic(
+  () =>
+    import("@/components/contact-links-panel").then((m) => m.ContactLinksPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    ),
+  }
+);
 
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -219,6 +258,11 @@ export function LinkEditor({
             onFolderIdChange={setFolderId}
             autoFocusUrl
           />
+          <div className="mb-6 space-y-6">
+            <TaskLinksPanel linkId={link.id} />
+            <ContactLinksPanel linkId={link.id} />
+            <NoteLinksPanel linkId={link.id} />
+          </div>
         </div>
       </CommandBarPageLayout>
 
