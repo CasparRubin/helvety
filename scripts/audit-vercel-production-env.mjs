@@ -1,11 +1,12 @@
 /**
- * Audits Vercel Production env vars per Helvety zone project against tier expectations.
+ * Audits Vercel env vars per Helvety zone project against tier expectations.
  * Requires: `npx vercel link` auth (logged in via CLI).
  *
  * Usage: node scripts/audit-vercel-production-env.mjs
+ * Preview tier: node scripts/audit-vercel-production-env.mjs --preview
  * Remove flagged keys: node scripts/audit-vercel-production-env.mjs --remove
  */
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
@@ -48,6 +49,70 @@ const LEGACY_SUPABASE_KEY_NAMES = new Set([
 ]);
 
 /**
+ * Validates one zone project's env keys against tier expectations.
+ *
+ * @param {{
+ *   project: string;
+ *   app: string;
+ *   keys: string[];
+ *   target?: "production" | "preview";
+ * }} input
+ * @returns {{ errors: string[]; warnings: string[]; toRemove: Array<{ project: string; app: string; key: string }> }}
+ */
+export function auditProjectEnv({ project, app, keys, target = "production" }) {
+  const expected = new Set(EXPECTED_KEYS_BY_APP[app]);
+  const forbidden = new Set(FORBIDDEN_KEYS_BY_APP[app] ?? []);
+  const errors = [];
+  const warnings = [];
+  /** @type {Array<{ project: string; app: string; key: string }>} */
+  const toRemove = [];
+
+  const keySet = new Set(keys);
+  const missing = [...expected].filter(
+    (key) => !productionEnvKeyIsPresent(key, keySet)
+  );
+  const forbiddenPresent = keys.filter((key) => forbidden.has(key));
+  const unexpected = keys.filter(
+    (key) =>
+      !productionEnvKeyIsExpectedOrAlias(key, expected) &&
+      !forbidden.has(key) &&
+      !OPTIONAL_KEYS.has(key)
+  );
+
+  if (missing.length > 0) {
+    errors.push(
+      `${project}: missing required ${target} keys: ${missing.join(", ")}`
+    );
+  }
+  for (const key of forbiddenPresent) {
+    toRemove.push({ project, app, key });
+    errors.push(`${project}: remove forbidden key for ${app} tier: ${key}`);
+  }
+  for (const key of unexpected) {
+    warnings.push(
+      `${project}: review extra ${target} key (not in env.template tier): ${key}`
+    );
+  }
+  for (const key of keys) {
+    if (LEGACY_SUPABASE_KEY_NAMES.has(key)) {
+      warnings.push(
+        `${project}: legacy Supabase key name ${key} — use NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY / SUPABASE_SECRET_KEY`
+      );
+    }
+  }
+  if (app === "web") {
+    const missingGateway = WEB_GATEWAY_KEYS.filter((key) => !keySet.has(key));
+    if (missingGateway.length > 0) {
+      errors.push(
+        `${project}: missing gateway rewrite URLs: ${missingGateway.join(", ")}`
+      );
+    }
+  }
+
+  return { errors, warnings, toRemove };
+}
+
+/**
  * @param {string} cwd
  * @param {string[]} args
  */
@@ -80,8 +145,9 @@ function runVercel(cwd, args) {
 
 /**
  * @param {string} project
+ * @param {"production" | "preview"} target
  */
-async function fetchProductionEnvKeys(project) {
+async function fetchEnvKeys(project, target) {
   const base = await mkdtemp(join(tmpdir(), "helvety-vercel-env-"));
   const cwd = join(base, project);
   const { mkdir } = await import("node:fs/promises");
@@ -98,14 +164,14 @@ async function fetchProductionEnvKeys(project) {
     const out = await runVercel(cwd, [
       "env",
       "list",
-      "production",
+      target,
       "--format",
       "json",
     ]);
     const parsed = JSON.parse(out);
     const envs = parsed.envs ?? [];
     return envs
-      .filter((entry) => entry.target?.includes("production"))
+      .filter((entry) => entry.target?.includes(target))
       .map((entry) => entry.key);
   } finally {
     await rm(base, { recursive: true, force: true });
@@ -138,74 +204,33 @@ async function removeProductionEnv(project, key) {
 
 async function main() {
   const remove = process.argv.includes("--remove");
+  const preview = process.argv.includes("--preview");
+  const target = preview ? "preview" : "production";
   const errors = [];
   const warnings = [];
   /** @type {Array<{ project: string; app: string; key: string }>} */
   const toRemove = [];
 
-  console.log("Helvety Vercel Production env audit\n");
+  console.log(`Helvety Vercel ${target} env audit\n`);
 
   for (const [project, app] of Object.entries(PROJECT_TO_APP)) {
-    const expected = new Set(EXPECTED_KEYS_BY_APP[app]);
-    const forbidden = new Set(FORBIDDEN_KEYS_BY_APP[app] ?? []);
     let keys;
     try {
-      keys = await fetchProductionEnvKeys(project);
+      keys = await fetchEnvKeys(project, target);
     } catch (error) {
       errors.push(`${project}: failed to list env — ${error.message}`);
       continue;
     }
 
-    const keySet = new Set(keys);
-    const missing = [...expected].filter(
-      (key) => !productionEnvKeyIsPresent(key, keySet)
-    );
-    const forbiddenPresent = keys.filter((key) => forbidden.has(key));
-    const unexpected = keys.filter(
-      (key) =>
-        !productionEnvKeyIsExpectedOrAlias(key, expected) &&
-        !forbidden.has(key) &&
-        !OPTIONAL_KEYS.has(key)
-    );
-
-    console.log(`${project} (apps/${app}) — ${keys.length} production key(s)`);
+    console.log(`${project} (apps/${app}) — ${keys.length} ${target} key(s)`);
     if (keys.length > 0) {
       console.log(`  ${keys.sort().join(", ")}`);
     }
 
-    if (missing.length > 0) {
-      errors.push(
-        `${project}: missing required production keys: ${missing.join(", ")}`
-      );
-    }
-    if (forbiddenPresent.length > 0) {
-      for (const key of forbiddenPresent) {
-        toRemove.push({ project, app, key });
-        errors.push(`${project}: remove forbidden key for ${app} tier: ${key}`);
-      }
-    }
-    if (unexpected.length > 0) {
-      for (const key of unexpected) {
-        warnings.push(
-          `${project}: review extra production key (not in env.template tier): ${key}`
-        );
-      }
-    }
-    for (const key of keys) {
-      if (LEGACY_SUPABASE_KEY_NAMES.has(key)) {
-        warnings.push(
-          `${project}: legacy Supabase key name ${key} — use NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY / SUPABASE_SECRET_KEY`
-        );
-      }
-    }
-    if (app === "web") {
-      const missingGateway = WEB_GATEWAY_KEYS.filter((key) => !keySet.has(key));
-      if (missingGateway.length > 0) {
-        errors.push(
-          `${project}: missing gateway rewrite URLs: ${missingGateway.join(", ")}`
-        );
-      }
-    }
+    const result = auditProjectEnv({ project, app, keys, target });
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
+    toRemove.push(...result.toRemove);
     console.log("");
   }
 
@@ -230,7 +255,7 @@ async function main() {
     console.log("");
   } else if (toRemove.length > 0) {
     console.log(
-      "Re-run with --remove to delete forbidden production keys listed above.\n"
+      `Re-run with --remove to delete forbidden ${target} keys listed above.\n`
     );
   }
 
@@ -242,10 +267,12 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("Vercel Production env audit passed for all zone projects.");
+  console.log(`Vercel ${target} env audit passed for all zone projects.`);
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exit(1);
-});
+if (import.meta.url === new URL(process.argv[1], "file:").href) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exit(1);
+  });
+}

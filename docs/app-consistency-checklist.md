@@ -98,9 +98,11 @@ One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/
 ### Primary data hooks (E2EE + docs)
 
 1. `describe("get*ApiPath")` — pure basePath prefix tests.
-2. `describe("use*")` + `renderHook` — for E2EE list hooks, mock `useEncryptedSortableItems` and `@/lib/crypto`; assert `navigationSource`, `perfMeasureName`, `loadFailureMessage`, `reorderEntities` (see `apps/contacts/hooks/use-contacts.test.ts`).
+2. `describe("use*")` + `renderHook` — for E2EE **list** hooks, mock `useEncryptedSortableItems` and `@/lib/crypto`; assert `navigationSource`, `perfMeasureName`, `loadFailureMessage`, `reorderEntities` (see `apps/contacts/hooks/use-contacts.test.ts`).
+3. For E2EE **detail** hooks (`useItem`, `useContact`), mock `useEncryptedSingleItem` and assert `id`, `navigationSource`, and zone-specific failure copy (see `apps/tasks/hooks/use-items.test.ts`).
+4. `describe("useDataExport")` — mock `useE2eeDataExport` with `{ handleExportData, isExporting }` and assert delegation to the zone `lib/data-export.ts` download function (see `apps/*/hooks/use-data-export.test.ts`). Optional `lib/data-export.test.ts` asserts `buildExportData` mapping via mocked `@helvety/shared/e2ee-json-export` (see `apps/contacts`, `apps/tasks`, `apps/notes`, and `apps/links`).
 
-Docs uses a custom `useDocs` hook (mock `fetch` + `getDocsApiPath` instead of `useEncryptedSortableItems`).
+Docs uses a custom `useDocs` hook (mock `fetch` + `getDocsApiPath` instead of `useEncryptedSortableItems`). Links library state uses `use-link-library` (not the shared sortable/single-item hooks).
 
 ### Components
 
@@ -210,7 +212,7 @@ Wired by `packages/shared/src/app-navbar-wiring.test.ts` and `packages/ui/src/e2
 
 ## Centralized zone wiring tests
 
-In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `csrf-wiring`, and `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`). Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
+In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
 
 ## Multi-zone static assets (`assetPrefix`)
 
@@ -244,14 +246,14 @@ See root [`README.md`](../README.md) § Environment Model.
 
 ## E2EE UX patterns
 
-| Pattern               | Canonical                                                                                                                                                                                       | Apps                                                      |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)                                                                                                                                       | `tasks`, `notes`, `contacts`, `links`                     |
-| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks                                                                                                                                 | E2EE apps                                                 |
-| Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems`; cross-link hooks via `createE2eeEntityLinksHook` | E2EE apps                                                 |
-| Vault session TTL     | `auth-session-policy.ts` + `vault-session.ts` (24h sliding idle, 7d max); enforced in `encryption-context`, extension side panel, and IndexedDB                                                 | All zones using `EncryptionProvider` + Chromium extension |
-| Vault delete confirm  | `AlertDialog` before vault document delete                                                                                                                                                      | `docs`                                                    |
-| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + `createE2eeEntityLinksHook` per-app hooks                                                                                                                 | `tasks`, `notes`, `contacts` (all cross-link panels)      |
+| Pattern               | Canonical                                                                                                                                                                                                                                                                        | Apps                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Navbar login return   | `E2eeAppNavbar` with `loginReturnUrl="current"` (default)                                                                                                                                                                                                                        | `tasks`, `notes`, `contacts`, `links`                     |
+| Hook errors           | `reportE2eeHookError` / `reportE2eeActionFailure` in list hooks (`useEncryptedSortableItems`) and detail hooks (`useEncryptedSingleItem`)                                                                                                                                        | E2EE vault apps (tasks, notes, contacts)                  |
+| Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems`; detail hooks via `useEncryptedSingleItem`; cross-link hooks via `createE2eeEntityLinksHook`; Links library via `use-link-library` | E2EE apps                                                 |
+| Vault session TTL     | `auth-session-policy.ts` + `vault-session.ts` (24h sliding idle, 7d max); enforced in `encryption-context`, extension side panel, and IndexedDB                                                                                                                                  | All zones using `EncryptionProvider` + Chromium extension |
+| Vault delete confirm  | `AlertDialog` before vault document delete                                                                                                                                                                                                                                       | `docs`                                                    |
+| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + `createE2eeEntityLinksHook` per-app hooks                                                                                                                                                                                                  | `tasks`, `notes`, `contacts` (all cross-link panels)      |
 
 ## Validation before merge
 

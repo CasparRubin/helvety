@@ -32,8 +32,6 @@ import {
 
 const MODEL_DOWNLOAD_TOAST_ID = "image-upscaler-model-download";
 
-/* eslint-disable @next/next/no-img-element */
-
 /**
  * Main Image Upscaler component.
  */
@@ -460,6 +458,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                           </Button>
                         </div>
                         <div className="bg-muted mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-md">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- preview blob/data URLs */}
                           <img
                             src={
                               hasFreshOutput && item.outputUrl

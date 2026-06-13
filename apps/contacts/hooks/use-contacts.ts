@@ -1,17 +1,9 @@
 "use client";
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
-import {
-  reportE2eeActionFailure,
-  reportE2eeHookError,
-  triggerHardLogoutOnce,
-} from "@helvety/ui/auth-navigation";
-import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import {
   createContact,
@@ -232,193 +224,43 @@ export function useContact(
   options?: UseContactOptions
 ): UseContactReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
-  const csrfToken = useCSRFToken();
 
-  const [contact, setContact] = useState<Contact | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
-  const latestRefreshTokenRef = useRef(0);
-
-  const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !id) {
-      setContact(null);
-      setIsLoading(false);
-      return;
-    }
-
-    const refreshToken = ++latestRefreshTokenRef.current;
-    const routeAtStart = window.location.href;
-    const requestStartedAt = Date.now();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchContactById(id);
-      if (!result.success) {
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        if (
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to load contact",
-            setError,
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
-        ) {
-          return;
-        }
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        setContact(null);
-        return;
-      }
-
-      const decrypted = await decryptContactRow(result.data, masterKey);
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      setContact(decrypted);
-    } catch (err) {
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      reportE2eeHookError(err, {
-        source: "contacts-use-contacts",
-        fallback: "Failed to load contact",
-        setError,
-        redirectUri: routeAtStart,
-        expectedRoute: routeAtStart,
-        requestStartedAt,
-      });
-      setContact(null);
-    } finally {
-      if (refreshToken === latestRefreshTokenRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [id, masterKey, isUnlocked]);
-
-  const update = useCallback(
-    async (input: Partial<ContactInput>): Promise<boolean> => {
-      if (!masterKey || !id) {
-        triggerHardLogoutOnce(window.location.href, "contacts-use-contacts");
-        return false;
-      }
-
-      try {
-        const encrypted = await encryptContactUpdate(id, input, masterKey);
-        const result = await updateContact(
-          {
-            id,
-            ...encrypted,
-            ...(input.category_id !== undefined && {
-              category_id: input.category_id,
-            }),
-          },
-          csrfToken
-        );
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to update contact",
-          });
-          return false;
-        }
-
-        // Optimistic update: merge changes into local state
-        setContact((prev) => patchSingleEntity(prev, input));
-
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "contacts-use-contacts",
-          fallback: "Failed to update contact",
-        });
-        return false;
-      }
-    },
-    [id, masterKey, csrfToken]
-  );
-
-  const remove = useCallback(async (): Promise<boolean> => {
-    if (!id) {
-      toast.error(
+  const { item, isLoading, error, refresh, update, remove } =
+    useEncryptedSingleItem<
+      Contact,
+      ContactRow,
+      ContactInput,
+      Parameters<typeof updateContact>[0]
+    >({
+      id,
+      navigationSource: "contacts-use-contacts",
+      masterKey,
+      isUnlocked,
+      loadFailureMessage: "Failed to load contact",
+      updateFailureMessage: "Failed to update contact",
+      deleteFailureMessage: "Failed to delete contact",
+      decryptFailureMessage: "Failed to decrypt contact",
+      deleteMissingIdMessage:
         "We couldn't identify this contact. Please refresh and try again.",
-        {
-          duration: TOAST_DURATIONS.ERROR,
-        }
-      );
-      return false;
-    }
-
-    try {
-      const result = await deleteContact(id, csrfToken);
-      if (!result.success) {
-        reportE2eeActionFailure(result.error, {
-          source: "contacts-use-contacts",
-          fallback: "Failed to delete contact",
-        });
-        return false;
-      }
-
-      setContact(null);
-      return true;
-    } catch (err) {
-      reportE2eeHookError(err, {
-        source: "contacts-use-contacts",
-        fallback: "Failed to delete contact",
-      });
-      return false;
-    }
-  }, [id, csrfToken]);
-
-  useEffect(() => {
-    if (!isUnlocked || !masterKey || !id) return;
-
-    if (options?.initialData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      setContact(options.initialData);
-      setIsLoading(false);
-      return;
-    }
-
-    if (options?.initialEncryptedData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      decryptContactRow(options.initialEncryptedData, masterKey)
-        .then((decrypted) => setContact(decrypted))
-        .catch((err) => {
-          reportE2eeHookError(err, {
-            source: "contacts-use-contacts",
-            fallback: "Failed to decrypt contact",
-            setError,
-          });
-        })
-        .finally(() => setIsLoading(false));
-      return;
-    }
-
-    void refresh();
-  }, [
-    isUnlocked,
-    masterKey,
-    id,
-    refresh,
-    options?.initialData,
-    options?.initialEncryptedData,
-    initialDataConsumed,
-  ]);
+      initialEncryptedData: options?.initialEncryptedData,
+      initialData: options?.initialData,
+      fetchById: fetchContactById,
+      decryptRow: decryptContactRow,
+      encryptUpdate: encryptContactUpdate,
+      buildUpdatePayload: (entityId, encrypted, input) => ({
+        id: entityId,
+        ...encrypted,
+        ...(input.category_id !== undefined
+          ? { category_id: input.category_id }
+          : {}),
+      }),
+      updateEntity: updateContact,
+      deleteEntity: deleteContact,
+      patchEntity: patchSingleEntity,
+    });
 
   return {
-    contact,
+    contact: item,
     isLoading,
     error,
     refresh,

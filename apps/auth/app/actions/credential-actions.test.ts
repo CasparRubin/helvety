@@ -2,29 +2,22 @@ import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  createScopedAdminQuery: vi.fn(),
-  createServerClient: vi.fn(),
-  getAuthUser: vi.fn(),
-  logUnexpectedError: vi.fn(),
+  authenticateAndRateLimit: vi.fn(),
+  checkUserPasskeyStatus: vi.fn(),
 }));
 
-vi.mock("@helvety/shared/logger", () => ({
-  logger: {
-    error: vi.fn(),
-    logUnexpectedError: mocks.logUnexpectedError,
+vi.mock("@helvety/shared/action-helpers", () => ({
+  authenticateAndRateLimit: mocks.authenticateAndRateLimit,
+}));
+
+vi.mock("./auth-action-helpers", () => ({
+  checkUserPasskeyStatus: mocks.checkUserPasskeyStatus,
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  RATE_LIMITS: {
+    CREDENTIAL_READ: { maxRequests: 30, windowMs: 60_000 },
   },
-}));
-
-vi.mock("@helvety/shared/supabase/admin", () => ({
-  createScopedAdminQuery: mocks.createScopedAdminQuery,
-}));
-
-vi.mock("@helvety/shared/auth-retry", () => ({
-  getAuthUser: mocks.getAuthUser,
-}));
-
-vi.mock("@helvety/shared/supabase/server", () => ({
-  createServerClient: mocks.createServerClient,
 }));
 
 import { getOwnPasskeyStatus } from "./credential-actions";
@@ -32,75 +25,67 @@ import { getOwnPasskeyStatus } from "./credential-actions";
 describe("credential-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.createScopedAdminQuery.mockReturnValue({
-      from: vi.fn(() => ({
-        select: vi.fn().mockResolvedValue({
-          data: [{ id: "cred-row" }],
-          error: null,
-          count: 1,
-        }),
-      })),
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase: {} },
     });
-    mocks.createServerClient.mockResolvedValue({});
-    mocks.getAuthUser.mockResolvedValue({
-      user: { id: "user-1" },
-      error: null,
+    mocks.checkUserPasskeyStatus.mockResolvedValue({
+      success: true,
+      data: { hasPasskey: true, count: 1 },
     });
   });
 
-  it("returns not authenticated when getAuthUser has no user", async () => {
-    mocks.getAuthUser.mockResolvedValue({
-      user: null,
-      error: null,
+  it("passes through authenticateAndRateLimit auth failures", async () => {
+    const authError = buildAuthRequiredError();
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: false,
+      response: { success: false, error: authError },
     });
 
     const result = await getOwnPasskeyStatus();
 
-    expect(result).toEqual({
-      success: false,
-      error: buildAuthRequiredError(),
-    });
-    expect(mocks.createScopedAdminQuery).not.toHaveBeenCalled();
+    expect(result).toEqual({ success: false, error: authError });
+    expect(mocks.checkUserPasskeyStatus).not.toHaveBeenCalled();
   });
 
-  it("reads credentials via scoped admin for the session user", async () => {
+  it("passes through rate-limit failures", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValueOnce({
+      ok: false,
+      response: {
+        success: false,
+        error: "Too many requests. Try again later.",
+      },
+    });
+
     const result = await getOwnPasskeyStatus();
 
-    expect(mocks.createScopedAdminQuery).toHaveBeenCalledWith("user-1");
+    expect(result.success).toBe(false);
+    expect(mocks.checkUserPasskeyStatus).not.toHaveBeenCalled();
+  });
+
+  it("uses authenticateAndRateLimit with CREDENTIAL_READ", async () => {
+    await getOwnPasskeyStatus();
+
+    expect(mocks.authenticateAndRateLimit).toHaveBeenCalledWith({
+      rateLimitPrefix: "auth-credentials",
+      readRateLimitConfig: { maxRequests: 30, windowMs: 60_000 },
+    });
+  });
+
+  it("delegates to checkUserPasskeyStatus for the session user", async () => {
+    const result = await getOwnPasskeyStatus();
+
+    expect(mocks.checkUserPasskeyStatus).toHaveBeenCalledWith("user-1");
     expect(result).toEqual({
       success: true,
       data: { hasPasskey: true, count: 1 },
     });
   });
 
-  it("returns hasPasskey false when count is zero", async () => {
-    mocks.createScopedAdminQuery.mockReturnValue({
-      from: vi.fn(() => ({
-        select: vi.fn().mockResolvedValue({
-          data: [],
-          error: null,
-          count: 0,
-        }),
-      })),
-    });
-
-    const result = await getOwnPasskeyStatus();
-
-    expect(result).toEqual({
-      success: true,
-      data: { hasPasskey: false, count: 0 },
-    });
-  });
-
-  it("returns failure when scoped select errors", async () => {
-    mocks.createScopedAdminQuery.mockReturnValue({
-      from: vi.fn(() => ({
-        select: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: "db error" },
-          count: null,
-        }),
-      })),
+  it("returns passkey status failures from checkUserPasskeyStatus", async () => {
+    mocks.checkUserPasskeyStatus.mockResolvedValueOnce({
+      success: false,
+      error: "Failed to check passkey status",
     });
 
     const result = await getOwnPasskeyStatus();
@@ -109,9 +94,5 @@ describe("credential-actions", () => {
       success: false,
       error: "Failed to check passkey status",
     });
-    expect(mocks.logUnexpectedError).toHaveBeenCalledWith(
-      "Error checking own passkey status",
-      { message: "db error" }
-    );
   });
 });

@@ -9,7 +9,7 @@ import { toast } from "sonner";
  * Hook for exporting decrypted E2EE entity data as JSON.
  *
  * @param masterKey - The user's decryption key from EncryptionContext
- * @param downloadFn - App-specific export function from `lib/data-export.ts`
+ * @param downloadFn - Zone-specific export from `lib/data-export.ts` (uses `@helvety/shared/e2ee-json-export` for download plumbing)
  */
 export function useE2eeDataExport(
   masterKey: CryptoKey | null,

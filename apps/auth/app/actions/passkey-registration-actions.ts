@@ -128,7 +128,7 @@ export async function generatePasskeyRegistrationOptions(
 
     // Use scoped admin query (Supabase admin client using SUPABASE_SECRET_KEY; legacy service_role) because
     // user_auth_credentials has deny-all RLS for client roles. The same scoped read pattern is used in
-    // credential-actions.getOwnPasskeyStatus for login bootstrap (see apps/auth/README.md).
+    // checkUserPasskeyStatus (auth-action-helpers.ts) for login bootstrap (see apps/auth/README.md).
     const { data: existingCredentials } = await scopedAdmin
       .from("user_auth_credentials")
       .select("credential_id, transports");

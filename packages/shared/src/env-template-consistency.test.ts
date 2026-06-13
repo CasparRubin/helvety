@@ -202,7 +202,17 @@ describe("env.template consistency", () => {
       "utf8"
     );
     expect(auditChecklist).toContain("helvety-com");
+    expect(auditChecklist).toContain("consistency:vercel-preview-env");
     expect(auditChecklist).not.toContain("helvety-web");
+
+    const securityRunbook = await readFile(
+      resolve(repoRoot, "docs/security-review-runbook.md"),
+      "utf8"
+    );
+    expect(securityRunbook).toContain("consistency:vercel-preview-env");
+    expect(securityRunbook).not.toMatch(
+      /node scripts\/audit-vercel-production-env\.mjs --preview/
+    );
   });
 
   it("env.template files do not document legacy Supabase key names", async () => {

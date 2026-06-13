@@ -43,7 +43,7 @@ This package centralizes:
   - `server-action-primitives` (`parseActionInput`, `unexpectedActionError` for consistent validation and catch-all responses)
   - `entity-action-primitives`
     - includes `reorderOwnedEntities(...)` and `mapReorderOwnedEntitiesFailure(...)` for scoped reorder mutations
-    - includes `fetchOwnedEncryptedExport(...)`, `isExportWithinCap` / `areExportTablesWithinCap`, and `logEncryptedExportRequested(...)` for capped encrypted exports (used by Tasks, Notes, and Links entity actions)
+    - includes `fetchOwnedEncryptedExport(...)`, `isExportWithinCap` / `areExportTablesWithinCap`, and `logEncryptedExportRequested(...)` for capped encrypted exports (used by Tasks, Notes, Contacts, and Links entity actions)
     - includes `assignDefinedField(...)` for concise, consistent partial-update payload construction
   - `validation/encrypted-data` (`EncryptedDataSchema`, `createEncryptedDataSchema`) for E2EE create/update server actions
   - `entity-link-action-primitives` (`createCanonicalLink`, `deleteCanonicalLink`, `validateOwnedLinkEntities`) for cross-app link mutations in zone server actions
@@ -52,6 +52,7 @@ This package centralizes:
 - Shared editor draft helper:
   - `hooks/use-rich-text-draft-state` for saved/baseline/dirty-state tracking across rich-text editors
 - E2EE list and draft cleanup helpers via `@helvety/shared/e2ee-draft` (`getE2eeListTitle`, `isDraftSnapshotUnchanged` for pristine-draft deletion on sheet close)
+- E2EE vault JSON export download plumbing via `@helvety/shared/e2ee-json-export` (`downloadEncryptedJsonExport`, `buildPlaintextExportWarning`); zone `lib/data-export.ts` files supply fetch/decrypt/map only
 - `proxy` is request bootstrap only (CSP, CSRF cookie bootstrap/re-issue, session refresh), not the primary authorization boundary. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal (Next.js requirement); `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`. All session-bearing profiles (**`auth-gateway`**, **`e2ee-app`**, **`store-gateway`**, **`public-tool`**) use fail-closed auth refresh (clear stale `sb-*` cookies when Supabase session refresh fails); **`public-marketing`** (`web`) does not. See `packages/shared/src/proxy-fail-closed-wiring.test.ts`. Session mutations must use `createServerMutatingClient` (`packages/shared/src/zone-supabase-session-mutation-wiring.test.ts`, `bun run consistency:supabase-auth`).
 - `@helvety/shared/encrypted-prefetch-api` — `encryptedPrefetchAuthOptions`, `ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` (slim contact list for Tasks contact link picker), and `ENCRYPTED_PREFETCH_READ_RATE_LIMIT` (`RATE_LIMITS.PREFETCH`, 20/min) for encrypted dashboard list/detail GET routes (contacts, tasks, notes, links, docs vault APIs). No `select("*")` on those handlers. Docs vault routes use the authenticated user Supabase client (RLS), not `createAdminClient()`.
 - `@helvety/shared/encrypted-prefetch-queries` — shared Supabase list queries for encrypted dashboard batch actions and list API routes (tasks, contacts, notes, links, docs).
@@ -106,7 +107,7 @@ Vitest-only modules (not for production app bundles):
 - `@helvety/shared/test-utils/seo-route-test-helpers` — `expectPublicCrawlerRobots` for public-zone `robots.ts` tests (`*` plus `AI_DISCOVERY_USER_AGENTS`)
 - `@helvety/shared/test-utils/action-test-helpers` — `sampleEncryptedField()`, `createAuthSuccessContext`, `createOrderedContactListSupabaseMock`, `createDashboardListSupabaseMock`, and related server-action fixtures
 
-See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md) for which layout/metadata mocks each zone needs.
+See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md) for which layout/metadata mocks each zone needs. Monorepo guardrail script unit tests: `auth-server-action-guards.test.ts`, `workspace-script-parity.test.ts`, `vercel-env-audit.test.ts` (`auditProjectEnv`), and `deps-guardrail-scripts.test.ts` (exec smoke for `ci:check` scripts).
 
 ## Usage
 

@@ -25,6 +25,9 @@ Copy from apps/contacts and adapt:
 - apps/${appName}/app/loading.tsx → export E2eeShellRouteLoading
 - apps/${appName}/proxy.ts → e2ee-app profile + failClosedOnAuthRefresh
 - apps/${appName}/lib/crypto/index.ts → re-export EncryptionProvider
+- apps/${appName}/hooks/use-*.ts → list hook wraps @helvety/ui/hooks/use-encrypted-sortable-items; detail hook wraps @helvety/ui/hooks/use-encrypted-single-item
+- apps/${appName}/lib/data-export.ts → fetch/decrypt/map only; call @helvety/shared/e2ee-json-export for JSON download
+- apps/${appName}/hooks/use-data-export.ts → thin wrapper around @helvety/ui/hooks/use-e2ee-data-export
 
 See docs/app-consistency-checklist.md for required tests and env.template.
 `);

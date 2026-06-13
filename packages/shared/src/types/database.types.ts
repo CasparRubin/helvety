@@ -62,6 +62,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      docs: {
+        Row: {
+          created_at: string;
+          encrypted_docx: string;
+          encrypted_title: string;
+          id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_docx: string;
+          encrypted_title: string;
+          id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_docx?: string;
+          encrypted_title?: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       entity_links: {
         Row: {
           created_at: string;
@@ -94,69 +121,6 @@ export type Database = {
           source_entity_type?: string;
           target_entity_id?: string;
           target_entity_type?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      link_folders: {
-        Row: {
-          created_at: string;
-          encrypted_name: string;
-          id: string;
-          parent_folder_id: string | null;
-          sort_order: number;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_name: string;
-          id?: string;
-          parent_folder_id?: string | null;
-          sort_order?: number;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_name?: string;
-          id?: string;
-          parent_folder_id?: string | null;
-          sort_order?: number;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      links: {
-        Row: {
-          created_at: string;
-          encrypted_name: string;
-          encrypted_url: string;
-          folder_id: string | null;
-          id: string;
-          sort_order: number;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_name: string;
-          encrypted_url: string;
-          folder_id?: string | null;
-          id?: string;
-          sort_order?: number;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_name?: string;
-          encrypted_url?: string;
-          folder_id?: string | null;
-          id?: string;
-          sort_order?: number;
-          updated_at?: string;
           user_id?: string;
         };
         Relationships: [];
@@ -206,6 +170,85 @@ export type Database = {
         };
         Relationships: [];
       };
+      link_folders: {
+        Row: {
+          created_at: string;
+          encrypted_name: string;
+          id: string;
+          parent_folder_id: string | null;
+          sort_order: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_name: string;
+          id?: string;
+          parent_folder_id?: string | null;
+          sort_order?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_name?: string;
+          id?: string;
+          parent_folder_id?: string | null;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "link_folders_parent_folder_id_fkey";
+            columns: ["parent_folder_id"];
+            isOneToOne: false;
+            referencedRelation: "link_folders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      links: {
+        Row: {
+          created_at: string;
+          encrypted_name: string;
+          encrypted_url: string;
+          folder_id: string | null;
+          id: string;
+          sort_order: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          encrypted_name: string;
+          encrypted_url: string;
+          folder_id?: string | null;
+          id?: string;
+          sort_order?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          encrypted_name?: string;
+          encrypted_url?: string;
+          folder_id?: string | null;
+          id?: string;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "links_folder_id_fkey";
+            columns: ["folder_id"];
+            isOneToOne: false;
+            referencedRelation: "link_folders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notes: {
         Row: {
           category_id: string;
@@ -234,33 +277,6 @@ export type Database = {
           encrypted_title?: string;
           id?: string;
           sort_order?: number;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      docs: {
-        Row: {
-          created_at: string;
-          encrypted_docx: string;
-          encrypted_title: string;
-          id: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_docx: string;
-          encrypted_title: string;
-          id?: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_docx?: string;
-          encrypted_title?: string;
-          id?: string;
           updated_at?: string;
           user_id?: string;
         };
@@ -309,7 +325,6 @@ export type Database = {
         Row: {
           created_at: string;
           credential_id: string;
-          key_check_value: string | null;
           prf_salt: string;
           user_id: string;
           version: number;
@@ -317,7 +332,6 @@ export type Database = {
         Insert: {
           created_at?: string;
           credential_id: string;
-          key_check_value?: string | null;
           prf_salt: string;
           user_id: string;
           version?: number;
@@ -325,7 +339,6 @@ export type Database = {
         Update: {
           created_at?: string;
           credential_id?: string;
-          key_check_value?: string | null;
           prf_salt?: string;
           user_id?: string;
           version?: number;
@@ -382,8 +395,6 @@ export type Database = {
     };
   };
 };
-
-export type DatabaseSchema = Database;
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
@@ -510,3 +521,6 @@ export const Constants = {
     Enums: {},
   },
 } as const;
+
+/** Helvety alias used by Supabase client factories. */
+export type DatabaseSchema = Database;

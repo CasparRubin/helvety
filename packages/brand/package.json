@@ -17,6 +17,7 @@
   "scripts": {
     "type-check": "tsc --noEmit -p tsconfig.typecheck.json",
     "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

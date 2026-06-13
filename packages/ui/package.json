@@ -17,6 +17,7 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -93,6 +94,7 @@
     "./helvety-shell-navbar": "./src/helvety-shell-navbar.tsx",
     "./use-e2ee-entity-list-dnd-sensors": "./src/use-e2ee-entity-list-dnd-sensors.ts",
     "./hooks/use-encrypted-sortable-items": "./src/hooks/use-encrypted-sortable-items.ts",
+    "./hooks/use-encrypted-single-item": "./src/hooks/use-encrypted-single-item.ts",
     "./e2ee-item-editor-shell": "./src/e2ee-item-editor-shell.tsx",
     "./entity-links-panel": "./src/entity-links-panel.tsx",
     "./create-e2ee-entity-links-hook": "./src/create-e2ee-entity-links-hook.ts",

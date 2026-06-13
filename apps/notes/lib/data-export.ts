@@ -1,21 +1,16 @@
 /**
- * Client-side data export utility for Helvety Notes.
- *
- * Fetches all encrypted note data from the server, decrypts it client-side
- * using the user's master key, and provides a downloadable JSON export.
- *
- * Export rights and legal context are documented in the product legal pages.
- *
- * IMPORTANT: Decryption happens client-side.
- * Plaintext note data is not sent to the server.
+ * Client-side data export for Helvety Notes — fetch, decrypt, and download JSON.
+ * Download plumbing is shared via `@helvety/shared/e2ee-json-export`.
  */
+
+import { downloadEncryptedJsonExport } from "@helvety/shared/e2ee-json-export";
 
 import { getAllNoteDataForExport } from "@/app/actions/entity-actions";
 import { decryptItemRows } from "@/lib/crypto";
 
 import type { Item } from "@/lib/types";
 
-/** Structure of the exported (decrypted) note data */
+/** Decrypted note export payload written to the downloaded JSON file. */
 interface DecryptedNoteExport {
   exportedAt: string;
   service: "Helvety Notes";
@@ -31,28 +26,16 @@ interface DecryptedNoteExport {
   }>;
 }
 
-const PLAINTEXT_EXPORT_WARNING =
-  "This export file contains decrypted plaintext note data and can be read by anyone with access to your device. Continue?";
-
-/**
- * Fetch, decrypt, and structure all note data for export.
- *
- * @param masterKey - The user's decryption key (from EncryptionContext)
- * @returns Structured, decrypted note data ready for download
- */
-async function exportDecryptedNoteData(
+/** Fetches encrypted rows and decrypts them into the note export shape. */
+async function buildNoteExportData(
   masterKey: CryptoKey
 ): Promise<DecryptedNoteExport> {
-  // 1. Fetch all encrypted note data from the server (export-specific rate limit + row cap)
   const result = await getAllNoteDataForExport();
   if (!result.success) {
     throw new Error(result.error);
   }
 
-  const { items: encryptedItems } = result.data;
-
-  // 2. Decrypt all data client-side
-  const items: Item[] = await decryptItemRows(encryptedItems, masterKey);
+  const items: Item[] = await decryptItemRows(result.data.items, masterKey);
 
   return {
     exportedAt: new Date().toISOString(),
@@ -70,31 +53,17 @@ async function exportDecryptedNoteData(
   };
 }
 
-/**
- * Trigger a browser download of the decrypted note data as JSON.
- *
- * @param masterKey - The user's decryption key (from EncryptionContext)
- */
+/** Export and download decrypted note data (for `useE2eeDataExport`). */
 export async function downloadNoteDataExport(
   masterKey: CryptoKey,
   options: { requireConfirmation?: boolean } = {}
 ): Promise<void> {
   const { requireConfirmation = true } = options;
-  if (requireConfirmation && !window.confirm(PLAINTEXT_EXPORT_WARNING)) {
-    return;
-  }
-
-  const data = await exportDecryptedNoteData(masterKey);
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
+  await downloadEncryptedJsonExport({
+    masterKey,
+    buildExportData: buildNoteExportData,
+    filenamePrefix: "helvety-notes-export",
+    entityLabel: "note",
+    requireConfirmation,
   });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `helvety-notes-export-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }

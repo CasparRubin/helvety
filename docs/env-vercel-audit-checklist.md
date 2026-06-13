@@ -1,8 +1,8 @@
 # Vercel environment audit checklist
 
-See also [`security-review-runbook.md`](./security-review-runbook.md) for the full periodic review cadence.
+See also [`security-review-runbook.md`](./security-review-runbook.md) for the full periodic review cadence and [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) for the latest audit snapshot.
 
-Use this when syncing **Production** and **Preview** env in the Vercel dashboard. Local parity: `bun run consistency:local-env`. Template guardrails: `bun run consistency:env-templates`. Automated Production audit (requires Vercel CLI login): `bun run consistency:vercel-prod-env` ([`scripts/audit-vercel-production-env.mjs`](../scripts/audit-vercel-production-env.mjs)).
+Use this when syncing **Production** and **Preview** env in the Vercel dashboard. Local parity: `bun run consistency:local-env`. Template guardrails: `bun run consistency:env-templates`. Automated audits (requires Vercel CLI login): `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env` ([`scripts/audit-vercel-production-env.mjs`](../scripts/audit-vercel-production-env.mjs); add `--preview` for Preview tier).
 
 All ten zone projects exist on team **Helvety** (`helvety-com`, `helvety-auth`, `helvety-store`, `helvety-docs`, `helvety-pdf`, `helvety-image-upscaler`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`).
 
@@ -58,7 +58,7 @@ After changing any `*_URL`, **redeploy `helvety-com`** so rewrites pick up new o
 
 Helvety does not use Vercel Analytics or Speed Insights in application code. In the Vercel dashboard for **each** zone project (`helvety-com` through `helvety-links`), confirm **Analytics → Web Analytics** and **Speed Insights** are **disabled** so the platform does not inject `va.vercel-scripts.com` or related scripts outside the repo.
 
-Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview env (forbidden by `scripts/env-template-expectations.mjs`; flagged by `bun run consistency:vercel-prod-env`).
+Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview env (forbidden by `scripts/env-template-expectations.mjs`; flagged by `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env`).
 
 ## Optional
 

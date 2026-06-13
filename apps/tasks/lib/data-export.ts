@@ -1,21 +1,16 @@
 /**
- * Client-side data export utility for Helvety Tasks.
- *
- * Fetches all encrypted task data from the server, decrypts it client-side
- * using the user's master key, and provides a downloadable JSON export.
- *
- * Export rights and legal context are documented in the product legal pages.
- *
- * IMPORTANT: Decryption happens client-side.
- * Plaintext task data is not sent to the server.
+ * Client-side data export for Helvety Tasks — fetch, decrypt, and download JSON.
+ * Download plumbing is shared via `@helvety/shared/e2ee-json-export`.
  */
+
+import { downloadEncryptedJsonExport } from "@helvety/shared/e2ee-json-export";
 
 import { getAllTaskDataForExport } from "@/app/actions/entity-actions";
 import { decryptItemRows } from "@/lib/crypto";
 
 import type { Item } from "@/lib/types";
 
-/** Structure of the exported (decrypted) task data */
+/** Decrypted task export payload written to the downloaded JSON file. */
 interface DecryptedTaskExport {
   exportedAt: string;
   service: "Helvety Tasks";
@@ -35,28 +30,16 @@ interface DecryptedTaskExport {
   }>;
 }
 
-const PLAINTEXT_EXPORT_WARNING =
-  "This export file contains decrypted plaintext task data and can be read by anyone with access to your device. Continue?";
-
-/**
- * Fetch, decrypt, and structure all task data for export.
- *
- * @param masterKey - The user's decryption key (from EncryptionContext)
- * @returns Structured, decrypted task data ready for download
- */
-async function exportDecryptedTaskData(
+/** Fetches encrypted rows and decrypts them into the task export shape. */
+async function buildTaskExportData(
   masterKey: CryptoKey
 ): Promise<DecryptedTaskExport> {
-  // 1. Fetch all encrypted data from the server (export-specific rate limit + row cap)
   const result = await getAllTaskDataForExport();
   if (!result.success) {
     throw new Error(result.error);
   }
 
-  const { items: encryptedItems } = result.data;
-
-  // 2. Decrypt all data client-side
-  const items: Item[] = await decryptItemRows(encryptedItems, masterKey);
+  const items: Item[] = await decryptItemRows(result.data.items, masterKey);
 
   return {
     exportedAt: new Date().toISOString(),
@@ -78,31 +61,17 @@ async function exportDecryptedTaskData(
   };
 }
 
-/**
- * Trigger a browser download of the decrypted task data as JSON.
- *
- * @param masterKey - The user's decryption key (from EncryptionContext)
- */
+/** Export and download decrypted task data (for `useE2eeDataExport`). */
 export async function downloadTaskDataExport(
   masterKey: CryptoKey,
   options: { requireConfirmation?: boolean } = {}
 ): Promise<void> {
   const { requireConfirmation = true } = options;
-  if (requireConfirmation && !window.confirm(PLAINTEXT_EXPORT_WARNING)) {
-    return;
-  }
-
-  const data = await exportDecryptedTaskData(masterKey);
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
+  await downloadEncryptedJsonExport({
+    masterKey,
+    buildExportData: buildTaskExportData,
+    filenamePrefix: "helvety-tasks-export",
+    entityLabel: "task",
+    requireConfirmation,
   });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `helvety-tasks-export-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }

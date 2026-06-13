@@ -1,17 +1,9 @@
 "use client";
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
-import {
-  reportE2eeActionFailure,
-  reportE2eeHookError,
-  triggerHardLogoutOnce,
-} from "@helvety/ui/auth-navigation";
-import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { reorderEntities } from "@/app/actions/entity-actions";
 import { createItem, deleteItem, updateItem } from "@/app/actions/item-actions";
@@ -58,9 +50,7 @@ interface UseItemsReturn {
   patchLocal: (id: string, input: Partial<ItemInput>) => void;
 }
 
-/**
- *
- */
+/** Fetches encrypted note rows via GET route handler. */
 function fetchItems(): Promise<Response> {
   return fetch(getNotesApiPath("/api/items"), {
     method: "GET",
@@ -68,9 +58,7 @@ function fetchItems(): Promise<Response> {
   });
 }
 
-/**
- *
- */
+/** Fetches a single encrypted note row via GET route handler. */
 async function fetchItemById(id: string): Promise<ActionResponse<ItemRow>> {
   const response = await fetch(getNotesApiPath(`/api/items/${id}`), {
     method: "GET",
@@ -151,9 +139,7 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
   });
 }
 
-/**
- *
- */
+/** Return type of the useItem hook for a single note. */
 interface UseItemReturn {
   item: Item | null;
   isLoading: boolean;
@@ -163,9 +149,7 @@ interface UseItemReturn {
   remove: () => Promise<boolean>;
 }
 
-/**
- *
- */
+/** Options for useItem hook. */
 interface UseItemOptions {
   initialEncryptedData?: ItemRow;
   initialData?: Item;
@@ -174,193 +158,37 @@ interface UseItemOptions {
 /** Hook to manage a single Item by ID */
 export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
-  const csrfToken = useCSRFToken();
 
-  const [item, setItem] = useState<Item | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
-  const latestRefreshTokenRef = useRef(0);
-
-  const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !id) {
-      setItem(null);
-      setIsLoading(false);
-      return;
-    }
-
-    const refreshToken = ++latestRefreshTokenRef.current;
-    const routeAtStart = window.location.href;
-    const requestStartedAt = Date.now();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchItemById(id);
-      if (!result.success) {
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        if (
-          reportE2eeActionFailure(result.error, {
-            source: "notes-use-items",
-            fallback: "Failed to load note",
-            setError,
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
-        ) {
-          return;
-        }
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        setItem(null);
-        return;
-      }
-
-      const decrypted = await decryptItemRow(result.data, masterKey);
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      setItem(decrypted);
-    } catch (err) {
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      reportE2eeHookError(err, {
-        source: "notes-use-items",
-        fallback: "Failed to load note",
-        setError,
-        redirectUri: routeAtStart,
-        expectedRoute: routeAtStart,
-        requestStartedAt,
-      });
-      setItem(null);
-    } finally {
-      if (refreshToken === latestRefreshTokenRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [id, masterKey, isUnlocked]);
-
-  const update = useCallback(
-    async (input: Partial<ItemInput>): Promise<boolean> => {
-      if (!masterKey || !id) {
-        triggerHardLogoutOnce(window.location.href, "notes-use-items");
-        return false;
-      }
-
-      try {
-        const encrypted = await encryptItemUpdate(id, input, masterKey);
-        const result = await updateItem(
-          {
-            id,
-            ...encrypted,
-            ...(input.category_id !== undefined
-              ? { category_id: input.category_id }
-              : {}),
-          },
-          csrfToken
-        );
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "notes-use-items",
-            fallback: "Failed to update note",
-          });
-          return false;
-        }
-
-        setItem((prev) => patchSingleEntity(prev, input));
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "notes-use-items",
-          fallback: "Failed to update note",
-        });
-        return false;
-      }
-    },
-    [id, masterKey, csrfToken]
-  );
-
-  const remove = useCallback(async (): Promise<boolean> => {
-    if (!id) {
-      toast.error(
-        "We couldn't identify this note. Please refresh and try again.",
-        { duration: TOAST_DURATIONS.ERROR }
-      );
-      return false;
-    }
-
-    try {
-      const result = await deleteItem(id, csrfToken);
-      if (!result.success) {
-        reportE2eeActionFailure(result.error, {
-          source: "notes-use-items",
-          fallback: "Failed to delete note",
-        });
-        return false;
-      }
-
-      setItem(null);
-      return true;
-    } catch (err) {
-      reportE2eeHookError(err, {
-        source: "notes-use-items",
-        fallback: "Failed to delete note",
-      });
-      return false;
-    }
-  }, [id, csrfToken]);
-
-  useEffect(() => {
-    if (!isUnlocked || !masterKey || !id) return;
-
-    if (options?.initialData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      setItem(options.initialData);
-      setIsLoading(false);
-      return;
-    }
-
-    if (options?.initialEncryptedData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      decryptItemRow(options.initialEncryptedData, masterKey)
-        .then((decrypted) => setItem(decrypted))
-        .catch((err) => {
-          reportE2eeHookError(err, {
-            source: "notes-use-items",
-            fallback: "Failed to decrypt note",
-            setError,
-          });
-        })
-        .finally(() => setIsLoading(false));
-      return;
-    }
-
-    void refresh();
-  }, [
-    isUnlocked,
-    masterKey,
+  return useEncryptedSingleItem<
+    Item,
+    ItemRow,
+    ItemInput,
+    Parameters<typeof updateItem>[0]
+  >({
     id,
-    refresh,
-    options?.initialData,
-    options?.initialEncryptedData,
-    initialDataConsumed,
-  ]);
-
-  return {
-    item,
-    isLoading,
-    error,
-    refresh,
-    update,
-    remove,
-  };
+    navigationSource: "notes-use-items",
+    masterKey,
+    isUnlocked,
+    loadFailureMessage: "Failed to load note",
+    updateFailureMessage: "Failed to update note",
+    deleteFailureMessage: "Failed to delete note",
+    decryptFailureMessage: "Failed to decrypt note",
+    deleteMissingIdMessage:
+      "We couldn't identify this note. Please refresh and try again.",
+    initialEncryptedData: options?.initialEncryptedData,
+    initialData: options?.initialData,
+    fetchById: fetchItemById,
+    decryptRow: decryptItemRow,
+    encryptUpdate: encryptItemUpdate,
+    buildUpdatePayload: (entityId, encrypted, input) => ({
+      id: entityId,
+      ...encrypted,
+      ...(input.category_id !== undefined
+        ? { category_id: input.category_id }
+        : {}),
+    }),
+    updateEntity: updateItem,
+    deleteEntity: deleteItem,
+    patchEntity: patchSingleEntity,
+  });
 }

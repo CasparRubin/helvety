@@ -23,6 +23,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
   - shared navigation/session UX behavior (`create-app-navbar` factories; `E2eeShellRouteLoading` / `HelvetyShellRouteLoading` loading matrix)
+  - E2EE list hooks: `useEncryptedSortableItems`; E2EE detail hooks: `useEncryptedSingleItem` (tasks, notes, contacts zone wrappers)
   - production `tailwindcss` and `@tailwindcss/postcss` on the zone production dependency graph for Turbopack CSS processing; `@helvety/config/postcss` loads the PostCSS plugin from `@helvety/dev-deps` (versions still canonical in dev-deps; `deps:drift` allows both only on `packages/ui`)
 
 ## Multi-zone static assets (`assetPrefix`)
@@ -41,6 +42,9 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - EncryptionGate redirect intent derivation (fewer effects)
 - Hyperspeed React 19 ref-callback mount/dispose; animation timing via `THREE.Timer` (not deprecated `THREE.Clock`); sources under `apps/web/components/vendor/`
 - E2EE list hooks: `useEncryptedSortableItems` in `@helvety/ui`; tasks, notes, and contacts list hooks are thin wrappers; hook errors via `reportE2eeHookError` / `reportE2eeActionFailure` (not ad-hoc toast + redirect)
+- E2EE single-entity hooks: `useEncryptedSingleItem` in `@helvety/ui`; tasks, notes, and contacts detail hooks are thin wrappers over the same refresh-token and hard-logout semantics
+- E2EE JSON export: `@helvety/shared/e2ee-json-export` (`downloadEncryptedJsonExport`); `@helvety/ui/hooks/use-e2ee-data-export` (`useE2eeDataExport` → `handleExportData`); vault zone `lib/data-export.ts` files keep fetch/decrypt/map only
+- Auth credential reads: `getOwnPasskeyStatus` uses `authenticateAndRateLimit` + `checkUserPasskeyStatus` (aligned with `hasEncryptionSetup`); enforced by `consistency:auth-action-guards` in `ci:check`
 - **TypeScript safety:** removed unsafe double-cast in auth device trust cookie secret handling; reduced Supabase admin helper assertion complexity while keeping typed scoped table usage
 - **Proxy matchers:** basePath-mounted apps **inline** the same static pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a literal `config.matcher`, not an imported binding) so static `public/` assets (`.mjs` / `.wasm` / `.json` for PDF.js and ONNX) skip the security proxy chain; `ci:check` guardrails enforce parity
 - **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers via `bun run ci:check`
@@ -57,7 +61,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 ## Verification and guardrails (ongoing)
 
 - Lint, type-check, and tests must stay green; run `bun run ci:check` during development and `bun run ci:release` before push.
-- `consistency:env-templates`, `consistency:supabase-auth`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
+- `consistency:env-templates`, `consistency:supabase-auth`, `consistency:auth-action-guards`, `consistency:workspace-scripts`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
 - `deps:drift` and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
 - Fail-closed auth refresh on all session-bearing proxy profiles; deprecated E2EE deep-link helpers removed; prefetch/export/pickers use explicit Supabase column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` for Tasks contact picker, `ENTITY_LINK_COLUMNS` for `entity_links` reads). Cross-app link mutations use `entity-link-action-primitives`; E2EE create/update server actions import `EncryptedDataSchema` (`encrypted-data-wiring.test.ts`).
 - Upstash rate-limit metrics/dashboard enabled in production (not site visitor analytics).

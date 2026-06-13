@@ -18,7 +18,7 @@ End-to-end encrypted bookmarks with nested folders.
 - List toolbar: primary “New link”, secondary “New folder” (inline on `md+`, overflow menu on small screens) via `LinksCommandBar`
 - New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with `LinkEditor` / `FolderEditor` (`dynamic(..., { ssr: false })`) and `LinksEditorCommandBar` (wraps shared `EditorCommandBar`: save, refresh, unsaved-change detection, delete in overflow). **New link** / **New folder** persist a draft row immediately, then open the full editor in that sheet; closing without edits removes the draft row.
 - Client-side search on decrypted names and URLs; while search is active, the tree flattens to a matching list and drag-and-drop is disabled
-- Client-side decrypted export (server-side encrypted fetch)
+- Client-side decrypted export via `@helvety/ui/hooks/use-e2ee-data-export` and `lib/data-export.ts` (JSON download plumbing in `@helvety/shared/e2ee-json-export`; server fetch stays encrypted via `fetchOwnedEncryptedExport`)
 - Library/folder hooks report auth and action failures via `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`. `use-link-library` uses explicit `triggerHardLogoutOnce` on mutating paths (folder tree model, not `useEncryptedSortableItems`).
 
 ## E2EE Data Model

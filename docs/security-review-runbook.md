@@ -7,19 +7,28 @@ Periodic checks for the Helvety monorepo. Run locally or before major releases.
 ```bash
 bun run ci:check
 bun run deps:security
+bun run consistency:vercel-prod-env
+bun run consistency:vercel-preview-env
 ```
 
 Includes: Supabase auth patterns (`getClaims` at the proxy edge; `getUser` for authz in RSC/actions; no `getSession` for authorization), proxy wiring (including `@supabase/ssr` 0.12+ `setAll` cache headers on refreshed sessions), env template tiers, dependency floors. Session **mutations** must use `createServerMutatingClient`; RSC/read paths use `createServerClient` (no-ops cookie writes when `x-helvety-auth-refreshed` is set after the proxy persisted refreshed cookies).
 
-## Vercel production env
+## Vercel production and preview env
 
 Requires Vercel CLI login:
 
 ```bash
 bun run consistency:vercel-prod-env
+bun run consistency:vercel-preview-env
 ```
 
-Confirm each zone uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; JWT `eyJ…` anon keys are rejected at startup) and `SUPABASE_SECRET_KEY` on admin tiers only (not legacy `anon` / `service_role` env var names). The audit script warns on legacy key names.
+Confirm each zone uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; JWT `eyJ…` anon keys are rejected at startup) and `SUPABASE_SECRET_KEY` on admin tiers only (not legacy `anon` / `service_role` env var names). The audit script warns on legacy key names. Preview env should mirror Production tier keys (same allow/forbid rules); never set `SKIP_ENV_VALIDATION=1` on Vercel.
+
+### Vercel dashboard (manual, all ten zone projects)
+
+- **Analytics → Web Analytics** and **Speed Insights** must stay **disabled** (Helvety CSP does not allow `va.vercel-scripts.com`).
+- Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview.
+- Align `helvety-com` Node.js version with zone apps (24.x per `.nvmrc`) when convenient.
 
 ## Supabase database (local only)
 
@@ -34,6 +43,19 @@ bun run consistency:supabase-rls
 ```
 
 Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECURITY DEFINER` functions scoped.
+
+### Supabase Storage (accepted tradeoffs)
+
+- **`packages` bucket** — private; RLS policy denies all direct client access. Store downloads use signed URLs from server actions only.
+- **`image-upscaler-models` bucket** — **public by design** (ONNX weights, not user data). See [`apps/image-upscaler/public/models/README.md`](../apps/image-upscaler/public/models/README.md).
+
+### Supabase dashboard (manual)
+
+Run **Database → Advisors → Security** (or MCP `get_advisors` type `security`) after schema changes. As of 2026-06 audit:
+
+- Enable **Leaked password protection** under Authentication → Providers → Email (defense-in-depth; Helvety is OTP/passkey-first).
+- Disable unused OAuth/OIDC providers.
+- Confirm session lifetime settings if on Supabase Pro (see GoTrue section below).
 
 `consistency:supabase-rls` checks every table in `scripts/supabase-user-tables.mjs` (`TABLES_REQUIRING_USER_RLS`, currently **10** tables: `contacts`, `items`, `notes`, `links`, `link_folders`, `entity_links`, `docs`, `user_profiles`, `user_passkey_params`, `user_auth_credentials`). It fails when a listed table is missing from the local export or lacks forced owner-scoped RLS — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
 
@@ -80,7 +102,7 @@ Check version in Supabase Dashboard → Project Settings → Infrastructure, or 
 ## Quarterly cadence
 
 1. `bun run ci:check` on `main`
-2. `bun run consistency:vercel-prod-env`
+2. `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env`
 3. `bun outdated` + [`docs/dependency-inventory.md`](./dependency-inventory.md) extended assets
 4. Local Supabase policy review (export stays gitignored) + `bun run consistency:supabase-rls`
 5. Hosted GoTrue version / unused OIDC provider review (see above)

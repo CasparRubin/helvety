@@ -1,8 +1,9 @@
+import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { getNotesApiPath, useItems } from "./use-items";
+import { getNotesApiPath, useItem, useItems } from "./use-items";
 
 vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
   useEncryptedSortableItems: vi.fn(() => ({
@@ -16,6 +17,17 @@ vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
     remove: vi.fn(),
     reorder: vi.fn(),
     patchLocal: vi.fn(),
+  })),
+}));
+
+vi.mock("@helvety/ui/hooks/use-encrypted-single-item", () => ({
+  useEncryptedSingleItem: vi.fn(() => ({
+    item: null,
+    isLoading: false,
+    error: null,
+    refresh: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
   })),
 }));
 
@@ -49,6 +61,22 @@ describe("useItems", () => {
         perfMeasureName: "notes:list-refresh-duration",
         loadFailureMessage: "Failed to load notes",
         reorderEntities: expect.any(Function),
+      })
+    );
+  });
+});
+
+describe("useItem", () => {
+  it("delegates single-item behavior to the shared encrypted single-item hook", () => {
+    renderHook(() => useItem("item-1"));
+
+    expect(vi.mocked(useEncryptedSingleItem)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "item-1",
+        navigationSource: "notes-use-items",
+        loadFailureMessage: "Failed to load note",
+        deleteMissingIdMessage:
+          "We couldn't identify this note. Please refresh and try again.",
       })
     );
   });

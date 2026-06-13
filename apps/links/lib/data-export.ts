@@ -1,9 +1,14 @@
+/**
+ * Client-side data export for Helvety Links — fetch, decrypt, and download JSON.
+ * Download plumbing is shared via `@helvety/shared/e2ee-json-export`.
+ */
+
+import { downloadEncryptedJsonExport } from "@helvety/shared/e2ee-json-export";
+
 import { getAllLinkDataForExport } from "@/app/actions/entity-actions";
 import { decryptFolderRows, decryptLinkRows } from "@/lib/crypto";
 
-/**
- *
- */
+/** Decrypted link library export payload written to the downloaded JSON file. */
 interface DecryptedLinksExport {
   exportedAt: string;
   service: "Helvety Links";
@@ -27,11 +32,8 @@ interface DecryptedLinksExport {
   }>;
 }
 
-const PLAINTEXT_EXPORT_WARNING =
-  "This export file contains decrypted plaintext bookmark data and can be read by anyone with access to your device. Continue?";
-
-/** Decrypts link library rows for JSON export. */
-async function exportDecryptedLinkData(
+/** Fetches encrypted rows and decrypts them into the link export shape. */
+async function buildLinkExportData(
   masterKey: CryptoKey
 ): Promise<DecryptedLinksExport> {
   const result = await getAllLinkDataForExport();
@@ -68,28 +70,14 @@ async function exportDecryptedLinkData(
   };
 }
 
-/**
- *
- */
-function downloadLinksExport(data: DecryptedLinksExport): void {
-  if (!window.confirm(PLAINTEXT_EXPORT_WARNING)) {
-    return;
-  }
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `helvety-links-export-${new Date().toISOString().slice(0, 10)}.json`;
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
-
 /** Export and download decrypted link library data (for `useE2eeDataExport`). */
 export async function downloadLinkDataExport(
   masterKey: CryptoKey
 ): Promise<void> {
-  const data = await exportDecryptedLinkData(masterKey);
-  downloadLinksExport(data);
+  await downloadEncryptedJsonExport({
+    masterKey,
+    buildExportData: buildLinkExportData,
+    filenamePrefix: "helvety-links-export",
+    entityLabel: "bookmark",
+  });
 }

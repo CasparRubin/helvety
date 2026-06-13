@@ -8,7 +8,7 @@ import { useDataExport } from "./use-data-export";
 
 vi.mock("@helvety/ui/hooks/use-e2ee-data-export", () => ({
   useE2eeDataExport: vi.fn(() => ({
-    exportData: vi.fn(),
+    handleExportData: vi.fn(),
     isExporting: false,
   })),
 }));

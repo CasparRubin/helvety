@@ -1,17 +1,9 @@
 "use client";
 
-import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
-import {
-  reportE2eeActionFailure,
-  reportE2eeHookError,
-  triggerHardLogoutOnce,
-} from "@helvety/ui/auth-navigation";
-import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { reorderEntities } from "@/app/actions/entity-actions";
 import { createItem, deleteItem, updateItem } from "@/app/actions/item-actions";
@@ -164,192 +156,36 @@ interface UseItemOptions {
 /** Hook to manage a single Item by ID */
 export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
-  const csrfToken = useCSRFToken();
 
-  const [item, setItem] = useState<Item | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
-  const latestRefreshTokenRef = useRef(0);
-
-  const refresh = useCallback(async () => {
-    if (!masterKey || !isUnlocked || !id) {
-      setItem(null);
-      setIsLoading(false);
-      return;
-    }
-
-    const refreshToken = ++latestRefreshTokenRef.current;
-    const routeAtStart = window.location.href;
-    const requestStartedAt = Date.now();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchItemById(id);
-      if (!result.success) {
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        if (
-          reportE2eeActionFailure(result.error, {
-            source: "tasks-use-items",
-            fallback: "Failed to load task",
-            setError,
-            redirectUri: routeAtStart,
-            expectedRoute: routeAtStart,
-            requestStartedAt,
-          })
-        ) {
-          return;
-        }
-        if (refreshToken !== latestRefreshTokenRef.current) {
-          return;
-        }
-        setItem(null);
-        return;
-      }
-
-      const decrypted = await decryptItemRow(result.data, masterKey);
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      setItem(decrypted);
-    } catch (err) {
-      if (refreshToken !== latestRefreshTokenRef.current) {
-        return;
-      }
-      reportE2eeHookError(err, {
-        source: "tasks-use-items",
-        fallback: "Failed to load task",
-        setError,
-        redirectUri: routeAtStart,
-        expectedRoute: routeAtStart,
-        requestStartedAt,
-      });
-      setItem(null);
-    } finally {
-      if (refreshToken === latestRefreshTokenRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [id, masterKey, isUnlocked]);
-
-  const update = useCallback(
-    async (input: Partial<ItemInput>): Promise<boolean> => {
-      if (!masterKey || !id) {
-        triggerHardLogoutOnce(window.location.href, "tasks-use-items");
-        return false;
-      }
-
-      try {
-        const encrypted = await encryptItemUpdate(id, input, masterKey);
-        const result = await updateItem(
-          {
-            id,
-            ...encrypted,
-            ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
-            ...(input.label_id !== undefined && { label_id: input.label_id }),
-            ...(input.priority !== undefined && { priority: input.priority }),
-          },
-          csrfToken
-        );
-        if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: "tasks-use-items",
-            fallback: "Failed to update task",
-          });
-          return false;
-        }
-
-        setItem((prev) => patchSingleEntity(prev, input));
-        return true;
-      } catch (err) {
-        reportE2eeHookError(err, {
-          source: "tasks-use-items",
-          fallback: "Failed to update task",
-        });
-        return false;
-      }
-    },
-    [id, masterKey, csrfToken]
-  );
-
-  const remove = useCallback(async (): Promise<boolean> => {
-    if (!id) {
-      toast.error("Task ID is missing", {
-        duration: TOAST_DURATIONS.ERROR,
-      });
-      return false;
-    }
-
-    try {
-      const result = await deleteItem(id, csrfToken);
-      if (!result.success) {
-        reportE2eeActionFailure(result.error, {
-          source: "tasks-use-items",
-          fallback: "Failed to delete task",
-        });
-        return false;
-      }
-
-      setItem(null);
-      return true;
-    } catch (err) {
-      reportE2eeHookError(err, {
-        source: "tasks-use-items",
-        fallback: "Failed to delete task",
-      });
-      return false;
-    }
-  }, [id, csrfToken]);
-
-  useEffect(() => {
-    if (!isUnlocked || !masterKey || !id) return;
-
-    if (options?.initialData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      setItem(options.initialData);
-      setIsLoading(false);
-      return;
-    }
-
-    if (options?.initialEncryptedData && !initialDataConsumed) {
-      setInitialDataConsumed(true);
-      setIsLoading(true);
-      setError(null);
-      decryptItemRow(options.initialEncryptedData, masterKey)
-        .then((decrypted) => setItem(decrypted))
-        .catch((err) => {
-          reportE2eeHookError(err, {
-            source: "tasks-use-items",
-            fallback: "Failed to decrypt item",
-            setError,
-          });
-        })
-        .finally(() => setIsLoading(false));
-      return;
-    }
-
-    void refresh();
-  }, [
-    isUnlocked,
-    masterKey,
+  return useEncryptedSingleItem<
+    Item,
+    ItemRow,
+    ItemInput,
+    Parameters<typeof updateItem>[0]
+  >({
     id,
-    refresh,
-    options?.initialData,
-    options?.initialEncryptedData,
-    initialDataConsumed,
-  ]);
-
-  return {
-    item,
-    isLoading,
-    error,
-    refresh,
-    update,
-    remove,
-  };
+    navigationSource: "tasks-use-items",
+    masterKey,
+    isUnlocked,
+    loadFailureMessage: "Failed to load task",
+    updateFailureMessage: "Failed to update task",
+    deleteFailureMessage: "Failed to delete task",
+    decryptFailureMessage: "Failed to decrypt item",
+    deleteMissingIdMessage: "Task ID is missing",
+    initialEncryptedData: options?.initialEncryptedData,
+    initialData: options?.initialData,
+    fetchById: fetchItemById,
+    decryptRow: decryptItemRow,
+    encryptUpdate: encryptItemUpdate,
+    buildUpdatePayload: (entityId, encrypted, input) => ({
+      id: entityId,
+      ...encrypted,
+      ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
+      ...(input.label_id !== undefined && { label_id: input.label_id }),
+      ...(input.priority !== undefined && { priority: input.priority }),
+    }),
+    updateEntity: updateItem,
+    deleteEntity: deleteItem,
+    patchEntity: patchSingleEntity,
+  });
 }
