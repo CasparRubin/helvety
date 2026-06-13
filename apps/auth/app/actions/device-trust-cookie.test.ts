@@ -5,18 +5,19 @@ const DEVICE_TRUST_TTL_SECONDS = AUTH_MAX_LIFETIME_SECONDS;
 
 const mocks = vi.hoisted(() => {
   const store = new Map<string, string>();
+  const cookieStore = {
+    get: vi.fn((name: string) => {
+      const value = store.get(name);
+      return value ? { name, value } : undefined;
+    }),
+    set: vi.fn(
+      (name: string, value: string, _options?: Record<string, unknown>) => {
+        store.set(name, value);
+      }
+    ),
+  };
   return {
-    cookieStore: {
-      get: vi.fn((name: string) => {
-        const value = store.get(name);
-        return value ? { name, value } : undefined;
-      }),
-      set: vi.fn(
-        (name: string, value: string, _options?: Record<string, unknown>) => {
-          store.set(name, value);
-        }
-      ),
-    },
+    cookieStore,
     store,
   };
 });
@@ -32,6 +33,7 @@ vi.mock("@helvety/shared/config", () => ({
 import {
   clearDeviceTrustCookie,
   getValidDeviceTrustCookie,
+  mintAndVerifyDeviceTrustCookie,
   setDeviceTrustCookie,
 } from "./device-trust-cookie";
 
@@ -41,6 +43,15 @@ describe("device-trust-cookie", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.store.clear();
+    mocks.cookieStore.get.mockImplementation((name: string) => {
+      const value = mocks.store.get(name);
+      return value ? { name, value } : undefined;
+    });
+    mocks.cookieStore.set.mockImplementation(
+      (name: string, value: string, _options?: Record<string, unknown>) => {
+        mocks.store.set(name, value);
+      }
+    );
     process.env.DEVICE_TRUST_COOKIE_SECRET = DEVICE_TRUST_SECRET;
   });
 
@@ -49,6 +60,28 @@ describe("device-trust-cookie", () => {
     const payload = await getValidDeviceTrustCookie();
     expect(payload?.userId).toBe("550e8400-e29b-41d4-a716-446655440000");
     expect(payload?.v).toBe(1);
+  });
+
+  it("mintAndVerify returns true when mint and read-back match", async () => {
+    const userId = "550e8400-e29b-41d4-a716-446655440000";
+    await expect(mintAndVerifyDeviceTrustCookie(userId)).resolves.toBe(true);
+    const payload = await getValidDeviceTrustCookie();
+    expect(payload?.userId).toBe(userId);
+  });
+
+  it("mintAndVerify returns false when cookie is not readable after set", async () => {
+    mocks.cookieStore.get.mockReturnValue(undefined);
+    await expect(
+      mintAndVerifyDeviceTrustCookie("550e8400-e29b-41d4-a716-446655440000")
+    ).resolves.toBe(false);
+  });
+
+  it("mintAndVerify returns false when read-back userId differs", async () => {
+    const expected = "550e8400-e29b-41d4-a716-446655440000";
+    const other = "660e8400-e29b-41d4-a716-446655440001";
+    await setDeviceTrustCookie(other);
+    mocks.cookieStore.set.mockImplementation(() => undefined);
+    await expect(mintAndVerifyDeviceTrustCookie(expected)).resolves.toBe(false);
   });
 
   it("clears the trust cookie", async () => {

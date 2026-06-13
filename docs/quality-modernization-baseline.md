@@ -17,7 +17,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
   - `@helvety/shared/encrypted-prefetch-api` for vault/list GET routes (`RATE_LIMITS.PREFETCH`, explicit column lists); `@helvety/shared/encrypted-prefetch-queries` for shared list-query bodies in dashboard batch actions and list API routes; `@helvety/shared/client-env` for validated `NEXT_PUBLIC_*` in browser bundles; `bootstrapAuthLayoutSession()` for the auth layout
   - `HELVETY_COOKIE_SIGNING_SECRET` for CSRF/proxy cookie signing (separate from `SUPABASE_SECRET_KEY`; proxy re-issues invalid/stale `csrf_token` cookies)
   - server env validation and Supabase client factories; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedE2eeEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); per-app `env.template` parity (`consistency:env-templates`); local/Vercel env ops (`consistency:local-env`, [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))
-  - `auth-session-policy.ts`: unified **24h sliding idle / 7d max** for vault (IndexedDB), device trust (weekly email proof), and PRF salt cache
+  - `auth-session-policy.ts`: shared TTL constants — vault (IndexedDB) uses **24h sliding idle / 7d max**; device-trust cookie and PRF salt cache use the **7d max** only (trust slides on passkey sign-in when already trusted)
   - `defineEntityDeleteRegistry` (`entity-delete-message`) for E2EE delete copy
   - `app-product-descriptions` for shared SEO/PWA strings (pdf/image-upscaler re-export via thin `lib/product-copy.ts`)
 - `@helvety/ui`

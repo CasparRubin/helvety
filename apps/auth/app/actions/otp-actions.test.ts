@@ -32,7 +32,7 @@ const mocks = vi.hoisted(() => {
     runAuthActionGuards: vi.fn(),
     resetEscalatingLockout: vi.fn(),
     resetRateLimit: vi.fn(),
-    setDeviceTrustCookie: vi.fn(),
+    mintAndVerifyDeviceTrustCookie: vi.fn(),
   };
 });
 
@@ -101,7 +101,7 @@ vi.mock("./user-lookup", () => ({
 }));
 
 vi.mock("./device-trust-cookie", () => ({
-  setDeviceTrustCookie: mocks.setDeviceTrustCookie,
+  mintAndVerifyDeviceTrustCookie: mocks.mintAndVerifyDeviceTrustCookie,
 }));
 
 import { sendVerificationCode, verifyEmailCode } from "./otp-actions";
@@ -138,7 +138,7 @@ describe("otp-actions", () => {
     mocks.resetRateLimit.mockResolvedValue(undefined);
     mocks.resetEscalatingLockout.mockResolvedValue(undefined);
     mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
-    mocks.setDeviceTrustCookie.mockResolvedValue(undefined);
+    mocks.mintAndVerifyDeviceTrustCookie.mockResolvedValue(true);
   });
 
   it("rejects sendVerificationCode when client IP is unresolvable", async () => {
@@ -291,7 +291,7 @@ describe("otp-actions", () => {
     });
     expect(verifyOtp).toHaveBeenCalledOnce();
     expect(mocks.generateCSRFToken).not.toHaveBeenCalled();
-    expect(mocks.setDeviceTrustCookie).not.toHaveBeenCalled();
+    expect(mocks.mintAndVerifyDeviceTrustCookie).not.toHaveBeenCalled();
     expect(mocks.checkUserPasskeyStatus).not.toHaveBeenCalled();
     expect(mocks.recordOtpFailureAndCheckLockout).toHaveBeenCalledWith(
       "user@ex.com:203.0.113.15"
@@ -340,6 +340,7 @@ describe("otp-actions", () => {
         csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: false,
         nextStep: "passkey-signin",
+        deviceTrustMinted: true,
         userId: "user-123",
       },
       success: true,
@@ -378,12 +379,15 @@ describe("otp-actions", () => {
         csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: false,
         nextStep: "passkey-signin",
+        deviceTrustMinted: true,
         userId: "user-123",
       },
       success: true,
     });
     expect(mocks.generateCSRFToken).toHaveBeenCalledOnce();
-    expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith("user-123");
+    expect(mocks.mintAndVerifyDeviceTrustCookie).toHaveBeenCalledWith(
+      "user-123"
+    );
     expect(mocks.resetEscalatingLockout).toHaveBeenCalledWith(
       "user@ex.com:203.0.113.15"
     );
@@ -404,6 +408,7 @@ describe("otp-actions", () => {
         csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: true,
         nextStep: "encryption-setup",
+        deviceTrustMinted: true,
         userId: "user-123",
       },
       success: true,
@@ -425,6 +430,7 @@ describe("otp-actions", () => {
         csrfToken: ROTATED_CSRF_TOKEN,
         isNewUser: false,
         nextStep: "encryption-setup",
+        deviceTrustMinted: true,
         userId: "user-123",
       },
       success: true,
@@ -457,17 +463,20 @@ describe("otp-actions", () => {
           csrfToken: "csrf-token",
           isNewUser: false,
           nextStep: "passkey-signin",
+          deviceTrustMinted: true,
           userId: "user-123",
         },
         success: true,
       });
-      expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith("user-123");
+      expect(mocks.mintAndVerifyDeviceTrustCookie).toHaveBeenCalledWith(
+        "user-123"
+      );
       expect(mocks.loggerError).toHaveBeenCalled();
     });
 
-    it("still returns success when setDeviceTrustCookie throws", async () => {
+    it("still returns success when mintAndVerifyDeviceTrustCookie throws", async () => {
       securedUserMocks();
-      mocks.setDeviceTrustCookie.mockRejectedValue(
+      mocks.mintAndVerifyDeviceTrustCookie.mockRejectedValue(
         new Error("[auth] Missing DEVICE_TRUST_COOKIE_SECRET")
       );
 
@@ -480,6 +489,7 @@ describe("otp-actions", () => {
       expect(result).toEqual({
         data: {
           csrfToken: ROTATED_CSRF_TOKEN,
+          deviceTrustMinted: false,
           isNewUser: false,
           nextStep: "passkey-signin",
           userId: "user-123",
@@ -487,6 +497,39 @@ describe("otp-actions", () => {
         success: true,
       });
       expect(mocks.loggerError).toHaveBeenCalled();
+    });
+
+    it("returns deviceTrustMinted false when mint read-back fails", async () => {
+      securedUserMocks();
+      mocks.mintAndVerifyDeviceTrustCookie.mockResolvedValue(false);
+
+      const result = await verifyEmailCode(
+        "csrf-token",
+        "user@ex.com",
+        "123456"
+      );
+
+      expect(result).toEqual({
+        data: {
+          csrfToken: ROTATED_CSRF_TOKEN,
+          deviceTrustMinted: false,
+          isNewUser: false,
+          nextStep: "passkey-signin",
+          userId: "user-123",
+        },
+        success: true,
+      });
+      expect(mocks.loggerError).toHaveBeenCalled();
+      expect(mocks.logAuthEvent).toHaveBeenCalledWith(
+        "login_success",
+        expect.objectContaining({
+          userId: "user-123",
+          metadata: expect.objectContaining({
+            method: "otp",
+            deviceTrustMinted: false,
+          }),
+        })
+      );
     });
 
     it("still returns success when rate-limit reset throws", async () => {
@@ -504,6 +547,7 @@ describe("otp-actions", () => {
           csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: false,
           nextStep: "passkey-signin",
+          deviceTrustMinted: true,
           userId: "user-123",
         },
         success: true,
@@ -527,6 +571,7 @@ describe("otp-actions", () => {
           csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: true,
           nextStep: "encryption-setup",
+          deviceTrustMinted: true,
           userId: "user-123",
         },
         success: true,
@@ -549,6 +594,7 @@ describe("otp-actions", () => {
           csrfToken: ROTATED_CSRF_TOKEN,
           isNewUser: false,
           nextStep: "encryption-setup",
+          deviceTrustMinted: true,
           userId: "user-123",
         },
         success: true,

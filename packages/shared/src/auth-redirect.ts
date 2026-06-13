@@ -147,7 +147,9 @@ export function getLoginUrl(
 /**
  * Get the logout URL for signing out via the auth service.
  * Includes an optional redirect_uri parameter for post-login return after the
- * logout page hands off to /auth/login.
+ * logout page hands off to `/auth/login` with `force_login=1`. The auth logout
+ * flow clears `helvety_device_trust` on this device, so the next sign-in requires
+ * email verification again (passkey is still required after OTP).
  * Set `global: true` to revoke all refresh tokens.
  *
  * Security: The redirect URI is validated against an allowlist to prevent
@@ -166,8 +168,9 @@ export function getLogoutUrl(
 /**
  * Redirect to the login page.
  * Call this from client components when user needs to authenticate.
- * Set `forceLogin: true` when passkey sign-in must not be skipped (logout,
- * EncryptionGate, or any case where `/auth/login` should not auto-redirect).
+ * Set `forceLogin: true` when `/auth/login` must not auto-redirect away from
+ * the login UI (e.g. after logout or EncryptionGate). Does **not** force email
+ * OTP; trusted devices still resolve to passkey-first at the auth login gate.
  * Uses `window.location.href` to navigate to the auth service.
  */
 export function redirectToLogin(

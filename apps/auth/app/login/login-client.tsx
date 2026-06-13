@@ -15,7 +15,10 @@ import { EncryptionSetup } from "@/components/encryption-setup";
 import { EmailStep } from "@/components/login/email-step";
 import { PasskeySignInStep } from "@/components/login/passkey-signin-step";
 import { VerifyCodeStep } from "@/components/login/verify-code-step";
-import { useLoginFlow } from "@/hooks/use-login-flow";
+import {
+  useLoginFlow,
+  shouldShowLoginBootstrapSpinner,
+} from "@/hooks/use-login-flow";
 
 import type { LoginStep } from "@/lib/login-flow-stepper";
 
@@ -78,7 +81,12 @@ function LoginContent({
     initialError,
   });
 
-  if (flow.checkingAuth) {
+  if (
+    shouldShowLoginBootstrapSpinner({
+      checkingAuth: flow.checkingAuth,
+      otpVerifySucceeded: flow.otpVerifySucceeded,
+    })
+  ) {
     return (
       <div className="flex flex-col items-center px-4 pt-8 md:pt-16 lg:pt-24">
         <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />

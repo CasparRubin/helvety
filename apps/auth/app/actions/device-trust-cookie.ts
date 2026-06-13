@@ -36,3 +36,15 @@ export async function getValidDeviceTrustCookie() {
   const cookieStore = await cookies();
   return getValidDeviceTrustFromCookieStore(cookieStore);
 }
+
+/**
+ * Mints device trust for `userId` and verifies the cookie is readable in the same
+ * request (Server Action / route handler). Returns false when set or read-back fails.
+ */
+export async function mintAndVerifyDeviceTrustCookie(
+  userId: string
+): Promise<boolean> {
+  await setDeviceTrustCookie(userId);
+  const payload = await getValidDeviceTrustCookie();
+  return payload?.userId === userId;
+}

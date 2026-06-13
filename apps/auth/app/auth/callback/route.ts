@@ -1,8 +1,9 @@
 import { createAuthCallbackHandler } from "@helvety/shared/auth-callback";
 import { getAuthUser } from "@helvety/shared/auth-retry";
+import { logger } from "@helvety/shared/logger";
 
 import { checkUserPasskeyStatus } from "@/app/actions/auth-action-helpers";
-import { setDeviceTrustCookie } from "@/app/actions/device-trust-cookie";
+import { mintAndVerifyDeviceTrustCookie } from "@/app/actions/device-trust-cookie";
 import { hasEncryptionSetup } from "@/app/actions/encryption-actions";
 import { resolveAuthStep } from "@/lib/auth-step";
 import { buildAuthLoginUrl } from "@/lib/login-entry";
@@ -89,7 +90,22 @@ export const GET = createAuthCallbackHandler({
   onAuthSuccessRedirect: async ({ safeRedirectUri, supabase }) => {
     const { user } = await getAuthUser(supabase);
     if (user) {
-      await setDeviceTrustCookie(user.id);
+      try {
+        const deviceTrustMinted = await mintAndVerifyDeviceTrustCookie(user.id);
+        if (!deviceTrustMinted) {
+          logger.logUnexpectedError(
+            "Device trust cookie mint/read-back failed after auth callback",
+            new Error("helvety_device_trust not readable after set"),
+            { userId: user.id }
+          );
+        }
+      } catch (trustError) {
+        logger.logUnexpectedError(
+          "Failed to set device trust cookie after auth callback",
+          trustError,
+          { userId: user.id }
+        );
+      }
     }
     return buildPostAuthRedirect(safeRedirectUri, supabase);
   },

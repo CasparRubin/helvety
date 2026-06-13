@@ -1,3 +1,4 @@
+import { logger } from "@helvety/shared/logger";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -11,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   getAuthUser: vi.fn(),
   checkUserPasskeyStatus: vi.fn(),
   hasEncryptionSetup: vi.fn(),
-  setDeviceTrustCookie: vi.fn(),
+  mintAndVerifyDeviceTrustCookie: vi.fn(),
 }));
 
 vi.mock("@helvety/shared/client-ip", () => ({
@@ -57,7 +58,7 @@ vi.mock("@helvety/shared/logger", () => ({
 }));
 
 vi.mock("@/app/actions/device-trust-cookie", () => ({
-  setDeviceTrustCookie: mocks.setDeviceTrustCookie,
+  mintAndVerifyDeviceTrustCookie: mocks.mintAndVerifyDeviceTrustCookie,
 }));
 
 vi.mock("@/app/actions/auth-action-helpers", () => ({
@@ -96,7 +97,7 @@ describe("auth callback success handler", () => {
       success: true,
       data: true,
     });
-    mocks.setDeviceTrustCookie.mockResolvedValue(undefined);
+    mocks.mintAndVerifyDeviceTrustCookie.mockResolvedValue(true);
   });
 
   it("mints device trust and redirects to passkey sign-in after OTP callback", async () => {
@@ -107,7 +108,7 @@ describe("auth callback success handler", () => {
     );
 
     expect(mocks.verifyOtp).toHaveBeenCalledOnce();
-    expect(mocks.setDeviceTrustCookie).toHaveBeenCalledWith(
+    expect(mocks.mintAndVerifyDeviceTrustCookie).toHaveBeenCalledWith(
       "550e8400-e29b-41d4-a716-446655440000"
     );
 
@@ -117,5 +118,41 @@ describe("auth callback success handler", () => {
     expect(location).toContain(
       "redirect_uri=https%3A%2F%2Fhelvety.com%2Ftasks"
     );
+  });
+
+  it("still redirects when mint read-back fails and logs the failure", async () => {
+    mocks.mintAndVerifyDeviceTrustCookie.mockResolvedValue(false);
+
+    const response = await GET(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc&type=signup&redirect_uri=https://helvety.com/tasks"
+      )
+    );
+
+    expect(logger.logUnexpectedError).toHaveBeenCalledWith(
+      "Device trust cookie mint/read-back failed after auth callback",
+      expect.any(Error),
+      { userId: "550e8400-e29b-41d4-a716-446655440000" }
+    );
+    expect(response.headers.get("location")).toContain("step=passkey-signin");
+  });
+
+  it("still redirects when mint throws and logs the error", async () => {
+    mocks.mintAndVerifyDeviceTrustCookie.mockRejectedValue(
+      new Error("[auth] Missing DEVICE_TRUST_COOKIE_SECRET")
+    );
+
+    const response = await GET(
+      new Request(
+        "https://helvety.com/auth/callback?token_hash=abc&type=signup"
+      )
+    );
+
+    expect(logger.logUnexpectedError).toHaveBeenCalledWith(
+      "Failed to set device trust cookie after auth callback",
+      expect.any(Error),
+      { userId: "550e8400-e29b-41d4-a716-446655440000" }
+    );
+    expect(response.headers.get("location")).toContain("/login");
   });
 });

@@ -6,6 +6,7 @@
  * Preview tier: node scripts/audit-vercel-production-env.mjs --preview
  * Remove flagged keys: node scripts/audit-vercel-production-env.mjs --remove
  */
+import { createHash } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,6 +21,18 @@ import {
 } from "./env-template-expectations.mjs";
 
 const TEAM = "helvety";
+
+/** Zones that must share the same DEVICE_TRUST_COOKIE_SECRET value in production. */
+const DEVICE_TRUST_PARITY_PROJECTS = [
+  "helvety-auth",
+  "helvety-docs",
+  "helvety-tasks",
+  "helvety-contacts",
+  "helvety-notes",
+  "helvety-links",
+];
+
+const DEVICE_TRUST_SECRET_KEY = "DEVICE_TRUST_COOKIE_SECRET";
 
 /** @type {Record<string, string>} */
 const PROJECT_TO_APP = {
@@ -113,6 +126,77 @@ export function auditProjectEnv({ project, app, keys, target = "production" }) {
 }
 
 /**
+ * SHA-256 hash of a secret for cross-project parity checks (never log raw values).
+ *
+ * @param {string} value
+ */
+export function hashDeviceTrustSecret(value) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+/** Max allowed spread of `updatedAt` (ms) across zones when values are sensitive (not readable). */
+export const DEVICE_TRUST_SENSITIVE_UPDATED_AT_MAX_SPREAD_MS = 60 * 60 * 1000;
+
+/**
+ * @param {Record<string, { hash: string | null; updatedAt: number; type: string } | null>} projectRecords
+ * @returns {{ errors: string[]; warnings: string[] }}
+ */
+export function auditDeviceTrustSecretParity(projectRecords) {
+  const errors = [];
+  const warnings = [];
+  const entries = Object.entries(projectRecords);
+  const missing = entries
+    .filter(([, record]) => record == null)
+    .map(([project]) => project);
+  if (missing.length > 0) {
+    errors.push(`${DEVICE_TRUST_SECRET_KEY} missing on: ${missing.join(", ")}`);
+  }
+
+  const present = entries
+    .map(([, record]) => record)
+    .filter((record) => record != null);
+  if (present.length === 0) {
+    return { errors, warnings };
+  }
+
+  const hashes = present
+    .map((record) => record.hash)
+    .filter((hash) => hash != null);
+  const uniqueHashes = new Set(hashes);
+  if (hashes.length > 0 && uniqueHashes.size > 1) {
+    const summary = entries
+      .filter(([, record]) => record?.hash)
+      .map(([project, record]) => `${project}=${record.hash.slice(0, 12)}…`)
+      .join(", ");
+    errors.push(
+      `${DEVICE_TRUST_SECRET_KEY} hash mismatch across zones (${summary})`
+    );
+  }
+
+  const allSensitive = present.every((record) => record.type === "sensitive");
+  const noneReadable = hashes.length === 0;
+  if (allSensitive && noneReadable) {
+    const updatedAts = present.map((record) => record.updatedAt);
+    const spreadMs = Math.max(...updatedAts) - Math.min(...updatedAts);
+    if (spreadMs > DEVICE_TRUST_SENSITIVE_UPDATED_AT_MAX_SPREAD_MS) {
+      errors.push(
+        `${DEVICE_TRUST_SECRET_KEY} updated independently across zones (spread ${Math.round(spreadMs / 1000)}s) — verify the same value in Vercel dashboard`
+      );
+    } else {
+      warnings.push(
+        `${DEVICE_TRUST_SECRET_KEY} is sensitive in Vercel (values not readable via CLI); updatedAt spread ${Math.round(spreadMs / 1000)}s across zones looks consistent`
+      );
+    }
+  } else if (hashes.length > 0 && hashes.length < present.length) {
+    warnings.push(
+      `${DEVICE_TRUST_SECRET_KEY} is readable on some zones only — confirm all zones share the same value in Vercel`
+    );
+  }
+
+  return { errors, warnings };
+}
+
+/**
  * @param {string} cwd
  * @param {string[]} args
  */
@@ -202,6 +286,49 @@ async function removeProductionEnv(project, key) {
   }
 }
 
+/**
+ * Fetches DEVICE_TRUST env metadata via authenticated Vercel API (CLI).
+ *
+ * @param {string} project
+ * @param {"production" | "preview"} target
+ * @returns {Promise<{ hash: string | null; updatedAt: number; type: string } | null>}
+ */
+async function fetchDeviceTrustEnvRecord(project, target) {
+  const base = await mkdtemp(join(tmpdir(), "helvety-vercel-env-"));
+  const cwd = join(base, project);
+  const { mkdir } = await import("node:fs/promises");
+  await mkdir(cwd, { recursive: true });
+  try {
+    await runVercel(cwd, [
+      "link",
+      "--yes",
+      "--project",
+      project,
+      "--scope",
+      TEAM,
+    ]);
+    const out = await runVercel(cwd, [
+      "api",
+      `/v10/projects/${project}/env?decrypt=true&target=${target}`,
+    ]);
+    const parsed = JSON.parse(out);
+    const entry = (parsed.envs ?? []).find(
+      (env) => env.key === DEVICE_TRUST_SECRET_KEY
+    );
+    if (!entry) {
+      return null;
+    }
+    const value = typeof entry.value === "string" ? entry.value.trim() : "";
+    return {
+      type: entry.type ?? "unknown",
+      updatedAt: entry.updatedAt ?? 0,
+      hash: value.length > 0 ? hashDeviceTrustSecret(value) : null,
+    };
+  } finally {
+    await rm(base, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const remove = process.argv.includes("--remove");
   const preview = process.argv.includes("--preview");
@@ -258,6 +385,36 @@ async function main() {
       `Re-run with --remove to delete forbidden ${target} keys listed above.\n`
     );
   }
+
+  console.log(`${DEVICE_TRUST_SECRET_KEY} parity (${target})…`);
+  /** @type {Record<string, { hash: string | null; updatedAt: number; type: string } | null>} */
+  const deviceTrustRecords = {};
+  for (const project of DEVICE_TRUST_PARITY_PROJECTS) {
+    try {
+      deviceTrustRecords[project] = await fetchDeviceTrustEnvRecord(
+        project,
+        target
+      );
+      const record = deviceTrustRecords[project];
+      if (!record) {
+        console.log(`  ${project}: missing`);
+        continue;
+      }
+      const hashLabel = record.hash
+        ? `${record.hash.slice(0, 12)}…`
+        : `sensitive (${record.type})`;
+      console.log(`  ${project}: ${hashLabel}, updated ${record.updatedAt}`);
+    } catch (error) {
+      errors.push(
+        `${project}: failed to inspect ${DEVICE_TRUST_SECRET_KEY} — ${error.message}`
+      );
+      deviceTrustRecords[project] = null;
+    }
+  }
+  const parity = auditDeviceTrustSecretParity(deviceTrustRecords);
+  errors.push(...parity.errors);
+  warnings.push(...parity.warnings);
+  console.log("");
 
   if (errors.length > 0) {
     console.log("Issues:");

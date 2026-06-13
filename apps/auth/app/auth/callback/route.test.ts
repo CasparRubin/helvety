@@ -24,11 +24,13 @@ describe("auth callback route", () => {
     expect(src).toMatch(/export const GET = createAuthCallbackHandler\(/);
   });
 
-  it("mints device trust after successful email verification", () => {
+  it("mints and verifies device trust after successful email verification", () => {
     const src = readFileSync(routePath, "utf8");
 
-    expect(src).toContain("setDeviceTrustCookie");
-    expect(src).toMatch(/onAuthSuccessRedirect[\s\S]*setDeviceTrustCookie/);
+    expect(src).toContain("mintAndVerifyDeviceTrustCookie");
+    expect(src).toMatch(
+      /onAuthSuccessRedirect[\s\S]*mintAndVerifyDeviceTrustCookie/
+    );
   });
 
   it("builds login redirects via buildAuthLoginUrl", () => {

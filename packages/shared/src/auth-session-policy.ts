@@ -1,10 +1,13 @@
 /**
  * Unified Helvety auth / E2EE session TTL policy.
  *
- * Single source of truth for sliding idle and absolute max lifetimes across
- * vault (IndexedDB), device trust (email proof), and PRF salt cache.
+ * Shared constants for client/server session lifetimes:
+ * - **Vault (IndexedDB):** `AUTH_SLIDING_IDLE_MS` + `AUTH_MAX_LIFETIME_MS`
+ * - **Device trust cookie & PRF salt cache:** `AUTH_MAX_LIFETIME_*` only (7d cap;
+ *   device trust slides on passkey sign-in when already trusted)
+ *
  * Supabase JWT refresh uses the hosted project settings; align Pro time-box
- * and inactivity to these values when available.
+ * and inactivity to vault policy when available.
  */
 
 /** Sliding idle window: extended on vault use and user activity. */

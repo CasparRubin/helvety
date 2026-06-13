@@ -6,8 +6,10 @@ import { isRateLimitedAuthMessage } from "@/lib/login-flow-errors";
 import {
   isRateLimitedLoginAuthSession,
   OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER,
+  resolveTrustedBootstrapUserId,
   shouldApplyOtpVerifyResponse,
   shouldResetLoginAuthSession,
+  shouldShowLoginBootstrapSpinner,
   shouldSkipOtpVerifySubmit,
   withLoginAuthProbeTimeout,
 } from "./use-login-flow";
@@ -111,6 +113,75 @@ describe("shouldApplyOtpVerifyResponse (OTP duplicate-submit guard)", () => {
 
   it("ignores stale successes so they cannot regress step after a newer verify", () => {
     expect(shouldApplyOtpVerifyResponse(2, 3)).toBe(false);
+  });
+});
+
+describe("shouldShowLoginBootstrapSpinner", () => {
+  it("shows spinner during initial bootstrap only", () => {
+    expect(
+      shouldShowLoginBootstrapSpinner({
+        checkingAuth: true,
+        otpVerifySucceeded: false,
+      })
+    ).toBe(true);
+    expect(
+      shouldShowLoginBootstrapSpinner({
+        checkingAuth: true,
+        otpVerifySucceeded: true,
+      })
+    ).toBe(false);
+    expect(
+      shouldShowLoginBootstrapSpinner({
+        checkingAuth: false,
+        otpVerifySucceeded: false,
+      })
+    ).toBe(false);
+  });
+});
+
+describe("resolveTrustedBootstrapUserId", () => {
+  const TRUSTED = "550e8400-e29b-41d4-a716-446655440000";
+  const SERVER = "660e8400-e29b-41d4-a716-446655440001";
+
+  it("prefers live trust probe over server hints", () => {
+    expect(
+      resolveTrustedBootstrapUserId({
+        trustTrusted: true,
+        trustUserId: TRUSTED,
+        entryTrustedUserId: SERVER,
+        initialTrustedUserId: SERVER,
+      })
+    ).toBe(TRUSTED);
+  });
+
+  it("falls back to entry then initialTrustedUserId when trust probe is absent", () => {
+    expect(
+      resolveTrustedBootstrapUserId({
+        trustTrusted: false,
+        trustUserId: null,
+        entryTrustedUserId: TRUSTED,
+        initialTrustedUserId: SERVER,
+      })
+    ).toBe(TRUSTED);
+    expect(
+      resolveTrustedBootstrapUserId({
+        trustTrusted: false,
+        trustUserId: null,
+        entryTrustedUserId: null,
+        initialTrustedUserId: SERVER,
+      })
+    ).toBe(SERVER);
+  });
+
+  it("returns null when no trusted identity is available", () => {
+    expect(
+      resolveTrustedBootstrapUserId({
+        trustTrusted: false,
+        trustUserId: null,
+        entryTrustedUserId: null,
+        initialTrustedUserId: null,
+      })
+    ).toBeNull();
   });
 });
 

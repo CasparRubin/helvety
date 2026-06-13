@@ -87,6 +87,8 @@ interface LoginFlowState {
   error: string;
   isLoading: boolean;
   checkingAuth: boolean;
+  /** True after OTP verify succeeded — keeps passkey UI visible during post-action re-render. */
+  otpVerifySucceeded: boolean;
   passkeySupported: boolean;
   isMobile: boolean;
   userId: string | null;
@@ -161,6 +163,28 @@ export function shouldSkipOtpVerifySubmit(options: {
   return options.otpVerifySucceeded || options.verifyCodeInProgress;
 }
 
+/** Full-page bootstrap spinner — suppressed after OTP so passkey step stays visible. */
+export function shouldShowLoginBootstrapSpinner(options: {
+  checkingAuth: boolean;
+  otpVerifySucceeded: boolean;
+}): boolean {
+  return options.checkingAuth && !options.otpVerifySucceeded;
+}
+
+/** Resolves user id for passkey-first bootstrap from trust probe and server hints. */
+export function resolveTrustedBootstrapUserId(input: {
+  trustTrusted: boolean;
+  trustUserId: string | null;
+  entryTrustedUserId: string | null;
+  initialTrustedUserId: string | null;
+}): string | null {
+  return (
+    (input.trustTrusted ? input.trustUserId : null) ??
+    input.entryTrustedUserId ??
+    input.initialTrustedUserId
+  );
+}
+
 /**
  * Order of state updates after OTP success (after `invalidateAuthUserProbeCache`
  * and `hasAutoStartedPasskeySignIn` reset). Ensures auto passkey on mobile uses
@@ -209,6 +233,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const [email, setEmail] = useState("");
   const [nonEUEEAConfirmed, setNonEUEEAConfirmed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [otpVerifySucceeded, setOtpVerifySucceeded] = useState(false);
   const [passkeySupported, setPasskeySupported] = useState(false);
 
   // Get parameters from URL (validate redirect URI against allowlist to prevent open redirects)
@@ -325,6 +350,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   // Initialize once per mount: passkey support and existing session probe.
   useEffect(() => {
     if (initialBootstrapDoneRef.current) {
+      setCheckingAuth(false);
       return;
     }
 
@@ -449,6 +475,16 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
           if (user) {
             setEmail(user.email ?? "");
             setUserId(user.id);
+          } else {
+            const trustedUserId = resolveTrustedBootstrapUserId({
+              trustTrusted: trust.trusted,
+              trustUserId: trust.userId,
+              entryTrustedUserId: entry.trustedUserId,
+              initialTrustedUserId: options.initialTrustedUserId,
+            });
+            if (trustedUserId) {
+              setUserId(trustedUserId);
+            }
           }
           setStep(entry.step);
           if (user && requiredAuthStep) {
@@ -510,6 +546,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   }, [
     applyBootstrapError,
     forceLogin,
+    options.initialTrustedUserId,
     redirectUri,
     surfaceLoginError,
     supabase,
@@ -591,6 +628,8 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
 
         if (result.data) {
           otpVerifySucceededRef.current = true;
+          setOtpVerifySucceeded(true);
+          setCheckingAuth(false);
           invalidateAuthUserProbeCache();
           setError("");
           hasAutoStartedPasskeySignIn.current = false;
@@ -602,6 +641,12 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
               : "setup_then_signin"
           );
           setStep(result.data.nextStep);
+          if (!result.data.deviceTrustMinted) {
+            toast.warning(
+              "This device wasn't remembered. You may need email verification again next time.",
+              { duration: TOAST_DURATIONS.ERROR }
+            );
+          }
         }
       } catch (err) {
         if (
@@ -952,6 +997,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     hasAutoRetriedMismatch.current = false;
     hasAutoStartedPasskeySignIn.current = false;
     otpVerifySucceededRef.current = false;
+    setOtpVerifySucceeded(false);
   };
 
   const currentAuthStep: AuthStep = resolveLoginCurrentAuthStep(step);
@@ -969,6 +1015,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     error,
     isLoading,
     checkingAuth,
+    otpVerifySucceeded,
     passkeySupported,
     isMobile,
     userId,

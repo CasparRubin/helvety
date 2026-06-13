@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { auditProjectEnv } from "../../../scripts/audit-vercel-production-env.mjs";
+import {
+  auditDeviceTrustSecretParity,
+  auditProjectEnv,
+  DEVICE_TRUST_SENSITIVE_UPDATED_AT_MAX_SPREAD_MS,
+  hashDeviceTrustSecret,
+} from "../../../scripts/audit-vercel-production-env.mjs";
 import {
   EXPECTED_KEYS_BY_APP,
   WEB_GATEWAY_KEYS,
@@ -97,5 +102,83 @@ describe("auditProjectEnv", () => {
       "helvety-com: missing gateway rewrite URLs: DOCS_URL"
     );
     expect(WEB_GATEWAY_KEYS).toContain("DOCS_URL");
+  });
+});
+
+describe("auditDeviceTrustSecretParity", () => {
+  it("passes when all zone hashes match", () => {
+    const hash = hashDeviceTrustSecret("shared-secret-value");
+    const { errors } = auditDeviceTrustSecretParity({
+      "helvety-auth": { hash, updatedAt: 1, type: "encrypted" },
+      "helvety-tasks": { hash, updatedAt: 1, type: "encrypted" },
+      "helvety-docs": { hash, updatedAt: 1, type: "encrypted" },
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it("flags hash mismatches when values are readable", () => {
+    const { errors } = auditDeviceTrustSecretParity({
+      "helvety-auth": {
+        hash: hashDeviceTrustSecret("secret-a"),
+        updatedAt: 1,
+        type: "encrypted",
+      },
+      "helvety-tasks": {
+        hash: hashDeviceTrustSecret("secret-b"),
+        updatedAt: 1,
+        type: "encrypted",
+      },
+    });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("hash mismatch");
+  });
+
+  it("flags sensitive zones updated far apart", () => {
+    const { errors, warnings } = auditDeviceTrustSecretParity({
+      "helvety-auth": { hash: null, updatedAt: 0, type: "sensitive" },
+      "helvety-tasks": {
+        hash: null,
+        updatedAt: DEVICE_TRUST_SENSITIVE_UPDATED_AT_MAX_SPREAD_MS + 1,
+        type: "sensitive",
+      },
+    });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("updated independently");
+    expect(warnings).toEqual([]);
+  });
+
+  it("warns when sensitive zones were updated together", () => {
+    const now = Date.now();
+    const { errors, warnings } = auditDeviceTrustSecretParity({
+      "helvety-auth": { hash: null, updatedAt: now, type: "sensitive" },
+      "helvety-tasks": {
+        hash: null,
+        updatedAt: now + 5_000,
+        type: "sensitive",
+      },
+    });
+    expect(errors).toEqual([]);
+    expect(warnings[0]).toContain("sensitive in Vercel");
+  });
+
+  it("flags missing zone records", () => {
+    const { errors } = auditDeviceTrustSecretParity({
+      "helvety-auth": { hash: null, updatedAt: 1, type: "sensitive" },
+      "helvety-tasks": null,
+    });
+    expect(errors).toEqual([
+      "DEVICE_TRUST_COOKIE_SECRET missing on: helvety-tasks",
+    ]);
+  });
+});
+
+describe("hashDeviceTrustSecret", () => {
+  it("returns stable SHA-256 hex for the same input", () => {
+    expect(hashDeviceTrustSecret("same-secret")).toBe(
+      hashDeviceTrustSecret("same-secret")
+    );
+    expect(hashDeviceTrustSecret("other-secret")).not.toBe(
+      hashDeviceTrustSecret("same-secret")
+    );
   });
 });

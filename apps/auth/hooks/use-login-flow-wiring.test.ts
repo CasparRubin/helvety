@@ -103,6 +103,7 @@ describe("use-login-flow bootstrap wiring", () => {
   it("runs bootstrap once per mount with strict-mode safe cleanup", () => {
     expect(src).toContain("initialBootstrapDoneRef");
     expect(src).toContain("if (initialBootstrapDoneRef.current)");
+    expect(src).toContain("setCheckingAuth(false)");
     expect(src).toContain("bootstrapCompleted = true");
     expect(src).toContain("if (!bootstrapCompleted)");
     expect(src).not.toContain("authBootstrapKey");
@@ -117,6 +118,27 @@ describe("use-login-flow bootstrap wiring", () => {
   it("routes user-visible errors through shouldSurfaceLoginError", () => {
     expect(src).toContain("surfaceLoginError");
     expect(src).toContain("shouldSurfaceLoginError");
+  });
+
+  it("seeds trusted bootstrap userId via resolveTrustedBootstrapUserId", () => {
+    expect(src).toContain("resolveTrustedBootstrapUserId");
+  });
+});
+
+describe("use-login-flow OTP post-verify wiring", () => {
+  const src = readHookSource();
+
+  it("clears checkingAuth and sets otpVerifySucceeded on OTP success", () => {
+    const successBlock = otpVerifySuccessBlock(src);
+    expect(successBlock).toContain("setOtpVerifySucceeded(true)");
+    expect(successBlock).toContain("setCheckingAuth(false)");
+  });
+
+  it("warns when device trust was not minted after OTP", () => {
+    const successBlock = otpVerifySuccessBlock(src);
+    expect(successBlock).toContain("!result.data.deviceTrustMinted");
+    expect(successBlock).toContain("toast.warning");
+    expect(successBlock).toContain("This device wasn't remembered");
   });
 });
 

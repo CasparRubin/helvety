@@ -21,8 +21,8 @@ import { signOutAction } from "./logout-actions";
  * Flow:
  * 1. Clear encryption keys from IndexedDB and clear cached PRF salt
  * 2. Call server action to sign out Supabase session (optionally global scope)
- * 3. Route to /auth/login with force_login=1 and redirect_uri preserved (trusted
- *    devices may still start at passkey sign-in without re-entering email)
+ * 3. Route to /auth/login with force_login=1 and redirect_uri preserved (sign-out
+ *    clears device trust; email verification is required on the next visit)
  *
  * Usage:
  * - /logout?redirect_uri=https://helvety.com/pdf

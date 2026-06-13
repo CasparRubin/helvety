@@ -31,6 +31,17 @@ describe("auth flow documentation guardrails", () => {
     expect(readme).not.toContain("authBootstrapKey");
   });
 
+  it("README documents device-trust mint/read-back and logout clearing trust", () => {
+    expect(readme).toContain("mintAndVerifyDeviceTrustCookie");
+    expect(readme).toContain("deviceTrustMinted");
+    expect(readme).toMatch(/Manual logout clears the trust cookie/i);
+    expect(readme).not.toMatch(/passkey-first after sign-out/i);
+  });
+
+  it("README documents post-OTP bootstrap spinner guard", () => {
+    expect(readme).toContain("shouldShowLoginBootstrapSpinner");
+  });
+
   it("hook comments match mobile-only auto-start implementation", () => {
     expect(hookSource).toContain("!isMobile");
     expect(hookSource).toMatch(/user gesture/i);

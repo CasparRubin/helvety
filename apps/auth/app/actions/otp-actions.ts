@@ -29,7 +29,7 @@ import {
   checkUserPasskeyStatus,
   runAuthActionGuards,
 } from "./auth-action-helpers";
-import { setDeviceTrustCookie } from "./device-trust-cookie";
+import { mintAndVerifyDeviceTrustCookie } from "./device-trust-cookie";
 import { hasEncryptionSetup } from "./encryption-actions";
 import { findUserByEmail } from "./user-lookup";
 
@@ -230,7 +230,8 @@ export async function sendVerificationCode(
  * @param csrfToken - CSRF token for request validation
  * @param email - The user's email address
  * @param code - The OTP code from the email
- * @returns Next auth step, user id, new-user flag, and rotated `csrfToken`
+ * @returns Next auth step, user id, new-user flag, rotated `csrfToken`, and whether
+ * device trust was minted and read back successfully in this request
  */
 export async function verifyEmailCode(
   csrfToken: string,
@@ -242,6 +243,7 @@ export async function verifyEmailCode(
     userId: string;
     isNewUser: boolean;
     csrfToken: string;
+    deviceTrustMinted: boolean;
   }>
 > {
   const emailParse = NormalizedEmailSchema.safeParse(email);
@@ -374,8 +376,15 @@ export async function verifyEmailCode(
     // renewal happens only on subsequent passkey sign-ins when a valid trust
     // cookie for this user already exists — passkey alone never mints trust.
     // This does not grant access by itself; it only allows passkey-first UX.
+    let deviceTrustMinted = false;
     try {
-      await setDeviceTrustCookie(user.id);
+      deviceTrustMinted = await mintAndVerifyDeviceTrustCookie(user.id);
+      if (!deviceTrustMinted) {
+        logger.logUnexpectedError(
+          "Device trust cookie mint/read-back failed after OTP verify",
+          new Error("helvety_device_trust not readable after set")
+        );
+      }
     } catch (trustError) {
       logger.logUnexpectedError(
         "Failed to set device trust cookie after OTP verify",
@@ -399,7 +408,10 @@ export async function verifyEmailCode(
 
     logAuthEvent("login_success", {
       userId: user.id,
-      metadata: { method: "otp" },
+      metadata: {
+        method: "otp",
+        deviceTrustMinted,
+      },
       ip: clientIP,
     });
 
@@ -440,6 +452,7 @@ export async function verifyEmailCode(
         userId: user.id,
         isNewUser: !hasPasskey,
         csrfToken: rotatedCsrfToken,
+        deviceTrustMinted,
       },
     };
   } catch (error) {

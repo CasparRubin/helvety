@@ -18,11 +18,18 @@ describe("otp-actions verifyEmailCode wiring", () => {
     expect(src).toContain("csrfToken: rotatedCsrfToken");
   });
 
-  it("types verifyEmailCode success data with csrfToken", () => {
+  it("types verifyEmailCode success data with csrfToken and deviceTrustMinted", () => {
     const fnStart = src.indexOf("export async function verifyEmailCode");
     const fnBodyStart = src.indexOf(") {", fnStart);
     expect(fnStart).toBeGreaterThan(-1);
     expect(fnBodyStart).toBeGreaterThan(fnStart);
-    expect(src.slice(fnStart, fnBodyStart)).toContain("csrfToken: string");
+    const signature = src.slice(fnStart, fnBodyStart);
+    expect(signature).toContain("csrfToken: string");
+    expect(signature).toContain("deviceTrustMinted: boolean");
+  });
+
+  it("mints device trust via mintAndVerifyDeviceTrustCookie after verifyOtp", () => {
+    expect(src).toContain("mintAndVerifyDeviceTrustCookie");
+    expect(src).toMatch(/verifyOtp[\s\S]*mintAndVerifyDeviceTrustCookie/);
   });
 });
