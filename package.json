@@ -68,7 +68,8 @@
     "fallow:fix": "npx fallow fix --dry-run",
     "test:e2e": "playwright test",
     "scaffold:e2ee-zone": "node scripts/scaffold-e2ee-zone.mjs",
-    "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts"
+    "db:gen-types": "bunx supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > packages/shared/src/types/database.types.ts",
+    "clean:artifacts": "node scripts/clean-artifacts.mjs"
   },
   "overrides": {
     "@supabase/supabase-js": "2.108.1",

@@ -68,3 +68,14 @@ describe("workspace script parity script", () => {
     expect(output).toContain("Workspace script parity checks passed.");
   });
 });
+
+describe("clean artifacts script", () => {
+  it("runs idempotently without error", () => {
+    const output = execFileSync(
+      process.execPath,
+      [join(repoRoot, "scripts", "clean-artifacts.mjs")],
+      { cwd: repoRoot, encoding: "utf8" }
+    );
+    expect(output).toContain("[clean:artifacts]");
+  });
+});

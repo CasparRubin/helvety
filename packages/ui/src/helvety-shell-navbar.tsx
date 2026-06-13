@@ -40,8 +40,10 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "./popover";
+import { ScrollArea } from "./scroll-area";
 import { Separator } from "./separator";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
+import { SHEET_SCROLLABLE_SHELL_CLASS } from "./sheet-scroll-layout";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { useNavbarAuthState } from "./use-navbar-auth-state";
@@ -378,101 +380,104 @@ export function HelvetyShellNavbar({
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className={SHEET_SCROLLABLE_SHELL_CLASS}>
               <AccessibleSheetHeader
+                className="shrink-0"
                 title="Menu"
                 description={navigationMenuDescription}
               />
-              <nav className="mt-6 flex flex-col gap-2 px-4">
-                {encryptionBadge && (
-                  <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                    <ShieldCheck className="text-primary size-4 shrink-0" />
-                    <span>Encryption enabled</span>
-                  </div>
-                )}
-                {!isAuthenticated && !isLoading && (
-                  <Button
-                    variant="default"
-                    className="w-full justify-start"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleLogin();
-                    }}
-                  >
-                    <LogIn className="size-4" />
-                    Sign in
-                  </Button>
-                )}
-                {isAuthenticated && !isLoading && (
-                  <>
+              <ScrollArea className="min-h-0 flex-1">
+                <nav className="flex flex-col gap-2 px-4 pb-4">
+                  {encryptionBadge && (
                     <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                      <UserIcon className="size-4 shrink-0" />
-                      <span className="truncate">
-                        {user?.email ?? "Account"}
-                      </span>
+                      <ShieldCheck className="text-primary size-4 shrink-0" />
+                      <span>Encryption enabled</span>
                     </div>
-                    <AccountMobileLink
-                      account={account}
-                      onNavigate={() => setMobileMenuOpen(false)}
-                      className="w-full justify-start"
-                    />
-                    <Separator />
+                  )}
+                  {!isAuthenticated && !isLoading && (
                     <Button
-                      variant="destructive"
+                      variant="default"
                       className="w-full justify-start"
                       onClick={() => {
                         setMobileMenuOpen(false);
-                        handleLogout();
+                        handleLogin();
                       }}
                     >
-                      <LogOut className="size-4" />
-                      Sign out
+                      <LogIn className="size-4" />
+                      Sign in
                     </Button>
-                  </>
-                )}
-                <Separator />
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setAboutOpen(true);
-                  }}
-                >
-                  <Info className="size-4" />
-                  About
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  asChild
-                >
-                  <a
-                    href="https://github.com/CasparRubin/helvety"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Code2 className="size-4" />
-                    GitHub
-                  </a>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    toggleTheme();
-                  }}
-                >
-                  {isDark ? (
-                    <Sun className="size-4" />
-                  ) : (
-                    <Moon className="size-4" />
                   )}
-                  {isDark ? "Light mode" : "Dark mode"}
-                </Button>
-              </nav>
+                  {isAuthenticated && !isLoading && (
+                    <>
+                      <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
+                        <UserIcon className="size-4 shrink-0" />
+                        <span className="truncate">
+                          {user?.email ?? "Account"}
+                        </span>
+                      </div>
+                      <AccountMobileLink
+                        account={account}
+                        onNavigate={() => setMobileMenuOpen(false)}
+                        className="w-full justify-start"
+                      />
+                      <Separator />
+                      <Button
+                        variant="destructive"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          handleLogout();
+                        }}
+                      >
+                        <LogOut className="size-4" />
+                        Sign out
+                      </Button>
+                    </>
+                  )}
+                  <Separator />
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setAboutOpen(true);
+                    }}
+                  >
+                    <Info className="size-4" />
+                    About
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a
+                      href="https://github.com/CasparRubin/helvety"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Code2 className="size-4" />
+                      GitHub
+                    </a>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      toggleTheme();
+                    }}
+                  >
+                    {isDark ? (
+                      <Sun className="size-4" />
+                    ) : (
+                      <Moon className="size-4" />
+                    )}
+                    {isDark ? "Light mode" : "Dark mode"}
+                  </Button>
+                </nav>
+              </ScrollArea>
             </SheetContent>
           </Sheet>
         </div>

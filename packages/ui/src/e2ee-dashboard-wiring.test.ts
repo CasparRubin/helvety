@@ -27,6 +27,10 @@ describe("E2EE entity detail sheet shell", () => {
     expect(sheetShellSrc).toContain("description ?? `Edit ${title}`");
   });
 
+  it("keeps a flex height chain on the sheet body wrapper for CommandBarPageLayout scroll", () => {
+    expect(sheetShellSrc).toContain("SHEET_SCROLLABLE_BODY_CLASS");
+  });
+
   it.each([
     ["notes", "components/flat-notes-dashboard.tsx"],
     ["tasks", "components/flat-tasks-dashboard.tsx"],

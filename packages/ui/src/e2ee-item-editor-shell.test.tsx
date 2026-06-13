@@ -100,6 +100,32 @@ describe("E2eeRichTextItemEditorShell", () => {
 
     expect(onBack).toHaveBeenCalled();
   });
+
+  it("uses a flex-filling loading placeholder before initialization", () => {
+    const { container } = render(
+      <E2eeRichTextItemEditorShell
+        title=""
+        description={null}
+        isLoading
+        hasItem={false}
+        error={null}
+        hasInitialized={false}
+        onTitleChange={vi.fn()}
+        onSave={onSave}
+        onRefresh={onRefresh}
+        onBack={onBack}
+        titlePlaceholder="Title"
+        notFoundMessage="Not found"
+        loadErrorMessage="Load failed"
+        renderCommandBar={() => null}
+        deleteDialog={null}
+      />
+    );
+
+    const loadingHost = container.querySelector(".animate-spin")?.parentElement;
+    expect(loadingHost?.className).toContain("flex-1");
+    expect(loadingHost?.className).toContain("min-h-0");
+  });
 });
 
 describe("useE2eeRichTextItemEditorSave", () => {

@@ -1,3 +1,5 @@
+import { SHEET_SCROLLABLE_SHELL_CLASS } from "./sheet-scroll-layout";
+
 /**
  * Shared Tailwind class strings for E2EE editor sheets.
  * Contacts, Tasks, Notes, and Links use the same vertical rhythm:
@@ -5,8 +7,7 @@
  */
 
 /** Wide right-hand entity detail sheet (Notes, Tasks, Contacts, Links). */
-export const E2EE_ENTITY_SHEET_CONTENT_CLASS =
-  "flex w-full flex-col overflow-hidden sm:max-w-[95vw] 2xl:max-w-[1800px]";
+export const E2EE_ENTITY_SHEET_CONTENT_CLASS = `${SHEET_SCROLLABLE_SHELL_CLASS} sm:max-w-[95vw] 2xl:max-w-[1800px]`;
 
 /** Standard unsaved-changes dialog copy for E2EE entity editors. */
 export const E2EE_UNSAVED_CHANGES_DIALOG = {

@@ -22,6 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@helvety/ui/sheet";
+import { SHEET_SCROLLABLE_SHELL_CLASS } from "@helvety/ui/sheet-scroll-layout";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -154,7 +155,7 @@ export function VaultDocumentsSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="flex h-full w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-sm"
+        className={`${SHEET_SCROLLABLE_SHELL_CLASS} sm:max-w-sm`}
       >
         <SheetHeader className="border-border shrink-0 border-b px-4 py-3 text-left">
           <SheetTitle className="text-sm font-semibold">

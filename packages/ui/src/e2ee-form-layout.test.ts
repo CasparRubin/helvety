@@ -24,7 +24,12 @@ describe("e2ee-form-layout", () => {
   });
 
   it("entity sheet content class matches wide right sheet layout", () => {
+    expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("h-full");
+    expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("w-full");
     expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("sm:max-w-[95vw]");
     expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("2xl:max-w-[1800px]");
+    expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("gap-0");
+    expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("overflow-hidden");
+    expect(E2EE_ENTITY_SHEET_CONTENT_CLASS).toContain("p-0");
   });
 });

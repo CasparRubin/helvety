@@ -66,6 +66,7 @@
     "./scroll-area": "./src/scroll-area.tsx",
     "./separator": "./src/separator.tsx",
     "./sheet": "./src/sheet.tsx",
+    "./sheet-scroll-layout": "./src/sheet-scroll-layout.ts",
     "./sonner": "./src/sonner.tsx",
     "./theme-provider": "./src/theme-provider.tsx",
     "./tooltip": "./src/tooltip.tsx",

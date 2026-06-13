@@ -75,4 +75,23 @@ describe("AppSwitcher", () => {
       expect(linkElement.querySelector("svg")).toBeInTheDocument();
     }
   });
+
+  it("uses a scrollable sheet shell for long app lists", () => {
+    render(
+      <TooltipProvider>
+        <AppSwitcher currentApp="Home" />
+      </TooltipProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Switch apps" }));
+
+    const sheetContent = document.body.querySelector(
+      '[data-slot="sheet-content"]'
+    );
+    expect(sheetContent?.className).toContain("overflow-hidden");
+    expect(sheetContent?.className).toContain("gap-0");
+    expect(
+      document.body.querySelector('[data-slot="scroll-area"]')
+    ).not.toBeNull();
+  });
 });

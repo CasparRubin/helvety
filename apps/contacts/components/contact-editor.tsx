@@ -235,7 +235,7 @@ export function ContactEditor({
 
   if (!contact && !error && isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
       </div>
     );

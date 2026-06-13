@@ -11,7 +11,7 @@ End-to-end encrypted, stage-based task management app.
 - Client-side encryption for sensitive task fields
 - Fixed stage-based main list with drag-and-drop reorder
 - Client-side search on decrypted title/description; while search is active, reorder/drag is disabled and an empty-search message is shown when nothing matches
-- New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`) with the full `ItemEditor` (Tiptap, metadata panel, note/contact links). **New Task** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
+- New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`; flex scroll chain via `@helvety/ui/sheet-scroll-layout`, body scrolls in `CommandBarPageLayout`) with the full `ItemEditor` (Tiptap, metadata panel, note/contact links). **New Task** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
 - Shareable deep links open a task in the detail sheet via `?item=<uuid>` (for example from Notes or Contacts cross-links). URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Rich task editor with metadata panel
 - Cross-app contact and note links via `EntityLinksPanel` + `createE2eeEntityLinksHook` (`useContactLinks`, `useNoteLinks`)

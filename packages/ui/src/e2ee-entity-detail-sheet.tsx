@@ -3,6 +3,7 @@
 import { AccessibleSheetHeader } from "./accessible-sheet-header";
 import { E2EE_ENTITY_SHEET_CONTENT_CLASS } from "./e2ee-form-layout";
 import { Sheet, SheetContent } from "./sheet";
+import { SHEET_SCROLLABLE_BODY_CLASS } from "./sheet-scroll-layout";
 
 import type { ReactNode } from "react";
 
@@ -23,7 +24,9 @@ export interface E2eeEntityDetailSheetProps {
 
 /**
  * Right-hand detail sheet shell shared by E2EE list dashboards.
- * Editors mount inside with `embedded` and own scroll via CommandBarPageLayout.
+ *
+ * Uses {@link SHEET_SCROLLABLE_BODY_CLASS} so {@link CommandBarPageLayout} inside
+ * editors receives a bounded height and scrolls via {@link ScrollArea}.
  */
 export function E2eeEntityDetailSheet({
   open,
@@ -43,7 +46,7 @@ export function E2eeEntityDetailSheet({
           title={title}
           description={sheetDescription}
         />
-        <div key={entityId ?? "closed"} className="min-h-0 flex-1">
+        <div key={entityId ?? "closed"} className={SHEET_SCROLLABLE_BODY_CLASS}>
           {children}
         </div>
       </SheetContent>

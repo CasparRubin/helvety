@@ -115,6 +115,16 @@ Docs uses a custom `useDocs` hook (mock `fetch` + `getDocsApiPath` instead of `u
 
 Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`).
 
+### Scrollable sheets and detail panels
+
+| Surface                                            | Implementation                                               | Wiring test                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| E2EE entity detail (Notes, Tasks, Contacts, Links) | `E2eeEntityDetailSheet` + zone editor `CommandBarPageLayout` | `packages/ui/src/e2ee-dashboard-wiring.test.ts`, `sheet-scroll-wiring.test.ts`                  |
+| App switcher, mobile nav menu                      | `SHEET_SCROLLABLE_SHELL_CLASS` + header + `ScrollArea`       | `sheet-scroll-wiring.test.ts`, RTL in `app-switcher.test.tsx` / `helvety-shell-navbar.test.tsx` |
+| Docs vault sheet                                   | Same shell classes + `ScrollArea`                            | `sheet-scroll-wiring.test.ts`                                                                   |
+
+See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) for the flex height chain (`min-h-0`, `flex-1`, `overflow-hidden`). Entity editors use `stacked` action panels inside the scroll region (no sticky sidebars in sheets).
+
 ### Lib / copy / crypto
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.

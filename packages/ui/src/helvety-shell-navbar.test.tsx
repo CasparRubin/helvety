@@ -202,4 +202,18 @@ describe("HelvetyShellNavbar", () => {
     const account = screen.getByRole("link", { name: /Account/i });
     expect(account).toHaveAttribute("href", "/account");
   });
+
+  it("mobile menu sheet uses scrollable shell layout", () => {
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+
+    const sheetContent = document.body.querySelector(
+      '[data-slot="sheet-content"]'
+    );
+    expect(sheetContent?.className).toContain("overflow-hidden");
+    expect(sheetContent?.className).toContain("gap-0");
+    expect(
+      document.body.querySelector('[data-slot="scroll-area"]')
+    ).not.toBeNull();
+  });
 });

@@ -10,6 +10,7 @@ import { appSwitcherSections } from "./app-switcher-sections";
 import { Button } from "./button";
 import { ScrollArea } from "./scroll-area";
 import { Sheet, SheetContent } from "./sheet";
+import { SHEET_SCROLLABLE_SHELL_CLASS } from "./sheet-scroll-layout";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 /** Props for the AppSwitcher component. */
@@ -47,14 +48,14 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
         </TooltipContent>
       </Tooltip>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="flex flex-col">
+        <SheetContent side="left" className={SHEET_SCROLLABLE_SHELL_CLASS}>
           <AccessibleSheetHeader
             className="shrink-0"
             title="Helvety apps and tools"
             description="Navigate between helvety.com web apps and related store links."
           />
-          <ScrollArea className="mt-6 min-h-0 flex-1">
-            <div className="space-y-5 px-1 pb-6">
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="space-y-5 px-4 pt-2 pb-6">
               {appSwitcherSections.map((section) => (
                 <section key={section.title} className="space-y-2">
                   <h3 className="text-muted-foreground px-2 text-xs font-semibold tracking-wide uppercase">

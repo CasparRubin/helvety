@@ -1,7 +1,11 @@
 "use client";
 
 /**
- * Helvety presets for React Bits hero text on `/` (see {@link ./hero-section}).
+ * Helvety presets for React Bits hero text on `/`.
+ *
+ * Production `/` composes these via {@link ./hero-marketing-shell} (server copy) and
+ * {@link ./hero-hyperspeed-layer} (client WebGL). {@link ./hero-section} is a legacy
+ * all-client harness for Vitest and WebGL tuning only.
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Switzerland**: static Helvety red (`--brand-swiss-red` from `@helvety/ui/globals.css`).
