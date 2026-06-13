@@ -17,12 +17,12 @@ We do not mount third-party analytics or advertising trackers in shared root lay
 
 ## First-party HTTP cookies (summary)
 
-| Cookie                 | Apps                                   | Purpose                                                                                                             |
-| ---------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `sb-*-auth-token`      | Any zone when signed in                | Supabase session (httpOnly)                                                                                         |
-| `csrf_token`           | All except `apps/web` gateway          | CSRF double-submit (signed, httpOnly)                                                                               |
-| `webauthn_challenge`   | `auth`                                 | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                                                 |
-| `helvety_device_trust` | `auth` (+ verified on E2EE/docs zones) | Weekly email-proof marker; passkey-first sign-in on `/auth/login`; required for continuing E2EE API access (signed) |
+| Cookie                 | Apps                                   | Purpose                                                                                                                                                                                                                                                                                   |
+| ---------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sb-*-auth-token`      | Any zone when signed in                | Supabase session (httpOnly)                                                                                                                                                                                                                                                               |
+| `csrf_token`           | All except `apps/web` gateway          | CSRF double-submit (signed, httpOnly)                                                                                                                                                                                                                                                     |
+| `webauthn_challenge`   | `auth`                                 | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                                                                                                                                                                                                                       |
+| `helvety_device_trust` | `auth` (+ verified on E2EE/docs zones) | Weekly email-proof marker on **helvety.com** (httpOnly); passkey-first sign-in on `/auth/login` when trusted; required for continuing E2EE API access (signed). **Not** used by the Chromium extension (extension uses `helvety_extension_last_email_verified` in `chrome.storage.local`) |
 
 **Extension auth API** (`/api/extension/otp/*`, `/api/extension/passkey/*`): OTP send/verify and passkey challenges are signed server-side values (passkey `challengeEnvelope` consumed once per ceremony via Upstash `consumeSingleUseKey`, 3 min TTL; in-memory fallback in dev). They are **not** browser cookies.
 

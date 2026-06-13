@@ -48,6 +48,17 @@ curl -sS -o /dev/null -w "%{http_code}\n" -X POST \
 
 Expect **`401`** with a JSON body (not `404` or HTML).
 
+### Dashboard verification (auth/E2EE audit 2026-06-13)
+
+| Check                                                                                              | Status                                                                        |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `user_passkey_params.key_check_value` on live Postgres                                             | Applied via migration                                                         |
+| `bun run consistency:vercel-prod-env` (incl. `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth`) | **Passed**                                                                    |
+| `bun run consistency:vercel-preview-env`                                                           | **Fails** — add Preview Upstash on `helvety-pdf` and `helvety-image-upscaler` |
+| Supabase leaked password protection                                                                | **Manual** — Authentication → Email in Supabase Dashboard                     |
+| Supabase session JWT / 7d / 24h inactivity                                                         | **Manual** — align with `auth-session-policy.ts` on Pro                       |
+| Vercel Analytics disabled (all 10 projects)                                                        | **Manual** — see runbook § Vercel dashboard                                   |
+
 ## Gateway (`helvety-com`) rewrite URLs
 
 Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-docs.vercel.app`), not the public `helvety.com` path.

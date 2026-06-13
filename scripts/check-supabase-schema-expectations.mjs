@@ -34,6 +34,18 @@ async function main() {
     );
   }
 
+  const passkeyParamsBlock = source.match(
+    /user_passkey_params:\s*\{[\s\S]*?Row:\s*\{([\s\S]*?)\};/u
+  );
+  if (
+    !passkeyParamsBlock ||
+    !passkeyParamsBlock[1]?.includes("key_check_value")
+  ) {
+    errors.push(
+      "database.types.ts user_passkey_params.Row must include key_check_value (KCV column). Regenerate: bun run db:gen-types"
+    );
+  }
+
   if (errors.length > 0) {
     console.error(
       "check-supabase-schema-expectations failed:\n" +

@@ -122,4 +122,19 @@ describe("privacy policy cookies disclosure", () => {
     );
     expect(cookiesSection).toMatch(/helvety-crypto[\s\S]*?Chromium extension/);
   });
+
+  it("§9 does not assign helvety_device_trust to Chromium extension storage", async () => {
+    const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
+    const cookiesSection = source.slice(source.indexOf('id="cookies"'));
+    const extensionRows = cookiesSection.slice(
+      cookiesSection.indexOf("Supabase auth session (chrome.storage.local)")
+    );
+
+    expect(extensionRows).toContain(
+      "helvety_extension_last_email_verified (chrome.storage.local)"
+    );
+    expect(extensionRows).not.toMatch(
+      /Chromium extension[\s\S]{0,400}helvety_device_trust/
+    );
+  });
 });

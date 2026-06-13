@@ -85,6 +85,18 @@ Public and Bearer JSON routes for the Helvety browser extension (separate from C
 
 Implementation: [`lib/extension-otp.ts`](./lib/extension-otp.ts), [`lib/otp-send-verify-core.ts`](./lib/otp-send-verify-core.ts), [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). Env `HELVETY_CHROME_EXTENSION_ORIGINS` accepts comma-separated extension ids or full `chrome-extension://` URLs ([`lib/chrome-extension-origin-parse.ts`](./lib/chrome-extension-origin-parse.ts)). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is allowlisted ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
 
+### Extension weekly email proof (no device-trust cookie)
+
+Extension OTP verify returns Supabase session tokens only; it **does not** mint `helvety_device_trust` (extensions cannot persist HttpOnly cookies on helvety.com). The Chromium side panel records weekly email proof in `chrome.storage.local` (`helvety_extension_last_email_verified`) using the same **7d cap** as `@helvety/shared/auth-session-policy`. Enforcement is **client-side** via `resolveVerifiedExtensionSession` in the extension repo; web E2EE zones enforce device trust **server-side** via `requireDeviceTrust`.
+
+|                    | Web                                       | Extension                                                         |
+| ------------------ | ----------------------------------------- | ----------------------------------------------------------------- |
+| Weekly email proof | HMAC HttpOnly `helvety_device_trust`      | `helvety_extension_last_email_verified` in `chrome.storage.local` |
+| Who enforces       | Server actions + `requireE2eeAppPageAuth` | Extension `extension-session.ts`                                  |
+| Tamper resistance  | Signing secret on server                  | Trusted extension origin only                                     |
+
+RLS + valid JWT still protect PostgREST from the extension; passkey/PRF still gates decryption. Email proof is defense-in-depth for session theft on a shared device, not the E2EE crypto boundary. See the extension [`docs/SECURITY-E2EE.md`](https://github.com/CasparRubin/helvety-browser-extension-chromium/blob/main/docs/SECURITY-E2EE.md) for the full threat-model note.
+
 Production rate limiting on these routes requires a **trusted proxy IP** (`x-real-ip` on Vercel). `getTrustedClientIp` is called with `requireTrustedProxyInProduction: true`; when IP is unavailable the routes fail closed on strict rate-limit paths instead of trusting client-supplied headers.
 
 ## Crawl and Indexing

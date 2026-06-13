@@ -31,41 +31,6 @@ export interface PRFKeyParams {
 }
 
 /**
- * Stored passkey credential in the database
- */
-export interface StoredPasskey {
-  /** Unique credential ID (base64url encoded) */
-  credentialId: string;
-  /** User ID this passkey belongs to */
-  userId: string;
-  /** Public key for verification (base64url encoded) */
-  publicKey: string;
-  /** Signature counter for replay protection */
-  counter: number;
-  /** Authenticator AAGUID */
-  aaguid?: string;
-  /** User-friendly name for this passkey */
-  name?: string;
-  /** When this passkey was registered */
-  createdAt: Date;
-  /** When this passkey was last used */
-  lastUsedAt?: Date;
-}
-
-/**
- * Wrapped key stored in the database
- * Content keys are wrapped (encrypted) with the user's master key
- */
-export interface WrappedKey {
-  /** Base64-encoded wrapped key */
-  wrappedKey: string;
-  /** Base64-encoded IV used for wrapping */
-  iv: string;
-  /** Key version for rotation support */
-  version: number;
-}
-
-/**
  * Error types for crypto operations
  */
 export enum CryptoErrorType {
@@ -74,8 +39,6 @@ export enum CryptoErrorType {
   DECRYPTION_FAILED = "DECRYPTION_FAILED",
   KEY_NOT_FOUND = "KEY_NOT_FOUND",
   STORAGE_ERROR = "STORAGE_ERROR",
-  KEY_WRAP_FAILED = "KEY_WRAP_FAILED",
-  KEY_UNWRAP_FAILED = "KEY_UNWRAP_FAILED",
   PASSKEY_NOT_SUPPORTED = "PASSKEY_NOT_SUPPORTED",
   PRF_NOT_SUPPORTED = "PRF_NOT_SUPPORTED",
   PASSKEY_REGISTRATION_FAILED = "PASSKEY_REGISTRATION_FAILED",

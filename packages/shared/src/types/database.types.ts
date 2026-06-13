@@ -325,6 +325,7 @@ export type Database = {
         Row: {
           created_at: string;
           credential_id: string;
+          key_check_value: string | null;
           prf_salt: string;
           user_id: string;
           version: number;
@@ -332,6 +333,7 @@ export type Database = {
         Insert: {
           created_at?: string;
           credential_id: string;
+          key_check_value?: string | null;
           prf_salt: string;
           user_id: string;
           version?: number;
@@ -339,6 +341,7 @@ export type Database = {
         Update: {
           created_at?: string;
           credential_id?: string;
+          key_check_value?: string | null;
           prf_salt?: string;
           user_id?: string;
           version?: number;

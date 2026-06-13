@@ -78,7 +78,7 @@ export async function deriveKeyFromPRF(
       keyMaterial,
       { name: "AES-GCM", length: 256 },
       false, // non-extractable for security
-      ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
+      ["encrypt", "decrypt"]
     );
   } catch (error) {
     throw new CryptoError(

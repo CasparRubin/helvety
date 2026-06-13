@@ -10,8 +10,7 @@ export type SafeDecryptDisplayAadTable =
   | "notes"
   | "link_folders"
   | "links"
-  | "item_contact_links"
-  | "user_passkey_params";
+  | "item_contact_links";
 
 /**
  * Decrypt a stored encrypted field for safe UI display; returns a neutral label on failure.

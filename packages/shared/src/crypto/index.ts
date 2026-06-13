@@ -12,12 +12,7 @@
  */
 
 // Types
-export type {
-  EncryptedData,
-  PRFKeyParams,
-  StoredPasskey,
-  WrappedKey,
-} from "./types";
+export type { EncryptedData, PRFKeyParams } from "./types";
 
 export { CryptoError, CryptoErrorType } from "./types";
 
