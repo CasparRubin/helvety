@@ -17,6 +17,15 @@ const scanRoots = [resolve(rootDir, "apps"), resolve(rootDir, "packages")];
 
 const ALLOWLIST_SUFFIXES = [".test.ts", ".test.tsx"];
 
+/**
+ * verifyOtp without cookie persistence — returns session tokens to the Chromium
+ * extension (`persistSession: false`). Web OTP still uses createServerMutatingClient
+ * in otp-actions.ts.
+ */
+const SESSION_MUTATION_EXCEPTION_PATHS = new Set([
+  "apps/auth/lib/otp-send-verify-core.ts",
+]);
+
 const FORBIDDEN_GET_SESSION_PATTERNS = [
   /\.auth\.getSession\s*\(/u,
   /auth\.getSession\s*\(/u,
@@ -106,6 +115,10 @@ async function main() {
       }
 
       if (!fileUsesServerSessionMutations(content)) {
+        continue;
+      }
+
+      if (SESSION_MUTATION_EXCEPTION_PATHS.has(relativePath)) {
         continue;
       }
 

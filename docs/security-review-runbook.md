@@ -62,7 +62,8 @@ Run **Database → Advisors → Security** (or MCP `get_advisors` type `security
 ## Auth / extension
 
 - `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` lists every Chromium extension id you support (unpacked Edge/Chrome dev builds and published store id differ; bare ids or `chrome-extension://<id>`; legacy `HELVEETY_CHROME_EXTENSION_ORIGINS` is not supported).
-- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` on `helvety-auth` are required in production for extension passkey single-use challenges (`consumeSingleUseKey` with `strict` policy).
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` on `helvety-auth` are required in production for extension passkey single-use challenges (`consumeSingleUseKey` with `strict` policy) and OTP rate limiting.
+- Spot-check extension OTP routes return JSON (not 404/HTML): `POST /api/extension/otp/send` and `POST /api/extension/otp/verify` with allowlisted `origin` header (same `HELVETY_CHROME_EXTENSION_ORIGINS` as passkey).
 - `bun run consistency:vercel-prod-env` must pass for `helvety-auth`: set `HELVETY_CHROME_EXTENSION_ORIGINS` to the published extension id (bare id or `chrome-extension://<id>`).
 - Extension Bearer tokens rotated if leaked.
 - Extension passkey `challengeEnvelope` values are single-use within their TTL (Upstash `consumeSingleUseKey`; dev uses in-memory fallback).

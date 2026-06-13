@@ -77,6 +77,7 @@ Colocate **`route.test.ts` beside the list handler**. Import `[id]/route` from t
 | Encrypted prefetch auth + `RATE_LIMITS.PREFETCH`    | Yes (E2EE + docs vault list routes)    | Same parent `route.test.ts` files                     |
 | Auth failure (no Supabase query)                    | Yes                                    | `apps/links/app/api/library/route.test.ts`            |
 | Bearer + allowlisted origin (extension passkey)     | When present                           | `apps/auth/app/api/extension/passkey/*/route.test.ts` |
+| Allowlisted origin (extension OTP)                  | When present                           | `apps/auth/app/api/extension/otp/*/route.test.ts`     |
 | `[id]` invalid UUID + no-store header               | Yes                                    | Same parent file imports `./[id]/route`               |
 | CSP wiring (`runtime`, domain, `POST`)              | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`           |
 

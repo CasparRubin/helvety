@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="May 31, 2026"
+        lastReviewed="June 13, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -141,6 +141,22 @@ export default function ImpressumPage() {
             available on the Chrome Web Store.{" "}
             {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}{" "}
             {POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE}
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety Chromium extension
+            </strong>
+            : E2EE side panel for Tasks, Notes, Contacts, and Links (email OTP
+            sign-in and passkey unlock via Helvety Auth; source on{" "}
+            <a
+              className="text-primary underline underline-offset-2"
+              href="https://github.com/CasparRubin/helvety-browser-extension-chromium"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              GitHub
+            </a>
+            ).
           </li>
           <li>
             <strong className="text-foreground">Helvety PDF</strong>: in-browser

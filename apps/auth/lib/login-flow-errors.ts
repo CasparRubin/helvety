@@ -1,21 +1,17 @@
+import {
+  isRateLimitedAuthMessage,
+  mapPasskeyRegistrationWebAuthnError,
+  mapPasskeyWebAuthnError,
+  rateLimitedAuthUserMessage,
+} from "@helvety/shared/auth-flow-errors";
+
 import type { LoginStep } from "@/lib/login-flow-stepper";
 
-const RATE_LIMIT_AUTH_ERROR_TOKENS = [
-  "too many requests",
-  "request rate limit reached",
-  "429",
-] as const;
-
-/** Returns true when an auth API message indicates temporary rate-limiting. */
-export function isRateLimitedAuthMessage(message: string | null): boolean {
-  if (!message) {
-    return false;
-  }
-  const normalized = message.toLowerCase();
-  return RATE_LIMIT_AUTH_ERROR_TOKENS.some((token) =>
-    normalized.includes(token)
-  );
-}
+export {
+  isRateLimitedAuthMessage,
+  mapPasskeyRegistrationWebAuthnError,
+  mapPasskeyWebAuthnError,
+};
 
 /** Who initiated the WebAuthn passkey ceremony. */
 export type PasskeyCeremonySource = "auto" | "user";
@@ -94,53 +90,10 @@ export function resolveBootstrapFriendlyError(
   }
 
   if (isRateLimitedAuthMessage(message)) {
-    return "Authentication is temporarily rate-limited. Please wait a few seconds and try again.";
+    return rateLimitedAuthUserMessage();
   }
 
   return expectsSessionRestore
     ? "We could not restore your session. Please sign in."
     : null;
-}
-
-/** Maps a WebAuthn error to user-facing passkey registration copy. */
-export function mapPasskeyRegistrationWebAuthnError(err: unknown): string {
-  if (err instanceof Error && err.name === "NotAllowedError") {
-    return "Passkey creation was canceled. Please try again.";
-  }
-  if (err instanceof Error) {
-    return err.message || "Passkey registration failed";
-  }
-  return "Passkey registration failed";
-}
-
-/** Maps a WebAuthn error to user-facing passkey sign-in copy. */
-export function mapPasskeyWebAuthnError(err: unknown): {
-  message: string;
-  errorName: string | undefined;
-} {
-  if (!(err instanceof Error)) {
-    return {
-      message: "Failed to authenticate with passkey",
-      errorName: undefined,
-    };
-  }
-
-  if (err.name === "NotAllowedError") {
-    return { message: "Authentication was canceled", errorName: err.name };
-  }
-  if (err.name === "AbortError") {
-    return { message: "Authentication timed out", errorName: err.name };
-  }
-
-  const isLocalhost =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
-
-  return {
-    message: isLocalhost
-      ? "No localhost passkey available. Create one for localhost when prompted, or test sign-in on https://helvety.com."
-      : "Failed to authenticate with passkey",
-    errorName: err.name,
-  };
 }

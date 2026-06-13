@@ -9,12 +9,15 @@ import {
 } from "@helvety/shared/auth-logger";
 import { generateCSRFToken } from "@helvety/shared/csrf";
 import { logger } from "@helvety/shared/logger";
-import { createAdminClient } from "@helvety/shared/supabase/admin";
 import { createServerMutatingClient } from "@helvety/shared/supabase/server";
 import { buildRateLimitedUserMessage } from "@helvety/shared/user-facing-errors";
 
 import { resolveAuthStep } from "@/lib/auth-step";
 import { OTP_CODE_REGEX } from "@/lib/otp-code";
+import {
+  getOtpLockoutKey,
+  sendOtpVerificationCodeCore,
+} from "@/lib/otp-send-verify-core";
 import {
   checkRateLimit,
   RATE_LIMITS,
@@ -31,7 +34,6 @@ import {
 } from "./auth-action-helpers";
 import { mintAndVerifyDeviceTrustCookie } from "./device-trust-cookie";
 import { hasEncryptionSetup } from "./encryption-actions";
-import { findUserByEmail } from "./user-lookup";
 
 import type { RequiredAuthStep } from "@/lib/auth-step";
 import type { ActionResponse } from "@helvety/shared/types/entities";
@@ -39,14 +41,6 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
 // =============================================================================
 // EMAIL + OTP CODE AUTHENTICATION
 // =============================================================================
-
-/**
- * Build a lockout key scoped to email + IP.
- * This reduces targeted account lockout abuse from unrelated client IPs.
- */
-function getOtpLockoutKey(email: string, clientIP: string): string {
-  return `${email.toLowerCase().trim()}:${clientIP}`;
-}
 
 /**
  * Send a verification code (OTP) to the user's email for authentication.
@@ -87,126 +81,7 @@ export async function sendVerificationCode(
     };
   }
 
-  // Rate limit by email AND IP to prevent abuse
-  const [emailRateLimit, ipRateLimit] = await Promise.all([
-    checkRateLimit(
-      `otp:email:${normalizedEmail}`,
-      RATE_LIMITS.OTP.maxRequests,
-      RATE_LIMITS.OTP.windowMs
-    ),
-    checkRateLimit(
-      `otp:ip:${clientIP}`,
-      RATE_LIMITS.OTP.maxRequests * 3, // Allow more per IP (multiple users)
-      RATE_LIMITS.OTP.windowMs
-    ),
-  ]);
-
-  if (!emailRateLimit.allowed || !ipRateLimit.allowed) {
-    const retryAfter =
-      emailRateLimit.retryAfter ?? ipRateLimit.retryAfter ?? 60;
-    logAuthEvent("rate_limit_exceeded", {
-      metadata: {
-        action: AUTH_ACTIONS.sendVerificationCode,
-        email: `${normalizedEmail.slice(0, 3)}***`,
-        retryAfter,
-      },
-      ip: clientIP,
-    });
-    return {
-      success: false,
-      error: buildRateLimitedUserMessage(retryAfter),
-    };
-  }
-
-  logAuthEvent("login_started", {
-    metadata: { method: "otp" },
-    ip: clientIP,
-  });
-
-  try {
-    const adminClient = createAdminClient();
-
-    // Ensure step-1 location confirmation was completed in the same submit.
-    if (!options?.nonEUEEAConfirmed) {
-      return {
-        success: false,
-        error:
-          "Please confirm that you are not located in the EU/EEA to continue.",
-      };
-    }
-
-    // New user or existing user - always continue with OTP code.
-    let isNewUser = false;
-    const existingUser = await findUserByEmail(normalizedEmail, adminClient);
-
-    if (!existingUser) {
-      // Create user at OTP-send boundary for first-time sign-ins.
-      const { error: createError } = await adminClient.auth.admin.createUser({
-        email: normalizedEmail,
-        email_confirm: false, // Verified when they confirm OTP code
-        app_metadata: {
-          non_eu_eea_confirmed: true,
-          non_eu_eea_confirmed_at: new Date().toISOString(),
-        },
-      });
-
-      if (createError) {
-        const message = createError.message.toLowerCase();
-        const alreadyExists =
-          message.includes("already") || message.includes("exists");
-        if (!alreadyExists) {
-          logger.logUnexpectedError("Error creating user", createError);
-          // Keep response generic to avoid account state disclosure.
-          return {
-            success: true,
-            data: { codeSent: true },
-          };
-        }
-      }
-
-      isNewUser = true;
-    }
-
-    // Send OTP email (no emailRedirectTo needed - user types the code)
-    const { error: signInError } = await adminClient.auth.signInWithOtp({
-      email: normalizedEmail,
-    });
-
-    if (signInError) {
-      logger.logUnexpectedError("Error sending verification code", signInError);
-      logAuthEvent("otp_failed", {
-        metadata: { reason: signInError.message },
-        ip: clientIP,
-      });
-      // Return generic success to prevent enumeration
-      return {
-        success: true,
-        data: { codeSent: true },
-      };
-    }
-
-    // Log internally only
-    logAuthEvent("otp_sent", {
-      metadata: { isNewUser, method: "otp" },
-      ip: clientIP,
-    });
-
-    return {
-      success: true,
-      data: { codeSent: true },
-    };
-  } catch (error) {
-    logger.logUnexpectedError("Error in sendVerificationCode", error);
-    logAuthEvent("otp_failed", {
-      metadata: { reason: AUTH_REASONS.unexpectedError },
-      ip: clientIP,
-    });
-    // Return generic success to prevent enumeration
-    return {
-      success: true,
-      data: { codeSent: true },
-    };
-  }
+  return sendOtpVerificationCodeCore(normalizedEmail, clientIP, options);
 }
 
 /**

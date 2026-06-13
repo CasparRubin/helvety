@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="May 31, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="June 13, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -330,12 +330,17 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Helvety account unlock in browser extensions:
+              Helvety Chromium extension (E2EE side panel):
             </strong>{" "}
-            where an extension uses your Helvety passkey, Helvety Auth processes
-            WebAuthn ceremony data and bearer-authenticated API requests on
-            helvety.com; extension passkey verification does not by itself set a
-            helvety.com web session cookie
+            sign-in sends your email and EU/EEA attestation to Helvety Auth OTP
+            routes on helvety.com; verification codes are delivered by email.
+            Passkey unlock uses bearer-authenticated WebAuthn routes on
+            helvety.com. Extension passkey verification does not by itself set a
+            helvety.com web session cookie. Session material and weekly
+            email-proof anchor are stored in{" "}
+            <code className="text-foreground">chrome.storage.local</code> (see
+            §9); vault keys use IndexedDB with the same idle policy as web E2EE
+            apps.
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">

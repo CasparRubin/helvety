@@ -1,15 +1,8 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { describe, expect, it, vi } from "vitest";
 
-import { describe, expect, it } from "vitest";
+vi.mock("server-only", () => ({}));
 
-import { ENTITY_LINK_COLUMNS } from "./entity-links";
-
-const entityLinksSrc = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "entity-links.ts"),
-  "utf8"
-);
+import { ENTITY_LINK_COLUMNS } from "./entity-links-client";
 
 describe("ENTITY_LINK_COLUMNS", () => {
   it("lists explicit entity_links columns without wildcards", () => {
@@ -19,11 +12,10 @@ describe("ENTITY_LINK_COLUMNS", () => {
   });
 });
 
-describe("LinkEntityType table mapping", () => {
-  it("includes links bookmarks table", () => {
-    expect(entityLinksSrc).toContain(
-      '"notes" | "items" | "contacts" | "links"'
-    );
-    expect(entityLinksSrc).toContain('links: "links"');
+describe("entity-links server re-export", () => {
+  it("re-exports client module from server-only entry", async () => {
+    const serverModule = await import("./entity-links");
+    expect(serverModule.ENTITY_LINK_COLUMNS).toBe(ENTITY_LINK_COLUMNS);
+    expect(typeof serverModule.createEntityLink).toBe("function");
   });
 });

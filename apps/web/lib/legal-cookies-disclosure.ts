@@ -13,8 +13,8 @@ export const HELVETY_WEB_ZONE_APP_SLUGS = [
 ] as const;
 
 /**
- * Privacy §9 prose snippets for Chromium extension passkey ceremonies
- * (server-side challenge envelopes; not browser cookies).
+ * Privacy §9 prose snippets for Chromium extension auth ceremonies
+ * (OTP + passkey server-side processing; not browser cookies).
  */
 export const HELVETY_PRIVACY_EXTENSION_PASSKEY_DISCLOSURE_SNIPPETS = [
   "Extension passkey ceremonies:",

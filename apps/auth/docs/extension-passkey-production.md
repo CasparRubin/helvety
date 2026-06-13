@@ -1,6 +1,15 @@
-# Extension passkey API — production setup
+# Extension auth API — production setup
 
-Chromium extension unlock calls **`https://helvety.com/auth/api/extension/passkey/options`** and **`/verify`** with the user’s Supabase JWT (OTP sign-in in the extension). Routes live in this app under `app/api/extension/passkey/`.
+Chromium extension sign-in and unlock call Bearer/public JSON routes on **`https://helvety.com/auth/api/extension/`**:
+
+| Route                                 | Auth                          | Purpose                                                       |
+| ------------------------------------- | ----------------------------- | ------------------------------------------------------------- |
+| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation                       |
+| `POST /api/extension/otp/verify`      | Public (allowlisted `origin`) | Verify OTP; returns session tokens for `chrome.storage.local` |
+| `POST /api/extension/passkey/options` | Bearer JWT                    | WebAuthn options + signed challenge envelope                  |
+| `POST /api/extension/passkey/verify`  | Bearer JWT                    | Verify passkey assertion (no new session)                     |
+
+Implementation: `lib/extension-otp.ts`, `lib/otp-send-verify-core.ts`, `lib/extension-passkey.ts`, `app/api/extension/`.
 
 ## 1. Deploy `helvety-auth`
 
@@ -33,9 +42,9 @@ Redeploy after changing env.
 
 ## 3. Trusted client IP (production rate limiting)
 
-Extension passkey routes derive the rate-limit key from **`x-real-ip`** via `getTrustedClientIp` with `requireTrustedProxyInProduction: true`. On Vercel, the platform sets `x-real-ip` for edge requests; without a trusted proxy IP the routes **fail closed** on strict rate-limit paths rather than falling back to spoofable client headers.
+Extension auth routes (OTP and passkey) derive the rate-limit key from **`x-real-ip`** via `getTrustedClientIp` with `requireTrustedProxyInProduction: true`. On Vercel, the platform sets `x-real-ip` for edge requests; without a trusted proxy IP the routes **fail closed** on strict rate-limit paths rather than falling back to spoofable client headers.
 
-After deploy, confirm production requests reach the routes with a non-null trusted IP (spot-check Upstash rate-limit decisions or auth logs if passkey unlock is unexpectedly rejected).
+After deploy, confirm production requests reach the OTP and passkey routes with a non-null trusted IP (spot-check Upstash rate-limit decisions or auth logs if sign-in or passkey unlock is unexpectedly rejected).
 
 ## 4. Extension client
 
