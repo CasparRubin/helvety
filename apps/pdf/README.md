@@ -11,7 +11,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports `PDF_APP_DESCRIPTION` and `PDF_PWA_MANIFEST_DESCRIPTION` from `@helvety/shared/app-product-descriptions` for metadata / JSON-LD and PWA [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Local browser processing for supported operations
 - PDF and image input support
-- Page thumbnail preview with drag-and-drop reordering
+- Page thumbnail preview with drag-and-drop reordering; first render uses react-pdf canvas, then pages are stored in an ImageBitmap LRU cache for faster re-display
 - Rotation, deletion, and extraction tools
 - Multi-file merge workflows
 - No login required

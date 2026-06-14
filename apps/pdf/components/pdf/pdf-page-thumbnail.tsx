@@ -14,6 +14,10 @@ import { useThumbnailIntersection } from "@/hooks/use-thumbnail-intersection";
 import { useThumbnailLayout } from "@/hooks/use-thumbnail-layout";
 import { PDF_RENDER, ROTATION_ANGLES } from "@/lib/constants";
 import { getImageBitmapCache } from "@/lib/imagebitmap-cache";
+import {
+  buildPdfThumbnailCacheKey,
+  cachePdfPageCanvas,
+} from "@/lib/pdf-thumbnail-cache";
 import { calculateOptimalDPR } from "@/lib/thumbnail-dpr";
 
 import { PdfImageThumbnail } from "./pdf-image-thumbnail";
@@ -79,6 +83,7 @@ function PdfPageThumbnailComponent({
   const pageRenderTimeoutRef = React.useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
+  const cachedCanvasKeyRef = React.useRef<string | null>(null);
   const { screenSize } = useScreenSize();
 
   // PDF rendering hook for ImageBitmap rendering
@@ -131,6 +136,7 @@ function PdfPageThumbnailComponent({
     setImageBitmap(null);
     setUseImageBitmap(false);
     setRenderRetryCount(0);
+    cachedCanvasKeyRef.current = null;
     if (documentReadyTimeoutRef.current) {
       clearTimeout(documentReadyTimeoutRef.current);
       documentReadyTimeoutRef.current = null;
@@ -142,8 +148,25 @@ function PdfPageThumbnailComponent({
     // Quality upgrade cleanup is handled by the hook
   }, [fileUrl, setIsHighQuality]);
 
-  // Check cache for ImageBitmap when visible
-  // Currently only uses cached ImageBitmaps; canvas-to-ImageBitmap conversion is not implemented
+  const getThumbnailCacheKey = React.useCallback((): string => {
+    return buildPdfThumbnailCacheKey({
+      fileUrl,
+      pageNumber,
+      pageWidth,
+      devicePixelRatio,
+      isHighQuality,
+      rotation,
+    });
+  }, [
+    fileUrl,
+    pageNumber,
+    pageWidth,
+    devicePixelRatio,
+    isHighQuality,
+    rotation,
+  ]);
+
+  // Reuse cached ImageBitmap when available; otherwise fall back to react-pdf canvas.
   React.useEffect(() => {
     if (
       fileType !== "pdf" ||
@@ -156,8 +179,7 @@ function PdfPageThumbnailComponent({
       return;
     }
 
-    // Check cache for existing ImageBitmap
-    const cacheKey = `${fileUrl}:${pageNumber}:${pageWidth}:${isHighQuality ? devicePixelRatio : devicePixelRatio * 0.75}:${rotation ?? 0}`;
+    const cacheKey = getThumbnailCacheKey();
     const cache = getImageBitmapCache();
     const cached = cache.get(cacheKey);
 
@@ -167,7 +189,6 @@ function PdfPageThumbnailComponent({
       setLoading(false);
       setError(false);
     } else {
-      // No cached ImageBitmap found, use canvas rendering via react-pdf
       setUseImageBitmap(false);
     }
   }, [
@@ -181,7 +202,54 @@ function PdfPageThumbnailComponent({
     isHighQuality,
     fileType,
     pdfRendering,
+    getThumbnailCacheKey,
   ]);
+
+  const handlePageCanvasRef = React.useCallback(
+    (canvas: HTMLCanvasElement | null) => {
+      if (
+        !canvas ||
+        fileType !== "pdf" ||
+        useImageBitmap ||
+        !isVisible ||
+        shouldUnmount ||
+        pageWidth === 0
+      ) {
+        return;
+      }
+
+      const cacheKey = getThumbnailCacheKey();
+      if (cachedCanvasKeyRef.current === cacheKey) {
+        return;
+      }
+      cachedCanvasKeyRef.current = cacheKey;
+
+      void cachePdfPageCanvas(canvas, cacheKey, getImageBitmapCache())
+        .then((bitmap) => {
+          if (!bitmap) {
+            return;
+          }
+          setImageBitmap(bitmap);
+          setUseImageBitmap(true);
+          setLoading(false);
+          setError(false);
+        })
+        .catch((error: unknown) => {
+          logger.logUnexpectedError(
+            "Failed to cache PDF thumbnail ImageBitmap",
+            error
+          );
+        });
+    },
+    [
+      fileType,
+      useImageBitmap,
+      isVisible,
+      shouldUnmount,
+      pageWidth,
+      getThumbnailCacheKey,
+    ]
+  );
 
   const schedulePageRenderReady = React.useCallback((delayMs: number): void => {
     if (pageRenderTimeoutRef.current) {
@@ -405,6 +473,7 @@ function PdfPageThumbnailComponent({
                             : devicePixelRatio * 0.75
                         }
                         renderMode="canvas"
+                        canvasRef={handlePageCanvasRef}
                         onRenderError={(error) => {
                           logger.logUnexpectedError("Page render error", error);
                           // Retry on worker messageHandler race; worker may not be ready yet.

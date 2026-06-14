@@ -105,7 +105,6 @@ const helvetyExplorer: SoftwareProduct = {
       },
     ],
   },
-  status: "available",
   features: [
     "Site Discovery - auto-fetch all accessible sites",
     "Real-time search with highlighted matches",
@@ -294,7 +293,6 @@ const powerPlatformConfigurator: SoftwareProduct = {
       },
     ],
   },
-  status: "available",
   features: [
     "Classic or new Power Automate designer, or paused (no link changes while installed)",
     "Survey tab: Hide by default, or Show when the survey parameter is already present",
@@ -414,7 +412,6 @@ const helvetyScreenTools: SoftwareProduct = {
       },
     ],
   },
-  status: "available",
   features: [
     "Global hotkey screenshot capture",
     "Frozen-screen selection overlay with window snapping",
@@ -534,7 +531,6 @@ const helvetyPdf: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork7,
   artist: "Alexandre Calame",
   features: [
@@ -633,7 +629,6 @@ const helvetyImageUpscaler: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork2,
   artist: "Alexandre Calame",
   features: [
@@ -738,7 +733,6 @@ const helvetyTasks: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork3,
   artist: "Alexandre Calame",
   features: [
@@ -838,7 +832,6 @@ const helvetyContacts: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork4,
   artist: "Ferdinand Hodler",
   features: [
@@ -938,7 +931,6 @@ const helvetyNotes: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork5,
   artist: "Rudolf Koller",
   features: [
@@ -1034,7 +1026,6 @@ const helvetyLinks: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork9,
   artist: "Anny Meisser Vonzun",
   features: [
@@ -1120,7 +1111,6 @@ const helvetyDocs: SaaSProduct = {
       },
     ],
   },
-  status: "available",
   image: productArtwork.artwork11,
   artist: "Clara von Rappard",
   features: [

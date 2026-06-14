@@ -5,12 +5,7 @@ import Link from "next/link";
 
 import { productArtwork } from "@/lib/data/product-artwork";
 
-import {
-  ArtistBadge,
-  ProductBadge,
-  ReleaseDateBadge,
-  StatusBadge,
-} from "./product-badge";
+import { ArtistBadge, ProductBadge, ReleaseDateBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
@@ -52,9 +47,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
         {/* Badges over artwork: tinted type label + frosted artist credit */}
         <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center justify-end gap-2">
           <ProductBadge type={product.type} showIcon={false} />
-          {product.status !== "available" && (
-            <StatusBadge status={product.status} />
-          )}
           {product.metadata?.releaseDate && (
             <ReleaseDateBadge
               isoDate={product.metadata.releaseDate}

@@ -63,9 +63,6 @@ export const upstashCookieSigningEnvSchema = upstashEnvSchema.merge(
   cookieSigningEnvSchema
 );
 
-/** Alias: user-scoped Supabase client + RLS only (no `createAdminClient`). */
-export const userScopedServerEnvSchema = upstashCookieSigningEnvSchema;
-
 /** User-scoped E2EE zones that enforce weekly device-trust email proof. */
 export const userScopedE2eeServerEnvSchema =
   upstashCookieSigningEnvSchema.merge(deviceTrustEnvSchema);
@@ -396,9 +393,6 @@ export function createAppUpstashCookieEnv<
     return validated;
   };
 }
-
-/** Legacy alias for {@link createAppUpstashCookieEnv}. E2EE/docs vault zones use {@link createAppUserScopedE2eeEnv}. */
-export const createAppUserScopedEnv = createAppUpstashCookieEnv;
 
 /** User-scoped E2EE + docs zones with weekly device-trust email proof. */
 export function createAppUserScopedE2eeEnv(options: {

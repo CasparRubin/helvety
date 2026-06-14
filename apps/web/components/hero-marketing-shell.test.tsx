@@ -33,6 +33,7 @@ describe("HeroMarketingShell", () => {
     expect(src).toContain("HELVETY_SWISS_ORIGIN_COUNTRY");
     expect(src).not.toContain("HELVETY_SWISS_ORIGIN_SEO");
     expect(src).toContain("lg:whitespace-nowrap");
+    expect(src).not.toContain("hero-text");
   });
 
   it("server-renders hero copy and store CTA", () => {

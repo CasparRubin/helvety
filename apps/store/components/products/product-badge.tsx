@@ -2,7 +2,7 @@
  * Store catalog badge components (cards and product detail hero).
  * - {@link ProductBadge}: per-type tinted surfaces (sky / violet / amber).
  * - {@link ArtistBadge}: frosted card surface for readable credit over artwork.
- * - {@link StatusBadge} / {@link ReleaseDateBadge}: shared Badge variants.
+ * - {@link ReleaseDateBadge}: release date badge variant.
  */
 
 import { cn } from "@helvety/shared/utils";
@@ -11,7 +11,7 @@ import { Calendar, Cloud, Download, Package, Palette } from "lucide-react";
 
 import { formatStoreReleaseDate } from "@/lib/utils/format-release-date";
 
-import type { ProductType, ProductStatus } from "@/lib/types/products";
+import type { ProductType } from "@/lib/types/products";
 
 /** Props for the ProductBadge component. */
 interface ProductBadgeProps {
@@ -63,44 +63,6 @@ export function ProductBadge({
       className={cn("gap-1.5", config.className, className)}
     >
       {showIcon && <Icon className="size-3" />}
-      {config.label}
-    </Badge>
-  );
-}
-
-/** Props for the product availability status badge. */
-interface StatusBadgeProps {
-  status: ProductStatus;
-  className?: string;
-}
-
-const statusConfig: Record<
-  ProductStatus,
-  {
-    label: string;
-    variant: "default" | "secondary" | "outline" | "destructive";
-  }
-> = {
-  available: {
-    label: "Available",
-    variant: "default",
-  },
-  "coming-soon": {
-    label: "Coming Soon",
-    variant: "secondary",
-  },
-  discontinued: {
-    label: "Discontinued",
-    variant: "outline",
-  },
-};
-
-/** Renders a product availability status badge. */
-export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status];
-
-  return (
-    <Badge variant={config.variant} className={className}>
       {config.label}
     </Badge>
   );

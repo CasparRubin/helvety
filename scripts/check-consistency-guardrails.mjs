@@ -372,24 +372,20 @@ async function main() {
   );
   for (const file of userScopedEnvContents) {
     if (
-      !/validateUpstashCookieEnv\(|createAppUserScopedEnv\(|createAppUserScopedE2eeEnv\(|createAppUpstashCookieEnv\(/.test(
+      !/validateUpstashCookieEnv\(|createAppUserScopedE2eeEnv\(|createAppUpstashCookieEnv\(/.test(
         file.content
       )
     ) {
       throw new Error(
-        `${file.relativePath} must validate env via createAppUserScopedE2eeEnv (or createAppUserScopedEnv) from @helvety/shared/env-validation.`
+        `${file.relativePath} must validate env via createAppUserScopedE2eeEnv or createAppUpstashCookieEnv from @helvety/shared/env-validation.`
       );
     }
     if (/createAppUserScopedE2eeEnv\(/.test(file.content)) {
       continue;
     }
-    if (
-      !/userScopedServerEnvSchema|upstashCookieSigningEnvSchema/.test(
-        file.content
-      )
-    ) {
+    if (!/upstashCookieSigningEnvSchema/.test(file.content)) {
       throw new Error(
-        `${file.relativePath} must use userScopedServerEnvSchema (no admin client).`
+        `${file.relativePath} must use upstashCookieSigningEnvSchema (no admin client).`
       );
     }
   }

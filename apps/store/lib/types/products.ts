@@ -33,11 +33,6 @@ type ProductCategory =
   | "integrations"
   | "other";
 
-/**
- * Product availability status
- */
-export type ProductStatus = "available" | "coming-soon" | "discontinued";
-
 // =============================================================================
 // PRICING TYPES
 // =============================================================================
@@ -140,8 +135,6 @@ export interface Product {
   type: ProductType;
   /** Category for filtering */
   category: ProductCategory;
-  /** Current availability status */
-  status: ProductStatus;
   /** Product image URL */
   image?: string | StaticImageData;
   /** Artwork credit; rendered as a frosted “Art by …” badge on cards and detail heroes */

@@ -9,12 +9,7 @@ import Image from "next/image";
 
 import { productArtwork } from "@/lib/data/product-artwork";
 
-import {
-  ArtistBadge,
-  ProductBadge,
-  ReleaseDateBadge,
-  StatusBadge,
-} from "./product-badge";
+import { ArtistBadge, ProductBadge, ReleaseDateBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
@@ -52,9 +47,6 @@ export function ProductDetailHero({ product }: { product: Product }) {
                 </h1>
                 <div className="flex flex-wrap items-center gap-2">
                   <ProductBadge type={product.type} />
-                  {product.status !== "available" && (
-                    <StatusBadge status={product.status} />
-                  )}
                   {product.metadata?.releaseDate && (
                     <ReleaseDateBadge isoDate={product.metadata.releaseDate} />
                   )}

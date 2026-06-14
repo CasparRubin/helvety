@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * Helvety presets for React Bits hero text on `/`.
+ * React Bits text presets for the gateway hero (Shuffle eyebrow, ShinyText tagline).
  *
- * Production `/` composes these via {@link ./hero-marketing-shell} (server copy) and
- * {@link ./hero-hyperspeed-layer} (client WebGL). {@link ./hero-section} is a legacy
- * all-client harness for Vitest and WebGL tuning only.
+ * **Not mounted on production `/` today**. {@link ./hero-marketing-shell} uses static SSR copy;
+ * {@link ./hero-hyperspeed-layer} adds client WebGL only. Keep this module for vendor refresh,
+ * preset tuning, and {@link ./hero-text.test.tsx}.
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Switzerland**: static Helvety red (`--brand-swiss-red` from `@helvety/ui/globals.css`).

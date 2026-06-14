@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { HeroHyperspeedLayer } from "@/components/hero-hyperspeed-layer";
 
-/** Minimum main height for the gateway hero (matches client hero section). */
+/** Minimum main height for the gateway hero layout. */
 const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**

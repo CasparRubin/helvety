@@ -232,4 +232,13 @@ describe("env-validation", () => {
       })()
     ).toThrow(/Invalid environment variables/i);
   });
+
+  it("does not export legacy createAppUserScopedEnv aliases", async () => {
+    const mod = await import("./env-validation");
+
+    expect(mod).not.toHaveProperty("createAppUserScopedEnv");
+    expect(mod).not.toHaveProperty("userScopedServerEnvSchema");
+    expect(mod).toHaveProperty("createAppUserScopedE2eeEnv");
+    expect(mod).toHaveProperty("createAppUpstashCookieEnv");
+  });
 });

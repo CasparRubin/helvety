@@ -31,7 +31,6 @@ const product = {
   name: "Helvety PDF",
   type: "saas",
   shortDescription: "Reorder and merge PDFs in your browser.",
-  status: "available",
   category: "utilities",
   description: { intro: "Intro" },
   features: [],
