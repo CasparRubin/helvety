@@ -212,14 +212,14 @@ export default function PrivacyPage() {
           users must first confirm that they are not located in the EU/EEA
           before verification-code delivery. Limited technical and security data
           (for example, anti-abuse/rate-limit data) may be processed before
-          account creation. After this confirmation, verification codes
-          (numeric, typically 6–8 digits per service configuration) are sent by
-          email, and OTP verification is followed by one passkey step (setup for
-          first-time users or sign-in verification for existing users). On a
-          browser where you have previously completed email verification, we may
-          store a signed trusted-device cookie that lets you start directly at
-          passkey sign-in without re-entering your email until that cookie
-          expires or you sign out (passkey is still required). We store:
+          account creation. After this confirmation, 8-digit verification codes
+          are sent by email, and OTP verification is followed by one passkey
+          step (setup for first-time users or sign-in verification for existing
+          users). On a browser where you have previously completed email
+          verification, we may store a signed trusted-device cookie that lets
+          you start directly at passkey sign-in without re-entering your email
+          until that cookie expires or you sign out (passkey is still required).
+          We store:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

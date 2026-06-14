@@ -16,6 +16,7 @@ vi.mock("@/lib/otp-send-verify-core", () => ({
 }));
 
 import { sendExtensionOtp, verifyExtensionOtp } from "./extension-otp";
+import { VALID_OTP_CODE } from "./otp-test-fixtures";
 
 const ALLOWED_ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
 
@@ -86,7 +87,7 @@ describe("extension-otp", () => {
 
     const result = await verifyExtensionOtp({
       email: "user@example.com",
-      code: "123456",
+      code: VALID_OTP_CODE,
       origin: "chrome-extension://blocked",
       clientIP: "127.0.0.1",
     });
@@ -106,14 +107,14 @@ describe("extension-otp", () => {
 
     const result = await verifyExtensionOtp({
       email: "user@example.com",
-      code: "123456",
+      code: VALID_OTP_CODE,
       origin: ALLOWED_ORIGIN,
       clientIP: "127.0.0.1",
     });
 
     expect(mocks.verifyOtpCodeCore).toHaveBeenCalledWith(
       "user@example.com",
-      "123456",
+      VALID_OTP_CODE,
       "127.0.0.1"
     );
     expect(result).toEqual({ success: true, data: session });

@@ -189,7 +189,7 @@ export async function verifyEmailCode(
   }
 
   try {
-    // Validate code format (6-8 digits, depending on Supabase config)
+    // Validate code format (must match Supabase email OTP length in otp-code.ts)
     if (!OTP_CODE_REGEX.test(code)) {
       return {
         success: false,

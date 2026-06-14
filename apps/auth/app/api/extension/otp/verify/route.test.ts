@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { VALID_OTP_CODE } from "@/lib/otp-test-fixtures";
+
 import { POST } from "./route";
 
 import type * as ExtensionOtp from "@/lib/extension-otp";
@@ -69,7 +71,7 @@ describe("auth extension OTP verify route", () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           email: "user@example.com",
-          code: "123456",
+          code: VALID_OTP_CODE,
           origin: ALLOWED_ORIGIN,
         }),
       })
@@ -85,7 +87,7 @@ describe("auth extension OTP verify route", () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           email: "user@example.com",
-          code: "123456",
+          code: VALID_OTP_CODE,
           origin: ALLOWED_ORIGIN,
         }),
       })
@@ -93,7 +95,7 @@ describe("auth extension OTP verify route", () => {
     expect(response.status).toBe(200);
     expect(mocks.verifyExtensionOtp).toHaveBeenCalledWith({
       email: "user@example.com",
-      code: "123456",
+      code: VALID_OTP_CODE,
       origin: ALLOWED_ORIGIN,
       clientIP: "127.0.0.1",
     });

@@ -104,6 +104,12 @@ vi.mock("./device-trust-cookie", () => ({
   mintAndVerifyDeviceTrustCookie: mocks.mintAndVerifyDeviceTrustCookie,
 }));
 
+import {
+  OTP_CODE_TOO_LONG,
+  OTP_CODE_TOO_SHORT,
+  VALID_OTP_CODE,
+} from "@/lib/otp-test-fixtures";
+
 import { sendVerificationCode, verifyEmailCode } from "./otp-actions";
 
 const ROTATED_CSRF_TOKEN = "rotated-csrf-token";
@@ -170,7 +176,11 @@ describe("otp-actions", () => {
       },
     });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       success: false,
@@ -229,7 +239,11 @@ describe("otp-actions", () => {
       retryAfter: 61,
     });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       error:
@@ -253,20 +267,20 @@ describe("otp-actions", () => {
     expect(verifyOtp).not.toHaveBeenCalled();
   });
 
-  it("rejects OTP codes outside 6–8 digit length before Supabase", async () => {
+  it("rejects OTP codes outside OTP_CODE_LENGTH before Supabase", async () => {
     const verifyOtp = vi.fn();
     mocks.createServerMutatingClient.mockResolvedValue({
       auth: { verifyOtp },
     });
 
-    expect(await verifyEmailCode("csrf-token", "user@ex.com", "12345")).toEqual(
-      {
-        error: "Please enter a valid verification code",
-        success: false,
-      }
-    );
     expect(
-      await verifyEmailCode("csrf-token", "user@ex.com", "123456789")
+      await verifyEmailCode("csrf-token", "user@ex.com", OTP_CODE_TOO_SHORT)
+    ).toEqual({
+      error: "Please enter a valid verification code",
+      success: false,
+    });
+    expect(
+      await verifyEmailCode("csrf-token", "user@ex.com", OTP_CODE_TOO_LONG)
     ).toEqual({
       error: "Please enter a valid verification code",
       success: false,
@@ -283,7 +297,11 @@ describe("otp-actions", () => {
       auth: { verifyOtp },
     });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       error: "Invalid or expired code. Please try again.",
@@ -304,7 +322,11 @@ describe("otp-actions", () => {
       auth: { verifyOtp },
     });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       error: "Verification failed. Please try again.",
@@ -314,7 +336,7 @@ describe("otp-actions", () => {
     expect(mocks.loggerError).toHaveBeenCalled();
   });
 
-  it("accepts 8-digit OTP and verifies with Supabase", async () => {
+  it("accepts valid-length OTP and verifies with Supabase", async () => {
     const verifyOtp = vi.fn().mockResolvedValue({
       data: { user: { id: "user-123" } },
       error: null,
@@ -332,7 +354,7 @@ describe("otp-actions", () => {
     const result = await verifyEmailCode(
       "csrf-token",
       "user@ex.com",
-      "12345678"
+      VALID_OTP_CODE
     );
 
     expect(result).toEqual({
@@ -348,13 +370,17 @@ describe("otp-actions", () => {
     expect(mocks.createServerMutatingClient).toHaveBeenCalledOnce();
     expect(verifyOtp).toHaveBeenCalledWith({
       email: "user@ex.com",
-      token: "12345678",
+      token: VALID_OTP_CODE,
       type: "email",
     });
   });
 
   it("returns rotated CSRF token from generateCSRFToken on verify success", async () => {
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result.success).toBe(true);
     if (!result.success || !result.data) {
@@ -372,7 +398,11 @@ describe("otp-actions", () => {
     });
     mocks.hasEncryptionSetup.mockResolvedValue({ data: true, success: true });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       data: {
@@ -401,7 +431,11 @@ describe("otp-actions", () => {
     });
     mocks.hasEncryptionSetup.mockResolvedValue({ data: false, success: true });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       data: {
@@ -423,7 +457,11 @@ describe("otp-actions", () => {
     });
     mocks.hasEncryptionSetup.mockResolvedValue({ data: false, success: true });
 
-    const result = await verifyEmailCode("csrf-token", "user@ex.com", "123456");
+    const result = await verifyEmailCode(
+      "csrf-token",
+      "user@ex.com",
+      VALID_OTP_CODE
+    );
 
     expect(result).toEqual({
       data: {
@@ -455,7 +493,7 @@ describe("otp-actions", () => {
       const result = await verifyEmailCode(
         "csrf-token",
         "user@ex.com",
-        "123456"
+        VALID_OTP_CODE
       );
 
       expect(result).toEqual({
@@ -483,7 +521,7 @@ describe("otp-actions", () => {
       const result = await verifyEmailCode(
         "csrf-token",
         "user@ex.com",
-        "123456"
+        VALID_OTP_CODE
       );
 
       expect(result).toEqual({
@@ -506,7 +544,7 @@ describe("otp-actions", () => {
       const result = await verifyEmailCode(
         "csrf-token",
         "user@ex.com",
-        "123456"
+        VALID_OTP_CODE
       );
 
       expect(result).toEqual({
@@ -539,7 +577,7 @@ describe("otp-actions", () => {
       const result = await verifyEmailCode(
         "csrf-token",
         "user@ex.com",
-        "123456"
+        VALID_OTP_CODE
       );
 
       expect(result).toEqual({
@@ -563,7 +601,7 @@ describe("otp-actions", () => {
       const result = await verifyEmailCode(
         "csrf-token",
         "user@ex.com",
-        "123456"
+        VALID_OTP_CODE
       );
 
       expect(result).toEqual({
@@ -586,7 +624,7 @@ describe("otp-actions", () => {
       const result = await verifyEmailCode(
         "csrf-token",
         "user@ex.com",
-        "123456"
+        VALID_OTP_CODE
       );
 
       expect(result).toEqual({

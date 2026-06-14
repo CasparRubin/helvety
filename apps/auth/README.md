@@ -22,7 +22,7 @@ Centralized passwordless authentication for Helvety web apps on helvety.com (thi
 Primary login flow:
 
 1. Email entry + non-EU/EEA attestation
-2. OTP verification (6-8 digits). On success, `verifyEmailCode` rotates the CSRF cookie and returns `csrfToken`; the login client applies it via `useSetCSRFToken` before advancing to passkey (see Security Model).
+2. OTP verification (8 digits). On success, `verifyEmailCode` rotates the CSRF cookie and returns `csrfToken`; the login client applies it via `useSetCSRFToken` before advancing to passkey (see Security Model). Code length is defined in `lib/otp-code.ts` (`OTP_CODE_LENGTH` / `OTP_USER_VISIBLE_LENGTH_LABEL`).
 3. Passkey step:
    - New/incomplete setup users: `encryption-setup` (includes passkey registration when missing), then passkey sign-in
    - Returning users: passkey sign-in directly
