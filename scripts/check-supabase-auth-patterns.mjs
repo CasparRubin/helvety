@@ -99,7 +99,8 @@ async function main() {
     for (const absolutePath of files) {
       const relativePath = absolutePath
         .replace(`${rootDir}\\`, "")
-        .replace(`${rootDir}/`, "");
+        .replace(`${rootDir}/`, "")
+        .replace(/\\/g, "/");
       if (isAllowlisted(relativePath)) {
         continue;
       }

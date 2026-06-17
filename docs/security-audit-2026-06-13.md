@@ -1,5 +1,7 @@
 # Hosting, database & dependency security audit
 
+> **Point-in-time snapshot (2026-06-13).** Findings below reflect that audit date. For **current** dependency pins and extended assets, use [`dependency-inventory.md`](./dependency-inventory.md). See [Subsequent updates](#subsequent-updates-2026-06-17) for material changes after this audit.
+
 **Date:** 2026-06-13  
 **Scope:** Supabase MCP, Vercel MCP/CLI, local guardrails, full dependency sweep (npm + extended assets)
 
@@ -126,3 +128,18 @@ Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, exten
 - Regenerated `database.types.ts`; extension `PASSKEY_PARAMS_SELECT` includes KCV.
 - Extension session bootstrap refactored to `getUser()`-first (`extension-session.ts`).
 - Removed dead crypto exports (`StoredPasskey`, `WrappedKey`, wrap error types).
+
+---
+
+## Subsequent updates (2026-06-17)
+
+Dependency sweep after this audit (see [`dependency-inventory.md`](./dependency-inventory.md) for canonical pins):
+
+| Item                                      | 2026-06-13 audit  | As of 2026-06-17                                                                                                                  |
+| ----------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `@eigenpal/docx-editor-react`             | 1.4.0             | **^1.6.2** (vendor uses semantic CSS variables; bridge Layer 3 `slate-*` remaps are defensive)                                    |
+| `@supabase/supabase-js` / `@supabase/ssr` | latest stable     | **^2.108.2**                                                                                                                      |
+| `bun audit`                               | 0 vulnerabilities | **1 low** transitive (`@babel/core` via shadcn/eslint-config-next); root overrides added for `protobufjs`, `dompurify`, `js-yaml` |
+| Toolchain (`@helvety/dev-deps`)           | current           | eslint **10.5.0**, vitest **4.1.9**, tailwind **4.3.1**, lucide **^1.20.0**                                                       |
+
+Re-run `bun run deps:security` and `bun run deps:drift` after bumps. Supabase RLS posture and Vercel manual follow-ups above remain valid until re-audited.

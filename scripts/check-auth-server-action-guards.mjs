@@ -8,6 +8,15 @@
  */
 import { readdir, readFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+function isCliMain(moduleUrl) {
+  const entry = process.argv[1];
+  if (!entry) {
+    return false;
+  }
+  return resolve(fileURLToPath(moduleUrl)) === resolve(entry);
+}
 
 const rootDir = process.cwd();
 const actionsDir = resolve(rootDir, "apps/auth/app/actions");
@@ -116,7 +125,8 @@ async function main() {
   for (const absolutePath of files) {
     const relativePath = absolutePath
       .replace(`${rootDir}\\`, "")
-      .replace(`${rootDir}/`, "");
+      .replace(`${rootDir}/`, "")
+      .replace(/\\/g, "/");
     const content = await readFile(absolutePath, "utf8");
     violations.push(...verifyAuthActionGuards(relativePath, content));
   }
@@ -130,7 +140,7 @@ async function main() {
   console.log("Auth server-action guard checks passed.");
 }
 
-if (import.meta.url === new URL(process.argv[1], "file:").href) {
+if (isCliMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error.message);
     process.exit(1);

@@ -9,8 +9,17 @@
 import { createHash } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+function isCliMain(moduleUrl) {
+  const entry = process.argv[1];
+  if (!entry) {
+    return false;
+  }
+  return resolve(fileURLToPath(moduleUrl)) === resolve(entry);
+}
 
 import {
   EXPECTED_KEYS_BY_APP,
@@ -427,7 +436,7 @@ async function main() {
   console.log(`Vercel ${target} env audit passed for all zone projects.`);
 }
 
-if (import.meta.url === new URL(process.argv[1], "file:").href) {
+if (isCliMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error.message);
     process.exit(1);

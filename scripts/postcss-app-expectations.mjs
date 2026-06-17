@@ -12,8 +12,8 @@ export const CANONICAL_POSTCSS_CONFIG =
 
 /** Pinned production Tailwind toolchain on @helvety/ui (versions canonical in dev-deps). */
 export const UI_TAILWIND_BUILD_DEPENDENCIES = {
-  tailwindcss: "^4.3.0",
-  "@tailwindcss/postcss": "^4.3.0",
+  tailwindcss: "^4.3.1",
+  "@tailwindcss/postcss": "^4.3.1",
 };
 
 /**

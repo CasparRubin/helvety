@@ -33,6 +33,6 @@ describe("extension passkey production docs", () => {
     expect(doc).not.toContain("localhost");
     expect(doc).toMatch(/404.*HTML|HTML.*404/i);
     expect(doc).toMatch(/allowlist/i);
-    expect(doc).toMatch(/side panel/i);
+    expect(doc).toMatch(/action popup/i);
   });
 });

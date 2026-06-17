@@ -215,7 +215,15 @@ describe("docx editor Helvety theme bridge", () => {
     );
   });
 
-  it("eigenpal slate utilities in vendor CSS are covered by dark remaps", () => {
+  it("eigenpal vendor styles use semantic Tailwind tokens (not slate utilities)", () => {
+    const vendor = readFileSync(eigenpalStylesPath, "utf8");
+    expect(vendor).toContain(".ep-root .bg-background");
+    expect(vendor).toMatch(/--background:/);
+    expect(vendor).not.toMatch(/\.ep-root\s+\.bg-slate-/);
+    expect(vendor).not.toMatch(/\.ep-root\s+\.text-slate-/);
+  });
+
+  it("eigenpal slate utilities in vendor CSS are covered by dark remaps when present", () => {
     const vendor = readFileSync(eigenpalStylesPath, "utf8");
     const slateUtilities = [
       ...new Set(
@@ -227,7 +235,9 @@ describe("docx editor Helvety theme bridge", () => {
       ),
     ];
 
-    expect(slateUtilities.length).toBeGreaterThan(0);
+    if (slateUtilities.length === 0) {
+      return;
+    }
 
     for (const utility of slateUtilities) {
       const darkSelector = `html.dark .ep-root ${utility}`;

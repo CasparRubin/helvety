@@ -13,7 +13,7 @@ export type BearerAuthContext = {
 };
 
 /**
- * Validates a Bearer JWT from the Helvety Chromium extension side panel.
+ * Validates a Bearer JWT from the Helvety Chromium extension action popup.
  * Does not create cookies — the extension keeps its own session in `chrome.storage.local`.
  */
 export async function authenticateBearerRequest(

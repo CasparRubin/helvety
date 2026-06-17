@@ -46,10 +46,37 @@ function collectArtifactDirs(dir) {
   return found;
 }
 
+/** @param {string} absPath */
+function repoRelativePath(absPath) {
+  return absPath
+    .replace(`${repoRoot}\\`, "")
+    .replace(`${repoRoot}/`, "")
+    .replace(/\\/g, "/");
+}
+
 /** @param {string} dir */
 function removeDir(dir) {
-  rmSync(dir, { recursive: true, force: true });
-  console.log(`[clean:artifacts] removed ${dir.replace(`${repoRoot}/`, "")}`);
+  try {
+    rmSync(dir, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
+    console.log(`[clean:artifacts] removed ${repoRelativePath(dir)}`);
+  } catch (error) {
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? String(error.code)
+        : "";
+    if (code === "ENOTEMPTY" || code === "EBUSY" || code === "EPERM") {
+      console.log(
+        `[clean:artifacts] skipped ${repoRelativePath(dir)} (${code})`
+      );
+      return;
+    }
+    throw error;
+  }
 }
 
 /** @param {string} dir */
@@ -84,7 +111,7 @@ for (const dir of artifactDirs) {
 const dsStorePaths = collectDsStore(repoRoot);
 for (const file of dsStorePaths) {
   rmSync(file, { force: true });
-  console.log(`[clean:artifacts] removed ${file.replace(`${repoRoot}/`, "")}`);
+  console.log(`[clean:artifacts] removed ${repoRelativePath(file)}`);
 }
 
 if (artifactDirs.length === 0 && dsStorePaths.length === 0) {

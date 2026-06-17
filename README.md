@@ -39,7 +39,7 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 | [`packages/shared`](packages/shared/)                     | Security, auth, rate-limit, and Supabase helpers, plus shared constants, SEO metadata factory, user-facing error copy, and dashboard prefetch utilities                                                                                                                   |
 | [`packages/ui`](packages/ui/)                             | Shared UI components, `globals.css`, and **production** `tailwindcss` / `@tailwindcss/postcss` (Turbopack CSS graph for zone builds; PostCSS plugin path via `@helvety/config/postcss` → dev-deps)                                                                        |
 | [`packages/light-pillar`](packages/light-pillar/)         | Shared WebGL backdrop utilities for the marketing homepage Hyperspeed hero                                                                                                                                                                                                |
-| [`packages/extension-chrome`](packages/extension-chrome/) | Shared Chromium extension UI chrome for external extension repos (popups and side panels; not used by Next.js zones in this monorepo)                                                                                                                                     |
+| [`packages/extension-chrome`](packages/extension-chrome/) | Shared Chromium extension UI chrome for external extension repos (action popups; not used by Next.js zones in this monorepo)                                                                                                                                              |
 
 ## Prerequisites
 

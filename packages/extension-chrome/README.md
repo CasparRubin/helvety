@@ -4,8 +4,8 @@ Shared **Chromium extension UI chrome** for Helvety products: CSP-safe theme boo
 
 Used by:
 
-- [helvety-browser-extension-chromium](https://github.com/CasparRubin/helvety-browser-extension-chromium) — **Chrome Side Panel** (full viewport height; does not use `POPUP_WIDTH_CLASS`)
-- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) — action **popup** at Chrome’s 800×600 maximum ([Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang))
+- [helvety-browser-extension-chromium](https://github.com/CasparRubin/helvety-browser-extension-chromium) — Chromium **action popup** at **320px** width (`EXTENSION_POPUP_WIDTH_CLASS` in the consumer repo; does **not** use shared `POPUP_WIDTH_CLASS`, which is 800px for PP)
+- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) — action **popup** at Chrome’s 800×600 maximum ([Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang)); uses `POPUP_WIDTH_CLASS` (`w-[800px]`)
 
 ## Exports
 

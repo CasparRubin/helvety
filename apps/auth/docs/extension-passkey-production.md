@@ -48,6 +48,6 @@ After deploy, confirm production requests reach the OTP and passkey routes with 
 
 ## 4. Extension client
 
-Build without `VITE_HELVETY_AUTH_ORIGIN` (defaults to `https://helvety.com/auth`). Load unpacked `dist/` in Edge or Chrome (114+), then click the Helvety toolbar icon to open the **side panel**.
+Build without `VITE_HELVETY_AUTH_ORIGIN` (defaults to `https://helvety.com/auth`). Load unpacked `dist/` in Edge or Chrome (114+), then click the Helvety toolbar icon to open the **action popup**.
 
 See [helvety-browser-extension-chromium `docs/webauthn-extension.md`](https://github.com/CasparRubin/helvety-browser-extension-chromium/blob/main/docs/webauthn-extension.md).

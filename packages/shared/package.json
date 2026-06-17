@@ -114,7 +114,7 @@
     "@helvety/config": "workspace:*",
     "@simplewebauthn/browser": "^13.3.0",
     "@supabase/ssr": "^0.12.0",
-    "@supabase/supabase-js": "^2.108.1",
+    "@supabase/supabase-js": "^2.108.2",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "clsx": "^2.1.1",

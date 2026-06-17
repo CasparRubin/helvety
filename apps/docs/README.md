@@ -72,7 +72,7 @@ Do **not** pass `/docs` to `router.replace` inside this app. Next prepends `base
 
 ### Eigenpal upgrade checklist
 
-After bumping `@eigenpal/docx-editor-react` (current pin: `^1.4.0` in `package.json`), verify visually (light + dark):
+After bumping `@eigenpal/docx-editor-react` (current pin: `^1.6.2` in `package.json`), verify visually (light + dark):
 
 1. Toolbar and font/size/style dropdowns
 2. Find/Replace and Page setup dialogs (if reachable)
@@ -84,7 +84,7 @@ After bumping `@eigenpal/docx-editor-react` (current pin: `^1.4.0` in `package.j
 8. Toolbar stack: Helvety command bar → Eigenpal title bar → formatting bar (no color band or gap between Eigenpal rows; title bar has side borders, no top border under the Helvety toolbar)
 9. Menus, dropdowns, and tooltips: readable contrast in **light and dark** (no white panels with light-grey text; toolbar hovers readable)
 
-Then run `cd apps/docs && bun run test` (theme bridge in `lib/docx-editor-theme.test.ts`, including every eigenpal `slate-*` dark remap; token parity in `lib/docx-editor-theme-tokens.test.ts`). If that test fails after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for `slate-*` utilities; Layers 4–8 for chrome surfaces, title-bar hides, comment suppression, Eigenpal toolbar stack, and overlay parity for inline `white` panels, menus, and tooltips).
+Then run `cd apps/docs && bun run test` (theme bridge in `lib/docx-editor-theme.test.ts`: Eigenpal 1.6+ vendor semantic tokens, conditional `slate-*` dark remaps when vendor ships them, token parity in `lib/docx-editor-theme-tokens.test.ts`). If tests fail after a package bump, extend [`docx-editor-helvety-bridge.css`](./styles/docx-editor-helvety-bridge.css) (Layer 3 for legacy `slate-*` utilities when present; Layers 4–8 for chrome surfaces, title-bar hides, comment suppression, Eigenpal toolbar stack, and overlay parity for inline `white` panels, menus, and tooltips).
 
 ## Third-Party
 
