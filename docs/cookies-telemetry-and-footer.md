@@ -32,9 +32,9 @@ Production cookie domain: `.helvety.com` (`packages/shared/src/config.ts`).
 
 ## Browser storage (not cookies)
 
-Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps, Docs optional vault save, and the Chromium extension action popup), `helvety-pdf-columns` (PDF viewer). Chromium extension: Supabase auth session and `helvety_extension_last_email_verified` in `chrome.storage.local` (weekly email proof).
+Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps, Docs optional vault save, and the Chromium extension side panel), `helvety-pdf-columns` (PDF viewer). Chromium extension: Supabase auth session and `helvety_extension_last_email_verified` in `chrome.storage.local` (weekly email proof).
 
-E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **24h sliding idle** and **7d absolute max** lifetime (`@helvety/shared/auth-session-policy.ts`, `crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, Docs, and the Chromium extension action popup. Cleared on logout / hard logout.
+E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **24h sliding idle** and **7d absolute max** lifetime (`@helvety/shared/auth-session-policy.ts`, `crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, Docs, and the Chromium extension side panel. Cleared on logout / hard logout.
 
 ## When to update legal copy
 

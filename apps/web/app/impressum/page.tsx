@@ -146,7 +146,7 @@ export default function ImpressumPage() {
             <strong className="text-foreground">
               Helvety Chromium extension
             </strong>
-            : E2EE action popup for Tasks, Notes, Contacts, and Links (email OTP
+            : E2EE side panel for Tasks, Notes, Contacts, and Links (email OTP
             sign-in and passkey unlock via Helvety Auth; source on{" "}
             <a
               className="text-primary underline underline-offset-2"

@@ -330,7 +330,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Helvety Chromium extension (E2EE action popup):
+              Helvety Chromium extension (E2EE side panel):
             </strong>{" "}
             sign-in sends your email and EU/EEA attestation to Helvety Auth OTP
             routes on helvety.com; verification codes are delivered by email.
@@ -1110,7 +1110,7 @@ export default function PrivacyPage() {
             </strong>{" "}
             Supabase session material and a weekly email-proof anchor in{" "}
             <code className="text-foreground">chrome.storage.local</code> (see
-            table below). The extension action popup also uses IndexedDB for the
+            table below). The extension side panel also uses IndexedDB for the
             same vault key cache policy as web E2EE apps.
           </li>
         </ul>
@@ -1207,7 +1207,7 @@ export default function PrivacyPage() {
                 <td className="border-border border-b p-3">
                   Temporary cache of derived encryption keys for E2EE apps
                   (Helvety Tasks, Contacts, Notes, Links), Helvety Docs optional
-                  vault save, and the Helvety Chromium extension action popup;
+                  vault save, and the Helvety Chromium extension side panel;
                   cleared on logout
                 </td>
                 <td className="border-border border-b p-3">helvety.com</td>
@@ -1221,8 +1221,8 @@ export default function PrivacyPage() {
                   Supabase auth session (chrome.storage.local)
                 </td>
                 <td className="border-border border-b p-3">
-                  Keeps you signed in to the Helvety Chromium extension action
-                  popup between sessions
+                  Keeps you signed in to the Helvety Chromium extension side
+                  panel between sessions
                 </td>
                 <td className="border-border border-b p-3">
                   Chromium extension

@@ -87,7 +87,7 @@ Implementation: [`lib/extension-otp.ts`](./lib/extension-otp.ts), [`lib/otp-send
 
 ### Extension weekly email proof (no device-trust cookie)
 
-Extension OTP verify returns Supabase session tokens only; it **does not** mint `helvety_device_trust` (extensions cannot persist HttpOnly cookies on helvety.com). The Chromium extension action popup records weekly email proof in `chrome.storage.local` (`helvety_extension_last_email_verified`) using the same **7d cap** as `@helvety/shared/auth-session-policy`. Enforcement is **client-side** via `resolveVerifiedExtensionSession` in the extension repo; web E2EE zones enforce device trust **server-side** via `requireDeviceTrust`.
+Extension OTP verify returns Supabase session tokens only; it **does not** mint `helvety_device_trust` (extensions cannot persist HttpOnly cookies on helvety.com). The Chromium extension side panel records weekly email proof in `chrome.storage.local` (`helvety_extension_last_email_verified`) using the same **7d cap** as `@helvety/shared/auth-session-policy`. Enforcement is **client-side** via `resolveVerifiedExtensionSession` in the extension repo; web E2EE zones enforce device trust **server-side** via `requireDeviceTrust`.
 
 |                    | Web                                       | Extension                                                         |
 | ------------------ | ----------------------------------------- | ----------------------------------------------------------------- |
