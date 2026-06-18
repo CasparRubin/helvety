@@ -44,4 +44,4 @@ See [`docs/legal-change-guardrails.md`](./legal-change-guardrails.md). Any chang
 - `apps/web/lib/legal-cookies-disclosure.ts` + `apps/web/app/legal-cookies-disclosure.test.ts`
 - This document if operational facts change
 
-Regression tests: `bun run test` in `apps/web` (`legal-cookies-disclosure.test.ts`, `legal-metadata.test.ts`).
+Regression tests: `bun run test` in `apps/web` (`legal-cookies-disclosure.test.ts`, `legal-metadata.test.ts`, `legal-privacy-tables.test.ts`).

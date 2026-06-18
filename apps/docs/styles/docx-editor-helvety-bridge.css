@@ -5,7 +5,8 @@
  * Token reference: apps/docs/lib/docx-editor-theme-tokens.ts
  *
  * Layers: (1) semantic HSL on `.ep-root`, (2) white paper on `.layout-page`,
- * (3) dark legacy `slate-*` remaps when vendor ships them (Eigenpal 1.6+ uses semantic tokens),
+ * (3) dark legacy `slate-*` remaps when vendor ships them (Eigenpal 1.6+ exposes semantic
+ *     tokens but its scoped Tailwind bundle may still include legacy slate utilities),
  * (4) chrome surfaces + inline white panels,
  * (5) hide vendor title-bar doc icon, Help menu, and internal docx file input; keep File/Format/Insert visible,
  * (6) comment suppression, (7) Eigenpal toolbar stack below Helvety CommandBar (per-row border-x),

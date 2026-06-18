@@ -215,12 +215,12 @@ describe("docx editor Helvety theme bridge", () => {
     );
   });
 
-  it("eigenpal vendor styles use semantic Tailwind tokens (not slate utilities)", () => {
+  it("eigenpal vendor exposes semantic shadcn tokens (legacy slate remapped in bridge)", () => {
     const vendor = readFileSync(eigenpalStylesPath, "utf8");
     expect(vendor).toContain(".ep-root .bg-background");
     expect(vendor).toMatch(/--background:/);
-    expect(vendor).not.toMatch(/\.ep-root\s+\.bg-slate-/);
-    expect(vendor).not.toMatch(/\.ep-root\s+\.text-slate-/);
+    // Eigenpal 1.6+ ships semantic tokens plus a scoped Tailwind bundle that may still
+    // include slate-* utilities; Layer 3/8 in docx-editor-helvety-bridge.css remaps them.
   });
 
   it("eigenpal slate utilities in vendor CSS are covered by dark remaps when present", () => {

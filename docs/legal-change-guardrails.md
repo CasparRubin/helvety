@@ -48,5 +48,5 @@ At minimum, review and update all of:
 - claims about no training/no retention are technically true
 - login/account requirement claims match actual access flow
 - telemetry/security endpoint descriptions match actual payload types
-- Privacy §9 cookie/storage disclosure matches [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts); footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure` / `legal-metadata`)
+- Privacy §9 cookie/storage disclosure matches [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts); footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure`, `legal-metadata`, `legal-privacy-tables`)
 - CH-first/non-EU-targeting language is consistent wherever referenced

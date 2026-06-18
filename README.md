@@ -16,18 +16,18 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 
 ## Applications
 
-| App                                           | URL                                  | Purpose                                                                                                                |
-| --------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| [`apps/web`](apps/web/)                       | <https://helvety.com>                | Gateway app, marketing homepage (Hyperspeed + React Bits hero text), legal pages, sitemap index, cross-zone navigation |
-| [`apps/auth`](apps/auth/)                     | <https://helvety.com/auth>           | Centralized passwordless auth (email OTP + passkey)                                                                    |
-| [`apps/store`](apps/store/)                   | <https://helvety.com/store>          | Product catalog, SPFx package downloads, and external install links (for example Chrome Web Store)                     |
-| [`apps/pdf`](apps/pdf/)                       | <https://helvety.com/pdf>            | Browser-based PDF tools                                                                                                |
-| [`apps/docs`](apps/docs/)                     | <https://helvety.com/docs>           | Browser-based .docx editor with optional encrypted vault save                                                          |
-| [`apps/image-upscaler`](apps/image-upscaler/) | <https://helvety.com/image-upscaler> | Browser-based image upscaling                                                                                          |
-| [`apps/tasks`](apps/tasks/)                   | <https://helvety.com/tasks>          | E2EE task management                                                                                                   |
-| [`apps/contacts`](apps/contacts/)             | <https://helvety.com/contacts>       | E2EE contact management                                                                                                |
-| [`apps/notes`](apps/notes/)                   | <https://helvety.com/notes>          | E2EE notes                                                                                                             |
-| [`apps/links`](apps/links/)                   | <https://helvety.com/links>          | E2EE bookmarks with nested folders                                                                                     |
+| App                                           | URL                                  | Purpose                                                                                                                 |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| [`apps/web`](apps/web/)                       | <https://helvety.com>                | Gateway app, marketing homepage (static SSR hero + Hyperspeed WebGL), legal pages, sitemap index, cross-zone navigation |
+| [`apps/auth`](apps/auth/)                     | <https://helvety.com/auth>           | Centralized passwordless auth (email OTP + passkey)                                                                     |
+| [`apps/store`](apps/store/)                   | <https://helvety.com/store>          | Product catalog, SPFx package downloads, and external install links (for example Chrome Web Store)                      |
+| [`apps/pdf`](apps/pdf/)                       | <https://helvety.com/pdf>            | Browser-based PDF tools                                                                                                 |
+| [`apps/docs`](apps/docs/)                     | <https://helvety.com/docs>           | Browser-based .docx editor with optional encrypted vault save                                                           |
+| [`apps/image-upscaler`](apps/image-upscaler/) | <https://helvety.com/image-upscaler> | Browser-based image upscaling                                                                                           |
+| [`apps/tasks`](apps/tasks/)                   | <https://helvety.com/tasks>          | E2EE task management                                                                                                    |
+| [`apps/contacts`](apps/contacts/)             | <https://helvety.com/contacts>       | E2EE contact management                                                                                                 |
+| [`apps/notes`](apps/notes/)                   | <https://helvety.com/notes>          | E2EE notes                                                                                                              |
+| [`apps/links`](apps/links/)                   | <https://helvety.com/links>          | E2EE bookmarks with nested folders                                                                                      |
 
 ## Shared Packages
 

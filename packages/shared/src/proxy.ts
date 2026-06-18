@@ -15,6 +15,8 @@ const CSRF_TOKEN_LENGTH = 32;
 const CSP_NONCE_LENGTH = 16;
 const HEX_CHARACTERS = "0123456789abcdef";
 export const CSRF_BOOTSTRAP_HEADER_NAME = "x-csrf-bootstrap-token";
+/** Request pathname forwarded from the security proxy for gateway shell layout routing. */
+export const HELVETY_PATHNAME_HEADER_NAME = "x-helvety-pathname";
 
 /** Options for building the Content-Security-Policy header in the proxy. */
 export type BuildCspOptions = {
@@ -48,6 +50,8 @@ export type CreateSecurityProxyOptions = {
   includeHelvetyUrl?: boolean;
   /** Whether to bootstrap/re-issue signed CSRF cookies (default: true). Public marketing profile disables this. */
   includeCsrf?: boolean;
+  /** Whether to set {@link HELVETY_PATHNAME_HEADER_NAME} (default: false). Web gateway enables for hero bleed scoping. */
+  includeRequestPathname?: boolean;
 };
 
 /** Generate cryptographically secure random bytes in edge-safe runtimes. */
@@ -243,6 +247,7 @@ export function createSecurityProxy(
     buildCspOptions = {},
     includeHelvetyUrl = true,
     includeCsrf = true,
+    includeRequestPathname = false,
   } = options;
   const { failClosedOnAuthRefresh = false } = refreshOptions;
 
@@ -266,6 +271,13 @@ export function createSecurityProxy(
     if (includeHelvetyUrl) {
       const publicUrl = `${request.nextUrl.origin}${request.nextUrl.basePath}${request.nextUrl.pathname}${request.nextUrl.search}`;
       requestHeaders.set("x-helvety-url", publicUrl);
+    }
+
+    if (includeRequestPathname) {
+      requestHeaders.set(
+        HELVETY_PATHNAME_HEADER_NAME,
+        request.nextUrl.pathname
+      );
     }
 
     if (shouldBootstrapCsrf) {

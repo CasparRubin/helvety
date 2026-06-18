@@ -22,9 +22,24 @@ async function main() {
     /includeCsrf:\s*false/i,
   ].every((pattern) => pattern.test(readmeContent));
 
+  const pathnameHeaderEnabled = /includeRequestPathname:\s*true/.test(
+    proxyContent
+  );
+  const readmeMentionsPathnameRouting = [
+    /includeRequestPathname/i,
+    /x-helvety-pathname/i,
+    /getGatewayShellLayoutProps/i,
+  ].every((pattern) => pattern.test(readmeContent));
+
   if (csrfDisabled && !readmeMentionsCsrfDisabled) {
     throw new Error(
       'apps/web/README.md must document that CSRF cookie bootstrap is disabled when apps/web/proxy.ts uses the "public-marketing" profile or explicitly sets includeCsrf: false.'
+    );
+  }
+
+  if (pathnameHeaderEnabled && !readmeMentionsPathnameRouting) {
+    throw new Error(
+      "apps/web/README.md must document includeRequestPathname, x-helvety-pathname, and getGatewayShellLayoutProps when apps/web/proxy.ts enables pathname routing."
     );
   }
 

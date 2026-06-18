@@ -149,7 +149,8 @@ function buildMainBlock(
  * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
  * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
  * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
- * content can extend horizontally (gateway `apps/web`: full-bleed Hyperspeed hero).
+ * content can extend horizontally (`apps/web` homepage `/` only via
+ * `getGatewayShellLayoutProps`; legal and other gateway routes keep default clipping).
  * Other public apps keep the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional

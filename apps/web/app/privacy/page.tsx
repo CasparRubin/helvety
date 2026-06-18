@@ -3,12 +3,22 @@ import {
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
 } from "@helvety/shared/power-platform-configurator-copy";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@helvety/ui/table";
 
 import "@/app/legal.css";
 import {
   LegalFooterNote,
   LegalHeader,
   LegalPageShell,
+  LegalTable,
+  LegalTableWrap,
   LegalToc,
 } from "@/components/legal-document";
 
@@ -769,53 +779,48 @@ export default function PrivacyPage() {
           providers who process data on our behalf:
         </p>
 
-        <div className="legal-table-wrap mb-4 overflow-x-auto">
-          <table className="border-border w-full border text-sm">
-            <thead>
-              <tr className="bg-card">
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Provider
-                </th>
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Purpose
-                </th>
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Location
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="border-border border-b p-3">Vercel Inc.</td>
-                <td className="border-border border-b p-3">
-                  Website hosting and delivery
-                </td>
-                <td className="border-border border-b p-3">USA</td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">Supabase Inc.</td>
-                <td className="border-border border-b p-3">
-                  Database and authentication
-                </td>
-                <td className="border-border border-b p-3">USA</td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">Resend Inc.</td>
-                <td className="border-border border-b p-3">
-                  Transactional email delivery (SMTP relay via Supabase)
-                </td>
-                <td className="border-border border-b p-3">USA</td>
-              </tr>
-              <tr>
-                <td className="p-3">Upstash Inc.</td>
-                <td className="p-3">
-                  Rate limiting (processes IP-based identifiers)
-                </td>
-                <td className="p-3">USA</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <LegalTableWrap
+          ariaLabel="Third-party service providers"
+          className="mb-4"
+        >
+          <LegalTable layout="scroll">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Provider</TableHead>
+                  <TableHead>Purpose</TableHead>
+                  <TableHead>Location</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Vercel Inc.</TableCell>
+                  <TableCell>Website hosting and delivery</TableCell>
+                  <TableCell>USA</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Supabase Inc.</TableCell>
+                  <TableCell>Database and authentication</TableCell>
+                  <TableCell>USA</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Resend Inc.</TableCell>
+                  <TableCell>
+                    Transactional email delivery (SMTP relay via Supabase)
+                  </TableCell>
+                  <TableCell>USA</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Upstash Inc.</TableCell>
+                  <TableCell>
+                    Rate limiting (processes IP-based identifiers)
+                  </TableCell>
+                  <TableCell>USA</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </LegalTable>
+        </LegalTableWrap>
 
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">Resend:</strong> Resend operates
@@ -1114,148 +1119,146 @@ export default function PrivacyPage() {
             same vault key cache policy as web E2EE apps.
           </li>
         </ul>
-        <div className="legal-table-wrap mb-4 overflow-x-auto">
-          <table className="border-border w-full border text-sm">
-            <thead>
-              <tr className="bg-card">
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Cookie / Storage
-                </th>
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Purpose
-                </th>
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Domain
-                </th>
-                <th className="border-border text-foreground border-b p-3 text-left font-medium">
-                  Duration
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="border-border border-b p-3">
-                  Supabase auth session
-                </td>
-                <td className="border-border border-b p-3">
-                  Authentication session (httpOnly)
-                </td>
-                <td className="border-border border-b p-3">.helvety.com</td>
-                <td className="border-border border-b p-3">
-                  Session (short-lived tokens with automatic refresh and
-                  expiration controls)
-                </td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">csrf_token</td>
-                <td className="border-border border-b p-3">
-                  CSRF protection (signed, httpOnly)
-                </td>
-                <td className="border-border border-b p-3">.helvety.com</td>
-                <td className="border-border border-b p-3">24 hours</td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  webauthn_challenge
-                </td>
-                <td className="border-border border-b p-3">
-                  Passkey authentication challenge (signed, httpOnly)
-                </td>
-                <td className="border-border border-b p-3">.helvety.com</td>
-                <td className="border-border border-b p-3">3 minutes</td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  helvety_device_trust
-                </td>
-                <td className="border-border border-b p-3">
-                  Trusted-device marker after email verification; allows
-                  passkey-first sign-in on return visits from any `/auth/login`
-                  entry and weekly email re-proof for E2EE API access (signed,
-                  httpOnly)
-                </td>
-                <td className="border-border border-b p-3">.helvety.com</td>
-                <td className="border-border border-b p-3">
-                  7 days (sliding renewal on passkey sign-in when already
-                  trusted; required for continuing E2EE API access)
-                </td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  Theme preference (localStorage)
-                </td>
-                <td className="border-border border-b p-3">
-                  Remember dark/light mode setting
-                </td>
-                <td className="border-border border-b p-3">helvety.com</td>
-                <td className="border-border border-b p-3">Persistent</td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  helvety-prf-salt (localStorage)
-                </td>
-                <td className="border-border border-b p-3">
-                  Cache PRF salt for passkey login unlock (auth flows)
-                </td>
-                <td className="border-border border-b p-3">helvety.com</td>
-                <td className="border-border border-b p-3">7 days</td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  helvety-crypto (IndexedDB)
-                </td>
-                <td className="border-border border-b p-3">
-                  Temporary cache of derived encryption keys for E2EE apps
-                  (Helvety Tasks, Contacts, Notes, Links), Helvety Docs optional
-                  vault save, and the Helvety Chromium extension side panel;
-                  cleared on logout
-                </td>
-                <td className="border-border border-b p-3">helvety.com</td>
-                <td className="border-border border-b p-3">
-                  Up to 24 hours idle (extended on use), 7 days maximum per
-                  unlock session
-                </td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  Supabase auth session (chrome.storage.local)
-                </td>
-                <td className="border-border border-b p-3">
-                  Keeps you signed in to the Helvety Chromium extension side
-                  panel between sessions
-                </td>
-                <td className="border-border border-b p-3">
-                  Chromium extension
-                </td>
-                <td className="border-border border-b p-3">
-                  Session (short-lived tokens with automatic refresh and
-                  expiration controls)
-                </td>
-              </tr>
-              <tr>
-                <td className="border-border border-b p-3">
-                  helvety_extension_last_email_verified (chrome.storage.local)
-                </td>
-                <td className="border-border border-b p-3">
-                  Weekly email-proof anchor after OTP verification in the
-                  Chromium extension; required to stay signed in for E2EE access
-                </td>
-                <td className="border-border border-b p-3">
-                  Chromium extension
-                </td>
-                <td className="border-border border-b p-3">7 days</td>
-              </tr>
-              <tr>
-                <td className="p-3">helvety-pdf-columns (localStorage)</td>
-                <td className="p-3">
-                  Remember PDF viewer column layout (Helvety PDF)
-                </td>
-                <td className="p-3">helvety.com</td>
-                <td className="p-3">Persistent</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <LegalTableWrap
+          ariaLabel="Cookies and local storage used by Helvety"
+          className="mb-4"
+        >
+          <LegalTable layout="cards">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cookie / Storage</TableHead>
+                  <TableHead>Purpose</TableHead>
+                  <TableHead>Domain</TableHead>
+                  <TableHead>Duration</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    Supabase auth session
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Authentication session (httpOnly)
+                  </TableCell>
+                  <TableCell data-label="Domain">.helvety.com</TableCell>
+                  <TableCell data-label="Duration">
+                    Session (short-lived tokens with automatic refresh and
+                    expiration controls)
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    csrf_token
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    CSRF protection (signed, httpOnly)
+                  </TableCell>
+                  <TableCell data-label="Domain">.helvety.com</TableCell>
+                  <TableCell data-label="Duration">24 hours</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    webauthn_challenge
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Passkey authentication challenge (signed, httpOnly)
+                  </TableCell>
+                  <TableCell data-label="Domain">.helvety.com</TableCell>
+                  <TableCell data-label="Duration">3 minutes</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    helvety_device_trust
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Trusted-device marker after email verification; allows
+                    passkey-first sign-in on return visits from any
+                    `/auth/login` entry and weekly email re-proof for E2EE API
+                    access (signed, httpOnly)
+                  </TableCell>
+                  <TableCell data-label="Domain">.helvety.com</TableCell>
+                  <TableCell data-label="Duration">
+                    7 days (sliding renewal on passkey sign-in when already
+                    trusted; required for continuing E2EE API access)
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    Theme preference (localStorage)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Remember dark/light mode setting
+                  </TableCell>
+                  <TableCell data-label="Domain">helvety.com</TableCell>
+                  <TableCell data-label="Duration">Persistent</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    helvety-prf-salt (localStorage)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Cache PRF salt for passkey login unlock (auth flows)
+                  </TableCell>
+                  <TableCell data-label="Domain">helvety.com</TableCell>
+                  <TableCell data-label="Duration">7 days</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    helvety-crypto (IndexedDB)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Temporary cache of derived encryption keys for E2EE apps
+                    (Helvety Tasks, Contacts, Notes, Links), Helvety Docs
+                    optional vault save, and the Helvety Chromium extension side
+                    panel; cleared on logout
+                  </TableCell>
+                  <TableCell data-label="Domain">helvety.com</TableCell>
+                  <TableCell data-label="Duration">
+                    Up to 24 hours idle (extended on use), 7 days maximum per
+                    unlock session
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    Supabase auth session (chrome.storage.local)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Keeps you signed in to the Helvety Chromium extension side
+                    panel between sessions
+                  </TableCell>
+                  <TableCell data-label="Domain">Chromium extension</TableCell>
+                  <TableCell data-label="Duration">
+                    Session (short-lived tokens with automatic refresh and
+                    expiration controls)
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    helvety_extension_last_email_verified (chrome.storage.local)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Weekly email-proof anchor after OTP verification in the
+                    Chromium extension; required to stay signed in for E2EE
+                    access
+                  </TableCell>
+                  <TableCell data-label="Domain">Chromium extension</TableCell>
+                  <TableCell data-label="Duration">7 days</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    helvety-pdf-columns (localStorage)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Remember PDF viewer column layout (Helvety PDF)
+                  </TableCell>
+                  <TableCell data-label="Domain">helvety.com</TableCell>
+                  <TableCell data-label="Duration">Persistent</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </LegalTable>
+        </LegalTableWrap>
 
         <p className="text-muted-foreground mb-4 text-sm">
           We do not operate third-party analytics, advertising trackers, or

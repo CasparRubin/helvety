@@ -8,6 +8,7 @@ import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
+import { getGatewayShellLayoutProps } from "@/lib/gateway-shell-props";
 
 export { WEB_SITE_DESCRIPTION };
 
@@ -48,11 +49,11 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
  * gutters, fixed footer (contact + legal links).
  *
- * Full-bleed Hyperspeed on `/` (light and dark) paints wider than the content column (`100svw`,
- * centered on the hero; WebGL mounts client-side when motion is allowed). The shell passes `shellColumnClassName`,
- * `scrollAreaRootClassName`, `scrollAreaViewportClassName`, and `bodyClassName`
- * so Radix scroll clipping and the `h-svh` column do not crop the full-bleed backdrop; see
- * `@helvety/ui` README for these optional `HelvetyPublicShellRootLayout` props.
+ * Full-bleed Hyperspeed on `/` only (light and dark) paints wider than the content column
+ * (`100svw`, centered on the hero; WebGL mounts client-side when motion is allowed).
+ * {@link getGatewayShellLayoutProps} passes overflow escape props only on `/` so legal and
+ * other subpages keep default scroll clipping; see `@helvety/ui` README for optional
+ * `HelvetyPublicShellRootLayout` shell props.
  *
  * `app/loading.tsx` re-exports `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)
  * so pending navigations keep a full-viewport `bg-background` shell. The public shell injects
@@ -72,14 +73,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const initialUser = await bootstrapPublicLayoutUser();
+  const [initialUser, shellLayoutProps] = await Promise.all([
+    bootstrapPublicLayoutUser(),
+    getGatewayShellLayoutProps(),
+  ]);
 
   return (
     <HelvetyPublicShellRootLayout
-      shellColumnClassName="!overflow-visible"
-      bodyClassName="overflow-x-clip"
-      scrollAreaRootClassName="!overflow-visible"
-      scrollAreaViewportClassName="!overflow-visible bg-background"
+      {...shellLayoutProps}
       organizationLogoUrl={brandAssets.identifierLogo}
       jsonLdGraphTail={[
         {

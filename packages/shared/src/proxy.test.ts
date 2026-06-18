@@ -7,6 +7,7 @@ import {
 } from "./cookie-signing";
 import {
   CSRF_BOOTSTRAP_HEADER_NAME,
+  HELVETY_PATHNAME_HEADER_NAME,
   SECURITY_PROXY_MATCHER,
   SECURITY_PROXY_PROFILE_OPTIONS,
   createAppProxy,
@@ -81,6 +82,9 @@ describe("proxy shared abstractions", () => {
       includeHelvetyUrl: false,
       includeCsrf: false,
     });
+    expect(
+      SECURITY_PROXY_PROFILE_OPTIONS["public-marketing"].includeRequestPathname
+    ).toBeUndefined();
   });
 
   it("redirectRootToBasePath redirects root and skips non-root", () => {
@@ -190,5 +194,38 @@ describe("createSecurityProxy CSRF bootstrap", () => {
     const response = await proxy(request);
 
     expect(response.cookies.get("csrf_token")).toBeUndefined();
+  });
+});
+
+describe("createSecurityProxy pathname header", () => {
+  it("forwards x-helvety-pathname when includeRequestPathname is enabled", async () => {
+    const nextSpy = vi.spyOn(NextResponse, "next");
+    const proxy = createSecurityProxy({
+      includeRequestPathname: true,
+      includeCsrf: false,
+    });
+    const request = new NextRequest("https://helvety.com/privacy");
+
+    await proxy(request);
+
+    const forwardedHeaders = nextSpy.mock.calls[0]?.[0]?.request?.headers;
+    expect(forwardedHeaders?.get(HELVETY_PATHNAME_HEADER_NAME)).toBe(
+      "/privacy"
+    );
+
+    nextSpy.mockRestore();
+  });
+
+  it("does not forward x-helvety-pathname by default", async () => {
+    const nextSpy = vi.spyOn(NextResponse, "next");
+    const proxy = createSecurityProxy({ includeCsrf: false });
+    const request = new NextRequest("https://helvety.com/privacy");
+
+    await proxy(request);
+
+    const forwardedHeaders = nextSpy.mock.calls[0]?.[0]?.request?.headers;
+    expect(forwardedHeaders?.get(HELVETY_PATHNAME_HEADER_NAME)).toBeNull();
+
+    nextSpy.mockRestore();
   });
 });

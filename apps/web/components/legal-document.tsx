@@ -42,7 +42,7 @@ export function LegalPageShell({
   backLabel = "Back to Home",
 }: LegalPageShellProps) {
   return (
-    <section className="legal-page-section">
+    <section className="legal-page-section min-h-full">
       <div className="legal-page-container">
         <div className="legal-page-back">
           <Button variant="ghost" size="sm" asChild>
@@ -118,4 +118,48 @@ export function LegalCard({ children, className }: WithClassName) {
 /** Footer note container for final legal acknowledgements. */
 export function LegalFooterNote({ children, className }: WithClassName) {
   return <footer className={cx("legal-footer", className)}>{children}</footer>;
+}
+
+/** Props for accessible horizontal scroll region around legal tables. */
+type LegalTableWrapProps = WithClassName & {
+  ariaLabel: string;
+};
+
+/** Shadcn-style overflow wrapper for legal tables (keyboard-focusable scroll region). */
+export function LegalTableWrap({
+  ariaLabel,
+  children,
+  className,
+}: LegalTableWrapProps) {
+  return (
+    <div
+      role="region"
+      aria-label={ariaLabel}
+      tabIndex={0}
+      className={cx("legal-table-wrap", className)}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Layout mode for responsive legal tables. */
+type LegalTableLayout = "scroll" | "cards";
+
+/** Inner wrapper applying scroll or mobile card layout classes to a shadcn Table tree. */
+export function LegalTable({
+  children,
+  className,
+  layout = "scroll",
+}: WithClassName & { layout?: LegalTableLayout }) {
+  return (
+    <div
+      className={cx(
+        layout === "cards" ? "legal-table-cards" : "legal-table-scroll",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }

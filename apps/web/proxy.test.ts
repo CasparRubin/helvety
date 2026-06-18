@@ -1,6 +1,12 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
 import { config } from "./proxy";
+
+const proxyPath = join(dirname(fileURLToPath(import.meta.url)), "proxy.ts");
 
 describe("web gateway proxy matcher", () => {
   it("uses a single-string matcher array", () => {
@@ -23,5 +29,10 @@ describe("web gateway proxy matcher", () => {
     }
     expect(pattern).toContain("webmanifest");
     expect(pattern).toContain("woff2?");
+  });
+
+  it("forwards pathname for gateway shell layout scoping", () => {
+    const src = readFileSync(proxyPath, "utf8");
+    expect(src).toContain("includeRequestPathname: true");
   });
 });

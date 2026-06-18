@@ -69,6 +69,7 @@
     "./sheet": "./src/sheet.tsx",
     "./sheet-scroll-layout": "./src/sheet-scroll-layout.ts",
     "./tabs": "./src/tabs.tsx",
+    "./table": "./src/table.tsx",
     "./sonner": "./src/sonner.tsx",
     "./theme-provider": "./src/theme-provider.tsx",
     "./tooltip": "./src/tooltip.tsx",
