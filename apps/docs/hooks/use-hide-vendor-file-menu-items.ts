@@ -25,34 +25,59 @@ function isVendorFileNewItem(text: string): boolean {
   );
 }
 
+/** Hides conflicting Eigenpal File menu entries inside a mounted `.ep-root`. */
+function hideVendorFileMenuItems(root: Element): void {
+  root.querySelectorAll('[role="menuitem"]').forEach((node) => {
+    const el = node as HTMLElement;
+    const text = el.textContent ?? "";
+    if (
+      isVendorFileOpenItem(text) ||
+      isVendorFileSaveItem(text) ||
+      isVendorFileNewItem(text)
+    ) {
+      el.style.display = "none";
+    }
+  });
+}
+
 /**
  * Hides Eigenpal File → Open / Save / New entries that conflict with Helvety-controlled
  * open (parent `documentBuffer`), validated `onSave` export, and command bar New.
+ * Uses a `MutationObserver` so late-mounted `.ep-root` menus are covered.
  */
 export function useHideVendorFileMenuItems(
   rootRef: RefObject<HTMLElement | null>
 ): void {
   useEffect(() => {
-    const root = rootRef.current?.querySelector(".ep-root");
-    if (!root) return;
+    const host = rootRef.current;
+    if (!host) return;
 
-    const hide = (): void => {
-      root.querySelectorAll('[role="menuitem"]').forEach((node) => {
-        const el = node as HTMLElement;
-        const text = el.textContent ?? "";
-        if (
-          isVendorFileOpenItem(text) ||
-          isVendorFileSaveItem(text) ||
-          isVendorFileNewItem(text)
-        ) {
-          el.style.display = "none";
-        }
-      });
+    let menuObserver: MutationObserver | null = null;
+
+    const attachToEpRoot = (root: Element): void => {
+      hideVendorFileMenuItems(root);
+      menuObserver?.disconnect();
+      menuObserver = new MutationObserver(() => hideVendorFileMenuItems(root));
+      menuObserver.observe(root, { childList: true, subtree: true });
     };
 
-    hide();
-    const observer = new MutationObserver(hide);
-    observer.observe(root, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    const existing = host.querySelector(".ep-root");
+    if (existing) {
+      attachToEpRoot(existing);
+      return () => menuObserver?.disconnect();
+    }
+
+    const hostObserver = new MutationObserver(() => {
+      const epRoot = host.querySelector(".ep-root");
+      if (epRoot) {
+        attachToEpRoot(epRoot);
+      }
+    });
+    hostObserver.observe(host, { childList: true, subtree: true });
+
+    return () => {
+      hostObserver.disconnect();
+      menuObserver?.disconnect();
+    };
   }, [rootRef]);
 }

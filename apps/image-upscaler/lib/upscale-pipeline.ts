@@ -192,6 +192,7 @@ export async function upscaleItemsSequentially(options: {
   onModelDownloadProgress?: (progress: ModelDownloadProgress) => void;
   /** Vitest: skip canvas-size probe and use fixed limits. */
   canvasLimitsOverride?: CanvasExportLimits;
+  signal?: AbortSignal;
 }): Promise<{
   runtime: string;
   totalCount: number;
@@ -211,10 +212,21 @@ export async function upscaleItemsSequentially(options: {
     options.canvasLimitsOverride ?? (await getCanvasExportLimitsCached());
   const model = getModelById(options.modelId);
 
+  const reportProgress = (id: string, patch: Partial<UpscaleItem>): void => {
+    if (options.signal?.aborted) return;
+    options.onProgress(id, patch);
+  };
+
   try {
     runtime = await worker.getRuntime();
+    if (options.signal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
+    }
     for (const item of options.items) {
-      options.onProgress(item.id, {
+      if (options.signal?.aborted) {
+        throw new DOMException("Aborted", "AbortError");
+      }
+      reportProgress(item.id, {
         status: "processing",
         error: null,
         exportDimensions: null,
@@ -234,7 +246,7 @@ export async function upscaleItemsSequentially(options: {
           );
         }
 
-        options.onProgress(item.id, {
+        reportProgress(item.id, {
           width: dimensions.width,
           height: dimensions.height,
         });
@@ -272,7 +284,7 @@ export async function upscaleItemsSequentially(options: {
         });
 
         if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);
-        options.onProgress(item.id, {
+        reportProgress(item.id, {
           status: "done",
           outputUrl: output.outputUrl,
           error: null,
@@ -280,7 +292,7 @@ export async function upscaleItemsSequentially(options: {
         });
         completedCount += 1;
       } catch (error) {
-        options.onProgress(item.id, {
+        reportProgress(item.id, {
           status: "failed",
           error: normalizeUpscaleWorkerError(error),
           exportDimensions: null,

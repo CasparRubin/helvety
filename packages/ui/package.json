@@ -2,7 +2,7 @@
   "name": "@helvety/ui",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared UI: shadcn/ui, Sonner, footer, theme, Tiptap, ListSearchField (E2EE search), CSRF, EncryptionGate/EncryptionGateApp, EncryptionTooltipContent, CommandBar, CommandBarPageLayout, E2eeAppRootLayout, HelvetyPublicShellRootLayout, HelvetyShellNavbar, E2eeAppNavbar, AccessibleSheetHeader, E2eeEntityDetailSheet, RootGlobalError, useE2eeEntityListDndSensors, AppSwitcher (canonical links in app-switcher-sections), ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent (Vitest on selected exports)",
+  "description": "Shared UI: shadcn/ui, Sonner, footer, theme, Tiptap, ListSearchField (E2EE search), CSRF, EncryptionGateApp (wraps internal EncryptionGate), EncryptionTooltipContent, CommandBar, CommandBarPageLayout, E2eeAppRootLayout, HelvetyPublicShellRootLayout, HelvetyShellNavbar, E2eeAppNavbar, AccessibleSheetHeader, E2eeEntityDetailSheet, RootGlobalError, useE2eeEntityListDndSensors, AppSwitcher (canonical links in app-switcher-sections), ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent (Vitest on selected exports)",
   "author": "Helvety",
   "license": "AGPL-3.0-or-later",
   "homepage": "https://helvety.com",
@@ -43,6 +43,7 @@
     "./csrf-provider": "./src/csrf-provider.tsx",
     "./delete-confirmation-dialog": "./src/delete-confirmation-dialog.tsx",
     "./encryption-gate-app": "./src/encryption-gate-app.tsx",
+    "./helvety-theme-init-script": "./src/helvety-theme-init-script.tsx",
     "./encryption-tooltip-content": "./src/encryption-tooltip-content.tsx",
     "./dialog": "./src/dialog.tsx",
     "./tiptap-editor": "./src/tiptap-editor.tsx",
@@ -138,6 +139,7 @@
   "devDependencies": {
     "@helvety/config": "workspace:*",
     "@helvety/dev-deps": "workspace:*",
-    "@types/dompurify": "^3.2.0"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }

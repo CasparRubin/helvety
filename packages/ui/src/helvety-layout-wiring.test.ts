@@ -102,4 +102,20 @@ describe("Helvety layout wiring", () => {
     assertNoAnalyticsMarkers(e2eeShell, "e2ee-app-root-layout.tsx");
     assertNoAnalyticsMarkers(uiPackage, "packages/ui/package.json");
   });
+
+  it("public shell ScrollArea selectors target data-slot=scroll-area-viewport", () => {
+    const publicShell = readFileSync(
+      join(repoRoot, "packages/ui/src/helvety-public-shell-root-layout.tsx"),
+      "utf8"
+    );
+    const commandBarLayout = readFileSync(
+      join(repoRoot, "packages/ui/src/command-bar-page-layout.tsx"),
+      "utf8"
+    );
+
+    for (const src of [publicShell, commandBarLayout]) {
+      expect(src).toContain("[&>[data-slot=scroll-area-viewport]]");
+      expect(src).not.toContain("data-radix-scroll-area-viewport");
+    }
+  });
 });

@@ -29,7 +29,6 @@ interface MergeRequestPayload {
 
 interface WorkerProcessingOptions {
   readonly useGpuPreprocess: boolean;
-  readonly useWorkerPipeline: boolean;
 }
 
 export interface ExtractPageResponsePayload {

@@ -13,7 +13,11 @@ import {
 } from "@helvety/ui/alert-dialog";
 import { Button } from "@helvety/ui/button";
 import { EncryptionGateApp } from "@helvety/ui/encryption-gate-app";
-import { ListEmptyState, ListLoadingState } from "@helvety/ui/list-states";
+import {
+  ListEmptyState,
+  ListErrorState,
+  ListLoadingState,
+} from "@helvety/ui/list-states";
 import { ScrollArea } from "@helvety/ui/scroll-area";
 import {
   Sheet,
@@ -37,6 +41,9 @@ interface VaultDocumentsSheetProps {
   readonly activeDocId: string | null;
   readonly documents: DocListItem[];
   readonly isLoading: boolean;
+  readonly isRefreshing: boolean;
+  readonly error: string | null;
+  readonly onRetry: () => void;
   readonly vaultEnabled: boolean;
   readonly onOpenDocument: (id: string) => void;
   readonly onDeleteDocument: (id: string) => void;
@@ -47,12 +54,18 @@ function VaultDocumentList({
   documents,
   activeDocId,
   isLoading,
+  isRefreshing,
+  error,
+  onRetry,
   onOpenDocument,
   onDeleteDocument,
 }: {
   documents: DocListItem[];
   activeDocId: string | null;
   isLoading: boolean;
+  isRefreshing: boolean;
+  error: string | null;
+  onRetry: () => void;
   onOpenDocument: (id: string) => void;
   onDeleteDocument: (id: string) => void;
 }): React.JSX.Element {
@@ -60,15 +73,23 @@ function VaultDocumentList({
   const deleteTargetTitle =
     documents.find((d) => d.id === deleteTargetId)?.title ?? "this document";
 
-  if (isLoading) {
-    return <ListLoadingState message="Loading documents…" />;
+  if (error) {
+    return <ListErrorState message={error} onRetry={onRetry} />;
+  }
+
+  if (isLoading || (isRefreshing && documents.length === 0)) {
+    return (
+      <ListLoadingState
+        message={isRefreshing ? "Refreshing documents…" : "Loading documents…"}
+      />
+    );
   }
 
   if (documents.length === 0) {
     return (
       <ListEmptyState
         title="No saved documents"
-        description="Save from the toolbar when your vault is unlocked."
+        description="Save from the command bar when your vault is unlocked."
       />
     );
   }
@@ -147,6 +168,9 @@ export function VaultDocumentsSheet({
   activeDocId,
   documents,
   isLoading,
+  isRefreshing,
+  error,
+  onRetry,
   vaultEnabled,
   onOpenDocument,
   onDeleteDocument,
@@ -171,6 +195,9 @@ export function VaultDocumentsSheet({
               documents={vaultEnabled ? documents : []}
               activeDocId={activeDocId}
               isLoading={vaultEnabled && isLoading}
+              isRefreshing={vaultEnabled && isRefreshing}
+              error={vaultEnabled ? error : null}
+              onRetry={onRetry}
               onOpenDocument={onOpenDocument}
               onDeleteDocument={onDeleteDocument}
             />

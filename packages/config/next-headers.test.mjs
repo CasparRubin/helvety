@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCsp, createSecurityHeaders } from "./next-headers.mjs";
+import {
+  buildCsp,
+  createSecurityHeaders,
+  resolveCspReportEndpoint,
+} from "./next-headers.mjs";
 
 function getDirective(csp, directiveName) {
   return (
@@ -11,7 +15,48 @@ function getDirective(csp, directiveName) {
   );
 }
 
+describe("resolveCspReportEndpoint", () => {
+  it("returns gateway path when basePath is empty", () => {
+    expect(resolveCspReportEndpoint()).toBe("/api/csp-report");
+    expect(resolveCspReportEndpoint("")).toBe("/api/csp-report");
+    expect(resolveCspReportEndpoint("/")).toBe("/api/csp-report");
+  });
+
+  it("prefixes zone base paths", () => {
+    expect(resolveCspReportEndpoint("/pdf")).toBe("/pdf/api/csp-report");
+    expect(resolveCspReportEndpoint("/image-upscaler")).toBe(
+      "/image-upscaler/api/csp-report"
+    );
+    expect(resolveCspReportEndpoint("/docs/")).toBe("/docs/api/csp-report");
+  });
+});
+
 describe("createSecurityHeaders", () => {
+  it("uses zone basePath for CSP reporting headers", async () => {
+    process.env.NODE_ENV = "development";
+
+    const headersFactory = createSecurityHeaders({
+      appName: "pdf",
+      basePath: "/pdf",
+    });
+    const config = await headersFactory();
+    const headers = config[0]?.headers ?? [];
+
+    expect(headers).toEqual(
+      expect.arrayContaining([
+        { key: "Reporting-Endpoints", value: 'csp="/pdf/api/csp-report"' },
+        {
+          key: "Report-To",
+          value: JSON.stringify({
+            group: "csp-endpoint",
+            max_age: 10886400,
+            endpoints: [{ url: "/pdf/api/csp-report" }],
+          }),
+        },
+      ])
+    );
+  });
+
   it("omits COEP in production while keeping COOP", async () => {
     process.env.NODE_ENV = "production";
 
@@ -48,6 +93,13 @@ describe("createSecurityHeaders", () => {
 });
 
 describe("buildCsp", () => {
+  it("uses zone basePath in report-uri", () => {
+    process.env.NODE_ENV = "production";
+    const csp = buildCsp({ nonce: "nonce-123", basePath: "/pdf" });
+
+    expect(csp).toContain("report-uri /pdf/api/csp-report");
+  });
+
   it("adds nonce and omits unsafe-eval in production by default", () => {
     process.env.NODE_ENV = "production";
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://project-id.supabase.co";

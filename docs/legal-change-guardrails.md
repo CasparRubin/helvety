@@ -48,5 +48,6 @@ At minimum, review and update all of:
 - claims about no training/no retention are technically true
 - login/account requirement claims match actual access flow
 - telemetry/security endpoint descriptions match actual payload types
-- Privacy §9 cookie/storage disclosure matches [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts); footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure`, `legal-metadata`, `legal-privacy-tables`)
+- Privacy §9 cookie/storage disclosure matches [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts); footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure`, `legal-metadata`, `legal-privacy-tables`, `legal-e2ee-products`)
+- When legal page body copy changes, bump `lastReviewed` on **all three** pages (`privacy`, `terms`, `impressum`) to the same date (`legal-metadata.test.ts` enforces parity)
 - CH-first/non-EU-targeting language is consistent wherever referenced

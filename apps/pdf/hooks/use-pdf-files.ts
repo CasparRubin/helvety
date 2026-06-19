@@ -8,9 +8,10 @@ import * as React from "react";
 // Internal utilities
 import { yieldToBrowserIfNeeded } from "@/lib/batch-processing";
 import { safeRevokeObjectURL } from "@/lib/blob-url-utils";
-import { FILE_LIMITS } from "@/lib/constants";
+import { CACHE_LIMITS, FILE_LIMITS } from "@/lib/constants";
 import { formatValidationErrors } from "@/lib/error-formatting";
 import { processFile } from "@/lib/file-processing";
+import { getRecommendedCacheLimit } from "@/lib/memory-utils";
 import { convertImageToPdf } from "@/lib/pdf-conversion";
 import { createPdfErrorInfo, PdfErrorType } from "@/lib/pdf-errors";
 import { loadPdfFromFile } from "@/lib/pdf-loading";
@@ -43,12 +44,16 @@ interface UsePdfFilesReturn {
 
 /** Maximum number of retry attempts for transient failures */
 const MAX_RETRIES = 2;
-/** Bounded number of cached PDFDocument instances per session. */
-const MAX_PDF_CACHE_ENTRIES = 40;
 
 /** Evict least-recently-used documents until cache is within configured cap. */
 function enforcePdfCacheLimit(pdfCache: Map<string, PDFDocument>): void {
-  while (pdfCache.size > MAX_PDF_CACHE_ENTRIES) {
+  const cacheLimit = getRecommendedCacheLimit(
+    CACHE_LIMITS.MAX_CACHED_PDFS,
+    CACHE_LIMITS.MOBILE_MAX_CACHED_PDFS,
+    isMobileDevice()
+  );
+
+  while (pdfCache.size > cacheLimit) {
     const oldestKey = pdfCache.keys().next().value;
     if (!oldestKey) return;
     pdfCache.delete(oldestKey);

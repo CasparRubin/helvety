@@ -59,7 +59,7 @@ Run **Database → Advisors → Security** (or MCP `get_advisors` type `security
 
 `consistency:supabase-rls` checks every table in `scripts/supabase-user-tables.mjs` (`TABLES_REQUIRING_USER_RLS`, currently **10** tables: `contacts`, `items`, `notes`, `links`, `link_folders`, `entity_links`, `docs`, `user_profiles`, `user_passkey_params`, `user_auth_credentials`). It fails when a listed table is missing from the local export or lacks forced owner-scoped RLS — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
 
-**Schema migrations in VCS:** DDL lives under [`supabase/migrations/`](../supabase/migrations/) (applied to production via Supabase MCP or `supabase db push` when linked). After applying, run `bun run db:gen-types` and `bun run consistency:supabase-schema`. `user_passkey_params.key_check_value` (nullable text, KCV for wrong-passkey detection) is in `20260613193623_add_user_passkey_params_key_check_value.sql`.
+**Schema changes (remote-first):** DDL is applied on the hosted Supabase project (Dashboard SQL editor or Supabase MCP). This repo does **not** commit `supabase/migrations/`; audit the live shape with [`supabase/getSupabase.sql`](../supabase/getSupabase.sql) → local `supabase/supabase.json` (gitignored). After every schema change, run `bun run db:gen-types` and `bun run consistency:supabase-schema`. Example: `user_passkey_params.key_check_value` (nullable text, KCV for wrong-passkey detection) was added in June 2026 via hosted migration.
 
 ## Auth / extension
 

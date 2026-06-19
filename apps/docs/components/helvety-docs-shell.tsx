@@ -79,6 +79,9 @@ export function HelvetyDocsShell({
   const {
     documents,
     isLoading: vaultLoading,
+    isRefreshing: vaultRefreshing,
+    error: vaultError,
+    refresh: refreshVaultDocuments,
     loadDocument,
     saveDocument,
     remove,
@@ -357,6 +360,9 @@ export function HelvetyDocsShell({
           activeDocId={vaultDocId}
           documents={documents}
           isLoading={vaultLoading}
+          isRefreshing={vaultRefreshing}
+          error={vaultError}
+          onRetry={() => void refreshVaultDocuments()}
           vaultEnabled={vaultEnabled}
           onOpenDocument={(id) => void handleOpenVaultDocument(id)}
           onDeleteDocument={(id) => void handleDeleteVaultDocument(id)}

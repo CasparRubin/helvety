@@ -91,6 +91,23 @@ describe("legal pages enumerate E2EE products", () => {
     );
   });
 
+  it("privacy section 2.8 Notes metadata matches section 10.2 E2EE disclosures", () => {
+    const source = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/privacy/page.tsx"), "utf8")
+    );
+    const categoryPhrase =
+      "immutable built-in taxonomy references (category IDs)";
+    const section28Start = source.indexOf("Helvety Notes (helvety.com/notes):");
+    const section102Start = source.indexOf("Helvety Notes encrypted fields:");
+    expect(section28Start).toBeGreaterThanOrEqual(0);
+    expect(section102Start).toBeGreaterThanOrEqual(0);
+
+    const section28 = source.slice(section28Start, section28Start + 900);
+    const section102 = source.slice(section102Start, section102Start + 600);
+    expect(section28).toContain(categoryPhrase);
+    expect(section102).toContain(categoryPhrase);
+  });
+
   it("privacy documents cross-app linking metadata for every E2EE app section", () => {
     const source = normalizeLegalSource(
       readFileSync(join(repoRoot, "apps/web/app/privacy/page.tsx"), "utf8")

@@ -40,6 +40,6 @@ Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs),
 Copy keys from each zone’s `apps/<slug>/env.template` into that Vercel project (not the repo root). Tier reference: [`turbo-env-tiers.md`](./turbo-env-tiers.md). Step-by-step Vercel UI checklist: [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md).
 
 - **Admin tier** (`helvety-auth`, `helvety-store`): needs `SUPABASE_SECRET_KEY`, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` (auth also needs `DEVICE_TRUST_COOKIE_SECRET` and `HELVETY_CHROME_EXTENSION_ORIGINS`).
-- **User-scoped tier** (E2EE apps + `helvety-docs`): Upstash + `HELVETY_COOKIE_SIGNING_SECRET` only; do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
-- **Public tools** (`helvety-pdf`, `helvety-image-upscaler`): same as user-scoped tier (Upstash required for auth callback rate limiting).
+- **User-scoped tier** (E2EE apps + `helvety-docs`): public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, and **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`); do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
+- **Public tools** (`helvety-pdf`, `helvety-image-upscaler`): public Supabase, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` only — **no** `DEVICE_TRUST_COOKIE_SECRET` (Upstash still required for auth callback rate limiting).
 - **Gateway** (`helvety-com`): public Supabase keys + all nine zone rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `DOCS_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`; no `HELVETY_COOKIE_SIGNING_SECRET`, Upstash, or `SUPABASE_SECRET_KEY`.

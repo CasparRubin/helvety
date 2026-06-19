@@ -89,12 +89,12 @@ Live audit confirms a **strong security posture**: all 10 user-data tables have 
 
 ## Skipped / discuss
 
-| Item                              | Reason                                                           |
-| --------------------------------- | ---------------------------------------------------------------- |
-| Supabase migrations in VCS        | Out of scope; process improvement for a future PR                |
-| Remote CI (GitHub Actions)        | Guardrails currently forbid; policy change required              |
-| Drop unused DB indexes            | Performance-only INFO from advisor; needs query traffic analysis |
-| Enable leaked password protection | Requires Supabase Dashboard (no MCP API)                         |
+| Item                              | Reason                                                                                                                                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase migrations in VCS        | **Not used** — remote-first DDL on hosted Supabase; see [`security-review-runbook.md`](./security-review-runbook.md) and root [`README.md`](../README.md) § Supabase Workflow |
+| Remote CI (GitHub Actions)        | Guardrails currently forbid; policy change required                                                                                                                           |
+| Drop unused DB indexes            | Performance-only INFO from advisor; needs query traffic analysis                                                                                                              |
+| Enable leaked password protection | Requires Supabase Dashboard (no MCP API)                                                                                                                                      |
 
 ---
 
@@ -124,7 +124,7 @@ Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, exten
 
 ### Completed in auth/E2EE audit (2026-06-13)
 
-- Added `user_passkey_params.key_check_value` column (migration `supabase/migrations/20260613193623_add_user_passkey_params_key_check_value.sql`, applied via Supabase MCP).
+- Added `user_passkey_params.key_check_value` column (applied on the hosted Supabase project via Supabase MCP; not tracked as SQL files in this repo).
 - Regenerated `database.types.ts`; extension `PASSKEY_PARAMS_SELECT` includes KCV.
 - Extension session bootstrap refactored to `getUser()`-first (`extension-session.ts`).
 - Removed dead crypto exports (`StoredPasskey`, `WrappedKey`, wrap error types).

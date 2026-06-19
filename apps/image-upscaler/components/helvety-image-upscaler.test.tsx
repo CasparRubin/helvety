@@ -3,7 +3,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HelvetyImageUpscaler } from "@/components/helvety-image-upscaler";
-import { upscaleItemsSequentially } from "@/lib/upscale-pipeline";
+import { getDefaultEngineForRuntime, getModelById } from "@/lib/models";
+import {
+  readImageDimensions,
+  upscaleItemsSequentially,
+} from "@/lib/upscale-pipeline";
 
 import type * as UpscalePipelineModule from "@/lib/upscale-pipeline";
 
@@ -30,6 +34,7 @@ vi.mock("@/lib/upscale-pipeline", async (importOriginal) => {
 });
 
 const mockUpscaleItemsSequentially = vi.mocked(upscaleItemsSequentially);
+const mockReadImageDimensions = vi.mocked(readImageDimensions);
 
 describe("HelvetyImageUpscaler", () => {
   const originalWebAssembly = globalThis.WebAssembly;
@@ -58,6 +63,27 @@ describe("HelvetyImageUpscaler", () => {
     expect(
       screen.getByText(/Processed locally in your browser\./)
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Upscale all" })).toBeDisabled();
+  });
+
+  it("rejects images above the active model pixel cap on upload", async () => {
+    const model = getModelById(getDefaultEngineForRuntime());
+    const width = Math.ceil(Math.sqrt(model.maxInputPixels)) + 1;
+    const height = width;
+
+    mockReadImageDimensions.mockResolvedValueOnce({ width, height });
+
+    render(<HelvetyImageUpscaler />);
+    uploadImageFile();
+
+    await waitFor(() => {
+      expect(toastMocks.error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `exceeds ${model.maxInputPixels.toLocaleString()} pixels`
+        ),
+        { duration: TOAST_DURATIONS.ERROR }
+      );
+    });
     expect(screen.getByRole("button", { name: "Upscale all" })).toBeDisabled();
   });
 

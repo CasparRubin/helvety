@@ -97,6 +97,30 @@ async function main() {
     );
   }
 
+  const conventionsLine = readme
+    .split("\n")
+    .find((line) => line.includes("consistency:*` scripts such as"));
+  if (!conventionsLine) {
+    throw new Error(
+      "README.md Monorepo Conventions must list root consistency:* scripts."
+    );
+  }
+
+  const conventionsScripts = [...conventionsLine.matchAll(/`([\w:-]+)`/g)].map(
+    (match) => match[1]
+  );
+  const ciCheckConsistencySteps = ciCheckFromPackage.filter((step) =>
+    step.startsWith("consistency:")
+  );
+
+  for (const step of ciCheckConsistencySteps) {
+    if (!conventionsScripts.includes(step)) {
+      throw new Error(
+        `README.md Monorepo Conventions must mention \`${step}\` (present in ci:check).`
+      );
+    }
+  }
+
   const devDepsReadme = await readFile(
     resolve(rootDir, "packages/dev-deps/README.md"),
     "utf8"

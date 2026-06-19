@@ -48,6 +48,16 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [modelId] = React.useState<UpscaleModelId>(getDefaultEngineForRuntime);
   const itemsRef = React.useRef<UpscaleItem[]>([]);
+  const isMountedRef = React.useRef(true);
+  const upscaleAbortRef = React.useRef<AbortController | null>(null);
+
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      upscaleAbortRef.current?.abort();
+    };
+  }, []);
 
   const targetValue = Number.parseInt(targetInput, 10) || 0;
   const targetIsValid =
@@ -66,54 +76,75 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
     itemsRef.current = items;
   }, [items]);
 
-  const addFiles = React.useCallback((fileList: FileList): void => {
-    const parsed = parseImageFiles(fileList);
-    parsed.errors.forEach((message) =>
-      toast.error(message, { duration: TOAST_DURATIONS.ERROR })
-    );
-    if (parsed.items.length === 0) return;
-
-    void (async () => {
-      const hydrated = await Promise.all(
-        parsed.items.map(async (item) => {
-          try {
-            const dimensions = await readImageDimensions(item.file);
-            return { item: { ...item, ...dimensions }, error: null };
-          } catch (error) {
-            return {
-              item: null,
-              error:
-                error instanceof Error
-                  ? error.message
-                  : `Failed to decode "${item.file.name}".`,
-            };
-          }
-        })
+  const addFiles = React.useCallback(
+    (fileList: FileList): void => {
+      const parsed = parseImageFiles(fileList);
+      parsed.errors.forEach((message) =>
+        toast.error(message, { duration: TOAST_DURATIONS.ERROR })
       );
+      if (parsed.items.length === 0) return;
 
-      hydrated.forEach((result) => {
-        if (result.error)
-          toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
-      });
+      void (async () => {
+        const hydrated = await Promise.all(
+          parsed.items.map(async (item) => {
+            try {
+              const dimensions = await readImageDimensions(item.file);
+              return { item: { ...item, ...dimensions }, error: null };
+            } catch (error) {
+              return {
+                item: null,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : `Failed to decode "${item.file.name}".`,
+              };
+            }
+          })
+        );
 
-      const decodedItems = hydrated
-        .map((result) => result.item)
-        .filter((item): item is UpscaleItem => item !== null);
+        hydrated.forEach((result) => {
+          if (result.error)
+            toast.error(result.error, { duration: TOAST_DURATIONS.ERROR });
+        });
 
-      if (decodedItems.length === 0) return;
+        const decodedItems = hydrated
+          .map((result) => result.item)
+          .filter((item): item is UpscaleItem => item !== null);
 
-      setItems((current) => {
-        const availableSlots = Math.max(0, MAX_BULK_FILES - current.length);
-        const accepted = decodedItems.slice(0, availableSlots);
-        if (decodedItems.length > availableSlots) {
-          toast.error(`Maximum ${MAX_BULK_FILES} files per batch.`, {
-            duration: TOAST_DURATIONS.ERROR,
-          });
-        }
-        return [...current, ...accepted];
-      });
-    })();
-  }, []);
+        if (decodedItems.length === 0) return;
+
+        const model = getModelById(modelId);
+        const pixelRejected: string[] = [];
+        const withinModelLimit = decodedItems.filter((item) => {
+          const pixels = item.width * item.height;
+          if (pixels > model.maxInputPixels) {
+            URL.revokeObjectURL(item.previewUrl);
+            pixelRejected.push(
+              `"${item.file.name}" exceeds ${model.maxInputPixels.toLocaleString()} pixels for ${model.label}. Try a smaller image.`
+            );
+            return false;
+          }
+          return true;
+        });
+        pixelRejected.forEach((message) =>
+          toast.error(message, { duration: TOAST_DURATIONS.ERROR })
+        );
+        if (withinModelLimit.length === 0) return;
+
+        setItems((current) => {
+          const availableSlots = Math.max(0, MAX_BULK_FILES - current.length);
+          const accepted = withinModelLimit.slice(0, availableSlots);
+          if (withinModelLimit.length > availableSlots) {
+            toast.error(`Maximum ${MAX_BULK_FILES} files per batch.`, {
+              duration: TOAST_DURATIONS.ERROR,
+            });
+          }
+          return [...current, ...accepted];
+        });
+      })();
+    },
+    [modelId]
+  );
 
   const handleFileInput = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -179,6 +210,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
       if (selectedItems.length === 0) return;
 
       setIsProcessing(true);
+      upscaleAbortRef.current?.abort();
+      const abortController = new AbortController();
+      upscaleAbortRef.current = abortController;
       try {
         const result = await upscaleItemsSequentially({
           items: selectedItems,
@@ -187,7 +221,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
           targetMode,
           targetValue,
           modelId,
+          signal: abortController.signal,
           onProgress: (id, partial) => {
+            if (!isMountedRef.current || abortController.signal.aborted) return;
             setItems((current) =>
               current.map((item) =>
                 item.id === id
@@ -244,12 +280,23 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
           );
         }
       } catch (error) {
+        if (
+          abortController.signal.aborted ||
+          (error instanceof DOMException && error.name === "AbortError")
+        ) {
+          return;
+        }
         toast.error(
           error instanceof Error ? error.message : "Failed to upscale.",
           { duration: TOAST_DURATIONS.ERROR }
         );
       } finally {
-        setIsProcessing(false);
+        if (isMountedRef.current) {
+          setIsProcessing(false);
+        }
+        if (upscaleAbortRef.current === abortController) {
+          upscaleAbortRef.current = null;
+        }
       }
     },
     [

@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="June 13, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="June 19, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -580,13 +580,14 @@ export default function PrivacyPage() {
             architecture is designed so that we are generally unable to access
             your note content in plaintext during normal operation.
             Non-encrypted structural metadata is stored in plaintext to enable
-            application functionality: record identifiers, timestamps, and
-            display preferences (sort order). When linking with other Helvety
-            E2EE apps, additional non-encrypted relationship metadata (link
-            identifiers, linked entity identifiers/types, and timestamps) is
-            stored to enable cross-app linking. Business/account quotas are not
-            applied. Essential cookies and storage are described in Section 9
-            (Cookies and Tracking).
+            application functionality: record identifiers, timestamps, display
+            preferences (sort order), and immutable built-in taxonomy references
+            (category IDs). When linking with other Helvety E2EE apps,
+            additional non-encrypted relationship metadata (link identifiers,
+            linked entity identifiers/types, and timestamps) is stored to enable
+            cross-app linking. Business/account quotas are not applied.
+            Essential cookies and storage are described in Section 9 (Cookies
+            and Tracking).
           </li>
           <li>
             <strong className="text-foreground">

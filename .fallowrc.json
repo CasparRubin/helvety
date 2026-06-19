@@ -44,7 +44,6 @@
     "eslint-plugin-react",
     "postcss-load-config",
     "onnxruntime-web",
-    "@types/dompurify",
     "@types/chrome",
     "pdfjs-dist",
     "next-themes"

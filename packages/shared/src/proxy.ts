@@ -23,6 +23,8 @@ export type BuildCspOptions = {
   imgBlob?: boolean;
   scriptUnsafeEval?: "always" | "dev-only";
   workerBlob?: boolean;
+  /** Next.js zone base path for CSP report-uri (defaults from request when omitted). */
+  basePath?: string;
   /**
    * Adds `'wasm-unsafe-eval'` to script-src. Required for WebAssembly
    * compilation in production when `'unsafe-eval'` is not granted (e.g.
@@ -253,7 +255,11 @@ export function createSecurityProxy(
 
   return async function proxy(request: NextRequest) {
     const nonce = toBase64(getRandomBytes(CSP_NONCE_LENGTH));
-    const csp = buildCsp({ nonce, ...buildCspOptions });
+    const csp = buildCsp({
+      ...buildCspOptions,
+      nonce,
+      basePath: buildCspOptions.basePath ?? request.nextUrl.basePath,
+    });
     const requestHeaders = new Headers(request.headers);
     const existingCsrfCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value;
     // Re-issue when absent, tampered, or signed with a previous secret.

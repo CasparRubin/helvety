@@ -90,7 +90,6 @@
         "@tailwindcss/postcss",
         "@testing-library/jest-dom",
         "@testing-library/react",
-        "@types/dompurify",
         "shadcn"
       ]
     },

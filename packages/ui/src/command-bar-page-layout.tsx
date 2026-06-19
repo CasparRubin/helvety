@@ -37,7 +37,7 @@ export function CommandBarPageLayout({
       <div className="shrink-0">{commandBar}</div>
       <ScrollArea
         className={cn(
-          "flex min-h-0 flex-1 flex-col [&>[data-radix-scroll-area-viewport]]:max-h-full [&>[data-radix-scroll-area-viewport]]:min-h-0 [&>[data-radix-scroll-area-viewport]]:flex-1",
+          "flex min-h-0 flex-1 flex-col [&>[data-slot=scroll-area-viewport]]:max-h-full [&>[data-slot=scroll-area-viewport]]:min-h-0 [&>[data-slot=scroll-area-viewport]]:flex-1",
           scrollAreaClassName
         )}
         viewportClassName={scrollAreaViewportClassName}

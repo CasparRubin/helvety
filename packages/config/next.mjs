@@ -116,7 +116,7 @@ export function createHelvetyNextConfig({
     compress: true,
     ...(basePath ? { basePath } : {}),
     ...(assetPrefix ? { assetPrefix } : {}),
-    headers: createSecurityHeaders({ appName }),
+    headers: createSecurityHeaders({ appName, basePath }),
     turbopack: {
       root: path.resolve("../.."),
       ...turbopackOverrides,

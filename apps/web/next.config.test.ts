@@ -123,6 +123,88 @@ describe("web gateway rewrites", () => {
     );
   });
 
+  it("forwards tasks routes and tasks static assets to the tasks zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const tasksOrigin = `http://localhost:${DEV_PORTS.tasks}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        { source: "/tasks", destination: `${tasksOrigin}/tasks` },
+        { source: "/tasks/:path*", destination: `${tasksOrigin}/tasks/:path*` },
+        {
+          source: "/tasks-static/:path*",
+          destination: `${tasksOrigin}/tasks-static/:path*`,
+        },
+      ])
+    );
+  });
+
+  it("forwards contacts routes and contacts static assets to the contacts zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const contactsOrigin = `http://localhost:${DEV_PORTS.contacts}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        { source: "/contacts", destination: `${contactsOrigin}/contacts` },
+        {
+          source: "/contacts/:path*",
+          destination: `${contactsOrigin}/contacts/:path*`,
+        },
+        {
+          source: "/contacts-static/:path*",
+          destination: `${contactsOrigin}/contacts-static/:path*`,
+        },
+      ])
+    );
+  });
+
+  it("forwards store routes to the store zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const storeOrigin = `http://localhost:${DEV_PORTS.store}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        { source: "/store", destination: `${storeOrigin}/store` },
+        { source: "/store/:path*", destination: `${storeOrigin}/store/:path*` },
+      ])
+    );
+  });
+
+  it("forwards pdf routes to the pdf zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const pdfOrigin = `http://localhost:${DEV_PORTS.pdf}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        { source: "/pdf", destination: `${pdfOrigin}/pdf` },
+        { source: "/pdf/:path*", destination: `${pdfOrigin}/pdf/:path*` },
+      ])
+    );
+  });
+
+  it("forwards image-upscaler routes to the image-upscaler zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const imageUpscalerOrigin = `http://localhost:${DEV_PORTS.imageUpscaler}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/image-upscaler",
+          destination: `${imageUpscalerOrigin}/image-upscaler`,
+        },
+        {
+          source: "/image-upscaler/:path*",
+          destination: `${imageUpscalerOrigin}/image-upscaler/:path*`,
+        },
+      ])
+    );
+  });
+
   it("forwards docs routes to the docs zone", async () => {
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);

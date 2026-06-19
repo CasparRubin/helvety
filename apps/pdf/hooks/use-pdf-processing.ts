@@ -501,7 +501,6 @@ export function usePdfProcessing({
                 kind: "extract-page",
                 options: {
                   useGpuPreprocess: pipeline === "gpu-worker",
-                  useWorkerPipeline: true,
                 },
                 payload: {
                   sourceFile,
@@ -679,7 +678,6 @@ export function usePdfProcessing({
               kind: "merge-pages",
               options: {
                 useGpuPreprocess: pipeline === "gpu-worker",
-                useWorkerPipeline: true,
               },
               payload: {
                 files: workerFiles,

@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="June 13, 2026"
+        lastReviewed="June 19, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to

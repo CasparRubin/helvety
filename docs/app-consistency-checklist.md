@@ -103,7 +103,7 @@ One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/
 3. For E2EE **detail** hooks (`useItem`, `useContact`), mock `useEncryptedSingleItem` and assert `id`, `navigationSource`, and zone-specific failure copy (see `apps/tasks/hooks/use-items.test.ts`).
 4. `describe("useDataExport")` — mock `useE2eeDataExport` with `{ handleExportData, isExporting }` and assert delegation to the zone `lib/data-export.ts` download function (see `apps/*/hooks/use-data-export.test.ts`). Optional `lib/data-export.test.ts` asserts `buildExportData` mapping via mocked `@helvety/shared/e2ee-json-export` (see `apps/contacts`, `apps/tasks`, `apps/notes`, and `apps/links`).
 
-Docs uses a custom `useDocs` hook (mock `fetch` + `getDocsApiPath` instead of `useEncryptedSortableItems`). Links library state uses `use-link-library` (not the shared sortable/single-item hooks).
+Docs uses a custom `useDocs` hook (mock `fetch` with `response.text()` + `getDocsApiPath` instead of `useEncryptedSortableItems`). Assert `error`, `refresh`, and `isRefreshing` (including retry after failure). Vault sheet UI: `apps/docs/components/vault-documents-sheet.test.tsx` (`ListErrorState` + Retry). Links library state uses `use-link-library` (not the shared sortable/single-item hooks).
 
 ### Components
 
@@ -122,7 +122,7 @@ Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/compo
 | -------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
 | E2EE entity detail (Notes, Tasks, Contacts, Links) | `E2eeEntityDetailSheet` + zone editor `CommandBarPageLayout` | `packages/ui/src/e2ee-dashboard-wiring.test.ts`, `sheet-scroll-wiring.test.ts`                  |
 | App switcher, mobile nav menu                      | `SHEET_SCROLLABLE_SHELL_CLASS` + header + `ScrollArea`       | `sheet-scroll-wiring.test.ts`, RTL in `app-switcher.test.tsx` / `helvety-shell-navbar.test.tsx` |
-| Docs vault sheet                                   | Same shell classes + `ScrollArea`                            | `sheet-scroll-wiring.test.ts`                                                                   |
+| Docs vault sheet                                   | Same shell classes + `ScrollArea`; list error + Retry        | `sheet-scroll-wiring.test.ts`, `vault-documents-sheet.test.tsx`                                 |
 
 See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) for the flex height chain (`min-h-0`, `flex-1`, `overflow-hidden`). Entity editors use `stacked` action panels inside the scroll region (no sticky sidebars in sheets).
 
@@ -157,6 +157,8 @@ Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`)
 
 Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config = { matcher: [...] }` (Next.js requirement). `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
+**CSP report endpoints:** Gateway uses `/api/csp-report`; zoned apps use `/{basePath}/api/csp-report` (wired in `@helvety/config/next-headers` `resolveCspReportEndpoint`, static headers via `createSecurityHeaders`, and per-request CSP in `createSecurityProxy`). Guardrails: `packages/config/next-headers.test.mjs`, `packages/shared/src/proxy.test.ts`.
+
 **Fail-closed auth refresh:** All session-bearing profiles (`auth-gateway`, `e2ee-app`, `store-gateway`, `public-tool`) clear stale `sb-*` cookies when Supabase session refresh fails (`FAIL_CLOSED_AUTH_REFRESH_PROFILES` in `@helvety/shared/proxy` plus `failClosedOnAuthRefresh: true` on `createAppProxy` for root redirects). **`public-marketing`** (`web`) omits fail-closed. Wired by `packages/shared/src/proxy-fail-closed-wiring.test.ts`.
 
 **Session cookie writes:** Proxy refresh sets `x-helvety-auth-refreshed` only when `setAll` wrote cookies. `@supabase/ssr` 0.12+ may also pass `Cache-Control` / `Pragma` / `Expires` via `setAll`; `refreshSupabaseAuthSession` applies them, and `createSecurityProxy` preserves them when rebuilding `NextResponse.next()` (`copySupabaseAuthRefreshResponseHeaders`). RSC and read-only server code use `createServerClient` (no-ops further cookie writes when that header is set; ignores the optional header map). Sign-in, sign-out, callbacks, OTP verify, passkey session mint, and `updateUser` use `createServerMutatingClient`. See `packages/shared/README.md`, `packages/shared/src/zone-supabase-session-mutation-wiring.test.ts`, `packages/shared/src/proxy-supabase-ssr-cache-docs-wiring.test.ts`, and `packages/shared/src/auth-callback.test.ts`.
@@ -171,6 +173,8 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 **Docs** uses `mainVariant: "overflow-main"` with `DocsCommandBar` (`@helvety/ui/command-bar`) above the Eigenpal workspace, same pattern as PDF and image-upscaler. Document/vault actions (New, Open, Download, My documents, Save to vault) live in the Helvety command bar; Eigenpal title bar + formatting toolbar sit below (File/Format/Insert for Print and Page setup). Vault sheet and dialogs use `@helvety/ui` tokens and the navbar `ThemeSwitcher`. Eigenpal editor chrome is themed in `apps/docs/styles/docx-editor-helvety-bridge.css` (semantic `--doc-*` aliases on `.ep-root`, `--surface-toolbar` on title/formatting rows, doc icon + Help + vendor File → Open/Save/New hidden via hook, comment UI suppressed, Layers 3–8 for legacy `slate-*` remaps when present, chrome surfaces, toolbar stack, and menu/dropdown/tooltip overlays). Printable document pages stay white in both themes.
 
 Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
+
+**ScrollArea viewport selectors:** Public shells and `CommandBarPageLayout` target child viewports with `[data-slot=scroll-area-viewport]` (shadcn/Radix `data-slot`, not legacy `data-radix-scroll-area-viewport`). Guardrail: `packages/ui/src/helvety-layout-wiring.test.ts`, `command-bar-page-layout.test.tsx`.
 
 Use JSX for root layouts: `<HelvetyPublicShellRootLayout>` or `<E2eeAppRootLayout>` (not `return HelvetyPublicShellRootLayout({...})`). E2EE zones use `export default async function RootLayout`. Enforced by `consistency:zone-modernization`.
 

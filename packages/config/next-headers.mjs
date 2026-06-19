@@ -1,4 +1,20 @@
 /**
+ * CSP violation report URL for a zone. Gateway uses `/api/csp-report`; zoned apps
+ * use `/{basePath}/api/csp-report` so reports reach the app that emitted the policy.
+ *
+ * @param {string | undefined} basePath - Next.js `basePath` (e.g. `/pdf`, `/docs`)
+ * @returns {string}
+ */
+export function resolveCspReportEndpoint(basePath) {
+  const normalized = basePath?.trim() ?? "";
+  if (!normalized || normalized === "/") {
+    return "/api/csp-report";
+  }
+  const path = normalized.startsWith("/") ? normalized : `/${normalized}`;
+  return `${path.replace(/\/$/, "")}/api/csp-report`;
+}
+
+/**
  * Shared security headers factory for Helvety Next.js apps in this monorepo (helvety.com zones).
  *
  * Generates consistent HSTS, COOP, and other security headers.
@@ -6,9 +22,12 @@
  *
  * @param {object} options
  * @param {string} options.appName - App identifier used in X-Helvety-App header for debugging and CSP report correlation
+ * @param {string} [options.basePath] - Next.js zone base path for CSP report endpoints
  * @returns {import("next").NextConfig["headers"]} Next.js headers function
  */
-export function createSecurityHeaders({ appName } = {}) {
+export function createSecurityHeaders({ appName, basePath } = {}) {
+  const cspReportEndpoint = resolveCspReportEndpoint(basePath);
+
   return async function headers() {
     const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -43,14 +62,14 @@ export function createSecurityHeaders({ appName } = {}) {
       },
       {
         key: "Reporting-Endpoints",
-        value: `csp="/api/csp-report"`,
+        value: `csp="${cspReportEndpoint}"`,
       },
       {
         key: "Report-To",
         value: JSON.stringify({
           group: "csp-endpoint",
           max_age: 10886400,
-          endpoints: [{ url: "/api/csp-report" }],
+          endpoints: [{ url: cspReportEndpoint }],
         }),
       },
       // CSP is set per-request in proxy.ts with a nonce - not as a static header.
@@ -95,6 +114,7 @@ export function createSecurityHeaders({ appName } = {}) {
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
  * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. onnxruntime-web)
  * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts CDN in style-src (optional; Docs self-hosts Material Symbols via next/font/local)
+ * @param {string} [opts.basePath] - Next.js zone base path for CSP report-uri / report-to
  * @returns {string}
  */
 export function buildCsp({
@@ -104,9 +124,10 @@ export function buildCsp({
   workerBlob = false,
   wasmUnsafeEval = false,
   googleFonts = false,
+  basePath,
 } = {}) {
   const isDevelopment = process.env.NODE_ENV === "development";
-  const cspReportEndpoint = "/api/csp-report";
+  const cspReportEndpoint = resolveCspReportEndpoint(basePath);
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   const useUnsafeEval =

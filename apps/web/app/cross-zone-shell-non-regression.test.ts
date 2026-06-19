@@ -23,6 +23,10 @@ const OTHER_ZONE_LAYOUTS = [
   "apps/pdf/app/layout.tsx",
   "apps/docs/app/layout.tsx",
   "apps/image-upscaler/app/layout.tsx",
+  "apps/tasks/app/layout.tsx",
+  "apps/contacts/app/layout.tsx",
+  "apps/notes/app/layout.tsx",
+  "apps/links/app/layout.tsx",
 ] as const;
 
 describe("cross-zone shell non-regression", () => {

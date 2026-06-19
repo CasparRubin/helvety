@@ -27,6 +27,18 @@ describe("zone next config presets", () => {
     expect(config.assetPrefix).toBeUndefined();
   });
 
+  it("createPublicToolNextConfig wires zone CSP reporting headers", async () => {
+    process.env.NODE_ENV = "development";
+    const config = createPublicToolNextConfig({ appName: "pdf" });
+    const headerGroups = await config.headers();
+    const headers = headerGroups[0]?.headers ?? [];
+    const reporting = headers.find(
+      (entry) => entry.key === "Reporting-Endpoints"
+    );
+
+    expect(reporting?.value).toBe('csp="/pdf/api/csp-report"');
+  });
+
   it("createAuthGatewayNextConfig sets auth static prefix", () => {
     const config = createAuthGatewayNextConfig();
     expect(config.basePath).toBe("/auth");

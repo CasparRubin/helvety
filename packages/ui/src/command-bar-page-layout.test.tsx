@@ -38,4 +38,23 @@ describe("CommandBarPageLayout", () => {
     expect(betweenBarAndScroll).not.toContain('data-slot="scroll-area"');
     expect(betweenBarAndScroll).not.toContain("sticky");
   });
+
+  it("applies flex viewport utilities via data-slot selector on ScrollArea root", () => {
+    const html = renderToStaticMarkup(
+      <CommandBarPageLayout commandBar={<nav>Bar</nav>}>
+        <p>Body</p>
+      </CommandBarPageLayout>
+    );
+
+    expect(html).toContain(
+      "[&amp;&gt;[data-slot=scroll-area-viewport]]:max-h-full"
+    );
+    expect(html).toContain(
+      "[&amp;&gt;[data-slot=scroll-area-viewport]]:min-h-0"
+    );
+    expect(html).toContain(
+      "[&amp;&gt;[data-slot=scroll-area-viewport]]:flex-1"
+    );
+    expect(html).toContain('data-slot="scroll-area-viewport"');
+  });
 });

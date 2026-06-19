@@ -104,6 +104,20 @@ describe("proxy shared abstractions", () => {
     expect(childResult).toBeNull();
   });
 
+  it("builds CSP report-uri from request nextUrl.basePath for zoned apps", async () => {
+    const proxy = createSecurityProxy({ includeCsrf: false });
+    const request = makeRequest(
+      "https://helvety.com/pdf/foo",
+      "/pdf/foo",
+      "/pdf"
+    );
+
+    const response = await proxy(request);
+    const csp = response.headers.get("Content-Security-Policy");
+
+    expect(csp).toContain("report-uri /pdf/api/csp-report");
+  });
+
   it("createAppProxy redirects root to basePath without calling security proxy (auth refresh covered separately)", async () => {
     const securityProxy = vi.fn(async () =>
       NextResponse.redirect("https://helvety.com/security")

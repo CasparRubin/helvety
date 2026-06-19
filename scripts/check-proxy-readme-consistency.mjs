@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+/** Web-only: keeps apps/web/proxy.ts aligned with apps/web/README.md (not other zones). */
 const rootDir = process.cwd();
 
 async function main() {
