@@ -36,4 +36,18 @@ describe("use-rich-text-draft-state", () => {
 
     expect(result.current.captureEditorBaseline('{"type":"reset"}')).toBe(true);
   });
+
+  it("documents that re-initializing title baseline hides unsaved title edits", () => {
+    const { result } = renderHook(() => useRichTextDraftState());
+
+    act(() => {
+      result.current.initializeTitle("Saved");
+    });
+    expect(result.current.isDirty("Dirty", null)).toBe(true);
+
+    act(() => {
+      result.current.initializeTitle("Dirty");
+    });
+    expect(result.current.isDirty("Dirty", null)).toBe(false);
+  });
 });

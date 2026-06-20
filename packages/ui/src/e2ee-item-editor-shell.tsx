@@ -46,8 +46,10 @@ function EditorLoadingSpinner() {
 /** Save status for the editor shell. */
 export type E2eeItemEditorSaveStatus = "idle" | "saving" | "saved" | "error";
 
-/** Shared rich-text item editor shell for tasks and notes (detail sheet only). */
+/** Shared rich-text item editor shell for tasks, notes, and contacts (detail sheet). */
 export interface E2eeRichTextItemEditorShellProps {
+  /** Stable per record; remounts TipTap when switching entities. */
+  editorSessionKey: string;
   title: string;
   description: string | null;
   isLoading: boolean;
@@ -92,8 +94,13 @@ export interface E2eeRichTextItemEditorShellProps {
 
 /**
  * Shared editor shell: title, Tiptap body, unsaved-changes dialog, and layout slots.
+ *
+ * TipTap remounts on `editorSessionKey` (one record per session). The `description`
+ * prop supplies server ciphertext for initial load / refresh via `editorRef.setContent`;
+ * it is not wired as live controlled content (that resets TipTap v3 on every keystroke).
  */
 export function E2eeRichTextItemEditorShell({
+  editorSessionKey,
   title,
   description,
   isLoading,
@@ -121,6 +128,8 @@ export function E2eeRichTextItemEditorShell({
 }: E2eeRichTextItemEditorShellProps) {
   const editorRef = useRef<TiptapEditorRef>(null);
   const draftState = useRichTextDraftState();
+  const titleInitializedRef = useRef(false);
+  const loadedEditorSessionRef = useRef<string | null>(null);
   const [saveStatus, setSaveStatus] =
     useState<E2eeItemEditorSaveStatus>("idle");
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -141,10 +150,28 @@ export function E2eeRichTextItemEditorShell({
   }, []);
 
   useEffect(() => {
-    if (hasInitialized) {
-      draftState.initializeTitle(title);
+    if (!hasInitialized) {
+      titleInitializedRef.current = false;
+      return;
     }
+    if (titleInitializedRef.current) {
+      return;
+    }
+    draftState.initializeTitle(title);
+    titleInitializedRef.current = true;
   }, [hasInitialized, title, draftState]);
+
+  useEffect(() => {
+    if (!hasInitialized) {
+      loadedEditorSessionRef.current = null;
+      return;
+    }
+    if (loadedEditorSessionRef.current === editorSessionKey) {
+      return;
+    }
+    editorRef.current?.setContent(parseRichTextContent(description));
+    loadedEditorSessionRef.current = editorSessionKey;
+  }, [editorSessionKey, description, hasInitialized]);
 
   const persistSave = useCallback(
     async (newTitle: string, newDescription: JSONContent | null) => {
@@ -214,6 +241,7 @@ export function E2eeRichTextItemEditorShell({
     setIsRefreshing(true);
     try {
       draftState.resetDescriptionBaselineCapture();
+      loadedEditorSessionRef.current = null;
       await onRefresh();
     } finally {
       setIsRefreshing(false);
@@ -303,6 +331,7 @@ export function E2eeRichTextItemEditorShell({
                   )
                 ) : null}
                 <TiptapEditor
+                  key={editorSessionKey}
                   ref={editorRef}
                   content={parseRichTextContent(description)}
                   onChange={handleDescriptionChange}

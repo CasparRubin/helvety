@@ -173,6 +173,7 @@ export function ItemEditor({
 
   return (
     <E2eeRichTextItemEditorShell
+      editorSessionKey={itemId}
       title={title}
       description={item?.description ?? null}
       isLoading={isLoadingItem}

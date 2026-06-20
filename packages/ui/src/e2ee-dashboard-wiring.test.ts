@@ -186,6 +186,7 @@ describe("E2EE editor dynamic import SSR", () => {
   it("notes item-editor composes the shared shell and client-only link panels", () => {
     const src = readAppFile("notes", "components/item-editor.tsx");
     expect(src).toContain("E2eeRichTextItemEditorShell");
+    expect(src).toContain("editorSessionKey={itemId}");
     expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
     expect(src).toContain("ContactLinksPanel");
     expect(src).toContain("TaskLinksPanel");
@@ -203,6 +204,7 @@ describe("E2EE editor dynamic import SSR", () => {
 
     const editorSrc = readAppFile("tasks", "components/item-editor.tsx");
     expect(editorSrc).toContain("E2eeRichTextItemEditorShell");
+    expect(editorSrc).toContain("editorSessionKey={itemId}");
     expect(countSsrFalse(editorSrc)).toBeGreaterThanOrEqual(3);
     expect(editorSrc).toContain("ContactLinksPanel");
     expect(editorSrc).toContain("NoteLinksPanel");
@@ -221,6 +223,7 @@ describe("E2EE editor dynamic import SSR", () => {
     );
     expect(countSsrFalse(src)).toBeGreaterThanOrEqual(1);
     expect(src).toContain("TiptapEditor");
+    expect(src).toContain("key={editorSessionKey}");
   });
 
   it("contacts contact-editor uses dynamic link panels (Tiptap via shared shell)", () => {
@@ -231,6 +234,7 @@ describe("E2EE editor dynamic import SSR", () => {
     expect(src).toContain("TaskLinksPanel");
     expect(src).toContain("LinkEntityLinksPanel");
     expect(src).toContain("E2eeRichTextItemEditorShell");
+    expect(src).toContain("editorSessionKey={contactId}");
     expectCrossLinkPanelOrder(src, "renderLinks", [
       "<TaskLinksPanel",
       "<NoteLinksPanel",

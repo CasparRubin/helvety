@@ -5,6 +5,11 @@ import { useCallback, useMemo, useRef } from "react";
 /**
  * Tracks saved/baseline values for title + rich text payload comparisons.
  * Consumers provide already-serialized rich text snapshots.
+ *
+ * Contract: call `initializeTitle` once when the editor session loads (not on each
+ * title keystroke). Call `captureEditorBaseline` on the first TipTap `onChange`
+ * only; further body edits compare against that baseline until `markSaved` or
+ * `resetDescriptionBaselineCapture`.
  */
 export function useRichTextDraftState() {
   const savedTitleRef = useRef("");

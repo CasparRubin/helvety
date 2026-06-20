@@ -258,6 +258,7 @@ export function ContactEditor({
 
   return (
     <E2eeRichTextItemEditorShell
+      editorSessionKey={contactId}
       title=""
       description={contact?.notes ?? null}
       isLoading={isLoading}

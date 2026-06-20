@@ -4,7 +4,7 @@ import { cn } from "@helvety/shared/utils";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   BoldIcon,
@@ -22,7 +22,14 @@ import {
   Undo2Icon,
   Redo2Icon,
 } from "lucide-react";
-import { useCallback, useEffect, useImperativeHandle, type Ref } from "react";
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  type Ref,
+} from "react";
 
 import { Button } from "./button";
 import { Separator } from "./separator";
@@ -164,6 +171,12 @@ function EditorToolbar({
       .focus()
       .run();
   }, [editor]);
+
+  // Re-render toolbar formatting state without re-syncing editor options on each keystroke.
+  useEditorState({
+    editor,
+    selector: ({ transactionNumber }) => transactionNumber,
+  });
 
   if (!editor) {
     return null;
@@ -319,10 +332,37 @@ function EditorToolbar({
   );
 }
 
+const EDITOR_CONTENT_CLASS = cn(
+  "prose prose-sm dark:prose-invert max-w-none",
+  "min-h-[200px] w-full px-3 py-2",
+  "focus:outline-none",
+  "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 first:[&_h1]:mt-0",
+  "[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 first:[&_h2]:mt-0",
+  "[&_h3]:text-lg [&_h3]:font-medium [&_h3]:mb-2 [&_h3]:mt-4 first:[&_h3]:mt-0",
+  "[&_h4]:text-xs [&_h4]:font-medium [&_h4]:mb-2 [&_h4]:mt-4 [&_h4]:text-muted-foreground first:[&_h4]:mt-0",
+  "[&_p]:mb-3 [&_p]:leading-relaxed last:[&_p]:mb-0",
+  "[&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6",
+  "[&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6",
+  "[&_li]:mb-1",
+  "[&_a]:text-primary [&_a]:underline"
+);
+
+const EDITOR_PROPS = {
+  transformPastedHTML: sanitizePastedHtmlForEditor,
+  attributes: {
+    class: EDITOR_CONTENT_CLASS,
+  },
+} as const;
+
 /**
  * Tiptap WYSIWYG editor component.
  * Auto-focus is intentionally not supported for accessibility (screen readers, reduced motion).
  * Use ref.focus() when programmatic focus is needed.
+ *
+ * **Mount-only content:** `content` is captured once at mount (`initialContentRef`).
+ * Parent components must remount via React `key` when switching records or after refresh.
+ * Passing a new `content` object on every render triggers TipTap v3 `setOptions` and can
+ * reset the document (the E2EE keystroke-eating bug). Use `ref.setContent` for explicit reloads.
  */
 export function TiptapEditor({
   content,
@@ -332,9 +372,15 @@ export function TiptapEditor({
   className,
   ref,
 }: TiptapEditorProps) {
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
+  // Mount-only snapshot — parent remounts via `key` when switching records.
+  const initialContentRef = useRef(
+    content ? sanitizeRichTextJson(content) : undefined
+  );
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  const extensions = useMemo(
+    () => [
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3, 4],
@@ -357,29 +403,18 @@ export function TiptapEditor({
         },
       }),
     ],
-    content: content ? sanitizeRichTextJson(content) : undefined,
+    [placeholder]
+  );
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: false,
+    extensions,
+    content: initialContentRef.current,
     editable: !disabled,
-    editorProps: {
-      transformPastedHTML: sanitizePastedHtmlForEditor,
-      attributes: {
-        class: cn(
-          "prose prose-sm dark:prose-invert max-w-none",
-          "min-h-[200px] w-full px-3 py-2",
-          "focus:outline-none",
-          "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 first:[&_h1]:mt-0",
-          "[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_h2]:mt-5 first:[&_h2]:mt-0",
-          "[&_h3]:text-lg [&_h3]:font-medium [&_h3]:mb-2 [&_h3]:mt-4 first:[&_h3]:mt-0",
-          "[&_h4]:text-xs [&_h4]:font-medium [&_h4]:mb-2 [&_h4]:mt-4 [&_h4]:text-muted-foreground first:[&_h4]:mt-0",
-          "[&_p]:mb-3 [&_p]:leading-relaxed last:[&_p]:mb-0",
-          "[&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6",
-          "[&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6",
-          "[&_li]:mb-1",
-          "[&_a]:text-primary [&_a]:underline"
-        ),
-      },
-    },
-    onUpdate: ({ editor }) => {
-      onChange?.(editor.getJSON());
+    editorProps: EDITOR_PROPS,
+    onUpdate: ({ editor: activeEditor }) => {
+      onChangeRef.current?.(activeEditor.getJSON());
     },
   });
 
