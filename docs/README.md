@@ -38,6 +38,6 @@ Index of policy, ops, and architecture docs under this folder. The Next.js **Hel
 
 - Root hub: [`README.md`](../README.md) (getting started, env model, automation)
 - Per-zone READMEs: [`apps/*/README.md`](../apps/)
-- Package READMEs: [`packages/*/README.md`](../packages/) (`packages/brand` has no README; see `@helvety/brand` exports in root README)
+- Package READMEs: [`packages/*/README.md`](../packages/) (including [`packages/brand`](../packages/brand/README.md) and [`packages/config`](../packages/config/README.md))
 - Extension auth API production setup (OTP + passkey): [`apps/auth/docs/extension-passkey-production.md`](../apps/auth/docs/extension-passkey-production.md)
 - Image upscaler model hosting: [`apps/image-upscaler/public/models/README.md`](../apps/image-upscaler/public/models/README.md)

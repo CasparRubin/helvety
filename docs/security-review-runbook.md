@@ -6,12 +6,25 @@ Periodic checks for the Helvety monorepo. Run locally or before major releases.
 
 ```bash
 bun run ci:check
+```
+
+`ci:check` includes Supabase auth patterns (`getClaims` at the proxy edge; `getUser` for authz in RSC/actions; no `getSession` for authorization), proxy wiring (including `@supabase/ssr` 0.12+ `setAll` cache headers on refreshed sessions), env template tiers, and security dependency floors (`deps:security:floors`). Session **mutations** must use `createServerMutatingClient`; RSC/read paths use `createServerClient` (no-ops cookie writes when `x-helvety-auth-refreshed` is set after the proxy persisted refreshed cookies).
+
+## Manual pre-release checks (not part of `ci:check`)
+
+Run these before major releases or production promotions:
+
+```bash
 bun run deps:security
 bun run consistency:vercel-prod-env
 bun run consistency:vercel-preview-env
+bun run consistency:supabase-rls
+bun run ci:check:e2e
+# or, with an existing gateway only:
+HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
 ```
 
-Includes: Supabase auth patterns (`getClaims` at the proxy edge; `getUser` for authz in RSC/actions; no `getSession` for authorization), proxy wiring (including `@supabase/ssr` 0.12+ `setAll` cache headers on refreshed sessions), env template tiers, dependency floors. Session **mutations** must use `createServerMutatingClient`; RSC/read paths use `createServerClient` (no-ops cookie writes when `x-helvety-auth-refreshed` is set after the proxy persisted refreshed cookies).
+`deps:security` runs floors plus `bun audit`. Vercel env audits require Vercel CLI login. `consistency:supabase-rls` needs a local gitignored `supabase/supabase.json` export. `ci:check:e2e` installs Chromium if needed, starts all zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset, and runs Playwright gateway smoke tests; `test:e2e` alone expects a reachable gateway (default port 3001) or `HELVETY_SMOKE_BASE_URL`.
 
 ## Vercel production and preview env
 
@@ -106,6 +119,6 @@ Check version in Supabase Dashboard → Project Settings → Infrastructure, or 
 
 1. `bun run ci:check` on `main`
 2. `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env`
-3. `bun outdated` + [`docs/dependency-inventory.md`](./dependency-inventory.md) extended assets
+3. `bun run deps:outdated` + [`docs/dependency-inventory.md`](./dependency-inventory.md) extended assets
 4. Local Supabase policy review (export stays gitignored) + `bun run consistency:supabase-rls`
 5. Hosted GoTrue version / unused OIDC provider review (see above)

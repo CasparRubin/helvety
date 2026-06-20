@@ -16,7 +16,8 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `postcss.config.mjs` | Re-exports `@helvety/config/postcss` (exact one-liner; enforced by `consistency:guardrails`)                                                                                                                                                |
 | `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage                                                                                    |
 | `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                                                                                                         |
-| `app/apple-icon.png` | PWA / home-screen icon                                                                                                                                                                                                                      |
+| `app/icon.svg`       | Zone favicon / PWA icon (required on every zone)                                                                                                                                                                                            |
+| `app/apple-icon.png` | Optional iOS home-screen PNG (recommended on public/indexable zones; `docs`, `links`, and `image-upscaler` ship one today)                                                                                                                  |
 | `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                                               |
 | `app/robots.ts`      | Zone crawl policy via `@helvety/shared/seo` (`createOpenRobots`, `createAppRobots`, or `createPrivateAppRobots`)                                                                                                                            |
 | `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `docs`, `image-upscaler`); private non-indexable zones omit this file (404 avoids invalid urlset XML in Search Console)                                                             |
@@ -279,7 +280,7 @@ bun run ci:release  # ci:check + build (before push / Vercel)
 
 Run these locally before merge; Vercel validates builds on deploy.
 
-Optional local E2E: `bun run test:e2e` (Playwright gateway smoke; requires `@helvety/web` dev server). New E2EE zones: `bun run scaffold:e2ee-zone <slug>` prints the copy-from-contacts checklist.
+Optional local E2E: `bun run ci:check:e2e` (installs Chromium if needed and starts all zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset) or `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e`. New E2EE zones: `bun run scaffold:e2ee-zone <slug>` prints the copy-from-contacts checklist.
 
 ## See also
 

@@ -7,7 +7,7 @@
 
 ## Summary
 
-Live audit confirms a **strong security posture**: all 10 user-data tables have forced RLS with owner-scoped policies, Vercel Production env tiers pass automated checks, and `bun audit` reports zero CVEs. Applied dependency updates: `@eigenpal/docx-editor-react` 1.4.0, `hono` 4.12.25, `rollup` 4.62.0. Regenerated Supabase TypeScript types via MCP and refreshed local RLS export metadata. **Manual follow-ups remain** for Supabase Auth dashboard settings, Vercel Preview Upstash keys on two tool zones, and confirming Analytics is disabled on all projects.
+Live audit confirms a **strong security posture**: all 10 user-data tables have forced RLS with owner-scoped policies, Vercel Production env tiers pass automated checks, and `bun audit` reports zero CVEs. Applied dependency updates: `@eigenpal/docx-editor-react` 1.4.0, `hono` 4.12.25, `rollup` 4.62.0. Regenerated Supabase TypeScript types via MCP and refreshed local RLS export metadata. **As of the audit date**, manual follow-ups remained for Supabase Auth dashboard settings, Vercel Preview Upstash keys on two tool zones, and confirming Analytics is disabled on all projects — see [Subsequent updates](#subsequent-updates-2026-06-17) for what changed after this snapshot.
 
 ---
 
@@ -37,12 +37,12 @@ Live audit confirms a **strong security posture**: all 10 user-data tables have 
 
 ## Vercel (team Helvety, 10 zone projects)
 
-| Check          | Result                                                                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Projects       | All 10 present; latest Production deploys **READY**                                                                 |
-| Production env | `bun run consistency:vercel-prod-env` **passed**                                                                    |
-| Preview env    | `bun run consistency:vercel-preview-env` **failed** — missing Upstash on `helvety-pdf` and `helvety-image-upscaler` |
-| Node version   | `helvety-com` on 22.x; zone apps on 24.x — align when convenient                                                    |
+| Check          | Result                                                                                                                                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Projects       | All 10 present; latest Production deploys **READY**                                                                                                                                                              |
+| Production env | `bun run consistency:vercel-prod-env` **passed**                                                                                                                                                                 |
+| Preview env    | `bun run consistency:vercel-preview-env` **failed** — missing Upstash on `helvety-pdf` and `helvety-image-upscaler` (remediated 2026-06; see [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)) |
+| Node version   | `helvety-com` on 22.x; zone apps on 24.x — align when convenient                                                                                                                                                 |
 
 ### Manual dashboard actions
 
@@ -116,7 +116,7 @@ Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, exten
 ## Follow-ups
 
 1. Complete Supabase Auth dashboard items above (leaked password protection, session JWT/time-box alignment, disable unused OAuth).
-2. Add Preview Upstash env vars on `helvety-pdf` and `helvety-image-upscaler` — verify with `bun run consistency:vercel-preview-env`.
+2. ~~Add Preview Upstash env vars on `helvety-pdf` and `helvety-image-upscaler`~~ — **done** (2026-06); re-run `bun run consistency:vercel-preview-env` after any new zone.
 3. Confirm Vercel Analytics disabled on all ten projects.
 4. Align `helvety-com` Node.js to 24.x.
 5. Confirm `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` includes every supported extension id (see [`docs/env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)); redeploy auth after changes.
@@ -142,4 +142,14 @@ Dependency sweep after this audit (see [`dependency-inventory.md`](./dependency-
 | `bun audit`                               | 0 vulnerabilities | **1 low** transitive (`@babel/core` via shadcn/eslint-config-next); root overrides added for `protobufjs`, `dompurify`, `js-yaml` |
 | Toolchain (`@helvety/dev-deps`)           | current           | eslint **10.5.0**, vitest **4.1.9**, tailwind **4.3.1**, lucide **^1.20.0**                                                       |
 
-Re-run `bun run deps:security` and `bun run deps:drift` after bumps. Supabase RLS posture and Vercel manual follow-ups above remain valid until re-audited.
+Re-run `bun run deps:security` and `bun run deps:drift` after bumps. Supabase RLS posture and remaining dashboard-only follow-ups above stay valid until re-audited.
+
+## Subsequent updates (2026-06-20)
+
+| Item                                                        | As of 2026-06-17                           | As of 2026-06-20                                                                                                                                                              |
+| ----------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Preview Upstash on `helvety-pdf` / `helvety-image-upscaler` | open follow-up                             | **Resolved** — `bun run consistency:vercel-preview-env` passes ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))                                           |
+| `bun audit`                                                 | 1 low (`@babel/core` transitive)           | **0 vulnerabilities** — root overrides `undici@7.28.0`, `@babel/core@8.0.1` ([`dependency-inventory.md`](./dependency-inventory.md))                                          |
+| `deps:security:floors` in `ci:check`                        | not yet wired                              | **In `ci:check`** (before `deps:drift`)                                                                                                                                       |
+| Playwright gateway smoke                                    | manual `test:e2e` + dev server             | **`bun run ci:check:e2e`** — installs Chromium, starts all zones via `scripts/run-e2e-smoke.mjs` when `HELVETY_SMOKE_BASE_URL` is unset (optional; not in default `ci:check`) |
+| `clean:artifacts` during `test:coverage`                    | could delete active Vitest `coverage/.tmp` | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1`                                                                                  |

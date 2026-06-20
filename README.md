@@ -88,12 +88,13 @@ bun run type-check
 bun run test
 bun run format
 
-# remove local gitignored artifacts (coverage/, .turbo/, test-results/, .DS_Store, …)
+# remove local gitignored artifacts (.next/, coverage/, .turbo/, test-results/, .DS_Store, …)
+# skips coverage/ dirs while Vitest is writing coverage (.tmp) or when HELVEY_SKIP_COVERAGE_CLEAN=1
 bun run clean:artifacts
 
-# optional: Playwright gateway smoke (@helvety/web on :3001 by default)
-bunx playwright install chromium
-HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
+# optional: Playwright gateway smoke (all zones via ci:check:e2e, or gateway-only test:e2e)
+bun run ci:check:e2e
+# HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
 
 # print E2EE zone scaffold checklist (copy from apps/contacts)
 bun run scaffold:e2ee-zone <app-slug>
@@ -130,10 +131,10 @@ Full index: [`docs/README.md`](docs/README.md). Key references:
 
 Quality gates run locally via `bun run ci:check` and `bun run ci:release` before push. Vercel builds and deploys from the pushed commit.
 
-- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:zone-modernization`, `consistency:supabase-auth`, `consistency:e2ee-aad`, `consistency:auth-action-guards`, `consistency:workspace-scripts`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `consistency:project-naming`, `test:hygiene`, `deps:drift`, `consistency:filenames`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
+- `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:zone-modernization`, `consistency:supabase-auth`, `consistency:e2ee-aad`, `consistency:auth-action-guards`, `consistency:workspace-scripts`, `consistency:supabase-schema`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `consistency:project-naming`, `test:hygiene`, `deps:security:floors`, `deps:drift`, `consistency:filenames`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
   - `consistency:proxy-docs` (web gateway `apps/web/proxy.ts` ↔ `apps/web/README.md` only) keeps the public marketing proxy contract documented.
   - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`, keeps this README's documented `ci:check` step order aligned with `package.json` (all steps, not only `consistency:*`), and keeps Tailwind/PostCSS Vercel guidance aligned across root, [`packages/ui/README.md`](packages/ui/README.md), and [`packages/dev-deps/README.md`](packages/dev-deps/README.md).
-- `bun run ci:release` (run before `git push` / before Vercel deploys) - `ci:check` plus `build`.
+- `bun run ci:release` (run before `git push` / before Vercel deploys): `clean:artifacts`, then `ci:check`, then `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Additional manual dependency/security checks (see [`docs/security-review-runbook.md`](docs/security-review-runbook.md)):
@@ -145,9 +146,10 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
   - Cursor **dependency-update** skill (`.cursor/skills/dependency-update/`) for full npm + extended sweeps with upstream release research
   - `bun run deps:outdated` then filtered `bun update <pkg...> --filter='@helvety/*'` before releases (manual; no Renovate/Dependabot; see `.cursor/skills/dependency-update/`; never bare `bun update -r` at repo root)
   - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
-  - `bun run clean:artifacts` (removes local gitignored `coverage/`, `.turbo/`, test reports, `.DS_Store`; smoke-tested in `@helvety/shared` guardrail tests)
+  - `bun run clean:artifacts` (removes local gitignored `.next/`, `coverage/`, `.turbo/`, test reports, `.DS_Store`; skips active Vitest `coverage/.tmp`; smoke-tested in `@helvety/shared` guardrail tests)
   - `bun run deps:check` / `bun run knip:exports` / `bun run knip:full` / `bun run deps:unused` (also available individually; `knip:full` scans the whole monorepo without `ci:check` entry filters)
   - Optional local dead-code triage: `bun run fallow` / `fallow:dead-code` / `fallow:dupes` / `fallow:health` / `fallow:fix` (`.fallowrc.json`; not in `ci:check`; Knip remains the CI gate via `deps:unused`)
+  - `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e` or `bun run ci:check:e2e` (Playwright gateway smoke; `ci:check:e2e` installs Chromium if needed and starts all zone dev servers when the base URL is unset)
 
 ## Environment Model
 

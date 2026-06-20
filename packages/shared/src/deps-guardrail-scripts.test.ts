@@ -74,7 +74,11 @@ describe("clean artifacts script", () => {
     const output = execFileSync(
       process.execPath,
       [join(repoRoot, "scripts", "clean-artifacts.mjs")],
-      { cwd: repoRoot, encoding: "utf8" }
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: { ...process.env, HELVEY_SKIP_COVERAGE_CLEAN: "1" },
+      }
     );
     expect(output).toContain("[clean:artifacts]");
   });
