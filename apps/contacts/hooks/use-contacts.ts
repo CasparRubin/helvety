@@ -61,7 +61,7 @@ interface UseContactsReturn {
   remove: (id: string) => Promise<boolean>;
   /** Batch reorder contacts (for drag-and-drop) */
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
-  /** Apply a local optimistic patch without a server request */
+  /** In-memory list patch without network I/O; prefer `update()` for dashboard saves. */
   patchLocal: (id: string, input: Partial<ContactInput>) => void;
 }
 
@@ -85,12 +85,15 @@ async function fetchContactById(
 }
 
 /**
- * Hook to manage Contacts with automatic encryption/decryption.
+ * Hook to manage the contact list with automatic encryption/decryption.
  *
  * When `initialEncryptedData` is provided (server-prefetched), the hook
  * decrypts it on first unlock before continuing with guarded refreshes.
  * Refresh responses are token-checked so stale requests cannot overwrite
  * newer optimistic UI state.
+ *
+ * Dashboard sheet editors receive this hook's `update` / `remove` / `refresh`
+ * as props (Links pattern); they do not call {@link useContact}.
  */
 export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
@@ -217,7 +220,7 @@ interface UseContactReturn {
 }
 
 /**
- * Hook to manage a single Contact by ID
+ * Hook to fetch/update one contact by id (optional; not used by the dashboard sheet editor).
  */
 export function useContact(
   id: string,

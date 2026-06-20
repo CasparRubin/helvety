@@ -7,12 +7,7 @@ import { SHEET_SCROLLABLE_BODY_CLASS } from "./sheet-scroll-layout";
 describe("E2eeEntityDetailSheet", () => {
   it("renders the sheet title, default description, and children when open", () => {
     render(
-      <E2eeEntityDetailSheet
-        open
-        onOpenChange={vi.fn()}
-        title="Note Details"
-        entityId="note-1"
-      >
+      <E2eeEntityDetailSheet open onOpenChange={vi.fn()} title="Note Details">
         <p>Editor body</p>
       </E2eeEntityDetailSheet>
     );
@@ -32,7 +27,6 @@ describe("E2eeEntityDetailSheet", () => {
         onOpenChange={vi.fn()}
         title="Contact"
         description="Edit contact fields and linked notes."
-        entityId="contact-1"
       >
         <p>Editor</p>
       </E2eeEntityDetailSheet>
@@ -46,12 +40,7 @@ describe("E2eeEntityDetailSheet", () => {
 
   it("uses a flex height chain on sheet content and body wrapper for scroll", () => {
     render(
-      <E2eeEntityDetailSheet
-        open
-        onOpenChange={vi.fn()}
-        title="Task Details"
-        entityId="task-1"
-      >
+      <E2eeEntityDetailSheet open onOpenChange={vi.fn()} title="Task Details">
         <p data-testid="editor">Editor body</p>
       </E2eeEntityDetailSheet>
     );

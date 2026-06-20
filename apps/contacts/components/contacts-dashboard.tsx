@@ -52,7 +52,7 @@ export function ContactsDashboard({
     create,
     remove,
     reorder,
-    patchLocal,
+    update,
   } = useContacts({ initialEncryptedData: initialEncryptedContacts });
 
   const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
@@ -230,15 +230,18 @@ export function ContactsDashboard({
         open={isOpen}
         onOpenChange={handleSheetOpenChange}
         title="Contact Details"
-        entityId={entityId}
       >
         {entityId ? (
           <ContactEditor
             key={entityId}
             contactId={entityId}
-            initialContact={selectedContact ?? undefined}
+            contact={selectedContact}
+            isLoading={isLoading && !selectedContact}
+            error={error}
+            onUpdate={(input) => update(entityId, input)}
+            onRemove={() => remove(entityId)}
+            onRefresh={refresh}
             onClose={() => handleSheetOpenChange(false)}
-            onLocalPatch={(id, input) => patchLocal(id, input)}
           />
         ) : null}
       </E2eeEntityDetailSheet>

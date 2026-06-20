@@ -16,10 +16,9 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { ContactActionPanel } from "@/components/contact-action-panel";
 import { ContactEditorCommandBar } from "@/components/contact-editor-command-bar";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
-import { useContact } from "@/hooks/use-contacts";
 import { DEFAULT_CATEGORIES } from "@/lib/config/default-categories";
 
-import type { Contact, ContactRow } from "@/lib/types";
+import type { Contact, ContactInput } from "@/lib/types";
 
 const NoteLinksPanel = dynamic(
   () => import("@/components/note-links-panel").then((m) => m.NoteLinksPanel),
@@ -75,30 +74,27 @@ interface ContactMetadataSnapshot {
 /** Props for ContactEditor */
 interface ContactEditorProps {
   contactId: string;
-  /** Already decrypted contact to skip initial fetch/decrypt */
-  initialContact?: Contact;
-  /** Server-prefetched encrypted contact to skip initial round-trip */
-  initialEncryptedContact?: ContactRow;
+  contact: Contact | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onUpdate: (input: Partial<ContactInput>) => Promise<boolean>;
+  onRemove: () => Promise<boolean>;
+  onRefresh: () => Promise<void>;
   onClose?: () => void;
-  onLocalPatch?: (id: string, input: { category_id?: string }) => void;
 }
 
 /** Contact editor for a single contact inside the dashboard detail sheet. */
 export function ContactEditor({
   contactId,
-  initialContact,
-  initialEncryptedContact,
+  contact,
+  isLoading,
+  error,
+  onUpdate,
+  onRemove,
+  onRefresh,
   onClose,
-  onLocalPatch,
 }: ContactEditorProps) {
   const router = useRouter();
-  const { contact, isLoading, error, refresh, update, remove } = useContact(
-    contactId,
-    {
-      initialData: initialContact,
-      initialEncryptedData: initialEncryptedContact,
-    }
-  );
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -174,7 +170,7 @@ export function ContactEditor({
       const trimmedEmail = email.trim();
       const trimmedPhone = phone.trim();
 
-      const success = await update({
+      const success = await onUpdate({
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         description: trimmedDescription === "" ? null : trimmedDescription,
@@ -197,7 +193,16 @@ export function ContactEditor({
 
       return success;
     },
-    [contact, firstName, lastName, description, email, phone, birthday, update]
+    [
+      contact,
+      firstName,
+      lastName,
+      description,
+      email,
+      phone,
+      birthday,
+      onUpdate,
+    ]
   );
 
   const doBack = useCallback(() => {
@@ -210,31 +215,26 @@ export function ContactEditor({
 
   const handleEditorRefresh = useCallback(async () => {
     setHasInitialized(false);
-    await refresh();
-  }, [refresh]);
+    await onRefresh();
+  }, [onRefresh]);
 
   const handleCategoryChange = useCallback(
     async (categoryId: string) => {
       if (!contact || categoryId === contact.category_id) return;
-      const previousCategoryId = contact.category_id;
-      onLocalPatch?.(contact.id, { category_id: categoryId });
       setIsSavingCategory(true);
       try {
-        const success = await update({ category_id: categoryId });
-        if (!success) {
-          onLocalPatch?.(contact.id, { category_id: previousCategoryId });
-        }
+        await onUpdate({ category_id: categoryId });
       } finally {
         setIsSavingCategory(false);
       }
     },
-    [contact, onLocalPatch, update]
+    [contact, onUpdate]
   );
 
   const handleDeleteConfirm = useCallback(async () => {
     setIsDeletingContact(true);
     try {
-      const success = await remove();
+      const success = await onRemove();
       if (success) {
         if (onClose) {
           onClose();
@@ -246,7 +246,7 @@ export function ContactEditor({
       setIsDeletingContact(false);
       setIsDeleteOpen(false);
     }
-  }, [onClose, remove, router]);
+  }, [onClose, onRemove, router]);
 
   if (!contact && !error && isLoading) {
     return (
@@ -260,10 +260,10 @@ export function ContactEditor({
     <E2eeRichTextItemEditorShell
       editorSessionKey={contactId}
       title=""
-      description={contact?.notes ?? null}
-      isLoading={isLoading}
+      initialDescription={contact?.notes ?? null}
+      isLoading={Boolean(isLoading)}
       hasItem={Boolean(contact)}
-      error={error}
+      error={error ?? null}
       hasInitialized={hasInitialized}
       onTitleChange={() => undefined}
       onSave={onSave}
@@ -292,7 +292,7 @@ export function ContactEditor({
         />
       )}
       renderBeforeEditor={
-        contact ? (
+        hasInitialized ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">

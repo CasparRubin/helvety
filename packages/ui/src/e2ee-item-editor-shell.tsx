@@ -2,7 +2,6 @@
 
 import { useRichTextDraftState } from "@helvety/shared/hooks/use-rich-text-draft-state";
 import { Loader2Icon } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -20,28 +19,12 @@ import { CommandBarPageLayout } from "./command-bar-page-layout";
 import { E2EE_UNSAVED_CHANGES_DIALOG } from "./e2ee-form-layout";
 import { Input } from "./input";
 import { Label } from "./label";
+import { TiptapEditor } from "./tiptap-editor";
 import { parseRichTextContent, serializeRichTextContent } from "./tiptap-utils";
 
 import type { TiptapEditorRef } from "./tiptap-editor";
 import type { JSONContent } from "@tiptap/react";
 import type { ReactNode } from "react";
-
-const TiptapEditor = dynamic(
-  () => import("./tiptap-editor").then((m) => m.TiptapEditor),
-  {
-    ssr: false,
-    loading: () => <EditorLoadingSpinner />,
-  }
-);
-
-/** Loading placeholder while the rich-text editor chunk loads. */
-function EditorLoadingSpinner() {
-  return (
-    <div className="border-border/40 flex min-h-[200px] items-center justify-center rounded-md border">
-      <Loader2Icon className="text-muted-foreground h-6 w-6 animate-spin" />
-    </div>
-  );
-}
 
 /** Save status for the editor shell. */
 export type E2eeItemEditorSaveStatus = "idle" | "saving" | "saved" | "error";
@@ -51,7 +34,8 @@ export interface E2eeRichTextItemEditorShellProps {
   /** Stable per record; remounts TipTap when switching entities. */
   editorSessionKey: string;
   title: string;
-  description: string | null;
+  /** Rich-text body snapshot when the session opens or after explicit refresh. */
+  initialDescription: string | null;
   isLoading: boolean;
   hasItem: boolean;
   error: string | null;
@@ -95,14 +79,14 @@ export interface E2eeRichTextItemEditorShellProps {
 /**
  * Shared editor shell: title, Tiptap body, unsaved-changes dialog, and layout slots.
  *
- * TipTap remounts on `editorSessionKey` (one record per session). The `description`
- * prop supplies server ciphertext for initial load / refresh via `editorRef.setContent`;
- * it is not wired as live controlled content (that resets TipTap v3 on every keystroke).
+ * TipTap remounts on `editorSessionKey` (one record per session). `initialDescription`
+ * is loaded once per session via `editorRef.setContent`; it is never live-synced from props
+ * (that resets TipTap v3 on every keystroke).
  */
 export function E2eeRichTextItemEditorShell({
   editorSessionKey,
   title,
-  description,
+  initialDescription,
   isLoading,
   hasItem,
   error,
@@ -130,6 +114,7 @@ export function E2eeRichTextItemEditorShell({
   const draftState = useRichTextDraftState();
   const titleInitializedRef = useRef(false);
   const loadedEditorSessionRef = useRef<string | null>(null);
+  const initialDescriptionRef = useRef(initialDescription);
   const [saveStatus, setSaveStatus] =
     useState<E2eeItemEditorSaveStatus>("idle");
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -162,6 +147,10 @@ export function E2eeRichTextItemEditorShell({
   }, [hasInitialized, title, draftState]);
 
   useEffect(() => {
+    initialDescriptionRef.current = initialDescription;
+  }, [editorSessionKey, initialDescription]);
+
+  useEffect(() => {
     if (!hasInitialized) {
       loadedEditorSessionRef.current = null;
       return;
@@ -169,9 +158,31 @@ export function E2eeRichTextItemEditorShell({
     if (loadedEditorSessionRef.current === editorSessionKey) {
       return;
     }
-    editorRef.current?.setContent(parseRichTextContent(description));
-    loadedEditorSessionRef.current = editorSessionKey;
-  }, [editorSessionKey, description, hasInitialized]);
+
+    let cancelled = false;
+
+    const loadDescription = (): void => {
+      if (cancelled) {
+        return;
+      }
+      if (loadedEditorSessionRef.current === editorSessionKey) {
+        return;
+      }
+      const editor = editorRef.current;
+      if (!editor) {
+        requestAnimationFrame(loadDescription);
+        return;
+      }
+      editor.setContent(parseRichTextContent(initialDescriptionRef.current));
+      loadedEditorSessionRef.current = editorSessionKey;
+    };
+
+    loadDescription();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editorSessionKey, hasInitialized]);
 
   const persistSave = useCallback(
     async (newTitle: string, newDescription: JSONContent | null) => {
@@ -333,7 +344,7 @@ export function E2eeRichTextItemEditorShell({
                 <TiptapEditor
                   key={editorSessionKey}
                   ref={editorRef}
-                  content={parseRichTextContent(description)}
+                  content={null}
                   onChange={handleDescriptionChange}
                   placeholder={richTextPlaceholder}
                 />
@@ -407,20 +418,20 @@ function EditorLinksSection({ children }: { children: ReactNode }) {
 }
 
 /** Adapts shell save to encrypted item `update` (title + serialized description). */
-export function useE2eeRichTextItemEditorSave({
+export function useE2eeRichTextItemEditorSave<T extends object>({
   update,
 }: {
-  update: (input: {
-    title: string;
-    description: string | null;
-  }) => Promise<boolean>;
+  update: (input: T) => Promise<boolean>;
 }) {
   return useCallback(
     async (newTitle: string, newDescription: JSONContent | null) => {
       const descriptionString = newDescription
         ? serializeRichTextContent(newDescription)
         : null;
-      return update({ title: newTitle, description: descriptionString });
+      return update({
+        title: newTitle,
+        description: descriptionString,
+      } as T);
     },
     [update]
   );

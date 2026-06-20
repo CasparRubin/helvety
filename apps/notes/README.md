@@ -16,7 +16,8 @@ End-to-end encrypted notes app with category-based organization.
 - Shareable deep links open a note in the detail sheet via `?note=<uuid>`. URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Cross-app links to tasks, contacts, and bookmarks via `EntityLinksPanel` + `createE2eeEntityLinksHook` (`useTaskLinks`, `useContactLinks`, `useLinkEntityLinks`)
 - List CRUD/reorder: `hooks/use-items.ts` wraps `@helvety/ui/hooks/use-encrypted-sortable-items` with note crypto and server actions; hook errors use `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
-- Detail sheet CRUD: `useItem` wraps `@helvety/ui/hooks/use-encrypted-single-item` (same refresh-token and hard-logout semantics as the list hook)
+- Detail sheet CRUD: dashboard passes list-hook `update` / `remove` / `refresh` into `ItemEditor` (Links pattern: single list state, optimistic updates)
+- Optional `useItem` (wraps `useEncryptedSingleItem`) for non-dashboard fetch paths; the dashboard sheet editor does not use it
 - Client-side decrypted export via `@helvety/ui/hooks/use-e2ee-data-export` and `lib/data-export.ts` (JSON download plumbing in `@helvety/shared/e2ee-json-export`; server fetch stays encrypted via `fetchOwnedEncryptedExport`)
 
 ## E2EE Data Model

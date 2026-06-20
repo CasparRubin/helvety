@@ -273,6 +273,72 @@ describe("useEncryptedSortableItems", () => {
     expect(result.current.items[0]?.title).toBe("Patched");
   });
 
+  it("optimistically patches the list before update succeeds", async () => {
+    let resolveUpdate!: (value: { success: true }) => void;
+    const updateItem = vi.fn(
+      () =>
+        new Promise<{ success: true }>((resolve) => {
+          resolveUpdate = resolve;
+        })
+    );
+
+    const { result } = renderSortableHook({ updateItem });
+
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+    let updatePromise!: Promise<boolean>;
+    act(() => {
+      updatePromise = result.current.update("item-1", { title: "Optimistic" });
+    });
+
+    expect(result.current.items[0]?.title).toBe("Optimistic");
+
+    await waitFor(() => expect(updateItem).toHaveBeenCalled());
+
+    await act(async () => {
+      resolveUpdate({ success: true });
+      await updatePromise;
+    });
+
+    expect(result.current.items[0]?.title).toBe("Optimistic");
+  });
+
+  it("restores the list when update fails", async () => {
+    const updateItem = vi.fn().mockResolvedValue({
+      success: false,
+      error: "update failed",
+    });
+    reportE2eeActionFailure.mockReturnValue(false);
+
+    const { result } = renderSortableHook({ updateItem });
+
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+    await act(async () => {
+      const ok = await result.current.update("item-1", { title: "Failed" });
+      expect(ok).toBe(false);
+    });
+
+    expect(result.current.items[0]?.title).toBe("Alpha");
+  });
+
+  it("restores the list when update throws", async () => {
+    const updateItem = vi.fn().mockRejectedValue(new Error("network down"));
+    reportE2eeHookError.mockReturnValue(false);
+
+    const { result } = renderSortableHook({ updateItem });
+
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+    await act(async () => {
+      const ok = await result.current.update("item-1", { title: "Thrown" });
+      expect(ok).toBe(false);
+    });
+
+    expect(result.current.items[0]?.title).toBe("Alpha");
+    expect(reportE2eeHookError).toHaveBeenCalled();
+  });
+
   it("refetches after a failed reorder", async () => {
     const fetchRows = vi
       .fn()

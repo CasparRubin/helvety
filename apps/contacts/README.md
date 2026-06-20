@@ -14,7 +14,9 @@ End-to-end encrypted contact management app.
 - New and edit use the same wide right detail sheet (`E2eeEntityDetailSheet`; flex scroll chain via `@helvety/ui/sheet-scroll-layout`, body scrolls in `CommandBarPageLayout`) with `ContactEditor` on `@helvety/ui/e2ee-item-editor-shell` (structured fields, Tiptap notes, task/note/link cross-app panels). **New Contact** creates a draft row and opens that sheet immediately; closing without edits removes the draft row.
 - Shareable deep links open a contact in the detail sheet via `?contact=<uuid>` (for example from Tasks, Notes, or Links cross-links). URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Rich contact editor with cross-app links to tasks, notes, and bookmarks via `EntityLinksPanel` and thin hooks from `createE2eeEntityLinksHook` (`useTaskLinks`, `useNoteLinks`, `useLinkEntityLinks`; lazy catalog load until a panel expands or the Add picker opens)
-- Contact list hooks (`useContacts` via `useEncryptedSortableItems`) and detail hook (`useContact` via `useEncryptedSingleItem`) report auth and action failures via `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
+- List CRUD/reorder: `hooks/use-contacts.ts` wraps `@helvety/ui/hooks/use-encrypted-sortable-items` with contact crypto and server actions; hook errors use `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
+- Detail sheet CRUD: dashboard passes list-hook `update` / `remove` / `refresh` into `ContactEditor` (Links pattern: single list state, optimistic updates)
+- Optional `useContact` (wraps `useEncryptedSingleItem`) for non-dashboard fetch paths; the dashboard sheet editor does not use it
 - Client-side decrypted export via `@helvety/ui/hooks/use-e2ee-data-export` and `lib/data-export.ts` (JSON download plumbing in `@helvety/shared/e2ee-json-export`; server fetch stays encrypted via `fetchOwnedEncryptedExport`)
 
 ## E2EE Data Model

@@ -23,7 +23,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
   - shared navigation/session UX behavior (`create-app-navbar` factories; `E2eeShellRouteLoading` / `HelvetyShellRouteLoading` loading matrix)
-  - E2EE list hooks: `useEncryptedSortableItems`; E2EE detail hooks: `useEncryptedSingleItem` (tasks, notes, contacts zone wrappers)
+- E2EE list hooks: `useEncryptedSortableItems`; optional single-entity hooks: `useEncryptedSingleItem` (tasks, notes, contacts zone wrappers — **not** used in list-dashboard sheet editors)
   - production `tailwindcss` and `@tailwindcss/postcss` on the zone production dependency graph for Turbopack CSS processing; `@helvety/config/postcss` loads the PostCSS plugin from `@helvety/dev-deps` (versions still canonical in dev-deps; `deps:drift` allows both only on `packages/ui`)
 
 ## Multi-zone static assets (`assetPrefix`)
@@ -42,7 +42,8 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - EncryptionGate redirect intent derivation (fewer effects)
 - Hyperspeed React 19 ref-callback mount/dispose; animation timing via `THREE.Timer` (not deprecated `THREE.Clock`); sources under `apps/web/components/vendor/`
 - E2EE list hooks: `useEncryptedSortableItems` in `@helvety/ui`; tasks, notes, and contacts list hooks are thin wrappers; hook errors via `reportE2eeHookError` / `reportE2eeActionFailure` (not ad-hoc toast + redirect)
-- E2EE single-entity hooks: `useEncryptedSingleItem` in `@helvety/ui`; tasks, notes, and contacts detail hooks are thin wrappers over the same refresh-token and hard-logout semantics
+- E2EE sheet editors (Links pattern): list dashboards pass `update` / `remove` / `refresh` from the list hook into zone editors; rich-text zones use `E2eeRichTextItemEditorShell` with mount-only TipTap (`initialDescription` + `editorSessionKey`, not live `content` sync). Links passes `library.updateLink` from `use-link-library`.
+- E2EE single-entity hooks: `useEncryptedSingleItem` in `@helvety/ui`; tasks, notes, and contacts `useItem` / `useContact` wrappers remain for optional non-dashboard fetch paths (same refresh-token and hard-logout semantics)
 - E2EE JSON export: `@helvety/shared/e2ee-json-export` (`downloadEncryptedJsonExport`); `@helvety/ui/hooks/use-e2ee-data-export` (`useE2eeDataExport` → `handleExportData`); vault zone `lib/data-export.ts` files keep fetch/decrypt/map only
 - Auth credential reads: `getOwnPasskeyStatus` uses `authenticateAndRateLimit` + `checkUserPasskeyStatus` (aligned with `hasEncryptionSetup`); enforced by `consistency:auth-action-guards` in `ci:check`
 - **TypeScript safety:** removed unsafe double-cast in auth device trust cookie secret handling; reduced Supabase admin helper assertion complexity while keeping typed scoped table usage

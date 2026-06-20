@@ -469,7 +469,6 @@ export function LinksDashboard({
         open={panel.mode === "open"}
         onOpenChange={handleSheetOpenChange}
         title={sheetTitle}
-        entityId={panel.mode === "open" ? panel.id : null}
       >
         {panel.mode === "open" && panel.kind === "link" && editingLink ? (
           <LinkEditor

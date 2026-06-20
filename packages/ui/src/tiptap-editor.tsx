@@ -49,7 +49,10 @@ import type { Editor, JSONContent } from "@tiptap/react";
 
 /** Props for the Tiptap rich-text editor. */
 export interface TiptapEditorProps {
-  /** Initial content as ProseMirror JSON */
+  /**
+   * Mount-only initial ProseMirror JSON. Captured once at mount; later prop changes are ignored.
+   * E2EE sheet editors pass `null` and load ciphertext via `ref.setContent` in `E2eeRichTextItemEditorShell`.
+   */
   content?: JSONContent | null;
   /** Callback when content changes */
   onChange?: (content: JSONContent) => void;

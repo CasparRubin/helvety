@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 import { renderHook } from "@testing-library/react";
@@ -143,5 +146,18 @@ describe("useContact", () => {
     const { result } = renderHook(() => useContact("contact-1"));
 
     expect(result.current.contact).toEqual(mockContact);
+  });
+
+  it("is not used by the contacts dashboard sheet editor (list hook owns saves)", () => {
+    const dashboardSrc = readFileSync(
+      join(import.meta.dirname, "../components/contacts-dashboard.tsx"),
+      "utf8"
+    );
+    const editorSrc = readFileSync(
+      join(import.meta.dirname, "../components/contact-editor.tsx"),
+      "utf8"
+    );
+    expect(dashboardSrc).not.toMatch(/useContact\s*\(/);
+    expect(editorSrc).not.toMatch(/useContact\s*\(/);
   });
 });

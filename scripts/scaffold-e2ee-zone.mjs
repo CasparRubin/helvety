@@ -25,7 +25,9 @@ Copy from apps/contacts and adapt:
 - apps/${appName}/app/loading.tsx → export E2eeShellRouteLoading
 - apps/${appName}/proxy.ts → e2ee-app profile + failClosedOnAuthRefresh
 - apps/${appName}/lib/crypto/index.ts → re-export EncryptionProvider
-- apps/${appName}/hooks/use-*.ts → list hook wraps @helvety/ui/hooks/use-encrypted-sortable-items; detail hook wraps @helvety/ui/hooks/use-encrypted-single-item
+- apps/${appName}/hooks/use-*.ts → list hook wraps @helvety/ui/hooks/use-encrypted-sortable-items; dashboard passes list-hook update/remove/refresh into sheet editors (Links pattern; see apps/links)
+- apps/${appName}/components/*-dashboard.tsx → selectedItem from list hook; editor child key={entityId}; no useItem/useContact in sheet editors
+- apps/${appName}/components/*-editor.tsx → E2eeRichTextItemEditorShell with initialDescription + editorSessionKey; TipTap content={null} (see packages/ui/src/e2ee-item-editor-shell.tsx)
 - apps/${appName}/lib/data-export.ts → fetch/decrypt/map only; call @helvety/shared/e2ee-json-export for JSON download
 - apps/${appName}/hooks/use-data-export.ts → thin wrapper around @helvety/ui/hooks/use-e2ee-data-export
 

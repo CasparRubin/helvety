@@ -108,14 +108,22 @@ export interface UseEncryptedSortableItemsReturn<
   update: (id: string, input: Partial<TInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: TReorderUpdate[]) => Promise<boolean>;
+  /**
+   * In-memory list patch without a network round trip.
+   * Dashboard sheet editors should use optimistic `update()` instead; this remains for edge tooling/tests.
+   */
   patchLocal: (id: string, input: Partial<TInput>) => void;
 }
 
 /**
- * Shared list CRUD/reorder hook for E2EE apps (tasks, notes).
+ * Shared list CRUD/reorder hook for E2EE apps (tasks, notes, contacts).
  * Apps inject crypto, server actions, and domain-specific optimistic builders.
+ * `update()` patches the list optimistically before the network call and rolls back on failure.
  * When `initialEncryptedData` is provided (SSR prefetch), the hook decrypts once
  * and does not auto-refetch on effect re-runs (React Strict Mode safe).
+ *
+ * **Dashboard sheet editors:** pass this hook's `update` / `remove` / `refresh` into zone
+ * editors (Links pattern). Do not pair sheet editors with {@link useEncryptedSingleItem}.
  */
 export function useEncryptedSortableItems<
   TItem extends EncryptedSortableEntity,
@@ -312,6 +320,16 @@ export function useEncryptedSortableItems<
         return false;
       }
 
+      let prevItems: TItem[] = [];
+      setItems((prev) => {
+        prevItems = prev;
+        return patchEntityInList(
+          prev,
+          id,
+          input as Partial<Omit<TItem, "id" | "updated_at">>
+        );
+      });
+
       try {
         const encrypted = await encryptUpdate(id, input, masterKey);
         const result = await updateItem(
@@ -319,26 +337,27 @@ export function useEncryptedSortableItems<
           csrfToken
         );
         if (!result.success) {
-          reportE2eeActionFailure(result.error, {
-            source: navigationSource,
-            fallback: updateFailureMessage,
-          });
+          if (
+            !reportE2eeActionFailure(result.error, {
+              source: navigationSource,
+              fallback: updateFailureMessage,
+            })
+          ) {
+            setItems(prevItems);
+          }
           return false;
         }
 
-        setItems((prev) =>
-          patchEntityInList(
-            prev,
-            id,
-            input as Partial<Omit<TItem, "id" | "updated_at">>
-          )
-        );
         return true;
       } catch (err) {
-        reportE2eeHookError(err, {
-          source: navigationSource,
-          fallback: updateFailureMessage,
-        });
+        if (
+          !reportE2eeHookError(err, {
+            source: navigationSource,
+            fallback: updateFailureMessage,
+          })
+        ) {
+          setItems(prevItems);
+        }
         return false;
       }
     },

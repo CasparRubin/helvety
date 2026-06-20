@@ -21,10 +21,9 @@ import { useState, useCallback, useEffect } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemCommandBar } from "@/components/item-command-bar";
-import { useItem } from "@/hooks/use-items";
 import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
 
-import type { Item, ItemRow } from "@/lib/types";
+import type { Item, ItemInput } from "@/lib/types";
 
 const ContactLinksPanel = dynamic(
   () =>
@@ -71,30 +70,24 @@ const APP_HOME_PATH = "/notes";
 /** Note editor for title and description inside the dashboard detail sheet. */
 export function ItemEditor({
   itemId,
-  initialItem,
-  initialEncryptedItem,
+  item,
+  isLoading,
+  error,
+  onUpdate,
+  onRemove,
+  onRefresh,
   onClose,
-  onLocalPatch,
 }: {
   itemId: string;
-  initialItem?: Item;
-  initialEncryptedItem?: ItemRow;
+  item: Item | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onUpdate: (input: Partial<ItemInput>) => Promise<boolean>;
+  onRemove: () => Promise<boolean>;
+  onRefresh: () => Promise<void>;
   onClose?: () => void;
-  onLocalPatch?: (id: string, input: { category_id?: string }) => void;
 }) {
   const router = useRouter();
-  const {
-    item,
-    isLoading: isLoadingItem,
-    error,
-    update,
-    refresh,
-    remove,
-  } = useItem(itemId, {
-    initialData: initialItem,
-    initialEncryptedData: initialEncryptedItem,
-  });
-
   const [title, setTitle] = useState("");
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -106,7 +99,7 @@ export function ItemEditor({
   );
   const categoryOpen = categoryOverride ?? !isMobile;
 
-  const onSave = useE2eeRichTextItemEditorSave({ update });
+  const onSave = useE2eeRichTextItemEditorSave({ update: onUpdate });
 
   useEffect(() => {
     if (item && !hasInitialized) {
@@ -125,31 +118,26 @@ export function ItemEditor({
 
   const handleEditorRefresh = useCallback(async () => {
     setHasInitialized(false);
-    await refresh();
-  }, [refresh]);
+    await onRefresh();
+  }, [onRefresh]);
 
   const handleCategoryChange = useCallback(
     async (categoryId: string) => {
       if (!item || categoryId === item.category_id) return;
-      const previousCategoryId = item.category_id;
-      onLocalPatch?.(item.id, { category_id: categoryId });
       setIsSavingCategory(true);
       try {
-        const success = await update({ category_id: categoryId });
-        if (!success) {
-          onLocalPatch?.(item.id, { category_id: previousCategoryId });
-        }
+        await onUpdate({ category_id: categoryId });
       } finally {
         setIsSavingCategory(false);
       }
     },
-    [item, onLocalPatch, update]
+    [item, onUpdate]
   );
 
   const handleDeleteItem = useCallback(async () => {
     setIsDeleting(true);
     try {
-      const success = await remove();
+      const success = await onRemove();
       if (success) {
         if (onClose) {
           onClose();
@@ -161,9 +149,9 @@ export function ItemEditor({
       setIsDeleting(false);
       setIsDeleteOpen(false);
     }
-  }, [onClose, remove, router]);
+  }, [onClose, onRemove, router]);
 
-  if (!item && !error && isLoadingItem) {
+  if (!item && !error && isLoading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
@@ -175,10 +163,10 @@ export function ItemEditor({
     <E2eeRichTextItemEditorShell
       editorSessionKey={itemId}
       title={title}
-      description={item?.description ?? null}
-      isLoading={isLoadingItem}
+      initialDescription={item?.description ?? null}
+      isLoading={Boolean(isLoading)}
       hasItem={Boolean(item)}
-      error={error}
+      error={error ?? null}
       hasInitialized={hasInitialized}
       onTitleChange={setTitle}
       onSave={onSave}

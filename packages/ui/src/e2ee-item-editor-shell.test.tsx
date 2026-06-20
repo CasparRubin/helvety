@@ -6,9 +6,10 @@ import {
   render,
   renderHook,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import * as React from "react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -18,7 +19,13 @@ import {
 
 import type { JSONContent } from "@tiptap/react";
 
-const { EMPTY_DOC, EDITED_DOC, EDITED_AGAIN_DOC } = vi.hoisted(() => ({
+const {
+  EMPTY_DOC,
+  EDITED_DOC,
+  EDITED_AGAIN_DOC,
+  setContentSpy,
+  lastTiptapContentProp,
+} = vi.hoisted(() => ({
   EMPTY_DOC: { type: "doc", content: [] } satisfies JSONContent,
   EDITED_DOC: {
     type: "doc",
@@ -38,6 +45,8 @@ const { EMPTY_DOC, EDITED_DOC, EDITED_AGAIN_DOC } = vi.hoisted(() => ({
       },
     ],
   } satisfies JSONContent,
+  setContentSpy: vi.fn(),
+  lastTiptapContentProp: { current: null as JSONContent | null | undefined },
 }));
 
 /** Imperative handle stub for mocked `TiptapEditor` in shell tests. */
@@ -48,23 +57,25 @@ type MockTiptapEditorHandle = {
   getEditor: () => null;
 };
 
-vi.mock("next/dynamic", () => {
+vi.mock("./tiptap-editor", () => {
   const MockTiptapEditor = React.forwardRef<
     MockTiptapEditorHandle,
-    { onChange?: (content: JSONContent) => void }
-  >(({ onChange }, ref) => {
+    { content?: JSONContent | null; onChange?: (content: JSONContent) => void }
+  >(({ content = null, onChange }, ref) => {
+    lastTiptapContentProp.current = content;
     const [json, setJson] = React.useState<JSONContent>(EMPTY_DOC);
     const [editCount, setEditCount] = React.useState(0);
 
     React.useImperativeHandle(ref, () => ({
       getJSON: () => json,
-      setContent: (content) => {
-        if (content === null) {
+      setContent: (nextContent) => {
+        setContentSpy(nextContent);
+        if (nextContent === null) {
           setJson(EMPTY_DOC);
           return;
         }
-        if (typeof content === "object") {
-          setJson(content);
+        if (typeof nextContent === "object") {
+          setJson(nextContent);
         }
       },
       focus: () => undefined,
@@ -89,7 +100,7 @@ vi.mock("next/dynamic", () => {
   MockTiptapEditor.displayName = "MockTiptapEditor";
 
   return {
-    default: () => MockTiptapEditor,
+    TiptapEditor: MockTiptapEditor,
   };
 });
 
@@ -98,8 +109,32 @@ describe("E2eeRichTextItemEditorShell", () => {
   const onRefresh = vi.fn(async () => undefined);
   const onBack = vi.fn();
 
+  const baseShellProps = {
+    title: "Hello",
+    initialDescription: null as string | null,
+    isLoading: false,
+    hasItem: true,
+    error: null as string | null,
+    hasInitialized: true,
+    onTitleChange: vi.fn(),
+    onSave,
+    onRefresh,
+    onBack,
+    titlePlaceholder: "Title",
+    notFoundMessage: "Not found",
+    loadErrorMessage: "Load failed",
+    renderCommandBar: ({ onSave: save }: { onSave: () => void }) => (
+      <button type="button" onClick={save}>
+        Save
+      </button>
+    ),
+    deleteDialog: null,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    setContentSpy.mockClear();
+    lastTiptapContentProp.current = null;
   });
 
   it("calls onSave when the command bar save action runs", () => {
@@ -107,7 +142,7 @@ describe("E2eeRichTextItemEditorShell", () => {
       <E2eeRichTextItemEditorShell
         editorSessionKey="test-item"
         title="Hello"
-        description={null}
+        initialDescription={null}
         isLoading={false}
         hasItem
         error={null}
@@ -141,7 +176,7 @@ describe("E2eeRichTextItemEditorShell", () => {
         <E2eeRichTextItemEditorShell
           editorSessionKey="test-item"
           title={title}
-          description={null}
+          initialDescription={null}
           isLoading={false}
           hasItem
           error={null}
@@ -185,7 +220,7 @@ describe("E2eeRichTextItemEditorShell", () => {
       <E2eeRichTextItemEditorShell
         editorSessionKey="test-item"
         title="Saved title"
-        description={null}
+        initialDescription={null}
         isLoading={false}
         hasItem
         error={null}
@@ -222,7 +257,7 @@ describe("E2eeRichTextItemEditorShell", () => {
       <E2eeRichTextItemEditorShell
         editorSessionKey="test-item"
         title="Saved title"
-        description={null}
+        initialDescription={null}
         isLoading={false}
         hasItem
         error={null}
@@ -257,7 +292,7 @@ describe("E2eeRichTextItemEditorShell", () => {
       <E2eeRichTextItemEditorShell
         editorSessionKey="test-item"
         title="Saved title"
-        description={null}
+        initialDescription={null}
         isLoading={false}
         hasItem
         error={null}
@@ -288,7 +323,7 @@ describe("E2eeRichTextItemEditorShell", () => {
       <E2eeRichTextItemEditorShell
         editorSessionKey="test-item"
         title=""
-        description={null}
+        initialDescription={null}
         isLoading
         hasItem={false}
         error={null}
@@ -308,6 +343,132 @@ describe("E2eeRichTextItemEditorShell", () => {
     const loadingHost = container.querySelector(".animate-spin")?.parentElement;
     expect(loadingHost?.className).toContain("flex-1");
     expect(loadingHost?.className).toContain("min-h-0");
+  });
+
+  it("mounts TipTap with null content and loads initialDescription imperatively", async () => {
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="session-1"
+        initialDescription='{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"seed"}]}]}'
+      />
+    );
+
+    expect(lastTiptapContentProp.current).toBeNull();
+    await waitFor(() => expect(setContentSpy).toHaveBeenCalledTimes(1));
+  });
+
+  it("does not reload description when initialDescription prop changes within the same session", async () => {
+    const { rerender } = render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="session-1"
+        initialDescription='{"type":"doc","content":[]}'
+      />
+    );
+
+    await waitFor(() => expect(setContentSpy).toHaveBeenCalledTimes(1));
+
+    rerender(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="session-1"
+        initialDescription='{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"server-updated"}]}]}'
+      />
+    );
+
+    expect(setContentSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("loads description again when editorSessionKey changes", async () => {
+    const { rerender } = render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="session-a"
+        initialDescription='{"type":"doc","content":[]}'
+      />
+    );
+
+    await waitFor(() => expect(setContentSpy).toHaveBeenCalledTimes(1));
+
+    rerender(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="session-b"
+        initialDescription='{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"other item"}]}]}'
+      />
+    );
+
+    await waitFor(() => expect(setContentSpy).toHaveBeenCalledTimes(2));
+  });
+
+  it("reloads description after refresh resets initialization", async () => {
+    /** Simulates zone editors toggling hasInitialized around list refresh. */
+    function RefreshHarness() {
+      const [hasInitialized, setHasInitialized] = useState(true);
+      const [initialDescription, setInitialDescription] = useState<
+        string | null
+      >('{"type":"doc","content":[]}');
+      const handleRefresh = useCallback(async () => {
+        setHasInitialized(false);
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 0);
+        });
+        setInitialDescription(
+          '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"fresh from server"}]}]}'
+        );
+        setHasInitialized(true);
+      }, []);
+
+      return (
+        <E2eeRichTextItemEditorShell
+          {...baseShellProps}
+          editorSessionKey="session-1"
+          initialDescription={initialDescription}
+          hasInitialized={hasInitialized}
+          onRefresh={handleRefresh}
+          renderCommandBar={({ onRefresh: refresh }) => (
+            <button type="button" onClick={() => void refresh()}>
+              Refresh
+            </button>
+          )}
+        />
+      );
+    }
+
+    render(<RefreshHarness />);
+
+    await waitFor(() => expect(setContentSpy).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+    });
+
+    await waitFor(() => expect(setContentSpy).toHaveBeenCalledTimes(2));
+  });
+
+  it("confirms before refresh when there are unsaved rich-text edits", () => {
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="session-1"
+        title="Saved title"
+        renderCommandBar={({ onRefresh: refresh }) => (
+          <button type="button" onClick={refresh}>
+            Refresh
+          </button>
+        )}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId("mock-tiptap-edit"));
+    fireEvent.click(screen.getByTestId("mock-tiptap-edit"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+
+    expect(onRefresh).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("alertdialog", { name: "Unsaved changes" })
+    ).toBeInTheDocument();
   });
 });
 

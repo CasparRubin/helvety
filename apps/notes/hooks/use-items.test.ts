@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 import { renderHook } from "@testing-library/react";
@@ -79,5 +82,18 @@ describe("useItem", () => {
           "We couldn't identify this note. Please refresh and try again.",
       })
     );
+  });
+
+  it("is not used by the notes dashboard sheet editor (list hook owns saves)", () => {
+    const dashboardSrc = readFileSync(
+      join(import.meta.dirname, "../components/flat-notes-dashboard.tsx"),
+      "utf8"
+    );
+    const editorSrc = readFileSync(
+      join(import.meta.dirname, "../components/item-editor.tsx"),
+      "utf8"
+    );
+    expect(dashboardSrc).not.toMatch(/useItem\s*\(/);
+    expect(editorSrc).not.toMatch(/useItem\s*\(/);
   });
 });

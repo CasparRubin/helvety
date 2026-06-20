@@ -50,7 +50,7 @@ export function FlatTasksDashboard({
     create,
     remove,
     reorder,
-    patchLocal,
+    update,
   } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
@@ -216,15 +216,18 @@ export function FlatTasksDashboard({
         open={isOpen}
         onOpenChange={handleSheetOpenChange}
         title="Task Details"
-        entityId={entityId}
       >
         {entityId ? (
           <ItemEditor
             key={entityId}
             itemId={entityId}
-            initialItem={selectedItem ?? undefined}
+            item={selectedItem}
+            isLoading={isLoading && !selectedItem}
+            error={error}
+            onUpdate={(input) => update(entityId, input)}
+            onRemove={() => remove(entityId)}
+            onRefresh={refresh}
             onClose={() => handleSheetOpenChange(false)}
-            onLocalPatch={(id, input) => patchLocal(id, input)}
           />
         ) : null}
       </E2eeEntityDetailSheet>

@@ -66,7 +66,9 @@ export interface UseEncryptedSingleItemReturn<TEntity, TInput extends object> {
   remove: () => Promise<boolean>;
 }
 
-/** Manages one encrypted E2EE entity by id (fetch, decrypt, update, delete). */
+/** Manages one encrypted E2EE entity by id (fetch, decrypt, update, delete).
+ *  Optional for standalone/detail routes or tooling — **not** for list-dashboard sheet editors;
+ *  those use the Links pattern ({@link useEncryptedSortableItems} `update`/`remove`/`refresh` as props). */
 export function useEncryptedSingleItem<
   TEntity,
   TRow extends object,

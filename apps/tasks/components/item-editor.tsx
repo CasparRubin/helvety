@@ -12,13 +12,12 @@ import { useState, useCallback, useEffect } from "react";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
 import { ItemCommandBar } from "@/components/item-command-bar";
-import { useItem } from "@/hooks/use-items";
 import { useLabels } from "@/hooks/use-labels";
 import { useStages } from "@/hooks/use-stages";
 import { DEFAULT_LABEL_CONFIG } from "@/lib/config/default-labels";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 
-import type { Item, ItemRow } from "@/lib/types";
+import type { Item, ItemInput } from "@/lib/types";
 
 const ContactLinksPanel = dynamic(
   () =>
@@ -65,30 +64,24 @@ const APP_HOME_PATH = "/tasks";
 /** Task editor for title, description, dates, and metadata inside the detail sheet. */
 export function ItemEditor({
   itemId,
-  initialItem,
-  initialEncryptedItem,
+  item,
+  isLoading,
+  error,
+  onUpdate,
+  onRemove,
+  onRefresh,
   onClose,
-  onLocalPatch,
 }: {
   itemId: string;
-  initialItem?: Item;
-  initialEncryptedItem?: ItemRow;
+  item: Item | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onUpdate: (input: Partial<ItemInput>) => Promise<boolean>;
+  onRemove: () => Promise<boolean>;
+  onRefresh: () => Promise<void>;
   onClose?: () => void;
-  onLocalPatch?: (id: string, input: { stage_id?: string | null }) => void;
 }) {
   const router = useRouter();
-  const {
-    item,
-    isLoading: isLoadingItem,
-    error,
-    update,
-    refresh,
-    remove,
-  } = useItem(itemId, {
-    initialData: initialItem,
-    initialEncryptedData: initialEncryptedItem,
-  });
-
   const { stages, isLoading: isLoadingStages } = useStages(
     DEFAULT_STAGE_CONFIGS.item.id
   );
@@ -107,7 +100,7 @@ export function ItemEditor({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const onSave = useE2eeRichTextItemEditorSave({ update });
+  const onSave = useE2eeRichTextItemEditorSave({ update: onUpdate });
 
   useEffect(() => {
     if (item && !hasInitialized) {
@@ -126,13 +119,13 @@ export function ItemEditor({
 
   const handleEditorRefresh = useCallback(async () => {
     setHasInitialized(false);
-    await refresh();
-  }, [refresh]);
+    await onRefresh();
+  }, [onRefresh]);
 
   const handleDeleteItem = useCallback(async () => {
     setIsDeleting(true);
     try {
-      const success = await remove();
+      const success = await onRemove();
       if (success) {
         if (onClose) {
           onClose();
@@ -144,76 +137,71 @@ export function ItemEditor({
       setIsDeleting(false);
       setIsDeleteOpen(false);
     }
-  }, [onClose, remove, router]);
+  }, [onClose, onRemove, router]);
 
   const handleStageChange = useCallback(
     async (stageId: string) => {
       if (!item) return;
       if (item.stage_id === stageId) return;
-      const previousStageId = item.stage_id;
-      onLocalPatch?.(item.id, { stage_id: stageId });
       setIsSavingStage(true);
       try {
-        const success = await update({ stage_id: stageId });
-        if (!success) {
-          onLocalPatch?.(item.id, { stage_id: previousStageId });
-        }
+        await onUpdate({ stage_id: stageId });
       } finally {
         setIsSavingStage(false);
       }
     },
-    [item, onLocalPatch, update]
+    [item, onUpdate]
   );
 
   const handleLabelChange = useCallback(
     async (labelId: string) => {
       setIsSavingLabel(true);
       try {
-        await update({ label_id: labelId });
+        await onUpdate({ label_id: labelId });
       } finally {
         setIsSavingLabel(false);
       }
     },
-    [update]
+    [onUpdate]
   );
 
   const handlePriorityChange = useCallback(
     async (priority: number) => {
       setIsSavingPriority(true);
       try {
-        await update({ priority });
+        await onUpdate({ priority });
       } finally {
         setIsSavingPriority(false);
       }
     },
-    [update]
+    [onUpdate]
   );
 
   const handleStartDateChange = useCallback(
     async (startDate: string | null) => {
       setIsSavingDates(true);
       try {
-        await update({ start_date: startDate });
+        await onUpdate({ start_date: startDate });
       } finally {
         setIsSavingDates(false);
       }
     },
-    [update]
+    [onUpdate]
   );
 
   const handleEndDateChange = useCallback(
     async (endDate: string | null) => {
       setIsSavingDates(true);
       try {
-        await update({ end_date: endDate });
+        await onUpdate({ end_date: endDate });
       } finally {
         setIsSavingDates(false);
       }
     },
-    [update]
+    [onUpdate]
   );
 
-  if (!item && !error && isLoadingItem) {
+  if (!item && !error && isLoading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
@@ -225,10 +213,10 @@ export function ItemEditor({
     <E2eeRichTextItemEditorShell
       editorSessionKey={itemId}
       title={title}
-      description={item?.description ?? null}
-      isLoading={isLoadingItem}
+      initialDescription={item?.description ?? null}
+      isLoading={Boolean(isLoading)}
       hasItem={Boolean(item)}
-      error={error}
+      error={error ?? null}
       hasInitialized={hasInitialized}
       onTitleChange={setTitle}
       onSave={onSave}

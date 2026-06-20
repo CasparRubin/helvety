@@ -216,12 +216,13 @@ describe("E2EE editor dynamic import SSR", () => {
     ]);
   });
 
-  it("e2ee-item-editor-shell client-only loads Tiptap", () => {
+  it("e2ee-item-editor-shell statically imports Tiptap", () => {
     const src = readFileSync(
       join(repoRoot, "packages/ui/src/e2ee-item-editor-shell.tsx"),
       "utf8"
     );
-    expect(countSsrFalse(src)).toBeGreaterThanOrEqual(1);
+    expect(src).toContain('from "./tiptap-editor"');
+    expect(src).not.toContain("next/dynamic");
     expect(src).toContain("TiptapEditor");
     expect(src).toContain("key={editorSessionKey}");
   });
@@ -262,6 +263,144 @@ describe("E2EE editor dynamic import SSR", () => {
     expect(src).toContain("FolderEditor");
     expect(src).not.toContain('title="Locked"');
     expect(src).toContain("ListEmptySearchState");
+  });
+});
+
+describe("E2EE dashboard editor wiring (Links pattern)", () => {
+  it.each([
+    [
+      "tasks",
+      "components/flat-tasks-dashboard.tsx",
+      "ItemEditor",
+      "selectedItem",
+    ],
+    [
+      "notes",
+      "components/flat-notes-dashboard.tsx",
+      "ItemEditor",
+      "selectedItem",
+    ],
+    [
+      "contacts",
+      "components/contacts-dashboard.tsx",
+      "ContactEditor",
+      "selectedContact",
+    ],
+  ] as const)(
+    "apps/%s routes sheet saves through list hook update",
+    (app, dashboardPath, editorComponent, selectedEntityVar) => {
+      const src = readAppFile(app, dashboardPath);
+      expect(src).toContain("onUpdate={(input) => update(");
+      expect(src).not.toContain("onLocalPatch");
+      expect(src).not.toContain("patchLocal");
+      expect(src).toContain(selectedEntityVar);
+      expect(src).toContain(`key={entityId}`);
+      expect(src).toContain(`<${editorComponent}`);
+      expect(src).toContain("onRemove={() => remove(");
+      expect(src).toContain("onRefresh={refresh}");
+    }
+  );
+
+  it("apps/links routes sheet saves through library updateLink", () => {
+    const src = readAppFile("links", "components/links-dashboard.tsx");
+    expect(src).toContain("onSave={(input) => library.updateLink(");
+    expect(src).toMatch(/key=\{editingLink\.id\}/);
+    expect(src).toContain("onRefresh={library.refresh}");
+    expect(src).not.toContain("onLocalPatch");
+    expect(src).not.toContain("patchLocal");
+  });
+
+  it.each([
+    ["tasks", "components/item-editor.tsx"],
+    ["notes", "components/item-editor.tsx"],
+  ] as const)(
+    "apps/%s sheet editor uses shared save helper",
+    (app, editorPath) => {
+      const src = readAppFile(app, editorPath);
+      expect(src).toContain("onUpdate");
+      expect(src).toContain("initialDescription");
+      expect(src).toContain("useE2eeRichTextItemEditorSave");
+      expect(src).toMatch(/setHasInitialized\(false\)/);
+      expect(src).not.toMatch(/useItem\s*\(/);
+    }
+  );
+
+  it("apps/contacts sheet editor uses list props and custom metadata save", () => {
+    const src = readAppFile("contacts", "components/contact-editor.tsx");
+    expect(src).toContain("onUpdate");
+    expect(src).toContain("initialDescription={contact?.notes ?? null}");
+    expect(src).toContain("serializeRichTextContent(notesContent)");
+    expect(src).toMatch(/setHasInitialized\(false\)/);
+    expect(src).not.toMatch(/useContact\s*\(/);
+  });
+
+  it("apps/contacts gates metadata fields until initialized", () => {
+    const src = readAppFile("contacts", "components/contact-editor.tsx");
+    expect(src).toContain("renderBeforeEditor={");
+    expect(src).toMatch(/hasInitialized\s*\?\s*\(/);
+  });
+
+  it.each([
+    ["tasks", "components/item-editor.tsx", "stage_id"],
+    ["notes", "components/item-editor.tsx", "category_id"],
+    ["contacts", "components/contact-editor.tsx", "category_id"],
+  ] as const)(
+    "apps/%s metadata mutations route through onUpdate prop",
+    (app, editorPath, field) => {
+      const src = readAppFile(app, editorPath);
+      expect(src).toContain(`onUpdate({ ${field}:`);
+      expect(src).not.toContain("patchLocal");
+    }
+  );
+
+  it.each([
+    ["tasks", "components/item-editor.tsx"],
+    ["notes", "components/item-editor.tsx"],
+  ] as const)(
+    "apps/%s item-editor passes initialDescription snapshot not live TipTap content",
+    (app, editorPath) => {
+      const src = readAppFile(app, editorPath);
+      expect(src).toContain("initialDescription={item?.description ?? null}");
+      expect(src).not.toMatch(/content=\{item\?\.description/);
+    }
+  );
+
+  it("e2ee-entity-detail-sheet does not remount children via body key", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/ui/src/e2ee-entity-detail-sheet.tsx"),
+      "utf8"
+    );
+    expect(src).not.toMatch(/key=\{entityId/);
+  });
+});
+
+describe("E2EE app README accuracy", () => {
+  it.each(["tasks", "notes", "contacts"] as const)(
+    "apps/%s README documents Links pattern sheet wiring",
+    (app) => {
+      const src = readFileSync(
+        join(repoRoot, "apps", app, "README.md"),
+        "utf8"
+      );
+      expect(src).toContain("Links pattern");
+      expect(src).toContain("update` / `remove` / `refresh`");
+      expect(src).toContain("does not use it");
+      expect(src).not.toMatch(/onLocalPatch/);
+    }
+  );
+
+  it("apps/links README documents Links pattern sheet wiring", () => {
+    const src = readFileSync(join(repoRoot, "apps/links/README.md"), "utf8");
+    expect(src).toContain("Links pattern");
+    expect(src).toContain("library.updateLink");
+  });
+
+  it("packages/ui README documents mount-only TipTap and Links pattern", () => {
+    const src = readFileSync(join(repoRoot, "packages/ui/README.md"), "utf8");
+    expect(src).toContain("initialDescription");
+    expect(src).toContain("editorSessionKey");
+    expect(src).toContain("Links pattern");
+    expect(src).toContain("not use it in sheet editors");
   });
 });
 

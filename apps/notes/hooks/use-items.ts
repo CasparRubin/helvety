@@ -47,6 +47,7 @@ interface UseItemsReturn {
   update: (id: string, input: Partial<ItemInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
+  /** In-memory list patch without network I/O; prefer `update()` for dashboard saves. */
   patchLocal: (id: string, input: Partial<ItemInput>) => void;
 }
 
@@ -67,7 +68,7 @@ async function fetchItemById(id: string): Promise<ActionResponse<ItemRow>> {
   return parseActionResponse<ItemRow>(response, "Failed to load note");
 }
 
-/** Hook to manage items with automatic encryption/decryption. */
+/** Hook to manage the note list with automatic encryption/decryption. */
 export function useItems(options?: UseItemsOptions): UseItemsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
 
@@ -155,7 +156,7 @@ interface UseItemOptions {
   initialData?: Item;
 }
 
-/** Hook to manage a single Item by ID */
+/** Hook to fetch/update one note by id (optional; not used by the dashboard sheet editor). */
 export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
 

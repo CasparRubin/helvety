@@ -32,13 +32,32 @@ describe("E2EE rich-text editor invariants", () => {
   it("E2eeRichTextItemEditorShell keys TipTap by editorSessionKey only", () => {
     const source = readUiSource("e2ee-item-editor-shell.tsx");
     expect(source).toContain("editorSessionKey: string");
+    expect(source).toContain("initialDescription: string | null");
     expect(source).toContain("key={editorSessionKey}");
+    expect(source).toContain("content={null}");
+    expect(source).toContain('from "./tiptap-editor"');
+    expect(source).not.toContain('from "next/dynamic"');
     expect(source).toContain("titleInitializedRef");
     expect(source).toContain("loadedEditorSessionRef");
-    expect(source).toContain("editorRef.current?.setContent");
+    expect(source).toContain("initialDescriptionRef");
+    expect(source).toContain("requestAnimationFrame(loadDescription)");
+    expect(source).toContain("editor.setContent(parseRichTextContent");
     expect(source).not.toMatch(/key=\{value/);
     expect(source).not.toMatch(/key=\{description/);
+    expect(source).not.toMatch(/key=\{initialDescription/);
   });
+
+  it.each([
+    ["tasks", "components/item-editor.tsx", "item?.description"],
+    ["notes", "components/item-editor.tsx", "item?.description"],
+    ["contacts", "components/contact-editor.tsx", "contact?.notes"],
+  ] as const)(
+    "apps/%s passes snapshot initialDescription from list item prop",
+    (app, file, needle) => {
+      const source = readAppSource(app, file);
+      expect(source).toContain(`initialDescription={${needle} ?? null}`);
+    }
+  );
 
   it.each([
     ["tasks", "components/item-editor.tsx", "editorSessionKey={itemId}"],
