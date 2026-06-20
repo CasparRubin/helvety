@@ -89,12 +89,13 @@ describe("shouldSkipOtpVerifySubmit", () => {
 });
 
 describe("OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER", () => {
-  it("lists the full client sync sequence before advancing step", () => {
+  it("lists the full client sync sequence through URL replaceState", () => {
     expect([...OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER]).toEqual([
       "setCsrfToken",
       "setUserId",
       "setPostOtpPasskeyPath",
       "setStep",
+      "syncLoginUrl",
     ]);
   });
 });

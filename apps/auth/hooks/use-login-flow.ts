@@ -60,6 +60,7 @@ import {
   resolveLoginCurrentAuthStep,
   resolveLoginStepperMode,
 } from "@/lib/login-flow-stepper";
+import { syncLoginUrlStep } from "@/lib/login-url-sync";
 
 import type { AuthStep, AuthStepperMode } from "@/components/auth-stepper";
 import type {
@@ -87,7 +88,7 @@ interface LoginFlowState {
   error: string;
   isLoading: boolean;
   checkingAuth: boolean;
-  /** True after OTP verify succeeded — keeps passkey UI visible during post-action re-render. */
+  /** True after OTP verify succeeded — keeps passkey UI visible during soft post-action re-renders. */
   otpVerifySucceeded: boolean;
   passkeySupported: boolean;
   isMobile: boolean;
@@ -163,7 +164,7 @@ export function shouldSkipOtpVerifySubmit(options: {
   return options.otpVerifySucceeded || options.verifyCodeInProgress;
 }
 
-/** Full-page bootstrap spinner — suppressed after OTP so passkey step stays visible. */
+/** Full-page bootstrap spinner — suppressed after OTP during soft RSC re-renders (not full navigation). */
 export function shouldShowLoginBootstrapSpinner(options: {
   checkingAuth: boolean;
   otpVerifySucceeded: boolean;
@@ -187,14 +188,15 @@ export function resolveTrustedBootstrapUserId(input: {
 
 /**
  * Order of state updates after OTP success (after `invalidateAuthUserProbeCache`
- * and `hasAutoStartedPasskeySignIn` reset). Ensures auto passkey on mobile uses
- * a fresh CSRF token from server-side rotation in `verifyEmailCode`.
+ * and `hasAutoStartedPasskeySignIn` reset). URL sync runs after `setStep` via
+ * `replaceState` so refresh/bookmark match without a server redirect.
  */
 export const OTP_VERIFY_SUCCESS_CLIENT_SYNC_ORDER = [
   "setCsrfToken",
   "setUserId",
   "setPostOtpPasskeyPath",
   "setStep",
+  "syncLoginUrl",
 ] as const;
 
 /** Options for {@link useLoginFlow} (server-provided login gate state). */
@@ -234,7 +236,9 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const [nonEUEEAConfirmed, setNonEUEEAConfirmed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [otpVerifySucceeded, setOtpVerifySucceeded] = useState(false);
-  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeySupported, setPasskeySupported] = useState(() =>
+    isPasskeySupported()
+  );
 
   // Get parameters from URL (validate redirect URI against allowlist to prevent open redirects)
   const rawRedirectUri = searchParams.get("redirect_uri");
@@ -247,7 +251,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const [step, setStep] = useState<LoginStep>(options.initialStep);
   const [error, setError] = useState(options.initialError ?? "");
   const [userId, setUserId] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile] = useState(() => isMobileDevice());
   const hasAutoRetriedMismatch = useRef(false);
   const hasAutoStartedPasskeySignIn = useRef(false);
   const hasRecoveredTerminalAuth = useRef(false);
@@ -332,11 +336,15 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
     [expectsSessionRestore, surfaceLoginError]
   );
 
-  // Device detection for passkey flow (client-only, set on mount)
-  useEffect(() => {
-    const id = setTimeout(() => setIsMobile(isMobileDevice()), 0);
-    return () => clearTimeout(id);
-  }, []);
+  const syncCurrentLoginStepToUrl = useCallback(
+    (loginStep: LoginStep) => {
+      syncLoginUrlStep(loginStep, {
+        redirectUri,
+        forceLogin,
+      });
+    },
+    [forceLogin, redirectUri]
+  );
 
   // Resend cooldown timer
   useEffect(() => {
@@ -641,6 +649,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
               : "setup_then_signin"
           );
           setStep(result.data.nextStep);
+          syncCurrentLoginStepToUrl(result.data.nextStep);
           if (!result.data.deviceTrustMinted) {
             toast.warning(
               "This device wasn't remembered. You may need email verification again next time.",
@@ -671,7 +680,14 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
         }
       }
     },
-    [email, otpCode, csrfToken, setCsrfToken, surfaceLoginError]
+    [
+      email,
+      otpCode,
+      csrfToken,
+      setCsrfToken,
+      surfaceLoginError,
+      syncCurrentLoginStepToUrl,
+    ]
   );
 
   // Handle resending OTP code
@@ -950,9 +966,10 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
   const handlePasskeyRegistrationComplete = useCallback(() => {
     setPostOtpPasskeyPath("setup_then_signin");
     setStep("passkey-signin");
+    syncCurrentLoginStepToUrl("passkey-signin");
     setError("");
     hasAutoStartedPasskeySignIn.current = false;
-  }, []);
+  }, [syncCurrentLoginStepToUrl]);
 
   // After OTP or trusted-device entry on mobile, start passkey once bootstrap finishes.
   // Desktop uses WebAuthn `hints: ["hybrid"]` (QR); ceremonies require a user gesture

@@ -136,6 +136,23 @@ export function resolveLoginEntryStep(
   return { kind: "step", step: "email", trustedUserId: null };
 }
 
+/**
+ * Whether the login server gate should redirect to canonical `?step=passkey-signin`.
+ * Only for trusted-device entry without a session; post-OTP sessions sync the URL
+ * on the client instead to avoid remounting the login shell.
+ */
+export function shouldCanonicalizeTrustedPasskeyLoginUrl(options: {
+  entryStep: LoginStep;
+  urlStep: LoginStep | null;
+  hasSession: boolean;
+}): boolean {
+  return (
+    options.entryStep === "passkey-signin" &&
+    options.urlStep !== "passkey-signin" &&
+    !options.hasSession
+  );
+}
+
 /** Build `/auth/login` path + query (relative to auth zone). */
 export function buildAuthLoginPath(options: {
   redirectUri?: string | null;

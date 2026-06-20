@@ -6,7 +6,11 @@ import { redirect } from "next/navigation";
 
 import { getDeviceTrustStatus } from "@/app/actions/device-trust-actions";
 import { getRequiredAuthStep } from "@/lib/auth-utils";
-import { buildAuthLoginPath, resolveLoginEntryStep } from "@/lib/login-entry";
+import {
+  buildAuthLoginPath,
+  resolveLoginEntryStep,
+  shouldCanonicalizeTrustedPasskeyLoginUrl,
+} from "@/lib/login-entry";
 
 import { LoginClient } from "./login-client";
 
@@ -21,7 +25,7 @@ const LOGIN_STEPS = new Set<LoginStep>([
 ]);
 
 /**
- *
+ * Parses `?step=` from login search params into a known {@link LoginStep}, if valid.
  */
 function parseUrlStep(value: string | undefined): LoginStep | null {
   if (value && LOGIN_STEPS.has(value as LoginStep)) {
@@ -44,7 +48,7 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "This verification link is invalid or expired. Please request a new sign-in code and try again.",
 };
 
-/** Server gate for `/auth/login`: resolves entry step and canonicalizes trusted URLs. */
+/** Server gate for `/auth/login`: resolves entry step; canonicalizes trusted-device passkey-first URLs when no session. */
 export default async function LoginPage({
   searchParams,
 }: {
@@ -95,7 +99,13 @@ export default async function LoginPage({
     redirect(entry.redirectTo);
   }
 
-  if (entry.step === "passkey-signin" && urlStep !== "passkey-signin") {
+  if (
+    shouldCanonicalizeTrustedPasskeyLoginUrl({
+      entryStep: entry.step,
+      urlStep,
+      hasSession: Boolean(user),
+    })
+  ) {
     redirect(
       buildAuthLoginPath({
         redirectUri: safeRedirectUri,

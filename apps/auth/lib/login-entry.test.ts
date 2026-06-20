@@ -5,6 +5,7 @@ import {
   buildAuthLoginPath,
   buildAuthLoginUrl,
   resolveLoginEntryStep,
+  shouldCanonicalizeTrustedPasskeyLoginUrl,
 } from "./login-entry";
 
 const TRUSTED_USER = "550e8400-e29b-41d4-a716-446655440000";
@@ -135,6 +136,21 @@ describe("resolveLoginEntryStep", () => {
     });
   });
 
+  it("session with incomplete passkey sign-in routes to passkey-signin", () => {
+    expect(
+      resolveLoginEntryStep(
+        baseInput({
+          hasSession: true,
+          requiredAuthStep: "passkey-signin",
+        })
+      )
+    ).toEqual({
+      kind: "step",
+      step: "passkey-signin",
+      trustedUserId: null,
+    });
+  });
+
   it("session with incomplete auth routes via requiredAuthStep", () => {
     expect(
       resolveLoginEntryStep(
@@ -186,6 +202,48 @@ describe("resolveLoginEntryStep", () => {
   });
 });
 
+describe("shouldCanonicalizeTrustedPasskeyLoginUrl", () => {
+  it("redirects trusted passkey-first entry when URL lacks step and there is no session", () => {
+    expect(
+      shouldCanonicalizeTrustedPasskeyLoginUrl({
+        entryStep: "passkey-signin",
+        urlStep: null,
+        hasSession: false,
+      })
+    ).toBe(true);
+  });
+
+  it("does not redirect when a session exists (post-OTP client flow)", () => {
+    expect(
+      shouldCanonicalizeTrustedPasskeyLoginUrl({
+        entryStep: "passkey-signin",
+        urlStep: null,
+        hasSession: true,
+      })
+    ).toBe(false);
+  });
+
+  it("does not redirect when URL already has passkey-signin step", () => {
+    expect(
+      shouldCanonicalizeTrustedPasskeyLoginUrl({
+        entryStep: "passkey-signin",
+        urlStep: "passkey-signin",
+        hasSession: false,
+      })
+    ).toBe(false);
+  });
+
+  it("does not redirect for non-passkey entry steps", () => {
+    expect(
+      shouldCanonicalizeTrustedPasskeyLoginUrl({
+        entryStep: "email",
+        urlStep: null,
+        hasSession: false,
+      })
+    ).toBe(false);
+  });
+});
+
 describe("buildAuthLoginPath", () => {
   it("includes step and force_login when provided", () => {
     const path = buildAuthLoginPath({
@@ -200,7 +258,7 @@ describe("buildAuthLoginPath", () => {
     expect(path).toContain("error=auth_failed");
   });
 
-  it("omits step when not provided (resolver adds it at login gate)", () => {
+  it("omits step when not provided (client or server may add it later)", () => {
     const path = buildAuthLoginPath({
       redirectUri: "https://helvety.com/tasks",
     });

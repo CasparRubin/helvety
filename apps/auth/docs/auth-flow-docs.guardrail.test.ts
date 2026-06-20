@@ -49,6 +49,13 @@ describe("auth flow documentation guardrails", () => {
     expect(readme).toContain("shouldShowLoginBootstrapSpinner");
   });
 
+  it("README documents post-OTP URL sync and trusted-only passkey canonical redirect", () => {
+    expect(readme).toContain("syncLoginUrlStep");
+    expect(readme).toContain("shouldCanonicalizeTrustedPasskeyLoginUrl");
+    expect(readme).toMatch(/trusted devices without a session/i);
+    expect(readme).toMatch(/post-OTP sessions keep client state/i);
+  });
+
   it("hook comments match mobile-only auto-start implementation", () => {
     expect(hookSource).toContain("!isMobile");
     expect(hookSource).toMatch(/user gesture/i);

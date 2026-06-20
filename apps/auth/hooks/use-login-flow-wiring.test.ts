@@ -80,6 +80,8 @@ describe("use-login-flow OTP verify wiring", () => {
           return 'result.data.nextStep === "passkey-signin"';
         case "setStep":
           return "setStep(result.data.nextStep)";
+        case "syncLoginUrl":
+          return "syncCurrentLoginStepToUrl(result.data.nextStep)";
         default: {
           const _exhaustive: never = step;
           return _exhaustive;
@@ -145,6 +147,12 @@ describe("use-login-flow OTP post-verify wiring", () => {
 describe("use-login-flow passkey ceremony wiring", () => {
   const src = readHookSource();
 
+  it("initializes passkey support and mobile detection synchronously on mount", () => {
+    expect(src).toContain("useState(() =>\n    isPasskeySupported()");
+    expect(src).toContain("useState(() => isMobileDevice())");
+    expect(src).not.toMatch(/setTimeout\(\(\) => setIsMobile/);
+  });
+
   it("auto-starts passkey only on mobile", () => {
     expect(src).toContain("!isMobile");
     expect(src).toContain('runPasskeySignIn("auto")');
@@ -159,5 +167,30 @@ describe("use-login-flow passkey ceremony wiring", () => {
     expect(src).toContain('if (ceremonySource === "user")');
     expect(src).toContain("hasAutoStartedPasskeySignIn.current = false");
     expect(src).toContain("webAuthnErrorName: errorName");
+  });
+});
+
+describe("use-login-flow login URL sync wiring", () => {
+  const src = readHookSource();
+
+  it("syncs login step to URL after OTP success and passkey registration", () => {
+    expect(src).toContain(
+      'import { syncLoginUrlStep } from "@/lib/login-url-sync"'
+    );
+    expect(src).toContain("syncCurrentLoginStepToUrl");
+
+    const successBlock = otpVerifySuccessBlock(src);
+    expect(successBlock).toContain(
+      "syncCurrentLoginStepToUrl(result.data.nextStep)"
+    );
+
+    const registrationIdx = src.indexOf(
+      "const handlePasskeyRegistrationComplete = useCallback"
+    );
+    expect(registrationIdx).toBeGreaterThan(-1);
+    const registrationBlock = src.slice(registrationIdx, registrationIdx + 400);
+    expect(registrationBlock).toContain(
+      'syncCurrentLoginStepToUrl("passkey-signin")'
+    );
   });
 });
