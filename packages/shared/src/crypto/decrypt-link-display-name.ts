@@ -11,6 +11,7 @@ export async function decryptLinkDisplayName(
     recordId: linkId,
     key,
     aadTable: "links",
+    aadColumn: "encrypted_name",
   });
 }
 
@@ -25,5 +26,6 @@ export async function decryptLinkDisplayUrl(
     recordId: linkId,
     key,
     aadTable: "links",
+    aadColumn: "encrypted_url",
   });
 }

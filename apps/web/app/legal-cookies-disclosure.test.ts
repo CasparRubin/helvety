@@ -120,6 +120,11 @@ describe("privacy policy cookies disclosure", () => {
     expect(cookiesSection).toMatch(
       /helvety_extension_last_email_verified[\s\S]*?7 days/
     );
+    expect(cookiesSection).toMatch(/OTP anchor|weekly OTP anchor/i);
+    expect(cookiesSection).not.toMatch(/email-proof anchor/i);
+    expect(cookiesSection).toContain(
+      "Supabase access token (chrome.storage.session)"
+    );
     expect(cookiesSection).toMatch(/helvety-crypto[\s\S]*?Chromium extension/);
   });
 

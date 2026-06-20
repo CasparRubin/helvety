@@ -346,11 +346,15 @@ export default function PrivacyPage() {
             routes on helvety.com; verification codes are delivered by email.
             Passkey unlock uses bearer-authenticated WebAuthn routes on
             helvety.com. Extension passkey verification does not by itself set a
-            helvety.com web session cookie. Session material and weekly
-            email-proof anchor are stored in{" "}
-            <code className="text-foreground">chrome.storage.local</code> (see
-            §9); vault keys use IndexedDB with the same idle policy as web E2EE
-            apps.
+            helvety.com web session cookie. Supabase session refresh material
+            and a weekly OTP anchor (local timestamp, not a cryptographic proof)
+            are stored in{" "}
+            <code className="text-foreground">chrome.storage.local</code>; the
+            access token is mirrored to{" "}
+            <code className="text-foreground">chrome.storage.session</code> (see
+            §9). Session age is capped by JWT issued-at time (up to 7 days,
+            aligned with web policy). Vault keys use IndexedDB with the same
+            idle policy as web E2EE apps.
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -1114,10 +1118,19 @@ export default function PrivacyPage() {
             <strong className="text-foreground">
               Chromium extension sign-in storage:
             </strong>{" "}
-            Supabase session material and a weekly email-proof anchor in{" "}
-            <code className="text-foreground">chrome.storage.local</code> (see
-            table below). The extension side panel also uses IndexedDB for the
-            same vault key cache policy as web E2EE apps.
+            Supabase session refresh material in{" "}
+            <code className="text-foreground">chrome.storage.local</code>,
+            access token mirror in{" "}
+            <code className="text-foreground">chrome.storage.session</code>, and
+            a weekly OTP anchor (
+            <code className="text-foreground">
+              helvety_extension_last_email_verified
+            </code>
+            ) in <code className="text-foreground">chrome.storage.local</code>{" "}
+            (see table below). JWT issued-at age enforces the 7-day session cap;
+            the OTP anchor prompts re-sign-in on shared devices. The extension
+            side panel also uses IndexedDB for the same vault key cache policy
+            as web E2EE apps.
           </li>
         </ul>
         <LegalTableWrap
@@ -1226,12 +1239,25 @@ export default function PrivacyPage() {
                   </TableCell>
                   <TableCell data-label="Purpose">
                     Keeps you signed in to the Helvety Chromium extension side
-                    panel between sessions
+                    panel between browser restarts (refresh token and session
+                    bundle; automatic refresh)
                   </TableCell>
                   <TableCell data-label="Domain">Chromium extension</TableCell>
                   <TableCell data-label="Duration">
-                    Session (short-lived tokens with automatic refresh and
-                    expiration controls)
+                    Up to 7 days (JWT issued-at cap; refreshed while active)
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    Supabase access token (chrome.storage.session)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Short-lived access token mirror for the Chromium extension;
+                    cleared when the browser session ends
+                  </TableCell>
+                  <TableCell data-label="Domain">Chromium extension</TableCell>
+                  <TableCell data-label="Duration">
+                    Browser session (complements JWT expiry in local storage)
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -1239,9 +1265,9 @@ export default function PrivacyPage() {
                     helvety_extension_last_email_verified (chrome.storage.local)
                   </TableCell>
                   <TableCell data-label="Purpose">
-                    Weekly email-proof anchor after OTP verification in the
-                    Chromium extension; required to stay signed in for E2EE
-                    access
+                    Weekly OTP anchor after email verification in the Chromium
+                    extension (local UX timestamp; JWT age is the authoritative
+                    session cap for E2EE access)
                   </TableCell>
                   <TableCell data-label="Domain">Chromium extension</TableCell>
                   <TableCell data-label="Duration">7 days</TableCell>

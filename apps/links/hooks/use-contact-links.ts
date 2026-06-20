@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  decryptEntityField,
+  parseEncryptedData,
+} from "@helvety/shared/crypto/encryption";
 import { createE2eeEntityLinksHook } from "@helvety/ui/create-e2ee-entity-links-hook";
 
 import {
@@ -8,7 +12,8 @@ import {
   linkContactEntity,
   unlinkContactEntity,
 } from "@/app/actions/contact-link-actions";
-import { buildAAD, decrypt, parseEncryptedData } from "@/lib/crypto";
+
+const CONTACTS_TABLE = "contacts" as const;
 
 export interface LinkedContact {
   id: string;
@@ -59,19 +64,23 @@ async function decryptContactRows(
 ): Promise<LinkedContact[]> {
   return Promise.all(
     rows.map(async (row) => {
-      const aad = buildAAD("contacts", row.id);
-      const firstName = await decrypt(
+      const ctx = { table: CONTACTS_TABLE, recordId: row.id };
+      const firstName = await decryptEntityField(
         parseEncryptedData(row.encrypted_first_name),
         key,
-        aad
+        { ...ctx, column: "encrypted_first_name" }
       );
-      const lastName = await decrypt(
+      const lastName = await decryptEntityField(
         parseEncryptedData(row.encrypted_last_name),
         key,
-        aad
+        { ...ctx, column: "encrypted_last_name" }
       );
       const email = row.encrypted_email
-        ? await decrypt(parseEncryptedData(row.encrypted_email), key, aad)
+        ? await decryptEntityField(
+            parseEncryptedData(row.encrypted_email),
+            key,
+            { ...ctx, column: "encrypted_email" }
+          )
         : null;
       return {
         id: row.id,

@@ -20,6 +20,7 @@ describe("decryptItemDisplayTitle", () => {
       recordId: "item-1",
       key,
       aadTable: "items",
+      aadColumn: "encrypted_title",
     });
     expect(result).toBe("Readable Title");
   });

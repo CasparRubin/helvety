@@ -53,12 +53,9 @@ describe("otp-code guardrails", () => {
     expect(OTP_CODE_REGEX.test(OTP_CODE_TOO_LONG)).toBe(false);
   });
 
-  it("verify paths import shared OTP_CODE_REGEX from otp-code", () => {
+  it("verify paths use shared OTP_CODE_REGEX from otp-code", () => {
     expect(readAuthFile("app/actions/otp-actions.ts")).toContain(
-      'from "@/lib/otp-code"'
-    );
-    expect(readAuthFile("app/actions/otp-actions.ts")).toContain(
-      "OTP_CODE_REGEX"
+      "verifyOtpWithSupabaseClient"
     );
     expect(readAuthFile("lib/otp-send-verify-core.ts")).toContain(
       'from "@/lib/otp-code"'

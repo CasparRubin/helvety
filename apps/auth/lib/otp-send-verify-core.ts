@@ -29,7 +29,7 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
 import type { Session } from "@supabase/supabase-js";
 
 /** Build a lockout key scoped to email + IP. */
-export function getOtpLockoutKey(email: string, clientIP: string): string {
+function getOtpLockoutKey(email: string, clientIP: string): string {
   return `${email.toLowerCase().trim()}:${clientIP}`;
 }
 
@@ -166,17 +166,12 @@ export type OtpVerifySessionPayload = {
   user: User;
 };
 
-/** Core OTP verify logic returning a session payload (no cookies / device trust). */
-export async function verifyOtpCodeCore(
-  email: string,
-  code: string,
-  clientIP: string
-): Promise<ActionResponse<OtpVerifySessionPayload>> {
-  const emailParse = NormalizedEmailSchema.safeParse(email);
-  if (!emailParse.success) {
-    return { success: false, error: "Please enter a valid email address" };
-  }
-  const normalizedEmail = emailParse.data;
+/** Shared OTP verify pre-checks: escalating lockout + sliding-window rate limits. */
+export async function runOtpVerifyRateLimits(
+  normalizedEmail: string,
+  clientIP: string,
+  action: (typeof AUTH_ACTIONS)[keyof typeof AUTH_ACTIONS] = AUTH_ACTIONS.verifyEmailCode
+): Promise<ActionResponse<null>> {
   const otpLockoutKey = getOtpLockoutKey(normalizedEmail, clientIP);
 
   const lockout = await checkEscalatingLockout(otpLockoutKey);
@@ -184,7 +179,7 @@ export async function verifyOtpCodeCore(
     const retryMinutes = Math.ceil((lockout.retryAfter ?? 300) / 60);
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: AUTH_ACTIONS.verifyEmailCode,
+        action,
         email: `${normalizedEmail.slice(0, 3)}***`,
         reason: AUTH_REASONS.escalatingLockout,
         retryMinutes,
@@ -215,7 +210,7 @@ export async function verifyOtpCodeCore(
       emailRateLimit.retryAfter ?? ipRateLimit.retryAfter ?? 60;
     logAuthEvent("rate_limit_exceeded", {
       metadata: {
-        action: AUTH_ACTIONS.verifyEmailCode,
+        action,
         email: `${normalizedEmail.slice(0, 3)}***`,
         retryAfter,
       },
@@ -227,14 +222,127 @@ export async function verifyOtpCodeCore(
     };
   }
 
-  try {
-    if (!OTP_CODE_REGEX.test(code)) {
+  return { success: true, data: null };
+}
+
+/** Minimal Supabase client surface required for OTP verification. */
+type OtpVerifyClient = Pick<ReturnType<typeof createClient>, "auth">;
+
+/** Verify OTP against a Supabase client (cookie-persisting or stateless). */
+export async function verifyOtpWithSupabaseClient(
+  supabase: OtpVerifyClient,
+  input: {
+    normalizedEmail: string;
+    code: string;
+    clientIP: string;
+    loginSuccessMetadata?: Record<string, unknown>;
+    skipLoginSuccessLog?: boolean;
+  }
+): Promise<ActionResponse<{ user: User; session: Session | null }>> {
+  const {
+    normalizedEmail,
+    code,
+    clientIP,
+    loginSuccessMetadata,
+    skipLoginSuccessLog = false,
+  } = input;
+  const otpLockoutKey = getOtpLockoutKey(normalizedEmail, clientIP);
+
+  if (!OTP_CODE_REGEX.test(code)) {
+    return {
+      success: false,
+      error: "Please enter a valid verification code",
+    };
+  }
+
+  const { data, error: verifyError } = await supabase.auth.verifyOtp({
+    email: normalizedEmail,
+    token: code,
+    type: "email",
+  });
+
+  if (verifyError || !data.user) {
+    logAuthEvent("login_failed", {
+      metadata: {
+        method: "otp",
+        reason: verifyError?.message ?? AUTH_REASONS.noUser,
+      },
+      ip: clientIP,
+    });
+
+    const lockoutResult = await recordOtpFailureAndCheckLockout(otpLockoutKey);
+    if (!lockoutResult.allowed) {
+      const retryMinutes = Math.ceil((lockoutResult.retryAfter ?? 300) / 60);
       return {
         success: false,
-        error: "Please enter a valid verification code",
+        error: `Too many failed verification attempts from this network. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}, or switch networks/device.`,
       };
     }
 
+    return {
+      success: false,
+      error: "Invalid or expired code. Please try again.",
+    };
+  }
+
+  try {
+    await Promise.all([
+      resetRateLimit(`otp_verify:email:${normalizedEmail}`),
+      resetRateLimit(`otp_verify:ip:${clientIP}`),
+      resetEscalatingLockout(otpLockoutKey),
+    ]);
+  } catch (rlError) {
+    logger.logUnexpectedError(
+      "Failed to reset rate limits after OTP verify",
+      rlError
+    );
+  }
+
+  if (!skipLoginSuccessLog) {
+    logAuthEvent("login_success", {
+      userId: data.user.id,
+      metadata: {
+        method: "otp",
+        ...loginSuccessMetadata,
+      },
+      ip: clientIP,
+    });
+  }
+
+  return {
+    success: true,
+    data: {
+      user: data.user,
+      session: data.session ?? null,
+    },
+  };
+}
+
+/** Core OTP verify logic returning a session payload (no cookies / device trust). */
+export async function verifyOtpCodeCore(
+  email: string,
+  code: string,
+  clientIP: string
+): Promise<ActionResponse<OtpVerifySessionPayload>> {
+  const emailParse = NormalizedEmailSchema.safeParse(email);
+  if (!emailParse.success) {
+    return { success: false, error: "Please enter a valid email address" };
+  }
+  const normalizedEmail = emailParse.data;
+
+  const preCheck = await runOtpVerifyRateLimits(normalizedEmail, clientIP);
+  if (!preCheck.success) {
+    return preCheck;
+  }
+
+  if (!OTP_CODE_REGEX.test(code)) {
+    return {
+      success: false,
+      error: "Please enter a valid verification code",
+    };
+  }
+
+  try {
     const supabase = createClient(getSupabaseUrl(), getSupabaseKey(), {
       auth: {
         persistSession: false,
@@ -243,67 +351,32 @@ export async function verifyOtpCodeCore(
       },
     });
 
-    const { data, error: verifyError } = await supabase.auth.verifyOtp({
-      email: normalizedEmail,
-      token: code,
-      type: "email",
+    const verifyResult = await verifyOtpWithSupabaseClient(supabase, {
+      normalizedEmail,
+      code,
+      clientIP,
+      loginSuccessMetadata: { client: "extension" },
     });
 
-    if (verifyError || !data.user || !data.session) {
-      logAuthEvent("login_failed", {
-        metadata: {
-          method: "otp",
-          reason: verifyError?.message ?? AUTH_REASONS.noUser,
-        },
-        ip: clientIP,
-      });
+    if (!verifyResult.success) {
+      return verifyResult;
+    }
 
-      const lockoutResult =
-        await recordOtpFailureAndCheckLockout(otpLockoutKey);
-      if (!lockoutResult.allowed) {
-        const retryMinutes = Math.ceil((lockoutResult.retryAfter ?? 300) / 60);
-        return {
-          success: false,
-          error: `Too many failed verification attempts from this network. Please try again in ${retryMinutes} minute${retryMinutes !== 1 ? "s" : ""}, or switch networks/device.`,
-        };
-      }
-
+    const { user, session } = verifyResult.data;
+    if (!session) {
       return {
         success: false,
         error: "Invalid or expired code. Please try again.",
       };
     }
 
-    try {
-      await Promise.all([
-        resetRateLimit(`otp_verify:email:${normalizedEmail}`),
-        resetRateLimit(`otp_verify:ip:${clientIP}`),
-        resetEscalatingLockout(otpLockoutKey),
-      ]);
-    } catch (rlError) {
-      logger.logUnexpectedError(
-        "Failed to reset rate limits after OTP verify",
-        rlError
-      );
-    }
-
-    logAuthEvent("login_success", {
-      userId: data.user.id,
-      metadata: {
-        method: "otp",
-        client: "extension",
-      },
-      ip: clientIP,
-    });
-
-    const session: Session = data.session;
     return {
       success: true,
       data: {
         access_token: session.access_token,
         refresh_token: session.refresh_token,
         expires_at: session.expires_at ?? null,
-        user: data.user,
+        user,
       },
     };
   } catch (error) {

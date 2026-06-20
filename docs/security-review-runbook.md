@@ -98,7 +98,7 @@ Helvety’s unified client policy is **24h sliding idle** and **7d absolute max*
 | Time-box user sessions | **7 days**                                                          |
 | Inactivity timeout     | **24 hours**                                                        |
 
-Checks run on session refresh (not proactively). Until Pro is enabled, Helvety enforces weekly email proof via the signed `helvety_device_trust` cookie on E2EE apps and extension-local storage in the Chromium extension.
+Checks run on session refresh (not proactively). On **helvety.com** E2EE zones, weekly re-auth uses the signed `helvety_device_trust` cookie until Supabase Pro session time-box mirrors `auth-session-policy.ts`. The Chromium extension does **not** use that cookie; it enforces JWT max lifetime (`packages/shared/src/jwt-session-lifetime.ts`) plus a client weekly OTP anchor in `chrome.storage.local`. Align Supabase Dashboard → Authentication → Sessions **JWT expiry / time-box** to **7 days** (`AUTH_MAX_LIFETIME_SECONDS` = 604800).
 
 Check version in Supabase Dashboard → Project Settings → Infrastructure, or via support if not shown.
 

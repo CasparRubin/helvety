@@ -194,13 +194,13 @@ E2EE zones and vault-aware zones (`auth`, `docs`) re-export the client provider 
 
 ## `lib/env.ts` factory
 
-| Tier                          | Factory                                                        | Apps                                                                         |
-| ----------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                      |
-| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`)    |
-| User-scoped E2EE + docs       | `createAppUserScopedE2eeEnv` + `userScopedE2eeServerEnvSchema` | E2EE apps, `docs` (`DEVICE_TRUST_COOKIE_SECRET` for weekly email-proof gate) |
-| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                      |
-| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                        |
+| Tier                          | Factory                                                        | Apps                                                                          |
+| ----------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                       |
+| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`)     |
+| User-scoped E2EE + docs       | `createAppUserScopedE2eeEnv` + `userScopedE2eeServerEnvSchema` | E2EE apps, `docs` (`DEVICE_TRUST_COOKIE_SECRET` for weekly device-trust gate) |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                       |
+| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                         |
 
 Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
 

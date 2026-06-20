@@ -1,10 +1,4 @@
 /**
- * Re-export shared crypto primitives used by the Notes app.
+ * Re-export shared crypto primitives used by entity encryption tests.
  */
-export {
-  buildAAD,
-  decrypt,
-  encrypt,
-  parseEncryptedData,
-  serializeEncryptedData,
-} from "@helvety/shared/crypto/encryption";
+export { buildAAD } from "@helvety/shared/crypto/encryption";

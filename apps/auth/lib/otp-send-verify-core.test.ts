@@ -51,7 +51,10 @@ vi.mock("../app/actions/auth-action-helpers", () => ({
     .transform((value) => value.toLowerCase()),
 }));
 
-import { verifyOtpCodeCore } from "./otp-send-verify-core";
+import {
+  verifyOtpCodeCore,
+  verifyOtpWithSupabaseClient,
+} from "./otp-send-verify-core";
 import {
   OTP_CODE_TOO_LONG,
   OTP_CODE_TOO_SHORT,
@@ -124,5 +127,24 @@ describe("verifyOtpCodeCore", () => {
       token: VALID_OTP_CODE,
       type: "email",
     });
+  });
+
+  it("verifyOtpWithSupabaseClient rejects invalid codes before verifyOtp", async () => {
+    const verifyOtp = vi.fn();
+    const supabase = {
+      auth: { verifyOtp },
+    } as unknown as Parameters<typeof verifyOtpWithSupabaseClient>[0];
+
+    const result = await verifyOtpWithSupabaseClient(supabase, {
+      normalizedEmail: "user@example.com",
+      code: OTP_CODE_TOO_SHORT,
+      clientIP: "127.0.0.1",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Please enter a valid verification code",
+    });
+    expect(verifyOtp).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,4 @@
-import { buildAAD, decrypt, parseEncryptedData } from "./encryption";
+import { decryptEntityField, parseEncryptedData } from "./encryption";
 
 /** Shown when ciphertext cannot be decrypted for UI display (wrong key, corrupt payload). */
 const DEFAULT_DISPLAY_FALLBACK = "(encrypted)";
@@ -21,6 +21,7 @@ export async function safeDecryptDisplayField(options: {
   recordId: string;
   key: CryptoKey;
   aadTable: SafeDecryptDisplayAadTable;
+  aadColumn: string;
   fallback?: string;
 }): Promise<string> {
   const {
@@ -28,12 +29,17 @@ export async function safeDecryptDisplayField(options: {
     recordId,
     key,
     aadTable,
+    aadColumn,
     fallback = DEFAULT_DISPLAY_FALLBACK,
   } = options;
 
   try {
     const parsed = parseEncryptedData(encrypted);
-    return await decrypt(parsed, key, buildAAD(aadTable, recordId));
+    return await decryptEntityField(parsed, key, {
+      table: aadTable,
+      recordId,
+      column: aadColumn,
+    });
   } catch {
     return fallback;
   }

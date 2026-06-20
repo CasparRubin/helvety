@@ -1,12 +1,13 @@
 import {
-  encrypt,
-  decrypt,
+  encryptEntityField,
+  decryptEntityField,
   serializeEncryptedData,
   parseEncryptedData,
-  buildAAD,
-} from "./encryption";
+} from "@helvety/shared/crypto/encryption";
 
 import type { LinkFolder, LinkFolderInput, LinkFolderRow } from "@/lib/types";
+
+const LINK_FOLDERS_TABLE = "link_folders" as const;
 
 /**
  *
@@ -21,8 +22,14 @@ export async function encryptFolderInput(
   parent_folder_id: string | null;
 }> {
   const id = crypto.randomUUID();
-  const aad = buildAAD("link_folders", id);
-  const encryptedName = await encrypt(input.name, key, aad);
+  const recordId = id;
+
+  const encryptedName = await encryptEntityField(input.name, key, {
+    table: LINK_FOLDERS_TABLE,
+    recordId,
+    column: "encrypted_name",
+  });
+
   return {
     id,
     encrypted_name: serializeEncryptedData(encryptedName),
@@ -37,8 +44,13 @@ export async function decryptFolderRow(
   row: LinkFolderRow,
   key: CryptoKey
 ): Promise<LinkFolder> {
-  const aad = buildAAD("link_folders", row.id);
-  const name = await decrypt(parseEncryptedData(row.encrypted_name), key, aad);
+  const ctx = { table: LINK_FOLDERS_TABLE, recordId: row.id };
+  const name = await decryptEntityField(
+    parseEncryptedData(row.encrypted_name),
+    key,
+    { ...ctx, column: "encrypted_name" }
+  );
+
   return {
     id: row.id,
     user_id: row.user_id,
@@ -68,11 +80,17 @@ export async function encryptFolderUpdate(
   update: Partial<LinkFolderInput>,
   key: CryptoKey
 ): Promise<{ encrypted_name?: string }> {
-  const aad = buildAAD("link_folders", id);
+  const ctx = { table: LINK_FOLDERS_TABLE, recordId: id };
   const result: { encrypted_name?: string } = {};
+
   if (update.name !== undefined) {
-    const encrypted = await encrypt(update.name, key, aad);
-    result.encrypted_name = serializeEncryptedData(encrypted);
+    result.encrypted_name = serializeEncryptedData(
+      await encryptEntityField(update.name, key, {
+        ...ctx,
+        column: "encrypted_name",
+      })
+    );
   }
+
   return result;
 }

@@ -34,7 +34,7 @@ export type E2eeAppPagePath = (typeof E2EE_APP_PAGE_PATHS)[number];
 
 /**
  * Rate-limit prefixes used by E2EE vault zones (and docs vault APIs).
- * {@link authenticateAndRateLimit} requires weekly device-trust email proof for these by default.
+ * {@link authenticateAndRateLimit} requires weekly device trust on helvety.com for these by default.
  */
 export const E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES = new Set([
   "tasks",
@@ -48,7 +48,7 @@ export const E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES = new Set([
   "note-links",
 ]);
 
-/** True when server actions/API routes for this prefix require device-trust email proof. */
+/** True when server actions/API routes for this prefix require device trust on helvety.com. */
 export function requiresE2eeDeviceTrust(rateLimitPrefix: string): boolean {
   return E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES.has(rateLimitPrefix);
 }

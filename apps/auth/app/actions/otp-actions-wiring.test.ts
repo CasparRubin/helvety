@@ -33,8 +33,8 @@ describe("otp-actions verifyEmailCode wiring", () => {
     expect(src).toMatch(/verifyOtp[\s\S]*mintAndVerifyDeviceTrustCookie/);
   });
 
-  it("validates OTP format with OTP_CODE_REGEX before verifyOtp", () => {
-    expect(src).toContain('from "@/lib/otp-code"');
-    expect(src).toContain("OTP_CODE_REGEX");
+  it("delegates OTP verification to verifyOtpWithSupabaseClient", () => {
+    expect(src).toContain("verifyOtpWithSupabaseClient");
+    expect(src).toContain("runOtpVerifyRateLimits");
   });
 });

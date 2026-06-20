@@ -43,13 +43,13 @@ export const cookieSigningEnvSchema = z.object({
     ),
 });
 
-/** Device-trust cookie signing (email proof gate; separate from CSRF signing). */
+/** Device-trust cookie signing (weekly re-auth gate on helvety.com; separate from CSRF signing). */
 export const deviceTrustEnvSchema = z.object({
   DEVICE_TRUST_COOKIE_SECRET: z
     .string()
     .min(
       32,
-      "DEVICE_TRUST_COOKIE_SECRET must be at least 32 characters (signs device trust cookies for weekly email proof)"
+      "DEVICE_TRUST_COOKIE_SECRET must be at least 32 characters (signs device trust cookies for weekly re-auth on helvety.com)"
     ),
 });
 
@@ -63,7 +63,7 @@ export const upstashCookieSigningEnvSchema = upstashEnvSchema.merge(
   cookieSigningEnvSchema
 );
 
-/** User-scoped E2EE zones that enforce weekly device-trust email proof. */
+/** User-scoped E2EE zones that enforce weekly device trust on helvety.com. */
 export const userScopedE2eeServerEnvSchema =
   upstashCookieSigningEnvSchema.merge(deviceTrustEnvSchema);
 
@@ -394,7 +394,7 @@ export function createAppUpstashCookieEnv<
   };
 }
 
-/** User-scoped E2EE + docs zones with weekly device-trust email proof. */
+/** User-scoped E2EE + docs zones with weekly device trust on helvety.com. */
 export function createAppUserScopedE2eeEnv(options: {
   appName: string;
   envTemplatePath: string;

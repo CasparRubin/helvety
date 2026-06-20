@@ -1,12 +1,13 @@
 import {
-  encrypt,
-  decrypt,
+  encryptEntityField,
+  decryptEntityField,
   serializeEncryptedData,
   parseEncryptedData,
-  buildAAD,
-} from "./encryption";
+} from "@helvety/shared/crypto/encryption";
 
 import type { Link, LinkInput, LinkRow } from "@/lib/types";
+
+const LINKS_TABLE = "links" as const;
 
 /**
  *
@@ -22,9 +23,19 @@ export async function encryptLinkInput(
   folder_id: string | null;
 }> {
   const id = crypto.randomUUID();
-  const aad = buildAAD("links", id);
-  const encryptedName = await encrypt(input.name, key, aad);
-  const encryptedUrl = await encrypt(input.url, key, aad);
+  const recordId = id;
+
+  const encryptedName = await encryptEntityField(input.name, key, {
+    table: LINKS_TABLE,
+    recordId,
+    column: "encrypted_name",
+  });
+  const encryptedUrl = await encryptEntityField(input.url, key, {
+    table: LINKS_TABLE,
+    recordId,
+    column: "encrypted_url",
+  });
+
   return {
     id,
     encrypted_name: serializeEncryptedData(encryptedName),
@@ -40,9 +51,18 @@ export async function decryptLinkRow(
   row: LinkRow,
   key: CryptoKey
 ): Promise<Link> {
-  const aad = buildAAD("links", row.id);
-  const name = await decrypt(parseEncryptedData(row.encrypted_name), key, aad);
-  const url = await decrypt(parseEncryptedData(row.encrypted_url), key, aad);
+  const ctx = { table: LINKS_TABLE, recordId: row.id };
+  const name = await decryptEntityField(
+    parseEncryptedData(row.encrypted_name),
+    key,
+    { ...ctx, column: "encrypted_name" }
+  );
+  const url = await decryptEntityField(
+    parseEncryptedData(row.encrypted_url),
+    key,
+    { ...ctx, column: "encrypted_url" }
+  );
+
   return {
     id: row.id,
     user_id: row.user_id,
@@ -76,18 +96,29 @@ export async function encryptLinkUpdate(
   encrypted_name?: string;
   encrypted_url?: string;
 }> {
-  const aad = buildAAD("links", id);
+  const ctx = { table: LINKS_TABLE, recordId: id };
   const result: {
     encrypted_name?: string;
     encrypted_url?: string;
   } = {};
+
   if (update.name !== undefined) {
-    const encrypted = await encrypt(update.name, key, aad);
-    result.encrypted_name = serializeEncryptedData(encrypted);
+    result.encrypted_name = serializeEncryptedData(
+      await encryptEntityField(update.name, key, {
+        ...ctx,
+        column: "encrypted_name",
+      })
+    );
   }
+
   if (update.url !== undefined) {
-    const encrypted = await encrypt(update.url, key, aad);
-    result.encrypted_url = serializeEncryptedData(encrypted);
+    result.encrypted_url = serializeEncryptedData(
+      await encryptEntityField(update.url, key, {
+        ...ctx,
+        column: "encrypted_url",
+      })
+    );
   }
+
   return result;
 }

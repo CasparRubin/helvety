@@ -59,6 +59,7 @@ describe("auth and extension maintainer copy guardrails", () => {
     );
     expect(doc).not.toMatch(RETIRED_PASSKEY_PARAMS_HTTP_PATH);
     expect(doc).toMatch(/chrome\.storage\.local/i);
+    expect(doc).toContain("chrome.storage.session");
   });
 
   it("cookies reference distinguishes web device-trust cookie from extension storage", () => {
@@ -69,6 +70,32 @@ describe("auth and extension maintainer copy guardrails", () => {
     expect(doc).toContain("helvety_device_trust");
     expect(doc).toContain("helvety_extension_last_email_verified");
     expect(doc).toMatch(/Chromium extension.*chrome\.storage\.local/i);
+    expect(doc).toContain("chrome.storage.session");
+    expect(doc).toMatch(/OTP anchor/i);
+    expect(doc).not.toMatch(/chrome\.storage\.local.*weekly email proof/i);
+  });
+
+  it("security runbook distinguishes web device trust from extension JWT enforcement", () => {
+    const doc = readFileSync(
+      join(repoRoot, "docs/security-review-runbook.md"),
+      "utf8"
+    );
+    expect(doc).toContain("helvety_device_trust");
+    expect(doc).toMatch(/jwt-session-lifetime/i);
+    expect(doc).toMatch(
+      /does \*\*not\*\* use that cookie|does not use that cookie/i
+    );
+    expect(doc).toMatch(/OTP anchor/i);
+  });
+
+  it("extension production doc documents split session storage", () => {
+    const doc = readFileSync(
+      join(repoRoot, "apps/auth/docs/extension-passkey-production.md"),
+      "utf8"
+    );
+    expect(doc).toMatch(/chrome\.storage\.local/i);
+    expect(doc).toContain("chrome.storage.session");
+    expect(doc).toMatch(/OTP anchor/i);
   });
 
   it("maintainer docs use HELVETY_CHROME_EXTENSION_ORIGINS (not legacy HELVEETY typo)", () => {

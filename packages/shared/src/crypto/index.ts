@@ -18,15 +18,30 @@ export { CryptoError, CryptoErrorType } from "./types";
 
 // Encryption
 export {
+  ENCRYPTION_VERSION,
+  ENCRYPTION_VERSION_LEGACY,
+  SUPPORTED_ENCRYPTION_VERSIONS,
+  CURRENT_KEY_VERSION,
+  buildAAD,
+  buildFieldAAD,
+  resolveAADForDecrypt,
   encrypt,
   decrypt,
+  encryptEntityField,
+  decryptEntityField,
   encryptObject,
   decryptObject,
   serializeEncryptedData,
   parseEncryptedData,
   isEncryptedData,
+  isSupportedEncryptionVersion,
+  assertSupportedEncryptionVersion,
   encryptFields,
   decryptFields,
+} from "./encryption";
+export type {
+  EntityFieldAadContext,
+  SupportedEncryptionVersion,
 } from "./encryption";
 
 // Key Storage

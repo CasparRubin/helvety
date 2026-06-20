@@ -11,5 +11,6 @@ export async function decryptNoteDisplayTitle(
     recordId: noteId,
     key,
     aadTable: "notes",
+    aadColumn: "encrypted_title",
   });
 }

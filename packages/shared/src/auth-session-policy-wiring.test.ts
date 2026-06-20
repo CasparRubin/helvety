@@ -65,4 +65,10 @@ describe("auth session policy wiring", () => {
     );
     expect(encryptionContext).toContain("useVaultIdleLock");
   });
+
+  it("jwt-session-lifetime enforces AUTH_MAX_LIFETIME_MS on access tokens", () => {
+    const src = readRepoFile("packages/shared/src/jwt-session-lifetime.ts");
+    expect(src).toContain("AUTH_MAX_LIFETIME_MS");
+    expect(src).toContain("isJwtWithinMaxLifetime");
+  });
 });

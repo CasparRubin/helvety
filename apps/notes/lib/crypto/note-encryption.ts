@@ -11,15 +11,14 @@
  * is derived.
  */
 
-import { DEFAULT_NOTE_CATEGORY_ID } from "@/lib/config/default-note-categories";
-
 import {
-  encrypt,
-  decrypt,
+  encryptEntityField,
+  decryptEntityField,
   serializeEncryptedData,
   parseEncryptedData,
-  buildAAD,
-} from "./encryption";
+} from "@helvety/shared/crypto/encryption";
+
+import { DEFAULT_NOTE_CATEGORY_ID } from "@/lib/config/default-note-categories";
 
 import type {
   Item,
@@ -28,6 +27,9 @@ import type {
   Contact,
   ContactRow,
 } from "@/lib/types";
+
+const NOTES_TABLE = "notes" as const;
+const CONTACTS_TABLE = "contacts" as const;
 
 // =============================================================================
 // ITEM ENCRYPTION
@@ -45,13 +47,23 @@ export async function encryptItemInput(
   encrypted_description: string | null;
 }> {
   const id = crypto.randomUUID();
-  const aad = buildAAD("notes", id);
-  const encryptedTitle = await encrypt(input.title, key, aad);
+  const recordId = id;
+
+  const encryptedTitle = await encryptEntityField(input.title, key, {
+    table: NOTES_TABLE,
+    recordId,
+    column: "encrypted_title",
+  });
 
   let encryptedDescription: string | null = null;
   if (input.description) {
-    const encrypted = await encrypt(input.description, key, aad);
-    encryptedDescription = serializeEncryptedData(encrypted);
+    encryptedDescription = serializeEncryptedData(
+      await encryptEntityField(input.description, key, {
+        table: NOTES_TABLE,
+        recordId,
+        column: "encrypted_description",
+      })
+    );
   }
 
   return {
@@ -68,19 +80,19 @@ export async function decryptItemRow(
   row: ItemRow,
   key: CryptoKey
 ): Promise<Item> {
-  const aad = buildAAD("notes", row.id);
-  const title = await decrypt(
+  const ctx = { table: NOTES_TABLE, recordId: row.id };
+  const title = await decryptEntityField(
     parseEncryptedData(row.encrypted_title),
     key,
-    aad
+    { ...ctx, column: "encrypted_title" }
   );
 
   let description: string | null = null;
   if (row.encrypted_description) {
-    description = await decrypt(
+    description = await decryptEntityField(
       parseEncryptedData(row.encrypted_description),
       key,
-      aad
+      { ...ctx, column: "encrypted_description" }
     );
   }
 
@@ -121,23 +133,31 @@ export async function encryptItemUpdate(
   encrypted_title?: string;
   encrypted_description?: string | null;
 }> {
-  const aad = buildAAD("notes", id);
+  const ctx = { table: NOTES_TABLE, recordId: id };
   const result: {
     encrypted_title?: string;
     encrypted_description?: string | null;
   } = {};
 
   if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key, aad);
-    result.encrypted_title = serializeEncryptedData(encrypted);
+    result.encrypted_title = serializeEncryptedData(
+      await encryptEntityField(update.title, key, {
+        ...ctx,
+        column: "encrypted_title",
+      })
+    );
   }
 
   if (update.description !== undefined) {
     if (update.description === null) {
       result.encrypted_description = null;
     } else {
-      const encrypted = await encrypt(update.description, key, aad);
-      result.encrypted_description = serializeEncryptedData(encrypted);
+      result.encrypted_description = serializeEncryptedData(
+        await encryptEntityField(update.description, key, {
+          ...ctx,
+          column: "encrypted_description",
+        })
+      );
     }
   }
 
@@ -158,43 +178,51 @@ async function decryptContactRow(
   row: ContactRow,
   key: CryptoKey
 ): Promise<Contact> {
-  const aad = buildAAD("contacts", row.id);
-  const firstName = await decrypt(
+  const ctx = { table: CONTACTS_TABLE, recordId: row.id };
+  const firstName = await decryptEntityField(
     parseEncryptedData(row.encrypted_first_name),
     key,
-    aad
+    { ...ctx, column: "encrypted_first_name" }
   );
-  const lastName = await decrypt(
+  const lastName = await decryptEntityField(
     parseEncryptedData(row.encrypted_last_name),
     key,
-    aad
+    { ...ctx, column: "encrypted_last_name" }
   );
 
   let description: string | null = null;
   if (row.encrypted_description) {
-    description = await decrypt(
+    description = await decryptEntityField(
       parseEncryptedData(row.encrypted_description),
       key,
-      aad
+      { ...ctx, column: "encrypted_description" }
     );
   }
 
   let email: string | null = null;
   if (row.encrypted_email) {
-    email = await decrypt(parseEncryptedData(row.encrypted_email), key, aad);
+    email = await decryptEntityField(
+      parseEncryptedData(row.encrypted_email),
+      key,
+      { ...ctx, column: "encrypted_email" }
+    );
   }
 
   let phone: string | null = null;
   if (row.encrypted_phone) {
-    phone = await decrypt(parseEncryptedData(row.encrypted_phone), key, aad);
+    phone = await decryptEntityField(
+      parseEncryptedData(row.encrypted_phone),
+      key,
+      { ...ctx, column: "encrypted_phone" }
+    );
   }
 
   let birthday: string | null = null;
   if (row.encrypted_birthday) {
-    birthday = await decrypt(
+    birthday = await decryptEntityField(
       parseEncryptedData(row.encrypted_birthday),
       key,
-      aad
+      { ...ctx, column: "encrypted_birthday" }
     );
   }
 

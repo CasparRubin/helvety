@@ -2,12 +2,12 @@
 
 Chromium extension sign-in and unlock call Bearer/public JSON routes on **`https://helvety.com/auth/api/extension/`**:
 
-| Route                                 | Auth                          | Purpose                                                       |
-| ------------------------------------- | ----------------------------- | ------------------------------------------------------------- |
-| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation                       |
-| `POST /api/extension/otp/verify`      | Public (allowlisted `origin`) | Verify OTP; returns session tokens for `chrome.storage.local` |
-| `POST /api/extension/passkey/options` | Bearer JWT                    | WebAuthn options + signed challenge envelope                  |
-| `POST /api/extension/passkey/verify`  | Bearer JWT                    | Verify passkey assertion (no new session)                     |
+| Route                                 | Auth                          | Purpose                                                                                                                                                                                                       |
+| ------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation                                                                                                                                                                       |
+| `POST /api/extension/otp/verify`      | Public (allowlisted `origin`) | Verify OTP; returns session tokens (`setSession`: refresh in `chrome.storage.local`, access token mirrored to `chrome.storage.session`); records weekly OTP anchor in `helvety_extension_last_email_verified` |
+| `POST /api/extension/passkey/options` | Bearer JWT                    | WebAuthn options + signed challenge envelope                                                                                                                                                                  |
+| `POST /api/extension/passkey/verify`  | Bearer JWT                    | Verify passkey assertion (no new session)                                                                                                                                                                     |
 
 Implementation: `lib/extension-otp.ts`, `lib/otp-send-verify-core.ts`, `lib/extension-passkey.ts`, `app/api/extension/`.
 

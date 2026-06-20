@@ -8,11 +8,24 @@ import { CryptoError, CryptoErrorType } from "./types";
 
 import type { EncryptedData } from "./types";
 
-/** Current encryption format version */
-const ENCRYPTION_VERSION = 1;
+/** Legacy encryption format: AAD binds table + record id only. */
+export const ENCRYPTION_VERSION_LEGACY = 1;
+
+/** Current encryption format: AAD binds table + record id + column. */
+export const ENCRYPTION_VERSION = 2;
+
+/** Supported `EncryptedData.version` values for read paths. */
+export const SUPPORTED_ENCRYPTION_VERSIONS = [
+  ENCRYPTION_VERSION_LEGACY,
+  ENCRYPTION_VERSION,
+] as const;
+
+/** Supported encryption format version literal union. */
+export type SupportedEncryptionVersion =
+  (typeof SUPPORTED_ENCRYPTION_VERSIONS)[number];
 
 /** Current key version - increment when rotating encryption keys */
-const CURRENT_KEY_VERSION = 1;
+export const CURRENT_KEY_VERSION = 1;
 
 const ALLOWED_AAD_TABLES = new Set([
   "items",
@@ -27,8 +40,65 @@ const ALLOWED_AAD_TABLES = new Set([
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-7][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/** Column names allowed in v2 field-bound AAD (encrypted_* DB columns). */
+const COLUMN_NAME_REGEX = /^encrypted_[a-z0-9_]+$/;
+
+/** Context for entity field encryption/decryption with version-aware AAD. */
+export type EntityFieldAadContext = {
+  table: string;
+  recordId: string;
+  column: string;
+};
+
+/** Validates table name against the allowlist used for AAD binding. */
+function assertAllowedTable(table: string): void {
+  if (!ALLOWED_AAD_TABLES.has(table)) {
+    throw new CryptoError(
+      CryptoErrorType.ENCRYPTION_FAILED,
+      `Invalid AAD table name: ${table}`
+    );
+  }
+}
+
+/** Validates record id is a UUID before AAD construction. */
+function assertUuidRecordId(recordId: string): void {
+  if (!UUID_REGEX.test(recordId)) {
+    throw new CryptoError(
+      CryptoErrorType.ENCRYPTION_FAILED,
+      "Invalid AAD record ID: expected UUID format"
+    );
+  }
+}
+
+/** Validates encrypted column name format for v2 field-bound AAD. */
+function assertAllowedColumn(column: string): void {
+  if (!COLUMN_NAME_REGEX.test(column)) {
+    throw new CryptoError(
+      CryptoErrorType.ENCRYPTION_FAILED,
+      `Invalid AAD column name: ${column}`
+    );
+  }
+}
+
+/** Returns true when `version` is a supported encryption format version. */
+export function isSupportedEncryptionVersion(
+  version: number
+): version is SupportedEncryptionVersion {
+  return (SUPPORTED_ENCRYPTION_VERSIONS as readonly number[]).includes(version);
+}
+
+/** Validates encryption version before decrypt; throws on unsupported values. */
+export function assertSupportedEncryptionVersion(version: number): void {
+  if (!isSupportedEncryptionVersion(version)) {
+    throw new CryptoError(
+      CryptoErrorType.DECRYPTION_FAILED,
+      `Unsupported encryption version: ${version}`
+    );
+  }
+}
+
 /**
- * Build Additional Authenticated Data (AAD) for AES-GCM encryption.
+ * Build Additional Authenticated Data (AAD) for AES-GCM encryption (v1 legacy).
  * AAD binds ciphertext to its database record, preventing encrypted data from being moved
  * between records or tables.
  *
@@ -37,19 +107,38 @@ const UUID_REGEX =
  * @returns AAD string in the format "table:recordId"
  */
 export function buildAAD(table: string, recordId: string): string {
-  if (!ALLOWED_AAD_TABLES.has(table)) {
-    throw new CryptoError(
-      CryptoErrorType.ENCRYPTION_FAILED,
-      `Invalid AAD table name: ${table}`
-    );
-  }
-  if (!UUID_REGEX.test(recordId)) {
-    throw new CryptoError(
-      CryptoErrorType.ENCRYPTION_FAILED,
-      "Invalid AAD record ID: expected UUID format"
-    );
-  }
+  assertAllowedTable(table);
+  assertUuidRecordId(recordId);
   return `${table}:${recordId}`;
+}
+
+/**
+ * Build field-bound AAD for v2 encryption (`table:recordId:column`).
+ * Prevents intra-record ciphertext column swaps.
+ */
+export function buildFieldAAD(
+  table: string,
+  recordId: string,
+  column: string
+): string {
+  assertAllowedTable(table);
+  assertUuidRecordId(recordId);
+  assertAllowedColumn(column);
+  return `${table}:${recordId}:${column}`;
+}
+
+/**
+ * Resolve the AAD string used during encryption for a stored ciphertext version.
+ */
+export function resolveAADForDecrypt(
+  context: EntityFieldAadContext,
+  version: number
+): string {
+  assertSupportedEncryptionVersion(version);
+  if (version >= ENCRYPTION_VERSION) {
+    return buildFieldAAD(context.table, context.recordId, context.column);
+  }
+  return buildAAD(context.table, context.recordId);
 }
 
 /**
@@ -60,14 +149,24 @@ export function buildAAD(table: string, recordId: string): string {
  * @param aad - Optional Additional Authenticated Data to bind ciphertext to its context.
  *              When provided, the same AAD must be supplied during decryption.
  *              Use to prevent ciphertext from being moved between records/contexts.
- *              Format: `table:recordId` (use `buildAAD(table, recordId)` helper)
+ *              Format: legacy v1 `table:recordId` (`buildAAD`); v2 field-bound
+ *              `table:recordId:column` (`buildFieldAAD` / `encryptEntityField`)
+ * @param encryptionVersion - Format version stored in the payload (default: legacy v1).
  * @returns Encrypted data with IV and ciphertext
  */
 export async function encrypt(
   data: string,
   key: CryptoKey,
-  aad?: string
+  aad?: string,
+  encryptionVersion: number = ENCRYPTION_VERSION_LEGACY
 ): Promise<EncryptedData> {
+  if (!isSupportedEncryptionVersion(encryptionVersion)) {
+    throw new CryptoError(
+      CryptoErrorType.ENCRYPTION_FAILED,
+      `Unsupported encryption version: ${encryptionVersion}`
+    );
+  }
+
   try {
     const iv = generateIV();
     const encoded = new TextEncoder().encode(data);
@@ -82,16 +181,31 @@ export async function encrypt(
     return {
       iv: base64Encode(iv),
       ciphertext: base64Encode(new Uint8Array(ciphertext)),
-      version: ENCRYPTION_VERSION,
+      version: encryptionVersion,
       keyVersion: CURRENT_KEY_VERSION,
     };
   } catch (error) {
+    if (error instanceof CryptoError) {
+      throw error;
+    }
     throw new CryptoError(
       CryptoErrorType.ENCRYPTION_FAILED,
       "Failed to encrypt data",
       error instanceof Error ? error : undefined
     );
   }
+}
+
+/**
+ * Encrypt an entity field with v2 field-bound AAD (preferred for new writes).
+ */
+export async function encryptEntityField(
+  data: string,
+  key: CryptoKey,
+  context: EntityFieldAadContext
+): Promise<EncryptedData> {
+  const aad = buildFieldAAD(context.table, context.recordId, context.column);
+  return encrypt(data, key, aad, ENCRYPTION_VERSION);
 }
 
 /**
@@ -107,6 +221,18 @@ export async function decrypt(
   key: CryptoKey,
   aad?: string
 ): Promise<string> {
+  assertSupportedEncryptionVersion(encrypted.version);
+
+  if (
+    encrypted.keyVersion !== undefined &&
+    encrypted.keyVersion !== CURRENT_KEY_VERSION
+  ) {
+    throw new CryptoError(
+      CryptoErrorType.DECRYPTION_FAILED,
+      `Unsupported key version: ${encrypted.keyVersion}`
+    );
+  }
+
   try {
     const iv = base64Decode(encrypted.iv);
     const ciphertext = base64Decode(encrypted.ciphertext);
@@ -120,12 +246,27 @@ export async function decrypt(
 
     return new TextDecoder().decode(decrypted);
   } catch (error) {
+    if (error instanceof CryptoError) {
+      throw error;
+    }
     throw new CryptoError(
       CryptoErrorType.DECRYPTION_FAILED,
       "Failed to decrypt data. The decryption key does not match this data, or the data is corrupted.",
       error instanceof Error ? error : undefined
     );
   }
+}
+
+/**
+ * Decrypt an entity field using version-aware AAD resolution (v1 + v2).
+ */
+export async function decryptEntityField(
+  encrypted: EncryptedData,
+  key: CryptoKey,
+  context: EntityFieldAadContext
+): Promise<string> {
+  const aad = resolveAADForDecrypt(context, encrypted.version);
+  return decrypt(encrypted, key, aad);
 }
 
 /**
@@ -139,10 +280,11 @@ export async function decrypt(
 export async function encryptObject<T extends object>(
   data: T,
   key: CryptoKey,
-  aad?: string
+  aad?: string,
+  encryptionVersion: number = ENCRYPTION_VERSION_LEGACY
 ): Promise<EncryptedData> {
   const json = JSON.stringify(data);
-  return encrypt(json, key, aad);
+  return encrypt(json, key, aad, encryptionVersion);
 }
 
 /**
@@ -190,8 +332,18 @@ export function parseEncryptedData(serialized: string): EncryptedData {
     ) {
       throw new Error("Invalid encrypted data structure");
     }
+    assertSupportedEncryptionVersion(parsed.version);
+    if (
+      parsed.keyVersion !== undefined &&
+      typeof parsed.keyVersion !== "number"
+    ) {
+      throw new Error("Invalid encrypted data keyVersion");
+    }
     return parsed as EncryptedData;
   } catch (error) {
+    if (error instanceof CryptoError) {
+      throw error;
+    }
     throw new CryptoError(
       CryptoErrorType.DECRYPTION_FAILED,
       "Failed to parse encrypted data from storage",
@@ -201,19 +353,40 @@ export function parseEncryptedData(serialized: string): EncryptedData {
 }
 
 /**
- * Check if a value looks like encrypted data
+ * Check if a value looks like encrypted data with a supported version.
  */
 export function isEncryptedData(value: unknown): value is EncryptedData {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "iv" in value &&
-    "ciphertext" in value &&
-    "version" in value &&
-    typeof (value as EncryptedData).iv === "string" &&
-    typeof (value as EncryptedData).ciphertext === "string" &&
-    typeof (value as EncryptedData).version === "number"
-  );
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !("iv" in value) ||
+    !("ciphertext" in value) ||
+    !("version" in value)
+  ) {
+    return false;
+  }
+
+  const candidate = value as EncryptedData;
+  if (
+    typeof candidate.iv !== "string" ||
+    typeof candidate.ciphertext !== "string" ||
+    typeof candidate.version !== "number"
+  ) {
+    return false;
+  }
+
+  if (!isSupportedEncryptionVersion(candidate.version)) {
+    return false;
+  }
+
+  if (
+    candidate.keyVersion !== undefined &&
+    typeof candidate.keyVersion !== "number"
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 /**

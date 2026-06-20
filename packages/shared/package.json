@@ -60,6 +60,7 @@
     "./auth-flow-errors": "./src/auth-flow-errors.ts",
     "./auth-logger": "./src/auth-logger.ts",
     "./auth-session-policy": "./src/auth-session-policy.ts",
+    "./jwt-session-lifetime": "./src/jwt-session-lifetime.ts",
     "./device-trust-cookie": "./src/device-trust-cookie.ts",
     "./rate-limit": "./src/rate-limit.ts",
     "./env-validation": "./src/env-validation.ts",

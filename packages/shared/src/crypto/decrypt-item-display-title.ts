@@ -11,5 +11,6 @@ export async function decryptItemDisplayTitle(
     recordId: itemId,
     key,
     aadTable: "items",
+    aadColumn: "encrypted_title",
   });
 }

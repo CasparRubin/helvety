@@ -38,10 +38,11 @@ describe("auth flow documentation guardrails", () => {
     expect(readme).not.toMatch(/passkey-first after sign-out/i);
   });
 
-  it("README documents extension weekly email proof (no device-trust cookie)", () => {
+  it("README documents extension weekly OTP anchor (no device-trust cookie)", () => {
     expect(readme).toContain("helvety_extension_last_email_verified");
     expect(readme).toMatch(/does not.*mint.*helvety_device_trust/i);
     expect(readme).toContain("resolveVerifiedExtensionSession");
+    expect(readme).toMatch(/OTP anchor|jwt-session-lifetime/i);
   });
 
   it("README documents post-OTP bootstrap spinner guard", () => {

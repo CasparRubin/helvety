@@ -24,7 +24,7 @@ Copy exact key names and comments from each zone’s `apps/<slug>/env.template` 
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — every project except `helvety-com`
 - `HELVETY_COOKIE_SIGNING_SECRET` — every project except `helvety-com` (one shared value)
 - `SUPABASE_SECRET_KEY` — only `helvety-auth` and `helvety-store` (must differ from publishable key)
-- `DEVICE_TRUST_COOKIE_SECRET` — `helvety-auth` and all user-scoped E2EE/docs zones (same shared value; weekly email-proof gate). `bun run consistency:vercel-prod-env` checks presence plus parity: SHA-256 when Vercel exposes values, otherwise `updatedAt` spread across zones (sensitive vars are not readable via CLI/API).
+- `DEVICE_TRUST_COOKIE_SECRET` — `helvety-auth` and all user-scoped E2EE/docs zones (same shared value; weekly device-trust gate). `bun run consistency:vercel-prod-env` checks presence plus parity: SHA-256 when Vercel exposes values, otherwise `updatedAt` spread across zones (sensitive vars are not readable via CLI/API).
 - `HELVETY_CHROME_EXTENSION_ORIGINS` — only `helvety-auth`
 
 ### `HELVETY_CHROME_EXTENSION_ORIGINS` (helvety-auth only)

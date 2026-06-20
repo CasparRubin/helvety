@@ -15,7 +15,7 @@ import type { User } from "@supabase/supabase-js";
 
 /** Options for {@link requireAuth}. */
 export type RequireAuthOptions = Readonly<{
-  /** When true, missing/expired device trust forces global logout (weekly email proof). */
+  /** When true, missing/expired device trust forces global logout (weekly re-auth on helvety.com). */
   requireDeviceTrust?: boolean;
 }>;
 
@@ -26,7 +26,7 @@ export type RequireAuthOptions = Readonly<{
  * Redirect behavior:
  * - clean logged-out state -> auth login
  * - invalid/broken auth state -> global logout, then auth login
- * - authenticated but missing weekly email proof (when required) -> global logout
+ * - authenticated but missing weekly device trust (when required) -> global logout
  *
  * Fail-closed: one cached getUser() call (shared with the layout).
  * No user = redirect. No retries, no second chances.

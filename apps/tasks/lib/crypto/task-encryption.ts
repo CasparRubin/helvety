@@ -8,14 +8,15 @@
  */
 
 import {
-  encrypt,
-  decrypt,
+  encryptEntityField,
+  decryptEntityField,
   serializeEncryptedData,
   parseEncryptedData,
-  buildAAD,
-} from "./encryption";
+} from "@helvety/shared/crypto/encryption";
 
 import type { Item, ItemRow, ItemInput } from "@/lib/types";
+
+const ITEMS_TABLE = "items" as const;
 
 // =============================================================================
 // ITEM ENCRYPTION
@@ -37,25 +38,45 @@ export async function encryptItemInput(
   label_id?: string | null;
 }> {
   const id = crypto.randomUUID();
-  const aad = buildAAD("items", id);
-  const encryptedTitle = await encrypt(input.title, key, aad);
+  const recordId = id;
+
+  const encryptedTitle = await encryptEntityField(input.title, key, {
+    table: ITEMS_TABLE,
+    recordId,
+    column: "encrypted_title",
+  });
 
   let encryptedDescription: string | null = null;
   if (input.description) {
-    const encrypted = await encrypt(input.description, key, aad);
-    encryptedDescription = serializeEncryptedData(encrypted);
+    encryptedDescription = serializeEncryptedData(
+      await encryptEntityField(input.description, key, {
+        table: ITEMS_TABLE,
+        recordId,
+        column: "encrypted_description",
+      })
+    );
   }
 
   let encryptedStartDate: string | null = null;
   if (input.start_date) {
-    const encrypted = await encrypt(input.start_date, key, aad);
-    encryptedStartDate = serializeEncryptedData(encrypted);
+    encryptedStartDate = serializeEncryptedData(
+      await encryptEntityField(input.start_date, key, {
+        table: ITEMS_TABLE,
+        recordId,
+        column: "encrypted_start_date",
+      })
+    );
   }
 
   let encryptedEndDate: string | null = null;
   if (input.end_date) {
-    const encrypted = await encrypt(input.end_date, key, aad);
-    encryptedEndDate = serializeEncryptedData(encrypted);
+    encryptedEndDate = serializeEncryptedData(
+      await encryptEntityField(input.end_date, key, {
+        table: ITEMS_TABLE,
+        recordId,
+        column: "encrypted_end_date",
+      })
+    );
   }
 
   return {
@@ -76,37 +97,37 @@ export async function decryptItemRow(
   row: ItemRow,
   key: CryptoKey
 ): Promise<Item> {
-  const aad = buildAAD("items", row.id);
-  const title = await decrypt(
+  const ctx = { table: ITEMS_TABLE, recordId: row.id };
+  const title = await decryptEntityField(
     parseEncryptedData(row.encrypted_title),
     key,
-    aad
+    { ...ctx, column: "encrypted_title" }
   );
 
   let description: string | null = null;
   if (row.encrypted_description) {
-    description = await decrypt(
+    description = await decryptEntityField(
       parseEncryptedData(row.encrypted_description),
       key,
-      aad
+      { ...ctx, column: "encrypted_description" }
     );
   }
 
   let startDate: string | null = null;
   if (row.encrypted_start_date) {
-    startDate = await decrypt(
+    startDate = await decryptEntityField(
       parseEncryptedData(row.encrypted_start_date),
       key,
-      aad
+      { ...ctx, column: "encrypted_start_date" }
     );
   }
 
   let endDate: string | null = null;
   if (row.encrypted_end_date) {
-    endDate = await decrypt(
+    endDate = await decryptEntityField(
       parseEncryptedData(row.encrypted_end_date),
       key,
-      aad
+      { ...ctx, column: "encrypted_end_date" }
     );
   }
 
@@ -153,7 +174,7 @@ export async function encryptItemUpdate(
   encrypted_start_date?: string | null;
   encrypted_end_date?: string | null;
 }> {
-  const aad = buildAAD("items", id);
+  const ctx = { table: ITEMS_TABLE, recordId: id };
   const result: {
     encrypted_title?: string;
     encrypted_description?: string | null;
@@ -162,16 +183,24 @@ export async function encryptItemUpdate(
   } = {};
 
   if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key, aad);
-    result.encrypted_title = serializeEncryptedData(encrypted);
+    result.encrypted_title = serializeEncryptedData(
+      await encryptEntityField(update.title, key, {
+        ...ctx,
+        column: "encrypted_title",
+      })
+    );
   }
 
   if (update.description !== undefined) {
     if (update.description === null) {
       result.encrypted_description = null;
     } else {
-      const encrypted = await encrypt(update.description, key, aad);
-      result.encrypted_description = serializeEncryptedData(encrypted);
+      result.encrypted_description = serializeEncryptedData(
+        await encryptEntityField(update.description, key, {
+          ...ctx,
+          column: "encrypted_description",
+        })
+      );
     }
   }
 
@@ -179,8 +208,12 @@ export async function encryptItemUpdate(
     if (update.start_date === null) {
       result.encrypted_start_date = null;
     } else {
-      const encrypted = await encrypt(update.start_date, key, aad);
-      result.encrypted_start_date = serializeEncryptedData(encrypted);
+      result.encrypted_start_date = serializeEncryptedData(
+        await encryptEntityField(update.start_date, key, {
+          ...ctx,
+          column: "encrypted_start_date",
+        })
+      );
     }
   }
 
@@ -188,8 +221,12 @@ export async function encryptItemUpdate(
     if (update.end_date === null) {
       result.encrypted_end_date = null;
     } else {
-      const encrypted = await encrypt(update.end_date, key, aad);
-      result.encrypted_end_date = serializeEncryptedData(encrypted);
+      result.encrypted_end_date = serializeEncryptedData(
+        await encryptEntityField(update.end_date, key, {
+          ...ctx,
+          column: "encrypted_end_date",
+        })
+      );
     }
   }
 

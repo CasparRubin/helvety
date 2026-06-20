@@ -20,6 +20,7 @@ describe("decryptNoteDisplayTitle", () => {
       recordId: "note-1",
       key,
       aadTable: "notes",
+      aadColumn: "encrypted_title",
     });
     expect(result).toBe("Readable Note");
   });

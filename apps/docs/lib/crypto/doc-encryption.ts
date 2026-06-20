@@ -3,16 +3,16 @@
  */
 
 import { base64Decode, base64Encode } from "@helvety/shared/crypto/encoding";
-
 import {
-  buildAAD,
-  decrypt,
-  encrypt,
+  encryptEntityField,
+  decryptEntityField,
   parseEncryptedData,
   serializeEncryptedData,
-} from "./encryption";
+} from "@helvety/shared/crypto/encryption";
 
 import type { Doc, DocInput, DocListItem, DocRow } from "@/lib/types";
+
+const DOCS_TABLE = "docs" as const;
 
 /**
  * Encrypt a document for database storage.
@@ -26,10 +26,19 @@ export async function encryptDocInput(
   encrypted_docx: string;
 }> {
   const id = crypto.randomUUID();
-  const aad = buildAAD("docs", id);
-  const encryptedTitle = await encrypt(input.title, key, aad);
+  const recordId = id;
+
+  const encryptedTitle = await encryptEntityField(input.title, key, {
+    table: DOCS_TABLE,
+    recordId,
+    column: "encrypted_title",
+  });
   const docxBase64 = base64Encode(new Uint8Array(input.docxBytes));
-  const encryptedDocx = await encrypt(docxBase64, key, aad);
+  const encryptedDocx = await encryptEntityField(docxBase64, key, {
+    table: DOCS_TABLE,
+    recordId,
+    column: "encrypted_docx",
+  });
 
   return {
     id,
@@ -49,18 +58,26 @@ export async function encryptDocUpdate(
   encrypted_title?: string;
   encrypted_docx?: string;
 }> {
-  const aad = buildAAD("docs", id);
+  const ctx = { table: DOCS_TABLE, recordId: id };
   const result: { encrypted_title?: string; encrypted_docx?: string } = {};
 
   if (update.title !== undefined) {
-    const encrypted = await encrypt(update.title, key, aad);
-    result.encrypted_title = serializeEncryptedData(encrypted);
+    result.encrypted_title = serializeEncryptedData(
+      await encryptEntityField(update.title, key, {
+        ...ctx,
+        column: "encrypted_title",
+      })
+    );
   }
 
   if (update.docxBytes !== undefined) {
     const docxBase64 = base64Encode(new Uint8Array(update.docxBytes));
-    const encrypted = await encrypt(docxBase64, key, aad);
-    result.encrypted_docx = serializeEncryptedData(encrypted);
+    result.encrypted_docx = serializeEncryptedData(
+      await encryptEntityField(docxBase64, key, {
+        ...ctx,
+        column: "encrypted_docx",
+      })
+    );
   }
 
   return result;
@@ -70,16 +87,16 @@ export async function encryptDocUpdate(
  * Decrypt a document row from the database.
  */
 export async function decryptDocRow(row: DocRow, key: CryptoKey): Promise<Doc> {
-  const aad = buildAAD("docs", row.id);
-  const title = await decrypt(
+  const ctx = { table: DOCS_TABLE, recordId: row.id };
+  const title = await decryptEntityField(
     parseEncryptedData(row.encrypted_title),
     key,
-    aad
+    { ...ctx, column: "encrypted_title" }
   );
-  const docxBase64 = await decrypt(
+  const docxBase64 = await decryptEntityField(
     parseEncryptedData(row.encrypted_docx),
     key,
-    aad
+    { ...ctx, column: "encrypted_docx" }
   );
   const docxBytes = base64Decode(docxBase64);
   const docxBuffer = docxBytes.buffer.slice(
@@ -103,8 +120,11 @@ async function decryptDocTitle(
   id: string,
   key: CryptoKey
 ): Promise<string> {
-  const aad = buildAAD("docs", id);
-  return decrypt(parseEncryptedData(encryptedTitle), key, aad);
+  return decryptEntityField(parseEncryptedData(encryptedTitle), key, {
+    table: DOCS_TABLE,
+    recordId: id,
+    column: "encrypted_title",
+  });
 }
 
 /**

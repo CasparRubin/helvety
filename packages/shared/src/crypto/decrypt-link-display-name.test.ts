@@ -23,6 +23,7 @@ describe("decryptLinkDisplayName", () => {
       recordId: "link-1",
       key,
       aadTable: "links",
+      aadColumn: "encrypted_name",
     });
     expect(result).toBe("Bookmark Name");
   });
@@ -40,6 +41,7 @@ describe("decryptLinkDisplayUrl", () => {
       recordId: "link-1",
       key,
       aadTable: "links",
+      aadColumn: "encrypted_url",
     });
     expect(result).toBe("https://example.com");
   });

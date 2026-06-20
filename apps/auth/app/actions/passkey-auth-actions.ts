@@ -23,6 +23,7 @@ import {
 } from "@simplewebauthn/server";
 import { z } from "zod";
 
+import { ensurePasskeyOptionsMinDuration } from "@/lib/passkey-options-timing";
 import { RATE_LIMITS, resetRateLimit } from "@/lib/rate-limit";
 
 import {
@@ -174,6 +175,7 @@ export async function generatePasskeyAuthOptions(
 
   logAuthEvent("passkey_auth_started", { ip: clientIP });
 
+  const optionsStartedAt = Date.now();
   try {
     const rpId = getRpId(safeOrigin);
     let expectedUserIdForChallenge: string | undefined;
@@ -283,6 +285,8 @@ export async function generatePasskeyAuthOptions(
       success: false,
       error: PASSKEY_OPTIONS_GENERIC_ERROR,
     };
+  } finally {
+    await ensurePasskeyOptionsMinDuration(optionsStartedAt);
   }
 }
 
