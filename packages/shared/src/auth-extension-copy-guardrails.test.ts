@@ -29,6 +29,13 @@ const RETIRED_PASSKEY_PARAMS_HTTP_PATH =
 /** Legacy env var name; only allowed when documenting that it is unsupported. */
 const LEGACY_EXTENSION_ORIGINS_ENV = "HELVEETY_CHROME_EXTENSION_ORIGINS";
 
+/** Outdated device-trust mint wording (read-back alone was never the only check). */
+const STALE_DEVICE_TRUST_MINT_DOC_PHRASES = [
+  /mint\/read-back/i,
+  /read-back verifies/i,
+  /not readable after set/i,
+] as const;
+
 describe("auth and extension maintainer copy guardrails", () => {
   it("maintainer docs do not imply the extension mints or stores helvety_device_trust", () => {
     const violations: string[] = [];
@@ -36,6 +43,21 @@ describe("auth and extension maintainer copy guardrails", () => {
     for (const rel of MAINTAINER_AUTH_DOC_PATHS) {
       const text = readFileSync(join(repoRoot, rel), "utf8");
       for (const re of EXTENSION_DEVICE_TRUST_COOKIE_MISLEAD) {
+        if (re.test(text)) {
+          violations.push(`${rel}: ${re.source}`);
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
+  it("maintainer docs do not use outdated device-trust mint/read-back-only wording", () => {
+    const violations: string[] = [];
+
+    for (const rel of MAINTAINER_AUTH_DOC_PATHS) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      for (const re of STALE_DEVICE_TRUST_MINT_DOC_PHRASES) {
         if (re.test(text)) {
           violations.push(`${rel}: ${re.source}`);
         }

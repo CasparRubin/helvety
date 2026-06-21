@@ -2,14 +2,14 @@ import "server-only";
 
 import {
   clearedDeviceTrustCookieOptions,
+  decodeDeviceTrustCookieValue,
   DEVICE_TRUST_COOKIE_NAME,
   deviceTrustCookieOptions,
   encodeDeviceTrustCookieValue,
   getValidDeviceTrustFromCookieStore,
 } from "@helvety/shared/device-trust-cookie";
+import { logger } from "@helvety/shared/logger";
 import { cookies } from "next/headers";
-
-export type { DeviceTrustPayload } from "@helvety/shared/device-trust-cookie";
 
 /** Set device trust for the given user (fresh weekly TTL). */
 export async function setDeviceTrustCookie(userId: string): Promise<void> {
@@ -38,13 +38,44 @@ export async function getValidDeviceTrustCookie() {
 }
 
 /**
- * Mints device trust for `userId` and verifies the cookie is readable in the same
- * request (Server Action / route handler). Returns false when set or read-back fails.
+ * Mints device trust for `userId` and verifies signing before returning success.
+ *
+ * Primary check: HMAC encode/decode on the payload before `Set-Cookie`. When the
+ * runtime exposes the new cookie via `cookies().get()` in the same request,
+ * read-back must match the minted user as well. Next.js Server Actions may queue
+ * `Set-Cookie` without updating the in-request cookie store; then a successful
+ * encode/decode check is enough to report mint success (the browser still receives
+ * `Set-Cookie` on the action response).
  */
 export async function mintAndVerifyDeviceTrustCookie(
   userId: string
 ): Promise<boolean> {
-  await setDeviceTrustCookie(userId);
-  const payload = await getValidDeviceTrustCookie();
-  return payload?.userId === userId;
+  try {
+    const encoded = encodeDeviceTrustCookieValue(userId);
+    if (decodeDeviceTrustCookieValue(encoded)?.userId !== userId) {
+      return false;
+    }
+
+    await setDeviceTrustCookie(userId);
+
+    const readBack = await getValidDeviceTrustCookie();
+    if (readBack?.userId === userId) {
+      return true;
+    }
+
+    if (readBack != null && readBack.userId !== userId) {
+      logger.warn("Device trust read-back userId mismatch after mint.", {
+        expectedUserId: userId,
+        actualUserId: readBack.userId,
+      });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    logger.warn("Device trust mint failed.", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
 }

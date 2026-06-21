@@ -120,7 +120,7 @@ describe("auth callback success handler", () => {
     );
   });
 
-  it("still redirects when mint read-back fails and logs the failure", async () => {
+  it("still redirects when mint verification fails and logs the failure", async () => {
     mocks.mintAndVerifyDeviceTrustCookie.mockResolvedValue(false);
 
     const response = await GET(
@@ -130,7 +130,7 @@ describe("auth callback success handler", () => {
     );
 
     expect(logger.logUnexpectedError).toHaveBeenCalledWith(
-      "Device trust cookie mint/read-back failed after auth callback",
+      "Device trust cookie mint verification failed after auth callback",
       expect.any(Error),
       { userId: "550e8400-e29b-41d4-a716-446655440000" }
     );

@@ -157,6 +157,21 @@ export function encodeDeviceTrustCookieValue(userId: string): string {
   return encodeCookieValue(payload, secret);
 }
 
+/**
+ * Decodes and validates a device-trust cookie value string (no request cookie store).
+ * Used after minting to verify signing without relying on same-request `cookies().get()`.
+ */
+export function decodeDeviceTrustCookieValue(
+  value: string
+): DeviceTrustPayload | null {
+  try {
+    const secret = getDeviceTrustSecret();
+    return decodeCookieValue(value, secret);
+  } catch {
+    return null;
+  }
+}
+
 /** Clear device trust cookie options for this browser/device. */
 export function clearedDeviceTrustCookieOptions(): {
   httpOnly: true;

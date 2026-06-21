@@ -537,7 +537,7 @@ describe("otp-actions", () => {
       expect(mocks.loggerError).toHaveBeenCalled();
     });
 
-    it("returns deviceTrustMinted false when mint read-back fails", async () => {
+    it("returns deviceTrustMinted false when mint verification fails", async () => {
       securedUserMocks();
       mocks.mintAndVerifyDeviceTrustCookie.mockResolvedValue(false);
 
@@ -557,7 +557,12 @@ describe("otp-actions", () => {
         },
         success: true,
       });
-      expect(mocks.loggerError).toHaveBeenCalled();
+      expect(mocks.loggerError).toHaveBeenCalledWith(
+        "Device trust cookie mint verification failed after OTP verify",
+        expect.objectContaining({
+          message: "helvety_device_trust mint verification failed",
+        })
+      );
       expect(mocks.logAuthEvent).toHaveBeenCalledWith(
         "login_success",
         expect.objectContaining({

@@ -46,6 +46,8 @@ describe("auth session policy wiring", () => {
   it("auth device-trust wrapper delegates to shared module", () => {
     const src = readRepoFile("apps/auth/app/actions/device-trust-cookie.ts");
     expect(src).toContain("@helvety/shared/device-trust-cookie");
+    expect(src).toContain("decodeDeviceTrustCookieValue");
+    expect(src).toContain("setDeviceTrustCookie");
     expect(src).not.toContain("DEVICE_TRUST_TTL_SECONDS");
   });
 

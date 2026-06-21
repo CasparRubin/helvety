@@ -93,7 +93,7 @@ export async function sendVerificationCode(
  * @param email - The user's email address
  * @param code - The OTP code from the email
  * @returns Next auth step, user id, new-user flag, rotated `csrfToken`, and whether
- * device trust was minted and read back successfully in this request
+ * device trust was minted and verified successfully in this request
  */
 export async function verifyEmailCode(
   csrfToken: string,
@@ -171,8 +171,8 @@ export async function verifyEmailCode(
       deviceTrustMinted = await mintAndVerifyDeviceTrustCookie(user.id);
       if (!deviceTrustMinted) {
         logger.logUnexpectedError(
-          "Device trust cookie mint/read-back failed after OTP verify",
-          new Error("helvety_device_trust not readable after set")
+          "Device trust cookie mint verification failed after OTP verify",
+          new Error("helvety_device_trust mint verification failed")
         );
       }
     } catch (trustError) {

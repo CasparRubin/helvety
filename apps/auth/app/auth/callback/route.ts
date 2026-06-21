@@ -94,8 +94,8 @@ export const GET = createAuthCallbackHandler({
         const deviceTrustMinted = await mintAndVerifyDeviceTrustCookie(user.id);
         if (!deviceTrustMinted) {
           logger.logUnexpectedError(
-            "Device trust cookie mint/read-back failed after auth callback",
-            new Error("helvety_device_trust not readable after set"),
+            "Device trust cookie mint verification failed after auth callback",
+            new Error("helvety_device_trust mint verification failed"),
             { userId: user.id }
           );
         }

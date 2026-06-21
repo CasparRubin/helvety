@@ -31,9 +31,12 @@ describe("auth flow documentation guardrails", () => {
     expect(readme).not.toContain("authBootstrapKey");
   });
 
-  it("README documents device-trust mint/read-back and logout clearing trust", () => {
+  it("README documents device-trust mint verification and logout clearing trust", () => {
     expect(readme).toContain("mintAndVerifyDeviceTrustCookie");
     expect(readme).toContain("deviceTrustMinted");
+    expect(readme).toMatch(/encode\/decode verification/i);
+    expect(readme).toMatch(/encode\/decode check is enough/i);
+    expect(readme).not.toMatch(/mint\/read-back/i);
     expect(readme).toMatch(/Manual logout clears the trust cookie/i);
     expect(readme).not.toMatch(/passkey-first after sign-out/i);
   });
