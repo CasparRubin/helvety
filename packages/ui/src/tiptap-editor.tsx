@@ -32,6 +32,7 @@ import {
 } from "react";
 
 import { Button } from "./button";
+import { FORM_CONTROL_PROSE_SIZE_CLASS } from "./form-control-text-size";
 import { Separator } from "./separator";
 import {
   SAFE_LINK_REGEX,
@@ -336,7 +337,7 @@ function EditorToolbar({
 }
 
 const EDITOR_CONTENT_CLASS = cn(
-  "prose prose-sm dark:prose-invert max-w-none",
+  FORM_CONTROL_PROSE_SIZE_CLASS,
   "min-h-[200px] w-full px-3 py-2",
   "focus:outline-none",
   "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 first:[&_h1]:mt-0",

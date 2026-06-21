@@ -26,6 +26,8 @@
   },
   "exports": {
     "./globals.css": "./globals.css",
+    "./form-control-touch.css": "./form-control-touch.css",
+    "./form-control-text-size": "./src/form-control-text-size.ts",
     "./app-error": "./src/app-error.tsx",
     "./app-not-found": "./src/app-not-found.tsx",
     "./alert-dialog": "./src/alert-dialog.tsx",
@@ -53,6 +55,7 @@
     "./footer": "./src/footer.tsx",
     "./icon-renderer": "./src/icon-renderer.tsx",
     "./input": "./src/input.tsx",
+    "./textarea": "./src/textarea.tsx",
     "./json-ld-script": "./src/json-ld-script.tsx",
     "./label": "./src/label.tsx",
     "./list-search-field": "./src/list-search-field.tsx",

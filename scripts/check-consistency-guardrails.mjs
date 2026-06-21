@@ -537,6 +537,79 @@ async function main() {
         `${relativePath} imports app-local UI primitives. Use @helvety/ui/* for shared primitives.`
       );
     }
+    if (/<select[\s/>]/.test(source)) {
+      const relativePath = tsxPath.replace(`${rootDir}/`, "");
+      throw new Error(
+        `${relativePath} uses raw <select>. Use NativeSelect from @helvety/ui/native-select.`
+      );
+    }
+    if (/<textarea[\s/>]/.test(source)) {
+      const relativePath = tsxPath.replace(`${rootDir}/`, "");
+      throw new Error(
+        `${relativePath} uses raw <textarea>. Use Textarea from @helvety/ui/textarea.`
+      );
+    }
+  }
+
+  const extensionRoot = resolve(
+    rootDir,
+    "..",
+    "helvety-browser-extension-chromium"
+  );
+  try {
+    await access(extensionRoot, constants.F_OK);
+    const extensionPopupTsx = await listTsxFiles(
+      resolve(extensionRoot, "src/popup")
+    );
+    for (const tsxPath of extensionPopupTsx) {
+      const source = await readFile(tsxPath, "utf8");
+      if (/<select[\s/>]/.test(source)) {
+        const relativePath = tsxPath.replace(`${extensionRoot}/`, "");
+        throw new Error(
+          `helvety-browser-extension-chromium/${relativePath} uses raw <select>. Use NativeSelect from @helvety/ui/native-select.`
+        );
+      }
+      if (/<textarea[\s/>]/.test(source)) {
+        const relativePath = tsxPath.replace(`${extensionRoot}/`, "");
+        throw new Error(
+          `helvety-browser-extension-chromium/${relativePath} uses raw <textarea>. Use Textarea from @helvety/ui/textarea.`
+        );
+      }
+      if (/from\s+["'][^"']*\/components\/Textarea["']/u.test(source)) {
+        const relativePath = tsxPath.replace(`${extensionRoot}/`, "");
+        throw new Error(
+          `helvety-browser-extension-chromium/${relativePath} imports local Textarea. Use @helvety/ui/textarea.`
+        );
+      }
+    }
+    try {
+      await access(
+        resolve(extensionRoot, "src/popup/components/Textarea.tsx"),
+        constants.F_OK
+      );
+      throw new Error(
+        "helvety-browser-extension-chromium/src/popup/components/Textarea.tsx must be removed; use @helvety/ui/textarea."
+      );
+    } catch (error) {
+      if (!(error && typeof error === "object" && error.code === "ENOENT")) {
+        throw error;
+      }
+    }
+    const extensionGlobals = await readFile(
+      resolve(extensionRoot, "src/globals.css"),
+      "utf8"
+    );
+    if (
+      !extensionGlobals.includes('@import "@helvety/ui/form-control-touch.css"')
+    ) {
+      throw new Error(
+        "helvety-browser-extension-chromium/src/globals.css must import @helvety/ui/form-control-touch.css."
+      );
+    }
+  } catch (error) {
+    if (!(error && typeof error === "object" && error.code === "ENOENT")) {
+      throw error;
+    }
   }
 
   const publicShellLayoutPath = resolve(

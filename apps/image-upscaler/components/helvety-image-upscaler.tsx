@@ -6,6 +6,7 @@ import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import { NativeSelect } from "@helvety/ui/native-select";
 import { Download, Upload, X } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
@@ -589,48 +590,48 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
           <div className="bg-card space-y-4 rounded-lg border p-4">
             <div className="space-y-2">
               <Label htmlFor="desktop-upscale-mode">Mode</Label>
-              <select
+              <NativeSelect
                 id="desktop-upscale-mode"
                 value={sizeMode}
                 onChange={(event) =>
                   setSizeMode(event.target.value as SizeMode)
                 }
-                className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="h-10 py-2"
               >
                 <option value="scale">Scale</option>
                 <option value="target">Target dimension</option>
-              </select>
+              </NativeSelect>
             </div>
             {sizeMode === "scale" ? (
               <div className="space-y-2">
                 <Label htmlFor="desktop-upscale-scale">Scale</Label>
-                <select
+                <NativeSelect
                   id="desktop-upscale-scale"
                   value={String(scale)}
                   onChange={(event) =>
                     setScale(event.target.value === "4" ? 4 : 2)
                   }
-                  className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  className="h-10 py-2"
                 >
                   <option value="2">2x</option>
                   <option value="4">4x</option>
-                </select>
+                </NativeSelect>
               </div>
             ) : (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="desktop-upscale-dimension">Dimension</Label>
-                  <select
+                  <NativeSelect
                     id="desktop-upscale-dimension"
                     value={targetMode}
                     onChange={(event) =>
                       setTargetMode(event.target.value as "width" | "height")
                     }
-                    className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    className="h-10 py-2"
                   >
                     <option value="width">Width</option>
                     <option value="height">Height</option>
-                  </select>
+                  </NativeSelect>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="desktop-upscale-target">Target value</Label>

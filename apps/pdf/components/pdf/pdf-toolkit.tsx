@@ -4,6 +4,7 @@ import { cn } from "@helvety/shared/utils";
 import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { Label } from "@helvety/ui/label";
+import { NativeSelect } from "@helvety/ui/native-select";
 import { X } from "lucide-react";
 import * as React from "react";
 
@@ -85,7 +86,7 @@ function PdfToolkitComponent({
                     {columns} {columns === 1 ? "page" : "pages"}
                   </span>
                 </div>
-                <select
+                <NativeSelect
                   id="column-selector"
                   value={columns}
                   onChange={(event) => {
@@ -94,10 +95,6 @@ function PdfToolkitComponent({
                       Number.isNaN(parsed) ? COLUMNS.DEFAULT_LARGE : parsed
                     );
                   }}
-                  className={cn(
-                    "bg-background border-border text-foreground h-9 w-full rounded-md border px-3 text-sm",
-                    "focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                  )}
                 >
                   {Array.from(
                     { length: COLUMNS.MAX - COLUMNS.MIN + 1 },
@@ -110,7 +107,7 @@ function PdfToolkitComponent({
                       );
                     }
                   )}
-                </select>
+                </NativeSelect>
               </div>
             </div>
           )}

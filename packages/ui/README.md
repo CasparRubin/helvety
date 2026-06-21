@@ -65,12 +65,15 @@ This package provides:
 - `@helvety/ui/entity-dashboard-shell` -> `EntityDashboardShell`: Shared title, search, and list page shell composition.
 - `@helvety/ui/list-states` -> `ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`: Standardized list feedback surfaces.
 - `@helvety/ui/native-select` -> `NativeSelect`: Consistent native select styling wrapper for simple select controls.
+- `@helvety/ui/textarea` -> `Textarea`: Multi-line text field styled like `Input` (touch-safe 16px on coarse pointer).
+- `@helvety/ui/form-control-text-size` -> `FORM_CONTROL_TEXT_SIZE_CLASS`, `FORM_CONTROL_PROSE_SIZE_CLASS`: Shared touch-aware typography for form primitives (internal; apps use the components above).
+- `@helvety/ui/form-control-touch.css` -> coarse-pointer `font-size: 1rem` safety net for native form fields and contenteditable surfaces. Imported by `globals.css` (zone apps) and the browser extension shell.
 
 Also includes reusable UI building blocks used across zones (for example `@helvety/ui/calendar` on react-day-picker v10, `@helvety/ui/table` for semantic table primitives, `@helvety/ui/icon-renderer` for kebab-case Lucide names in E2EE configs, command bars, search fields, and selected editor helpers).
 
 ## Styling / Tailwind
 
-- **`globals.css`** (`@helvety/ui/globals.css`): semantic design tokens and Tailwind v4 imports for every zone app (`@import` from each app’s `app/globals.css`). Marketing accents include **`--brand-swiss-red`** (`text-brand-swiss-red` on the gateway hero).
+- **`globals.css`** (`@helvety/ui/globals.css`): semantic design tokens and Tailwind v4 imports for every zone app (`@import` from each app’s `app/globals.css`). Imports **`form-control-touch.css`** so focused form fields stay ≥16px on touch devices (prevents iOS Safari input zoom). Marketing accents include **`--brand-swiss-red`** (`text-brand-swiss-red` on the gateway hero).
 - **PostCSS at build time:** zone apps re-export [`@helvety/config/postcss`](../config/postcss.mjs), which loads `@tailwindcss/postcss` from [`@helvety/dev-deps`](../dev-deps/). This package also declares **`tailwindcss`** and **`@tailwindcss/postcss`** in **`dependencies`** so Tailwind packages sit on zone apps’ production dependency graph for Turbopack CSS processing. Do not add those packages to individual app manifests. See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md) and [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
 
 ## Testing

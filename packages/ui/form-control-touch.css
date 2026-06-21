@@ -1,0 +1,14 @@
+/**
+ * Touch-device safety net: iOS Safari zooms focused fields below 16px.
+ * Imported by @helvety/ui/globals.css and extension globals.css.
+ */
+@media (hover: none), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="hidden"]
+    ),
+  select,
+  textarea,
+  [contenteditable="true"] {
+    font-size: 1rem;
+  }
+}

@@ -1,5 +1,7 @@
 import { cn } from "@helvety/shared/utils";
 
+import { FORM_CONTROL_TEXT_SIZE_CLASS } from "./form-control-text-size";
+
 import type { SelectHTMLAttributes } from "react";
 
 /** Props for `NativeSelect`. */
@@ -14,7 +16,8 @@ export function NativeSelect({
   return (
     <select
       className={cn(
-        "border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 disabled:cursor-not-allowed disabled:opacity-50",
+        "border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 disabled:cursor-not-allowed disabled:opacity-50",
+        FORM_CONTROL_TEXT_SIZE_CLASS,
         className
       )}
       {...props}

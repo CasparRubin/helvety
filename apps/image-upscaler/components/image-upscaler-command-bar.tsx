@@ -21,6 +21,7 @@ import {
 } from "@helvety/ui/dropdown-menu";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import { NativeSelect } from "@helvety/ui/native-select";
 import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
 import {
   DownloadIcon,
@@ -166,39 +167,37 @@ export function ImageUpscalerCommandBar({
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label htmlFor="mobile-upscale-mode">Mode</Label>
-                <select
+                <NativeSelect
                   id="mobile-upscale-mode"
                   value={sizeMode}
                   onChange={(event) =>
                     onSizeModeChange(event.target.value as SizeMode)
                   }
-                  className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   <option value="scale">Scale</option>
                   <option value="target">Target dimension</option>
-                </select>
+                </NativeSelect>
               </div>
 
               {sizeMode === "scale" ? (
                 <div className="space-y-1.5">
                   <Label htmlFor="mobile-upscale-scale">Scale</Label>
-                  <select
+                  <NativeSelect
                     id="mobile-upscale-scale"
                     value={String(scale)}
                     onChange={(event) =>
                       onScaleChange(event.target.value === "4" ? 4 : 2)
                     }
-                    className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
                     <option value="2">2x</option>
                     <option value="4">4x</option>
-                  </select>
+                  </NativeSelect>
                 </div>
               ) : (
                 <>
                   <div className="space-y-1.5">
                     <Label htmlFor="mobile-upscale-dimension">Dimension</Label>
-                    <select
+                    <NativeSelect
                       id="mobile-upscale-dimension"
                       value={targetMode}
                       onChange={(event) =>
@@ -206,11 +205,10 @@ export function ImageUpscalerCommandBar({
                           event.target.value as "width" | "height"
                         )
                       }
-                      className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                     >
                       <option value="width">Width</option>
                       <option value="height">Height</option>
-                    </select>
+                    </NativeSelect>
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="mobile-upscale-target">Target value</Label>

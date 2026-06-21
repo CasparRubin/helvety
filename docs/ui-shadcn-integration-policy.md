@@ -36,9 +36,21 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 - **Scrollable sheets:** full-height slide-outs use `@helvety/ui/sheet-scroll-layout` (`SHEET_SCROLLABLE_SHELL_CLASS` on `SheetContent`, optional `SHEET_SCROLLABLE_BODY_CLASS` wrapper below a pinned header). List-style sheets (`AppSwitcher`, mobile nav menu, Docs vault sheet) put `ScrollArea` with `min-h-0 flex-1` directly under the header. E2EE entity detail sheets use `E2eeEntityDetailSheet` (body wrapper + `CommandBarPageLayout` in zone editors). Do not scroll the sheet root with raw `overflow-y-auto`; keep the flex height chain intact (`min-h-0`, `flex-1`, `overflow-hidden` on each flex child). Guarded by `sheet-scroll-wiring.test.ts` and `e2ee-dashboard-wiring.test.ts`.
 - Use `NativeSelect` from `@helvety/ui/native-select` for consistent native select styling when the full custom select is not required.
 
+## Mobile form controls (iOS input zoom)
+
+iOS Safari zooms the page when a focused text field is below **16px**. Helvety uses **one shared system** in `@helvety/ui` — do not duplicate font-size classes in apps or the browser extension.
+
+1. **CSS safety net:** `@helvety/ui/form-control-touch.css` (imported by `@helvety/ui/globals.css` for zone apps and by the extension’s `globals.css`). Sets `font-size: 1rem` on touch/coarse-pointer devices for `input`, `select`, `textarea`, and `[contenteditable="true"]`.
+2. **Tailwind constant:** `@helvety/ui/form-control-text-size` exports `FORM_CONTROL_TEXT_SIZE_CLASS` and `FORM_CONTROL_PROSE_SIZE_CLASS` (16px on touch, 14px on mouse desktop). Use only when authoring new shared primitives — not in app code.
+3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/command` (`CommandInput`), `@helvety/ui/tiptap-editor` (rich text). Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components` or extension popup code.
+
+Do **not** disable pinch zoom via viewport `maximum-scale=1` / `user-scalable=no`.
+
 ## Enforcement
 
 - `scripts/check-consistency-guardrails.mjs` enforces:
   - `components.json` parity across every `apps/*` package that ships a UI surface.
   - `postcss.config.mjs` parity and `@helvety/ui` in production dependencies on every zone that uses shared PostCSS.
   - zero app imports from `@/components/ui/*` (shared primitives must come from `@helvety/ui/*`).
+  - no raw `<select>` or `<textarea>` in `apps/*/components` (use `@helvety/ui/native-select` and `@helvety/ui/textarea`).
+  - when `helvety-browser-extension-chromium` is present as a sibling repo: no raw form controls in `src/popup`, no local `Textarea.tsx`, and `src/globals.css` must import `@helvety/ui/form-control-touch.css`.
