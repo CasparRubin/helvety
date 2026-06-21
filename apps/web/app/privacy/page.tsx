@@ -347,14 +347,17 @@ export default function PrivacyPage() {
             Passkey unlock uses bearer-authenticated WebAuthn routes on
             helvety.com. Extension passkey verification does not by itself set a
             helvety.com web session cookie. Supabase session refresh material
-            and a weekly OTP anchor (local timestamp, not a cryptographic proof)
-            are stored in{" "}
+            and a server-HMAC weekly proof (
+            <code className="text-foreground">
+              helvety_extension_weekly_proof
+            </code>
+            , same schema as web device trust) are stored in{" "}
             <code className="text-foreground">chrome.storage.local</code>; the
             access token is mirrored to{" "}
             <code className="text-foreground">chrome.storage.session</code> (see
-            §9). Session age is capped by JWT issued-at time (up to 7 days,
-            aligned with web policy). Vault keys use IndexedDB with the same
-            idle policy as web E2EE apps.
+            §9). Hosted Supabase session policy aligns with web: JWT expiry
+            3600s, time-box 7 days, inactivity 24 hours. Vault keys use
+            IndexedDB with the same idle policy as web E2EE apps.
           </li>
         </ul>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -1122,15 +1125,15 @@ export default function PrivacyPage() {
             <code className="text-foreground">chrome.storage.local</code>,
             access token mirror in{" "}
             <code className="text-foreground">chrome.storage.session</code>, and
-            a weekly OTP anchor (
+            a server-minted HMAC weekly proof (
             <code className="text-foreground">
-              helvety_extension_last_email_verified
+              helvety_extension_weekly_proof
             </code>
             ) in <code className="text-foreground">chrome.storage.local</code>{" "}
-            (see table below). JWT issued-at age enforces the 7-day session cap;
-            the OTP anchor prompts re-sign-in on shared devices. The extension
-            side panel also uses IndexedDB for the same vault key cache policy
-            as web E2EE apps.
+            (see table below). Auth verifies the proof on Bearer passkey routes;
+            missing or expired proof prompts re-sign-in on shared devices. The
+            extension side panel also uses IndexedDB for the same vault key
+            cache policy as web E2EE apps.
           </li>
         </ul>
         <LegalTableWrap
@@ -1244,7 +1247,8 @@ export default function PrivacyPage() {
                   </TableCell>
                   <TableCell data-label="Domain">Chromium extension</TableCell>
                   <TableCell data-label="Duration">
-                    Up to 7 days (JWT issued-at cap; refreshed while active)
+                    Up to 7 days (Supabase time-box; JWT 3600s with refresh; 24h
+                    inactivity)
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -1262,12 +1266,12 @@ export default function PrivacyPage() {
                 </TableRow>
                 <TableRow>
                   <TableCell data-label="Cookie / Storage">
-                    helvety_extension_last_email_verified (chrome.storage.local)
+                    helvety_extension_weekly_proof (chrome.storage.local)
                   </TableCell>
                   <TableCell data-label="Purpose">
-                    Weekly OTP anchor after email verification in the Chromium
-                    extension (local UX timestamp; JWT age is the authoritative
-                    session cap for E2EE access)
+                    Server-HMAC weekly email re-proof after OTP verify in the
+                    Chromium extension (same schema as web device trust;
+                    verified on auth Bearer routes)
                   </TableCell>
                   <TableCell data-label="Domain">Chromium extension</TableCell>
                   <TableCell data-label="Duration">7 days</TableCell>

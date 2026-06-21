@@ -76,28 +76,28 @@ Production deploy and Vercel env: [`docs/extension-passkey-production.md`](./doc
 
 Public and Bearer JSON routes for the Helvety browser extension (separate from CSRF cookie server actions):
 
-| Route                                 | Purpose                                                                                                                                                                           |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /api/extension/otp/send`        | Send email OTP after EU/EEA attestation; allowlisted `chrome-extension://` origin; rate-limited by trusted IP                                                                     |
-| `POST /api/extension/otp/verify`      | Verify OTP; returns session tokens for extension `setSession` (no device-trust cookie)                                                                                            |
-| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope` (3 min TTL, `HELVETY_COOKIE_SIGNING_SECRET`; includes single-use `nonce`)                                                   |
-| `POST /api/extension/passkey/verify`  | Verify assertion; bind challenge via envelope + `clientDataJSON`; **single-use** envelope (Upstash `consumeSingleUseKey`); update counter; **does not** create a Supabase session |
+| Route                                 | Purpose                                                                                                                                                                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/extension/otp/send`        | Send email OTP after EU/EEA attestation; allowlisted `chrome-extension://` origin; rate-limited by trusted IP                                                                                                         |
+| `POST /api/extension/otp/verify`      | Verify OTP; returns session tokens + HMAC `weekly_proof` for extension storage (no HttpOnly device-trust cookie)                                                                                                      |
+| `POST /api/extension/passkey/options` | WebAuthn request options + signed `challengeEnvelope`; requires Bearer JWT + `X-Helvety-Weekly-Proof` header                                                                                                          |
+| `POST /api/extension/passkey/verify`  | Verify assertion; requires Bearer JWT + weekly proof; bind challenge via envelope + `clientDataJSON`; **single-use** envelope (Upstash `consumeSingleUseKey`); update counter; **does not** create a Supabase session |
 
 Implementation: [`lib/extension-otp.ts`](./lib/extension-otp.ts), [`lib/otp-send-verify-core.ts`](./lib/otp-send-verify-core.ts), [`lib/extension-passkey.ts`](./lib/extension-passkey.ts), [`lib/extension-passkey-challenge.ts`](./lib/extension-passkey-challenge.ts), [`lib/extension-bearer-auth.ts`](./lib/extension-bearer-auth.ts). Env `HELVETY_CHROME_EXTENSION_ORIGINS` accepts comma-separated extension ids or full `chrome-extension://` URLs ([`lib/chrome-extension-origin-parse.ts`](./lib/chrome-extension-origin-parse.ts)). `getExpectedOrigins(rpId, clientOrigin)` adds `chrome-extension://…` only when the origin is allowlisted ([`lib/chrome-extension-origin.ts`](./lib/chrome-extension-origin.ts), [`app/actions/auth-rp-config.ts`](./app/actions/auth-rp-config.ts)). Web login flows are unchanged when `clientOrigin` is omitted.
 
-### Extension weekly OTP anchor (no device-trust cookie)
+### Extension weekly proof (parity with web device trust)
 
-Extension OTP verify returns Supabase session tokens only; it **does not** mint `helvety_device_trust` (extensions cannot persist HttpOnly cookies on helvety.com). The Chromium extension side panel records a **weekly OTP anchor** (local timestamp, not a cryptographic proof) in `chrome.storage.local` (`helvety_extension_last_email_verified`) using the same **7d cap** as `@helvety/shared/auth-session-policy`.
+Extension OTP verify returns Supabase session tokens plus an HMAC **`weekly_proof`** token (same payload schema and `DEVICE_TRUST_COOKIE_SECRET` as `helvety_device_trust`; stored in `chrome.storage.local` as `helvety_extension_weekly_proof`). The extension **does not receive an HttpOnly device-trust cookie** from helvety.com; the proof travels in storage and the `X-Helvety-Weekly-Proof` header on Bearer passkey routes.
 
-**Server-enforced re-auth:** Extension session resolution rejects access tokens older than **7d** via JWT `iat` (`@helvety/shared/jwt-session-lifetime`). Align Supabase Dashboard → Authentication → Sessions **JWT expiry / time-box** to `AUTH_MAX_LIFETIME_SECONDS` (604800). The OTP anchor is defense-in-depth UX; JWT age is the authoritative session cap.
+**Server-enforced re-auth:** `authenticateBearerRequest` verifies the weekly proof with full HMAC after `getUser()`. Align Supabase Dashboard → Authentication → Sessions: **JWT expiry 3600s**, **time-box 7d**, **inactivity 24h** (see `@helvety/shared/auth-session-policy.ts`).
 
-|                   | Web                                       | Extension                                                                 |
-| ----------------- | ----------------------------------------- | ------------------------------------------------------------------------- |
-| Weekly re-auth    | HMAC HttpOnly `helvety_device_trust`      | JWT `iat` max age + `helvety_extension_last_email_verified` OTP anchor    |
-| Who enforces      | Server actions + `requireE2eeAppPageAuth` | JWT max age + `resolveVerifiedExtensionSession` in `extension-session.ts` |
-| Tamper resistance | Signing secret on server                  | JWT issued by Supabase; OTP anchor is client UX only                      |
+|                   | Web                                       | Extension                                                            |
+| ----------------- | ----------------------------------------- | -------------------------------------------------------------------- |
+| Weekly re-auth    | HMAC HttpOnly `helvety_device_trust`      | HMAC `weekly_proof` in `chrome.storage.local` + Bearer header        |
+| Who enforces      | Server actions + `requireE2eeAppPageAuth` | `authenticateBearerRequest` + `resolveVerifiedExtensionSession`      |
+| Tamper resistance | HMAC + server verify                      | HMAC + server verify on auth API; GoTrue time-box + RLS on PostgREST |
 
-RLS + valid JWT still protect PostgREST from the extension; passkey/PRF still gates decryption. The OTP anchor helps prompt re-sign-in on a shared device but is not the E2EE crypto boundary. See the extension [`docs/SECURITY-E2EE.md`](https://github.com/CasparRubin/helvety-browser-extension-chromium/blob/main/docs/SECURITY-E2EE.md) for the full threat-model note.
+RLS + valid JWT still protect PostgREST; passkey/PRF still gates decryption. See the extension [`docs/SECURITY-E2EE.md`](https://github.com/CasparRubin/helvety-browser-extension-chromium/blob/main/docs/SECURITY-E2EE.md) for the full threat-model note.
 
 Production rate limiting on these routes requires a **trusted proxy IP** (`x-real-ip` on Vercel). `getTrustedClientIp` is called with `requireTrustedProxyInProduction: true`; when IP is unavailable the routes fail closed on strict rate-limit paths instead of trusting client-supplied headers.
 

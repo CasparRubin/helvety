@@ -33,6 +33,6 @@ export const HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS = [
   "helvety-crypto (IndexedDB)",
   "Supabase auth session (chrome.storage.local)",
   "Supabase access token (chrome.storage.session)",
-  "helvety_extension_last_email_verified (chrome.storage.local)",
+  "helvety_extension_weekly_proof (chrome.storage.local)",
   "helvety-pdf-columns (localStorage)",
 ] as const;

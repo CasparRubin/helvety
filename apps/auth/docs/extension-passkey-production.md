@@ -2,12 +2,14 @@
 
 Chromium extension sign-in and unlock call Bearer/public JSON routes on **`https://helvety.com/auth/api/extension/`**:
 
-| Route                                 | Auth                          | Purpose                                                                                                                                                                                                       |
-| ------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation                                                                                                                                                                       |
-| `POST /api/extension/otp/verify`      | Public (allowlisted `origin`) | Verify OTP; returns session tokens (`setSession`: refresh in `chrome.storage.local`, access token mirrored to `chrome.storage.session`); records weekly OTP anchor in `helvety_extension_last_email_verified` |
-| `POST /api/extension/passkey/options` | Bearer JWT                    | WebAuthn options + signed challenge envelope                                                                                                                                                                  |
-| `POST /api/extension/passkey/verify`  | Bearer JWT                    | Verify passkey assertion (no new session)                                                                                                                                                                     |
+| Route                                 | Auth                          | Purpose                                                                                                                                                                                                  |
+| ------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation                                                                                                                                                                  |
+| `POST /api/extension/otp/verify`      | Public (allowlisted `origin`) | Verify OTP; returns session tokens + HMAC `weekly_proof` (`setSession`: refresh in `chrome.storage.local`, access token mirrored to `chrome.storage.session`; proof in `helvety_extension_weekly_proof`) |
+| `POST /api/extension/passkey/options` | Bearer JWT + weekly proof     | WebAuthn options + signed challenge envelope                                                                                                                                                             |
+| `POST /api/extension/passkey/verify`  | Bearer JWT + weekly proof     | Verify passkey assertion (no new session)                                                                                                                                                                |
+
+Bearer passkey routes require the access token in `Authorization: Bearer …` and the server-minted weekly proof in **`X-Helvety-Weekly-Proof`** (same HMAC payload as web `helvety_device_trust`, stored client-side as `helvety_extension_weekly_proof` after OTP verify).
 
 Implementation: `lib/extension-otp.ts`, `lib/otp-send-verify-core.ts`, `lib/extension-passkey.ts`, `app/api/extension/`.
 

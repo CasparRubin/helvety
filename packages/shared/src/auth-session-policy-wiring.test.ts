@@ -68,9 +68,31 @@ describe("auth session policy wiring", () => {
     expect(encryptionContext).toContain("useVaultIdleLock");
   });
 
-  it("jwt-session-lifetime enforces AUTH_MAX_LIFETIME_MS on access tokens", () => {
-    const src = readRepoFile("packages/shared/src/jwt-session-lifetime.ts");
+  it("auth-session-policy documents JWT iat is not the primary 7d cap", () => {
+    const src = readRepoFile("packages/shared/src/auth-session-policy.ts");
     expect(src).toContain("AUTH_MAX_LIFETIME_MS");
-    expect(src).toContain("isJwtWithinMaxLifetime");
+    expect(src).toMatch(/Do \*\*not\*\* rely on access-token JWT `iat`/i);
+    expect(src).toContain("EXTENSION_WEEKLY_PROOF_HEADER");
+  });
+
+  it("retired jwt-session-lifetime module is not shipped", () => {
+    expect(() =>
+      readRepoFile("packages/shared/src/jwt-session-lifetime.ts")
+    ).toThrow();
+  });
+
+  it("weekly proof token module aligns with device trust TTL", () => {
+    const src = readRepoFile("packages/shared/src/weekly-proof-token.ts");
+    expect(src).toContain("AUTH_MAX_LIFETIME_SECONDS");
+    expect(src).toContain("EXTENSION_WEEKLY_PROOF_HEADER");
+    expect(src).not.toMatch(/export function parseWeeklyProofPayloadUnsafe/);
+  });
+
+  it("extension weekly proof server reuses device trust signing", () => {
+    const src = readRepoFile(
+      "packages/shared/src/extension-weekly-proof-server.ts"
+    );
+    expect(src).toContain("encodeDeviceTrustCookieValue");
+    expect(src).toContain("decodeDeviceTrustCookieValue");
   });
 });

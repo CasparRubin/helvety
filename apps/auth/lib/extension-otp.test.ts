@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   isAllowedChromeExtensionOrigin: vi.fn(),
   sendOtpVerificationCodeCore: vi.fn(),
   verifyOtpCodeCore: vi.fn(),
+  mintExtensionWeeklyProof: vi.fn(),
 }));
 
 vi.mock("@/lib/chrome-extension-origin", () => ({
@@ -15,6 +16,10 @@ vi.mock("@/lib/otp-send-verify-core", () => ({
   verifyOtpCodeCore: mocks.verifyOtpCodeCore,
 }));
 
+vi.mock("@helvety/shared/extension-weekly-proof-server", () => ({
+  mintExtensionWeeklyProof: mocks.mintExtensionWeeklyProof,
+}));
+
 import { sendExtensionOtp, verifyExtensionOtp } from "./extension-otp";
 import { VALID_OTP_CODE } from "./otp-test-fixtures";
 
@@ -24,6 +29,7 @@ describe("extension-otp", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.isAllowedChromeExtensionOrigin.mockReturnValue(true);
+    mocks.mintExtensionWeeklyProof.mockReturnValue("signed-weekly-proof");
   });
 
   it("rejects send when origin is not allowlisted", async () => {
@@ -117,6 +123,10 @@ describe("extension-otp", () => {
       VALID_OTP_CODE,
       "127.0.0.1"
     );
-    expect(result).toEqual({ success: true, data: session });
+    expect(result).toEqual({
+      success: true,
+      data: { ...session, weekly_proof: "signed-weekly-proof" },
+    });
+    expect(mocks.mintExtensionWeeklyProof).toHaveBeenCalledWith("user-id");
   });
 });

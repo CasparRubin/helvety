@@ -1,12 +1,13 @@
 import "server-only";
 
+import { mintExtensionWeeklyProof } from "@helvety/shared/extension-weekly-proof-server";
 import { z } from "zod";
 
 import { isAllowedChromeExtensionOrigin } from "@/lib/chrome-extension-origin";
 import {
   sendOtpVerificationCodeCore,
   verifyOtpCodeCore,
-  type OtpVerifySessionPayload,
+  type ExtensionOtpVerifySessionPayload,
 } from "@/lib/otp-send-verify-core";
 
 import type { ActionResponse } from "@helvety/shared/types/entities";
@@ -63,7 +64,7 @@ export async function verifyExtensionOtp(input: {
   code: string;
   origin: string;
   clientIP: string;
-}): Promise<ActionResponse<OtpVerifySessionPayload>> {
+}): Promise<ActionResponse<ExtensionOtpVerifySessionPayload>> {
   if (!isAllowedChromeExtensionOrigin(input.origin)) {
     return {
       success: false,
@@ -72,5 +73,18 @@ export async function verifyExtensionOtp(input: {
     };
   }
 
-  return verifyOtpCodeCore(input.email, input.code, input.clientIP);
+  return verifyOtpCodeCore(input.email, input.code, input.clientIP).then(
+    (result) => {
+      if (!result.success) {
+        return result;
+      }
+      return {
+        success: true as const,
+        data: {
+          ...result.data,
+          weekly_proof: mintExtensionWeeklyProof(result.data.user.id),
+        },
+      };
+    }
+  );
 }

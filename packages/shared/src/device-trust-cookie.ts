@@ -21,7 +21,7 @@ const DeviceTrustPayloadSchema = z.object({
 });
 
 /** Verified device-trust cookie payload. */
-export type DeviceTrustPayload = z.infer<typeof DeviceTrustPayloadSchema>;
+type DeviceTrustPayload = z.infer<typeof DeviceTrustPayloadSchema>;
 
 /** Return validated cookie-signing secret for device trust. */
 function getDeviceTrustSecret(): string {

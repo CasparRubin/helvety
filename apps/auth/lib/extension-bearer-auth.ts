@@ -1,20 +1,25 @@
 import "server-only";
 
 import { getSupabaseKey, getSupabaseUrl } from "@helvety/shared/env-validation";
+import { verifyExtensionWeeklyProof } from "@helvety/shared/extension-weekly-proof-server";
+import { EXTENSION_WEEKLY_PROOF_HEADER } from "@helvety/shared/weekly-proof-token";
 import { createClient } from "@supabase/supabase-js";
 
 import type { User } from "@helvety/shared/supabase-types";
 
 const NOT_AUTHENTICATED = "Not authenticated";
+const WEEKLY_PROOF_REQUIRED =
+  "Weekly email verification expired. Sign out and sign in again.";
 
-/** Authenticated extension user from Bearer JWT validation. */
+/** Authenticated extension user from Bearer JWT + weekly proof validation. */
 export type BearerAuthContext = {
   user: User;
+  weeklyProof: string;
 };
 
 /**
- * Validates a Bearer JWT from the Helvety Chromium extension side panel.
- * Does not create cookies — the extension keeps its own session in `chrome.storage.local`.
+ * Validates a Bearer JWT from the Helvety Chromium extension side panel and
+ * requires a server-HMAC weekly proof (parity with web device trust).
  */
 export async function authenticateBearerRequest(
   request: Request
@@ -29,6 +34,13 @@ export async function authenticateBearerRequest(
   const accessToken = authHeader.slice("Bearer ".length).trim();
   if (!accessToken) {
     return { ok: false, error: NOT_AUTHENTICATED };
+  }
+
+  const weeklyProof = request.headers
+    .get(EXTENSION_WEEKLY_PROOF_HEADER)
+    ?.trim();
+  if (!weeklyProof) {
+    return { ok: false, error: WEEKLY_PROOF_REQUIRED };
   }
 
   const url = getSupabaseUrl();
@@ -55,5 +67,10 @@ export async function authenticateBearerRequest(
     return { ok: false, error: NOT_AUTHENTICATED };
   }
 
-  return { ok: true, ctx: { user } };
+  const verifiedProof = verifyExtensionWeeklyProof(weeklyProof, user.id);
+  if (!verifiedProof) {
+    return { ok: false, error: WEEKLY_PROOF_REQUIRED };
+  }
+
+  return { ok: true, ctx: { user, weeklyProof } };
 }

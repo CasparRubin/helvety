@@ -158,12 +158,18 @@ export async function sendOtpVerificationCodeCore(
   }
 }
 
-/** Session tokens returned to the Chromium extension after OTP verify. */
+/** Session tokens returned after OTP verify (Supabase session shape). */
 export type OtpVerifySessionPayload = {
   access_token: string;
   refresh_token: string;
   expires_at: number | null;
   user: User;
+};
+
+/** Extension OTP verify adds a server-minted weekly proof for Bearer passkey routes. */
+export type ExtensionOtpVerifySessionPayload = OtpVerifySessionPayload & {
+  /** HMAC-signed weekly email re-proof (same schema as device trust cookie). */
+  weekly_proof: string;
 };
 
 /** Shared OTP verify pre-checks: escalating lockout + sliding-window rate limits. */

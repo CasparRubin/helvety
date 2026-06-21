@@ -18,7 +18,7 @@ the following:
 - AI training, fine-tuning, or dataset retention using user-provided content
 - material changes to tracking or profiling scope (including new cookies/localStorage keys, or shared footer disclosure text)
 - changes to account/login requirements for public tools
-- new Helvety browser-extension auth surfaces (for example extension OTP APIs (`/api/extension/otp/*`), extension passkey APIs, allowlisted Chromium extension ids via `HELVETY_CHROME_EXTENSION_ORIGINS`, or bearer-token scope)
+- new Helvety browser-extension auth surfaces (for example extension OTP APIs (`/api/extension/otp/*`), extension passkey APIs, allowlisted Chromium extension ids via `HELVETY_CHROME_EXTENSION_ORIGINS`, bearer-token scope, or server-minted `weekly_proof` / `helvety_extension_weekly_proof` storage)
 - active EU/EEA market targeting, localized campaigns, or equivalent
   jurisdiction-focused expansion
 - new subprocessors or changed cross-border transfer patterns
@@ -49,5 +49,6 @@ At minimum, review and update all of:
 - login/account requirement claims match actual access flow
 - telemetry/security endpoint descriptions match actual payload types
 - Privacy §9 cookie/storage disclosure matches [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts); footer copy matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx) (`bun run test` in `apps/web` for `legal-cookies-disclosure`, `legal-metadata`, `legal-privacy-tables`, `legal-e2ee-products`)
+- Extension vs web weekly re-auth copy stays accurate in maintainer docs (`packages/shared/src/auth-extension-copy-guardrails.test.ts`): web uses HttpOnly `helvety_device_trust`; Chromium extension uses server-HMAC `weekly_proof` in `helvety_extension_weekly_proof` and `X-Helvety-Weekly-Proof` on Bearer routes (not the web cookie)
 - When legal page body copy changes, bump `lastReviewed` on **all three** pages (`privacy`, `terms`, `impressum`) to the same date (`legal-metadata.test.ts` enforces parity)
 - CH-first/non-EU-targeting language is consistent wherever referenced

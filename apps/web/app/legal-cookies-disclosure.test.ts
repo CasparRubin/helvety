@@ -115,17 +115,39 @@ describe("privacy policy cookies disclosure", () => {
       /helvety_device_trust[\s\S]*?E2EE API access/
     );
     expect(cookiesSection).toContain(
-      "helvety_extension_last_email_verified (chrome.storage.local)"
+      "helvety_extension_weekly_proof (chrome.storage.local)"
     );
     expect(cookiesSection).toMatch(
-      /helvety_extension_last_email_verified[\s\S]*?7 days/
+      /helvety_extension_weekly_proof[\s\S]*?7 days/
     );
-    expect(cookiesSection).toMatch(/OTP anchor|weekly OTP anchor/i);
+    expect(cookiesSection).toMatch(/weekly proof|weekly email re-proof/i);
     expect(cookiesSection).not.toMatch(/email-proof anchor/i);
     expect(cookiesSection).toContain(
       "Supabase access token (chrome.storage.session)"
     );
     expect(cookiesSection).toMatch(/helvety-crypto[\s\S]*?Chromium extension/);
+  });
+
+  it("§2.5 Helvety Chromium extension bullet documents weekly proof and split storage", async () => {
+    const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
+    const extensionSection = source.slice(
+      source.indexOf("2.5 Extension and packaged software usage"),
+      source.indexOf("2.6 Data Provision Requirements")
+    );
+    const extensionBullet = extensionSection.slice(
+      extensionSection.indexOf("Helvety Chromium extension (E2EE side panel)")
+    );
+
+    expect(extensionBullet).toContain("helvety_extension_weekly_proof");
+    expect(extensionBullet).toMatch(/weekly proof|server-HMAC/i);
+    expect(extensionBullet).toContain("chrome.storage.local");
+    expect(extensionBullet).toContain("chrome.storage.session");
+    expect(extensionBullet).toContain("JWT expiry");
+    expect(extensionBullet).toContain("3600s");
+    expect(extensionBullet).not.toMatch(/email-proof anchor/i);
+    expect(extensionBullet).not.toMatch(
+      /receive[s]?\s+(the\s+web\s+)?helvety_device_trust/i
+    );
   });
 
   it("§9 does not assign helvety_device_trust to Chromium extension storage", async () => {
@@ -136,7 +158,7 @@ describe("privacy policy cookies disclosure", () => {
     );
 
     expect(extensionRows).toContain(
-      "helvety_extension_last_email_verified (chrome.storage.local)"
+      "helvety_extension_weekly_proof (chrome.storage.local)"
     );
     expect(extensionRows).not.toMatch(
       /Chromium extension[\s\S]{0,400}helvety_device_trust/

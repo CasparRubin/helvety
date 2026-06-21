@@ -146,10 +146,25 @@ Re-run `bun run deps:security` and `bun run deps:drift` after bumps. Supabase RL
 
 ## Subsequent updates (2026-06-20)
 
-| Item                                                        | As of 2026-06-17                           | As of 2026-06-20                                                                                                                                                              |
-| ----------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Preview Upstash on `helvety-pdf` / `helvety-image-upscaler` | open follow-up                             | **Resolved** — `bun run consistency:vercel-preview-env` passes ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))                                           |
-| `bun audit`                                                 | 1 low (`@babel/core` transitive)           | **0 vulnerabilities** — root overrides `undici@7.28.0`, `@babel/core@8.0.1` ([`dependency-inventory.md`](./dependency-inventory.md))                                          |
-| `deps:security:floors` in `ci:check`                        | not yet wired                              | **In `ci:check`** (before `deps:drift`)                                                                                                                                       |
-| Playwright gateway smoke                                    | manual `test:e2e` + dev server             | **`bun run ci:check:e2e`** — installs Chromium, starts all zones via `scripts/run-e2e-smoke.mjs` when `HELVETY_SMOKE_BASE_URL` is unset (optional; not in default `ci:check`) |
-| `clean:artifacts` during `test:coverage`                    | could delete active Vitest `coverage/.tmp` | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1`                                                                                  |
+| Item                                                        | As of 2026-06-17                 | As of 2026-06-20                                                                                                                                                              |
+| ----------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Preview Upstash on `helvety-pdf` / `helvety-image-upscaler` | open follow-up                   | **Resolved** — `bun run consistency:vercel-preview-env` passes ([`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))                                           |
+| `bun audit`                                                 | 1 low (`@babel/core` transitive) | **0 vulnerabilities** — root overrides `undici@7.28.0`, `@babel/core@8.0.1` ([`dependency-inventory.md`](./dependency-inventory.md))                                          |
+| `deps:security:floors` in `ci:check`                        | not yet wired                    | **In `ci:check`** (before `deps:drift`)                                                                                                                                       |
+| Playwright gateway smoke                                    | manual `test:e2e` + dev server   | **`bun run ci:check:e2e`** — installs Chromium, starts all zones via `scripts/run-e2e-smoke.mjs` when `HELVETY_SMOKE_BASE_URL` is unset (optional; not in default `ci:check`) |
+
+## Subsequent updates (2026-06-21)
+
+Auth, sessions, token TTL, and E2EE cross-repo audit (see [`security-review-runbook.md`](./security-review-runbook.md) MCP baseline):
+
+| Item                                   | Result                                                                                                                        |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Extension weekly re-auth               | **Server-HMAC `weekly_proof`** (parity with web `helvety_device_trust`); Bearer routes verify via `authenticateBearerRequest` |
+| Retired client OTP anchor              | Removed `helvety_extension_last_email_verified` / JWT-`iat`-only cap                                                          |
+| Supabase MCP (`get_advisors` security) | RLS forced on all 10 user-data tables; **WARN** leaked-password protection still disabled (Dashboard manual)                  |
+| Session policy docs                    | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`)                                            |
+| `deps:security` / `deps:drift`         | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time                                              |
+| CI guardrails                          | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script                                  |
+
+**Post-deploy verification (after auth + extension ship):** Supabase MCP `get_logs` (auth API errors), Vercel MCP runtime logs on `helvety-auth`, spot-check extension OTP verify returns `weekly_proof`, passkey routes reject missing `X-Helvety-Weekly-Proof`.
+| `clean:artifacts` during `test:coverage` | could delete active Vitest `coverage/.tmp` | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1` |

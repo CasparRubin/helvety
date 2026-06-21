@@ -111,7 +111,18 @@ Helvety’s unified client policy is **24h sliding idle** and **7d absolute max*
 | Time-box user sessions | **7 days**                                                          |
 | Inactivity timeout     | **24 hours**                                                        |
 
-Checks run on session refresh (not proactively). On **helvety.com** E2EE zones, weekly re-auth uses the signed `helvety_device_trust` cookie until Supabase Pro session time-box mirrors `auth-session-policy.ts`. The Chromium extension does **not** use that cookie; it enforces JWT max lifetime (`packages/shared/src/jwt-session-lifetime.ts`) plus a client weekly OTP anchor in `chrome.storage.local`. Align Supabase Dashboard → Authentication → Sessions **JWT expiry / time-box** to **7 days** (`AUTH_MAX_LIFETIME_SECONDS` = 604800).
+Checks run on session refresh (not proactively). On **helvety.com** E2EE zones, weekly re-auth uses the signed `helvety_device_trust` cookie. The Chromium extension **does not use that cookie**; it uses the same HMAC schema via **`weekly_proof`** (`helvety_extension_weekly_proof` + `X-Helvety-Weekly-Proof` on Bearer routes). Do **not** set JWT expiry to 604800s alone — use **3600s JWT + 7d time-box + 24h inactivity** per table above.
+
+### MCP baseline audit (2026-06-21)
+
+Supabase MCP (`helvety`, `eu-central-2`, Postgres **17.6.1**, `ACTIVE_HEALTHY`):
+
+- All **10** user-data tables: RLS **enabled + forced** (verified via `execute_sql`).
+- Security advisor: **WARN** — [leaked password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) (enable under Authentication → Email).
+
+Vercel MCP: all zone projects present; **`helvety-auth`** latest Production deployment **READY** (Node **24.x**).
+
+**Manual Dashboard follow-ups:** enable leaked-password protection; confirm session settings (3600s / 7d / 24h); disable unused OAuth; note GoTrue version ≥ 2.185.0 if OIDC enabled.
 
 Check version in Supabase Dashboard → Project Settings → Infrastructure, or via support if not shown.
 

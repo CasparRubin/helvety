@@ -34,5 +34,7 @@ describe("extension passkey production docs", () => {
     expect(doc).toMatch(/404.*HTML|HTML.*404/i);
     expect(doc).toMatch(/allowlist/i);
     expect(doc).toMatch(/side panel/i);
+    expect(doc).toMatch(/weekly proof|weekly_proof/i);
+    expect(doc).toContain("X-Helvety-Weekly-Proof");
   });
 });
