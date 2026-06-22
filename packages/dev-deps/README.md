@@ -13,7 +13,7 @@ Add to any app or package:
 
 Canonical versions live here in **`dependencies`** (not `devDependencies`) so Bun hoists toolchain bins and types into workspaces that declare `"@helvety/dev-deps": "workspace:*"`. They are enforced by [`scripts/check-workspace-version-drift.mjs`](../../scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`, included in root `bun run ci:check`). Do not duplicate these packages in individual workspace `package.json` files. Runtime dependency versions (for example `next`, `react`, `@supabase/supabase-js`) stay in each app or library manifest and are checked by the same drift script.
 
-Keep app-specific devDependencies (for example `@types/three` on web, `@types/chrome` on extension-chrome) in the workspace that needs them.
+Keep app-specific devDependencies (for example `@types/three` on web, `@types/chrome` ^0.2.0 on extension-chrome) in the workspace that needs them.
 
 **Exceptions:**
 

@@ -107,7 +107,7 @@
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
     "@playwright/test": "^1.61.0",
-    "knip": "^6.17.1",
+    "knip": "^6.18.0",
     "turbo": "^2.9.18"
   }
 }

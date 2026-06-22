@@ -38,6 +38,7 @@ cd apps/pdf && bun run sync:pdf-worker
 
 # docs — after Eigenpal bump
 cd apps/docs && bun run test
+# includes lib/docx-editor-vendor-version.test.ts (pin ↔ package.json ↔ README)
 
 # web — React Bits (from apps/web)
 # shadcn add @react-bits/<name>.json — then reconcile apps/web/components/vendor/

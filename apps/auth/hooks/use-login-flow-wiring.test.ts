@@ -13,7 +13,7 @@ const hookPath = join(
 
 /** Reads `use-login-flow.ts` for wiring guardrail assertions. */
 function readHookSource(): string {
-  return readFileSync(hookPath, "utf8");
+  return readFileSync(hookPath, "utf8").replace(/\r\n/g, "\n");
 }
 
 /** Extracts the OTP verify success handler block from hook source. */

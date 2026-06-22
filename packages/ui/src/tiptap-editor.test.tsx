@@ -83,7 +83,7 @@ describe("TiptapEditor toolbar accessibility", () => {
     ).toBeInTheDocument();
   });
 
-  it("mounts with a placeholder without throwing (TipTap 3.26 viewport tracking)", async () => {
+  it("mounts with a placeholder without throwing (TipTap 3.27 viewport tracking)", async () => {
     render(
       <TiptapEditor content={null} placeholder="Write something meaningful…" />
     );

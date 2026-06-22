@@ -1,9 +1,25 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { getLucideIcon, renderIcon } from "./icon-renderer";
 
+const uiPackagePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../package.json"
+);
+
 describe("icon-renderer", () => {
+  it("package.json pins lucide-react ^1.21 for drift alignment", () => {
+    const pkg = JSON.parse(readFileSync(uiPackagePath, "utf8")) as {
+      dependencies?: Record<string, string>;
+    };
+    expect(pkg.dependencies?.["lucide-react"]).toBe("^1.21.0");
+  });
+
   it("resolves known lucide v1 icons", () => {
     expect(getLucideIcon("check")).toBeTruthy();
     expect(getLucideIcon("star")).toBeTruthy();

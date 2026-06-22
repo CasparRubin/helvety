@@ -50,10 +50,10 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["shadcn", "^4.11.0"],
   ["babel-plugin-react-compiler", "^1.0.0"],
   ["@types/node", "^24.13.2"],
-  ["lucide-react", "^1.20.0"],
+  ["lucide-react", "^1.21.0"],
   ["sonner", "^2.0.7"],
-  ["@tiptap/pm", "^3.27.0"],
-  ["@tiptap/react", "^3.27.0"],
+  ["@tiptap/pm", "^3.27.1"],
+  ["@tiptap/react", "^3.27.1"],
   ["@types/three", "0.184.1"],
   ["react-day-picker", "^10.0.1"],
 ]);

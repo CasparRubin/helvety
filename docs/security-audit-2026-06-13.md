@@ -157,14 +157,29 @@ Re-run `bun run deps:security` and `bun run deps:drift` after bumps. Supabase RL
 
 Auth, sessions, token TTL, and E2EE cross-repo audit (see [`security-review-runbook.md`](./security-review-runbook.md) MCP baseline):
 
-| Item                                   | Result                                                                                                                        |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Extension weekly re-auth               | **Server-HMAC `weekly_proof`** (parity with web `helvety_device_trust`); Bearer routes verify via `authenticateBearerRequest` |
-| Retired client OTP anchor              | Removed `helvety_extension_last_email_verified` / JWT-`iat`-only cap                                                          |
-| Supabase MCP (`get_advisors` security) | RLS forced on all 10 user-data tables; **WARN** leaked-password protection still disabled (Dashboard manual)                  |
-| Session policy docs                    | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`)                                            |
-| `deps:security` / `deps:drift`         | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time                                              |
-| CI guardrails                          | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script                                  |
+| Item                                     | Result                                                                                                                        |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Extension weekly re-auth                 | **Server-HMAC `weekly_proof`** (parity with web `helvety_device_trust`); Bearer routes verify via `authenticateBearerRequest` |
+| Retired client OTP anchor                | Removed `helvety_extension_last_email_verified` / JWT-`iat`-only cap                                                          |
+| Supabase MCP (`get_advisors` security)   | RLS forced on all 10 user-data tables; **WARN** leaked-password protection still disabled (Dashboard manual)                  |
+| Session policy docs                      | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`)                                            |
+| `deps:security` / `deps:drift`           | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time                                              |
+| CI guardrails                            | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script                                  |
+| `clean:artifacts` during `test:coverage` | could delete active Vitest `coverage/.tmp`                                                                                    | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1` |
 
 **Post-deploy verification (after auth + extension ship):** Supabase MCP `get_logs` (auth API errors), Vercel MCP runtime logs on `helvety-auth`, spot-check extension OTP verify returns `weekly_proof`, passkey routes reject missing `X-Helvety-Weekly-Proof`.
-| `clean:artifacts` during `test:coverage` | could delete active Vitest `coverage/.tmp` | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1` |
+
+## Subsequent updates (2026-06-22)
+
+Full dependency sweep (canonical pins: [`dependency-inventory.md`](./dependency-inventory.md); drift map in `scripts/check-workspace-version-drift.mjs`):
+
+| Item                                                  | As of 2026-06-21                                | As of 2026-06-22                                                                                                                                                          |
+| ----------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@eigenpal/docx-editor-react`                         | **^1.6.2**                                      | **^1.9.0** (vendor CSS at `dist/styles.css`; theme bridge + vendor-version tests unchanged at bump time)                                                                  |
+| `onnxruntime-web`                                     | **^1.26.0**                                     | **^1.27.0** — re-run `node scripts/copy-ort-runtime.mjs`; worker wiring tests guard `wasmPaths`                                                                           |
+| Toolchain (`@helvety/dev-deps` + drift)               | lucide **^1.20.0**, TipTap **^3.27.0**          | lucide **^1.21.0**, `@tiptap/pm` / `@tiptap/react` **^3.27.1**, knip **6.18.0**, eslint import-x **4.17.0**, eslint-plugin-jsdoc **63.0.7**, typescript-eslint **8.62.0** |
+| Extension repo (`helvety-browser-extension-chromium`) | lucide **^1.20.0**, `@types/chrome` **^0.1.43** | lucide **^1.21.0**, `@types/chrome` **^0.2.0**, tailwindcss **^4.3.1** (via `pnpm.overrides`)                                                                             |
+| `bun audit` / `deps:security:floors`                  | **0 CVEs**                                      | **0 CVEs** at sweep time                                                                                                                                                  |
+| Doc/inventory guardrails                              | drift + inventory table                         | **`dependency-inventory-pins.test.ts`**, docs **`docx-editor-vendor-version.test.ts`**, ORT copy/wiring tests                                                             |
+
+Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` after bumps. Historical tables above remain audit snapshots; use **dependency-inventory.md** for current pins.
