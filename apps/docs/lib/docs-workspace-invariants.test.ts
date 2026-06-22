@@ -49,9 +49,9 @@ describe("docs workspace UX invariants", () => {
     expect(shell).not.toContain("renderTitleBarRight");
     expect(shell).toContain("documentName={documentDisplayName}");
     expect(shell).toContain("onDocumentNameChange={handleDocumentNameChange}");
-    expect(shell).toContain(
-      "onDownload={(buffer) => void handleDownload(buffer)}"
-    );
+    expect(shell).toContain("onDownload={handleDownload}");
+    expect(shell).toContain("onDownload={handleCommandBarDownload}");
+    expect(shell).toContain("handleCommandBarDownload");
     expect(shell).not.toContain("onDownloadFile=");
     expect(shell).toContain("VaultDocumentsSheet");
     expect(shell).not.toContain("VaultPanel");
@@ -63,12 +63,33 @@ describe("docs workspace UX invariants", () => {
     );
   });
 
-  it("editor disables comment UI via controlled empty comments", () => {
+  it("editor disables comment UI via CSS bridge (not controlled comments props)", () => {
     const workspace = readFileSync(workspacePath, "utf8");
+    const bridge = readFileSync(bridgePath, "utf8");
 
-    expect(workspace).toContain("comments={[]}");
-    expect(workspace).toContain("onCommentsChange={noopCommentsChange}");
-    expect(workspace).toMatch(/comment UI suppressed/i);
+    expect(workspace).not.toContain("comments={");
+    expect(workspace).not.toContain("onCommentsChange");
+    expect(workspace).toContain("onSave={onDownload}");
+    expect(bridge).toContain("Layer 6: comment suppression");
+  });
+
+  it("vendor menu hiding avoids observing the full document subtree", () => {
+    const hideVendorMenu = readFileSync(hideVendorMenuPath, "utf8");
+
+    expect(hideVendorMenu).toContain("hideConflictingFileMenuItems");
+    expect(hideVendorMenu).toContain("TITLE_BAR_SELECTOR");
+    expect(hideVendorMenu).toMatch(
+      /hostObserver\.observe\(host,\s*\{\s*childList:\s*true,\s*subtree:\s*false\s*\}/
+    );
+    expect(hideVendorMenu).toMatch(
+      /overlayObserver\.observe\(epRoot,\s*\{\s*childList:\s*true,\s*subtree:\s*false\s*\}/
+    );
+    expect(hideVendorMenu).toMatch(
+      /titleBarObserver\.observe\(titleBar,\s*\{\s*childList:\s*true,\s*subtree:\s*true\s*\}/
+    );
+    expect(hideVendorMenu).not.toMatch(
+      /observe\(\s*root,\s*\{\s*childList:\s*true,\s*subtree:\s*true\s*\}/
+    );
   });
 
   it("Helvety command bar is separate from Eigenpal toolbar chrome", () => {
@@ -82,12 +103,13 @@ describe("docs workspace UX invariants", () => {
     expect(commandBar).toContain("onOpenMyDocuments");
     expect(commandBar).toContain("onDownload");
     expect(workspace).not.toContain("renderTitleBarRight");
-    expect(workspace).toContain("onSave={handleSave}");
+    expect(workspace).toContain("onSave={onDownload}");
     expect(workspace).toContain("documentName={documentName}");
     expect(workspace).toContain("useHideVendorFileMenuItems");
     expect(hideVendorMenu).toContain("isVendorFileOpenItem");
     expect(hideVendorMenu).toContain("isVendorFileSaveItem");
     expect(hideVendorMenu).toContain("isVendorFileNewItem");
+    expect(hideVendorMenu).toContain('data-testid="title-bar"');
     expect(bridge).toContain(
       '[data-testid="title-bar"] [role="menubar"] > :last-child'
     );

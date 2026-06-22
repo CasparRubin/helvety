@@ -6,14 +6,9 @@ import {
   type DocxEditorRef,
 } from "@eigenpal/docx-editor-react";
 import { cn } from "@helvety/shared/utils";
-import { forwardRef, useCallback, useMemo, useRef } from "react";
+import { forwardRef, useMemo, useRef } from "react";
 
 import { useHideVendorFileMenuItems } from "@/hooks/use-hide-vendor-file-menu-items";
-
-/** Controlled empty comments: Helvety disables comment UI via the theme bridge. */
-function noopCommentsChange(): void {
-  /* comment UI suppressed in docx-editor-helvety-bridge.css Layer 6 */
-}
 
 /** Editor document chrome passed from {@link HelvetyDocsShell}. */
 interface DocxEditorChromeProps {
@@ -35,6 +30,8 @@ interface DocxEditorWorkspaceProps extends DocxEditorChromeProps {
  * Client-only docx editor surface (loaded via dynamic import from the page).
  * Blank documents use Eigenpal `createEmptyDocument()` (`document` prop), not `documentBuffer={null}`.
  * Helvety document/vault actions live in {@link DocsCommandBar}; vendor File → Open/Save/New are hidden.
+ * Comment UI is suppressed via CSS Layer 6 only; do not pass Eigenpal `comments` props.
+ * Export uses `onSave={onDownload}` so Cmd+S matches the command bar Download path.
  */
 export const DocxEditorWorkspace = forwardRef<
   DocxEditorRef,
@@ -64,13 +61,6 @@ export const DocxEditorWorkspace = forwardRef<
         ? { documentBuffer }
         : { document: blankDocument };
 
-    const handleSave = useCallback(
-      (buffer: ArrayBuffer) => {
-        onDownload(buffer);
-      },
-      [onDownload]
-    );
-
     return (
       <div
         ref={workspaceRef}
@@ -87,11 +77,9 @@ export const DocxEditorWorkspace = forwardRef<
           showToolbar
           showRuler
           showZoomControl
-          comments={[]}
-          onCommentsChange={noopCommentsChange}
           documentName={documentName}
           onDocumentNameChange={onDocumentNameChange}
-          onSave={handleSave}
+          onSave={onDownload}
           {...editorProps}
         />
       </div>

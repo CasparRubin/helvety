@@ -48,7 +48,9 @@ describe("Helvety Docs llms.txt", () => {
     expect(source).toMatch(/File\/Format\/Insert/i);
     expect(source).toMatch(/not Help/i);
     expect(source).toMatch(/matching borders/i);
-    expect(source).toMatch(/comment UI is disabled/i);
+    expect(source).toMatch(
+      /comment UI is disabled.*via CSS|via CSS.*comment UI/i
+    );
     expect(source).toMatch(/menus, dropdowns, and tooltips/i);
     expect(source).not.toMatch(/vault sidebar/i);
     expect(source).not.toMatch(/command bar sheet/i);

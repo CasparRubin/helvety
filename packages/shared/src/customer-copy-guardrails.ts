@@ -45,6 +45,8 @@ export const DOCS_MAINTAINER_FORBIDDEN_UX_PHRASES = [
   "title bar right slot",
   "title-bar document actions",
   "docs-title-bar-actions",
+  "comments={[]}",
+  "onCommentsChange",
 ] as const;
 
 /** Repo-relative app and root README intros. */

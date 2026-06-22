@@ -11,6 +11,10 @@ vi.mock("@eigenpal/docx-editor-react", () => ({
   },
 }));
 
+vi.mock("@/hooks/use-hide-vendor-file-menu-items", () => ({
+  useHideVendorFileMenuItems: vi.fn(),
+}));
+
 import { DocxEditorWorkspace } from "./docx-editor-workspace";
 
 const chromeProps = {
@@ -22,6 +26,7 @@ const chromeProps = {
 describe("DocxEditorWorkspace", () => {
   beforeEach(() => {
     docxEditorMock.mockClear();
+    chromeProps.onDownload.mockClear();
   });
 
   it("passes createEmptyDocument output when no buffer is loaded", () => {
@@ -36,11 +41,8 @@ describe("DocxEditorWorkspace", () => {
     expect(docxEditorMock).toHaveBeenCalledWith(
       expect.objectContaining({
         document: { type: "blank-document" },
-        comments: [],
-        onCommentsChange: expect.any(Function),
         documentName: "Untitled",
         onDocumentNameChange: chromeProps.onDocumentNameChange,
-        onSave: expect.any(Function),
         showToolbar: true,
         mode: "editing",
         showRuler: true,
@@ -52,6 +54,65 @@ describe("DocxEditorWorkspace", () => {
         documentBuffer: expect.anything(),
       })
     );
+  });
+
+  it("passes documentBuffer when a file is loaded", () => {
+    const buffer = new ArrayBuffer(16);
+
+    render(
+      <DocxEditorWorkspace
+        documentBuffer={buffer}
+        sessionKey={1}
+        {...chromeProps}
+      />
+    );
+
+    expect(docxEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        documentBuffer: buffer,
+      })
+    );
+    expect(docxEditorMock).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        document: expect.anything(),
+      })
+    );
+  });
+
+  it("does not pass controlled comments props to Eigenpal", () => {
+    render(
+      <DocxEditorWorkspace
+        documentBuffer={null}
+        sessionKey={1}
+        {...chromeProps}
+      />
+    );
+
+    expect(docxEditorMock).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        comments: expect.anything(),
+        onCommentsChange: expect.anything(),
+      })
+    );
+  });
+
+  it("passes onDownload directly as onSave without a wrapper", () => {
+    render(
+      <DocxEditorWorkspace
+        documentBuffer={null}
+        sessionKey={1}
+        {...chromeProps}
+      />
+    );
+
+    const lastCall = docxEditorMock.mock.calls.at(-1)?.[0] as {
+      onSave?: (buffer: ArrayBuffer) => void;
+    };
+    expect(lastCall.onSave).toBe(chromeProps.onDownload);
+
+    const buffer = new ArrayBuffer(8);
+    lastCall.onSave?.(buffer);
+    expect(chromeProps.onDownload).toHaveBeenCalledWith(buffer);
   });
 
   it("remounts the editor when sessionKey changes", () => {
@@ -90,22 +151,5 @@ describe("DocxEditorWorkspace", () => {
       unknown
     >;
     expect(lastCall.renderTitleBarRight).toBeUndefined();
-  });
-
-  it("wires onSave to the download handler", () => {
-    render(
-      <DocxEditorWorkspace
-        documentBuffer={null}
-        sessionKey={1}
-        {...chromeProps}
-      />
-    );
-
-    const lastCall = docxEditorMock.mock.calls.at(-1)?.[0] as {
-      onSave?: (buffer: ArrayBuffer) => void;
-    };
-    const buffer = new ArrayBuffer(8);
-    lastCall.onSave?.(buffer);
-    expect(chromeProps.onDownload).toHaveBeenCalledWith(buffer);
   });
 });

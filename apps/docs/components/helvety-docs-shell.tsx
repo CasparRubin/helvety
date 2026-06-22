@@ -232,6 +232,10 @@ export function HelvetyDocsShell({
     [localFileName, validateDocxSize]
   );
 
+  const handleCommandBarDownload = useCallback(() => {
+    void handleDownload();
+  }, [handleDownload]);
+
   const performVaultSave = useCallback(
     async (title: string) => {
       const bytes = normalizeDocxSaveResult(await editorRef.current?.save());
@@ -338,7 +342,7 @@ export function HelvetyDocsShell({
         showMyDocuments={!!initialUser}
         onNewDocument={handleNewDocument}
         onOpenFile={handleOpenFile}
-        onDownload={() => void handleDownload()}
+        onDownload={handleCommandBarDownload}
         onSaveToVault={handleSaveToVault}
         onOpenMyDocuments={() => setVaultSheetOpen(true)}
       />
@@ -349,7 +353,7 @@ export function HelvetyDocsShell({
           sessionKey={editorSessionKey}
           documentName={documentDisplayName}
           onDocumentNameChange={handleDocumentNameChange}
-          onDownload={(buffer) => void handleDownload(buffer)}
+          onDownload={handleDownload}
         />
       </div>
       {initialUser ? (

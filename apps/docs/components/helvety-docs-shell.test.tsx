@@ -89,6 +89,27 @@ describe("HelvetyDocsShell", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("keeps the same onDownload reference across shell rerenders", () => {
+    const { rerender } = render(<HelvetyDocsShell initialUser={null} />);
+
+    const firstDownload = (
+      workspacePropsMock.mock.calls.at(-1)?.[0] as {
+        onDownload?: unknown;
+      }
+    ).onDownload;
+
+    rerender(<HelvetyDocsShell initialUser={null} />);
+
+    const secondDownload = (
+      workspacePropsMock.mock.calls.at(-1)?.[0] as {
+        onDownload?: unknown;
+      }
+    ).onDownload;
+
+    expect(firstDownload).toBeTypeOf("function");
+    expect(secondDownload).toBe(firstDownload);
+  });
+
   it("shows vault actions in the command bar when signed in", () => {
     render(
       <HelvetyDocsShell

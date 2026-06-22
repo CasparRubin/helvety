@@ -25,8 +25,11 @@ function isVendorFileNewItem(text: string): boolean {
   );
 }
 
-/** Hides conflicting Eigenpal File menu entries inside a mounted `.ep-root`. */
-function hideVendorFileMenuItems(root: Element): void {
+/** Title bar selector; File/Format/Insert menus live here (not the document surface). */
+const TITLE_BAR_SELECTOR = '[data-testid="title-bar"]';
+
+/** Hides conflicting File menu entries under `root` (title bar and portaled menus in `.ep-root`). */
+function hideConflictingFileMenuItems(root: Element): void {
   root.querySelectorAll('[role="menuitem"]').forEach((node) => {
     const el = node as HTMLElement;
     const text = el.textContent ?? "";
@@ -43,7 +46,10 @@ function hideVendorFileMenuItems(root: Element): void {
 /**
  * Hides Eigenpal File → Open / Save / New entries that conflict with Helvety-controlled
  * open (parent `documentBuffer`), validated `onSave` export, and command bar New.
- * Uses a `MutationObserver` so late-mounted `.ep-root` menus are covered.
+ *
+ * Observers are scoped so document keystrokes do not retrigger scans:
+ * - title bar subtree (menus anchored in chrome)
+ * - `.ep-root` direct children only (portaled overlay menus)
  */
 export function useHideVendorFileMenuItems(
   rootRef: RefObject<HTMLElement | null>
@@ -52,32 +58,64 @@ export function useHideVendorFileMenuItems(
     const host = rootRef.current;
     if (!host) return;
 
-    let menuObserver: MutationObserver | null = null;
+    let titleBarObserver: MutationObserver | null = null;
+    let overlayObserver: MutationObserver | null = null;
+    let hostObserver: MutationObserver | null = null;
 
-    const attachToEpRoot = (root: Element): void => {
-      hideVendorFileMenuItems(root);
-      menuObserver?.disconnect();
-      menuObserver = new MutationObserver(() => hideVendorFileMenuItems(root));
-      menuObserver.observe(root, { childList: true, subtree: true });
+    const detachEpRootObservers = (): void => {
+      titleBarObserver?.disconnect();
+      titleBarObserver = null;
+      overlayObserver?.disconnect();
+      overlayObserver = null;
     };
 
-    const existing = host.querySelector(".ep-root");
-    if (existing) {
-      attachToEpRoot(existing);
-      return () => menuObserver?.disconnect();
+    const attachToEpRoot = (epRoot: Element): boolean => {
+      const titleBar = epRoot.querySelector(TITLE_BAR_SELECTOR);
+      if (!titleBar) {
+        return false;
+      }
+
+      hideConflictingFileMenuItems(epRoot);
+      detachEpRootObservers();
+
+      const rescanMenus = (): void => {
+        hideConflictingFileMenuItems(epRoot);
+      };
+
+      titleBarObserver = new MutationObserver(rescanMenus);
+      titleBarObserver.observe(titleBar, { childList: true, subtree: true });
+
+      overlayObserver = new MutationObserver(rescanMenus);
+      overlayObserver.observe(epRoot, { childList: true, subtree: false });
+
+      return true;
+    };
+
+    const tryAttachFromHost = (): boolean => {
+      const epRoot = host.querySelector(".ep-root");
+      if (!epRoot) {
+        return false;
+      }
+      return attachToEpRoot(epRoot);
+    };
+
+    if (tryAttachFromHost()) {
+      return () => {
+        detachEpRootObservers();
+      };
     }
 
-    const hostObserver = new MutationObserver(() => {
-      const epRoot = host.querySelector(".ep-root");
-      if (epRoot) {
-        attachToEpRoot(epRoot);
+    hostObserver = new MutationObserver(() => {
+      if (tryAttachFromHost()) {
+        hostObserver?.disconnect();
+        hostObserver = null;
       }
     });
-    hostObserver.observe(host, { childList: true, subtree: true });
+    hostObserver.observe(host, { childList: true, subtree: false });
 
     return () => {
-      hostObserver.disconnect();
-      menuObserver?.disconnect();
+      hostObserver?.disconnect();
+      detachEpRootObservers();
     };
   }, [rootRef]);
 }

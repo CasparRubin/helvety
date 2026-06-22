@@ -133,6 +133,14 @@ describe("docs copy consistency", () => {
     expect(readme).toMatch(/Comments:/i);
     expect(readme).toMatch(/cannot add, view, or edit comments/i);
     expect(readme).not.toMatch(/strip(s|ped)?\s+comments\s+from/i);
+    expect(readme).not.toMatch(/comments=\{\[\]\}/);
+    expect(readme).not.toMatch(/within the title bar only/i);
+    expect(readme).toMatch(
+      /do \*\*not\*\* pass Eigenpal `comments` \/ `onCommentsChange`/i
+    );
+    expect(readme).toMatch(/CSS Layer 6|Layer 6/i);
+    expect(readme).toMatch(/scoped `MutationObserver`/i);
+    expect(readme).toMatch(/onSave=\{onDownload\}/);
   });
 
   it("monorepo UI package README describes docs vault sheet, not a permanent sidebar", () => {
