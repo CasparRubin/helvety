@@ -82,7 +82,7 @@
     "ajv": "6.14.0",
     "hono": "4.12.25",
     "@hono/node-server": "1.19.13",
-    "vite": "8.0.16",
+    "vite": "8.1.0",
     "express-rate-limit": "8.5.2",
     "undici": "7.28.0",
     "@babel/core": "8.0.1",
@@ -106,8 +106,8 @@
   },
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
-    "@playwright/test": "^1.61.0",
-    "knip": "^6.18.0",
-    "turbo": "^2.9.18"
+    "@playwright/test": "^1.61.1",
+    "knip": "^6.21.0",
+    "turbo": "^2.10.0"
   }
 }
