@@ -7,6 +7,7 @@ import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
 import { logger } from "../logger";
 
 import { clearSupabaseAuthCookies } from "./clear-supabase-auth-cookies";
+import { serverFetchWithTimeout } from "./fetch-with-timeout";
 
 import type { DatabaseSchema } from "../types/database.types";
 import type { AuthError, SupabaseClient } from "@supabase/supabase-js";
@@ -139,6 +140,9 @@ export async function refreshSupabaseAuthSession(
       supabaseUrl,
       supabaseKey,
       {
+        global: {
+          fetch: serverFetchWithTimeout,
+        },
         cookies: {
           getAll() {
             return request.cookies.getAll();

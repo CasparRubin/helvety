@@ -439,10 +439,12 @@ export function TiptapEditor({
     getEditor: () => editor,
   }));
 
-  // Update editable state when disabled changes
+  // Update editable state when disabled changes. emitUpdate is false so toggling
+  // editability never fires onChange, which would otherwise make editors open
+  // showing a false "unsaved changes" / Save Changes state.
   useEffect(() => {
     if (editor) {
-      editor.setEditable(!disabled);
+      editor.setEditable(!disabled, false);
     }
   }, [editor, disabled]);
 

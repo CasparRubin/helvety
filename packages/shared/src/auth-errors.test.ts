@@ -5,6 +5,7 @@ import {
   buildAuthRequiredError,
   classifyActionAuthError,
   isAuthRequiredError,
+  isRetryableAuthTransportError,
   normalizeActionError,
   shouldForceHardLogout,
 } from "./auth-errors";
@@ -74,5 +75,123 @@ describe("auth-errors", () => {
     expect(shouldForceHardLogout("Session temporarily unavailable")).toBe(
       false
     );
+  });
+
+  it("classifies retryable transport errors", () => {
+    expect(
+      isRetryableAuthTransportError({
+        name: "AuthRetryableFetchError",
+        message: "fetch failed",
+      })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({
+        name: "AbortError",
+        message: "The operation was aborted",
+      })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({
+        message: "fetch failed",
+        status: 0,
+      })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({
+        message: "upstream unavailable",
+        status: 503,
+      })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({
+        message: "network timeout",
+        status: 408,
+      })
+    ).toBe(true);
+  });
+
+  it("does not classify definitive auth failures as retryable transport errors", () => {
+    expect(
+      isRetryableAuthTransportError({
+        message: "refresh token not found",
+        status: 401,
+      })
+    ).toBe(false);
+    expect(
+      isRetryableAuthTransportError({
+        message: "JWT expired",
+        status: 401,
+      })
+    ).toBe(false);
+    expect(
+      isRetryableAuthTransportError({
+        message: "Not authenticated",
+        status: 403,
+      })
+    ).toBe(false);
+    expect(
+      isRetryableAuthTransportError({
+        message: "Session has been revoked",
+        status: 401,
+      })
+    ).toBe(false);
+  });
+
+  it("treats network 5xx as retryable even without a network message", () => {
+    expect(
+      isRetryableAuthTransportError({ message: "Bad gateway", status: 502 })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({ message: "Internal", status: 500 })
+    ).toBe(true);
+  });
+
+  it("does not retry non-network 4xx without a transport message", () => {
+    expect(
+      isRetryableAuthTransportError({ message: "Conflict", status: 409 })
+    ).toBe(false);
+    expect(
+      isRetryableAuthTransportError({ message: "Bad request", status: 400 })
+    ).toBe(false);
+  });
+
+  it("matches connection-level message tokens", () => {
+    expect(isRetryableAuthTransportError({ message: "fetch failed" })).toBe(
+      true
+    );
+    expect(
+      isRetryableAuthTransportError({ message: "ECONNREFUSED 127.0.0.1:5432" })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({ message: "Connection reset by peer" })
+    ).toBe(true);
+    expect(
+      isRetryableAuthTransportError({ message: "The operation timed out" })
+    ).toBe(true);
+  });
+
+  it("classifies DOMException AbortError as retryable", () => {
+    expect(
+      isRetryableAuthTransportError(
+        new DOMException("The operation was aborted", "AbortError")
+      )
+    ).toBe(true);
+  });
+
+  it("returns false for nullish, empty, and non-object inputs", () => {
+    expect(isRetryableAuthTransportError(null)).toBe(false);
+    expect(isRetryableAuthTransportError(undefined)).toBe(false);
+    expect(isRetryableAuthTransportError("")).toBe(false);
+    expect(isRetryableAuthTransportError("fetch failed")).toBe(false);
+    expect(isRetryableAuthTransportError(500)).toBe(false);
+  });
+
+  it("returns false for generic errors without transport markers", () => {
+    expect(
+      isRetryableAuthTransportError(new Error("Something went wrong"))
+    ).toBe(false);
+    expect(
+      isRetryableAuthTransportError({ message: "Validation failed" })
+    ).toBe(false);
   });
 });

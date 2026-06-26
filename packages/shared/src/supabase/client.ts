@@ -2,6 +2,8 @@ import { createBrowserClient as createSSRBrowserClient } from "@supabase/ssr";
 
 import { getClientSupabaseKey, getClientSupabaseUrl } from "../client-env";
 
+import { browserFetchWithTimeout } from "./fetch-with-timeout";
+
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -10,40 +12,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * This prevents creating multiple client instances, improving performance.
  */
 let browserClient: SupabaseClient<DatabaseSchema> | null = null;
-
-/**
- * Timeout for fetch requests to the Supabase API (ms).
- * Prevents indefinite hangs on flaky networks (VPN, Private Relay, mobile).
- */
-const FETCH_TIMEOUT_MS = 15_000;
-
-/**
- * Fetch wrapper with timeout via AbortController.
- *
- * On unreliable networks (VPN, Private Relay, mobile on iOS), requests to
- * the Supabase Auth API can hang indefinitely. This wrapper attempts to
- * abort after FETCH_TIMEOUT_MS and surface the error promptly so retry
- * logic at higher layers can kick in.
- */
-function fetchWithTimeout(
-  input: RequestInfo | URL,
-  init?: RequestInit
-): Promise<Response> {
-  const controller = new AbortController();
-
-  // Respect any existing signal from the caller
-  const onCallerAbort = () => controller.abort();
-  if (init?.signal) {
-    init.signal.addEventListener("abort", onCallerAbort);
-  }
-
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
-    clearTimeout(timer);
-    init?.signal?.removeEventListener("abort", onCallerAbort);
-  });
-}
 
 /**
  * Auth lock wrapper with timeout and fallback queue.
@@ -180,7 +148,7 @@ export function createBrowserClient(): SupabaseClient<DatabaseSchema> {
     supabaseKey,
     {
       global: {
-        fetch: fetchWithTimeout,
+        fetch: browserFetchWithTimeout,
       },
       auth: {
         // Auth is completed via callback routes using query parameters.

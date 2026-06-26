@@ -53,6 +53,30 @@ describe("createServerSupabaseClient", () => {
       originalNodeEnv;
   });
 
+  it("wires a fetch timeout on the read-only server client", async () => {
+    let capturedOptions: { global?: { fetch?: unknown } } | undefined;
+    createServerClientMock.mockImplementation((_url, _key, options) => {
+      capturedOptions = options;
+      return {};
+    });
+
+    await createServerSupabaseClient();
+
+    expect(typeof capturedOptions?.global?.fetch).toBe("function");
+  });
+
+  it("wires a fetch timeout on the mutating server client", async () => {
+    let capturedOptions: { global?: { fetch?: unknown } } | undefined;
+    createServerClientMock.mockImplementation((_url, _key, options) => {
+      capturedOptions = options;
+      return {};
+    });
+
+    await createServerMutatingSupabaseClient();
+
+    expect(typeof capturedOptions?.global?.fetch).toBe("function");
+  });
+
   it("no-ops setAll when the proxy already refreshed the session", async () => {
     headersMock.mockResolvedValue(
       new Headers({ [AUTH_REFRESHED_HEADER_NAME]: "1" })

@@ -173,7 +173,15 @@ export function E2eeRichTextItemEditorShell({
         requestAnimationFrame(loadDescription);
         return;
       }
+      draftState.resetDescriptionBaselineCapture();
       editor.setContent(parseRichTextContent(initialDescriptionRef.current));
+      // Capture the post-load document as the baseline deterministically. TipTap
+      // does not emit an update when the document is unchanged (e.g. loading an
+      // empty body), so we must not rely on `onChange` firing during the load.
+      const loadedJson = editor.getJSON();
+      draftState.captureEditorBaseline(
+        loadedJson ? JSON.stringify(loadedJson) : ""
+      );
       loadedEditorSessionRef.current = editorSessionKey;
     };
 

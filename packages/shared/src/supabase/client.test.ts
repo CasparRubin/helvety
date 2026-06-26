@@ -85,6 +85,21 @@ describe("supabase browser lock fallback", () => {
     }
   });
 
+  it("wires a fetch timeout on the browser client", async () => {
+    createSSRBrowserClientMock.mockReturnValue({});
+
+    const { createBrowserClient } = await import("./client");
+    createBrowserClient();
+
+    const [, , options] = createSSRBrowserClientMock.mock.calls[0] as [
+      string,
+      string,
+      { global?: { fetch?: unknown } },
+    ];
+
+    expect(typeof options.global?.fetch).toBe("function");
+  });
+
   it("times out while waiting on in-memory lock queue", async () => {
     createSSRBrowserClientMock.mockReturnValue({});
     const originalLocks = navigator.locks;

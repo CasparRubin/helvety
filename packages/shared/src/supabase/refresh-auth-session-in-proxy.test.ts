@@ -70,6 +70,27 @@ describe("refreshSupabaseAuthSession", () => {
     expect(response.headers.get("Expires")).toBe("0");
   });
 
+  it("wires a fetch timeout on the proxy refresh client", async () => {
+    let capturedOptions: { global?: { fetch?: unknown } } | undefined;
+    createServerClientMock.mockImplementation((_url, _key, options) => {
+      capturedOptions = options;
+      return {
+        auth: {
+          getClaims: async () => ({ error: null }),
+        },
+      };
+    });
+
+    const request = new NextRequest("https://helvety.com/tasks", {
+      headers: { cookie: "sb-example-auth-token=stale" },
+    });
+    const baseResponse = NextResponse.next({ request });
+
+    await refreshSupabaseAuthSession(request, baseResponse);
+
+    expect(typeof capturedOptions?.global?.fetch).toBe("function");
+  });
+
   it("propagates refreshed cookies to request and response", async () => {
     createServerClientMock.mockImplementation((_url, _key, options) => ({
       auth: {

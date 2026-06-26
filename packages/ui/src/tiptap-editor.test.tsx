@@ -94,6 +94,27 @@ describe("TiptapEditor toolbar accessibility", () => {
   });
 });
 
+describe("TiptapEditor editability", () => {
+  it("toggles editability without emitting a spurious content update", () => {
+    setEditable.mockClear();
+    render(<TiptapEditor content={null} disabled={false} />);
+
+    // emitUpdate must be false: editability changes must never fire onChange,
+    // otherwise editors open showing a false "Save Changes" state.
+    expect(setEditable).toHaveBeenCalledWith(true, false);
+    for (const call of setEditable.mock.calls) {
+      expect(call[1]).toBe(false);
+    }
+  });
+
+  it("disables editing without emitting an update when disabled", () => {
+    setEditable.mockClear();
+    render(<TiptapEditor content={null} disabled />);
+
+    expect(setEditable).toHaveBeenCalledWith(false, false);
+  });
+});
+
 describe("TiptapEditor option stability", () => {
   it("uses mount-only content and disables transaction re-renders", () => {
     const initial = { type: "doc", content: [{ type: "paragraph" }] };

@@ -7,9 +7,12 @@ import { useCallback, useMemo, useRef } from "react";
  * Consumers provide already-serialized rich text snapshots.
  *
  * Contract: call `initializeTitle` once when the editor session loads (not on each
- * title keystroke). Call `captureEditorBaseline` on the first TipTap `onChange`
- * only; further body edits compare against that baseline until `markSaved` or
- * `resetDescriptionBaselineCapture`.
+ * title keystroke). After loading the body content, call `resetDescriptionBaselineCapture`
+ * then `captureEditorBaseline` to record the loaded document as the baseline. Capture on
+ * load (not on the first TipTap `onChange`): TipTap does not emit an update when the
+ * document is unchanged, so an empty body never fires `onChange`. `captureEditorBaseline`
+ * is idempotent until `markSaved` or `resetDescriptionBaselineCapture`, so a stray
+ * `onChange` during load is harmless and later body edits compare against that baseline.
  */
 export function useRichTextDraftState() {
   const savedTitleRef = useRef("");

@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 
 import { getSupabaseUrl } from "../env-validation";
 
+import { serverFetchWithTimeout } from "./fetch-with-timeout";
+
 import type { DatabaseSchema } from "../types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -120,6 +122,9 @@ export function createAdminClient(): SupabaseClient<DatabaseSchema> {
     supabaseUrl,
     supabaseSecretKey,
     {
+      global: {
+        fetch: serverFetchWithTimeout,
+      },
       auth: {
         autoRefreshToken: false,
         persistSession: false,

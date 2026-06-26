@@ -13,7 +13,8 @@ import type { AuthError, User } from "@supabase/supabase-js";
 const CSRF_COOKIE_NAME = "csrf_token";
 
 /**
- * Per-request cached auth lookup (single getUser call, no retries).
+ * Per-request cached auth lookup via getAuthUser (fail-closed on auth failures;
+ * bounded retries only for transient transport errors).
  *
  * Keeps the last auth error so guards can distinguish:
  * - clean unauthenticated state (user: null, error: null)

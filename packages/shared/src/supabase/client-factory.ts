@@ -7,6 +7,7 @@ import { COOKIE_DOMAIN } from "../config";
 import { getSupabaseUrl, getSupabaseKey } from "../env-validation";
 
 import { handleSupabaseCookieWriteFailure } from "./cookie-write-failure";
+import { serverFetchWithTimeout } from "./fetch-with-timeout";
 import { AUTH_REFRESHED_HEADER_NAME } from "./refresh-auth-session-in-proxy";
 
 import type { DatabaseSchema } from "../types/database.types";
@@ -41,6 +42,9 @@ async function buildServerSupabaseClient(
     supabaseUrl,
     supabaseKey,
     {
+      global: {
+        fetch: serverFetchWithTimeout,
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

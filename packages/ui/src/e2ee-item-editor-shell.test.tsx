@@ -25,6 +25,7 @@ const {
   EDITED_AGAIN_DOC,
   setContentSpy,
   lastTiptapContentProp,
+  mockBehavior,
 } = vi.hoisted(() => ({
   EMPTY_DOC: { type: "doc", content: [] } satisfies JSONContent,
   EDITED_DOC: {
@@ -47,6 +48,9 @@ const {
   } satisfies JSONContent,
   setContentSpy: vi.fn(),
   lastTiptapContentProp: { current: null as JSONContent | null | undefined },
+  // Per-test toggle: simulate TipTap v3 setEditable emitting a spurious update
+  // with the still-empty document before the shell loads content imperatively.
+  mockBehavior: { emitEmptyOnMount: false },
 }));
 
 /** Imperative handle stub for mocked `TiptapEditor` in shell tests. */
@@ -63,19 +67,34 @@ vi.mock("./tiptap-editor", () => {
     { content?: JSONContent | null; onChange?: (content: JSONContent) => void }
   >(({ content = null, onChange }, ref) => {
     lastTiptapContentProp.current = content;
-    const [json, setJson] = React.useState<JSONContent>(EMPTY_DOC);
-    const [editCount, setEditCount] = React.useState(0);
+    // Use refs so getJSON is synchronous (matches real TipTap), letting the
+    // shell capture the post-load baseline deterministically.
+    const contentRef = React.useRef<JSONContent>(EMPTY_DOC);
+    const editCountRef = React.useRef(0);
+    const onChangeRef = React.useRef(onChange);
+    onChangeRef.current = onChange;
+
+    React.useEffect(() => {
+      if (mockBehavior.emitEmptyOnMount) {
+        onChangeRef.current?.(contentRef.current);
+      }
+    }, []);
 
     React.useImperativeHandle(ref, () => ({
-      getJSON: () => json,
+      getJSON: () => contentRef.current,
       setContent: (nextContent) => {
         setContentSpy(nextContent);
-        if (nextContent === null) {
-          setJson(EMPTY_DOC);
-          return;
-        }
-        if (typeof nextContent === "object") {
-          setJson(nextContent);
+        const resolved =
+          nextContent === null
+            ? EMPTY_DOC
+            : typeof nextContent === "object"
+              ? nextContent
+              : contentRef.current;
+        const changed = resolved !== contentRef.current;
+        contentRef.current = resolved;
+        // Real TipTap only emits an update when the document actually changes.
+        if (changed) {
+          onChangeRef.current?.(resolved);
         }
       },
       focus: () => undefined,
@@ -88,10 +107,11 @@ vi.mock("./tiptap-editor", () => {
         type: "button",
         "data-testid": "mock-tiptap-edit",
         onClick: () => {
-          const next = editCount === 0 ? EDITED_DOC : EDITED_AGAIN_DOC;
-          setEditCount((count) => count + 1);
-          setJson(next);
-          onChange?.(next);
+          const next =
+            editCountRef.current === 0 ? EDITED_DOC : EDITED_AGAIN_DOC;
+          editCountRef.current += 1;
+          contentRef.current = next;
+          onChangeRef.current?.(next);
         },
       },
       "Edit body"
@@ -135,6 +155,7 @@ describe("E2eeRichTextItemEditorShell", () => {
     vi.clearAllMocks();
     setContentSpy.mockClear();
     lastTiptapContentProp.current = null;
+    mockBehavior.emitEmptyOnMount = false;
   });
 
   it("calls onSave when the command bar save action runs", () => {
@@ -213,6 +234,61 @@ describe("E2eeRichTextItemEditorShell", () => {
     fireEvent.click(screen.getByRole("button", { name: "Discard changes" }));
 
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("does not show unsaved changes when opening with existing content despite a spurious pre-load update", () => {
+    // Reproduces the original bug: TipTap's setEditable emitted an empty-doc
+    // update before the real content loaded, which was captured as the baseline
+    // and made the editor look dirty on open.
+    mockBehavior.emitEmptyOnMount = true;
+
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="existing-content-session"
+        title="Saved title"
+        initialDescription='{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"existing body"}]}]}'
+        renderCommandBar={({ onBack: back }) => (
+          <button type="button" onClick={back}>
+            Back
+          </button>
+        )}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+
+    // No edits were made, so navigating back must not be guarded.
+    expect(onBack).toHaveBeenCalled();
+    expect(
+      screen.queryByRole("alertdialog", { name: "Unsaved changes" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("arms the unsaved-changes guard on the first body edit when initialDescription is empty", () => {
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="empty-session"
+        title="Saved title"
+        initialDescription={null}
+        renderCommandBar={({ onBack: back }) => (
+          <button type="button" onClick={back}>
+            Back
+          </button>
+        )}
+      />
+    );
+
+    // A single edit on a previously-empty body must mark the editor dirty,
+    // otherwise the first paragraph could be lost on navigation away.
+    fireEvent.click(screen.getByTestId("mock-tiptap-edit"));
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+
+    expect(onBack).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("alertdialog", { name: "Unsaved changes" })
+    ).toBeInTheDocument();
   });
 
   it("confirms before navigating back when the rich-text body is edited", () => {

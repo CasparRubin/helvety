@@ -28,8 +28,9 @@ export type RequireAuthOptions = Readonly<{
  * - invalid/broken auth state -> global logout, then auth login
  * - authenticated but missing weekly device trust (when required) -> global logout
  *
- * Fail-closed: one cached getUser() call (shared with the layout).
- * No user = redirect. No retries, no second chances.
+ * Fail-closed: one cached auth lookup (shared with the layout) via getAuthUser,
+ * which fails closed on auth failures and retries only transient transport
+ * errors (network blips on mobile resume). No user = redirect.
  *
  * IMPORTANT: Authentication checks should be done in Server Components (pages)
  * or Route Handlers, NOT in proxy.ts. Proxy is an optimistic routing layer and

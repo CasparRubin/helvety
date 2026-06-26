@@ -18,6 +18,18 @@ const LOGIN_ONLY_ERROR_TOKENS = [
   "jwt expired",
 ] as const;
 
+const RETRYABLE_TRANSPORT_ERROR_TOKENS = [
+  "fetch failed",
+  "network",
+  "load failed",
+  "timed out",
+  "timeout",
+  "connection",
+  "econnrefused",
+  "enotfound",
+  "etimedout",
+] as const;
+
 /** Machine-readable action auth error prefixes used across app/server boundaries. */
 type AuthActionErrorCode =
   | typeof AUTH_REQUIRED_CODE
@@ -139,4 +151,71 @@ export function classifyActionAuthError(
 /** True when an error should force a full hard logout and fresh auth flow. */
 export function shouldForceHardLogout(error?: string | null): boolean {
   return classifyActionAuthError(error) === "hard_logout";
+}
+
+/** Normalizes an unknown auth error into a lowercase message for classification. */
+function normalizeAuthErrorMessage(error: unknown): string {
+  if (!error || typeof error !== "object") {
+    return "";
+  }
+  const record = error as { message?: string };
+  return (record.message ?? "").toLowerCase();
+}
+
+/** Reads an HTTP status from a Supabase auth error object when present. */
+function getAuthErrorStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+  const record = error as { status?: number };
+  return typeof record.status === "number" ? record.status : undefined;
+}
+
+/** Reads the error name from a Supabase auth error or thrown value. */
+function getAuthErrorName(error: unknown): string {
+  if (!error || typeof error !== "object") {
+    return "";
+  }
+  const record = error as { name?: string };
+  return record.name ?? "";
+}
+
+/**
+ * True when an auth API failure is a transient transport error worth retrying.
+ *
+ * Definitive auth failures (invalid session, expired JWT, revoked refresh token)
+ * are never retryable. Use this to distinguish "cannot reach Supabase right now"
+ * from "session is dead".
+ */
+export function isRetryableAuthTransportError(error: unknown): boolean {
+  if (!error) {
+    return false;
+  }
+
+  const message = normalizeAuthErrorMessage(error);
+
+  if (includesAnyToken(message, HARD_LOGOUT_ERROR_TOKENS)) {
+    return false;
+  }
+  if (includesAnyToken(message, LOGIN_ONLY_ERROR_TOKENS)) {
+    return false;
+  }
+
+  const name = getAuthErrorName(error);
+  if (name === "AuthRetryableFetchError" || name === "AbortError") {
+    return true;
+  }
+
+  const status = getAuthErrorStatus(error);
+  if (status === 0) {
+    return true;
+  }
+  if (status !== undefined && status >= 500) {
+    return true;
+  }
+  if (status === 401 || status === 403) {
+    return false;
+  }
+
+  return includesAnyToken(message, RETRYABLE_TRANSPORT_ERROR_TOKENS);
 }
