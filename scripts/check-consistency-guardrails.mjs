@@ -215,7 +215,6 @@ async function main() {
   const rootAppPagePaths = [
     "apps/auth/app/page.tsx",
     "apps/contacts/app/page.tsx",
-    "apps/docs/app/page.tsx",
     "apps/image-upscaler/app/page.tsx",
     "apps/links/app/page.tsx",
     "apps/notes/app/page.tsx",
@@ -241,7 +240,6 @@ async function main() {
   const securityProxyTargets = [
     "apps/auth/proxy.ts",
     "apps/contacts/proxy.ts",
-    "apps/docs/proxy.ts",
     "apps/image-upscaler/proxy.ts",
     "apps/links/proxy.ts",
     "apps/notes/proxy.ts",
@@ -331,7 +329,6 @@ async function main() {
   ];
   const userScopedEnvModules = [
     "apps/contacts/lib/env.ts",
-    "apps/docs/lib/env.ts",
     "apps/links/lib/env.ts",
     "apps/notes/lib/env.ts",
     "apps/tasks/lib/env.ts",
@@ -420,7 +417,6 @@ async function main() {
     "contacts",
     "notes",
     "links",
-    "docs",
     "pdf",
     "image-upscaler",
   ];
@@ -612,20 +608,6 @@ async function main() {
     }
   }
 
-  const publicShellLayoutPath = resolve(
-    rootDir,
-    "packages/ui/src/helvety-public-shell-root-layout.tsx"
-  );
-  const publicShellLayout = await readFile(publicShellLayoutPath, "utf8");
-  const publicShellDoc = publicShellLayout.match(
-    /\/\*\*[\s\S]*?Shared root shell[\s\S]*?\*\//
-  )?.[0];
-  if (!publicShellDoc?.includes("`docs`")) {
-    throw new Error(
-      `${publicShellLayoutPath} JSDoc must list \`docs\` among public Helvety apps (see packages/ui/README.md).`
-    );
-  }
-
   const proxyMatcherComment =
     "Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy`";
   for (const entry of appDirectories.filter((item) => item.isDirectory())) {
@@ -710,7 +692,6 @@ async function main() {
     "notes",
     "links",
     "store",
-    "docs",
     "pdf",
     "image-upscaler",
   ]) {
@@ -751,12 +732,12 @@ async function main() {
   );
   const qualityBaseline = await readFile(qualityBaselinePath, "utf8");
   if (
-    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, docs, image-upscaler\b/.test(
+    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-upscaler\b/.test(
       qualityBaseline
     )
   ) {
     throw new Error(
-      `${qualityBaselinePath} must list docs among zones that omit assetPrefix by default.`
+      `${qualityBaselinePath} must list public tool zones that omit assetPrefix by default.`
     );
   }
 

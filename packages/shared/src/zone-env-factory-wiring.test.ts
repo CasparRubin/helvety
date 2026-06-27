@@ -10,7 +10,6 @@ const ADMIN_SERVER_UPSTASH_APPS = ["auth", "store"] as const;
 
 const USER_SCOPED_SERVER_APPS = [
   "contacts",
-  "docs",
   "links",
   "notes",
   "tasks",

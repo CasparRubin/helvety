@@ -27,7 +27,7 @@ describe("resolveCspReportEndpoint", () => {
     expect(resolveCspReportEndpoint("/image-upscaler")).toBe(
       "/image-upscaler/api/csp-report"
     );
-    expect(resolveCspReportEndpoint("/docs/")).toBe("/docs/api/csp-report");
+    expect(resolveCspReportEndpoint("/links/")).toBe("/links/api/csp-report");
   });
 });
 

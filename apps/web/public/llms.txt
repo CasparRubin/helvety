@@ -16,7 +16,6 @@
 Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - [Helvety Store](https://helvety.com/store/llms.txt)
 - [Helvety PDF](https://helvety.com/pdf/llms.txt)
-- [Helvety Docs](https://helvety.com/docs/llms.txt)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler/llms.txt)
 - [Helvety Auth](https://helvety.com/auth/llms.txt)
 - [Helvety Contacts](https://helvety.com/contacts/llms.txt)
@@ -32,8 +31,8 @@ Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots and on-screen drawing
+- [Helvety Browser Extension](https://helvety.com/store/products/helvety-browser-extension): Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, and links; manual install from GitHub releases while it is not yet in the Chrome Web Store
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
-- [Helvety Docs](https://helvety.com/docs): Edit Word (.docx) in the browser; optional encrypted vault save
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Upscale images in the browser on your device
 - [Helvety Contacts](https://helvety.com/contacts): Encrypted address book with export tooling
 - [Helvety Notes](https://helvety.com/notes): Encrypted notes in Personal, Work, and Other groups

@@ -1072,102 +1072,143 @@ const helvetyLinks: SaaSProduct = {
 };
 
 // =============================================================================
-// HELVETY DOCS
+// HELVETY BROWSER EXTENSION
 // =============================================================================
 
-/** Helvety Docs - browser .docx editor with optional encrypted vault save. */
-const cHelvetyDocs = cardCore("helvety-docs", "saas");
-const helvetyDocs: SaaSProduct = {
-  id: cHelvetyDocs.id,
-  slug: cHelvetyDocs.slug,
-  name: cHelvetyDocs.name,
-  shortDescription: cHelvetyDocs.shortDescription,
-  type: cHelvetyDocs.type,
-  category: cHelvetyDocs.category,
+/**
+ * Helvety Browser Extension - Chromium side panel for the encrypted Helvety apps
+ */
+const cHelvetyBrowserExtension = cardCore(
+  "helvety-browser-extension",
+  "software"
+);
+const helvetyBrowserExtension: SoftwareProduct = {
+  id: cHelvetyBrowserExtension.id,
+  slug: cHelvetyBrowserExtension.slug,
+  name: cHelvetyBrowserExtension.name,
+  shortDescription: cHelvetyBrowserExtension.shortDescription,
+  type: cHelvetyBrowserExtension.type,
+  category: cHelvetyBrowserExtension.category,
+  image: productArtwork.artwork11,
+  artist: "Clara von Rappard",
   description: {
     intro:
-      "Helvety Docs edits Word (.docx) files in your browser. The editor starts blank on each visit; open, create, or upload a document and work locally without signing in. Vault bookmarks may use `?doc=` in URLs, but documents do not auto-open on load. When you choose vault save, document titles and .docx bytes are encrypted on your device before they reach Helvety storage.",
+      "Reach your encrypted Helvety data from a Chromium side panel while you browse. After email sign-in and a passkey unlock, the panel decrypts your tasks, notes, contacts, links, and folders on your device so you can read, create, edit, delete, and reorder them without opening the web app. This is an open beta and is not in the Chrome Web Store yet, so you install it manually from a GitHub release.",
     sections: [
       {
-        heading: "Access model",
+        heading: "Open beta and how you get it",
         kind: "paragraph",
-        body: "Local editing needs no account. Optional vault save requires Helvety Auth sign-in and passkey unlock, the same encryption setup used for encrypted Helvety apps.",
+        body: `${HELVETY_FREE_AGPL_FEATURE}. The extension is in open beta and not yet published to the Chrome Web Store, so installation is manual: use the Go to App button on this page to open GitHub Releases, download the packaged build, and load it unpacked in your browser. Expect rough edges while the beta matures.`,
       },
       {
-        heading: "What you can do",
+        heading: "What you can do after unlock",
         kind: "bullets",
         items: [
-          "Edit .docx in the tab with familiar word-processor controls.",
-          "Upload or start a new document, then download when you are done.",
-          "Open saved documents from My documents in the vault sheet (command bar) when signed in and vault-unlocked (URLs may show `?doc=` after you open or save).",
-          "Save to your vault when signed in (titles and .docx bytes encrypted client-side).",
-          "Per-file ceiling of 20 MB. Large documents still depend on device RAM and your browser.",
+          "Sign in with an email one-time code, then unlock end-to-end encryption with your passkey.",
+          "Browse decrypted tasks, notes, contacts, links, and folders in grouped, edit-first lists.",
+          "Create, edit, delete, and reorder records, and link entities across apps from the edit form.",
+          "Open any item in the matching helvety.com app with one click.",
         ],
       },
       {
-        heading: "Third-party editor",
+        heading: "Privacy and unlock model",
         kind: "paragraph",
-        body: "The in-browser editor is powered by @eigenpal/docx-editor-react (Apache-2.0). Helvety app source remains AGPL-3.0-or-later.",
+        body: "Decryption happens inside the extension, and master keys live in the extension's own storage behind a passkey unlock, separate from helvety.com. Unlocking the website does not unlock the extension, and the extension never receives the web device-trust cookie. It needs a Chromium browser with the Side Panel API (Chrome 114 or newer, or current Edge).",
+      },
+      {
+        heading: "Beta requirements",
+        kind: "paragraph",
+        body: "Decrypted lists and writes require passkey unlock support enabled for your installed extension id on Helvety Auth. See the GitHub README for the current setup checklist and known limitations.",
       },
     ],
   },
-  image: productArtwork.artwork11,
-  artist: "Clara von Rappard",
   features: [
-    "Local .docx editing without an account",
-    "Optional vault save with client-side encryption",
-    "Upload, create, edit, and download .docx files",
-    "Encrypted document titles and .docx bytes when vault save is used",
-    "Up to 20MB per file",
-    "Dark & light mode support",
+    "Chromium side panel for the encrypted Helvety apps",
+    "Email one-time-code sign-in with passkey and PRF unlock",
+    "Decrypted tasks, notes, contacts, links, and folders after unlock",
+    "Create, edit, delete, and reorder from the side panel",
+    "Cross-app entity links from the edit form",
+    "Open any record in the matching helvety.com app",
+    "Master keys stay in the extension behind a passkey unlock",
+    "For Microsoft Edge and Google Chrome (Chrome 114+ side panel)",
+    HELVETY_FREE_AGPL_FEATURE,
   ],
   pricing: {
     hasFreeTier: true,
     tiers: [
       {
-        id: "helvety-docs-free",
+        id: "helvety-browser-extension-free",
         name: "Free",
         price: 0,
         currency: "CHF",
         interval: "one-time",
         isFree: true,
         features: [
-          "Full local editor included",
-          "Optional encrypted vault save when signed in",
-          "Up to 20MB per file",
-          "No account required for local editing",
+          "Full extension functionality",
+          "Open beta with manual install",
+          "No account required to install (Helvety account needed to sign in)",
           "Free to use",
         ],
       },
     ],
   },
   links: {
-    website: "https://helvety.com/docs",
-    github: "https://github.com/CasparRubin/helvety/tree/main/apps/docs",
+    website:
+      "https://github.com/CasparRubin/helvety-browser-extension-chromium/releases",
+    github: "https://github.com/CasparRubin/helvety-browser-extension-chromium",
   },
-  saas: {
-    appUrl: "https://helvety.com/docs",
-    hasApiAccess: false,
+  software: {
+    fileFormat: "zip",
+    requirements: [
+      "Microsoft Edge or Google Chrome (Chromium with Side Panel API; Chrome 114 or newer)",
+      "A Helvety account for sign-in",
+      "A passkey configured on Helvety Auth for end-to-end encryption unlock",
+    ],
+    licenseType: "free",
+    installationSteps: [
+      {
+        title: "Open GitHub Releases",
+        description:
+          "Use the Go to App button on this page to open the Helvety Browser Extension GitHub Releases page.",
+      },
+      {
+        title: "Download the latest packaged build",
+        description:
+          "Download the packaged extension asset (ZIP) from the most recent release, then extract it to a folder you keep on disk.",
+      },
+      {
+        title: "Load it unpacked",
+        description:
+          "In Chrome open chrome://extensions, or in Edge open edge://extensions, enable Developer mode, choose Load unpacked, and select the extracted folder.",
+      },
+      {
+        title: "Open the side panel and sign in",
+        description:
+          "Click the Helvety toolbar icon to open the side panel, sign in with your email one-time code, then unlock end-to-end encryption with your passkey to see and edit your data.",
+      },
+    ],
   },
   metadata: {
     targetAudience: [
-      "Anyone editing Word documents",
+      "Existing Helvety app users",
       "Privacy-conscious professionals",
+      "Beta testers",
     ],
-    platforms: platformsFromRunsOn(cHelvetyDocs.runsOn),
+    platforms: platformsFromRunsOn(cHelvetyBrowserExtension.runsOn),
     keywords: [
-      "docx",
-      "word",
-      "document",
-      "editor",
-      "browser",
-      "encryption",
-      "vault",
-      "privacy",
-      "free",
+      "browser extension",
+      "chromium",
+      "side panel",
+      "end-to-end encryption",
+      "passkey",
+      "tasks",
+      "notes",
+      "contacts",
+      "links",
+      "open beta",
     ],
     featured: true,
-    releaseDate: cHelvetyDocs.releaseDate,
+    releaseDate: cHelvetyBrowserExtension.releaseDate,
   },
 };
 
@@ -1189,7 +1230,7 @@ const products: Product[] = [
   powerPlatformConfigurator,
   helvetyScreenTools,
   helvetyImageUpscaler,
-  helvetyDocs,
+  helvetyBrowserExtension,
 ];
 
 // =============================================================================

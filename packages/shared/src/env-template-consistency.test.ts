@@ -42,18 +42,10 @@ describe("env.template consistency", () => {
     expect([...WEB_GATEWAY_KEYS].sort()).toEqual(
       WEB_GATEWAY_KEYS.filter((key) => buildEnv.includes(key)).sort()
     );
-    expect(WEB_GATEWAY_KEYS).toContain("DOCS_URL");
   });
 
   it("documents DEVICE_TRUST_COOKIE_SECRET on auth and user-scoped E2EE zones", () => {
-    const e2eeApps = new Set([
-      "auth",
-      "tasks",
-      "contacts",
-      "notes",
-      "links",
-      "docs",
-    ]);
+    const e2eeApps = new Set(["auth", "tasks", "contacts", "notes", "links"]);
     for (const [app, keys] of Object.entries(EXPECTED_KEYS_BY_APP)) {
       const hasDeviceTrust = keys.includes("DEVICE_TRUST_COOKIE_SECRET");
       expect(hasDeviceTrust).toBe(e2eeApps.has(app));
@@ -61,14 +53,7 @@ describe("env.template consistency", () => {
   });
 
   it("zone READMEs document DEVICE_TRUST_COOKIE_SECRET when env.template requires it", async () => {
-    const e2eeApps = [
-      "auth",
-      "tasks",
-      "contacts",
-      "notes",
-      "links",
-      "docs",
-    ] as const;
+    const e2eeApps = ["auth", "tasks", "contacts", "notes", "links"] as const;
     for (const app of e2eeApps) {
       const readme = await readFile(
         resolve(repoRoot, `apps/${app}/README.md`),
@@ -158,7 +143,7 @@ describe("env.template consistency", () => {
     }
   });
 
-  it("env documentation references tiers, DOCS_URL gateway, and local/Vercel audit commands", async () => {
+  it("env documentation references tiers, gateway URLs, and local/Vercel audit commands", async () => {
     const docsWithAuditCommands = [
       "README.md",
       "docs/env-vercel-audit-checklist.md",
@@ -176,25 +161,18 @@ describe("env.template consistency", () => {
       }
     }
 
-    const readme = await readFile(resolve(repoRoot, "README.md"), "utf8");
-    expect(readme).toContain("DOCS_URL");
-
     const turboTiers = await readFile(
       resolve(repoRoot, "docs/turbo-env-tiers.md"),
       "utf8"
     );
     expect(turboTiers).toContain("consistency:local-env");
-    expect(turboTiers).toContain("DOCS_URL");
-    expect(turboTiers).toContain(
-      "tasks`, `contacts`, `notes`, `links`, `docs`"
-    );
+    expect(turboTiers).toContain("tasks`, `contacts`, `notes`, `links`");
     expect(turboTiers).toContain("env-vercel-audit-checklist.md");
 
     const vercelApps = await readFile(
       resolve(repoRoot, "docs/vercel-monorepo-apps.md"),
       "utf8"
     );
-    expect(vercelApps).toContain("DOCS_URL");
     expect(vercelApps).toContain("env-vercel-audit-checklist.md");
 
     const auditChecklist = await readFile(
@@ -289,7 +267,6 @@ describe("env.template consistency", () => {
       [
         "auth",
         "contacts",
-        "docs",
         "image-upscaler",
         "links",
         "notes",

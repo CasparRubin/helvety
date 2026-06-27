@@ -4,17 +4,17 @@ See also [`security-review-runbook.md`](./security-review-runbook.md) for the fu
 
 Use this when syncing **Production** and **Preview** env in the Vercel dashboard. Local parity: `bun run consistency:local-env`. Template guardrails: `bun run consistency:env-templates`. Automated audits (requires Vercel CLI login): `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env` ([`scripts/audit-vercel-production-env.mjs`](../scripts/audit-vercel-production-env.mjs); add `--preview` for Preview tier).
 
-All ten zone projects exist on team **Helvety** (`helvety-com`, `helvety-auth`, `helvety-store`, `helvety-docs`, `helvety-pdf`, `helvety-image-upscaler`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`).
+All nine zone projects exist on team **Helvety** (`helvety-com`, `helvety-auth`, `helvety-store`, `helvety-pdf`, `helvety-image-upscaler`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`).
 
 ## Per-project keys
 
-| Vercel project                                                                        | Root Directory | Set these                                                                                                                                                  | Do not set                                                          |
-| ------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `helvety-com`                                                                         | `apps/web`     | `NEXT_PUBLIC_SUPABASE_*`, all nine `*_URL` gateway vars including **`DOCS_URL`**                                                                           | `SUPABASE_SECRET_KEY`, `UPSTASH_*`, `HELVETY_COOKIE_SIGNING_SECRET` |
-| `helvety-auth`                                                                        | `apps/auth`    | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`**, **`HELVETY_CHROME_EXTENSION_ORIGINS`** | —                                                                   |
-| `helvety-store`                                                                       | `apps/store`   | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                                           | `DEVICE_TRUST_COOKIE_SECRET`                                        |
-| `helvety-docs`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links` | `apps/<slug>`  | Public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`)                                 | `SUPABASE_SECRET_KEY`                                               |
-| `helvety-pdf`, `helvety-image-upscaler`                                               | `apps/<slug>`  | **Public tool tier:** public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` only (no `DEVICE_TRUST_COOKIE_SECRET`)                                     | `SUPABASE_SECRET_KEY`, `DEVICE_TRUST_COOKIE_SECRET`                 |
+| Vercel project                                                        | Root Directory | Set these                                                                                                                                                  | Do not set                                                          |
+| --------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `helvety-com`                                                         | `apps/web`     | `NEXT_PUBLIC_SUPABASE_*`, all eight `*_URL` gateway vars                                                                                                   | `SUPABASE_SECRET_KEY`, `UPSTASH_*`, `HELVETY_COOKIE_SIGNING_SECRET` |
+| `helvety-auth`                                                        | `apps/auth`    | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`**, **`HELVETY_CHROME_EXTENSION_ORIGINS`** | —                                                                   |
+| `helvety-store`                                                       | `apps/store`   | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                                           | `DEVICE_TRUST_COOKIE_SECRET`                                        |
+| `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links` | `apps/<slug>`  | Public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`)                                 | `SUPABASE_SECRET_KEY`                                               |
+| `helvety-pdf`, `helvety-image-upscaler`                               | `apps/<slug>`  | **Public tool tier:** public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` only (no `DEVICE_TRUST_COOKIE_SECRET`)                                     | `SUPABASE_SECRET_KEY`, `DEVICE_TRUST_COOKIE_SECRET`                 |
 
 Copy exact key names and comments from each zone’s `apps/<slug>/env.template` (for example `apps/auth/env.template`).
 
@@ -24,7 +24,7 @@ Copy exact key names and comments from each zone’s `apps/<slug>/env.template` 
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — every project except `helvety-com`
 - `HELVETY_COOKIE_SIGNING_SECRET` — every project except `helvety-com` (one shared value)
 - `SUPABASE_SECRET_KEY` — only `helvety-auth` and `helvety-store` (must differ from publishable key)
-- `DEVICE_TRUST_COOKIE_SECRET` — `helvety-auth` and all user-scoped E2EE/docs zones (same shared value; weekly device-trust gate). `bun run consistency:vercel-prod-env` checks presence plus parity: SHA-256 when Vercel exposes values, otherwise `updatedAt` spread across zones (sensitive vars are not readable via CLI/API).
+- `DEVICE_TRUST_COOKIE_SECRET` — `helvety-auth` and all user-scoped E2EE zones (same shared value; weekly device-trust gate). `bun run consistency:vercel-prod-env` checks presence plus parity: SHA-256 when Vercel exposes values, otherwise `updatedAt` spread across zones (sensitive vars are not readable via CLI/API).
 - `HELVETY_CHROME_EXTENSION_ORIGINS` — only `helvety-auth`
 
 ### `HELVETY_CHROME_EXTENSION_ORIGINS` (helvety-auth only)
@@ -57,15 +57,15 @@ Expect **`401`** with a JSON body (not `404` or HTML).
 | `bun run consistency:vercel-preview-env`                                                           | **Passed** (re-run after adding Preview keys on any new zone) |
 | Supabase leaked password protection                                                                | **Manual** — Authentication → Email in Supabase Dashboard     |
 | Supabase session JWT / 7d / 24h inactivity                                                         | **Manual** — align with `auth-session-policy.ts` on Pro       |
-| Vercel Analytics disabled (all 10 projects)                                                        | **Manual** — see runbook § Vercel dashboard                   |
+| Vercel Analytics disabled (all 9 projects)                                                         | **Manual** — see runbook § Vercel dashboard                   |
 
 ## Gateway (`helvety-com`) rewrite URLs
 
-Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-docs.vercel.app`), not the public `helvety.com` path.
+Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-pdf.vercel.app`), not the public `helvety.com` path.
 
 After changing any `*_URL`, **redeploy `helvety-com`** so rewrites pick up new origins. Deploying a sub-zone alone does not update `helvety.com/<path>` until the gateway is redeployed.
 
-## Vercel Web Analytics and Speed Insights (all ten projects)
+## Vercel Web Analytics and Speed Insights (all nine projects)
 
 Helvety does not use Vercel Analytics or Speed Insights in application code. In the Vercel dashboard for **each** zone project (`helvety-com` through `helvety-links`), confirm **Analytics → Web Analytics** and **Speed Insights** are **disabled** so the platform does not inject `va.vercel-scripts.com` or related scripts outside the repo.
 

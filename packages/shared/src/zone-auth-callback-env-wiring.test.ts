@@ -9,7 +9,6 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const AUTH_CALLBACK_APPS = [
   "auth",
   "contacts",
-  "docs",
   "image-upscaler",
   "links",
   "notes",

@@ -41,10 +41,6 @@ const NAVBAR_WIRING = [
     symbol: "pdfNavbarAbout",
   },
   {
-    rel: "apps/docs/components/navbar.tsx",
-    symbol: "docsNavbarAbout",
-  },
-  {
     rel: "apps/image-upscaler/components/navbar.tsx",
     symbol: "imageUpscalerNavbarAbout",
   },
@@ -89,11 +85,11 @@ describe("app navbar wiring", () => {
     expect(source).toContain("createPublicShellNavbar");
   });
 
-  it.each([
-    "apps/auth/components/navbar.tsx",
-    "apps/docs/components/navbar.tsx",
-  ] as const)("vault-aware %s uses createVaultAwareShellNavbar", (rel) => {
-    const source = readFileSync(join(repoRoot, rel), "utf8");
+  it("vault-aware apps/auth/components/navbar.tsx uses createVaultAwareShellNavbar", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/auth/components/navbar.tsx"),
+      "utf8"
+    );
     expect(source).toContain("createVaultAwareShellNavbar");
   });
 

@@ -206,7 +206,7 @@ function sanitizeDisallowedPaths(
 /**
  * Creates a sitemap for a helvety.com path-zone app with the canonical app root URL.
  *
- * @param basePath - The app's base path (e.g. "/pdf", "/docs")
+ * @param basePath - The app's base path (e.g. "/pdf", "/image-upscaler")
  */
 export function createAppSitemap(
   basePath: string

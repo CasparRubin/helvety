@@ -38,7 +38,6 @@ describe("web SEO routes", () => {
     const zoneLlmsUrls = [
       urls.store,
       urls.pdf,
-      urls.docs,
       urls.imageUpscaler,
       urls.auth,
       urls.contacts,

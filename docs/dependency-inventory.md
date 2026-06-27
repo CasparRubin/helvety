@@ -1,6 +1,6 @@
 # Helvety dependency inventory (extended)
 
-Canonical list of **non-npm-only** dependencies and high-impact pins for public-tool zones (`pdf`, `docs`, `image-upscaler`, `web`) plus monorepo-wide toolchain. Used by the Cursor **`dependency-update`** skill (`.cursor/skills/dependency-update/SKILL.md`).
+Canonical list of **non-npm-only** dependencies and high-impact pins for public-tool zones (`pdf`, `image-upscaler`, `web`) plus monorepo-wide toolchain. Used by the Cursor **`dependency-update`** skill (`.cursor/skills/dependency-update/SKILL.md`).
 
 **Maintain this file** whenever you change a pin (SHA-256, vendored worker, git override, hosted model upload, or major vendor bump). Run `bun run deps:inventory` for a machine-readable snapshot of current pins.
 
@@ -54,17 +54,6 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 ---
 
-## docs
-
-| Name                           | Current pin                                                                               | Upstream             | Check URL                                        | Update procedure                                                               | Risk                 |
-| ------------------------------ | ----------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ | -------------------- |
-| `@eigenpal/docx-editor-react`  | `^1.9.0` — `apps/docs/package.json`                                                       | eigenpal/docx-editor | https://github.com/eigenpal/docx-editor/releases | npm bump; **Eigenpal upgrade checklist** in `apps/docs/README.md`; theme tests | UI/theme regressions |
-| Eigenpal theme bridge          | `apps/docs/styles/docx-editor-helvety-bridge.css`, `lib/docx-editor-theme-tokens.ts`      | In-repo              | —                                                | Extend bridge if vendor class names change                                     | Dark/light contrast  |
-| Material Symbols (self-hosted) | `apps/docs/app/fonts/material-symbols-outlined.woff2`, `lib/fonts.ts` (`next/font/local`) | Google Fonts         | https://fonts.google.com/icons                   | WOFF2 in-repo; no CDN `@import`; Docs proxy uses `public-tool` only            | Toolbar icon regress |
-| Docx transitive stack          | `docxtemplater`, ProseMirror, etc. (lockfile)                                             | Various              | npm / Eigenpal changelog                         | Usually follows Eigenpal bump                                                  | Template/export      |
-
----
-
 ## web (gateway)
 
 | Name                                        | Current pin                             | Upstream              | Check URL                                         | Update procedure                                                                                  | Risk              |
@@ -94,11 +83,11 @@ When `@helvety/extension-chrome` changes, coordinate releases in those external 
 
 ## Hosted services (no version in repo)
 
-| Service                      | Used by                               | Notes                                                        |
-| ---------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-| Supabase (Auth, DB, Storage) | docs vault, upscaler models, sessions | Schema: `supabase/getSupabase.sql` (local export gitignored) |
-| Upstash Redis                | rate limits (shared proxy)            | Env per `docs/turbo-env-tiers.md`                            |
-| Vercel                       | deploy per `apps/*/vercel.json`       | Node 24; monorepo roots                                      |
+| Service                      | Used by                         | Notes                                                        |
+| ---------------------------- | ------------------------------- | ------------------------------------------------------------ |
+| Supabase (Auth, DB, Storage) | upscaler models, sessions       | Schema: `supabase/getSupabase.sql` (local export gitignored) |
+| Upstash Redis                | rate limits (shared proxy)      | Env per `docs/turbo-env-tiers.md`                            |
+| Vercel                       | deploy per `apps/*/vercel.json` | Node 24; monorepo roots                                      |
 
 Check Supabase CLI/dashboard and Vercel runtime advisories during major updates.
 

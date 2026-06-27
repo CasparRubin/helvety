@@ -49,7 +49,7 @@ export interface StoreProductCard {
  * (newer for display when using newest-first sort).
  */
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
-  "helvety-docs": 9,
+  "helvety-browser-extension": 9,
   "helvety-image-upscaler": 8,
   "helvety-screen-tools": 7,
   "helvety-power-platform-configurator": 6,
@@ -180,15 +180,15 @@ export const STORE_PRODUCT_CARDS = [
     isOpenSource: true,
   },
   {
-    id: "helvety-docs",
-    slug: "helvety-docs",
-    name: "Helvety Docs",
+    id: "helvety-browser-extension",
+    slug: "helvety-browser-extension",
+    name: "Helvety Browser Extension",
     shortDescription:
-      "Edit Word (.docx) in your browser. Local editing needs no account; optional vault save encrypts titles and .docx files on your device before storage.",
-    releaseDate: "2026-05-23",
-    type: "saas",
-    category: "utilities",
-    runsOn: "Browser",
+      "Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, and links. Sign in, unlock with a passkey, then create and edit without leaving the page.",
+    releaseDate: "2026-06-27",
+    type: "software",
+    category: "productivity",
+    runsOn: "Edge & Chrome",
     isFree: true,
     isOpenSource: true,
   },

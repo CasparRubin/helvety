@@ -12,7 +12,6 @@ export const TABLES_REQUIRING_USER_RLS = [
   "links",
   "link_folders",
   "entity_links",
-  "docs",
   "user_profiles",
   "user_passkey_params",
   "user_auth_credentials",

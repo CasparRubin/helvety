@@ -25,12 +25,6 @@ export const VERCEL_APP_EXPECTATIONS = {
     rootDirectory: "apps/pdf",
     displayName: "PDF",
   },
-  docs: {
-    vercelProject: "helvety-docs",
-    rootDirectory: "apps/docs",
-    displayName: "Docs",
-    forbiddenRootDirectories: ["docs"],
-  },
   "image-upscaler": {
     vercelProject: "helvety-image-upscaler",
     rootDirectory: "apps/image-upscaler",

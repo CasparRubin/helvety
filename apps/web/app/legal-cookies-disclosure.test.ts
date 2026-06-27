@@ -92,7 +92,7 @@ describe("privacy policy cookies disclosure", () => {
   });
 
   it("web zone slug list matches expected Helvety web zone count", () => {
-    expect(HELVETY_WEB_ZONE_APP_SLUGS).toHaveLength(10);
+    expect(HELVETY_WEB_ZONE_APP_SLUGS).toHaveLength(9);
   });
 
   it("§9 documents vault and PRF salt retention durations", async () => {
@@ -103,7 +103,7 @@ describe("privacy policy cookies disclosure", () => {
     expect(cookiesSection).toMatch(/helvety-prf-salt[\s\S]*?7 days/);
     expect(cookiesSection).toContain("helvety-crypto (IndexedDB)");
     expect(cookiesSection).toMatch(
-      /helvety-crypto[\s\S]*?Helvety Docs[\s\S]*?optional[\s\S]*?vault save/
+      /helvety-crypto[\s\S]*?Helvety Tasks, Contacts, Notes, Links/
     );
     expect(cookiesSection).toMatch(
       /helvety-crypto[\s\S]*?24 hours idle[\s\S]*?7 days maximum/

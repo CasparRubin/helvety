@@ -23,11 +23,6 @@ test.describe("gateway smoke", () => {
     expect(response?.ok()).toBeTruthy();
   });
 
-  test("docs public zone rewrite responds", async ({ page }) => {
-    const response = await page.goto("/docs");
-    expect(response?.ok()).toBeTruthy();
-  });
-
   test("store public download rejects invalid package id", async ({
     request,
   }) => {

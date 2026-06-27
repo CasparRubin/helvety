@@ -163,10 +163,6 @@ export default function ImpressumPage() {
             PDF toolkit for supported local workflows.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Docs</strong>:
-            in-browser Word (.docx) editor with optional encrypted vault save.
-          </li>
-          <li>
             <strong className="text-foreground">Helvety Screen Tools</strong>:
             Windows desktop capture and Live Draw overlay.
           </li>

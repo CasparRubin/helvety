@@ -8,8 +8,6 @@ describe("isGatewayCrossZoneHref", () => {
     expect(isGatewayCrossZoneHref("/store/products")).toBe(true);
     expect(isGatewayCrossZoneHref("/store/products?tab=apps")).toBe(true);
     expect(isGatewayCrossZoneHref("/pdf#viewer")).toBe(true);
-    expect(isGatewayCrossZoneHref("/docs")).toBe(true);
-    expect(isGatewayCrossZoneHref("/docs?doc=abc")).toBe(true);
     expect(isGatewayCrossZoneHref("/tasks/items")).toBe(true);
     expect(isGatewayCrossZoneHref("/contacts")).toBe(true);
     expect(isGatewayCrossZoneHref("/notes/new")).toBe(true);

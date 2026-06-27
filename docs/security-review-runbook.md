@@ -37,7 +37,7 @@ bun run consistency:vercel-preview-env
 
 Confirm each zone uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; JWT `eyJ…` anon keys are rejected at startup) and `SUPABASE_SECRET_KEY` on admin tiers only (not legacy `anon` / `service_role` env var names). The audit script warns on legacy key names. Preview env should mirror Production tier keys (same allow/forbid rules); never set `SKIP_ENV_VALIDATION=1` on Vercel.
 
-### Vercel dashboard (manual, all ten zone projects)
+### Vercel dashboard (manual, all nine zone projects)
 
 - **Analytics → Web Analytics** and **Speed Insights** must stay **disabled** (Helvety CSP does not allow `va.vercel-scripts.com`).
 - Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview.
@@ -70,7 +70,7 @@ Run **Database → Advisors → Security** (or MCP `get_advisors` type `security
 - Disable unused OAuth/OIDC providers.
 - Confirm session lifetime settings if on Supabase Pro (see GoTrue section below).
 
-`consistency:supabase-rls` checks every table in `scripts/supabase-user-tables.mjs` (`TABLES_REQUIRING_USER_RLS`, currently **10** tables: `contacts`, `items`, `notes`, `links`, `link_folders`, `entity_links`, `docs`, `user_profiles`, `user_passkey_params`, `user_auth_credentials`). It fails when a listed table is missing from the local export or lacks forced owner-scoped RLS — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
+`consistency:supabase-rls` checks every table in `scripts/supabase-user-tables.mjs` (`TABLES_REQUIRING_USER_RLS`, currently **9** tables: `contacts`, `items`, `notes`, `links`, `link_folders`, `entity_links`, `user_profiles`, `user_passkey_params`, `user_auth_credentials`). It fails when a listed table is missing from the local export or lacks forced owner-scoped RLS — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
 
 **Schema changes (remote-first):** DDL is applied on the hosted Supabase project (Dashboard SQL editor or Supabase MCP). This repo does **not** commit `supabase/migrations/`; audit the live shape with [`supabase/getSupabase.sql`](../supabase/getSupabase.sql) → local `supabase/supabase.json` (gitignored). After every schema change, run `bun run db:gen-types` and `bun run consistency:supabase-schema`. Example: `user_passkey_params.key_check_value` (nullable text, KCV for wrong-passkey detection) was added in June 2026 via hosted migration.
 
@@ -117,7 +117,7 @@ Checks run on session refresh (not proactively). On **helvety.com** E2EE zones, 
 
 Supabase MCP (`helvety`, `eu-central-2`, Postgres **17.6.1**, `ACTIVE_HEALTHY`):
 
-- All **10** user-data tables: RLS **enabled + forced** (verified via `execute_sql`).
+- All **9** user-data tables: RLS **enabled + forced** (verified via `execute_sql`).
 - Security advisor: **WARN** — [leaked password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) (enable under Authentication → Email).
 
 Vercel MCP: all zone projects present; **`helvety-auth`** latest Production deployment **READY** (Node **24.x**).

@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 import {
   CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR,
   DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR,
-  DOCS_PREFETCH_TOO_MANY_ROWS_ERROR,
   NOTES_PREFETCH_TOO_MANY_ROWS_ERROR,
   TASKS_PREFETCH_TOO_MANY_ROWS_ERROR,
 } from "./dashboard-prefetch";
@@ -18,7 +17,6 @@ const PREFETCH_API_ROUTES = [
   "apps/notes/app/api/items/route.ts",
   "apps/contacts/app/api/contacts/route.ts",
   "apps/links/app/api/library/route.ts",
-  "apps/docs/app/api/docs/route.ts",
 ] as const;
 
 const PREFETCH_BATCH_ACTIONS = [
@@ -38,9 +36,6 @@ describe("encrypted prefetch overflow copy wiring", () => {
     );
     expect(CONTACTS_PREFETCH_TOO_MANY_ROWS_ERROR).toBe(
       "Too many contacts to load in one request"
-    );
-    expect(DOCS_PREFETCH_TOO_MANY_ROWS_ERROR).toBe(
-      "Too many documents to load in one request"
     );
     expect(DASHBOARD_PREFETCH_TOO_MANY_ITEMS_ERROR).toBe(
       "Too many items to load in one request"
@@ -62,7 +57,6 @@ describe("encrypted prefetch overflow copy wiring", () => {
       "apps/tasks/app/api/items/route.test.ts",
       "apps/notes/app/api/items/route.test.ts",
       "apps/contacts/app/api/contacts/route.test.ts",
-      "apps/docs/app/api/docs/route.test.ts",
     ] as const;
 
     for (const relativePath of routeTests) {

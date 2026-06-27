@@ -394,7 +394,7 @@ export function createAppUpstashCookieEnv<
   };
 }
 
-/** User-scoped E2EE + docs zones with weekly device trust on helvety.com. */
+/** User-scoped E2EE zones with weekly device trust on helvety.com. */
 export function createAppUserScopedE2eeEnv(options: {
   appName: string;
   envTemplatePath: string;
@@ -416,7 +416,6 @@ export const WEB_GATEWAY_KEYS = [
   "AUTH_URL",
   "STORE_URL",
   "PDF_URL",
-  "DOCS_URL",
   "IMAGE_UPSCALER_URL",
   "TASKS_URL",
   "CONTACTS_URL",
@@ -450,7 +449,6 @@ const CI_PLACEHOLDER_GATEWAY: GatewayEnv = {
   AUTH_URL: "https://ci-build-placeholder-auth.vercel.app",
   STORE_URL: "https://ci-build-placeholder-store.vercel.app",
   PDF_URL: "https://ci-build-placeholder-pdf.vercel.app",
-  DOCS_URL: "https://ci-build-placeholder-docs.vercel.app",
   IMAGE_UPSCALER_URL: "https://ci-build-placeholder-image-upscaler.vercel.app",
   TASKS_URL: "https://ci-build-placeholder-tasks.vercel.app",
   CONTACTS_URL: "https://ci-build-placeholder-contacts.vercel.app",

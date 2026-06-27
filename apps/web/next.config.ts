@@ -95,7 +95,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         "IMAGE_UPSCALER_URL",
         DEV_PORTS.imageUpscaler
       );
-      const docsUrl = getAppUrl("DOCS_URL", DEV_PORTS.docs);
 
       return {
         beforeFiles: [
@@ -179,14 +178,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/pdf/:path*",
             destination: `${pdfUrl}/pdf/:path*`,
-          },
-          {
-            source: "/docs",
-            destination: `${docsUrl}/docs`,
-          },
-          {
-            source: "/docs/:path*",
-            destination: `${docsUrl}/docs/:path*`,
           },
           {
             source: "/image-upscaler",

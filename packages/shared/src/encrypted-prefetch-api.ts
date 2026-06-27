@@ -26,7 +26,6 @@ export const ENCRYPTED_PREFETCH_COLUMNS = {
     "id,user_id,parent_folder_id,encrypted_name,sort_order,created_at,updated_at",
   links:
     "id,user_id,folder_id,encrypted_name,encrypted_url,sort_order,created_at,updated_at",
-  docs: "id,user_id,encrypted_title,encrypted_docx,created_at,updated_at",
 } as const;
 
 /**

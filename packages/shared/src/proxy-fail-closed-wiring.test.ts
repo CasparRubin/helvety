@@ -13,7 +13,6 @@ const FAIL_CLOSED_PROXY_APPS = [
   "notes",
   "links",
   "store",
-  "docs",
   "pdf",
   "image-upscaler",
 ] as const;

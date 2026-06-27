@@ -34,7 +34,6 @@ const TEAM = "helvety";
 /** Zones that must share the same DEVICE_TRUST_COOKIE_SECRET value in production. */
 const DEVICE_TRUST_PARITY_PROJECTS = [
   "helvety-auth",
-  "helvety-docs",
   "helvety-tasks",
   "helvety-contacts",
   "helvety-notes",
@@ -48,7 +47,6 @@ const PROJECT_TO_APP = {
   "helvety-com": "web",
   "helvety-auth": "auth",
   "helvety-store": "store",
-  "helvety-docs": "docs",
   "helvety-pdf": "pdf",
   "helvety-image-upscaler": "image-upscaler",
   "helvety-tasks": "tasks",

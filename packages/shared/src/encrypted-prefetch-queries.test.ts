@@ -5,7 +5,6 @@ import { ENCRYPTED_PREFETCH_COLUMNS } from "./encrypted-prefetch-api";
 import {
   ENCRYPTED_PREFETCH_API_MAX_ROWS,
   fetchContactsPrefetchRows,
-  fetchDocsPrefetchRows,
   fetchLinksLibraryPrefetchRows,
   fetchNotesPrefetchRows,
   fetchTasksPrefetchRows,
@@ -103,19 +102,5 @@ describe("encrypted-prefetch-queries", () => {
     expect(linksQuery.select).toHaveBeenCalledWith(
       ENCRYPTED_PREFETCH_COLUMNS.links
     );
-  });
-
-  it("queries docs with explicit prefetch columns", async () => {
-    const overrideTypes = vi.fn().mockResolvedValue({ data: [], error: null });
-    const limit = vi.fn(() => ({ overrideTypes }));
-    const orderUpdatedAt = vi.fn(() => ({ limit }));
-    const eqUser = vi.fn(() => ({ order: orderUpdatedAt }));
-    const select = vi.fn(() => ({ eq: eqUser }));
-    const supabase = { from: vi.fn(() => ({ select })) };
-
-    await fetchDocsPrefetchRows(supabase as never, "user-1", 10);
-
-    expect(supabase.from).toHaveBeenCalledWith("docs");
-    expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.docs);
   });
 });

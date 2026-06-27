@@ -29,7 +29,7 @@ export const AUTH_EXTRA_KEYS = [
   "HELVETY_CHROME_EXTENSION_ORIGINS",
 ];
 
-/** Device-trust signing for user-scoped E2EE + docs vault zones. */
+/** Device-trust signing for user-scoped E2EE vault zones. */
 export const USER_SCOPED_E2EE_EXTRA_KEYS = ["DEVICE_TRUST_COOKIE_SECRET"];
 
 /**
@@ -53,7 +53,6 @@ export const WEB_GATEWAY_KEYS = [
   "AUTH_URL",
   "STORE_URL",
   "PDF_URL",
-  "DOCS_URL",
   "IMAGE_UPSCALER_URL",
   "TASKS_URL",
   "CONTACTS_URL",
@@ -84,11 +83,6 @@ export const EXPECTED_KEYS_BY_APP = {
     ...UPSTASH_COOKIE_KEYS,
     ...USER_SCOPED_E2EE_EXTRA_KEYS,
   ],
-  docs: [
-    ...PUBLIC_SUPABASE_KEYS,
-    ...UPSTASH_COOKIE_KEYS,
-    ...USER_SCOPED_E2EE_EXTRA_KEYS,
-  ],
   store: [...PUBLIC_SUPABASE_KEYS, ...SERVER_UPSTASH_KEYS],
   pdf: [...PUBLIC_SUPABASE_KEYS, ...UPSTASH_COOKIE_KEYS],
   "image-upscaler": [...PUBLIC_SUPABASE_KEYS, ...UPSTASH_COOKIE_KEYS],
@@ -114,7 +108,6 @@ export const FORBIDDEN_KEYS_BY_APP = {
   tasks: ["SUPABASE_SECRET_KEY", ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS],
   contacts: ["SUPABASE_SECRET_KEY", ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS],
   links: ["SUPABASE_SECRET_KEY", ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS],
-  docs: ["SUPABASE_SECRET_KEY", ...HELVETY_FORBIDDEN_ANALYTICS_ENV_KEYS],
   pdf: [
     "SUPABASE_SECRET_KEY",
     "DEVICE_TRUST_COOKIE_SECRET",

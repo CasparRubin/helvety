@@ -41,38 +41,12 @@ describe("legal pages enumerate E2EE products", () => {
     expect(source).toContain("2,000 each");
   });
 
-  it.each([
-    ["privacy", "apps/web/app/privacy/page.tsx"],
-    ["terms", "apps/web/app/terms/page.tsx"],
-    ["impressum", "apps/web/app/impressum/page.tsx"],
-  ] as const)(
-    "%s documents Helvety Docs hybrid local and optional vault modes",
-    (_label, rel) => {
-      const source = readFileSync(join(repoRoot, rel), "utf8");
-      expect(source).toContain("Helvety Docs");
-      expect(source).toMatch(/optional vault|vault save/i);
-    }
-  );
-
-  it("privacy documents Helvety Docs service URL in section 2.8", () => {
-    const source = readFileSync(
-      join(repoRoot, "apps/web/app/privacy/page.tsx"),
-      "utf8"
-    );
-    expect(source).toContain("Helvety Docs (helvety.com/docs)");
-    expect(source).toMatch(/optional\s+vault|vault save/i);
-    expect(source).not.toMatch(
-      /Helvety Tasks, Helvety Contacts, Helvety Notes, Helvety Links, and Helvety Docs/
-    );
-  });
-
-  it("privacy self-service deletion lists Links and Docs data categories", () => {
+  it("privacy self-service deletion lists Links data categories", () => {
     const source = readFileSync(
       join(repoRoot, "apps/web/app/privacy/page.tsx"),
       "utf8"
     );
     expect(source).toContain("link data (Helvety Links)");
-    expect(source).toMatch(/document vault data \(Helvety\s+Docs\)/);
     expect(source).not.toMatch(
       /task data, contact data,\s+and note data\.\s+Full propagation/
     );

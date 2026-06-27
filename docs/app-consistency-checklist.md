@@ -17,10 +17,10 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `components.json`    | shadcn registry (add primitives via `packages/ui`, not app-local `ui/`); **`web` may add extra registries** (e.g. React Bits) for the marketing homepage                                                                                    |
 | `app/layout.tsx`     | Product metadata via `createHelvetyProductMetadata`                                                                                                                                                                                         |
 | `app/icon.svg`       | Zone favicon / PWA icon (required on every zone)                                                                                                                                                                                            |
-| `app/apple-icon.png` | Optional iOS home-screen PNG (recommended on public/indexable zones; `docs`, `links`, and `image-upscaler` ship one today)                                                                                                                  |
+| `app/apple-icon.png` | Optional iOS home-screen PNG (recommended on public/indexable zones; `links` and `image-upscaler` ship one today)                                                                                                                           |
 | `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                                               |
 | `app/robots.ts`      | Zone crawl policy via `@helvety/shared/seo` (`createOpenRobots`, `createAppRobots`, or `createPrivateAppRobots`)                                                                                                                            |
-| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `docs`, `image-upscaler`); private non-indexable zones omit this file (404 avoids invalid urlset XML in Search Console)                                                             |
+| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `image-upscaler`); private non-indexable zones omit this file (404 avoids invalid urlset XML in Search Console)                                                                     |
 
 ## Required tests (minimum floor)
 
@@ -37,14 +37,13 @@ Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layou
 
 Every zone asserts layouts omit `@helvety/light-pillar` and `HelvetyShellWithLightPillarBackdrop` (gateway WebGL stays on `web` route components only).
 
-| Family                | Apps                                  | Also assert                                                                                                                                                                                                                                               |
-| --------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| E2EE                  | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                                                                                                                                                            |
-| Public tool           | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
-| Gateway marketing     | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
-| Auth gateway          | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order; OTP verify returns rotated `csrfToken` for `useSetCSRFToken` before passkey; client syncs `?step=` via `syncLoginUrlStep` (no post-OTP server redirect when session exists) |
-| Store gateway         | `store`                               | CSRF wraps `{shell}`                                                                                                                                                                                                                                      |
-| Docs (public + vault) | `docs`                                | CSRF + `EncryptionProvider`; nesting order; `app/page.tsx` uses `getCachedUser()` (not `bootstrapPublicLayoutUser`)                                                                                                                                       |
+| Family            | Apps                                  | Also assert                                                                                                                                                                                                                                               |
+| ----------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E2EE              | `tasks`, `contacts`, `notes`, `links` | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                                                                                                                                                            |
+| Public tool       | `pdf`, `image-upscaler`               | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
+| Gateway marketing | `web`                                 | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
+| Auth gateway      | `auth`                                | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order; OTP verify returns rotated `csrfToken` for `useSetCSRFToken` before passkey; client syncs `?step=` via `syncLoginUrlStep` (no post-OTP server redirect when session exists) |
+| Store gateway     | `store`                               | CSRF wraps `{shell}`                                                                                                                                                                                                                                      |
 
 Copy an existing test from the same family when adding a zone.
 
@@ -52,13 +51,12 @@ Copy an existing test from the same family when adding a zone.
 
 Mock the session helper your `app/layout.tsx` actually uses (metadata-only tests import `metadata`, not the default layout):
 
-| Layout pattern                                         | Mock                                                                   |
-| ------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `bootstrapPublicLayoutUser()`                          | `@helvety/shared/layout-session-bootstrap`                             |
-| `bootstrapE2eeLayoutSession()`                         | `@helvety/shared/layout-session-bootstrap`                             |
-| `bootstrapAuthLayoutSession()` (auth layout only)      | `@helvety/shared/layout-session-bootstrap`                             |
-| Docs public `page.tsx` session                         | `@helvety/shared/cached-server` (`getCachedUser`, deduped with layout) |
-| `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                                                |
+| Layout pattern                                         | Mock                                       |
+| ------------------------------------------------------ | ------------------------------------------ |
+| `bootstrapPublicLayoutUser()`                          | `@helvety/shared/layout-session-bootstrap` |
+| `bootstrapE2eeLayoutSession()`                         | `@helvety/shared/layout-session-bootstrap` |
+| `bootstrapAuthLayoutSession()` (auth layout only)      | `@helvety/shared/layout-session-bootstrap` |
+| `E2eeAppRootLayout` only (no session in layout module) | `next/font/google` only                    |
 
 Public-tool `seo-routes.test.ts` should use `expectPublicCrawlerRobots` and `assertValidPublicSitemapEntries` from `@helvety/shared/test-utils/seo-route-test-helpers` so `*` and `AI_DISCOVERY_USER_AGENTS` stay in sync and sitemap entries follow Google best practices.
 
@@ -75,7 +73,7 @@ Colocate **`route.test.ts` beside the list handler**. Import `[id]/route` from t
 | Case                                                | Required?                              | Reference                                             |
 | --------------------------------------------------- | -------------------------------------- | ----------------------------------------------------- |
 | List success + `cache-control: no-store, max-age=0` | Yes                                    | `apps/contacts/app/api/contacts/route.test.ts`        |
-| Encrypted prefetch auth + `RATE_LIMITS.PREFETCH`    | Yes (E2EE + docs vault list routes)    | Same parent `route.test.ts` files                     |
+| Encrypted prefetch auth + `RATE_LIMITS.PREFETCH`    | Yes (E2EE vault list routes)           | Same parent `route.test.ts` files                     |
 | Auth failure (no Supabase query)                    | Yes                                    | `apps/links/app/api/library/route.test.ts`            |
 | Bearer + allowlisted origin (extension passkey)     | When present                           | `apps/auth/app/api/extension/passkey/*/route.test.ts` |
 | Allowlisted origin (extension OTP)                  | When present                           | `apps/auth/app/api/extension/otp/*/route.test.ts`     |
@@ -97,14 +95,14 @@ vi.mock("@helvety/shared/logger", () => ({
 
 One colocated `*-actions.test.ts` per `*-actions.ts` file. Use mocks from `apps/contacts/app/actions/contact-actions.test.ts` and helpers from `@helvety/shared/test-utils/action-test-helpers` (`sampleEncryptedField()` for valid encrypted JSON fixtures). Cross-app link mutations in zone actions use `entity-link-action-primitives` (`createCanonicalLink`, `deleteCanonicalLink`); mock those primitives in tests (see `apps/tasks/app/actions/note-link-actions.test.ts`, `apps/tasks/app/actions/link-entity-link-actions.test.ts`, `apps/links/app/actions/note-link-actions.test.ts`). For Supabase list/export reads, assert explicit `.select(...)` column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS`, or `ENTITY_LINK_COLUMNS`) rather than `*`. Examples: `apps/tasks/app/actions/entity-actions.test.ts`, `apps/contacts/app/api/contacts/route.test.ts`, `apps/links/app/actions/batch-actions.test.ts`.
 
-### Primary data hooks (E2EE + docs)
+### Primary data hooks (E2EE)
 
 1. `describe("get*ApiPath")` — pure basePath prefix tests.
 2. `describe("use*")` + `renderHook` — for E2EE **list** hooks, mock `useEncryptedSortableItems` and `@/lib/crypto`; assert `navigationSource`, `perfMeasureName`, `loadFailureMessage`, `reorderEntities` (see `apps/contacts/hooks/use-contacts.test.ts`).
 3. For E2EE **detail** hooks (`useItem`, `useContact`), mock `useEncryptedSingleItem` only when the hook remains exported for non-dashboard use; **dashboard sheet editors** must use the Links pattern (list hook `update`/`remove`/`refresh` passed as props — see `packages/ui/src/e2ee-dashboard-wiring.test.ts`).
 4. `describe("useDataExport")` — mock `useE2eeDataExport` with `{ handleExportData, isExporting }` and assert delegation to the zone `lib/data-export.ts` download function (see `apps/*/hooks/use-data-export.test.ts`). Optional `lib/data-export.test.ts` asserts `buildExportData` mapping via mocked `@helvety/shared/e2ee-json-export` (see `apps/contacts`, `apps/tasks`, `apps/notes`, and `apps/links`).
 
-Docs uses a custom `useDocs` hook (mock `fetch` with `response.text()` + `getDocsApiPath` instead of `useEncryptedSortableItems`). Assert `error`, `refresh`, and `isRefreshing` (including retry after failure). Vault sheet UI: `apps/docs/components/vault-documents-sheet.test.tsx` (`ListErrorState` + Retry). Links library state uses `use-link-library` (not the shared sortable/single-item hooks).
+Links library state uses `use-link-library` (not the shared sortable/single-item hooks).
 
 ### Components
 
@@ -123,15 +121,14 @@ Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/compo
 | -------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | E2EE entity detail (Notes, Tasks, Contacts, Links) | `E2eeEntityDetailSheet` + zone editor `CommandBarPageLayout` | `packages/ui/src/e2ee-dashboard-wiring.test.ts` (Links pattern: `onUpdate` from list hook, no `useItem`/`useContact` in sheet editors), `sheet-scroll-wiring.test.ts` |
 | App switcher, mobile nav menu                      | `SHEET_SCROLLABLE_SHELL_CLASS` + header + `ScrollArea`       | `sheet-scroll-wiring.test.ts`, RTL in `app-switcher.test.tsx` / `helvety-shell-navbar.test.tsx`                                                                       |
-| Docs vault sheet                                   | Same shell classes + `ScrollArea`; list error + Retry        | `sheet-scroll-wiring.test.ts`, `vault-documents-sheet.test.tsx`                                                                                                       |
 
 See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) for the flex height chain (`min-h-0`, `flex-1`, `overflow-hidden`). Entity editors use `stacked` action panels inside the scroll region (no sticky sidebars in sheets).
 
 ### Lib / copy / crypto
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
-- `lib/product-copy.test.ts`: `docs` (local PWA wrapper constants); `pdf` / `image-upscaler` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
-- `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`docs`, `links`).
+- `lib/product-copy.test.ts`: `pdf` / `image-upscaler` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
+- `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`links`).
 - Crypto: `buildAAD` + module surface tests in `lib/crypto/` (see `apps/notes/lib/crypto/encryption.test.ts`).
 
 ## `package.json` conventions
@@ -146,13 +143,13 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 
 Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`):
 
-| Profile            | Typical apps                                                |
-| ------------------ | ----------------------------------------------------------- |
-| `public-marketing` | `web` (custom matcher excluding other zones)                |
-| `auth-gateway`     | `auth`                                                      |
-| `store-gateway`    | `store`                                                     |
-| `e2ee-app`         | `tasks`, `contacts`, `notes`, `links`                       |
-| `public-tool`      | `pdf`, `image-upscaler`; `docs` adds doc-editor CSP options |
+| Profile            | Typical apps                                 |
+| ------------------ | -------------------------------------------- |
+| `public-marketing` | `web` (custom matcher excluding other zones) |
+| `auth-gateway`     | `auth`                                       |
+| `store-gateway`    | `store`                                      |
+| `e2ee-app`         | `tasks`, `contacts`, `notes`, `links`        |
+| `public-tool`      | `pdf`, `image-upscaler`                      |
 
 **PDF worker sync:** `apps/pdf` runs `bun run sync:pdf-worker` before dev/build to copy `pdfjs-dist/build/pdf.worker.min.mjs` into `public/` (must match the app's `pdfjs-dist` pin; see [`apps/pdf/README.md`](../apps/pdf/README.md) › PDF.js stack).
 
@@ -166,12 +163,10 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 
 ## Root layout shell
 
-| Shell                          | Apps                                                                                                |
-| ------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler`; `docs` (+ optional `EncryptionProvider` for vault) |
-| `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`                                                               |
-
-**Docs** uses `mainVariant: "overflow-main"` with `DocsCommandBar` (`@helvety/ui/command-bar`) above the Eigenpal workspace, same pattern as PDF and image-upscaler. Document/vault actions (New, Open, Download, My documents, Save to vault) live in the Helvety command bar; Eigenpal title bar + formatting toolbar sit below (File/Format/Insert for Print and Page setup). Vault sheet and dialogs use `@helvety/ui` tokens and the navbar `ThemeSwitcher`. Eigenpal editor chrome is themed in `apps/docs/styles/docx-editor-helvety-bridge.css` (semantic `--doc-*` aliases on `.ep-root`, `--surface-toolbar` on title/formatting rows, doc icon + Help + vendor File → Open/Save/New hidden via `use-hide-vendor-file-menu-items` with scoped observers on title bar and portaled overlays, not the document surface, comment UI hidden via CSS Layer 6 only without Eigenpal controlled `comments` props, Layers 3–8 for legacy `slate-*` remaps when present, chrome surfaces, toolbar stack, and menu/dropdown/tooltip overlays). Printable document pages stay white in both themes.
+| Shell                          | Apps                                            |
+| ------------------------------ | ----------------------------------------------- |
+| `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler` |
+| `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`           |
 
 Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
 
@@ -184,24 +179,24 @@ Use JSX for root layouts: `<HelvetyPublicShellRootLayout>` or `<E2eeAppRootLayou
 | Shell family                 | Apps                                  | Export                     |
 | ---------------------------- | ------------------------------------- | -------------------------- |
 | Gateway / scroll-area public | `web`, `auth`, `store`                | `HelvetyShellRouteLoading` |
-| Public tools                 | `pdf`, `docs`, `image-upscaler`       | `LoadingSpinner`           |
+| Public tools                 | `pdf`, `image-upscaler`               | `LoadingSpinner`           |
 | E2EE                         | `tasks`, `contacts`, `notes`, `links` | `E2eeShellRouteLoading`    |
 
 Nested routes (e.g. store products) use `LoadingSpinner`. Enforced by `consistency:zone-modernization`.
 
 ## E2EE `EncryptionProvider`
 
-E2EE zones and vault-aware zones (`auth`, `docs`) re-export the client provider from `@/lib/crypto` and pass `encryptionProvider={EncryptionProvider}` into their root layout (test mocking + app boundary). Do not import `EncryptionProvider` directly from `@helvety/shared/crypto/encryption-context` in `app/layout.tsx`.
+E2EE zones and vault-aware zones (`auth`) re-export the client provider from `@/lib/crypto` and pass `encryptionProvider={EncryptionProvider}` into their root layout (test mocking + app boundary). Do not import `EncryptionProvider` directly from `@helvety/shared/crypto/encryption-context` in `app/layout.tsx`.
 
 ## `lib/env.ts` factory
 
-| Tier                          | Factory                                                        | Apps                                                                          |
-| ----------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                       |
-| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`)     |
-| User-scoped E2EE + docs       | `createAppUserScopedE2eeEnv` + `userScopedE2eeServerEnvSchema` | E2EE apps, `docs` (`DEVICE_TRUST_COOKIE_SECRET` for weekly device-trust gate) |
-| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                       |
-| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                         |
+| Tier                          | Factory                                                        | Apps                                                                      |
+| ----------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                   |
+| Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`) |
+| User-scoped E2EE              | `createAppUserScopedE2eeEnv` + `userScopedE2eeServerEnvSchema` | E2EE apps (`DEVICE_TRUST_COOKIE_SECRET` for weekly device-trust gate)     |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`                                                   |
+| Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                     |
 
 Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
 
@@ -210,7 +205,7 @@ Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:
 | Preset                         | Apps                                            |
 | ------------------------------ | ----------------------------------------------- |
 | `createE2eeZoneNextConfig`     | `tasks`, `contacts`, `notes`, `links`           |
-| `createPublicToolNextConfig`   | `pdf`, `docs`, `image-upscaler`                 |
+| `createPublicToolNextConfig`   | `pdf`, `image-upscaler`                         |
 | `createAuthGatewayNextConfig`  | `auth`                                          |
 | `createHelvetyNextConfig` only | `web`, `store` (bespoke `overrides` / rewrites) |
 
@@ -222,18 +217,17 @@ Zone `components/navbar.tsx` files are thin wrappers around `@helvety/ui/create-
 
 - E2EE: `createE2eeAppNavbar`
 - Public tools: `createPublicShellNavbar` + `publicToolNavbarBrand`
-- Docs vault: `createVaultAwareShellNavbar`
 
 Wired by `packages/shared/src/app-navbar-wiring.test.ts` and `packages/ui/src/e2ee-dashboard-wiring.test.ts`.
 
 ## Centralized zone wiring tests
 
-In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
+In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all nine zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
 
 ## Multi-zone static assets (`assetPrefix`)
 
 - **Use** `assetPrefix` + gateway `*-static` rewrites for heavy client bundles: `auth`, `tasks`, `contacts`, `notes`, `links`.
-- **Omit** for lighter zones until production shows static asset conflicts: `store`, `pdf`, `docs`, `image-upscaler`.
+- **Omit** for lighter zones until production shows static asset conflicts: `store`, `pdf`, `image-upscaler`.
 
 See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
@@ -244,7 +238,7 @@ Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.jso
 | Tier                         | Apps                    | Required secrets (typical)                                                                                 |
 | ---------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
 | **Admin + rate limit**       | `auth`, `store`         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                          |
-| **User-scoped + rate limit** | E2EE apps, `docs`       | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, `DEVICE_TRUST_COOKIE_SECRET` (no admin client) |
+| **User-scoped + rate limit** | E2EE apps               | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, `DEVICE_TRUST_COOKIE_SECRET` (no admin client) |
 | **Public tool + rate limit** | `pdf`, `image-upscaler` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                 |
 | **Auth extra**               | `auth`                  | `DEVICE_TRUST_COOKIE_SECRET` (mint), `HELVETY_CHROME_EXTENSION_ORIGINS`                                    |
 | **Gateway**                  | `web`                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                                                        |
@@ -256,7 +250,7 @@ See root [`README.md`](../README.md) § Environment Model.
 | Tier                     | Apps                    | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION` |
 | ------------------------ | ----------------------- | ------------------------------------------------------- |
 | Admin + rate limit       | `auth`, `store`         | Yes (`createAppServerUpstashEnv`)                       |
-| User-scoped E2EE + docs  | E2EE apps, `docs`       | Yes (`createAppUserScopedE2eeEnv`)                      |
+| User-scoped E2EE         | E2EE apps               | Yes (`createAppUserScopedE2eeEnv`)                      |
 | Public tool + rate limit | `pdf`, `image-upscaler` | Yes (`createAppUpstashCookieEnv`)                       |
 | Gateway                  | `web`                   | Yes (`getValidatedWebEnv`)                              |
 
@@ -269,7 +263,6 @@ See root [`README.md`](../README.md) § Environment Model.
 | Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems`; optional detail fetch via `useEncryptedSingleItem`; cross-link hooks via `createE2eeEntityLinksHook`; Links library via `use-link-library`               | E2EE apps                                                          |
 | Sheet editor wiring   | **Links pattern:** dashboard passes list-hook `update` / `remove` / `refresh` into the zone editor; derive `selectedItem` from the list; remount editor with `key={entityId}`. Rich-text: `E2eeRichTextItemEditorShell` + `initialDescription` (not live TipTap `content`). Links: `library.updateLink` | `tasks`, `notes`, `contacts`, `links`                              |
 | Vault session TTL     | `auth-session-policy.ts` + `vault-session.ts` (24h sliding idle, 7d max); enforced in `encryption-context`, Chromium extension side panel, and IndexedDB                                                                                                                                                | All zones using `EncryptionProvider` + Chromium extension          |
-| Vault delete confirm  | `AlertDialog` before vault document delete                                                                                                                                                                                                                                                              | `docs`                                                             |
 | Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + `createE2eeEntityLinksHook` per-app hooks; shared section titles/icons via `@helvety/ui/e2ee-app-link-ui`                                                                                                                                                         | `tasks`, `notes`, `contacts`, `links` (four-way cross-link panels) |
 
 ## Validation before merge

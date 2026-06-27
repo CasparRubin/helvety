@@ -15,7 +15,6 @@ const PUBLIC_SHELL_APPS = [
   "auth",
   "store",
   "pdf",
-  "docs",
   "image-upscaler",
 ] as const;
 
@@ -43,8 +42,8 @@ function assertNoAnalyticsMarkers(
 }
 
 describe("Helvety layout wiring", () => {
-  it("covers all ten Helvety web zones that use shared root shells", () => {
-    expect(ALL_SHELL_APPS).toHaveLength(10);
+  it("covers all nine Helvety web zones that use shared root shells", () => {
+    expect(ALL_SHELL_APPS).toHaveLength(9);
     expect([...PUBLIC_SHELL_APPS, ...E2EE_SHELL_APPS]).toEqual([
       ...ALL_SHELL_APPS,
     ]);

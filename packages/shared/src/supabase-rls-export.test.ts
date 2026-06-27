@@ -37,7 +37,6 @@ describe("verifyRlsExport", () => {
         rlsTable("links"),
         rlsTable("link_folders"),
         rlsTable("entity_links"),
-        rlsTable("docs"),
         rlsTable("user_profiles"),
         rlsTable("user_passkey_params"),
         rlsTable("user_auth_credentials"),
@@ -63,7 +62,7 @@ describe("verifyRlsExport", () => {
       ],
     });
 
-    expect(errors.some((e) => e.includes('"docs"'))).toBe(true);
+    expect(errors.some((e) => e.includes('"items"'))).toBe(true);
     expect(errors.some((e) => e.includes("unconditional qual"))).toBe(true);
   });
 
@@ -79,7 +78,6 @@ describe("verifyRlsExport", () => {
           rlsTable("links"),
           rlsTable("link_folders"),
           rlsTable("entity_links"),
-          rlsTable("docs"),
           rlsTable("user_profiles"),
           rlsTable("user_passkey_params"),
           rlsTable("user_auth_credentials"),

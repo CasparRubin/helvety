@@ -5,7 +5,7 @@ description: >-
   monorepo. Use when the user asks for dependency updates, bump deps, bun
   outdated, deps:drift, package upgrades, security floors, or a full dependency
   sweep. Covers npm/toolchain AND extended assets (ONNX models, ORT WASM, PDF.js
-  worker, Eigenpal docx editor, React Bits vendor, external repos)—not npm-only.
+  worker, React Bits vendor, external repos)—not npm-only.
 ---
 
 # Helvety dependency update
@@ -33,7 +33,7 @@ See [reference.md](./reference.md) for command cheat sheet.
 ## Phase 2 — Extended inventory
 
 1. `bun run deps:inventory` — print current extended pins.
-2. Walk every table in [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) by zone: `image-upscaler`, `pdf`, `docs`, `web`, monorepo-wide, external repos.
+2. Walk every table in [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) by zone: `image-upscaler`, `pdf`, `web`, monorepo-wide, external repos.
 3. For each row with a **Check URL**, research upstream (WebSearch / WebFetch / GitHub releases / HuggingFace model cards). Record: latest version, release date, breaking changes, license, size impact.
 
 ## Phase 3 — Apply extended updates (when requested)
@@ -42,7 +42,6 @@ See [reference.md](./reference.md) for command cheat sheet.
 | ------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | **image-upscaler** | ORT: `copy-ort-runtime.mjs`; model: runbook in `apps/image-upscaler/public/models/README.md`                | Update SHA-256 in `lib/models.ts`; upload Supabase; smoke AI upscale      |
 | **pdf**            | Bump `pdfjs-dist` + root override; `cd apps/pdf && bun run sync:pdf-worker` (app pin, not react-pdf nested) | Viewer + merge tests; `sync-pdf-worker.test.ts`, `use-pdf-worker.test.ts` |
-| **docs**           | Bump `@eigenpal/docx-editor-react`                                                                          | `apps/docs/README.md` Eigenpal checklist; `bun run test` in docs          |
 | **web**            | React Bits via shadcn from `apps/web`                                                                       | Reconcile `components/vendor/`; `docs/ui-shadcn-integration-policy.md`    |
 
 Update [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) if pins or procedures changed.

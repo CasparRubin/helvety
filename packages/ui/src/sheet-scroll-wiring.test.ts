@@ -19,10 +19,6 @@ describe("scrollable sheet wiring", () => {
       "SHEET_SCROLLABLE_SHELL_CLASS",
     ],
     [
-      "apps/docs/components/vault-documents-sheet.tsx",
-      "SHEET_SCROLLABLE_SHELL_CLASS",
-    ],
-    [
       "packages/ui/src/e2ee-entity-detail-sheet.tsx",
       "SHEET_SCROLLABLE_BODY_CLASS",
     ],
@@ -34,7 +30,6 @@ describe("scrollable sheet wiring", () => {
     for (const relativePath of [
       "packages/ui/src/app-switcher.tsx",
       "packages/ui/src/helvety-shell-navbar.tsx",
-      "apps/docs/components/vault-documents-sheet.tsx",
     ]) {
       const src = readRepoFile(relativePath);
       expect(src).toContain("ScrollArea");

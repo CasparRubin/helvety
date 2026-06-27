@@ -490,20 +490,6 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
-              Helvety Docs (helvety.com/docs):
-            </strong>{" "}
-            Edit Word (.docx) files in your browser. Routine local editing keeps
-            document bytes in your browser; nothing is uploaded to our servers
-            for editing. No login or account is required for that mode. Optional
-            vault save (when you sign in and unlock) encrypts document titles
-            and .docx file bytes on your device before storage. The service
-            still uses minimal server-side endpoints for platform and security
-            functions (for example CSP reporting and session/security proxy
-            logic). The service is provided free of charge; technical safeguards
-            may still apply for security and operational stability.
-          </li>
-          <li>
-            <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
             Catalog browsing and public package downloads work without creating
@@ -1026,13 +1012,13 @@ export default function PrivacyPage() {
           . Upon confirmation, the deletion request is processed immediately and
           account-linked data is removed across Helvety services without undue
           delay, including authentication credentials, task data, contact data,
-          note data, link data (Helvety Links), and document vault data (Helvety
-          Docs). Full propagation across dependent systems may still require
-          technical processing time. Depending on system architecture and legal
-          obligations, some records may be deleted, de-identified, or retained
-          in restricted form for compliance, fraud-prevention, dispute handling,
-          or security purposes. This action is intended to be permanent and may
-          not be reversible. We recommend exporting your data before proceeding.
+          note data, and link data (Helvety Links). Full propagation across
+          dependent systems may still require technical processing time.
+          Depending on system architecture and legal obligations, some records
+          may be deleted, de-identified, or retained in restricted form for
+          compliance, fraud-prevention, dispute handling, or security purposes.
+          This action is intended to be permanent and may not be reversible. We
+          recommend exporting your data before proceeding.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}
@@ -1105,8 +1091,7 @@ export default function PrivacyPage() {
               E2EE vault session storage:
             </strong>{" "}
             Temporary cache of derived encryption keys in IndexedDB for Helvety
-            Tasks, Contacts, Notes, and Links, and for Helvety Docs when you use
-            optional vault save (see table below).
+            Tasks, Contacts, Notes, and Links (see table below).
           </li>
           <li>
             <strong className="text-foreground">
@@ -1226,9 +1211,8 @@ export default function PrivacyPage() {
                   </TableCell>
                   <TableCell data-label="Purpose">
                     Temporary cache of derived encryption keys for E2EE apps
-                    (Helvety Tasks, Contacts, Notes, Links), Helvety Docs
-                    optional vault save, and the Helvety Chromium extension side
-                    panel; cleared on logout
+                    (Helvety Tasks, Contacts, Notes, Links) and the Helvety
+                    Chromium extension side panel; cleared on logout
                   </TableCell>
                   <TableCell data-label="Domain">helvety.com</TableCell>
                   <TableCell data-label="Duration">
@@ -1409,10 +1393,7 @@ export default function PrivacyPage() {
           implement end-to-end encryption to protect your content. Other Helvety
           services (helvety.com, Helvety Auth, Helvety PDF, Helvety Image
           Upscaler, Helvety Store) do not use full-app end-to-end encryption.
-          Helvety Docs supports optional client-side encrypted vault storage for
-          saved documents when you sign in and unlock; local editing without an
-          account does not use that vault. For Helvety Tasks, Helvety Contacts,
-          Helvety Notes, and Helvety Links:
+          For Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -1442,8 +1423,7 @@ export default function PrivacyPage() {
             After unlock, a derived master key may be cached locally in your
             browser (IndexedDB) for up to 24 hours of inactivity (extended when
             you use the app) and for at most 7 days from the unlock session;
-            Helvety Docs uses the same cache when you unlock optional vault
-            save; this cache is cleared when you sign out
+            this cache is cleared when you sign out
           </li>
           <li>
             Additional Authenticated Data (AAD) binds each ciphertext to a

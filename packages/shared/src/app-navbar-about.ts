@@ -7,7 +7,6 @@
 
 import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import {
-  DOCS_FILE_SIZE_LIMIT_COPY,
   IMAGE_FILE_SIZE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
 } from "./product-file-limit-copy";
@@ -42,17 +41,6 @@ export function pdfNavbarAbout(
   fileSizeLimitCopy: string = PDF_FILE_SIZE_LIMIT_COPY
 ): string {
   return `Merge, reorder, rotate, or extract PDF pages in your browser. Supported edits stay local (${fileSizeLimitCopy}). Free to use with fair-use safeguards.`;
-}
-
-/** Docs vault encryption badge tooltip (optional cloud save). */
-export const DOCS_NAVBAR_ENCRYPTION_TOOLTIP =
-  "When you save to your vault, document titles and .docx files are encrypted on your device before storage. Editing in the browser without signing in stays local to your device." as const;
-
-/** Navbar About copy for Helvety Docs (optional limit line override). */
-export function docsNavbarAbout(
-  fileSizeLimitCopy: string = DOCS_FILE_SIZE_LIMIT_COPY
-): string {
-  return `Edit .docx files in your browser without signing in. Optional vault save encrypts documents on your device (${fileSizeLimitCopy}). Free to use with fair-use safeguards. ${HELVETY_SWISS_ORIGIN_SEO}`;
 }
 
 /** Navbar About copy for Helvety Image Upscaler (optional limit line override). */

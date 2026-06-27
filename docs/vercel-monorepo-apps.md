@@ -8,24 +8,19 @@ Each Helvety zone is a **separate Vercel project** with **Root Directory** set t
 | Auth           | `helvety-auth`           | `apps/auth`           |
 | Store          | `helvety-store`          | `apps/store`          |
 | PDF            | `helvety-pdf`            | `apps/pdf`            |
-| Docs           | `helvety-docs`           | `apps/docs`           |
 | Image Upscaler | `helvety-image-upscaler` | `apps/image-upscaler` |
 | Tasks          | `helvety-tasks`          | `apps/tasks`          |
 | Contacts       | `helvety-contacts`       | `apps/contacts`       |
 | Notes          | `helvety-notes`          | `apps/notes`          |
 | Links          | `helvety-links`          | `apps/links`          |
 
-## Docs app trap
-
-The repository has a top-level [`docs/`](../docs/) folder for **markdown documentation**, not the Next.js app. If `helvety-docs` uses Root Directory `docs`, the build runs Turbo at the wrong path (`Running build in 0 packages`) and Vercel fails with **No Output Directory named "public"**. Always use **`apps/docs`**.
-
 ## Gateway env
 
-When `VERCEL=1`, set zone URLs on `helvety-com` (`apps/web`) from [`apps/web/env.template`](../apps/web/env.template), including `DOCS_URL` for the docs deployment. Turbo must pass those keys at build time (`tasks.build.env` in [`turbo.json`](../turbo.json); see `WEB_GATEWAY_KEYS` in [`scripts/env-template-expectations.mjs`](../scripts/env-template-expectations.mjs)).
+When `VERCEL=1`, set zone URLs on `helvety-com` (`apps/web`) from [`apps/web/env.template`](../apps/web/env.template). Turbo must pass those keys at build time (`tasks.build.env` in [`turbo.json`](../turbo.json); see `WEB_GATEWAY_KEYS` in [`scripts/env-template-expectations.mjs`](../scripts/env-template-expectations.mjs)).
 
 ## Path routing on helvety.com
 
-Canonical zone URLs (for example `https://helvety.com/docs`) are served by **`helvety-com`** via rewrites to each zone’s deployment origin (`DOCS_URL`, `PDF_URL`, …). Deploying **`helvety-docs` alone** updates `helvety-docs.vercel.app/docs` but does **not** change `helvety.com/docs` until **`helvety-com`** is redeployed with the correct gateway env. Cross-app navigation (**AppSwitcher** in `@helvety/ui`) ships with each zone’s build; no separate “ecosystem menu” deploy exists.
+Canonical zone URLs (for example `https://helvety.com/pdf`) are served by **`helvety-com`** via rewrites to each zone’s deployment origin (`PDF_URL`, `STORE_URL`, …). Deploying **`helvety-pdf` alone** updates `helvety-pdf.vercel.app/pdf` but does **not** change `helvety.com/pdf` until **`helvety-com`** is redeployed with the correct gateway env. Cross-app navigation (**AppSwitcher** in `@helvety/ui`) ships with each zone’s build; no separate “ecosystem menu” deploy exists.
 
 ## Tailwind / PostCSS at build time
 
@@ -40,6 +35,6 @@ Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs),
 Copy keys from each zone’s `apps/<slug>/env.template` into that Vercel project (not the repo root). Tier reference: [`turbo-env-tiers.md`](./turbo-env-tiers.md). Step-by-step Vercel UI checklist: [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md).
 
 - **Admin tier** (`helvety-auth`, `helvety-store`): needs `SUPABASE_SECRET_KEY`, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` (auth also needs `DEVICE_TRUST_COOKIE_SECRET` and `HELVETY_CHROME_EXTENSION_ORIGINS`).
-- **User-scoped tier** (E2EE apps + `helvety-docs`): public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, and **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`); do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
+- **User-scoped tier** (E2EE apps): public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, and **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`); do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
 - **Public tools** (`helvety-pdf`, `helvety-image-upscaler`): public Supabase, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` only — **no** `DEVICE_TRUST_COOKIE_SECRET` (Upstash still required for auth callback rate limiting).
-- **Gateway** (`helvety-com`): public Supabase keys + all nine zone rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `DOCS_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`; no `HELVETY_COOKIE_SIGNING_SECRET`, Upstash, or `SUPABASE_SECRET_KEY`.
+- **Gateway** (`helvety-com`): public Supabase keys + all eight zone rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`; no `HELVETY_COOKIE_SIGNING_SECRET`, Upstash, or `SUPABASE_SECRET_KEY`.

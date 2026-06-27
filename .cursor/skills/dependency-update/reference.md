@@ -36,10 +36,6 @@ node scripts/copy-ort-runtime.mjs
 # pdf — PDF.js worker (from app pdfjs-dist, not react-pdf nested tree)
 cd apps/pdf && bun run sync:pdf-worker
 
-# docs — after Eigenpal bump
-cd apps/docs && bun run test
-# includes lib/docx-editor-vendor-version.test.ts (pin ↔ package.json ↔ README)
-
 # web — React Bits (from apps/web)
 # shadcn add @react-bits/<name>.json — then reconcile apps/web/components/vendor/
 ```
@@ -55,4 +51,3 @@ cd apps/docs && bun run test
 
 - Inventory: `docs/dependency-inventory.md`
 - UI vendor policy: `docs/ui-shadcn-integration-policy.md`
-- Eigenpal checklist: `apps/docs/README.md` § Eigenpal upgrade checklist

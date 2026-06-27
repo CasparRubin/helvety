@@ -16,7 +16,7 @@ describe("getValidatedWebEnv", () => {
     const env = getValidatedWebEnv();
 
     expect(env.AUTH_URL).toMatch(/^https:\/\//);
-    expect(env.DOCS_URL).toMatch(/^https:\/\//);
+    expect(env.LINKS_URL).toMatch(/^https:\/\//);
   });
 
   it("validates real gateway URLs in production when set", async () => {
@@ -26,7 +26,6 @@ describe("getValidatedWebEnv", () => {
     vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
     vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
     vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
-    vi.stubEnv("DOCS_URL", "https://helvety-docs.vercel.app");
     vi.stubEnv(
       "IMAGE_UPSCALER_URL",
       "https://helvety-image-upscaler.vercel.app"

@@ -14,10 +14,6 @@ describe("encryptedPrefetchAuthOptions", () => {
       rateLimitPrefix: "contacts",
       readRateLimitConfig: RATE_LIMITS.PREFETCH,
     });
-    expect(encryptedPrefetchAuthOptions("docs")).toEqual({
-      rateLimitPrefix: "docs",
-      readRateLimitConfig: RATE_LIMITS.PREFETCH,
-    });
     expect(ENCRYPTED_PREFETCH_READ_RATE_LIMIT).toBe(RATE_LIMITS.PREFETCH);
   });
 });
@@ -36,7 +32,6 @@ describe("ENCRYPTED_PREFETCH_COLUMNS", () => {
     expect(ENCRYPTED_PREFETCH_COLUMNS.notes).toContain("encrypted_title");
     expect(ENCRYPTED_PREFETCH_COLUMNS.link_folders).toContain("encrypted_name");
     expect(ENCRYPTED_PREFETCH_COLUMNS.links).toContain("encrypted_url");
-    expect(ENCRYPTED_PREFETCH_COLUMNS.docs).toContain("encrypted_docx");
   });
 });
 

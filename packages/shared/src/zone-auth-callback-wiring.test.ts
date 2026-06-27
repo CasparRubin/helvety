@@ -9,7 +9,6 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const ZONE_APPS_WITH_AUTH_CALLBACK = [
   "auth",
   "contacts",
-  "docs",
   "image-upscaler",
   "links",
   "notes",

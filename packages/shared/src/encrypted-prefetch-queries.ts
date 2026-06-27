@@ -106,20 +106,3 @@ export async function fetchLinksLibraryPrefetchRows<TFolder, TLink>(
     links: { data: linksResult.data, error: linksResult.error },
   };
 }
-
-/** Fetches encrypted vault documents for docs API list routes. */
-export async function fetchDocsPrefetchRows<T>(
-  supabase: UserScopedSupabase,
-  userId: string,
-  limit: number
-): Promise<PrefetchQueryResult<T>> {
-  const result = await supabase
-    .from("docs")
-    .select(ENCRYPTED_PREFETCH_COLUMNS.docs)
-    .eq("user_id", userId)
-    .order("updated_at", { ascending: false })
-    .limit(limit + 1)
-    .overrideTypes<T[], { merge: false }>();
-
-  return { data: result.data, error: result.error };
-}

@@ -25,13 +25,12 @@ const SHARED_PARITY_KEYS = [
   "HELVETY_COOKIE_SIGNING_SECRET",
 ];
 
-/** User-scoped E2EE + docs zones must share auth's device-trust signing secret. */
+/** User-scoped E2EE zones must share auth's device-trust signing secret. */
 const DEVICE_TRUST_PARITY_APPS = new Set([
   "tasks",
   "contacts",
   "notes",
   "links",
-  "docs",
 ]);
 
 /**
@@ -194,7 +193,7 @@ async function main() {
       "\nVercel checklist: copy each apps/<zone>/env.template into that Vercel project."
     );
     console.log(
-      "Gateway helvety-com must include DOCS_URL and redeploy after *_URL changes.\n"
+      "Gateway helvety-com must include zone *_URL keys and redeploy after *_URL changes.\n"
     );
     throw new Error(`${errors.length} local env issue(s) found.`);
   }

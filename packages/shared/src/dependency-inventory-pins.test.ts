@@ -23,14 +23,6 @@ describe("extended dependency inventory pin parity", () => {
     "utf8"
   );
 
-  it("docs zone eigenpal pin matches apps/docs/package.json and inventory table", () => {
-    const docsPkg = readWorkspacePackage("apps/docs/package.json");
-    const declared = docsPkg.dependencies?.["@eigenpal/docx-editor-react"];
-    expect(declared).toBeTruthy();
-    expect(inventory).toContain("@eigenpal/docx-editor-react");
-    expect(inventory).toContain(`\`${declared}\` — \`apps/docs/package.json\``);
-  });
-
   it("image-upscaler ORT pin matches apps/image-upscaler/package.json and inventory table", () => {
     const upscalerPkg = readWorkspacePackage(
       "apps/image-upscaler/package.json"
@@ -73,21 +65,17 @@ describe("extended dependency inventory pin parity", () => {
       join(repoRoot, "docs/security-audit-2026-06-13.md"),
       "utf8"
     );
-    const docsPkg = readWorkspacePackage("apps/docs/package.json");
     const upscalerPkg = readWorkspacePackage(
       "apps/image-upscaler/package.json"
     );
     const uiPkg = readWorkspacePackage("packages/ui/package.json");
 
-    const eigenpal = docsPkg.dependencies?.["@eigenpal/docx-editor-react"];
     const ort = upscalerPkg.dependencies?.["onnxruntime-web"];
     const lucide = uiPkg.dependencies?.["lucide-react"];
 
     expect(audit).toMatch(/## Subsequent updates \(2026-06-22\)/);
-    expect(eigenpal).toBeTruthy();
     expect(ort).toBeTruthy();
     expect(lucide).toBeTruthy();
-    expect(audit).toContain(eigenpal);
     expect(audit).toContain(ort);
     expect(audit).toContain(lucide);
     expect(audit).toContain("dependency-inventory.md");

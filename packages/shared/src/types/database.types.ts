@@ -62,33 +62,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      docs: {
-        Row: {
-          created_at: string;
-          encrypted_docx: string;
-          encrypted_title: string;
-          id: string;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          encrypted_docx: string;
-          encrypted_title: string;
-          id: string;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          encrypted_docx?: string;
-          encrypted_title?: string;
-          id?: string;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
       entity_links: {
         Row: {
           created_at: string;

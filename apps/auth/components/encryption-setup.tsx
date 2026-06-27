@@ -69,7 +69,7 @@ type SetupStep = "initial" | "registering" | "complete";
  * The PRF salt is also cached in localStorage so that subsequent logins include
  * the PRF extension for single-touch encryption unlock (no separate passkey
  * prompt in E2EE apps (helvety.com/tasks, helvety.com/contacts,
- * helvety.com/notes, helvety.com/links) and Helvety Docs optional vault save).
+ * helvety.com/notes, helvety.com/links)).
  *
  * In many modern browser flows, PRF output is returned during registration.
  * When available, the master encryption key is derived and stored in

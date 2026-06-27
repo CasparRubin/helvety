@@ -17,7 +17,6 @@ const ENTITY_CRYPTO_PATHS = [
   "apps/notes/lib/crypto/note-encryption.ts",
   "apps/links/lib/crypto/link-encryption.ts",
   "apps/links/lib/crypto/link-folder-encryption.ts",
-  "apps/docs/lib/crypto/doc-encryption.ts",
 ];
 
 const ALLOWLIST_SUFFIXES = [".test.ts", ".test.tsx"];

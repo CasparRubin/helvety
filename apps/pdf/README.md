@@ -42,7 +42,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 
 - File conversion is client-side for supported operations.
 - `proxy.ts` provides request bootstrap (CSP, CSRF cookie bootstrap/re-issue, optional session refresh) via the `public-tool` profile with **fail-closed** auth refresh when `sb-*` cookies are present; this app does not require login for PDF workflows. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, synced from the app's `pdfjs-dist` pin by `bun run sync:pdf-worker` before dev/build and loaded at `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
-- Full-app E2EE is not used here (E2EE apps are `tasks`, `contacts`, `notes`, `links`). Helvety Docs offers optional encrypted vault save only.
+- Full-app E2EE is not used here (E2EE apps are `tasks`, `contacts`, `notes`, `links`).
 - Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
 
 ## Environment Variables

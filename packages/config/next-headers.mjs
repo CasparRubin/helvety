@@ -2,7 +2,7 @@
  * CSP violation report URL for a zone. Gateway uses `/api/csp-report`; zoned apps
  * use `/{basePath}/api/csp-report` so reports reach the app that emitted the policy.
  *
- * @param {string | undefined} basePath - Next.js `basePath` (e.g. `/pdf`, `/docs`)
+ * @param {string | undefined} basePath - Next.js `basePath` (e.g. `/pdf`, `/image-upscaler`)
  * @returns {string}
  */
 export function resolveCspReportEndpoint(basePath) {
@@ -113,7 +113,7 @@ export function createSecurityHeaders({ appName, basePath } = {}) {
  * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
  * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. onnxruntime-web)
- * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts CDN in style-src (optional; Docs self-hosts Material Symbols via next/font/local)
+ * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts CDN in style-src (optional)
  * @param {string} [opts.basePath] - Next.js zone base path for CSP report-uri / report-to
  * @returns {string}
  */

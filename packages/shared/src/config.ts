@@ -36,7 +36,6 @@ export const urls = {
   contacts: isDev ? `${DEV_GATEWAY}/contacts` : `https://${DOMAIN}/contacts`,
   notes: isDev ? `${DEV_GATEWAY}/notes` : `https://${DOMAIN}/notes`,
   links: isDev ? `${DEV_GATEWAY}/links` : `https://${DOMAIN}/links`,
-  docs: isDev ? `${DEV_GATEWAY}/docs` : `https://${DOMAIN}/docs`,
 } as const;
 
 /**
@@ -102,7 +101,6 @@ export const DEV_PORTS = {
   notes: 3007,
   imageUpscaler: 3008,
   links: 3009,
-  docs: 3010,
 } as const;
 
 /** Shared viewport config reused by each web app layout in this monorepo */

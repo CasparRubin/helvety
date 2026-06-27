@@ -7,7 +7,7 @@ import { spawn } from "node:child_process";
 import net from "node:net";
 
 const DEFAULT_BASE_URL = "http://localhost:3001";
-const READY_SENTINEL = "[dev] All 10 zones ready.";
+const READY_SENTINEL = "[dev] All 9 zones ready.";
 const STARTUP_TIMEOUT_MS = 5 * 60 * 1000;
 const EXISTING_SERVER_TIMEOUT_MS = 45 * 1000;
 

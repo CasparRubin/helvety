@@ -283,7 +283,6 @@ async function main() {
     for (const listRouteTest of [
       "app/api/items/route.test.ts",
       "app/api/contacts/route.test.ts",
-      "app/api/docs/route.test.ts",
     ]) {
       const routeTestPath = resolve(appRoot, listRouteTest);
       if (!(await fileExists(routeTestPath))) continue;

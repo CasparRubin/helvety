@@ -10,13 +10,13 @@
 The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
-- [Helvety Docs](https://helvety.com/store/products/helvety-docs)
 - [Helvety Image Upscaler](https://helvety.com/store/products/helvety-image-upscaler)
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools)
 - [Helvety Tasks](https://helvety.com/store/products/helvety-tasks)
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)
 - [Helvety Notes](https://helvety.com/store/products/helvety-notes)
 - [Helvety Links](https://helvety.com/store/products/helvety-links)
+- [Helvety Browser Extension](https://helvety.com/store/products/helvety-browser-extension): Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, and links. Sign in, unlock with a passkey, then create and edit in the panel. Manual install from GitHub releases while it is not yet in the Chrome Web Store: https://github.com/CasparRubin/helvety-browser-extension-chromium/releases
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 
 ## Crawling And Indexing

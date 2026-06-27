@@ -322,10 +322,7 @@ export default function TermsPage() {
           entities across Helvety Tasks, Contacts, Notes, and Links). See our
           Privacy Policy for field-level details. Other Helvety services
           (helvety.com, Helvety Auth, Helvety PDF, Helvety Image Upscaler,
-          Helvety Store) do not use full-app end-to-end encryption. Helvety Docs
-          supports optional client-side encrypted vault storage for saved
-          documents when you sign in and unlock; local editing without an
-          account does not use that vault.
+          Helvety Store) do not use full-app end-to-end encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -991,11 +988,6 @@ export default function TermsPage() {
           <li>
             <strong className="text-foreground">Helvety Image Upscaler</strong>{" "}
             likewise runs in a no-account mode for its standard upscaling flow.
-          </li>
-          <li>
-            <strong className="text-foreground">Helvety Docs</strong> edits
-            .docx files locally without an account; optional vault save requires
-            authenticated access and passkey-backed encryption setup.
           </li>
           <li>
             <strong className="text-foreground">Helvety Store</strong> mixes

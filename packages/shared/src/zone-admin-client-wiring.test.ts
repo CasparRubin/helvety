@@ -8,13 +8,7 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const ADMIN_TIER_APPS = ["auth", "store"] as const;
 
-const VAULT_USER_SCOPED_APPS = [
-  "contacts",
-  "docs",
-  "links",
-  "notes",
-  "tasks",
-] as const;
+const VAULT_USER_SCOPED_APPS = ["contacts", "links", "notes", "tasks"] as const;
 
 const PUBLIC_TOOL_APPS = ["pdf", "image-upscaler"] as const;
 

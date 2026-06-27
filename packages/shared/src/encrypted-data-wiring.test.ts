@@ -12,7 +12,6 @@ const ENCRYPTED_MUTATION_ACTION_FILES = [
   "apps/notes/app/actions/item-actions.ts",
   "apps/links/app/actions/link-actions.ts",
   "apps/links/app/actions/folder-actions.ts",
-  "apps/docs/app/actions/doc-actions.ts",
 ] as const;
 
 describe("EncryptedDataSchema adoption wiring", () => {

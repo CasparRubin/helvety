@@ -33,7 +33,7 @@ export function requiresE2eeBrowserUnlock(uri: string): boolean {
 export type E2eeAppPagePath = (typeof E2EE_APP_PAGE_PATHS)[number];
 
 /**
- * Rate-limit prefixes used by E2EE vault zones (and docs vault APIs).
+ * Rate-limit prefixes used by E2EE vault zones.
  * {@link authenticateAndRateLimit} requires weekly device trust on helvety.com for these by default.
  */
 export const E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES = new Set([
@@ -41,7 +41,6 @@ export const E2EE_DEVICE_TRUST_RATE_LIMIT_PREFIXES = new Set([
   "contacts",
   "notes",
   "links",
-  "docs",
   "export",
   "task-links",
   "contact-links",

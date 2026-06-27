@@ -19,7 +19,6 @@ const LOADING_MATRIX = {
   auth: { rootLoading: "HelvetyShellRouteLoading" },
   store: { rootLoading: "HelvetyShellRouteLoading" },
   pdf: { rootLoading: "LoadingSpinner" },
-  docs: { rootLoading: "LoadingSpinner" },
   "image-upscaler": { rootLoading: "LoadingSpinner" },
   tasks: { rootLoading: "E2eeShellRouteLoading" },
   contacts: { rootLoading: "E2eeShellRouteLoading" },

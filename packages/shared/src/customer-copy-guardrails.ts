@@ -9,51 +9,10 @@
 /** U+2014 em-dash; must not appear in user-facing copy. */
 export const CUSTOMER_COPY_EM_DASH = "\u2014";
 
-/**
- * Forbidden legacy Helvety Docs UX phrases in customer-facing copy.
- * Current model: Helvety command bar + My documents vault sheet (not vault sidebar / embedded title-bar actions).
- */
-export const CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS = [
-  "vault sidebar",
-  "from the sidebar after sign-in",
-  "VaultPanel",
-  "command bar sheet",
-  "pinned command bar",
-  "pinned Helvety command bar",
-  "auto-opened on load",
-] as const;
-
-/** Repo-relative paths scanned for {@link CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS}. */
-export const CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS = [
-  "apps/docs/README.md",
-  "apps/docs/public/llms.txt",
-  "apps/store/lib/data/products.ts",
-  "packages/shared/src/store-catalog.ts",
-  "packages/shared/src/app-product-descriptions.ts",
-] as const;
-
-/** Maintainer-facing Docs source scanned for stale Eigenpal/title-bar integration phrases. */
-export const DOCS_MAINTAINER_COPY_RELATIVE_PATHS = [
-  "apps/docs/app/page.tsx",
-  "apps/docs/components/helvety-docs-shell.tsx",
-  "apps/docs/components/docx-editor-workspace.tsx",
-] as const;
-
-/** Phrases that must not appear in {@link DOCS_MAINTAINER_COPY_RELATIVE_PATHS}. */
-export const DOCS_MAINTAINER_FORBIDDEN_UX_PHRASES = [
-  "renderTitleBarRight",
-  "title bar right slot",
-  "title-bar document actions",
-  "docs-title-bar-actions",
-  "comments={[]}",
-  "onCommentsChange",
-] as const;
-
 /** Repo-relative app and root README intros. */
 export const CUSTOMER_COPY_README_RELATIVE_PATHS = [
   "README.md",
   "apps/pdf/README.md",
-  "apps/docs/README.md",
   "apps/tasks/README.md",
   "apps/contacts/README.md",
   "apps/links/README.md",
@@ -69,7 +28,6 @@ export const CUSTOMER_COPY_LLMS_RELATIVE_PATHS = [
   "apps/web/public/llms.txt",
   "apps/store/public/llms.txt",
   "apps/pdf/public/llms.txt",
-  "apps/docs/public/llms.txt",
   "apps/tasks/public/llms.txt",
   "apps/contacts/public/llms.txt",
   "apps/links/public/llms.txt",
@@ -83,7 +41,6 @@ export const CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS = [
   "apps/web/public/manifest.json",
   "apps/store/public/manifest.json",
   "apps/pdf/public/manifest.json",
-  "apps/docs/public/manifest.json",
   "apps/tasks/public/manifest.json",
   "apps/contacts/public/manifest.json",
   "apps/links/public/manifest.json",
@@ -107,7 +64,6 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
   "packages/shared/src/power-platform-configurator-copy.ts",
   "apps/store/lib/data/products.ts",
   "apps/pdf/lib/product-copy.ts",
-  "apps/docs/lib/product-copy.ts",
   "apps/image-upscaler/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
@@ -125,7 +81,6 @@ export const CUSTOMER_COPY_USER_FACING_APP_IDS = [
   "links",
   "notes",
   "pdf",
-  "docs",
   "store",
   "tasks",
   "web",

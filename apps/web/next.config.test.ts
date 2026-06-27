@@ -205,34 +205,6 @@ describe("web gateway rewrites", () => {
     );
   });
 
-  it("forwards docs routes to the docs zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const docsOrigin = `http://localhost:${DEV_PORTS.docs}`;
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        { source: "/docs", destination: `${docsOrigin}/docs` },
-        { source: "/docs/:path*", destination: `${docsOrigin}/docs/:path*` },
-      ])
-    );
-  });
-
-  it("keeps localhost docs routing in development even when DOCS_URL is set", async () => {
-    vi.stubEnv("DOCS_URL", "https://helvety-docs.vercel.app");
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/docs/:path*",
-          destination: `http://localhost:${DEV_PORTS.docs}/docs/:path*`,
-        },
-      ])
-    );
-  });
-
   it("uses localhost rewrite targets in production when gateway env vars are unset and not on Vercel", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "");
@@ -243,23 +215,17 @@ describe("web gateway rewrites", () => {
     vi.stubEnv("LINKS_URL", "");
     vi.stubEnv("STORE_URL", "");
     vi.stubEnv("PDF_URL", "");
-    vi.stubEnv("DOCS_URL", "");
     vi.stubEnv("IMAGE_UPSCALER_URL", "");
 
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);
     const authOrigin = `http://localhost:${DEV_PORTS.auth}`;
-    const docsOrigin = `http://localhost:${DEV_PORTS.docs}`;
 
     expect(beforeFiles).toEqual(
       expect.arrayContaining([
         {
           source: "/auth/:path*",
           destination: `${authOrigin}/auth/:path*`,
-        },
-        {
-          source: "/docs/:path*",
-          destination: `${docsOrigin}/docs/:path*`,
         },
       ])
     );
@@ -272,27 +238,6 @@ describe("web gateway rewrites", () => {
 
     await expect(nextConfig.rewrites?.()).rejects.toThrow(
       "AUTH_URL is required on Vercel in production."
-    );
-  });
-
-  it("requires DOCS_URL on Vercel production when unset", async () => {
-    vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("VERCEL", "1");
-    vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
-    vi.stubEnv("TASKS_URL", "https://helvety-tasks.vercel.app");
-    vi.stubEnv("CONTACTS_URL", "https://helvety-contacts.vercel.app");
-    vi.stubEnv("NOTES_URL", "https://helvety-notes.vercel.app");
-    vi.stubEnv("LINKS_URL", "https://helvety-links.vercel.app");
-    vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
-    vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
-    vi.stubEnv(
-      "IMAGE_UPSCALER_URL",
-      "https://helvety-image-upscaler.vercel.app"
-    );
-    vi.stubEnv("DOCS_URL", "");
-
-    await expect(nextConfig.rewrites?.()).rejects.toThrow(
-      "DOCS_URL is required on Vercel in production."
     );
   });
 });

@@ -17,7 +17,6 @@ const ENTITY_CRYPTO_MODULES = [
   "apps/notes/lib/crypto/note-encryption.ts",
   "apps/links/lib/crypto/link-encryption.ts",
   "apps/links/lib/crypto/link-folder-encryption.ts",
-  "apps/docs/lib/crypto/doc-encryption.ts",
 ] as const;
 
 describe("E2EE entity encryption wiring", () => {

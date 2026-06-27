@@ -25,7 +25,6 @@ describe("GET /sitemap-index.xml", () => {
       "/sitemap.xml",
       "/store/sitemap.xml",
       "/pdf/sitemap.xml",
-      "/docs/sitemap.xml",
       "/image-upscaler/sitemap.xml",
     ];
 
@@ -41,5 +40,11 @@ describe("GET /sitemap-index.xml", () => {
       (match) => match[1]
     );
     expect(locMatches.every((loc) => loc?.startsWith("https://"))).toBe(true);
+
+    // Exhaustive: the index must list exactly the public-zone sitemaps (no
+    // retired/stray zones such as a removed app sneaking back in).
+    expect([...locMatches].sort()).toEqual(
+      expectedSitemaps.map((path) => `https://helvety.com${path}`).sort()
+    );
   });
 });

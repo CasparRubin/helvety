@@ -11,7 +11,6 @@ const PUBLIC_SHELL_APPS = [
   "auth",
   "store",
   "pdf",
-  "docs",
   "image-upscaler",
 ] as const;
 
@@ -43,12 +42,9 @@ describe("zone root layout wiring", () => {
     }
   );
 
-  it.each(["auth", "docs"] as const)(
-    "apps/%s imports EncryptionProvider via @/lib/crypto re-export",
-    (app) => {
-      const src = readLayout(app);
-      expect(src).toContain('from "@/lib/crypto"');
-      expect(src).toContain("EncryptionProvider");
-    }
-  );
+  it("apps/auth imports EncryptionProvider via @/lib/crypto re-export", () => {
+    const src = readLayout("auth");
+    expect(src).toContain('from "@/lib/crypto"');
+    expect(src).toContain("EncryptionProvider");
+  });
 });

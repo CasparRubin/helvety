@@ -11,18 +11,18 @@ The footer states that the site uses essential cookies and similar storage for s
 - Gateway (`apps/web`): relative `/privacy` link (`footerExternal: false`).
 - Sub-zones: absolute `https://helvety.com/privacy` with `target="_blank"`.
 
-**Ten zones:** `web`, `auth`, `store`, `pdf`, `docs`, `image-upscaler`, `tasks`, `contacts`, `notes`, `links`.
+**Nine zones:** `web`, `auth`, `store`, `pdf`, `image-upscaler`, `tasks`, `contacts`, `notes`, `links`.
 
 We do not mount third-party analytics or advertising trackers in shared root layouts.
 
 ## First-party HTTP cookies (summary)
 
-| Cookie                 | Apps                                   | Purpose                                                                                                                                                                                                                                                                                         |
-| ---------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sb-*-auth-token`      | Any zone when signed in                | Supabase session (httpOnly)                                                                                                                                                                                                                                                                     |
-| `csrf_token`           | All except `apps/web` gateway          | CSRF double-submit (signed, httpOnly)                                                                                                                                                                                                                                                           |
-| `webauthn_challenge`   | `auth`                                 | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                                                                                                                                                                                                                             |
-| `helvety_device_trust` | `auth` (+ verified on E2EE/docs zones) | Weekly device-trust marker on **helvety.com** (httpOnly, signed); passkey-first sign-in on `/auth/login` when trusted; required for continuing E2EE API access. **Not** used by the Chromium extension (extension uses HMAC `weekly_proof` in `helvety_extension_weekly_proof`; see Privacy §9) |
+| Cookie                 | Apps                              | Purpose                                                                                                                                                                                                                                                                                         |
+| ---------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sb-*-auth-token`      | Any zone when signed in           | Supabase session (httpOnly)                                                                                                                                                                                                                                                                     |
+| `csrf_token`           | All except `apps/web` gateway     | CSRF double-submit (signed, httpOnly)                                                                                                                                                                                                                                                           |
+| `webauthn_challenge`   | `auth`                            | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                                                                                                                                                                                                                             |
+| `helvety_device_trust` | `auth` (+ verified on E2EE zones) | Weekly device-trust marker on **helvety.com** (httpOnly, signed); passkey-first sign-in on `/auth/login` when trusted; required for continuing E2EE API access. **Not** used by the Chromium extension (extension uses HMAC `weekly_proof` in `helvety_extension_weekly_proof`; see Privacy §9) |
 
 **Extension auth API** (`/api/extension/otp/*`, `/api/extension/passkey/*`): OTP send/verify and passkey challenges are signed server-side values (passkey `challengeEnvelope` consumed once per ceremony via Upstash `consumeSingleUseKey`, 3 min TTL; in-memory fallback in dev). They are **not** browser cookies.
 
@@ -32,9 +32,9 @@ Production cookie domain: `.helvety.com` (`packages/shared/src/config.ts`).
 
 ## Browser storage (not cookies)
 
-Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps, Docs optional vault save, and the Chromium extension side panel), `helvety-pdf-columns` (PDF viewer). Chromium extension: Supabase session refresh bundle in `chrome.storage.local`, access token mirror in `chrome.storage.session`, and `helvety_extension_weekly_proof` (server-HMAC weekly proof; same schema as device trust).
+Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps and the Chromium extension side panel), `helvety-pdf-columns` (PDF viewer). Chromium extension: Supabase session refresh bundle in `chrome.storage.local`, access token mirror in `chrome.storage.session`, and `helvety_extension_weekly_proof` (server-HMAC weekly proof; same schema as device trust).
 
-E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **24h sliding idle** and **7d absolute max** lifetime (`@helvety/shared/auth-session-policy.ts`, `crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, Docs, and the Chromium extension side panel. Cleared on logout / hard logout.
+E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **24h sliding idle** and **7d absolute max** lifetime (`@helvety/shared/auth-session-policy.ts`, `crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, and the Chromium extension side panel. Cleared on logout / hard logout.
 
 ## When to update legal copy
 

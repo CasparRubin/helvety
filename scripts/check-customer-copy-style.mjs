@@ -12,31 +12,10 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EM_DASH = "\u2014";
 
-/** Keep in sync with `customer-copy-guardrails.ts`. */
-const FORBIDDEN_DOCS_LEGACY_UX_TERMS = [
-  "vault sidebar",
-  "from the sidebar after sign-in",
-  "VaultPanel",
-  "command bar sheet",
-  "pinned command bar",
-  "pinned Helvety command bar",
-  "auto-opened on load",
-];
-
-/** Keep in sync with `CUSTOMER_COPY_DOCS_LEGACY_UX_RELATIVE_PATHS`. */
-const DOCS_LEGACY_UX_COPY_PATHS = [
-  "apps/docs/README.md",
-  "apps/docs/public/llms.txt",
-  "apps/store/lib/data/products.ts",
-  "packages/shared/src/store-catalog.ts",
-  "packages/shared/src/app-product-descriptions.ts",
-];
-
 /** Keep in sync with `customer-copy-guardrails.ts` (`CUSTOMER_COPY_README_RELATIVE_PATHS`). */
 const README_RELATIVE_PATHS = [
   "README.md",
   "apps/pdf/README.md",
-  "apps/docs/README.md",
   "apps/tasks/README.md",
   "apps/contacts/README.md",
   "apps/links/README.md",
@@ -52,7 +31,6 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/web/public/llms.txt",
   "apps/store/public/llms.txt",
   "apps/pdf/public/llms.txt",
-  "apps/docs/public/llms.txt",
   "apps/tasks/public/llms.txt",
   "apps/contacts/public/llms.txt",
   "apps/notes/public/llms.txt",
@@ -62,7 +40,6 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/web/public/manifest.json",
   "apps/store/public/manifest.json",
   "apps/pdf/public/manifest.json",
-  "apps/docs/public/manifest.json",
   "apps/tasks/public/manifest.json",
   "apps/contacts/public/manifest.json",
   "apps/notes/public/manifest.json",
@@ -77,7 +54,6 @@ const EXPLICIT_RELATIVE_PATHS = [
   "packages/shared/src/power-platform-configurator-copy.ts",
   "apps/store/lib/data/products.ts",
   "apps/pdf/lib/product-copy.ts",
-  "apps/docs/lib/product-copy.ts",
   "apps/image-upscaler/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
@@ -91,7 +67,6 @@ const USER_FACING_APP_IDS = [
   "links",
   "notes",
   "pdf",
-  "docs",
   "store",
   "tasks",
   "web",
@@ -158,7 +133,6 @@ function scanFiles() {
 
 function main() {
   const emDashViolations = [];
-  const docsLegacyUxViolations = [];
 
   for (const filePath of scanFiles()) {
     const content = readFileSync(filePath, "utf8");
@@ -167,14 +141,6 @@ function main() {
     if (content.includes(EM_DASH)) {
       emDashViolations.push(rel);
     }
-
-    if (DOCS_LEGACY_UX_COPY_PATHS.includes(rel)) {
-      for (const term of FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
-        if (content.includes(term)) {
-          docsLegacyUxViolations.push(`${rel} (forbidden: "${term}")`);
-        }
-      }
-    }
   }
 
   if (emDashViolations.length > 0) {
@@ -182,16 +148,6 @@ function main() {
       "Em-dash (U+2014) in user-facing copy; use commas, periods, or parentheses:"
     );
     for (const rel of emDashViolations.sort()) {
-      console.error(`  ${rel}`);
-    }
-    process.exit(1);
-  }
-
-  if (docsLegacyUxViolations.length > 0) {
-    console.error(
-      "Forbidden legacy Helvety Docs UX terms (use Helvety command bar + My documents vault sheet):"
-    );
-    for (const rel of docsLegacyUxViolations.sort()) {
       console.error(`  ${rel}`);
     }
     process.exit(1);

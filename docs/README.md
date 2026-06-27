@@ -1,6 +1,6 @@
 # Helvety monorepo documentation
 
-Index of policy, ops, and architecture docs under this folder. The Next.js **Helvety Docs** app lives at [`apps/docs/`](../apps/docs/) — not here.
+Index of policy, ops, and architecture docs under this folder.
 
 ## Contributors and new zones
 

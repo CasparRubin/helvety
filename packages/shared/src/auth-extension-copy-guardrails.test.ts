@@ -32,7 +32,6 @@ const LLMS_TXT_PATHS = [
   "apps/auth/public/llms.txt",
   "apps/store/public/llms.txt",
   "apps/pdf/public/llms.txt",
-  "apps/docs/public/llms.txt",
   "apps/image-upscaler/public/llms.txt",
   "apps/tasks/public/llms.txt",
   "apps/contacts/public/llms.txt",

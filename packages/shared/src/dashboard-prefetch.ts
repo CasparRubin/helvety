@@ -20,10 +20,6 @@ export const TASKS_PREFETCH_TOO_MANY_ROWS_ERROR =
 export const NOTES_PREFETCH_TOO_MANY_ROWS_ERROR =
   "Too many notes to load in one request" as const;
 
-/** Docs vault API list route when the over-fetch returns one row past the cap. */
-export const DOCS_PREFETCH_TOO_MANY_ROWS_ERROR =
-  "Too many documents to load in one request" as const;
-
 /**
  * True when `rowCount` is strictly greater than `maxRows` (the allowed
  * maximum), i.e. the query used `maxRows + 1` and returned one extra row.

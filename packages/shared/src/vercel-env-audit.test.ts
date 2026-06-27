@@ -95,13 +95,13 @@ describe("auditProjectEnv", () => {
     const { errors } = auditProjectEnv({
       project: "helvety-com",
       app: "web",
-      keys: webKeys.filter((key) => key !== "DOCS_URL"),
+      keys: webKeys.filter((key) => key !== "LINKS_URL"),
     });
 
     expect(errors).toContain(
-      "helvety-com: missing gateway rewrite URLs: DOCS_URL"
+      "helvety-com: missing gateway rewrite URLs: LINKS_URL"
     );
-    expect(WEB_GATEWAY_KEYS).toContain("DOCS_URL");
+    expect(WEB_GATEWAY_KEYS).toContain("LINKS_URL");
   });
 });
 
@@ -111,7 +111,7 @@ describe("auditDeviceTrustSecretParity", () => {
     const { errors } = auditDeviceTrustSecretParity({
       "helvety-auth": { hash, updatedAt: 1, type: "encrypted" },
       "helvety-tasks": { hash, updatedAt: 1, type: "encrypted" },
-      "helvety-docs": { hash, updatedAt: 1, type: "encrypted" },
+      "helvety-notes": { hash, updatedAt: 1, type: "encrypted" },
     });
     expect(errors).toEqual([]);
   });

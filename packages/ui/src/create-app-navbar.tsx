@@ -83,7 +83,7 @@ export function createPublicShellNavbar(
   return Navbar;
 }
 
-/** Config for {@link createVaultAwareShellNavbar} (auth, docs). */
+/** Config for {@link createVaultAwareShellNavbar} (auth). */
 export type CreateVaultAwareShellNavbarConfig = Readonly<{
   brand: HelvetyShellNavbarBrand;
   aboutDescription: string;
@@ -93,7 +93,7 @@ export type CreateVaultAwareShellNavbarConfig = Readonly<{
   account?: Parameters<typeof HelvetyShellNavbar>[0]["account"];
 }>;
 
-/** Creates a public-shell navbar with vault encryption badge (auth, docs). */
+/** Creates a public-shell navbar with vault encryption badge (auth). */
 export function createVaultAwareShellNavbar(
   config: CreateVaultAwareShellNavbarConfig
 ): ComponentType<{ initialUser?: User | null }> {
@@ -101,7 +101,7 @@ export function createVaultAwareShellNavbar(
     <EncryptionTooltipContent body={<p>{config.encryptionTooltipBody}</p>} />
   );
 
-  /** Vault-aware public-shell navbar (auth, docs). */
+  /** Vault-aware public-shell navbar (auth). */
   function Navbar({ initialUser = null }: { initialUser?: User | null }) {
     const {
       isUnlocked,

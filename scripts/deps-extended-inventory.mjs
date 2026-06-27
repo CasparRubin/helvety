@@ -13,7 +13,6 @@ const ROOT = process.cwd();
 const LOCKFILE_PACKAGES = [
   "onnxruntime-web",
   "pdfjs-dist",
-  "@eigenpal/docx-editor-react",
   "three",
   "postprocessing",
   "pdf-lib",
@@ -24,7 +23,6 @@ const PACKAGE_JSON_PATHS = [
   ["root", "package.json"],
   ["@helvety/dev-deps", "packages/dev-deps/package.json"],
   ["@helvety/pdf", "apps/pdf/package.json"],
-  ["@helvety/docs", "apps/docs/package.json"],
   ["@helvety/image-upscaler", "apps/image-upscaler/package.json"],
   ["@helvety/web", "apps/web/package.json"],
 ];
@@ -162,11 +160,6 @@ async function main() {
   } else {
     console.log("- React Bits vendor: apps/web/components/vendor/ missing");
   }
-
-  console.log("\n## Docs\n");
-  console.log(
-    "- Material Symbols (self-hosted): apps/docs/app/fonts/material-symbols-outlined.woff2 + lib/fonts.ts"
-  );
 
   console.log(
     "\nFull checklist and upstream URLs: docs/dependency-inventory.md\n"

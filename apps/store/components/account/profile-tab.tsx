@@ -319,9 +319,7 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             This export includes your profile information. For Helvety Tasks,
             Helvety Contacts, Helvety Notes, and Helvety Links (end-to-end
             encrypted data), please use each app&apos;s export feature while
-            signed in and unlocked with your passkey. Helvety Docs vault
-            documents are opened and downloaded from the Docs app when signed
-            in.
+            signed in and unlocked with your passkey.
           </p>
           <Button
             variant="outline"
@@ -366,7 +364,6 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
             <li>Delete contact data (Helvety Contacts)</li>
             <li>Delete note data (Helvety Notes)</li>
             <li>Delete link data (Helvety Links)</li>
-            <li>Delete document data (Helvety Docs)</li>
           </ul>
           <p className="text-muted-foreground text-sm">
             Your Helvety account data is deleted through the account deletion

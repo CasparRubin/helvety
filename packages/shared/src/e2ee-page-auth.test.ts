@@ -18,7 +18,6 @@ describe("requiresE2eeDeviceTrust", () => {
     expect(requiresE2eeDeviceTrust("tasks")).toBe(true);
     expect(requiresE2eeDeviceTrust("export")).toBe(true);
     expect(requiresE2eeDeviceTrust("contact-links")).toBe(true);
-    expect(requiresE2eeDeviceTrust("docs")).toBe(true);
   });
 
   it("returns false for non-E2EE prefixes", () => {
@@ -69,12 +68,6 @@ describe("requiresE2eeBrowserUnlock", () => {
     );
     expect(requiresE2eeBrowserUnlock("https://helvety.com/store")).toBe(false);
     expect(requiresE2eeBrowserUnlock("https://helvety.com/pdf")).toBe(false);
-    expect(requiresE2eeBrowserUnlock("https://helvety.com/docs")).toBe(false);
-    expect(
-      requiresE2eeBrowserUnlock(
-        "https://helvety.com/docs?doc=550e8400-e29b-41d4-a716-446655440000"
-      )
-    ).toBe(false);
   });
 
   it("returns false for invalid URLs", () => {

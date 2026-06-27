@@ -95,7 +95,6 @@ describe("form control touch-safe wiring", () => {
     "apps/contacts/app/globals.css",
     "apps/notes/app/globals.css",
     "apps/links/app/globals.css",
-    "apps/docs/app/globals.css",
     "apps/pdf/app/globals.css",
     "apps/image-upscaler/app/globals.css",
   ] as const)("zone %s imports shared ui globals (touch CSS chain)", (path) => {

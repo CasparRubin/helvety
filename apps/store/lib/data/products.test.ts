@@ -1,7 +1,6 @@
 import {
   CUSTOMER_COPY_EM_DASH,
   CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX,
-  CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS,
 } from "@helvety/shared/customer-copy-guardrails";
 import {
   HELVETY_FREE_AGPL_FEATURE,
@@ -51,9 +50,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Docs newest; PDF oldest)", () => {
+  it("default sort is newest release first (Browser Extension newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-docs");
+    expect(ids[0]).toBe("helvety-browser-extension");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -110,10 +109,6 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-links")?.links?.website).toBe(
       "https://helvety.com/links"
     );
-    expect(getProductBySlug("helvety-docs")?.slug).toBe("helvety-docs");
-    expect(getProductBySlug("helvety-docs")?.links?.website).toBe(
-      "https://helvety.com/docs"
-    );
   });
 
   it("every listing has store artwork and an artist credit", () => {
@@ -126,25 +121,6 @@ describe("store product catalog", () => {
   it("assigns each artwork asset to exactly one product", () => {
     const images = getAllProducts().map((product) => product.image);
     expect(new Set(images).size).toBe(images.length);
-  });
-
-  it("Helvety Docs is a SaaS listing with store artwork and monorepo source", () => {
-    const product = getProductBySlug("helvety-docs");
-    expect(product).toBeDefined();
-    if (!product) {
-      return;
-    }
-    expect(product.type).toBe("saas");
-    expect(product.image).toBe(productArtwork.artwork11);
-    expect(product.artist).toBe("Clara von Rappard");
-    expect(product.links?.github).toContain("apps/docs");
-    expect(product.description.intro).toMatch(/vault save/i);
-    expect(product.features).toContain(
-      "Local .docx editing without an account"
-    );
-    expect(product.features).toContain(
-      "Optional vault save with client-side encryption"
-    );
   });
 
   it("Helvety Links is a SaaS listing with store artwork and monorepo source", () => {
@@ -358,27 +334,6 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
       HELVETY_FREE_AGPL_FEATURE
     );
-  });
-
-  it("Helvety Docs About copy uses My documents vault sheet via command bar (not legacy chrome phrases)", () => {
-    const product = getProductBySlug("helvety-docs");
-    expect(product).toBeDefined();
-    if (!product) return;
-
-    const blob = [
-      product.description.intro,
-      ...(product.description.sections ?? []).flatMap((s) =>
-        s.kind === "paragraph" ? [s.body] : s.items
-      ),
-    ].join("\n");
-
-    expect(blob).toMatch(/My documents/i);
-    expect(blob).toMatch(/vault sheet/i);
-    expect(blob).toMatch(/command bar/i);
-    expect(blob).not.toMatch(/title bar sheet/i);
-    for (const term of CUSTOMER_COPY_FORBIDDEN_DOCS_LEGACY_UX_TERMS) {
-      expect(blob).not.toContain(term);
-    }
   });
 
   it("Power Platform Configurator links to the Chrome Web Store and has no package download", () => {

@@ -15,13 +15,7 @@ const PRIVATE_ZONE_APP_IDS = [
 ] as const;
 
 /** Public indexable zones listed in the gateway sitemap index. */
-const PUBLIC_ZONE_APP_IDS = [
-  "web",
-  "store",
-  "pdf",
-  "docs",
-  "image-upscaler",
-] as const;
+const PUBLIC_ZONE_APP_IDS = ["web", "store", "pdf", "image-upscaler"] as const;
 
 const testDir =
   typeof import.meta.dirname === "string"
@@ -72,7 +66,6 @@ describe("SEO zone consistency", () => {
   it("public tool READMEs describe single-URL or scoped sitemaps without llms.txt", async () => {
     const scopedReadmes: ReadonlyArray<{ appId: string; pattern: RegExp }> = [
       { appId: "pdf", pattern: /app root URL only/i },
-      { appId: "docs", pattern: /app root URL only/i },
       {
         appId: "image-upscaler",
         pattern: /app root URL only/i,

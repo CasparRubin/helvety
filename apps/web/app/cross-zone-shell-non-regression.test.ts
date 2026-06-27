@@ -21,7 +21,6 @@ const OTHER_ZONE_LAYOUTS = [
   "apps/auth/app/layout.tsx",
   "apps/store/app/layout.tsx",
   "apps/pdf/app/layout.tsx",
-  "apps/docs/app/layout.tsx",
   "apps/image-upscaler/app/layout.tsx",
   "apps/tasks/app/layout.tsx",
   "apps/contacts/app/layout.tsx",
