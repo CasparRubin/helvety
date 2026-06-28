@@ -169,7 +169,7 @@ export function createE2eeZoneNextConfig({
 }
 
 /**
- * Next config for public tool zones (pdf, docs, image-upscaler) without assetPrefix.
+ * Next config for public tool zones (pdf, image-upscaler) without assetPrefix.
  *
  * @param {object} options
  * @param {string} options.appName
