@@ -16,11 +16,7 @@ export type StoreProductType = "saas" | "software" | "physical";
 
 /** Mirrors store {@link ProductCategory}. */
 export type StoreProductCategory =
-  | "productivity"
-  | "developer-tools"
-  | "utilities"
-  | "integrations"
-  | "other";
+  "productivity" | "developer-tools" | "utilities" | "integrations" | "other";
 
 /** Fields shown on Store product cards. */
 export interface StoreProductCard {

@@ -13,8 +13,7 @@ interface ReorderUpdateLike {
 
 /** Result type for combined reorder scope validation + updates. */
 export type ReorderOperationResult =
-  | { success: true }
-  | { success: false; error: string; cause?: unknown };
+  { success: true } | { success: false; error: string; cause?: unknown };
 
 /** User-facing message when an export exceeds {@link ACTION_LIMITS.MAX_EXPORT_ROWS_PER_TABLE}. */
 export const EXPORT_TOO_LARGE_MESSAGE =
@@ -22,8 +21,7 @@ export const EXPORT_TOO_LARGE_MESSAGE =
 
 /** Result of fetching encrypted rows for export. */
 export type OwnedEncryptedExportResult<T> =
-  | { success: true; rows: T[] }
-  | { success: false; error: string };
+  { success: true; rows: T[] } | { success: false; error: string };
 
 /**
  * Ensures every provided ID belongs to the authenticated user.

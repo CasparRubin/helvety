@@ -18,8 +18,7 @@ type RewriteRule = {
 /** Extracts beforeFiles rewrites regardless of Next.js return shape. */
 function getBeforeFiles(
   rewritesResult:
-    | Awaited<ReturnType<NonNullable<typeof nextConfig.rewrites>>>
-    | undefined
+    Awaited<ReturnType<NonNullable<typeof nextConfig.rewrites>>> | undefined
 ): RewriteRule[] | undefined {
   if (!rewritesResult || Array.isArray(rewritesResult)) {
     return undefined;

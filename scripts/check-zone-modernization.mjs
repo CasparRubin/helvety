@@ -125,14 +125,12 @@ async function main() {
       await readFile(envPath, "utf8");
       hasEnv = true;
     } catch (error) {
-      if (
-        !(
-          error &&
-          typeof error === "object" &&
-          "code" in error &&
-          error.code === "ENOENT"
-        )
-      ) {
+      if (!(
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "ENOENT"
+      )) {
         throw error;
       }
     }

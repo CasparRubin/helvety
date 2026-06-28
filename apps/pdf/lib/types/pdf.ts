@@ -41,8 +41,7 @@ export interface UnifiedPage {
  * Used by processFile and related functions.
  */
 export type ProcessFileResult =
-  | { readonly pdfFile: PdfFile }
-  | { readonly error: string };
+  { readonly pdfFile: PdfFile } | { readonly error: string };
 
 /**
  * Validation result for file validation operations.

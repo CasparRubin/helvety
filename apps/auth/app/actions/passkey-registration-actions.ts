@@ -177,9 +177,7 @@ export async function generatePasskeyRegistrationOptions(
     const optionsWithHints = {
       ...regOptions,
       hints: (isMobile ? ["client-device"] : ["hybrid"]) as (
-        | "hybrid"
-        | "security-key"
-        | "client-device"
+        "hybrid" | "security-key" | "client-device"
       )[],
     };
 

@@ -35,7 +35,7 @@
     "lucide-react": "^1.21.0",
     "next": "^16.2.9",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^6.0.227",
+    "pdfjs-dist": "^6.1.200",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-pdf": "^10.4.1",
@@ -47,7 +47,7 @@
     "@helvety/dev-deps": "workspace:*"
   },
   "overrides": {
-    "pdfjs-dist": "^6.0.227",
+    "pdfjs-dist": "^6.1.200",
     "node-domexception": "^2.0.2"
   }
 }

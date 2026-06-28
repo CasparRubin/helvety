@@ -17,6 +17,7 @@ Used by:
 | `popup-shell`                        | `POPUP_WIDTH_CLASS` (800px popups), `POPUP_SHELL_CLASS`, tab scroll, choice row classes  |
 | `popup-header`                       | Product name + icon + optional version row                                               |
 | `helvety-mark`                       | About **Developer** section mark                                                         |
+| `extension-version`                  | `readExtensionVersion()` / `readExtensionId()` from the Chromium manifest                |
 | `popup.css` / `extension-tokens.css` | Shared extension Tailwind utilities                                                      |
 
 Each extension passes its own **storage key** (for example `popupThemePreference` vs `helvetyPopupThemePreference`) and icon URL into the wrappers in its UI module (for example `src/popup/components/` in consumer repos).
@@ -27,4 +28,4 @@ Each extension passes its own **storage key** (for example `popupThemePreference
 bun run test
 ```
 
-Vitest suites live under `src/*.test.ts` (theme preference, popup shell).
+Vitest suites live under `src/*.test.ts` and `src/*.test.tsx` (theme preference, theme boot, popup shell, popup header, helvety mark, popup theme hook, extension version).

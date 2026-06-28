@@ -43,7 +43,7 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["@simplewebauthn/server", "^13.3.2"],
   ["@simplewebauthn/browser", "^13.3.0"],
   ["zod", "^4.4.3"],
-  ["prettier", "^3.8.5"],
+  ["prettier", "^3.9.1"],
   ["prettier-plugin-tailwindcss", "^0.8.0"],
   ["tailwindcss", "^4.3.1"],
   ["@tailwindcss/postcss", "^4.3.1"],

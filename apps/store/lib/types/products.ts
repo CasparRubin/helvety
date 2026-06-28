@@ -27,11 +27,7 @@ type BillingInterval = "one-time";
  * Product category for filtering and organization
  */
 type ProductCategory =
-  | "productivity"
-  | "developer-tools"
-  | "utilities"
-  | "integrations"
-  | "other";
+  "productivity" | "developer-tools" | "utilities" | "integrations" | "other";
 
 // =============================================================================
 // PRICING TYPES

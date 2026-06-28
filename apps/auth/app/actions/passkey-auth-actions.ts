@@ -260,9 +260,7 @@ export async function generatePasskeyAuthOptions(
     const optionsWithHints = {
       ...authOpts,
       hints: (isMobile ? ["client-device"] : ["hybrid"]) as (
-        | "hybrid"
-        | "security-key"
-        | "client-device"
+        "hybrid" | "security-key" | "client-device"
       )[],
     };
 

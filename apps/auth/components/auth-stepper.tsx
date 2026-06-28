@@ -8,9 +8,7 @@ export type AuthStep = "email" | "verify_code" | "create_passkey" | "sign_in";
 
 /** Stepper layout: 4 steps for everyone before OTP; 4 after OTP when setup needed; 3 when setup is skipped. */
 export type AuthStepperMode =
-  | "four_before_otp"
-  | "four_full"
-  | "three_skip_setup";
+  "four_before_otp" | "four_full" | "three_skip_setup";
 
 /** Configuration for a single authentication step. */
 interface StepConfig {

@@ -32,8 +32,7 @@ const RETRYABLE_TRANSPORT_ERROR_TOKENS = [
 
 /** Machine-readable action auth error prefixes used across app/server boundaries. */
 type AuthActionErrorCode =
-  | typeof AUTH_REQUIRED_CODE
-  | typeof AUTH_HARD_LOGOUT_CODE;
+  typeof AUTH_REQUIRED_CODE | typeof AUTH_HARD_LOGOUT_CODE;
 
 /** Parsed action error with optional machine code and normalized message body. */
 interface ParsedActionError {

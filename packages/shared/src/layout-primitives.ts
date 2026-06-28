@@ -59,6 +59,7 @@ export const HELVETY_SAME_AS_URLS = [
   urls.notes,
   urls.links,
   urls.pdf,
+  urls.imageUpscaler,
   urls.store,
   urls.tasks,
   "https://github.com/CasparRubin",

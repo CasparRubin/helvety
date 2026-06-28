@@ -3,7 +3,7 @@
 > Stage-based Helvety Tasks board with encrypted titles, descriptions, and schedule fields. Engineered, designed and made in Switzerland.
 
 ## Product behavior
-- Kanban-style stages with encrypted titles, descriptions, and dates
+- Stage-based tasks with encrypted titles, descriptions, and dates
 - Shareable links use `?item=<uuid>` to open a task in the detail sheet after sign-in and vault unlock
 - Optional cross-app links to Helvety Contacts, Notes, and Links when those apps are in use
 

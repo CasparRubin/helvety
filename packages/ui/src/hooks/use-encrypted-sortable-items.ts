@@ -28,13 +28,11 @@ export interface EncryptedSortableReorderUpdate {
 
 /** Create action response used by E2EE list hooks. */
 export type EncryptedSortableCreateResponse =
-  | { success: true; data: { id: string } }
-  | { success: false; error: string };
+  { success: true; data: { id: string } } | { success: false; error: string };
 
 /** Mutation action response without a payload. */
 export type EncryptedSortableMutationResponse =
-  | { success: true }
-  | { success: false; error: string };
+  { success: true } | { success: false; error: string };
 
 /** Options for {@link useEncryptedSortableItems}. */
 export interface UseEncryptedSortableItemsOptions<

@@ -1,10 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   applyThemeClassToDocument,
+  defaultThemeFromSystem,
   parseThemePreference,
+  prefersDarkFromSystem,
   resolveIsDark,
 } from "./theme-preference";
+
+const originalMatchMedia = window.matchMedia;
+
+/** Replaces `window.matchMedia` with a stub for the duration of a test. */
+function stubMatchMedia(value: unknown): void {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value,
+  });
+}
 
 describe("parseThemePreference", () => {
   it("accepts light and dark", () => {
@@ -38,5 +51,51 @@ describe("applyThemeClassToDocument", () => {
     applyThemeClassToDocument(false);
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(document.documentElement.style.colorScheme).toBe("light");
+  });
+});
+
+describe("prefersDarkFromSystem", () => {
+  afterEach(() => {
+    stubMatchMedia(originalMatchMedia);
+  });
+
+  it("returns true when matchMedia is unavailable", () => {
+    stubMatchMedia(undefined);
+    expect(prefersDarkFromSystem()).toBe(true);
+  });
+
+  it("reflects a dark system preference", () => {
+    stubMatchMedia(vi.fn(() => ({ matches: true })));
+    expect(prefersDarkFromSystem()).toBe(true);
+  });
+
+  it("reflects a light system preference", () => {
+    stubMatchMedia(vi.fn(() => ({ matches: false })));
+    expect(prefersDarkFromSystem()).toBe(false);
+  });
+
+  it("falls back to dark when matchMedia throws", () => {
+    stubMatchMedia(
+      vi.fn(() => {
+        throw new Error("matchMedia blocked");
+      })
+    );
+    expect(prefersDarkFromSystem()).toBe(true);
+  });
+});
+
+describe("defaultThemeFromSystem", () => {
+  afterEach(() => {
+    stubMatchMedia(originalMatchMedia);
+  });
+
+  it("maps a dark system preference to dark", () => {
+    stubMatchMedia(vi.fn(() => ({ matches: true })));
+    expect(defaultThemeFromSystem()).toBe("dark");
+  });
+
+  it("maps a light system preference to light", () => {
+    stubMatchMedia(vi.fn(() => ({ matches: false })));
+    expect(defaultThemeFromSystem()).toBe("light");
   });
 });

@@ -2,10 +2,7 @@ import type { AuthStep, AuthStepperMode } from "@/components/auth-stepper";
 
 /** URL / UI step for the login page (matches `useLoginFlow` state). */
 export type LoginStep =
-  | "email"
-  | "verify-code"
-  | "passkey-signin"
-  | "encryption-setup";
+  "email" | "verify-code" | "passkey-signin" | "encryption-setup";
 
 /**
  * After OTP (or session bootstrap), whether the user goes straight to passkey

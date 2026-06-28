@@ -154,15 +154,15 @@ Re-run `bun run deps:security` and `bun run deps:drift` after bumps. Supabase RL
 
 Auth, sessions, token TTL, and E2EE cross-repo audit (see [`security-review-runbook.md`](./security-review-runbook.md) MCP baseline):
 
-| Item                                     | Result                                                                                                                        |
+| Item | Result |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Extension weekly re-auth                 | **Server-HMAC `weekly_proof`** (parity with web `helvety_device_trust`); Bearer routes verify via `authenticateBearerRequest` |
-| Retired client OTP anchor                | Removed `helvety_extension_last_email_verified` / JWT-`iat`-only cap                                                          |
-| Supabase MCP (`get_advisors` security)   | RLS forced on all 9 user-data tables; **WARN** leaked-password protection still disabled (Dashboard manual)                   |
-| Session policy docs                      | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`)                                            |
-| `deps:security` / `deps:drift`           | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time                                              |
-| CI guardrails                            | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script                                  |
-| `clean:artifacts` during `test:coverage` | could delete active Vitest `coverage/.tmp`                                                                                    | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1` |
+| Extension weekly re-auth | **Server-HMAC `weekly_proof`** (parity with web `helvety_device_trust`); Bearer routes verify via `authenticateBearerRequest` |
+| Retired client OTP anchor | Removed `helvety_extension_last_email_verified` / JWT-`iat`-only cap |
+| Supabase MCP (`get_advisors` security) | RLS forced on all 9 user-data tables; **WARN** leaked-password protection still disabled (Dashboard manual) |
+| Session policy docs | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`) |
+| `deps:security` / `deps:drift` | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time |
+| CI guardrails | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script |
+| `clean:artifacts` during `test:coverage` | could delete active Vitest `coverage/.tmp` | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1` |
 
 **Post-deploy verification (after auth + extension ship):** Supabase MCP `get_logs` (auth API errors), Vercel MCP runtime logs on `helvety-auth`, spot-check extension OTP verify returns `weekly_proof`, passkey routes reject missing `X-Helvety-Weekly-Proof`.
 

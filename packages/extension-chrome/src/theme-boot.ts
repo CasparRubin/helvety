@@ -11,3 +11,5 @@ try {
 } catch {
   document.documentElement.classList.add("dark");
 }
+
+export {};

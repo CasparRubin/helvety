@@ -2,9 +2,7 @@
 type JsonLdPrimitive = string | number | boolean | null;
 /** Recursive JSON-LD value shape used for serialized schema payloads. */
 type JsonLdValue =
-  | JsonLdPrimitive
-  | JsonLdValue[]
-  | { [key: string]: JsonLdValue };
+  JsonLdPrimitive | JsonLdValue[] | { [key: string]: JsonLdValue };
 
 /** Props for rendering a JSON-LD script element. */
 export type JsonLdScriptProps = Readonly<{

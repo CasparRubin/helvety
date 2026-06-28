@@ -77,10 +77,10 @@
   "overrides": {
     "@supabase/supabase-js": "2.108.2",
     "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#f6ec87ddcc0f803881959eb690a72fa09c3b4c32",
-    "rollup": "4.62.0",
+    "rollup": "4.62.2",
     "minimatch": "10.2.5",
     "ajv": "6.14.0",
-    "hono": "4.12.25",
+    "hono": "4.12.27",
     "@hono/node-server": "1.19.13",
     "vite": "8.1.0",
     "express-rate-limit": "8.5.2",
@@ -92,10 +92,10 @@
     "path-to-regexp": "8.4.2",
     "picomatch": "2.3.2",
     "ip-address": "10.2.0",
-    "postcss": "8.5.14",
+    "postcss": "8.5.15",
     "protobufjs": "7.6.4",
-    "qs": "6.15.2",
-    "pdfjs-dist": "6.0.227",
+    "qs": "6.15.3",
+    "pdfjs-dist": "6.1.200",
     "dompurify": "3.4.11",
     "js-yaml": "4.2.0",
     "react": "^19.2.7",
@@ -107,7 +107,7 @@
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
     "@playwright/test": "^1.61.1",
-    "knip": "^6.21.0",
+    "knip": "^6.22.0",
     "turbo": "^2.10.0"
   }
 }

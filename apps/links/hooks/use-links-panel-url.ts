@@ -5,8 +5,7 @@ import { useCallback } from "react";
 
 /** Right-hand sheet panel state for links and folders. */
 export type LinksPanelState =
-  | { mode: "closed" }
-  | { mode: "open"; kind: "link" | "folder"; id: string };
+  { mode: "closed" } | { mode: "open"; kind: "link" | "folder"; id: string };
 
 /**
  * URL read/write helpers for the links detail sheet (`?link=` / `?folder=`).

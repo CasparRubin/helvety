@@ -15,8 +15,7 @@ import type { ActionResponse } from "@helvety/shared/types/entities";
 
 /** Server action response with typed payload on success. */
 type ActionDataResponse<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+  { success: true; data: T } | { success: false; error: string };
 
 /** Options for {@link useEncryptedSingleItem}. */
 export interface UseEncryptedSingleItemOptions<

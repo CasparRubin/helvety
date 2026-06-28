@@ -4,8 +4,7 @@ import { useCallback, useState, useTransition } from "react";
 
 /** Panel state for a single-entity E2EE dashboard sheet. */
 export type E2eeEntityPanelState =
-  | { mode: "closed" }
-  | { mode: "open"; entityId: string };
+  { mode: "closed" } | { mode: "open"; entityId: string };
 
 /** Result of {@link useE2eeEntityPanel}. */
 export interface UseE2eeEntityPanelResult {

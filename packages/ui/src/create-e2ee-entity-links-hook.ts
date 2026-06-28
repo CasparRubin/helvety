@@ -14,13 +14,11 @@ import type { EntityLinksHookResult } from "./entity-links-panel";
 
 /** Discriminated server-action result with payload. */
 export type E2eeEntityLinkActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+  { success: true; data: T } | { success: false; error: string };
 
 /** Mutation result without a payload (link/unlink). */
 export type E2eeEntityLinkMutationResult =
-  | { success: true }
-  | { success: false; error: string };
+  { success: true } | { success: false; error: string };
 
 /** User-facing error strings passed to `reportE2eeHookError` / `reportE2eeActionFailure`. */
 type E2eeEntityLinksMessages = {

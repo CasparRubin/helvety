@@ -61,8 +61,7 @@ export type HelvetyShellNavbarBrand = {
 
 /** Account entry: Helvety Store in another tab, or same-origin (e.g. Store app). */
 export type HelvetyShellNavbarAccount =
-  | { variant: "external-store" }
-  | { variant: "same-origin"; href: string };
+  { variant: "external-store" } | { variant: "same-origin"; href: string };
 
 /** Optional encryption badge (caller supplies tooltip body; no crypto hooks here). */
 export type HelvetyShellNavbarEncryption = {
