@@ -17,6 +17,7 @@
   ],
   "ignorePatterns": [
     "apps/pdf/public/pdf.worker.min.mjs",
+    "apps/pdf/public/pdf.worker.meta.json",
     "apps/pdf/lib/empty-canvas-stub.mjs",
     "apps/*/lib/utils.ts",
     "apps/image-upscaler/public/ort/**",

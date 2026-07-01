@@ -17,6 +17,10 @@ vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
   bootstrapPublicLayoutUser: vi.fn().mockResolvedValue(null),
 }));
 
+vi.mock("@/components/navbar", () => ({
+  Navbar: () => null,
+}));
+
 import { metadata, WEB_SITE_DESCRIPTION } from "./layout";
 
 describe("web root layout metadata", () => {

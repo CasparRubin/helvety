@@ -66,12 +66,14 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Extended assets
 
-| Asset                              | Current pin                                | Upstream latest | Recommendation                      |
-| ---------------------------------- | ------------------------------------------ | --------------- | ----------------------------------- |
-| `onnxruntime-web`                  | 1.26.0                                     | 1.26.0          | **Keep** — latest stable            |
-| Real-ESRGAN ONNX (Supabase bucket) | SHA in `apps/image-upscaler/lib/models.ts` | unchanged       | **Keep** — no upstream model change |
-| `pdfjs-dist`                       | 6.0.227                                    | 6.0.227         | **Keep** — latest stable            |
-| `three` / `postprocessing`         | 0.184.0 / 6.39.1                           | same            | **Keep**                            |
+| Asset                              | Current pin                                                          | Upstream latest                                          | Recommendation                                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `onnxruntime-web`                  | 1.26.0                                                               | 1.26.0                                                   | **Keep** — latest stable                                                                       |
+| Real-ESRGAN ONNX (Supabase bucket) | SHA in `apps/image-upscaler/lib/models.ts`                           | unchanged                                                | **Keep** — no upstream model change                                                            |
+| `pdfjs-dist`                       | via `react-pdf@10.4.1` → `5.4.296` (transitive; do not root/app pin) | see [`dependency-inventory.md`](dependency-inventory.md) | **Follow react-pdf** — worker must match runtime API; `consistency:pdfjs-worker` in `ci:check` |
+| `three` / `postprocessing`         | 0.184.0 / 6.39.1                                                     | same                                                     | **Keep**                                                                                       |
+
+> **Correction (2026-07-01):** An earlier draft of this table listed a direct `pdfjs-dist@6.0.227` pin. In production, `pdfjs-dist` is **transitive via `react-pdf`**; syncing the worker from a separate pin caused API/worker version skew. See [`docs/dependency-inventory.md`](dependency-inventory.md) (pdf zone) and root `consistency:pdfjs-worker`.
 
 ---
 

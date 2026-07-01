@@ -28,9 +28,8 @@ interface UsePdfWorkerReturn {
  * Custom hook for initializing PDF.js worker.
  *
  * The worker is configured to use a basePath-prefixed local worker file from
- * the public folder, which is automatically kept in sync with the `pdfjs-dist`
- * version resolved from this app's `pdfjs-dist` dependency via the `sync:pdf-worker`
- * script. That file must be served as a normal static asset (Next `public/`); zone `proxy.ts`
+ * the public folder, which is automatically kept in sync with react-pdf's
+ * resolved `pdfjs-dist` via the `sync:pdf-worker` script. That file must be served as a normal static asset (Next `public/`); zone `proxy.ts`
  * `config.matcher` follows `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy`
  * (inlined static literal) so `.mjs` requests are not run through the security proxy.
  *
@@ -61,7 +60,7 @@ export function usePdfWorker(fileType: "pdf" | "image"): UsePdfWorkerReturn {
     }
 
     // Import react-pdf for pdfjs.GlobalWorkerOptions only; worker bytes match
-    // this app's pdfjs-dist pin (synced to public/ by sync-pdf-worker.mjs).
+    // react-pdf's resolved pdfjs-dist (synced to public/ by sync-pdf-worker.mjs).
     workerInitPromise = import("react-pdf")
       .then((mod) => {
         mod.pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_PUBLIC_PATH;

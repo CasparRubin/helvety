@@ -19,6 +19,10 @@ vi.mock("@helvety/shared/logger", () => ({
   logger: { logUnexpectedError: vi.fn() },
 }));
 
+vi.mock("@/components/navbar", () => ({
+  Navbar: () => null,
+}));
+
 import { PDF_APP_DESCRIPTION } from "@/lib/product-copy";
 
 import { metadata } from "./layout";

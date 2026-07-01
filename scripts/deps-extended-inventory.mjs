@@ -6,6 +6,7 @@
 import { readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import process from "node:process";
 
 const ROOT = process.cwd();
@@ -124,6 +125,51 @@ async function main() {
     );
   }
 
+  let effectiveReactPdfPdfjsVersion = null;
+  try {
+    const pdfAppDir = path.join(ROOT, "apps", "pdf");
+    const resolverPath = path.join(
+      pdfAppDir,
+      "scripts",
+      "resolve-pdfjs-for-react-pdf.mjs"
+    );
+    const { resolvePdfJsForReactPdf } = await import(
+      pathToFileURL(resolverPath).href
+    );
+    effectiveReactPdfPdfjsVersion = resolvePdfJsForReactPdf(pdfAppDir).version;
+    console.log(
+      `- react-pdf runtime pdfjs-dist (resolved): ${effectiveReactPdfPdfjsVersion}`
+    );
+  } catch (error) {
+    console.log(
+      `- react-pdf runtime pdfjs-dist (resolved): unavailable (${error instanceof Error ? error.message : String(error)})`
+    );
+  }
+
+  if (effectiveReactPdfPdfjsVersion) {
+    const rootOverride = rootPkg.overrides?.["pdfjs-dist"];
+    const nestedOverride = rootPkg.overrides?.["react-pdf>pdfjs-dist"];
+    const pdfAppPkg = await readJson("apps/pdf/package.json");
+    const directPdfjs =
+      pdfAppPkg.dependencies?.["pdfjs-dist"] ??
+      pdfAppPkg.overrides?.["pdfjs-dist"];
+
+    for (const [label, spec] of [
+      ["root override pdfjs-dist", rootOverride],
+      ["root override react-pdf>pdfjs-dist", nestedOverride],
+      ["apps/pdf direct pdfjs-dist", directPdfjs],
+    ]) {
+      if (spec === undefined || spec === null) continue;
+      const match = String(spec).match(/(\d+\.\d+\.\d+)/);
+      const declared = match?.[1];
+      if (declared && declared !== effectiveReactPdfPdfjsVersion) {
+        console.log(
+          `- WARNING: ${label} (${spec}) disagrees with react-pdf runtime pdfjs-dist@${effectiveReactPdfPdfjsVersion}`
+        );
+      }
+    }
+  }
+
   console.log("\n## Declared specifiers (package.json)\n");
   for (const [label, relPath] of PACKAGE_JSON_PATHS) {
     const manifest = await readJson(relPath);
@@ -147,6 +193,9 @@ async function main() {
   console.log("\n## Vendored / self-hosted artifacts\n");
   console.log(
     `- ${await describePath("PDF.js worker", "apps/pdf/public/pdf.worker.min.mjs")}`
+  );
+  console.log(
+    `- ${await describePath("PDF.js worker meta", "apps/pdf/public/pdf.worker.meta.json")}`
   );
   console.log(
     `- ${await describePath("ORT runtime dir", "apps/image-upscaler/public/ort")}`

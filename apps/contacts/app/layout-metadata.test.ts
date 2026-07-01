@@ -11,6 +11,10 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
+vi.mock("@/components/navbar", () => ({
+  Navbar: () => null,
+}));
+
 import { CONTACTS_APP_DESCRIPTION, metadata } from "./layout";
 
 describe("contacts root layout metadata", () => {

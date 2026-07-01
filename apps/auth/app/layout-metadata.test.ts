@@ -17,6 +17,10 @@ vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
   }),
 }));
 
+vi.mock("@/components/navbar", () => ({
+  Navbar: () => null,
+}));
+
 import { AUTH_DESCRIPTION, metadata } from "./layout";
 
 describe("auth root layout metadata", () => {

@@ -18,6 +18,10 @@ vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
   }),
 }));
 
+vi.mock("@/components/navbar", () => ({
+  Navbar: () => null,
+}));
+
 import { metadata, STORE_DESCRIPTION } from "./layout";
 
 describe("store root layout metadata", () => {

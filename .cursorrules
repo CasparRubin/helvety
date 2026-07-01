@@ -2,7 +2,7 @@
 
 ## Dependency updates
 
-When asked to update dependencies to latest stable compatible versions, use the **dependency-update** project skill (`.cursor/skills/dependency-update/SKILL.md`) and `docs/dependency-inventory.md`. Include non-npm assets (models, vendored workers/WASM, vendored UI, external repos), not only `package.json`.
+When asked to update dependencies to latest stable compatible versions, use the **dependency-update** project skill (`.cursor/skills/dependency-update/SKILL.md`) and `docs/dependency-inventory.md`. Include non-npm assets (models, vendored workers/WASM, PDF.js worker via react-pdf, React Bits vendor, external repos), not only `package.json`. For the PDF zone, never pin `pdfjs-dist` independently of `react-pdf` — run `consistency:pdfjs-worker` after bumps.
 
 ## Supabase Export - NEVER COMMIT
 

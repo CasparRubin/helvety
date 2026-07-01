@@ -151,7 +151,7 @@ Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`)
 | `e2ee-app`         | `tasks`, `contacts`, `notes`, `links`        |
 | `public-tool`      | `pdf`, `image-upscaler`                      |
 
-**PDF worker sync:** `apps/pdf` runs `bun run sync:pdf-worker` before dev/build to copy `pdfjs-dist/build/pdf.worker.min.mjs` into `public/` (must match the app's `pdfjs-dist` pin; see [`apps/pdf/README.md`](../apps/pdf/README.md) › PDF.js stack).
+**PDF worker sync:** `apps/pdf` runs `bun run sync:pdf-worker` before dev/build to copy the worker from react-pdf's resolved `pdfjs-dist` into `public/` (must match the runtime API). Root `bun run consistency:pdfjs-worker` (in `ci:check`) **syncs then validates** alignment and rejects independent `pdfjs-dist` pins/overrides. See [`apps/pdf/README.md`](../apps/pdf/README.md) › PDF.js stack.
 
 Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config = { matcher: [...] }` (Next.js requirement). `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 

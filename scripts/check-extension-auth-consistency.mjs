@@ -19,7 +19,14 @@ const extensionRootCandidates = [
 const extensionRoot =
   extensionRootCandidates.find((candidate) =>
     existsSync(join(candidate, "src/lib/extension-session.ts"))
-  ) ?? extensionRootCandidates[0];
+  ) ?? null;
+
+if (!extensionRoot) {
+  console.log(
+    "consistency:extension-auth skipped (helvety-browser-extension-chromium sibling repo not present)."
+  );
+  process.exit(0);
+}
 
 const failures = [];
 

@@ -33,8 +33,10 @@ After any root-level update, confirm root `package.json` has **no** `dependencie
 # image-upscaler — ORT WASM into public/ort/
 node scripts/copy-ort-runtime.mjs
 
-# pdf — PDF.js worker (from app pdfjs-dist, not react-pdf nested tree)
-cd apps/pdf && bun run sync:pdf-worker
+# pdf — PDF.js worker (from react-pdf's resolved pdfjs-dist)
+cd apps/pdf && bun run sync:pdf-worker   # dev/build also run this automatically
+# Root command syncs first, then validates (same as ci:check pdf gate)
+bun run consistency:pdfjs-worker
 
 # web — React Bits (from apps/web)
 # shadcn add @react-bits/<name>.json — then reconcile apps/web/components/vendor/
