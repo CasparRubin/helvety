@@ -13,13 +13,17 @@ export function buildPdfThumbnailCacheKey(params: {
   return `${params.fileUrl}:${params.pageNumber}:${params.pageWidth}:${effectiveDpr}:${params.rotation ?? 0}`;
 }
 
-/** Stores a rendered page canvas in the global ImageBitmap cache. */
+/** Stores a rendered page canvas in the global ImageBitmap cache when capture is valid. */
 export async function cachePdfPageCanvas(
   canvas: HTMLCanvasElement,
   cacheKey: string,
   cache: { set: (key: string, bitmap: ImageBitmap) => void }
 ): Promise<ImageBitmap | null> {
-  if (typeof createImageBitmap === "undefined") {
+  if (
+    typeof createImageBitmap === "undefined" ||
+    canvas.width === 0 ||
+    canvas.height === 0
+  ) {
     return null;
   }
   const bitmap = await createImageBitmap(canvas);

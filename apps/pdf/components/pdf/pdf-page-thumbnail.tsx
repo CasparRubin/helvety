@@ -84,6 +84,7 @@ function PdfPageThumbnailComponent({
     typeof setTimeout
   > | null>(null);
   const cachedCanvasKeyRef = React.useRef<string | null>(null);
+  const pageCanvasElementRef = React.useRef<HTMLCanvasElement | null>(null);
   const { screenSize } = useScreenSize();
 
   // PDF rendering hook for ImageBitmap rendering
@@ -145,6 +146,7 @@ function PdfPageThumbnailComponent({
       clearTimeout(pageRenderTimeoutRef.current);
       pageRenderTimeoutRef.current = null;
     }
+    pageCanvasElementRef.current = null;
     // Quality upgrade cleanup is handled by the hook
   }, [fileUrl, setIsHighQuality]);
 
@@ -207,49 +209,63 @@ function PdfPageThumbnailComponent({
 
   const handlePageCanvasRef = React.useCallback(
     (canvas: HTMLCanvasElement | null) => {
-      if (
-        !canvas ||
-        fileType !== "pdf" ||
-        useImageBitmap ||
-        !isVisible ||
-        shouldUnmount ||
-        pageWidth === 0
-      ) {
-        return;
+      pageCanvasElementRef.current = canvas;
+      if (!canvas) {
+        cachedCanvasKeyRef.current = null;
       }
-
-      const cacheKey = getThumbnailCacheKey();
-      if (cachedCanvasKeyRef.current === cacheKey) {
-        return;
-      }
-      cachedCanvasKeyRef.current = cacheKey;
-
-      void cachePdfPageCanvas(canvas, cacheKey, getImageBitmapCache())
-        .then((bitmap) => {
-          if (!bitmap) {
-            return;
-          }
-          setImageBitmap(bitmap);
-          setUseImageBitmap(true);
-          setLoading(false);
-          setError(false);
-        })
-        .catch((error: unknown) => {
-          logger.logUnexpectedError(
-            "Failed to cache PDF thumbnail ImageBitmap",
-            error
-          );
-        });
     },
-    [
-      fileType,
-      useImageBitmap,
-      isVisible,
-      shouldUnmount,
-      pageWidth,
-      getThumbnailCacheKey,
-    ]
+    []
   );
+
+  const captureRenderedCanvas = React.useCallback(() => {
+    const canvas = pageCanvasElementRef.current;
+    if (
+      !canvas ||
+      fileType !== "pdf" ||
+      useImageBitmap ||
+      !isVisible ||
+      shouldUnmount ||
+      pageWidth === 0
+    ) {
+      return;
+    }
+
+    const cacheKey = getThumbnailCacheKey();
+    if (cachedCanvasKeyRef.current === cacheKey) {
+      return;
+    }
+    cachedCanvasKeyRef.current = cacheKey;
+
+    // react-pdf attaches canvasRef before pdf.js paints. Capture only after
+    // onRenderSuccess so dependency updates cannot regress us back to blank
+    // ImageBitmaps that replace an otherwise valid fallback canvas.
+    void cachePdfPageCanvas(canvas, cacheKey, getImageBitmapCache())
+      .then((bitmap) => {
+        if (!bitmap || bitmap.width === 0 || bitmap.height === 0) {
+          cachedCanvasKeyRef.current = null;
+          setUseImageBitmap(false);
+          return;
+        }
+        setImageBitmap(bitmap);
+        setUseImageBitmap(true);
+        setLoading(false);
+        setError(false);
+      })
+      .catch((error: unknown) => {
+        cachedCanvasKeyRef.current = null;
+        logger.logUnexpectedError(
+          "Failed to cache PDF thumbnail ImageBitmap",
+          error
+        );
+      });
+  }, [
+    fileType,
+    useImageBitmap,
+    isVisible,
+    shouldUnmount,
+    pageWidth,
+    getThumbnailCacheKey,
+  ]);
 
   const schedulePageRenderReady = React.useCallback((delayMs: number): void => {
     if (pageRenderTimeoutRef.current) {
@@ -474,6 +490,7 @@ function PdfPageThumbnailComponent({
                         }
                         renderMode="canvas"
                         canvasRef={handlePageCanvasRef}
+                        onRenderSuccess={captureRenderedCanvas}
                         onRenderError={(error) => {
                           logger.logUnexpectedError("Page render error", error);
                           // Retry on worker messageHandler race; worker may not be ready yet.

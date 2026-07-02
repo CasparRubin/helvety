@@ -59,4 +59,21 @@ describe("pdf-thumbnail-cache", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("cachePdfPageCanvas returns null for zero-sized canvases", async () => {
+    const createImageBitmap = vi.fn();
+    vi.stubGlobal("createImageBitmap", createImageBitmap);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 0;
+    canvas.height = 0;
+    const set = vi.fn();
+    const result = await cachePdfPageCanvas(canvas, "key-3", { set });
+
+    expect(result).toBeNull();
+    expect(createImageBitmap).not.toHaveBeenCalled();
+    expect(set).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
 });
