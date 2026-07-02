@@ -12,7 +12,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 - Local browser processing for supported operations
 - PDF and image input support
 - Page thumbnail preview with drag-and-drop reordering; first render uses react-pdf canvas, then pages are stored in an ImageBitmap LRU cache for faster re-display
-- Rotation, deletion, and extraction tools
+- Rotation, deletion, and extraction tools; downloaded PDFs match thumbnail orientation (inherent metadata plus user adjustments via `exportPageWithRotation` in [`lib/pdf-rotation.ts`](./lib/pdf-rotation.ts))
 - Multi-file merge workflows
 - No login required
 
@@ -31,7 +31,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 - **Worker:** [`scripts/sync-pdf-worker.mjs`](./scripts/sync-pdf-worker.mjs) copies `pdfjs-dist/build/pdf.worker.min.mjs` from **react-pdf's resolved pdfjs-dist** into `public/pdf.worker.min.mjs` before dev/build (`bun run sync:pdf-worker`). Also writes `public/pdf.worker.meta.json` for CI alignment checks.
 - **Runtime:** [`hooks/use-pdf-worker.ts`](./hooks/use-pdf-worker.ts) sets `pdfjs.GlobalWorkerOptions.workerSrc` to `/pdf/pdf.worker.min.mjs` (via `react-pdf`'s `pdfjs` export).
 - **CI:** Root `bun run consistency:pdfjs-worker` (in `ci:check`) syncs the worker then fails if the result disagrees with react-pdf's resolved pdfjs-dist or if independent `pdfjs-dist` pins/overrides are reintroduced.
-- **Tests:** [`scripts/resolve-pdfjs-for-react-pdf.test.ts`](./scripts/resolve-pdfjs-for-react-pdf.test.ts), [`scripts/sync-pdf-worker.test.ts`](./scripts/sync-pdf-worker.test.ts), [`scripts/pdfjs-worker-alignment.test.ts`](./scripts/pdfjs-worker-alignment.test.ts), [`hooks/use-pdf-worker.test.ts`](./hooks/use-pdf-worker.test.ts), [`hooks/use-pdf-worker-wiring.test.ts`](./hooks/use-pdf-worker-wiring.test.ts), [`hooks/use-pdf-page-state.test.ts`](./hooks/use-pdf-page-state.test.ts), [`components/pdf/pdf-page-thumbnail.render.test.tsx`](./components/pdf/pdf-page-thumbnail.render.test.tsx), [`lib/pdf-thumbnail-cache.test.ts`](./lib/pdf-thumbnail-cache.test.ts).
+- **Tests:** [`scripts/resolve-pdfjs-for-react-pdf.test.ts`](./scripts/resolve-pdfjs-for-react-pdf.test.ts), [`scripts/sync-pdf-worker.test.ts`](./scripts/sync-pdf-worker.test.ts), [`scripts/pdfjs-worker-alignment.test.ts`](./scripts/pdfjs-worker-alignment.test.ts), [`hooks/use-pdf-worker.test.ts`](./hooks/use-pdf-worker.test.ts), [`hooks/use-pdf-worker-wiring.test.ts`](./hooks/use-pdf-worker-wiring.test.ts), [`hooks/use-pdf-page-state.test.ts`](./hooks/use-pdf-page-state.test.ts), [`hooks/use-pdf-processing-wiring.test.ts`](./hooks/use-pdf-processing-wiring.test.ts), [`lib/pdf-export-rotation.test.ts`](./lib/pdf-export-rotation.test.ts), [`lib/pdf-rotation.test.ts`](./lib/pdf-rotation.test.ts), [`lib/pdf-loading.test.ts`](./lib/pdf-loading.test.ts), [`components/pdf/pdf-page-grid-wiring.test.ts`](./components/pdf/pdf-page-grid-wiring.test.ts), [`components/pdf/pdf-page-thumbnail-render.test.tsx`](./components/pdf/pdf-page-thumbnail-render.test.tsx), [`lib/pdf-thumbnail-cache.test.ts`](./lib/pdf-thumbnail-cache.test.ts).
 
 ## Crawl and Indexing
 

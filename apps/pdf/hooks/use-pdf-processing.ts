@@ -12,17 +12,14 @@ import { handleError } from "@/lib/error-handler";
 import { downloadBlob } from "@/lib/file-download";
 import { getMemoryUsagePercent } from "@/lib/memory-utils";
 import { createPdfErrorInfo } from "@/lib/pdf-errors";
-import { extractPageFromPdf } from "@/lib/pdf-extraction";
 import { formatTimestamp } from "@/lib/pdf-helpers";
 import { createPageMap, createFileMap } from "@/lib/pdf-lookup-utils";
 import { selectPdfProcessingPipeline } from "@/lib/pdf-processing-pipeline";
 import { recordPipelineMetric } from "@/lib/pdf-processing-telemetry";
 import { PdfProcessingWorkerClient } from "@/lib/pdf-processing-worker-client";
 import {
-  applyPageRotation,
-  createRotatedImagePage,
-  needsContentTransform,
-  normalizeRotation,
+  computeEffectiveRotation,
+  exportPageWithRotation,
 } from "@/lib/pdf-rotation";
 import { withTimeout, withTimeoutAndSignal } from "@/lib/timeout-utils";
 
@@ -84,15 +81,11 @@ export function usePdfProcessing({
   // Track mounted state to prevent state updates after unmount
   const isMountedRef = React.useRef(true);
 
-  // Use ref to store latest pageRotations to avoid stale closure issues
-  // This ensures we always read the most current rotation state, even during rapid updates
+  // Keep pageRotationsRef in sync during render so export reads the latest rotations
+  // immediately (including rapid rotate-then-download), not after useEffect.
   const pageRotationsRef =
     React.useRef<Readonly<Record<number, number>>>(pageRotations);
-
-  // Sync ref with prop changes to always have the latest state
-  React.useEffect(() => {
-    pageRotationsRef.current = pageRotations;
-  }, [pageRotations]);
+  pageRotationsRef.current = pageRotations;
 
   // Cleanup on unmount
   React.useEffect(() => {
@@ -167,6 +160,7 @@ export function usePdfProcessing({
     async (
       unifiedPageNumber: number,
       signal: AbortSignal,
+      currentRotations: Readonly<Record<number, number>>,
       pageMap: ReadonlyMap<number, UnifiedPage>,
       fileMap: ReadonlyMap<string, PdfFile>
     ): Promise<Blob> => {
@@ -200,43 +194,27 @@ export function usePdfProcessing({
 
       const inherentRotation =
         file.inherentRotations?.[page.originalPageNumber] ?? 0;
-      const userRotation = pageRotationsRef.current[unifiedPageNumber] ?? 0;
-      const totalRotation = (inherentRotation + userRotation) % 360;
-      const normalizedTotalRotation = normalizeRotation(totalRotation);
+      const userRotation = currentRotations[unifiedPageNumber] ?? 0;
+      const effectiveRotation = computeEffectiveRotation(
+        inherentRotation,
+        userRotation
+      );
       const isImage = file.type === "image";
-      const useContentTransform =
-        isImage && needsContentTransform(normalizedTotalRotation);
 
-      let newPdf: PDFDocument;
-
-      if (useContentTransform && normalizedTotalRotation !== 0) {
-        newPdf = await PDFDocument.create();
-        const sourcePage = pdf.getPage(pageIndex);
-        await withTimeoutAndSignal(
-          () =>
-            createRotatedImagePage(newPdf, sourcePage, normalizedTotalRotation),
-          TIMEOUTS.OPERATION_TIMEOUT,
-          signal,
-          "Rotating image timed out. Please try again."
-        );
-      } else {
-        newPdf = await withTimeoutAndSignal(
-          () => extractPageFromPdf(pdf, pageIndex),
-          TIMEOUTS.OPERATION_TIMEOUT,
-          signal,
-          "Extracting page timed out. Please try again."
-        );
-
-        if (totalRotation !== 0) {
-          const newPage = newPdf.getPage(0);
-          await withTimeoutAndSignal(
-            () => applyPageRotation(newPage, totalRotation, isImage),
-            TIMEOUTS.OPERATION_TIMEOUT,
-            signal,
-            "Applying rotation timed out. Please try again."
-          );
-        }
-      }
+      const newPdf = await PDFDocument.create();
+      await withTimeoutAndSignal(
+        () =>
+          exportPageWithRotation(
+            newPdf,
+            pdf,
+            pageIndex,
+            effectiveRotation,
+            isImage
+          ),
+        TIMEOUTS.OPERATION_TIMEOUT,
+        signal,
+        "Extracting page timed out. Please try again."
+      );
 
       const pdfBytes = await withTimeoutAndSignal(
         () => newPdf.save(),
@@ -329,40 +307,25 @@ export function usePdfProcessing({
             const inherentRotation =
               file.inherentRotations?.[page.originalPageNumber] ?? 0;
             const userRotation = currentRotations[unifiedPageNum] ?? 0;
-            const totalRotation = (inherentRotation + userRotation) % 360;
-            const normalizedTotalRotation = normalizeRotation(totalRotation);
-
+            const effectiveRotation = computeEffectiveRotation(
+              inherentRotation,
+              userRotation
+            );
             const isImage = file.type === "image";
-            const useContentTransform =
-              isImage && needsContentTransform(normalizedTotalRotation);
 
-            if (useContentTransform && normalizedTotalRotation !== 0) {
-              const sourcePage = pdf.getPage(pageIndex);
-              await withTimeoutAndSignal(
-                () =>
-                  createRotatedImagePage(
-                    mergedPdf,
-                    sourcePage,
-                    normalizedTotalRotation
-                  ),
-                TIMEOUTS.OPERATION_TIMEOUT,
-                signal,
-                `Rotating image page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
-              );
-            } else {
-              const [copiedPage] = await mergedPdf.copyPages(pdf, [pageIndex]);
-              mergedPdf.addPage(copiedPage);
-
-              if (totalRotation !== 0) {
-                const newPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1);
-                await withTimeoutAndSignal(
-                  () => applyPageRotation(newPage, totalRotation, isImage),
-                  TIMEOUTS.OPERATION_TIMEOUT,
-                  signal,
-                  `Applying rotation to page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
-                );
-              }
-            }
+            await withTimeoutAndSignal(
+              () =>
+                exportPageWithRotation(
+                  mergedPdf,
+                  pdf,
+                  pageIndex,
+                  effectiveRotation,
+                  isImage
+                ),
+              TIMEOUTS.OPERATION_TIMEOUT,
+              signal,
+              `Processing page ${unifiedPageNum} timed out after ${TIMEOUTS.OPERATION_TIMEOUT}ms.`
+            );
           } catch (err) {
             const errorInfo = createPdfErrorInfo(
               err,
@@ -420,10 +383,11 @@ export function usePdfProcessing({
   /**
    * Extracts a single page from a file (PDF or image) and downloads it as a new PDF.
    *
-   * Applies user-applied rotation to the extracted page. For images with 90°/270°
-   * rotation, uses content transformation to properly handle landscape-to-portrait
-   * conversions without white space. For PDFs and 180° rotations, uses standard
-   * rotation metadata.
+   * Applies the same effective rotation shown in thumbnails (inherent metadata plus
+   * user adjustments). For images with 90°/270° rotation, uses content transformation
+   * to properly handle landscape-to-portrait conversions without white space. For PDFs
+   * and 180° rotations, uses standard rotation metadata (including 0° to clear inherited
+   * /Rotate when the page appears upright in the UI).
    *
    * @param unifiedPageNumber - The unified page number to extract
    * @throws {Error} If no files are loaded, page is not found, or file cannot be loaded
@@ -475,6 +439,7 @@ export function usePdfProcessing({
       const abortController = createAbortController();
 
       try {
+        const currentRotations = pageRotationsRef.current;
         const pipeline = getActivePipeline();
         let blob: Blob;
 
@@ -482,6 +447,7 @@ export function usePdfProcessing({
           blob = await extractPageMainThread(
             unifiedPageNumber,
             abortController.signal,
+            currentRotations,
             pageMap,
             fileMap
           );
@@ -494,8 +460,7 @@ export function usePdfProcessing({
             );
             const inherentRotation =
               file.inherentRotations?.[page.originalPageNumber] ?? 0;
-            const userRotation =
-              pageRotationsRef.current[unifiedPageNumber] ?? 0;
+            const userRotation = currentRotations[unifiedPageNumber] ?? 0;
             const response = await withTimeout(
               workerClient.postMessage({
                 kind: "extract-page",
@@ -506,8 +471,9 @@ export function usePdfProcessing({
                   sourceFile,
                   originalPageNumber: page.originalPageNumber,
                   unifiedPageNumber,
-                  userRotation: normalizeRotation(
-                    inherentRotation + userRotation
+                  totalRotation: computeEffectiveRotation(
+                    inherentRotation,
+                    userRotation
                   ),
                 },
               }),
@@ -533,6 +499,7 @@ export function usePdfProcessing({
             blob = await extractPageMainThread(
               unifiedPageNumber,
               abortController.signal,
+              currentRotations,
               pageMap,
               fileMap
             );
@@ -593,10 +560,11 @@ export function usePdfProcessing({
    * and downloads it.
    *
    * Pages are merged in the order specified by pageOrder, excluding deleted pages.
-   * User-applied rotations are preserved in the merged PDF. For images with 90°/270°
-   * rotation, uses content transformation to properly handle landscape-to-portrait
-   * conversions without white space. For PDFs and 180° rotations, uses standard
-   * rotation metadata.
+   * Each page is exported at the same effective rotation shown in thumbnails (inherent
+   * metadata plus user adjustments). For images with 90°/270° rotation, uses content
+   * transformation to properly handle landscape-to-portrait conversions without white
+   * space. For PDFs and 180° rotations, uses standard rotation metadata (including 0°
+   * to clear inherited /Rotate when a page appears upright in the UI).
    *
    * Processing strategy is pipeline-based:
    * - `worker` / `gpu-worker`: runs merge operations in a dedicated worker
@@ -635,9 +603,8 @@ export function usePdfProcessing({
     const abortController = createAbortController();
 
     try {
-      // Capture current rotation state at the start of export to ensure consistency
-      // throughout the async operation. This prevents race conditions where rotations
-      // are updated during the export process.
+      // Snapshot rotation state at export start so each page uses a consistent view,
+      // even if the user keeps rotating while merge/extract is in progress.
       const currentRotations = pageRotationsRef.current;
 
       // Create lookup maps for O(1) access instead of O(n) Array.find()

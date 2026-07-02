@@ -39,6 +39,17 @@ export function needsContentTransform(rotation: number): boolean {
 }
 
 /**
+ * Combines inherent PDF metadata rotation with user-applied rotation.
+ * Matches the angle shown in thumbnails (react-pdf rotate prop).
+ */
+export function computeEffectiveRotation(
+  inherentRotation: number,
+  userRotation: number
+): number {
+  return normalizeRotation(inherentRotation + userRotation);
+}
+
+/**
  * Creates a rotated page for an image with actual content transformation.
  *
  * Unlike setRotation() which only sets viewing metadata, this function actually
@@ -54,7 +65,7 @@ export function needsContentTransform(rotation: number): boolean {
  * @param rotation - The rotation angle in degrees (typically 90 or 270)
  * @returns The newly created page with properly rotated content
  */
-export async function createRotatedImagePage(
+async function createRotatedImagePage(
   targetPdf: PDFDocument,
   sourcePage: PDFPage,
   rotation: number
@@ -121,12 +132,12 @@ export async function createRotatedImagePage(
  * but NOT for images (use createRotatedImagePage for images with 90/270 rotation).
  *
  * @param targetPage - The target PDF page to apply rotation to
- * @param userRotation - The absolute total rotation in degrees (0, 90, 180, or 270) from state
+ * @param effectiveRotation - Absolute display rotation in degrees (0, 90, 180, or 270), combining inherent metadata and user adjustments
  * @param isImage - Whether this page is from an image (only affects 180° rotation handling)
  */
 export async function applyPageRotation(
   targetPage: PDFPage,
-  userRotation: number,
+  effectiveRotation: number,
   isImage: boolean = false
 ): Promise<void> {
   // Validate inputs
@@ -136,22 +147,46 @@ export async function applyPageRotation(
     );
   }
 
-  validateFiniteNumber(userRotation, "rotation angle");
+  validateFiniteNumber(effectiveRotation, "rotation angle");
 
-  if (userRotation === 0) {
-    return;
-  }
-
-  const normalizedUserRotation = normalizeRotation(userRotation);
+  const normalizedRotation = normalizeRotation(effectiveRotation);
 
   // For images with 180° rotation, we can still use setRotation as it doesn't change dimensions
   // For 90/270° image rotations, the caller should use createRotatedImagePage instead
-  if (isImage && normalizedUserRotation === ROTATION_ANGLES.HALF) {
+  if (isImage && normalizedRotation === ROTATION_ANGLES.HALF) {
     // 180° rotation doesn't need dimension swap, just rotation metadata
-    targetPage.setRotation(degrees(normalizedUserRotation));
+    targetPage.setRotation(degrees(normalizedRotation));
     return;
   }
 
   // For PDFs, setRotation works correctly as viewers interpret the metadata
-  targetPage.setRotation(degrees(normalizedUserRotation));
+  targetPage.setRotation(degrees(normalizedRotation));
+}
+
+/**
+ * Exports a single page into a target PDF with rotation matching the UI.
+ * Uses content transformation for images at 90°/270°; otherwise copies the page
+ * and sets absolute /Rotate metadata (including 0° to clear inherited rotation).
+ */
+export async function exportPageWithRotation(
+  targetPdf: PDFDocument,
+  sourcePdf: PDFDocument,
+  pageIndex: number,
+  effectiveRotation: number,
+  isImage: boolean
+): Promise<void> {
+  const normalizedRotation = normalizeRotation(effectiveRotation);
+  const useContentTransform =
+    isImage && needsContentTransform(normalizedRotation);
+
+  if (useContentTransform && normalizedRotation !== 0) {
+    const sourcePage = sourcePdf.getPage(pageIndex);
+    await createRotatedImagePage(targetPdf, sourcePage, normalizedRotation);
+    return;
+  }
+
+  const [copiedPage] = await targetPdf.copyPages(sourcePdf, [pageIndex]);
+  targetPdf.addPage(copiedPage);
+  const newPage = targetPdf.getPage(targetPdf.getPageCount() - 1);
+  await applyPageRotation(newPage, normalizedRotation, isImage);
 }

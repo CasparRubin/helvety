@@ -17,7 +17,8 @@ interface ExtractPageRequestPayload {
   readonly sourceFile: WorkerSourceFile;
   readonly originalPageNumber: number;
   readonly unifiedPageNumber: number;
-  readonly userRotation: number;
+  /** Effective rotation (inherent metadata plus user adjustment), matching thumbnail display. */
+  readonly totalRotation: number;
 }
 
 interface MergeRequestPayload {

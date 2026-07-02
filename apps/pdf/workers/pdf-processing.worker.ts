@@ -4,10 +4,8 @@ import { PDFDocument } from "pdf-lib";
 
 import { convertImageToPdf } from "../lib/pdf-conversion";
 import {
-  applyPageRotation,
-  createRotatedImagePage,
-  needsContentTransform,
-  normalizeRotation,
+  computeEffectiveRotation,
+  exportPageWithRotation,
 } from "../lib/pdf-rotation";
 
 import type {
@@ -91,30 +89,14 @@ async function extractPage(
 
   const mergedPdf = await PDFDocument.create();
   const sourcePageIndex = request.payload.originalPageNumber - 1;
-  const sourcePage = sourcePdf.getPage(sourcePageIndex);
-  const normalizedRotation = normalizeRotation(request.payload.userRotation);
 
-  if (
-    request.payload.sourceFile.type === "image" &&
-    needsContentTransform(normalizedRotation) &&
-    normalizedRotation !== 0
-  ) {
-    await createRotatedImagePage(mergedPdf, sourcePage, normalizedRotation);
-  } else {
-    const [copiedPage] = await mergedPdf.copyPages(sourcePdf, [
-      sourcePageIndex,
-    ]);
-    mergedPdf.addPage(copiedPage);
-
-    if (request.payload.userRotation !== 0) {
-      const targetPage = mergedPdf.getPage(0);
-      await applyPageRotation(
-        targetPage,
-        request.payload.userRotation,
-        request.payload.sourceFile.type === "image"
-      );
-    }
-  }
+  await exportPageWithRotation(
+    mergedPdf,
+    sourcePdf,
+    sourcePageIndex,
+    request.payload.totalRotation,
+    request.payload.sourceFile.type === "image"
+  );
 
   const bytes = await mergedPdf.save();
   return { bytes: toArrayBuffer(bytes) };
@@ -183,36 +165,22 @@ async function mergePages(
         ensureNotCancelled(requestId);
 
         const pageIndex = page.originalPageNumber - 1;
-        const sourcePage = sourcePdf.getPage(pageIndex);
         const inherentRotation =
           sourceFile.inherentRotations?.[page.originalPageNumber] ?? 0;
         const userRotation =
           request.payload.pageRotations[unifiedPageNumber] ?? 0;
-        const totalRotation = normalizeRotation(
-          inherentRotation + userRotation
+        const effectiveRotation = computeEffectiveRotation(
+          inherentRotation,
+          userRotation
         );
 
-        if (
-          sourceFile.type === "image" &&
-          needsContentTransform(totalRotation) &&
-          totalRotation !== 0
-        ) {
-          await createRotatedImagePage(mergedPdf, sourcePage, totalRotation);
-        } else {
-          const [copiedPage] = await mergedPdf.copyPages(sourcePdf, [
-            pageIndex,
-          ]);
-          mergedPdf.addPage(copiedPage);
-
-          if (totalRotation !== 0) {
-            const targetPage = mergedPdf.getPage(mergedPdf.getPageCount() - 1);
-            await applyPageRotation(
-              targetPage,
-              totalRotation,
-              sourceFile.type === "image"
-            );
-          }
-        }
+        await exportPageWithRotation(
+          mergedPdf,
+          sourcePdf,
+          pageIndex,
+          effectiveRotation,
+          sourceFile.type === "image"
+        );
       } catch (error) {
         failedPages.push({
           pageNum: unifiedPageNumber,
