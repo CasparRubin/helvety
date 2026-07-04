@@ -20,6 +20,7 @@ const LOADING_MATRIX = {
   store: { rootLoading: "HelvetyShellRouteLoading" },
   pdf: { rootLoading: "LoadingSpinner" },
   "image-upscaler": { rootLoading: "LoadingSpinner" },
+  "image-editor": { rootLoading: "LoadingSpinner" },
   tasks: { rootLoading: "E2eeShellRouteLoading" },
   contacts: { rootLoading: "E2eeShellRouteLoading" },
   notes: { rootLoading: "E2eeShellRouteLoading" },

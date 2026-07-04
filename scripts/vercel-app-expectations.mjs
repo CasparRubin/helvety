@@ -30,6 +30,11 @@ export const VERCEL_APP_EXPECTATIONS = {
     rootDirectory: "apps/image-upscaler",
     displayName: "Image Upscaler",
   },
+  "image-editor": {
+    vercelProject: "helvety-image-editor",
+    rootDirectory: "apps/image-editor",
+    displayName: "Image Editor",
+  },
   tasks: {
     vercelProject: "helvety-tasks",
     rootDirectory: "apps/tasks",

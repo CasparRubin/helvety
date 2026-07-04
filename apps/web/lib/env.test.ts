@@ -30,6 +30,7 @@ describe("getValidatedWebEnv", () => {
       "IMAGE_UPSCALER_URL",
       "https://helvety-image-upscaler.vercel.app"
     );
+    vi.stubEnv("IMAGE_EDITOR_URL", "https://helvety-image-editor.vercel.app");
     vi.stubEnv("TASKS_URL", "https://helvety-tasks.vercel.app");
     vi.stubEnv("CONTACTS_URL", "https://helvety-contacts.vercel.app");
     vi.stubEnv("NOTES_URL", "https://helvety-notes.vercel.app");

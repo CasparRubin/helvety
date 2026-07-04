@@ -3,6 +3,7 @@ const GATEWAY_CROSS_ZONE_PREFIXES = [
   "/store",
   "/pdf",
   "/image-upscaler",
+  "/image-editor",
   "/auth",
   "/tasks",
   "/contacts",

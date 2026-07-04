@@ -216,6 +216,7 @@ async function main() {
     "apps/auth/app/page.tsx",
     "apps/contacts/app/page.tsx",
     "apps/image-upscaler/app/page.tsx",
+    "apps/image-editor/app/page.tsx",
     "apps/links/app/page.tsx",
     "apps/notes/app/page.tsx",
     "apps/pdf/app/page.tsx",
@@ -241,6 +242,7 @@ async function main() {
     "apps/auth/proxy.ts",
     "apps/contacts/proxy.ts",
     "apps/image-upscaler/proxy.ts",
+    "apps/image-editor/proxy.ts",
     "apps/links/proxy.ts",
     "apps/notes/proxy.ts",
     "apps/pdf/proxy.ts",
@@ -336,6 +338,7 @@ async function main() {
   const upstashCookieEnvModules = [
     "apps/pdf/lib/env.ts",
     "apps/image-upscaler/lib/env.ts",
+    "apps/image-editor/lib/env.ts",
   ];
 
   const adminServerUpstashEnvContents = await Promise.all(
@@ -419,6 +422,7 @@ async function main() {
     "links",
     "pdf",
     "image-upscaler",
+    "image-editor",
   ];
   for (const app of csrfEnvTemplateApps) {
     const templatePath = `apps/${app}/env.template`;
@@ -663,7 +667,7 @@ async function main() {
     }
   }
 
-  const publicToolApps = ["pdf", "image-upscaler"];
+  const publicToolApps = ["pdf", "image-upscaler", "image-editor"];
   for (const appName of publicToolApps) {
     const layoutShellTestPath = resolve(
       rootDir,
@@ -694,6 +698,7 @@ async function main() {
     "store",
     "pdf",
     "image-upscaler",
+    "image-editor",
   ]) {
     const envPath = resolve(rootDir, "apps", appName, "lib/env.ts");
     const envSource = await readFile(envPath, "utf8");
@@ -732,7 +737,7 @@ async function main() {
   );
   const qualityBaseline = await readFile(qualityBaselinePath, "utf8");
   if (
-    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-upscaler\b/.test(
+    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-upscaler, image-editor\b/.test(
       qualityBaseline
     )
   ) {

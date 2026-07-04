@@ -49,6 +49,7 @@ const PROJECT_TO_APP = {
   "helvety-store": "store",
   "helvety-pdf": "pdf",
   "helvety-image-upscaler": "image-upscaler",
+  "helvety-image-editor": "image-editor",
   "helvety-tasks": "tasks",
   "helvety-contacts": "contacts",
   "helvety-notes": "notes",

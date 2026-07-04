@@ -10,7 +10,7 @@ const ADMIN_TIER_APPS = ["auth", "store"] as const;
 
 const VAULT_USER_SCOPED_APPS = ["contacts", "links", "notes", "tasks"] as const;
 
-const PUBLIC_TOOL_APPS = ["pdf", "image-upscaler"] as const;
+const PUBLIC_TOOL_APPS = ["pdf", "image-upscaler", "image-editor"] as const;
 
 const NON_ADMIN_APPS = [
   ...VAULT_USER_SCOPED_APPS,

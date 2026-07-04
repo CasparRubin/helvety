@@ -10,6 +10,7 @@ const AUTH_CALLBACK_APPS = [
   "auth",
   "contacts",
   "image-upscaler",
+  "image-editor",
   "links",
   "notes",
   "pdf",

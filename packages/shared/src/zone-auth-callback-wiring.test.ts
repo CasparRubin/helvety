@@ -10,6 +10,7 @@ const ZONE_APPS_WITH_AUTH_CALLBACK = [
   "auth",
   "contacts",
   "image-upscaler",
+  "image-editor",
   "links",
   "notes",
   "pdf",

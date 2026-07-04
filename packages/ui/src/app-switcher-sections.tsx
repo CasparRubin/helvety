@@ -3,6 +3,7 @@ import {
   Building2,
   FileText,
   House,
+  ImagePlus,
   ImageUp,
   ListTodo,
   Monitor,
@@ -55,6 +56,7 @@ export const appSwitcherSections: AppSwitcherSection[] = [
     links: [
       { name: "PDF", href: urls.pdf, icon: FileText },
       { name: "Image Upscaler", href: urls.imageUpscaler, icon: ImageUp },
+      { name: "Image Editor", href: urls.imageEditor, icon: ImagePlus },
     ],
   },
   {

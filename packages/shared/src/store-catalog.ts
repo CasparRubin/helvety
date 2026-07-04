@@ -47,6 +47,7 @@ export interface StoreProductCard {
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-browser-extension": 9,
   "helvety-image-upscaler": 8,
+  "helvety-image-editor": 8,
   "helvety-screen-tools": 7,
   "helvety-power-platform-configurator": 6,
   "helvety-links": 6,
@@ -169,6 +170,19 @@ export const STORE_PRODUCT_CARDS = [
     shortDescription:
       "Upscale PNG, JPEG, or WebP in the browser. AI quality when your device supports it, with sensible limits so tabs stay responsive.",
     releaseDate: "2026-04-28",
+    type: "saas",
+    category: "utilities",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-image-editor",
+    slug: "helvety-image-editor",
+    name: "Helvety Image Editor",
+    shortDescription:
+      "Annotate images in the browser with text, arrows, borders, highlights, blur, and crop. Edits stay on your device.",
+    releaseDate: "2026-07-04",
     type: "saas",
     category: "utilities",
     runsOn: "Browser",

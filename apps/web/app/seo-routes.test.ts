@@ -39,6 +39,7 @@ describe("web SEO routes", () => {
       urls.store,
       urls.pdf,
       urls.imageUpscaler,
+      urls.imageEditor,
       urls.auth,
       urls.contacts,
       urls.notes,

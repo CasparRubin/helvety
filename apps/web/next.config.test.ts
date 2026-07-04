@@ -204,6 +204,25 @@ describe("web gateway rewrites", () => {
     );
   });
 
+  it("forwards image-editor routes to the image-editor zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const imageEditorOrigin = `http://localhost:${DEV_PORTS.imageEditor}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/image-editor",
+          destination: `${imageEditorOrigin}/image-editor`,
+        },
+        {
+          source: "/image-editor/:path*",
+          destination: `${imageEditorOrigin}/image-editor/:path*`,
+        },
+      ])
+    );
+  });
+
   it("uses localhost rewrite targets in production when gateway env vars are unset and not on Vercel", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "");
@@ -215,6 +234,7 @@ describe("web gateway rewrites", () => {
     vi.stubEnv("STORE_URL", "");
     vi.stubEnv("PDF_URL", "");
     vi.stubEnv("IMAGE_UPSCALER_URL", "");
+    vi.stubEnv("IMAGE_EDITOR_URL", "");
 
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);

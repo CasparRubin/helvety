@@ -95,6 +95,10 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         "IMAGE_UPSCALER_URL",
         DEV_PORTS.imageUpscaler
       );
+      const imageEditorUrl = getAppUrl(
+        "IMAGE_EDITOR_URL",
+        DEV_PORTS.imageEditor
+      );
 
       return {
         beforeFiles: [
@@ -186,6 +190,14 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/image-upscaler/:path*",
             destination: `${imageUpscalerUrl}/image-upscaler/:path*`,
+          },
+          {
+            source: "/image-editor",
+            destination: `${imageEditorUrl}/image-editor`,
+          },
+          {
+            source: "/image-editor/:path*",
+            destination: `${imageEditorUrl}/image-editor/:path*`,
           },
         ],
       };

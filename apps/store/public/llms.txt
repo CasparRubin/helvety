@@ -11,6 +11,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
 - [Helvety Image Upscaler](https://helvety.com/store/products/helvety-image-upscaler)
+- [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor)
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools)
 - [Helvety Tasks](https://helvety.com/store/products/helvety-tasks)
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)

@@ -268,6 +268,7 @@ describe("env.template consistency", () => {
         "auth",
         "contacts",
         "image-upscaler",
+        "image-editor",
         "links",
         "notes",
         "pdf",

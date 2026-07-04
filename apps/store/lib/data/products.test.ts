@@ -50,9 +50,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Browser Extension newest; PDF oldest)", () => {
+  it("default sort is newest release first (Image Editor newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-browser-extension");
+    expect(ids[0]).toBe("helvety-image-editor");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 

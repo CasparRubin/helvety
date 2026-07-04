@@ -8,6 +8,7 @@ const SITEMAP_PATHS = [
   "/store/sitemap.xml",
   "/pdf/sitemap.xml",
   "/image-upscaler/sitemap.xml",
+  "/image-editor/sitemap.xml",
 ] as const;
 
 /** Timestamp captured at module initialization for stable response caching. */

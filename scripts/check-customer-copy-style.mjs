@@ -24,6 +24,7 @@ const README_RELATIVE_PATHS = [
   "apps/store/README.md",
   "apps/web/README.md",
   "apps/image-upscaler/README.md",
+  "apps/image-editor/README.md",
 ];
 
 /** Keep in sync with `customer-copy-guardrails.ts`. */
@@ -37,6 +38,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/links/public/llms.txt",
   "apps/auth/public/llms.txt",
   "apps/image-upscaler/public/llms.txt",
+  "apps/image-editor/public/llms.txt",
   "apps/web/public/manifest.json",
   "apps/store/public/manifest.json",
   "apps/pdf/public/manifest.json",
@@ -46,6 +48,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/links/public/manifest.json",
   "apps/auth/public/manifest.json",
   "apps/image-upscaler/public/manifest.json",
+  "apps/image-editor/public/manifest.json",
   "packages/shared/src/store-catalog.ts",
   "packages/shared/src/app-product-descriptions.ts",
   "packages/shared/src/app-navbar-about.ts",
@@ -55,6 +58,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/store/lib/data/products.ts",
   "apps/pdf/lib/product-copy.ts",
   "apps/image-upscaler/lib/product-copy.ts",
+  "apps/image-editor/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/impressum/page.tsx",
@@ -64,6 +68,7 @@ const USER_FACING_APP_IDS = [
   "auth",
   "contacts",
   "image-upscaler",
+  "image-editor",
   "links",
   "notes",
   "pdf",

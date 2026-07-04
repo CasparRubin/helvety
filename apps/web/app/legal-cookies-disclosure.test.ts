@@ -92,7 +92,7 @@ describe("privacy policy cookies disclosure", () => {
   });
 
   it("web zone slug list matches expected Helvety web zone count", () => {
-    expect(HELVETY_WEB_ZONE_APP_SLUGS).toHaveLength(9);
+    expect(HELVETY_WEB_ZONE_APP_SLUGS).toHaveLength(10);
   });
 
   it("§9 documents vault and PRF salt retention durations", async () => {

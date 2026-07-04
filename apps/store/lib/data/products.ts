@@ -693,6 +693,104 @@ const helvetyImageUpscaler: SaaSProduct = {
 };
 
 // =============================================================================
+// HELVETY IMAGE EDITOR
+// =============================================================================
+
+/** Helvety Image Editor - in-browser image annotation with layers. */
+const cHelvetyImageEditor = cardCore("helvety-image-editor", "saas");
+const helvetyImageEditor: SaaSProduct = {
+  id: cHelvetyImageEditor.id,
+  slug: cHelvetyImageEditor.slug,
+  name: cHelvetyImageEditor.name,
+  shortDescription: cHelvetyImageEditor.shortDescription,
+  type: cHelvetyImageEditor.type,
+  category: cHelvetyImageEditor.category,
+  description: {
+    intro:
+      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, highlights, blur regions, and crops with a layers panel for reordering and fine-tuning. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
+    sections: [
+      {
+        heading: "Access model",
+        kind: "paragraph",
+        body: "Launch the tool without signing in. Usage stays free; automated safeguards keep abusive floods from degrading shared infrastructure.",
+      },
+      {
+        heading: "What you can adjust",
+        kind: "bullets",
+        items: [
+          "Select, move, and resize annotations on a layered canvas.",
+          "Add text, arrows, bordered boxes, spotlight highlights, and blur regions.",
+          "Crop the canvas and export PNG or JPEG at full resolution when your browser allows.",
+          "Reorder or delete layers from the side panel.",
+        ],
+      },
+      {
+        heading: "Why it fits sensitive screenshots",
+        kind: "paragraph",
+        body: "Edits stay in your session, which makes it easier to redact or explain screenshots before you share them outside your organization.",
+      },
+    ],
+  },
+  image: productArtwork.artwork10,
+  artist: "Alexandre Calame",
+  features: [
+    "Text, arrow, border, highlight, blur, and crop tools",
+    "Layers panel with reorder, delete, and property edits",
+    "PNG and JPEG export at full resolution",
+    "No login or account required",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    tiers: [
+      {
+        id: "helvety-image-editor-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All image editor features included",
+          "No account required",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/image-editor",
+    github:
+      "https://github.com/CasparRubin/helvety/tree/main/apps/image-editor",
+  },
+  saas: {
+    appUrl: "https://helvety.com/image-editor",
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Teams sharing screenshots",
+      "Privacy-conscious users",
+      "Anyone annotating images for documents or support",
+    ],
+    platforms: platformsFromRunsOn(cHelvetyImageEditor.runsOn),
+    keywords: [
+      "image editor",
+      "image annotation",
+      "blur",
+      "highlight",
+      "crop",
+      "browser",
+      "client-side",
+      "privacy",
+      "free",
+    ],
+    featured: true,
+    releaseDate: cHelvetyImageEditor.releaseDate,
+  },
+};
+
+// =============================================================================
 // HELVETY TASKS
 // =============================================================================
 
@@ -1230,6 +1328,7 @@ const products: Product[] = [
   powerPlatformConfigurator,
   helvetyScreenTools,
   helvetyImageUpscaler,
+  helvetyImageEditor,
   helvetyBrowserExtension,
 ];
 

@@ -32,6 +32,9 @@ export const urls = {
   imageUpscaler: isDev
     ? `${DEV_GATEWAY}/image-upscaler`
     : `https://${DOMAIN}/image-upscaler`,
+  imageEditor: isDev
+    ? `${DEV_GATEWAY}/image-editor`
+    : `https://${DOMAIN}/image-editor`,
   tasks: isDev ? `${DEV_GATEWAY}/tasks` : `https://${DOMAIN}/tasks`,
   contacts: isDev ? `${DEV_GATEWAY}/contacts` : `https://${DOMAIN}/contacts`,
   notes: isDev ? `${DEV_GATEWAY}/notes` : `https://${DOMAIN}/notes`,
@@ -100,6 +103,7 @@ export const DEV_PORTS = {
   contacts: 3006,
   notes: 3007,
   imageUpscaler: 3008,
+  imageEditor: 3010,
   links: 3009,
 } as const;
 

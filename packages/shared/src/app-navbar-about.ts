@@ -49,3 +49,10 @@ export function imageUpscalerNavbarAbout(
 ): string {
   return `Upscale PNG, JPEG, and WebP in your browser. Choose 2× or 4× or set a target size. AI runs on your device when supported; otherwise the app uses high-quality resizing. Images are not sent to Helvety for processing (${fileSizeLimitCopy} per file). Switzerland-first service; not actively marketed to EU/EEA users.`;
 }
+
+/** Navbar About copy for Helvety Image Editor (optional limit line override). */
+export function imageEditorNavbarAbout(
+  fileSizeLimitCopy: string = IMAGE_FILE_SIZE_LIMIT_COPY
+): string {
+  return `Annotate images in your browser with text, arrows, borders, highlights, blur, and crop. Work stays on your device (${fileSizeLimitCopy} per file). No server upload. Switzerland-first service; not actively marketed to EU/EEA users.`;
+}

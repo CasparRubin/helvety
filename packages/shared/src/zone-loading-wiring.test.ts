@@ -13,6 +13,7 @@ const LOADING_MATRIX: Record<string, string> = {
   store: "HelvetyShellRouteLoading",
   pdf: "LoadingSpinner",
   "image-upscaler": "LoadingSpinner",
+  "image-editor": "LoadingSpinner",
   tasks: "E2eeShellRouteLoading",
   contacts: "E2eeShellRouteLoading",
   notes: "E2eeShellRouteLoading",

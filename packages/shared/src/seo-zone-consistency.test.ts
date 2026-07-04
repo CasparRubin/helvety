@@ -15,7 +15,13 @@ const PRIVATE_ZONE_APP_IDS = [
 ] as const;
 
 /** Public indexable zones listed in the gateway sitemap index. */
-const PUBLIC_ZONE_APP_IDS = ["web", "store", "pdf", "image-upscaler"] as const;
+const PUBLIC_ZONE_APP_IDS = [
+  "web",
+  "store",
+  "pdf",
+  "image-upscaler",
+  "image-editor",
+] as const;
 
 const testDir =
   typeof import.meta.dirname === "string"
@@ -68,6 +74,10 @@ describe("SEO zone consistency", () => {
       { appId: "pdf", pattern: /app root URL only/i },
       {
         appId: "image-upscaler",
+        pattern: /app root URL only/i,
+      },
+      {
+        appId: "image-editor",
         pattern: /app root URL only/i,
       },
       {

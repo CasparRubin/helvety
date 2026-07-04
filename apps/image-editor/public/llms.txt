@@ -1,0 +1,29 @@
+# Helvety Image Editor
+
+> Annotate PNG, JPEG, or WebP in your browser on your device. Add text, arrows, borders, highlights, blur, and crop. No image upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
+
+## Canonical URL
+- [Helvety Image Editor](https://helvety.com/image-editor): Main application route
+
+## Crawling And Indexing
+- The public image editor route is intended to be crawlable and indexable.
+
+## Related Helvety Apps
+- [Helvety](https://helvety.com)
+- [Helvety Store](https://helvety.com/store)
+- [Helvety PDF](https://helvety.com/pdf)
+- [Helvety Image Upscaler](https://helvety.com/image-upscaler)
+- [Helvety Auth](https://helvety.com/auth)
+- [Helvety Contacts](https://helvety.com/contacts)
+- [Helvety Notes](https://helvety.com/notes)
+- [Helvety Tasks](https://helvety.com/tasks)
+- [Helvety Links](https://helvety.com/links)
+
+## Licensing
+All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+
+## Source
+- [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)
+
+## Third-party libraries
+- [Konva](https://konvajs.org/) (MIT) powers the canvas editor.

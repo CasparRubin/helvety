@@ -18,7 +18,9 @@ describe("web gateway proxy matcher", () => {
   it("excludes other zones from the marketing proxy", () => {
     const pattern = config.matcher[0]!;
     expect(pattern).toContain("auth|store|pdf");
-    expect(pattern).toContain("image-upscaler|tasks|contacts|notes|links");
+    expect(pattern).toContain(
+      "image-upscaler|image-editor|tasks|contacts|notes|links"
+    );
   });
 
   it("excludes static file extensions aligned with SECURITY_PROXY_MATCHER", () => {

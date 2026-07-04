@@ -15,7 +15,7 @@ const USER_SCOPED_SERVER_APPS = [
   "tasks",
 ] as const;
 
-const UPSTASH_COOKIE_APPS = ["pdf", "image-upscaler"] as const;
+const UPSTASH_COOKIE_APPS = ["pdf", "image-upscaler", "image-editor"] as const;
 
 describe("zone lib/env factory wiring", () => {
   it.each(ADMIN_SERVER_UPSTASH_APPS)(
