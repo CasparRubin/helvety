@@ -731,8 +731,8 @@ const helvetyImageEditor: SaaSProduct = {
       },
     ],
   },
-  image: productArtwork.artwork10,
-  artist: "Alexandre Calame",
+  image: productArtwork.artwork11,
+  artist: "Clara von Rappard",
   features: [
     "Text, arrow, border, highlight, blur, and crop tools",
     "Layers panel with reorder, delete, and property edits",
@@ -1187,8 +1187,8 @@ const helvetyBrowserExtension: SoftwareProduct = {
   shortDescription: cHelvetyBrowserExtension.shortDescription,
   type: cHelvetyBrowserExtension.type,
   category: cHelvetyBrowserExtension.category,
-  image: productArtwork.artwork11,
-  artist: "Clara von Rappard",
+  image: productArtwork.artwork10,
+  artist: "Alexandre Calame",
   description: {
     intro:
       "Reach your encrypted Helvety data from a Chromium side panel while you browse. After email sign-in and a passkey unlock, the panel decrypts your tasks, notes, contacts, links, and folders on your device so you can read, create, edit, delete, and reorder them without opening the web app. This is an open beta and is not in the Chrome Web Store yet, so you install it manually from a GitHub release.",
