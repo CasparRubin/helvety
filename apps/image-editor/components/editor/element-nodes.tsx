@@ -2,7 +2,14 @@
 
 import Konva from "konva";
 import { useEffect, useRef } from "react";
-import { Group, Image as KonvaImage, Line, Rect, Text } from "react-konva";
+import {
+  Group,
+  Circle,
+  Image as KonvaImage,
+  Line,
+  Rect,
+  Text,
+} from "react-konva";
 
 import { getTextShadowProps } from "@/lib/default-tool-sizes";
 import { buildSpotlightRects } from "@/lib/spotlight-rects";
@@ -13,6 +20,7 @@ import type {
   BlurElement,
   BorderElement,
   CropRect,
+  EditorTool,
   HighlightElement,
   TextElement,
 } from "@/lib/editor-types";
@@ -155,6 +163,7 @@ export function SpotlightRects({
 
 /** Props for {@link HighlightNode}. */
 interface HighlightNodeProps {
+  readonly id?: string;
   readonly element: HighlightElement;
   readonly crop: CropRect;
   readonly stageWidth: number;
@@ -167,6 +176,7 @@ interface HighlightNodeProps {
 
 /** Spotlight: dims the stage outside the highlight rectangle. */
 export function HighlightNode({
+  id,
   element,
   crop,
   stageWidth,
@@ -181,6 +191,7 @@ export function HighlightNode({
 
   return (
     <Group
+      id={id}
       draggable={draggable}
       x={x}
       y={y}
@@ -190,6 +201,19 @@ export function HighlightNode({
         onChange({
           x: event.target.x() + crop.x,
           y: event.target.y() + crop.y,
+        });
+      }}
+      onTransformEnd={(event) => {
+        const node = event.target;
+        const scaleX = node.scaleX();
+        const scaleY = node.scaleY();
+        node.scaleX(1);
+        node.scaleY(1);
+        onChange({
+          x: node.x() + crop.x,
+          y: node.y() + crop.y,
+          width: Math.max(4, element.width * scaleX),
+          height: Math.max(4, element.height * scaleY),
         });
       }}
     >
@@ -287,7 +311,51 @@ interface ArrowNodeProps {
   readonly onChange: (patch: Partial<ArrowElement>) => void;
 }
 
-/** Tapered arrow; drag translates both endpoints and resets node position to origin. */
+/** Props for {@link ArrowEndpointHandle}. */
+interface ArrowEndpointHandleProps {
+  readonly x: number;
+  readonly y: number;
+  readonly crop: CropRect;
+  readonly onDrag: (x: number, y: number) => void;
+}
+
+/** Draggable anchor for resizing an arrow endpoint. */
+function ArrowEndpointHandle({
+  x,
+  y,
+  crop,
+  onDrag,
+}: ArrowEndpointHandleProps): React.JSX.Element {
+  return (
+    <Circle
+      x={x}
+      y={y}
+      radius={6}
+      fill="#3b82f6"
+      stroke="#ffffff"
+      strokeWidth={2}
+      draggable
+      onMouseDown={(event) => {
+        event.cancelBubble = true;
+      }}
+      onTouchStart={(event) => {
+        event.cancelBubble = true;
+      }}
+      onDragMove={(event) => {
+        event.cancelBubble = true;
+        const node = event.target;
+        onDrag(node.x() + crop.x, node.y() + crop.y);
+      }}
+      onDragEnd={(event) => {
+        event.cancelBubble = true;
+        const node = event.target;
+        onDrag(node.x() + crop.x, node.y() + crop.y);
+      }}
+    />
+  );
+}
+
+/** Tapered arrow; body drag moves both endpoints; tail/tip handles resize when selected. */
 export function ArrowNode({
   element,
   crop,
@@ -333,16 +401,131 @@ export function ArrowNode({
         fill={element.stroke}
       />
       {selected ? (
-        <Line
-          points={[sx1, sy1, sx2, sy2]}
-          stroke="#3b82f6"
-          strokeWidth={1}
-          dash={[4, 4]}
-          listening={false}
-        />
+        <>
+          <Line
+            points={[sx1, sy1, sx2, sy2]}
+            stroke="#3b82f6"
+            strokeWidth={1}
+            dash={[4, 4]}
+            listening={false}
+          />
+          {draggable ? (
+            <>
+              <ArrowEndpointHandle
+                x={sx1}
+                y={sy1}
+                crop={crop}
+                onDrag={(nx, ny) => {
+                  onChange({
+                    points: [nx, ny, element.points[2], element.points[3]],
+                  });
+                }}
+              />
+              <ArrowEndpointHandle
+                x={sx2}
+                y={sy2}
+                crop={crop}
+                onDrag={(nx, ny) => {
+                  onChange({
+                    points: [element.points[0], element.points[1], nx, ny],
+                  });
+                }}
+              />
+            </>
+          ) : null}
+        </>
       ) : null}
     </Group>
   );
+}
+
+/** Props for {@link RectDrawPreview}. */
+interface RectDrawPreviewProps {
+  readonly rect: CropRect;
+  readonly crop: CropRect;
+  readonly stageWidth: number;
+  readonly stageHeight: number;
+  readonly tool: EditorTool;
+  readonly toolColor: string;
+  readonly toolStrokeWidth: number;
+  readonly toolDimOpacity: number;
+}
+
+/** Live rectangle preview while drawing border, highlight, or blur regions. */
+export function RectDrawPreview({
+  rect,
+  crop,
+  stageWidth,
+  stageHeight,
+  tool,
+  toolColor,
+  toolStrokeWidth,
+  toolDimOpacity,
+}: RectDrawPreviewProps): React.JSX.Element | null {
+  if (rect.width < 1 && rect.height < 1) {
+    return null;
+  }
+
+  const x = rect.x - crop.x;
+  const y = rect.y - crop.y;
+
+  if (tool === "highlight") {
+    return (
+      <>
+        <SpotlightRects
+          holeX={x}
+          holeY={y}
+          holeWidth={rect.width}
+          holeHeight={rect.height}
+          stageWidth={stageWidth}
+          stageHeight={stageHeight}
+          opacity={toolDimOpacity}
+        />
+        <Rect
+          x={x}
+          y={y}
+          width={rect.width}
+          height={rect.height}
+          stroke="#3b82f6"
+          strokeWidth={1}
+          dash={[6, 4]}
+          listening={false}
+        />
+      </>
+    );
+  }
+
+  if (tool === "blur") {
+    return (
+      <Rect
+        x={x}
+        y={y}
+        width={rect.width}
+        height={rect.height}
+        fill="rgba(59,130,246,0.15)"
+        stroke="#3b82f6"
+        dash={[6, 4]}
+        listening={false}
+      />
+    );
+  }
+
+  if (tool === "border") {
+    return (
+      <Rect
+        x={x}
+        y={y}
+        width={rect.width}
+        height={rect.height}
+        stroke={toolColor}
+        strokeWidth={toolStrokeWidth}
+        dash={[6, 4]}
+        listening={false}
+      />
+    );
+  }
+
+  return null;
 }
 
 /** Props for {@link TaperedArrowPreview}. */

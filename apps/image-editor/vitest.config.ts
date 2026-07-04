@@ -6,6 +6,12 @@ import { mergeConfig } from "vitest/config";
 export default mergeConfig(
   createVitestConfig(__dirname, { passWithNoTests: false }),
   {
+    test: {
+      setupFiles: [
+        path.resolve(__dirname, "vitest.setup.ts"),
+        path.resolve(__dirname, "vitest.browser-mocks.ts"),
+      ],
+    },
     resolve: {
       alias: [
         {

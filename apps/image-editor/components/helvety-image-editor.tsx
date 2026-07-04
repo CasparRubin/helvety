@@ -26,7 +26,11 @@ import {
   getCanvasExportLimitsCached,
 } from "@/lib/canvas-export-limits";
 import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
-import { DEFAULT_STROKE } from "@/lib/editor-types";
+import {
+  DEFAULT_STROKE,
+  DEFAULT_BLUR_RADIUS,
+  DEFAULT_DIM_OPACITY,
+} from "@/lib/editor-types";
 import { exportEditedImage } from "@/lib/export-image";
 import {
   createDownloadName,
@@ -51,6 +55,10 @@ export function HelvetyImageEditor(): React.JSX.Element {
   const [userZoom, setUserZoom] = React.useState(1);
   const [toolColor, setToolColor] = React.useState(DEFAULT_STROKE);
   const [toolStrokeWidth, setToolStrokeWidth] = React.useState(5);
+  const [toolBlurRadius, setToolBlurRadius] =
+    React.useState(DEFAULT_BLUR_RADIUS);
+  const [toolDimOpacity, setToolDimOpacity] =
+    React.useState(DEFAULT_DIM_OPACITY);
 
   const logicalWidth = source ? (state.crop?.width ?? source.naturalWidth) : 0;
   const logicalHeight = source
@@ -279,8 +287,12 @@ export function HelvetyImageEditor(): React.JSX.Element {
         selectedId={state.selectedId}
         toolColor={toolColor}
         toolStrokeWidth={toolStrokeWidth}
+        toolBlurRadius={toolBlurRadius}
+        toolDimOpacity={toolDimOpacity}
         onToolColorChange={setToolColor}
         onToolStrokeWidthChange={setToolStrokeWidth}
+        onToolBlurRadiusChange={setToolBlurRadius}
+        onToolDimOpacityChange={setToolDimOpacity}
         onUpdate={(id, patch) =>
           dispatch({ type: "UPDATE_ELEMENT", id, patch })
         }
@@ -325,6 +337,8 @@ export function HelvetyImageEditor(): React.JSX.Element {
                   displayScale={displayScale}
                   toolColor={toolColor}
                   toolStrokeWidth={toolStrokeWidth}
+                  toolBlurRadius={toolBlurRadius}
+                  toolDimOpacity={toolDimOpacity}
                   pendingCrop={pendingCrop}
                   onCropDraftChange={setPendingCrop}
                 />

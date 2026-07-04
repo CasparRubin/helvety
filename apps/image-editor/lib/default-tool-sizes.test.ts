@@ -43,6 +43,10 @@ describe("getDefaultToolSizes", () => {
     expect(sizes.strokeWidth).toBeGreaterThanOrEqual(STROKE_WIDTH_MIN);
     expect(sizes.fontSize).toBeGreaterThanOrEqual(18);
   });
+
+  it("scales stroke width down for sub-reference images", () => {
+    expect(getDefaultToolSizes(800, 600).strokeWidth).toBe(2);
+  });
 });
 
 describe("getTextShadowProps", () => {

@@ -3,13 +3,15 @@
 import { CommandBar } from "@helvety/ui/command-bar";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
+import { Slider } from "@helvety/ui/slider";
 import * as React from "react";
 
 import { STROKE_WIDTH_MAX, STROKE_WIDTH_MIN } from "@/lib/default-tool-sizes";
 import { elementLabel } from "@/lib/editor-reducer";
-import { DEFAULT_BLUR_RADIUS, DEFAULT_DIM_OPACITY } from "@/lib/editor-types";
 
 import type { EditorElement, EditorTool } from "@/lib/editor-types";
+
+const TOOL_PROPERTIES_BAR_CLASS = "overflow-x-auto";
 
 /** Props for {@link ImageEditorToolPropertiesBar}. */
 interface ImageEditorToolPropertiesBarProps {
@@ -19,8 +21,12 @@ interface ImageEditorToolPropertiesBarProps {
   readonly selectedId: string | null;
   readonly toolColor: string;
   readonly toolStrokeWidth: number;
+  readonly toolBlurRadius: number;
+  readonly toolDimOpacity: number;
   readonly onToolColorChange: (color: string) => void;
   readonly onToolStrokeWidthChange: (width: number) => void;
+  readonly onToolBlurRadiusChange: (radius: number) => void;
+  readonly onToolDimOpacityChange: (opacity: number) => void;
   readonly onUpdate: (id: string, patch: Partial<EditorElement>) => void;
 }
 
@@ -53,6 +59,48 @@ function ToolColorPicker({
   );
 }
 
+/** Label + slider + formatted value for bounded numeric properties. */
+function PropertySlider({
+  id,
+  label,
+  value,
+  min,
+  max,
+  step,
+  formatValue,
+  onChange,
+}: {
+  readonly id: string;
+  readonly label: string;
+  readonly value: number;
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
+  readonly formatValue: (value: number) => string;
+  readonly onChange: (value: number) => void;
+}): React.JSX.Element {
+  return (
+    <div className="flex min-w-[10rem] items-center gap-2">
+      <Label htmlFor={id} className="text-muted-foreground shrink-0 text-xs">
+        {label}
+      </Label>
+      <Slider
+        id={id}
+        min={min}
+        max={max}
+        step={step}
+        value={[value]}
+        onValueChange={(next) => onChange(next[0] ?? value)}
+        aria-label={label}
+        className="w-24"
+      />
+      <span className="text-muted-foreground w-10 shrink-0 text-xs tabular-nums">
+        {formatValue(value)}
+      </span>
+    </div>
+  );
+}
+
 /** Context-sensitive tool and selection properties below the main command bar. */
 export function ImageEditorToolPropertiesBar({
   hasImage,
@@ -61,15 +109,19 @@ export function ImageEditorToolPropertiesBar({
   selectedId,
   toolColor,
   toolStrokeWidth,
+  toolBlurRadius,
+  toolDimOpacity,
   onToolColorChange,
   onToolStrokeWidthChange,
+  onToolBlurRadiusChange,
+  onToolDimOpacityChange,
   onUpdate,
 }: ImageEditorToolPropertiesBarProps): React.JSX.Element | null {
   const selected = elements.find((element) => element.id === selectedId);
 
   if (!hasImage) {
     return (
-      <CommandBar variant="translucent">
+      <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
         <p className="text-muted-foreground text-xs">
           Open an image to edit tool properties.
         </p>
@@ -84,7 +136,7 @@ export function ImageEditorToolPropertiesBar({
 
   if (activeTool === "select" && selected) {
     return (
-      <CommandBar variant="translucent">
+      <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
         <span className="text-muted-foreground shrink-0 text-xs">
           {elementLabel(selected)}
         </span>
@@ -99,27 +151,16 @@ export function ImageEditorToolPropertiesBar({
         ) : null}
 
         {"strokeWidth" in selected ? (
-          <div className="flex items-center gap-2">
-            <Label
-              htmlFor="prop-stroke-width"
-              className="text-muted-foreground shrink-0 text-xs"
-            >
-              Stroke
-            </Label>
-            <Input
-              id="prop-stroke-width"
-              type="number"
-              min={STROKE_WIDTH_MIN}
-              max={STROKE_WIDTH_MAX}
-              value={selected.strokeWidth}
-              onChange={(event) =>
-                onUpdate(selected.id, {
-                  strokeWidth: Number(event.target.value),
-                })
-              }
-              className="h-8 w-16"
-            />
-          </div>
+          <PropertySlider
+            id="prop-stroke-width"
+            label="Stroke"
+            value={selected.strokeWidth}
+            min={STROKE_WIDTH_MIN}
+            max={STROKE_WIDTH_MAX}
+            step={1}
+            formatValue={(value) => `${value}px`}
+            onChange={(strokeWidth) => onUpdate(selected.id, { strokeWidth })}
+          />
         ) : null}
 
         {selected.type === "text" ? (
@@ -140,27 +181,16 @@ export function ImageEditorToolPropertiesBar({
                 className="h-8 min-w-[8rem]"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <Label
-                htmlFor="prop-font-size"
-                className="text-muted-foreground shrink-0 text-xs"
-              >
-                Size
-              </Label>
-              <Input
-                id="prop-font-size"
-                type="number"
-                min={8}
-                max={128}
-                value={selected.fontSize}
-                onChange={(event) =>
-                  onUpdate(selected.id, {
-                    fontSize: Number(event.target.value),
-                  })
-                }
-                className="h-8 w-16"
-              />
-            </div>
+            <PropertySlider
+              id="prop-font-size"
+              label="Size"
+              value={selected.fontSize}
+              min={8}
+              max={128}
+              step={1}
+              formatValue={(value) => `${value}px`}
+              onChange={(fontSize) => onUpdate(selected.id, { fontSize })}
+            />
             <ToolColorPicker
               id="prop-text-color"
               label="Fill"
@@ -171,52 +201,29 @@ export function ImageEditorToolPropertiesBar({
         ) : null}
 
         {selected.type === "blur" ? (
-          <div className="flex items-center gap-2">
-            <Label
-              htmlFor="prop-blur-radius"
-              className="text-muted-foreground shrink-0 text-xs"
-            >
-              Blur
-            </Label>
-            <Input
-              id="prop-blur-radius"
-              type="number"
-              min={1}
-              max={60}
-              value={selected.blurRadius}
-              onChange={(event) =>
-                onUpdate(selected.id, {
-                  blurRadius: Number(event.target.value),
-                })
-              }
-              className="h-8 w-16"
-            />
-          </div>
+          <PropertySlider
+            id="prop-blur-radius"
+            label="Blur"
+            value={selected.blurRadius}
+            min={1}
+            max={60}
+            step={1}
+            formatValue={(value) => `${value}px`}
+            onChange={(blurRadius) => onUpdate(selected.id, { blurRadius })}
+          />
         ) : null}
 
         {selected.type === "highlight" ? (
-          <div className="flex items-center gap-2">
-            <Label
-              htmlFor="prop-dim-opacity"
-              className="text-muted-foreground shrink-0 text-xs"
-            >
-              Dim
-            </Label>
-            <Input
-              id="prop-dim-opacity"
-              type="number"
-              min={0.1}
-              max={0.9}
-              step={0.05}
-              value={selected.dimOpacity}
-              onChange={(event) =>
-                onUpdate(selected.id, {
-                  dimOpacity: Number(event.target.value),
-                })
-              }
-              className="h-8 w-16"
-            />
-          </div>
+          <PropertySlider
+            id="prop-dim-opacity"
+            label="Dim"
+            value={selected.dimOpacity}
+            min={0.1}
+            max={0.9}
+            step={0.05}
+            formatValue={(value) => `${Math.round(value * 100)}%`}
+            onChange={(dimOpacity) => onUpdate(selected.id, { dimOpacity })}
+          />
         ) : null}
 
         {selected.type === "border" ||
@@ -271,7 +278,7 @@ export function ImageEditorToolPropertiesBar({
 
   if (isColorDrawingTool) {
     return (
-      <CommandBar variant="translucent">
+      <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
         <ToolColorPicker
           id="tool-color"
           label="Color"
@@ -280,25 +287,16 @@ export function ImageEditorToolPropertiesBar({
         />
 
         {activeTool === "arrow" || activeTool === "border" ? (
-          <div className="flex items-center gap-2">
-            <Label
-              htmlFor="tool-stroke-width"
-              className="text-muted-foreground shrink-0 text-xs"
-            >
-              Stroke
-            </Label>
-            <Input
-              id="tool-stroke-width"
-              type="number"
-              min={STROKE_WIDTH_MIN}
-              max={STROKE_WIDTH_MAX}
-              value={toolStrokeWidth}
-              onChange={(event) =>
-                onToolStrokeWidthChange(Number(event.target.value))
-              }
-              className="h-8 w-16"
-            />
-          </div>
+          <PropertySlider
+            id="tool-stroke-width"
+            label="Stroke"
+            value={toolStrokeWidth}
+            min={STROKE_WIDTH_MIN}
+            max={STROKE_WIDTH_MAX}
+            step={1}
+            formatValue={(value) => `${value}px`}
+            onChange={onToolStrokeWidthChange}
+          />
         ) : null}
       </CommandBar>
     );
@@ -306,15 +304,29 @@ export function ImageEditorToolPropertiesBar({
 
   if (isDimDrawingTool) {
     return (
-      <CommandBar variant="translucent">
+      <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
         {activeTool === "blur" ? (
-          <p className="text-muted-foreground text-xs">
-            Default blur radius: {DEFAULT_BLUR_RADIUS}px
-          </p>
+          <PropertySlider
+            id="tool-blur-radius"
+            label="Blur"
+            value={toolBlurRadius}
+            min={1}
+            max={60}
+            step={1}
+            formatValue={(value) => `${value}px`}
+            onChange={onToolBlurRadiusChange}
+          />
         ) : (
-          <p className="text-muted-foreground text-xs">
-            Default dim opacity: {Math.round(DEFAULT_DIM_OPACITY * 100)}%
-          </p>
+          <PropertySlider
+            id="tool-dim-opacity"
+            label="Dim"
+            value={toolDimOpacity}
+            min={0.1}
+            max={0.9}
+            step={0.05}
+            formatValue={(value) => `${Math.round(value * 100)}%`}
+            onChange={onToolDimOpacityChange}
+          />
         )}
       </CommandBar>
     );
@@ -322,7 +334,7 @@ export function ImageEditorToolPropertiesBar({
 
   if (activeTool === "crop") {
     return (
-      <CommandBar variant="translucent">
+      <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
         <p className="text-muted-foreground text-xs">
           Drag to define a crop region, then Apply Crop in the main command bar.
         </p>
@@ -331,7 +343,7 @@ export function ImageEditorToolPropertiesBar({
   }
 
   return (
-    <CommandBar variant="translucent">
+    <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
       <p className="text-muted-foreground text-xs">
         Select a tool or layer to edit properties.
       </p>

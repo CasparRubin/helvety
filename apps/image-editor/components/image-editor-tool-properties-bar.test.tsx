@@ -11,21 +11,40 @@ import {
 
 import { ImageEditorToolPropertiesBar } from "./image-editor-tool-properties-bar";
 
+import type { ComponentProps } from "react";
+
+/** Props for {@link ImageEditorToolPropertiesBar} in tests. */
+type ToolPropertiesBarProps = ComponentProps<
+  typeof ImageEditorToolPropertiesBar
+>;
+
+/** Renders the tool properties bar with defaults overridable per test. */
+function renderToolPropertiesBar(
+  props: Partial<ToolPropertiesBarProps> &
+    Pick<ToolPropertiesBarProps, "activeTool">
+) {
+  const defaults: ToolPropertiesBarProps = {
+    hasImage: true,
+    elements: [],
+    selectedId: null,
+    toolColor: "#ef4444",
+    toolStrokeWidth: 5,
+    toolBlurRadius: 12,
+    toolDimOpacity: 0.55,
+    onToolColorChange: vi.fn(),
+    onToolStrokeWidthChange: vi.fn(),
+    onToolBlurRadiusChange: vi.fn(),
+    onToolDimOpacityChange: vi.fn(),
+    onUpdate: vi.fn(),
+    ...props,
+  };
+
+  return render(<ImageEditorToolPropertiesBar {...defaults} />);
+}
+
 describe("ImageEditorToolPropertiesBar", () => {
   it("shows placeholder when no image is loaded", () => {
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage={false}
-        activeTool="select"
-        elements={[]}
-        selectedId={null}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={vi.fn()}
-      />
-    );
+    renderToolPropertiesBar({ hasImage: false, activeTool: "select" });
 
     expect(
       screen.getByText("Open an image to edit tool properties.")
@@ -34,19 +53,7 @@ describe("ImageEditorToolPropertiesBar", () => {
 
   it("shows tool color when a drawing tool is active", () => {
     const onToolColorChange = vi.fn();
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="arrow"
-        elements={[]}
-        selectedId={null}
-        toolColor="#112233"
-        toolStrokeWidth={5}
-        onToolColorChange={onToolColorChange}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={vi.fn()}
-      />
-    );
+    renderToolPropertiesBar({ activeTool: "arrow", onToolColorChange });
 
     fireEvent.change(screen.getByLabelText("Color"), {
       target: { value: "#aabbcc" },
@@ -55,22 +62,13 @@ describe("ImageEditorToolPropertiesBar", () => {
     expect(onToolColorChange).toHaveBeenCalledWith("#aabbcc");
   });
 
-  it("shows blur defaults without a color picker", () => {
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="blur"
-        elements={[]}
-        selectedId={null}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={vi.fn()}
-      />
-    );
+  it("shows blur radius slider without a color picker", () => {
+    renderToolPropertiesBar({ activeTool: "blur" });
 
-    expect(screen.getByText(/Default blur radius/)).toBeInTheDocument();
+    expect(screen.getByRole("slider", { name: "Blur" })).toHaveAttribute(
+      "aria-valuenow",
+      "12"
+    );
     expect(screen.queryByLabelText("Color")).not.toBeInTheDocument();
   });
 
@@ -81,19 +79,12 @@ describe("ImageEditorToolPropertiesBar", () => {
     });
     const onUpdate = vi.fn();
 
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="select"
-        elements={[text]}
-        selectedId={text.id}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={onUpdate}
-      />
-    );
+    renderToolPropertiesBar({
+      activeTool: "select",
+      elements: [text],
+      selectedId: text.id,
+      onUpdate,
+    });
 
     fireEvent.change(screen.getByLabelText("Text"), {
       target: { value: "Hello" },
@@ -102,39 +93,46 @@ describe("ImageEditorToolPropertiesBar", () => {
     expect(onUpdate).toHaveBeenCalledWith(text.id, { text: "Hello" });
   });
 
-  it("shows highlight dim defaults without a color picker", () => {
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="highlight"
-        elements={[]}
-        selectedId={null}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={vi.fn()}
-      />
-    );
+  it("shows highlight dim slider without a color picker", () => {
+    renderToolPropertiesBar({ activeTool: "highlight" });
 
-    expect(screen.getByText(/Default dim opacity/)).toBeInTheDocument();
+    expect(screen.getByRole("slider", { name: "Dim" })).toHaveAttribute(
+      "aria-valuenow",
+      "0.55"
+    );
     expect(screen.queryByLabelText("Color")).not.toBeInTheDocument();
   });
 
+  it("wires tool blur radius while the blur tool is active", () => {
+    const onToolBlurRadiusChange = vi.fn();
+    renderToolPropertiesBar({
+      activeTool: "blur",
+      onToolBlurRadiusChange,
+    });
+
+    const slider = screen.getByRole("slider", { name: "Blur" });
+    slider.focus();
+    fireEvent.keyDown(slider, { key: "ArrowRight" });
+
+    expect(onToolBlurRadiusChange).toHaveBeenCalledWith(13);
+  });
+
+  it("wires tool dim opacity while the highlight tool is active", () => {
+    const onToolDimOpacityChange = vi.fn();
+    renderToolPropertiesBar({
+      activeTool: "highlight",
+      onToolDimOpacityChange,
+    });
+
+    const slider = screen.getByRole("slider", { name: "Dim" });
+    slider.focus();
+    fireEvent.keyDown(slider, { key: "ArrowLeft" });
+
+    expect(onToolDimOpacityChange).toHaveBeenCalledWith(0.5);
+  });
+
   it("shows crop guidance when the crop tool is active", () => {
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="crop"
-        elements={[]}
-        selectedId={null}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={vi.fn()}
-      />
-    );
+    renderToolPropertiesBar({ activeTool: "crop" });
 
     expect(
       screen.getByText(/Apply Crop in the main command bar/)
@@ -143,25 +141,17 @@ describe("ImageEditorToolPropertiesBar", () => {
 
   it("wires tool stroke width for border drawing", () => {
     const onToolStrokeWidthChange = vi.fn();
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="border"
-        elements={[]}
-        selectedId={null}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={onToolStrokeWidthChange}
-        onUpdate={vi.fn()}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Stroke"), {
-      target: { value: "8" },
+    renderToolPropertiesBar({
+      activeTool: "border",
+      onToolStrokeWidthChange,
     });
 
-    expect(onToolStrokeWidthChange).toHaveBeenCalledWith(8);
+    const slider = screen.getByRole("slider", { name: "Stroke" });
+    expect(slider).toHaveAttribute("aria-valuenow", "5");
+
+    slider.focus();
+    fireEvent.keyDown(slider, { key: "ArrowRight" });
+    expect(onToolStrokeWidthChange).toHaveBeenCalledWith(6);
   });
 
   it("updates selected arrow stroke and width in select mode", () => {
@@ -172,52 +162,38 @@ describe("ImageEditorToolPropertiesBar", () => {
     });
     const onUpdate = vi.fn();
 
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="select"
-        elements={[arrow]}
-        selectedId={arrow.id}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={onUpdate}
-      />
-    );
+    renderToolPropertiesBar({
+      activeTool: "select",
+      elements: [arrow],
+      selectedId: arrow.id,
+      onUpdate,
+    });
 
     fireEvent.change(screen.getByLabelText("Color"), {
       target: { value: "#aabbcc" },
     });
-    fireEvent.change(screen.getByLabelText("Stroke"), {
-      target: { value: "10" },
-    });
+    const strokeSlider = screen.getByRole("slider", { name: "Stroke" });
+    strokeSlider.focus();
+    fireEvent.keyDown(strokeSlider, { key: "ArrowRight" });
 
     expect(onUpdate).toHaveBeenCalledWith(arrow.id, { stroke: "#aabbcc" });
-    expect(onUpdate).toHaveBeenCalledWith(arrow.id, { strokeWidth: 10 });
+    expect(onUpdate).toHaveBeenCalledWith(arrow.id, { strokeWidth: 7 });
   });
 
   it("updates selected highlight dim and dimensions", () => {
     const highlight = createHighlightElement(10, 20, 100, 80);
     const onUpdate = vi.fn();
 
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="select"
-        elements={[highlight]}
-        selectedId={highlight.id}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={onUpdate}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Dim"), {
-      target: { value: "0.5" },
+    renderToolPropertiesBar({
+      activeTool: "select",
+      elements: [highlight],
+      selectedId: highlight.id,
+      onUpdate,
     });
+
+    const dimSlider = screen.getByRole("slider", { name: "Dim" });
+    dimSlider.focus();
+    fireEvent.keyDown(dimSlider, { key: "ArrowLeft" });
     fireEvent.change(screen.getByLabelText("W"), {
       target: { value: "120" },
     });
@@ -234,44 +210,30 @@ describe("ImageEditorToolPropertiesBar", () => {
     const blur = createBlurElement(5, 5, 50, 40);
     const onUpdate = vi.fn();
 
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="select"
-        elements={[blur]}
-        selectedId={blur.id}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={onUpdate}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Blur", { selector: "input" }), {
-      target: { value: "18" },
+    renderToolPropertiesBar({
+      activeTool: "select",
+      elements: [blur],
+      selectedId: blur.id,
+      onUpdate,
     });
 
-    expect(onUpdate).toHaveBeenCalledWith(blur.id, { blurRadius: 18 });
+    const blurSlider = screen.getByRole("slider", { name: "Blur" });
+    blurSlider.focus();
+    fireEvent.keyDown(blurSlider, { key: "ArrowRight" });
+
+    expect(onUpdate).toHaveBeenCalledWith(blur.id, { blurRadius: 13 });
   });
 
   it("updates selected border dimensions", () => {
     const border = createBorderElement(0, 0, 80, 60, "#ff0000");
     const onUpdate = vi.fn();
 
-    render(
-      <ImageEditorToolPropertiesBar
-        hasImage
-        activeTool="select"
-        elements={[border]}
-        selectedId={border.id}
-        toolColor="#ef4444"
-        toolStrokeWidth={5}
-        onToolColorChange={vi.fn()}
-        onToolStrokeWidthChange={vi.fn()}
-        onUpdate={onUpdate}
-      />
-    );
+    renderToolPropertiesBar({
+      activeTool: "select",
+      elements: [border],
+      selectedId: border.id,
+      onUpdate,
+    });
 
     fireEvent.change(screen.getByLabelText("W"), {
       target: { value: "100" },

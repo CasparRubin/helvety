@@ -28,6 +28,7 @@ import {
   BlurNode,
   BorderNode,
   HighlightNode,
+  RectDrawPreview,
   SpotlightRects,
   TaperedArrowPreview,
   TextNode,
@@ -42,6 +43,15 @@ import type {
   TextElement,
 } from "@/lib/editor-types";
 import type Konva from "konva";
+import type { KonvaEventObject } from "konva/lib/Node";
+
+/** True when the pointer hit the stage background, not an annotation or handle. */
+function isEmptyCanvasTarget(target: Konva.Node): boolean {
+  const stage = target.getStage();
+  if (!stage) return false;
+  if (target === stage) return true;
+  return target.getClassName() === "Layer";
+}
 
 /** In-progress drag rectangle, in natural image coordinates. */
 interface DrawPreview {
@@ -61,6 +71,8 @@ interface EditorStageProps {
   readonly displayScale: number;
   readonly toolColor: string;
   readonly toolStrokeWidth: number;
+  readonly toolBlurRadius: number;
+  readonly toolDimOpacity: number;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }
@@ -75,6 +87,8 @@ export function EditorStage({
   displayScale,
   toolColor,
   toolStrokeWidth,
+  toolBlurRadius,
+  toolDimOpacity,
   pendingCrop,
   onCropDraftChange,
 }: EditorStageProps): React.JSX.Element {
@@ -133,7 +147,6 @@ export function EditorStage({
     if (
       state.activeTool !== "select" ||
       !state.selectedId ||
-      selectedElement?.type === "highlight" ||
       selectedElement?.type === "arrow"
     ) {
       transformer.nodes([]);
@@ -159,8 +172,10 @@ export function EditorStage({
       imageWidth,
       imageHeight,
       strokeWidth: toolStrokeWidth,
+      blurRadius: toolBlurRadius,
+      dimOpacity: toolDimOpacity,
     }),
-    [imageWidth, imageHeight, toolStrokeWidth]
+    [imageWidth, imageHeight, toolStrokeWidth, toolBlurRadius, toolDimOpacity]
   );
 
   const getImagePointer = useCallback((): { x: number; y: number } | null => {
@@ -201,7 +216,8 @@ export function EditorStage({
             preview.x,
             preview.y,
             preview.width,
-            preview.height
+            preview.height,
+            createOptions()
           );
           break;
         case "blur":
@@ -209,7 +225,8 @@ export function EditorStage({
             preview.x,
             preview.y,
             preview.width,
-            preview.height
+            preview.height,
+            createOptions()
           );
           break;
         default:
@@ -224,54 +241,59 @@ export function EditorStage({
     [dispatch, onCropDraftChange, state.activeTool, toolColor, createOptions]
   );
 
-  const handleStageMouseDown = useCallback(() => {
-    const pointer = getImagePointer();
-    if (!pointer) return;
+  const handleStageMouseDown = useCallback(
+    (event: KonvaEventObject<MouseEvent | TouchEvent>) => {
+      const pointer = getImagePointer();
+      if (!pointer) return;
 
-    if (state.activeTool === "text") {
-      const element = createTextElement(
-        pointer.x,
-        pointer.y,
-        toolColor,
-        createOptions()
-      );
-      dispatch({ type: "ADD_ELEMENT", element });
-      dispatch({ type: "SET_TOOL", tool: "select" });
-      setEditingTextId(element.id);
-      return;
-    }
+      if (state.activeTool === "text") {
+        const element = createTextElement(
+          pointer.x,
+          pointer.y,
+          toolColor,
+          createOptions()
+        );
+        dispatch({ type: "ADD_ELEMENT", element });
+        dispatch({ type: "SET_TOOL", tool: "select" });
+        setEditingTextId(element.id);
+        return;
+      }
 
-    if (state.activeTool === "select") {
-      dispatch({ type: "SELECT", id: null });
-      return;
-    }
+      if (state.activeTool === "select") {
+        if (isEmptyCanvasTarget(event.target)) {
+          dispatch({ type: "SELECT", id: null });
+        }
+        return;
+      }
 
-    if (state.activeTool === "arrow") {
-      setDrawStart(pointer);
-      setDrawPreview({
-        x: pointer.x,
-        y: pointer.y,
-        width: 0,
-        height: 0,
-      });
-      return;
-    }
+      if (state.activeTool === "arrow") {
+        setDrawStart(pointer);
+        setDrawPreview({
+          x: pointer.x,
+          y: pointer.y,
+          width: 0,
+          height: 0,
+        });
+        return;
+      }
 
-    if (
-      state.activeTool === "border" ||
-      state.activeTool === "highlight" ||
-      state.activeTool === "blur" ||
-      state.activeTool === "crop"
-    ) {
-      setDrawStart(pointer);
-      setDrawPreview({
-        x: pointer.x,
-        y: pointer.y,
-        width: 0,
-        height: 0,
-      });
-    }
-  }, [dispatch, getImagePointer, state.activeTool, toolColor, createOptions]);
+      if (
+        state.activeTool === "border" ||
+        state.activeTool === "highlight" ||
+        state.activeTool === "blur" ||
+        state.activeTool === "crop"
+      ) {
+        setDrawStart(pointer);
+        setDrawPreview({
+          x: pointer.x,
+          y: pointer.y,
+          width: 0,
+          height: 0,
+        });
+      }
+    },
+    [dispatch, getImagePointer, state.activeTool, toolColor, createOptions]
+  );
 
   const handleStageMouseMove = useCallback(() => {
     if (!drawStart) return;
@@ -342,6 +364,24 @@ export function EditorStage({
     createOptions,
   ]);
 
+  useEffect(() => {
+    if (!drawStart) return;
+
+    const handleWindowMove = () => {
+      handleStageMouseMove();
+    };
+    const handleWindowUp = () => {
+      handleStageMouseUp();
+    };
+
+    window.addEventListener("mousemove", handleWindowMove);
+    window.addEventListener("mouseup", handleWindowUp);
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMove);
+      window.removeEventListener("mouseup", handleWindowUp);
+    };
+  }, [drawStart, handleStageMouseMove, handleStageMouseUp]);
+
   const updateElement = useCallback(
     (id: string, patch: Partial<EditorElement>) => {
       dispatch({ type: "UPDATE_ELEMENT", id, patch });
@@ -355,6 +395,18 @@ export function EditorStage({
     state.activeTool === "crop"
       ? (pendingCrop ?? cropDraft ?? state.crop)
       : null;
+
+  const cropDragPreview =
+    drawPreview &&
+    drawPreview.width >= MIN_DRAG_SIZE_PX &&
+    drawPreview.height >= MIN_DRAG_SIZE_PX
+      ? drawPreview
+      : null;
+
+  const liveCropOverlay =
+    state.activeTool === "crop" && cropDragPreview
+      ? cropDragPreview
+      : activeCropOverlay;
 
   const editingText = state.elements.find(
     (element): element is TextElement =>
@@ -382,11 +434,11 @@ export function EditorStage({
           width={stageWidth}
           height={stageHeight}
           onMouseDown={handleStageMouseDown}
-          onMousemove={handleStageMouseMove}
-          onMouseup={handleStageMouseUp}
+          onMouseMove={handleStageMouseMove}
+          onMouseUp={handleStageMouseUp}
           onTouchStart={handleStageMouseDown}
-          onTouchmove={handleStageMouseMove}
-          onTouchend={handleStageMouseUp}
+          onTouchMove={handleStageMouseMove}
+          onTouchEnd={handleStageMouseUp}
         >
           <Layer>
             <KonvaImage
@@ -425,6 +477,7 @@ export function EditorStage({
                   return (
                     <HighlightNode
                       key={element.id}
+                      id={`element-${element.id}`}
                       element={element}
                       crop={crop}
                       stageWidth={stageWidth}
@@ -484,16 +537,16 @@ export function EditorStage({
             {drawPreview &&
             (state.activeTool === "border" ||
               state.activeTool === "highlight" ||
-              state.activeTool === "blur" ||
-              state.activeTool === "crop") ? (
-              <Rect
-                x={drawPreview.x - crop.x}
-                y={drawPreview.y - crop.y}
-                width={drawPreview.width}
-                height={drawPreview.height}
-                stroke={state.activeTool === "border" ? toolColor : "#3b82f6"}
-                dash={[6, 4]}
-                listening={false}
+              state.activeTool === "blur") ? (
+              <RectDrawPreview
+                rect={drawPreview}
+                crop={crop}
+                stageWidth={stageWidth}
+                stageHeight={stageHeight}
+                tool={state.activeTool}
+                toolColor={toolColor}
+                toolStrokeWidth={toolStrokeWidth}
+                toolDimOpacity={toolDimOpacity}
               />
             ) : null}
 
@@ -508,9 +561,9 @@ export function EditorStage({
               />
             ) : null}
 
-            {activeCropOverlay ? (
+            {liveCropOverlay ? (
               <GroupCropOverlay
-                cropRect={activeCropOverlay}
+                cropRect={liveCropOverlay}
                 viewCrop={crop}
                 stageWidth={stageWidth}
                 stageHeight={stageHeight}

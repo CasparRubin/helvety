@@ -202,7 +202,7 @@ describe("export-image helpers", () => {
 
   it("renders blur regions with filters into the export layer", async () => {
     const image = new MockImage() as unknown as HTMLImageElement;
-    const blur = createBlurElement(40, 30, 120, 90);
+    const blur = createBlurElement(40, 30, 120, 90, { blurRadius: 18 });
     const state = {
       ...initialEditorState,
       elements: [blur],
@@ -220,7 +220,7 @@ describe("export-image helpers", () => {
         )
     );
     expect(blurNode).toBeDefined();
-    expect(blurNode?.attrs.blurRadius).toBe(blur.blurRadius);
+    expect(blurNode?.attrs.blurRadius).toBe(18);
     expect(blurNode?.cache).toHaveBeenCalled();
   });
 });

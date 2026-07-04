@@ -36,12 +36,13 @@ vi.mock("@/lib/canvas-export-limits", () => ({
 }));
 
 import { clampOutputDimensions } from "@/lib/canvas-export-limits";
+import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
 import { exportEditedImage } from "@/lib/export-image";
 
 import { HelvetyImageEditor } from "./helvety-image-editor";
 
 /**
- *
+ * Minimal `Image` stub so upload flows resolve dimensions in tests.
  */
 class MockImage {
   naturalWidth = 800;
@@ -73,9 +74,7 @@ describe("HelvetyImageEditor", () => {
     vi.restoreAllMocks();
   });
 
-  /**
-   *
-   */
+  /** Upload a PNG through the hidden file input. */
   function uploadImageFile(name = "sample.png"): void {
     const input = document.querySelector(
       'input[type="file"]'
@@ -167,6 +166,50 @@ describe("HelvetyImageEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Text" }));
 
     expect(screen.getByLabelText("Color")).toBeInTheDocument();
+  });
+
+  it("shows blur and highlight sliders when those tools are active", async () => {
+    render(<HelvetyImageEditor />);
+    uploadImageFile();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Blur" })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Blur" }));
+    expect(screen.getByRole("slider", { name: "Blur" })).toHaveAttribute(
+      "aria-valuenow",
+      "12"
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Highlight" }));
+    expect(screen.getByRole("slider", { name: "Dim" })).toHaveAttribute(
+      "aria-valuenow",
+      "0.55"
+    );
+  });
+
+  it("shows stroke slider when arrow or border tools are active", async () => {
+    render(<HelvetyImageEditor />);
+    uploadImageFile();
+
+    const { strokeWidth } = getDefaultToolSizes(800, 600);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Arrow" })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Arrow" }));
+    expect(screen.getByRole("slider", { name: "Stroke" })).toHaveAttribute(
+      "aria-valuenow",
+      String(strokeWidth)
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Border" }));
+    expect(screen.getByRole("slider", { name: "Stroke" })).toHaveAttribute(
+      "aria-valuenow",
+      String(strokeWidth)
+    );
   });
 
   it("opens the file picker from the drop zone via keyboard", () => {

@@ -11,6 +11,7 @@ import {
   initialEditorState,
   normalizeRect,
 } from "./editor-reducer";
+import { DEFAULT_BLUR_RADIUS, DEFAULT_DIM_OPACITY } from "./editor-types";
 
 describe("editorReducer", () => {
   it("adds, updates, deletes, and reorders elements", () => {
@@ -181,5 +182,23 @@ describe("editorReducer", () => {
       fontSize: 48,
     });
     expect(text.fontSize).toBe(48);
+  });
+
+  it("uses default blur and dim values when options are omitted", () => {
+    expect(createBlurElement(0, 0, 10, 10).blurRadius).toBe(
+      DEFAULT_BLUR_RADIUS
+    );
+    expect(createHighlightElement(0, 0, 10, 10).dimOpacity).toBe(
+      DEFAULT_DIM_OPACITY
+    );
+  });
+
+  it("honours explicit blur radius and dim opacity overrides", () => {
+    expect(createBlurElement(0, 0, 10, 10, { blurRadius: 24 }).blurRadius).toBe(
+      24
+    );
+    expect(
+      createHighlightElement(0, 0, 10, 10, { dimOpacity: 0.35 }).dimOpacity
+    ).toBe(0.35);
   });
 });

@@ -1,6 +1,6 @@
 # Helvety Image Editor
 
-Browser-local image annotation editor: text, arrows, borders, spotlight highlights, blur regions, and crop, with a layers panel for reordering, a tool properties command bar for colors and sizes, and zoom for detail work. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
+Browser-local image annotation editor: text, arrows, borders, spotlight highlights, blur regions, and crop, with a layers panel for reordering, a tool properties command bar (color pickers and sliders), and zoom for detail work. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
 
 All image processing runs in the browser; no image data leaves the client in the normal flow.
 
@@ -18,13 +18,14 @@ All image processing runs in the browser; no image data leaves the client in the
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `bootstrapPublicLayoutUser()` supplies an optional SSR session snapshot to the navbar (no login required for editing). `ImageEditorCommandBar` and `ImageEditorToolPropertiesBar` are pinned as flex siblings above the scrollable workspace (not inside page scroll).
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports shared `IMAGE_EDITOR_*` strings for metadata / JSON-LD and PWA [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Annotation tools: Select, Text, Arrow, Border, Highlight (spotlight dim), Blur region, and Crop
-- Canvas rendered with Konva + react-konva (loaded via `next/dynamic({ ssr: false })`); `elements[]` index is the z-order and interactive elements use a Konva `Transformer` in Select mode
+- Canvas rendered with Konva + react-konva (loaded via `next/dynamic({ ssr: false })`); `elements[]` index is the z-order; text, border, highlight, and blur use a Konva `Transformer` in Select mode; arrows use draggable tail/tip endpoint handles (not the box transformer)
 - Pure `useReducer` editor state in [`lib/editor-reducer.ts`](./lib/editor-reducer.ts) (no global store), consistent with the PDF and Image Upscaler zones
 - Workspace layout: canvas on the left and layers panel on the right on desktop (`lg+`); the layers panel is always visible (empty state when no image), matching the PDF app; mobile uses a right-side layers sheet
 - Fit-to-view on load for large images (`useStageFit` × `userZoom`); main command bar zoom controls, Fit button, and Ctrl/Cmd + wheel (25%–400%); canvas display uses CSS `transform: scale()` (Konva stage stays at logical image size)
-- Second command bar (`ImageEditorToolPropertiesBar`): tool color and stroke width for text, arrows, and borders; per-selection property edits; blur and highlight show default radius/opacity hints without color pickers; layers panel is list-only (reorder, select, delete)
+- Second command bar (`ImageEditorToolPropertiesBar`, `variant="translucent"`): color pickers and `@helvety/ui/slider` controls for tool defaults (stroke, blur radius, dim opacity) and per-selection edits (font size, stroke, blur, dim); W/H number inputs for rectangular elements; horizontal scroll on narrow viewports; layers panel is list-only (reorder, select, delete)
 - Image-scaled default font size and stroke width via [`lib/default-tool-sizes.ts`](lib/default-tool-sizes.ts); text annotations include a simple shadow for readability
-- Tapered arrows (wider toward the arrowhead) in canvas and export
+- Live drag previews while drawing borders, highlights, blur regions, arrows, and crop rectangles
+- Tapered arrows: shaft widens toward the neck but stays narrower than the distinct pointy head; same geometry in canvas ([`lib/tapered-arrow.ts`](lib/tapered-arrow.ts)) and export
 - Crop is handled in the main command bar (Apply / Reset)
 - Full-resolution PNG and JPEG export via an offscreen Konva stage; `canvas-size` probes browser canvas limits and export dimensions are clamped when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Keyboard shortcuts: Delete/Backspace removes the selection; Escape deselects or cancels crop (ignored while editing text)

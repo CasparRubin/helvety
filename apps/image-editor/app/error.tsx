@@ -3,7 +3,7 @@
 import { urls } from "@helvety/shared/config";
 import { AppError } from "@helvety/ui/app-error";
 
-/** Root error boundary for the Image Upscaler app. */
+/** Root error boundary for the Image Editor app. */
 export default function Error(props: {
   error: Error & { digest?: string };
   reset: () => void;

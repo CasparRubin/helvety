@@ -132,6 +132,8 @@ export interface CreateElementOptions {
   readonly imageHeight?: number;
   readonly fontSize?: number;
   readonly strokeWidth?: number;
+  readonly blurRadius?: number;
+  readonly dimOpacity?: number;
 }
 
 /** Creates a text annotation at the given image coordinates. */
@@ -220,7 +222,8 @@ export function createHighlightElement(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  options?: CreateElementOptions
 ): HighlightElement {
   return {
     id: createElementId(),
@@ -229,7 +232,7 @@ export function createHighlightElement(
     y,
     width,
     height,
-    dimOpacity: DEFAULT_DIM_OPACITY,
+    dimOpacity: options?.dimOpacity ?? DEFAULT_DIM_OPACITY,
   };
 }
 
@@ -238,7 +241,8 @@ export function createBlurElement(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  options?: CreateElementOptions
 ): BlurElement {
   return {
     id: createElementId(),
@@ -247,7 +251,7 @@ export function createBlurElement(
     y,
     width,
     height,
-    blurRadius: DEFAULT_BLUR_RADIUS,
+    blurRadius: options?.blurRadius ?? DEFAULT_BLUR_RADIUS,
   };
 }
 
