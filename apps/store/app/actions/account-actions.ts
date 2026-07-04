@@ -202,8 +202,8 @@ export async function requestAccountDeletion(
 /**
  * Export account profile data in a structured JSON format.
  *
- * Returns profile info only. Legacy tenant-specific datasets were removed from
- * the export shape. Encrypted app data (Tasks, Contacts, Notes, Links) is NOT
+ * Returns profile info only (email and account creation date). Legacy
+ * tenant-specific datasets were removed from the export shape. Encrypted app data (Tasks, Contacts, Notes, Links) is NOT
  * included; that content must be exported client-side from within those apps
  * while the user is authenticated with their passkey.
  *
@@ -224,14 +224,13 @@ export async function exportUserData(): Promise<
 
     const { data: profile } = await scopedAdmin
       .from("user_profiles")
-      .select("email, display_name, created_at")
+      .select("email, created_at")
       .single();
 
     const exportData: UserDataExport = {
       exportedAt: new Date().toISOString(),
       profile: {
         email: profile?.email ?? user.email ?? "",
-        displayName: profile?.display_name ?? null,
         createdAt: profile?.created_at ?? user.created_at,
       },
     };

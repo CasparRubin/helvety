@@ -55,7 +55,7 @@ Expect **`401`** with a JSON body (not `404` or HTML).
 | `user_passkey_params.key_check_value` on live Postgres                                             | Applied via migration                                         |
 | `bun run consistency:vercel-prod-env` (incl. `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth`) | **Passed**                                                    |
 | `bun run consistency:vercel-preview-env`                                                           | **Passed** (re-run after adding Preview keys on any new zone) |
-| Supabase leaked password protection                                                                | **Manual** — Authentication → Email in Supabase Dashboard     |
+| Supabase leaked password protection                                                                | **N/A** — no password sign-in; Supabase Free tier             |
 | Supabase session JWT / 7d / 24h inactivity                                                         | **Manual** — align with `auth-session-policy.ts` on Pro       |
 | Vercel Analytics disabled (all 10 projects)                                                        | **Manual** — see runbook § Vercel dashboard                   |
 
@@ -69,7 +69,8 @@ Expect **`401`** with a JSON body (not `404` or HTML).
 | `helvety-image-editor` production deployment                                            | **READY** (redeployed; gateway rewrite `/image-editor` → 200)                                                                |
 | Extension passkey route smoke (`POST …/auth/api/extension/passkey/options`)             | **401** (expected)                                                                                                           |
 | Obsolete `DOCS_URL` on `helvety-com`                                                    | **Remove** from Production and Preview; `consistency:vercel-prod-env` / `consistency:vercel-preview-env` flag it as an error |
-| Supabase leaked password protection                                                     | **Manual**                                                                                                                   |
+| `entity_links` CHECK constraints include `links` endpoint type                          | **Applied** (hosted migration; guarded by `consistency:entity-links-types`)                                                  |
+| Supabase leaked password protection                                                     | **N/A** — no password sign-in; Supabase Free tier                                                                            |
 | Supabase session JWT / 7d / 24h inactivity                                              | **Manual**                                                                                                                   |
 | Vercel Analytics + Speed Insights disabled (all 10 projects)                            | **Manual**                                                                                                                   |
 

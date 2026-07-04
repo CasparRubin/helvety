@@ -11,8 +11,17 @@
  */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { TABLES_REQUIRING_USER_RLS } from "./supabase-user-tables.mjs";
+
+function isCliMain(moduleUrl) {
+  const entry = process.argv[1];
+  if (!entry) {
+    return false;
+  }
+  return resolve(fileURLToPath(moduleUrl)) === resolve(entry);
+}
 
 const rootDir = process.cwd();
 const exportPath = resolve(rootDir, "supabase/supabase.json");
@@ -126,7 +135,9 @@ async function main() {
   );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isCliMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

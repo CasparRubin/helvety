@@ -27,4 +27,14 @@ describe("database.types.ts schema guardrails", () => {
     );
     expect(passkeyParamsBlock?.[1]).toContain("key_check_value");
   });
+
+  it("user_profiles.Row includes only deployed profile columns", () => {
+    const userProfilesBlock = source.match(
+      /user_profiles:\s*\{[\s\S]*?Row:\s*\{([\s\S]*?)\};/u
+    );
+    const rowBlock = userProfilesBlock?.[1] ?? "";
+    expect(rowBlock).toContain("email");
+    expect(rowBlock).toContain("created_at");
+    expect(rowBlock).not.toContain("display_name");
+  });
 });

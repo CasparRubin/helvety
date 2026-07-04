@@ -316,10 +316,10 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground text-sm">
-            This export includes your profile information. For Helvety Tasks,
-            Helvety Contacts, Helvety Notes, and Helvety Links (end-to-end
-            encrypted data), please use each app&apos;s export feature while
-            signed in and unlocked with your passkey.
+            This export includes your email address and account creation date.
+            For Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety
+            Links (end-to-end encrypted data), please use each app&apos;s export
+            feature while signed in and unlocked with your passkey.
           </p>
           <Button
             variant="outline"

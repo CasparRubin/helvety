@@ -104,7 +104,6 @@ describe("account-actions", () => {
       single: vi.fn().mockResolvedValue({
         data: {
           email: "old@example.com",
-          display_name: "Alice",
           created_at: "2026-01-01",
         },
       }),
@@ -193,13 +192,15 @@ describe("account-actions", () => {
 
   it("exports profile data for authenticated users", async () => {
     const result = await exportUserData();
+    expect(mocks.from).toHaveBeenCalledWith("user_profiles");
+    expect(mocks.select).toHaveBeenCalledWith("email, created_at");
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.profile).toEqual({
         email: "old@example.com",
-        displayName: "Alice",
         createdAt: "2026-01-01",
       });
+      expect(result.data.exportedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/u);
     }
   });
 });

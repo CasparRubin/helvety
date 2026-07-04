@@ -8,12 +8,11 @@
 // DATA EXPORT TYPES
 // =============================================================================
 
-/** Exported user data structure */
+/** Exported user data structure (Store account settings export). */
 export interface UserDataExport {
   exportedAt: string;
   profile: {
     email: string;
-    displayName: string | null;
     createdAt: string;
   };
 }

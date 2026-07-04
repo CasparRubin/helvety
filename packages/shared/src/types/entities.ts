@@ -56,12 +56,11 @@ export interface UserPasskeyParams {
 // =============================================================================
 
 /**
- * User profile (central identity across helvety.com web apps that share this backend)
+ * User profile (central identity across helvety.com web apps that share this backend).
+ * Persisted columns match `user_profiles` in the hosted Supabase schema.
  */
 export interface UserProfile {
   id: string;
-  /** Optional display name for personalization */
-  display_name?: string | null;
   email: string;
   created_at: string;
   updated_at: string;

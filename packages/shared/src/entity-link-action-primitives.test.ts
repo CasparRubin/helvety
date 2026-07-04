@@ -64,6 +64,35 @@ describe("entity-link-action-primitives", () => {
     expect(result).toEqual({ success: false, error: "Note not found" });
   });
 
+  it("validates bookmark ownership through ensureOwnedEntityExists", async () => {
+    entityLinkMocks.ensureOwnedEntityExists.mockResolvedValueOnce(false);
+
+    const result = await validateOwnedLinkEntities(
+      buildValidateSupabase(),
+      "user-1",
+      [
+        {
+          entityType: "links",
+          entityId: "550e8400-e29b-41d4-a716-446655440000",
+          notFoundMessage: "Link not found",
+        },
+        {
+          entityType: "items",
+          entityId: "550e8400-e29b-41d4-a716-446655440001",
+          notFoundMessage: "Task not found",
+        },
+      ]
+    );
+
+    expect(result).toEqual({ success: false, error: "Link not found" });
+    expect(entityLinkMocks.ensureOwnedEntityExists).toHaveBeenCalledWith(
+      expect.anything(),
+      "user-1",
+      "links",
+      "550e8400-e29b-41d4-a716-446655440000"
+    );
+  });
+
   it("maps duplicate create conflict to the provided message", async () => {
     entityLinkMocks.createEntityLink.mockResolvedValue({
       data: null,

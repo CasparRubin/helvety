@@ -1038,12 +1038,12 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Self-Service Data Export:</strong>{" "}
           You can export your personal data from your account settings. The
-          export includes your profile information in JSON format. For Helvety
-          Tasks, Helvety Contacts, Helvety Notes, and Helvety Links (end-to-end
-          encrypted data), you can initiate an export from within the app while
-          authenticated with your passkey; the data is decrypted client-side and
-          exported locally. Server-side exports of encrypted data are available
-          only in encrypted form.
+          Store export includes your email address and account creation date in
+          JSON format. For Helvety Tasks, Helvety Contacts, Helvety Notes, and
+          Helvety Links (end-to-end encrypted data), you can initiate an export
+          from within the app while authenticated with your passkey; the data is
+          decrypted client-side and exported locally. Server-side exports of
+          encrypted data are available only in encrypted form.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           To exercise any of these rights, you may also contact us at{" "}

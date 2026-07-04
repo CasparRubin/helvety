@@ -13,22 +13,22 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Supabase (`helvety`, `eu-central-2`, Postgres 17.6.1)
 
-| Check                          | Result                                                                                                                                                    |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Project health                 | `ACTIVE_HEALTHY`                                                                                                                                          |
-| User-data tables (9)           | RLS **enabled + forced**                                                                                                                                  |
-| Policies                       | `auth.uid()` owner scope; credentials table denies all direct access                                                                                      |
-| `anon` grants on vault tables  | **None**                                                                                                                                                  |
-| Public views                   | **None**                                                                                                                                                  |
-| `SECURITY DEFINER` in `public` | Not executable by `anon` / `authenticated`                                                                                                                |
-| Edge functions                 | **None**                                                                                                                                                  |
-| Storage                        | `packages` private + deny-all; `image-upscaler-models` public by design (ONNX weights)                                                                    |
-| Security advisor               | **WARN:** [Leaked password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) |
-| Local RLS export               | `consistency:supabase-rls` **passed** (export metadata refreshed 2026-06-13)                                                                              |
+| Check                          | Result                                                                                                                                                                                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project health                 | `ACTIVE_HEALTHY`                                                                                                                                                                                                                                        |
+| User-data tables (9)           | RLS **enabled + forced**                                                                                                                                                                                                                                |
+| Policies                       | `auth.uid()` owner scope; credentials table denies all direct access                                                                                                                                                                                    |
+| `anon` grants on vault tables  | **None**                                                                                                                                                                                                                                                |
+| Public views                   | **None**                                                                                                                                                                                                                                                |
+| `SECURITY DEFINER` in `public` | Not executable by `anon` / `authenticated`                                                                                                                                                                                                              |
+| Edge functions                 | **None**                                                                                                                                                                                                                                                |
+| Storage                        | `packages` private + deny-all; `image-upscaler-models` public by design (ONNX weights)                                                                                                                                                                  |
+| Security advisor               | **WARN:** [Leaked password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) _(historical; **not applicable** as of 2026-07-04 — no password sign-in; Supabase Free tier)_ |
+| Local RLS export               | `consistency:supabase-rls` **passed** (export metadata refreshed 2026-06-13)                                                                                                                                                                            |
 
 ### Manual dashboard actions
 
-1. **Authentication → Email:** Enable leaked-password protection (defense-in-depth; app is OTP/passkey-first).
+1. ~~**Authentication → Email:** Enable leaked-password protection~~ **Not applicable** (2026-07-04): Helvety uses email OTP + passkeys only; the setting is Pro-tier only on Supabase Free.
 2. **Authentication → Providers:** Disable any unused OAuth/OIDC providers.
 3. **Authentication → Sessions** (Pro): JWT 3600s, time-box 7d, inactivity 24h — align with `packages/shared/src/auth-session-policy.ts`.
 4. **Project Settings → Infrastructure:** Note GoTrue version; ensure ≥ 2.185.0 if OIDC is enabled ([CVE-2026-31813](https://www.sentinelone.com/vulnerability-database/cve-2026-31813/)).
@@ -94,7 +94,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 | Supabase migrations in VCS        | **Not used** — remote-first DDL on hosted Supabase; see [`security-review-runbook.md`](./security-review-runbook.md) and root [`README.md`](../README.md) § Supabase Workflow |
 | Remote CI (GitHub Actions)        | Guardrails currently forbid; policy change required                                                                                                                           |
 | Drop unused DB indexes            | Performance-only INFO from advisor; needs query traffic analysis                                                                                                              |
-| Enable leaked password protection | Requires Supabase Dashboard (no MCP API)                                                                                                                                      |
+| Enable leaked password protection | **Not applicable** (2026-07-04): no password sign-in; Supabase Free tier                                                                                                      |
 
 ---
 
@@ -115,7 +115,7 @@ Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, exten
 
 ## Follow-ups
 
-1. Complete Supabase Auth dashboard items above (leaked password protection, session JWT/time-box alignment, disable unused OAuth).
+1. Complete Supabase Auth dashboard items above (~~leaked password protection~~ session JWT/time-box alignment if on Pro, disable unused OAuth).
 2. ~~Add Preview Upstash env vars on `helvety-pdf` and `helvety-image-upscaler`~~ — **done** (2026-06); re-run `bun run consistency:vercel-preview-env` after any new zone.
 3. Confirm Vercel Analytics disabled on all ten projects (nine at time of audit; `helvety-image-editor` added later).
 4. Align `helvety-com` Node.js to 24.x.
@@ -160,7 +160,7 @@ Auth, sessions, token TTL, and E2EE cross-repo audit (see [`security-review-runb
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Extension weekly re-auth | **Server-HMAC `weekly_proof`** (parity with web `helvety_device_trust`); Bearer routes verify via `authenticateBearerRequest` |
 | Retired client OTP anchor | Removed `helvety_extension_last_email_verified` / JWT-`iat`-only cap |
-| Supabase MCP (`get_advisors` security) | RLS forced on all 9 user-data tables; **WARN** leaked-password protection still disabled (Dashboard manual) |
+| Supabase MCP (`get_advisors` security) | RLS forced on all 9 user-data tables; **WARN** leaked-password protection _(not applicable as of 2026-07-04)_ |
 | Session policy docs | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`) |
 | `deps:security` / `deps:drift` | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time |
 | CI guardrails | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script |
@@ -181,3 +181,7 @@ Full dependency sweep (canonical pins: [`dependency-inventory.md`](./dependency-
 | Doc/inventory guardrails                              | drift + inventory table                         | **`dependency-inventory-pins.test.ts`**, ORT copy/wiring tests                                                                                                            |
 
 Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` after bumps. Historical tables above remain audit snapshots; use **dependency-inventory.md** for current pins.
+
+## Subsequent update (2026-07-04)
+
+Treat Supabase MCP `auth_leaked_password_protection` as **not applicable** for Helvety. The product has no password-based sign-in (email OTP + passkeys only), and the setting is Pro-tier only while the hosted project is on Supabase Free. Future audits should not file leaked password protection as a finding unless the auth model or Supabase tier changes; see [`security-review-runbook.md`](./security-review-runbook.md).

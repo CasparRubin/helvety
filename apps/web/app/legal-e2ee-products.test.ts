@@ -41,6 +41,17 @@ describe("legal pages enumerate E2EE products", () => {
     expect(source).toContain("2,000 each");
   });
 
+  it("privacy self-service export describes Store profile fields accurately", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    expect(source).toContain(
+      "Store export includes your email address and account creation date"
+    );
+    expect(source).not.toContain("displayName");
+  });
+
   it("privacy self-service deletion lists Links data categories", () => {
     const source = readFileSync(
       join(repoRoot, "apps/web/app/privacy/page.tsx"),

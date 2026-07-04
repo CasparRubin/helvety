@@ -19,4 +19,12 @@ describe("profile-tab account copy", () => {
 
     expect(src).toContain("Helvety Links");
   });
+
+  it("export guidance describes email and account creation date only", () => {
+    const src = readFileSync(profileTabPath, "utf8");
+
+    expect(src).toContain("email address and account creation date");
+    expect(src).not.toContain("displayName");
+    expect(src).not.toContain("display name");
+  });
 });

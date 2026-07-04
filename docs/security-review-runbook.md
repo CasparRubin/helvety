@@ -64,15 +64,15 @@ Review: RLS enabled on user tables, no broad `anon` grants on vault data, `SECUR
 
 ### Supabase dashboard (manual)
 
-Run **Database → Advisors → Security** (or MCP `get_advisors` type `security`) after schema changes. As of 2026-06 audit:
+Run **Database → Advisors → Security** (or MCP `get_advisors` type `security`) after schema changes. As of 2026-07 audit:
 
-- Enable **Leaked password protection** under Authentication → Providers → Email (defense-in-depth; Helvety is OTP/passkey-first).
+- Ignore `auth_leaked_password_protection` / leaked password protection warnings: Helvety has no password sign-in (email OTP + passkeys only), and the feature is Pro-tier only while this project is on Supabase Free.
 - Disable unused OAuth/OIDC providers.
 - Confirm session lifetime settings if on Supabase Pro (see GoTrue section below).
 
 `consistency:supabase-rls` checks every table in `scripts/supabase-user-tables.mjs` (`TABLES_REQUIRING_USER_RLS`, currently **9** tables: `contacts`, `items`, `notes`, `links`, `link_folders`, `entity_links`, `user_profiles`, `user_passkey_params`, `user_auth_credentials`). It fails when a listed table is missing from the local export or lacks forced owner-scoped RLS — regenerate the export after every schema change so RLS on new tables is verified before their zone ships.
 
-**Schema changes (remote-first):** DDL is applied on the hosted Supabase project (Dashboard SQL editor or Supabase MCP). This repo does **not** commit `supabase/migrations/`; audit the live shape with [`supabase/getSupabase.sql`](../supabase/getSupabase.sql) → local `supabase/supabase.json` (gitignored). After every schema change, run `bun run db:gen-types` and `bun run consistency:supabase-schema`. Example: `user_passkey_params.key_check_value` (nullable text, KCV for wrong-passkey detection) was added in June 2026 via hosted migration.
+**Schema changes (remote-first):** DDL is applied on the hosted Supabase project (Dashboard SQL editor or Supabase MCP). This repo does **not** commit `supabase/migrations/`; audit the live shape with [`supabase/getSupabase.sql`](../supabase/getSupabase.sql) → local `supabase/supabase.json` (gitignored). After every schema change, run `bun run db:gen-types`, `bun run consistency:supabase-schema`, and `bun run consistency:entity-links-types` when `LinkEntityType` or `entity_links` constraints change; regenerate the local export and run `bun run consistency:supabase-rls` before shipping RLS-sensitive zones. Example: `user_passkey_params.key_check_value` (nullable text, KCV for wrong-passkey detection) was added in June 2026 via hosted migration; `entity_links` gained `'links'` as an allowed endpoint type in July 2026.
 
 ## Auth / extension
 
@@ -118,11 +118,11 @@ Checks run on session refresh (not proactively). On **helvety.com** E2EE zones, 
 Supabase MCP (`helvety`, `eu-central-2`, Postgres **17.6.1**, `ACTIVE_HEALTHY`):
 
 - All **9** user-data tables: RLS **enabled + forced** (verified via `execute_sql`).
-- Security advisor: **WARN** — [leaked password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection) (enable under Authentication → Email).
+- Security advisor: `auth_leaked_password_protection` may appear, but it is **not applicable** (no password sign-in; Supabase Free tier). Do not file it as an audit finding unless Helvety adds password auth or upgrades to a tier where the setting is available.
 
 Vercel MCP: all zone projects present; **`helvety-auth`** latest Production deployment **READY** (Node **24.x**).
 
-**Manual Dashboard follow-ups:** enable leaked-password protection; confirm session settings (3600s / 7d / 24h); disable unused OAuth; note GoTrue version ≥ 2.185.0 if OIDC enabled.
+**Manual Dashboard follow-ups:** confirm session settings (3600s / 7d / 24h) if on Pro; disable unused OAuth; note GoTrue version ≥ 2.185.0 if OIDC enabled.
 
 Check version in Supabase Dashboard → Project Settings → Infrastructure, or via support if not shown.
 
