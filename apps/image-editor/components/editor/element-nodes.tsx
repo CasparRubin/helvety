@@ -2,7 +2,17 @@
 
 import Konva from "konva";
 import { useEffect, useRef } from "react";
-import { Arrow, Group, Image as KonvaImage, Rect, Text } from "react-konva";
+import {
+  Group,
+  Image as KonvaImage,
+  Line,
+  Rect,
+  Shape,
+  Text,
+} from "react-konva";
+
+import { buildSpotlightRects } from "@/lib/spotlight-rects";
+import { drawTaperedArrowPath } from "@/lib/tapered-arrow";
 
 import type {
   ArrowElement,
@@ -97,6 +107,58 @@ export function BlurNode({
   );
 }
 
+/** Props for {@link SpotlightRects}. */
+interface SpotlightRectsProps {
+  readonly holeX: number;
+  readonly holeY: number;
+  readonly holeWidth: number;
+  readonly holeHeight: number;
+  readonly stageWidth: number;
+  readonly stageHeight: number;
+  readonly opacity: number;
+  readonly groupOffsetX?: number;
+  readonly groupOffsetY?: number;
+}
+
+/** Renders dim strips outside a rectangular hole (no composite ops). */
+export function SpotlightRects({
+  holeX,
+  holeY,
+  holeWidth,
+  holeHeight,
+  stageWidth,
+  stageHeight,
+  opacity,
+  groupOffsetX = 0,
+  groupOffsetY = 0,
+}: SpotlightRectsProps): React.JSX.Element {
+  const rects = buildSpotlightRects(
+    holeX,
+    holeY,
+    holeWidth,
+    holeHeight,
+    stageWidth,
+    stageHeight
+  );
+
+  return (
+    <>
+      {rects.map((rect) => (
+        <Rect
+          key={`${rect.x}:${rect.y}:${rect.width}:${rect.height}`}
+          x={rect.x - groupOffsetX}
+          y={rect.y - groupOffsetY}
+          width={rect.width}
+          height={rect.height}
+          fill="black"
+          opacity={opacity}
+          listening={false}
+        />
+      ))}
+    </>
+  );
+}
+
 /** Props for {@link HighlightNode}. */
 interface HighlightNodeProps {
   readonly element: HighlightElement;
@@ -109,7 +171,7 @@ interface HighlightNodeProps {
   readonly onChange: (patch: Partial<HighlightElement>) => void;
 }
 
-/** Spotlight: full-stage dim with a `destination-out` hole over the region. */
+/** Spotlight: dims the stage outside the highlight rectangle. */
 export function HighlightNode({
   element,
   crop,
@@ -138,19 +200,16 @@ export function HighlightNode({
       }}
     >
       <Group listening={false}>
-        <Rect
-          x={-x}
-          y={-y}
-          width={stageWidth}
-          height={stageHeight}
-          fill="black"
+        <SpotlightRects
+          holeX={x}
+          holeY={y}
+          holeWidth={element.width}
+          holeHeight={element.height}
+          stageWidth={stageWidth}
+          stageHeight={stageHeight}
           opacity={element.dimOpacity}
-        />
-        <Rect
-          width={element.width}
-          height={element.height}
-          fill="white"
-          globalCompositeOperation="destination-out"
+          groupOffsetX={x}
+          groupOffsetY={y}
         />
       </Group>
       {selected ? (
@@ -234,7 +293,7 @@ interface ArrowNodeProps {
   readonly onChange: (patch: Partial<ArrowElement>) => void;
 }
 
-/** Arrow; drag translates both endpoints and resets node position to origin. */
+/** Tapered arrow; drag translates both endpoints and resets node position to origin. */
 export function ArrowNode({
   element,
   crop,
@@ -243,18 +302,14 @@ export function ArrowNode({
   onSelect,
   onChange,
 }: ArrowNodeProps): React.JSX.Element {
-  const points = element.points.map((value, index) =>
-    index % 2 === 0 ? value - crop.x : value - crop.y
-  );
+  const [x1, y1, x2, y2] = element.points;
+  const sx1 = x1 - crop.x;
+  const sy1 = y1 - crop.y;
+  const sx2 = x2 - crop.x;
+  const sy2 = y2 - crop.y;
 
   return (
-    <Arrow
-      points={points}
-      stroke={element.stroke}
-      strokeWidth={element.strokeWidth}
-      fill={element.stroke}
-      pointerLength={12}
-      pointerWidth={12}
+    <Group
       draggable={draggable}
       onClick={onSelect}
       onTap={onSelect}
@@ -271,7 +326,72 @@ export function ArrowNode({
           ],
         });
       }}
-      dash={selected ? [4, 4] : undefined}
+    >
+      <Shape
+        sceneFunc={(context, shape) => {
+          drawTaperedArrowPath(
+            context,
+            sx1,
+            sy1,
+            sx2,
+            sy2,
+            element.strokeWidth
+          );
+          context.fillStrokeShape(shape);
+        }}
+        hitFunc={(context, shape) => {
+          drawTaperedArrowPath(
+            context,
+            sx1,
+            sy1,
+            sx2,
+            sy2,
+            element.strokeWidth
+          );
+          context.fillStrokeShape(shape);
+        }}
+        fill={element.stroke}
+      />
+      {selected ? (
+        <Line
+          points={[sx1, sy1, sx2, sy2]}
+          stroke="#3b82f6"
+          strokeWidth={1}
+          dash={[4, 4]}
+          listening={false}
+        />
+      ) : null}
+    </Group>
+  );
+}
+
+/** Props for {@link TaperedArrowPreview}. */
+interface TaperedArrowPreviewProps {
+  readonly x1: number;
+  readonly y1: number;
+  readonly x2: number;
+  readonly y2: number;
+  readonly color: string;
+  readonly strokeWidth?: number;
+}
+
+/** In-progress tapered arrow preview while drawing. */
+export function TaperedArrowPreview({
+  x1,
+  y1,
+  x2,
+  y2,
+  color,
+  strokeWidth = 3,
+}: TaperedArrowPreviewProps): React.JSX.Element {
+  return (
+    <Shape
+      sceneFunc={(context, shape) => {
+        drawTaperedArrowPath(context, x1, y1, x2, y2, strokeWidth);
+        context.fillStrokeShape(shape);
+      }}
+      fill={color}
+      listening={false}
     />
   );
 }

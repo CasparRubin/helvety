@@ -102,4 +102,20 @@ describe("seo customer copy guardrails", () => {
       expect(source, rel).toContain("helvety.com/links");
     }
   });
+
+  it("zone llms Related Helvety Apps sections link to Helvety Image Editor", () => {
+    const zoneLlmsWithRelated = CUSTOMER_COPY_LLMS_RELATIVE_PATHS.filter(
+      (rel) =>
+        rel !== "apps/web/public/llms.txt" &&
+        rel !== "apps/store/public/llms.txt"
+    );
+    for (const rel of zoneLlmsWithRelated) {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      if (!source.includes("## Related Helvety Apps")) {
+        continue;
+      }
+      expect(source, rel).toContain("Helvety Image Editor");
+      expect(source, rel).toContain("helvety.com/image-editor");
+    }
+  });
 });

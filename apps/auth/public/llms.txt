@@ -18,6 +18,7 @@
 - [Helvety Store](https://helvety.com/store)
 - [Helvety PDF](https://helvety.com/pdf)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler)
+- [Helvety Image Editor](https://helvety.com/image-editor)
 - [Helvety Contacts](https://helvety.com/contacts)
 - [Helvety Notes](https://helvety.com/notes)
 - [Helvety Links](https://helvety.com/links)

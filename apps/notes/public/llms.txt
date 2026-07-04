@@ -19,6 +19,7 @@
 - [Helvety Store](https://helvety.com/store)
 - [Helvety PDF](https://helvety.com/pdf)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler)
+- [Helvety Image Editor](https://helvety.com/image-editor)
 - [Helvety Auth](https://helvety.com/auth)
 - [Helvety Contacts](https://helvety.com/contacts)
 - [Helvety Tasks](https://helvety.com/tasks)

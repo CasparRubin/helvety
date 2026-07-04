@@ -28,6 +28,7 @@ export const metadata = createHelvetyProductMetadata({
     "free tools",
     "pdf",
     "image upscaler",
+    "image editor",
     "tasks",
     "contacts",
     "notes",

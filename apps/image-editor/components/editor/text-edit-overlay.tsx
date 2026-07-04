@@ -11,7 +11,7 @@ import type { CropRect, TextElement } from "@/lib/editor-types";
 interface TextEditOverlayProps {
   readonly element: TextElement;
   readonly crop: CropRect;
-  readonly fitScale: number;
+  readonly displayScale: number;
   readonly onCommit: (text: string) => void;
   readonly onCancel: () => void;
 }
@@ -20,7 +20,7 @@ interface TextEditOverlayProps {
 export function TextEditOverlay({
   element,
   crop,
-  fitScale,
+  displayScale,
   onCommit,
   onCancel,
 }: TextEditOverlayProps): React.JSX.Element {
@@ -40,9 +40,9 @@ export function TextEditOverlay({
       className="border-primary bg-background text-foreground absolute z-10 resize-none rounded border px-2 py-1 shadow-sm outline-none"
       defaultValue={element.text}
       style={{
-        left: stagePos.x * fitScale,
-        top: stagePos.y * fitScale,
-        fontSize: element.fontSize * fitScale,
+        left: stagePos.x * displayScale,
+        top: stagePos.y * displayScale,
+        fontSize: element.fontSize * displayScale,
         minWidth: 120,
         minHeight: 32,
       }}

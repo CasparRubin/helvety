@@ -24,6 +24,8 @@ export const metadata = createHelvetyProductMetadata({
     "crop image",
     "blur image",
     "highlight image",
+    "zoom image",
+    "image layers",
     "browser image editor",
     "client-side image editor",
     "privacy image tool",

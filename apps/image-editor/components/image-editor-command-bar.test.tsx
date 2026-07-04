@@ -13,6 +13,8 @@ function renderCommandBar(
       activeTool="select"
       isExporting={false}
       canApplyCrop={false}
+      toolColor="#ef4444"
+      userZoom={1}
       onOpenImage={vi.fn()}
       onReplaceImage={vi.fn()}
       onSetTool={vi.fn()}
@@ -21,6 +23,10 @@ function renderCommandBar(
       onApplyCrop={vi.fn()}
       onResetCrop={vi.fn()}
       onOpenLayers={vi.fn()}
+      onToolColorChange={vi.fn()}
+      onZoomIn={vi.fn()}
+      onZoomOut={vi.fn()}
+      onFitToView={vi.fn()}
       {...overrides}
     />
   );
@@ -107,5 +113,53 @@ describe("ImageEditorCommandBar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Layers" }));
     expect(onOpenLayers).toHaveBeenCalledTimes(1);
+  });
+
+  it("wires highlight tool selection", () => {
+    const onSetTool = vi.fn();
+    renderCommandBar({ hasImage: true, onSetTool });
+
+    fireEvent.click(screen.getByRole("button", { name: "Highlight" }));
+
+    expect(onSetTool).toHaveBeenCalledWith("highlight");
+  });
+
+  it("shows zoom controls and wires zoom callbacks when an image is loaded", () => {
+    const onZoomIn = vi.fn();
+    const onZoomOut = vi.fn();
+    const onFitToView = vi.fn();
+
+    renderCommandBar({
+      hasImage: true,
+      userZoom: 1.5,
+      onZoomIn,
+      onZoomOut,
+      onFitToView,
+    });
+
+    expect(screen.getByText("150%")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zoom out" }));
+    fireEvent.click(screen.getByRole("button", { name: "Fit to view" }));
+
+    expect(onZoomIn).toHaveBeenCalledTimes(1);
+    expect(onZoomOut).toHaveBeenCalledTimes(1);
+    expect(onFitToView).toHaveBeenCalledTimes(1);
+  });
+
+  it("wires the global tool color picker", () => {
+    const onToolColorChange = vi.fn();
+    renderCommandBar({
+      hasImage: true,
+      toolColor: "#112233",
+      onToolColorChange,
+    });
+
+    fireEvent.change(screen.getByLabelText("Tool color"), {
+      target: { value: "#aabbcc" },
+    });
+
+    expect(onToolColorChange).toHaveBeenCalledWith("#aabbcc");
   });
 });

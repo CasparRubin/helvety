@@ -24,12 +24,14 @@ import {
   clampOutputDimensions,
   getCanvasExportLimitsCached,
 } from "@/lib/canvas-export-limits";
+import { DEFAULT_STROKE } from "@/lib/editor-types";
 import { exportEditedImage } from "@/lib/export-image";
 import {
   createDownloadName,
   imageValidationMessage,
   validateImageFile,
 } from "@/lib/image-validation";
+import { clampUserZoom, USER_ZOOM_STEP } from "@/lib/stage-zoom";
 
 import type { CropRect, ExportFormat } from "@/lib/editor-types";
 
@@ -43,12 +45,24 @@ export function HelvetyImageEditor(): React.JSX.Element {
   const [isExporting, setIsExporting] = React.useState(false);
   const [layersOpen, setLayersOpen] = React.useState(false);
   const [pendingCrop, setPendingCrop] = React.useState<CropRect | null>(null);
+  const [userZoom, setUserZoom] = React.useState(1);
+  const [toolColor, setToolColor] = React.useState(DEFAULT_STROKE);
 
   const logicalWidth = source ? (state.crop?.width ?? source.naturalWidth) : 0;
   const logicalHeight = source
     ? (state.crop?.height ?? source.naturalHeight)
     : 0;
   const fitScale = useStageFit(canvasContainerRef, logicalWidth, logicalHeight);
+  const displayScale = fitScale * userZoom;
+
+  const resetCanvasView = React.useCallback(() => {
+    setUserZoom(1);
+    const container = canvasContainerRef.current;
+    if (container) {
+      container.scrollTop = 0;
+      container.scrollLeft = 0;
+    }
+  }, []);
 
   const openFilePicker = React.useCallback(() => {
     fileInputRef.current?.click();
@@ -70,6 +84,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
       try {
         resetAnnotations();
         setPendingCrop(null);
+        setUserZoom(1);
         await loadFile(file);
       } catch {
         toast.error("Could not load that image.", {
@@ -92,6 +107,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
   const handleReplaceImage = React.useCallback(() => {
     resetAnnotations();
     setPendingCrop(null);
+    setUserZoom(1);
     clear();
     openFilePicker();
   }, [clear, openFilePicker, resetAnnotations]);
@@ -138,12 +154,21 @@ export function HelvetyImageEditor(): React.JSX.Element {
     if (!pendingCrop) return;
     setCrop(pendingCrop);
     setTool("select");
-  }, [pendingCrop, setCrop, setTool]);
+    resetCanvasView();
+  }, [pendingCrop, resetCanvasView, setCrop, setTool]);
 
   const handleResetCrop = React.useCallback(() => {
     setCrop(null);
     setPendingCrop(null);
   }, [setCrop]);
+
+  const handleZoomIn = React.useCallback(() => {
+    setUserZoom((current) => clampUserZoom(current + USER_ZOOM_STEP));
+  }, []);
+
+  const handleZoomOut = React.useCallback(() => {
+    setUserZoom((current) => clampUserZoom(current - USER_ZOOM_STEP));
+  }, []);
 
   useEditorKeyboard({
     enabled: Boolean(source),
@@ -174,6 +199,31 @@ export function HelvetyImageEditor(): React.JSX.Element {
     }
   }, [state.activeTool, state.crop, source, pendingCrop]);
 
+  React.useEffect(() => {
+    if (!source) return;
+    requestAnimationFrame(() => {
+      resetCanvasView();
+    });
+  }, [source, logicalWidth, logicalHeight, resetCanvasView]);
+
+  React.useEffect(() => {
+    const container = canvasContainerRef.current;
+    if (!container || !source) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      setUserZoom((current) =>
+        clampUserZoom(
+          current + (event.deltaY < 0 ? USER_ZOOM_STEP : -USER_ZOOM_STEP)
+        )
+      );
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [source]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <input
@@ -193,6 +243,8 @@ export function HelvetyImageEditor(): React.JSX.Element {
         activeTool={state.activeTool}
         isExporting={isExporting}
         canApplyCrop={Boolean(pendingCrop)}
+        toolColor={toolColor}
+        userZoom={userZoom}
         onOpenImage={openFilePicker}
         onReplaceImage={handleReplaceImage}
         onSetTool={setTool}
@@ -201,72 +253,94 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onApplyCrop={handleApplyCrop}
         onResetCrop={handleResetCrop}
         onOpenLayers={() => setLayersOpen(true)}
+        onToolColorChange={setToolColor}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onFitToView={resetCanvasView}
       />
 
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        {source ? (
-          <LayersPanel
-            className="hidden lg:flex"
-            elements={state.elements}
-            selectedId={state.selectedId}
-            onSelect={select}
-            onDelete={(id) => dispatch({ type: "DELETE_ELEMENT", id })}
-            onReorder={(id, direction) =>
-              dispatch({ type: "REORDER_ELEMENT", id, direction })
-            }
-            onUpdate={(id, patch) =>
-              dispatch({ type: "UPDATE_ELEMENT", id, patch })
-            }
-          />
-        ) : null}
-
-        <section
+      <div
+        className={cn(
+          "min-h-0 flex-1 overflow-hidden",
+          "flex flex-col gap-4 lg:flex-row",
+          "py-4"
+        )}
+        onDragEnter={dragDrop.handleDragEnter}
+        onDragOver={dragDrop.handleDragOver}
+        onDragLeave={dragDrop.handleDragLeave}
+        onDrop={(event) => dragDrop.handleDrop(event, handleDropWithFiles)}
+      >
+        <div
           className={cn(
-            "bg-muted/30 border-border/50 min-h-0 flex-1 overflow-auto border-t lg:border-t-0",
-            dragDrop.isDragging && "border-primary bg-primary/5"
+            "flex w-full flex-1 flex-col",
+            "h-full max-h-full min-h-0",
+            "relative"
           )}
-          onDragEnter={dragDrop.handleDragEnter}
-          onDragOver={dragDrop.handleDragOver}
-          onDragLeave={dragDrop.handleDragLeave}
-          onDrop={(event) => dragDrop.handleDrop(event, handleDropWithFiles)}
         >
-          {source ? (
-            <div
-              ref={canvasContainerRef}
-              className="flex h-full min-h-[320px] items-center justify-center p-4"
-            >
-              <EditorCanvas
-                sourceImage={source.image}
-                imageWidth={source.naturalWidth}
-                imageHeight={source.naturalHeight}
-                state={state}
-                dispatch={dispatch}
-                fitScale={fitScale}
-                pendingCrop={pendingCrop}
-                onCropDraftChange={setPendingCrop}
-              />
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="flex h-full min-h-[320px] w-full flex-col items-center justify-center px-6 py-12 text-center"
-              onClick={openFilePicker}
-            >
-              <UploadIcon className="text-muted-foreground mb-3 size-10" />
-              <p className="text-sm font-medium">Drag and drop an image here</p>
-              <p className="text-muted-foreground mt-1 text-xs">
-                Processed locally in your browser. No server upload. No account.
-              </p>
-              <p className="text-muted-foreground text-xs">
-                PNG, JPEG, or WebP up to 25 MB.
-              </p>
-            </button>
-          )}
-        </section>
+          <div
+            ref={canvasContainerRef}
+            className={cn(
+              "bg-muted/30 border-border/50 flex min-h-0 flex-1 flex-col overflow-auto border p-6",
+              dragDrop.isDragging && "border-primary bg-primary/5"
+            )}
+          >
+            {source ? (
+              <div className="flex min-h-full min-w-full items-start justify-start">
+                <EditorCanvas
+                  sourceImage={source.image}
+                  imageWidth={source.naturalWidth}
+                  imageHeight={source.naturalHeight}
+                  state={state}
+                  dispatch={dispatch}
+                  displayScale={displayScale}
+                  toolColor={toolColor}
+                  pendingCrop={pendingCrop}
+                  onCropDraftChange={setPendingCrop}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="flex min-h-full w-full flex-col items-center justify-center px-6 py-12 text-center"
+                onClick={openFilePicker}
+              >
+                <UploadIcon className="text-muted-foreground mb-3 size-10" />
+                <p className="text-sm font-medium">
+                  Drag and drop an image here
+                </p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Processed locally in your browser. No server upload. No
+                  account.
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  PNG, JPEG, or WebP up to 25 MB.
+                </p>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {source ? (
+          <aside className="hidden w-[320px] flex-shrink-0 lg:block">
+            <LayersPanel
+              className="h-full"
+              elements={state.elements}
+              selectedId={state.selectedId}
+              onSelect={select}
+              onDelete={(id) => dispatch({ type: "DELETE_ELEMENT", id })}
+              onReorder={(id, direction) =>
+                dispatch({ type: "REORDER_ELEMENT", id, direction })
+              }
+              onUpdate={(id, patch) =>
+                dispatch({ type: "UPDATE_ELEMENT", id, patch })
+              }
+            />
+          </aside>
+        ) : null}
       </div>
 
       <Sheet open={layersOpen} onOpenChange={setLayersOpen}>
-        <SheetContent side="left" className="w-[320px] p-0">
+        <SheetContent side="right" className="w-[320px] p-0">
           <SheetHeader className="sr-only">
             <SheetTitle>Layers</SheetTitle>
           </SheetHeader>

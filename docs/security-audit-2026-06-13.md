@@ -35,7 +35,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ---
 
-## Vercel (team Helvety, 9 zone projects)
+## Vercel (team Helvety, 9 zone projects — historical; **10 zones** as of Image Editor launch, see [Subsequent updates](#subsequent-updates-2026-06-17))
 
 | Check          | Result                                                                                                                                                                                                           |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -346,3 +346,138 @@ bun run consistency:vercel-preview-env
 bun run consistency:supabase-rls
 cd ../helvety-browser-extension-chromium && pnpm run ci:check
 ```
+
+## Full auth / E2EE / session re-audit (2026-07-04, plan execution)
+
+**Scope:** Both repos (`helvety` monorepo + `helvety-browser-extension-chromium`), automated guardrails, production curl spot-checks, targeted auth/E2EE/session code review. Live Supabase MCP not used (no local `supabase/supabase.json` export).
+
+**Verdict:** **No Critical or High findings.** Defense-in-depth intact; no regressions vs the earlier 2026-07-04 pass in this document.
+
+### Automated checks (this pass)
+
+| Check                                            | Result                                                                                                                                                                     |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run ci:check` (monorepo)                    | **OK** (~2m53s; includes `consistency:supabase-auth`, `consistency:e2ee-aad`, `consistency:auth-action-guards`, `consistency:extension-auth`, `consistency:customer-copy`) |
+| `bun run deps:security` (`floors` + `bun audit`) | **OK** (0 vulnerabilities)                                                                                                                                                 |
+| `bun run consistency:vercel-prod-env`            | **OK** (10 zone projects)                                                                                                                                                  |
+| `bun run consistency:vercel-preview-env`         | **OK**                                                                                                                                                                     |
+| `bun run consistency:supabase-rls`               | **SKIPPED** — no local `supabase/supabase.json` (generate via `supabase/getSupabase.sql` to verify RLS locally)                                                            |
+| `bun run consistency:local-env`                  | **OK** (10 missing `.env.local` warnings — expected when zones are not run locally)                                                                                        |
+| `pnpm run ci:check` (extension)                  | **OK** (258 tests + `consistency:extension-auth`)                                                                                                                          |
+
+### Production spot-checks (curl against helvety.com)
+
+| Endpoint                                                             | Expected         | Observed                                           |
+| -------------------------------------------------------------------- | ---------------- | -------------------------------------------------- |
+| `POST /auth/api/extension/passkey/verify` (no Bearer)                | 401 JSON         | **401** `Not authenticated`                        |
+| `POST /auth/api/extension/passkey/options` (no Bearer)               | 401 JSON         | **401** `Not authenticated`                        |
+| `POST /auth/api/extension/passkey/options` (Bearer, no weekly proof) | 401 weekly proof | **401** `Weekly email verification expired…`       |
+| `POST /auth/api/extension/otp/send` (no origin)                      | 400 JSON         | **400** `Invalid request body`                     |
+| `GET /store/api/packages/spfx%2F..%2F..%2Fetc%2Fpasswd/download`     | 400              | **400** `Invalid package ID`                       |
+| `GET /tasks/api/items` (unauthenticated)                             | Auth error JSON  | **200** body `AUTH_REQUIRED:Auth session missing!` |
+| `GET /auth/login`, `GET /tasks`                                      | 200              | **200**                                            |
+
+### Code review highlights (no regressions)
+
+**Auth & sessions**
+
+- E2EE zone pages use `requireE2eeAppPageAuth` with `requireDeviceTrust: true` (`apps/{tasks,contacts,notes,links}/app/page.tsx`).
+- Server actions use `authenticateAndRateLimit`; E2EE prefixes default `requireDeviceTrust` (`packages/shared/src/action-helpers.ts`).
+- Monorepo authorization uses `getUser()` only; `getSession()` appears only in extension code **after** JWT validation (`extension-session.ts`) and in proxy comments — not for server authz.
+- `createAdminClient()` call sites match approved list in `packages/shared/src/supabase/admin.ts` (auth OTP/passkey, user lookup, store downloads). Vault zones do not import admin client (`zone-admin-client-wiring.test.ts`).
+- Extension Bearer routes: `authenticateBearerRequest` requires JWT + `X-Helvety-Weekly-Proof` HMAC (`extension-bearer-auth.ts`; production curl confirms weekly-proof gate).
+- Logout: CSRF enforced, optional global revoke, device-trust cookie cleared (`logout-actions.ts`).
+
+**E2EE & crypto**
+
+- All vault app encryption modules use `encryptEntityField` / v2 field-bound AAD (enforced by `consistency:e2ee-aad`).
+- Extension writes use `encryptEntityField` (`encrypt-entities.ts`); privacy guards block plaintext column names (`e2ee-privacy.ts`, tests).
+- Passkey unlock strips `clientExtensionResults` from verify JSON body; PRF derived locally (`passkey-unlock.ts`; `passkey-unlock.test.ts`).
+- KCV wrong-key detection before writes; vault idle/max policy via `vault-session.ts`, `key-storage.ts`, `useVaultIdleLock`.
+- Prefetch API routes use explicit ciphertext columns + `authenticateAndRateLimit` with E2EE device-trust default (`apps/*/app/api/**/route.ts`).
+
+**Extension session wipe**
+
+- Sign-out and `user_id` change call `deleteMasterKey` + `clearDecryptedEntityState` (`src/popup/App.tsx`).
+
+### Interactive smoke (manual)
+
+**Not executed in this pass** — requires a real Helvety account, email OTP inbox, and WebAuthn passkey on operator hardware.
+
+**Automated coverage used as substitute:**
+
+| Scenario                                               | Automated coverage                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| Extension session bootstrap (`getUser` + weekly proof) | `extension-session.test.ts`                                                     |
+| Bearer weekly-proof gate                               | `extension-bearer-auth.test.ts` + production curl                               |
+| PRF omitted from verify body                           | `passkey-unlock.test.ts`, `helvety-auth-api.test.ts`                            |
+| Plaintext column guardrails                            | `e2ee-privacy.test.ts`, `e2ee-data-select.test.ts`, `entity-repository.test.ts` |
+| Logout CSRF + device trust clear                       | `logout-actions.test.ts`                                                        |
+| E2EE page device trust                                 | `auth-guard.test.ts`, `e2ee-page-auth.test.ts`                                  |
+
+**Quarterly manual checklist** (unchanged): web sign-in → passkey unlock → mutate → logout; extension OTP → weekly proof → passkey → PostgREST write; confirm Vercel Analytics disabled on all 10 projects.
+
+### Findings by severity
+
+| Severity     | Finding                                                                           | Action                                                           |
+| ------------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **Critical** | —                                                                                 | None                                                             |
+| **High**     | —                                                                                 | None                                                             |
+| **Medium**   | Legacy v1 ciphertext on subset of rows (per prior live DB sample)                 | Re-encrypt on next user edit                                     |
+| **Medium**   | Supabase Free: hosted session time-box / inactivity not configurable in Dashboard | App-layer vault + device trust compensate; align on Pro upgrade  |
+| **Medium**   | Structural metadata plaintext                                                     | By design                                                        |
+| **Low**      | `consistency:supabase-rls` skipped (no local export)                              | Regenerate `supabase/supabase.json` locally after schema changes |
+| **Low**      | No local `.env.local` files (10 zones)                                            | Copy from `env.template` only if developing zones locally        |
+| **Low**      | Interactive passkey/OTP smoke not run                                             | Operator quarterly checklist above                               |
+| **Low**      | `helvety-com` Node 22.x vs zone apps 24.x                                         | Align when convenient                                            |
+| **Low**      | Vercel Analytics / Speed Insights                                                 | Confirm disabled on all 10 projects (manual Dashboard)           |
+| **N/A**      | `auth_leaked_password_protection` advisor WARN                                    | No password auth; Free tier                                      |
+
+### Deltas vs earlier 2026-07-04 pass (same document)
+
+| Item                    | Earlier pass | This pass                                  |
+| ----------------------- | ------------ | ------------------------------------------ |
+| `ci:check`              | OK           | **OK** (re-confirmed)                      |
+| `deps:security`         | 0 CVEs       | **0 CVEs**                                 |
+| Vercel prod/preview env | OK           | **OK**                                     |
+| Extension `ci:check`    | 265 tests    | **258 tests** (all pass; count drift only) |
+| Live Supabase MCP       | Used         | **Not used** (RLS check skipped locally)   |
+| Production curl         | OK           | **OK** (weekly-proof gate re-verified)     |
+| Critical/High findings  | None         | **None**                                   |
+
+### Customer-facing copy guardrails (Phase 5)
+
+| Check                                                          | Result                                                   |
+| -------------------------------------------------------------- | -------------------------------------------------------- |
+| `consistency:customer-copy` (no em-dashes in user-facing copy) | **OK** (re-run this pass)                                |
+| Extension `tests/security-e2ee-docs.test.ts`                   | **OK** (15 tests in security-e2ee + copy-accuracy suite) |
+| Extension `tests/copy-accuracy.test.ts`                        | **OK**                                                   |
+| `auth-extension-copy-guardrails` (in monorepo `ci:check`)      | **OK** (July pass; included in full `ci:check` re-run)   |
+
+No misleading E2EE or extension weekly-re-auth claims detected by automated guardrails.
+
+### Stack / best-practices alignment (this pass)
+
+Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins and current guardrails — no drift, no auth-pattern regressions.
+
+| Area                  | Pin / pattern                                                                                | Status                                                                |
+| --------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Next.js**           | `^16.2.10`; `proxy.ts` edge (no `middleware.ts` in zone apps)                                | **Aligned** — session refresh at proxy; RSC/actions are auth boundary |
+| **Supabase SSR**      | `@supabase/ssr` `^0.12.0`; `getClaims()` at proxy, `getUser()` for authz                     | **Aligned** — `consistency:supabase-auth` passed                      |
+| **Supabase JS**       | `2.110.0` (floor + override)                                                                 | **Aligned** — `deps:drift` + `deps:security` passed                   |
+| **React**             | `^19.2.7`; E2EE pages auth-gated in Server Components                                        | **Aligned**                                                           |
+| **Vercel**            | `failClosedOnAuthRefresh` on auth gateway; prod/preview env audits                           | **Aligned**                                                           |
+| **Session mutations** | `createServerMutatingClient` for OTP/callback/logout; read client no-ops after proxy refresh | **Aligned**                                                           |
+| **E2EE**              | v2 field-bound AAD; PRF → HKDF; device trust + weekly proof HMAC                             | **Aligned**                                                           |
+
+### Plan phase completeness
+
+| Phase                  | Status       | Notes                                                                                                                                                                                                           |
+| ---------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 Automated guardrails | **Complete** | Both repos; all auth/E2EE scripts re-confirmed                                                                                                                                                                  |
+| 2 Live infra           | **Partial**  | Vercel + production curl OK; Supabase MCP/RLS export **not** re-run (no local `supabase.json`); v1/v2 ciphertext sample **not** re-queried (prior July sample still valid backlog); Vercel Analytics **manual** |
+| 3 Code review          | **Complete** | Auth, E2EE, extension surfaces reviewed                                                                                                                                                                         |
+| 4 Interactive smoke    | **Deferred** | Requires operator passkey/OTP; automated substitutes documented                                                                                                                                                 |
+| 5 Findings report      | **Complete** | This section + tables above                                                                                                                                                                                     |
+
+**Nothing broken:** audit execution was read-only (doc append + verification commands). No application code or dependency changes were made during this pass.

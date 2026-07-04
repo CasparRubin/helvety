@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Arrow,
   Image as KonvaImage,
   Layer,
   Rect,
@@ -26,6 +25,8 @@ import {
   BlurNode,
   BorderNode,
   HighlightNode,
+  SpotlightRects,
+  TaperedArrowPreview,
   TextNode,
 } from "./element-nodes";
 import { TextEditOverlay } from "./text-edit-overlay";
@@ -54,7 +55,8 @@ interface EditorStageProps {
   readonly imageHeight: number;
   readonly state: EditorState;
   readonly dispatch: (action: EditorAction) => void;
-  readonly fitScale: number;
+  readonly displayScale: number;
+  readonly toolColor: string;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }
@@ -66,7 +68,8 @@ export function EditorStage({
   imageHeight,
   state,
   dispatch,
-  fitScale,
+  displayScale,
+  toolColor,
   pendingCrop,
   onCropDraftChange,
 }: EditorStageProps): React.JSX.Element {
@@ -170,7 +173,8 @@ export function EditorStage({
             preview.x,
             preview.y,
             preview.width,
-            preview.height
+            preview.height,
+            toolColor
           );
           break;
         case "highlight":
@@ -198,7 +202,7 @@ export function EditorStage({
         dispatch({ type: "SET_TOOL", tool: "select" });
       }
     },
-    [dispatch, onCropDraftChange, state.activeTool]
+    [dispatch, onCropDraftChange, state.activeTool, toolColor]
   );
 
   const handleStageMouseDown = useCallback(() => {
@@ -206,7 +210,7 @@ export function EditorStage({
     if (!pointer) return;
 
     if (state.activeTool === "text") {
-      const element = createTextElement(pointer.x, pointer.y);
+      const element = createTextElement(pointer.x, pointer.y, toolColor);
       dispatch({ type: "ADD_ELEMENT", element });
       dispatch({ type: "SET_TOOL", tool: "select" });
       setEditingTextId(element.id);
@@ -243,7 +247,7 @@ export function EditorStage({
         height: 0,
       });
     }
-  }, [dispatch, getImagePointer, state.activeTool]);
+  }, [dispatch, getImagePointer, state.activeTool, toolColor]);
 
   const handleStageMouseMove = useCallback(() => {
     if (!drawStart) return;
@@ -287,7 +291,8 @@ export function EditorStage({
             drawStart.x,
             drawStart.y,
             pointer.x,
-            pointer.y
+            pointer.y,
+            toolColor
           );
           dispatch({ type: "ADD_ELEMENT", element });
           dispatch({ type: "SET_TOOL", tool: "select" });
@@ -308,6 +313,7 @@ export function EditorStage({
     finishRectDraw,
     getImagePointer,
     state.activeTool,
+    toolColor,
   ]);
 
   const updateElement = useCallback(
@@ -335,11 +341,11 @@ export function EditorStage({
         ref={stageRef}
         width={stageWidth}
         height={stageHeight}
-        scaleX={fitScale}
-        scaleY={fitScale}
+        scaleX={displayScale}
+        scaleY={displayScale}
         style={{
-          width: stageWidth * fitScale,
-          height: stageHeight * fitScale,
+          width: stageWidth * displayScale,
+          height: stageHeight * displayScale,
         }}
         onMouseDown={handleStageMouseDown}
         onMousemove={handleStageMouseMove}
@@ -451,26 +457,19 @@ export function EditorStage({
               y={drawPreview.y - crop.y}
               width={drawPreview.width}
               height={drawPreview.height}
-              stroke="#3b82f6"
+              stroke={state.activeTool === "border" ? toolColor : "#3b82f6"}
               dash={[6, 4]}
               listening={false}
             />
           ) : null}
 
           {drawPreview && state.activeTool === "arrow" ? (
-            <Arrow
-              points={[
-                drawPreview.x - crop.x,
-                drawPreview.y - crop.y,
-                drawPreview.x - crop.x + drawPreview.width,
-                drawPreview.y - crop.y + drawPreview.height,
-              ]}
-              stroke="#3b82f6"
-              strokeWidth={2}
-              fill="#3b82f6"
-              pointerLength={10}
-              pointerWidth={10}
-              listening={false}
+            <TaperedArrowPreview
+              x1={drawPreview.x - crop.x}
+              y1={drawPreview.y - crop.y}
+              x2={drawPreview.x - crop.x + drawPreview.width}
+              y2={drawPreview.y - crop.y + drawPreview.height}
+              color={toolColor}
             />
           ) : null}
 
@@ -503,7 +502,7 @@ export function EditorStage({
         <TextEditOverlay
           element={editingText}
           crop={crop}
-          fitScale={fitScale}
+          displayScale={displayScale}
           onCommit={(text) => {
             updateElement(editingText.id, { text });
             setEditingTextId(null);
@@ -532,23 +531,14 @@ function GroupCropOverlay({
 
   return (
     <>
-      <Rect
-        x={0}
-        y={0}
-        width={stageWidth}
-        height={stageHeight}
-        fill="black"
+      <SpotlightRects
+        holeX={x}
+        holeY={y}
+        holeWidth={cropRect.width}
+        holeHeight={cropRect.height}
+        stageWidth={stageWidth}
+        stageHeight={stageHeight}
         opacity={0.45}
-        listening={false}
-      />
-      <Rect
-        x={x}
-        y={y}
-        width={cropRect.width}
-        height={cropRect.height}
-        fill="white"
-        globalCompositeOperation="destination-out"
-        listening={false}
       />
       <Rect
         x={x}

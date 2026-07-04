@@ -31,6 +31,8 @@ export const metadata = createHelvetyProductMetadata({
     "links",
     "PDF tools",
     "image upscaler",
+    "image editor",
+    "image annotation",
     "end-to-end encryption",
     "privacy",
     "Switzerland",

@@ -56,6 +56,37 @@ describe("auth extension OTP send route", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns allowlist deployment hint when body is invalid but origin is chrome-extension", async () => {
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/otp/send", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ origin: ALLOWED_ORIGIN }),
+      })
+    );
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: expect.stringContaining("HELVETY_CHROME_EXTENSION_ORIGINS"),
+    });
+    expect(mocks.sendExtensionOtp).not.toHaveBeenCalled();
+  });
+
+  it("returns generic invalid body when origin is not chrome-extension", async () => {
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/otp/send", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: "not-an-email" }),
+      })
+    );
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Invalid request body",
+    });
+  });
+
   it("returns 503 when trusted client IP is unavailable", async () => {
     mocks.getTrustedClientIp.mockReturnValue(null);
     const response = await POST(

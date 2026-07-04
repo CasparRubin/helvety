@@ -19,22 +19,31 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
+import { Input } from "@helvety/ui/input";
+import { Label } from "@helvety/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
   CropIcon,
   DownloadIcon,
   EllipsisVerticalIcon,
-  LayersIcon,
-  MousePointer2Icon,
-  SquareIcon,
   EyeOffIcon,
-  SparklesIcon,
+  FocusIcon,
+  LayersIcon,
+  Maximize2Icon,
+  MousePointer2Icon,
+  SlidersHorizontalIcon,
+  SquareIcon,
   Trash2Icon,
   TypeIcon,
   UploadIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
 } from "lucide-react";
 import * as React from "react";
+
+import { formatUserZoomPercent } from "@/lib/stage-zoom";
 
 import type { EditorTool, ExportFormat } from "@/lib/editor-types";
 
@@ -44,6 +53,8 @@ interface ImageEditorCommandBarProps {
   readonly activeTool: EditorTool;
   readonly isExporting: boolean;
   readonly canApplyCrop: boolean;
+  readonly toolColor: string;
+  readonly userZoom: number;
   readonly onOpenImage: () => void;
   readonly onReplaceImage: () => void;
   readonly onSetTool: (tool: EditorTool) => void;
@@ -52,6 +63,10 @@ interface ImageEditorCommandBarProps {
   readonly onApplyCrop: () => void;
   readonly onResetCrop: () => void;
   readonly onOpenLayers: () => void;
+  readonly onToolColorChange: (color: string) => void;
+  readonly onZoomIn: () => void;
+  readonly onZoomOut: () => void;
+  readonly onFitToView: () => void;
 }
 
 const TOOL_BUTTONS: Array<{
@@ -63,10 +78,88 @@ const TOOL_BUTTONS: Array<{
   { tool: "text", label: "Text", icon: TypeIcon },
   { tool: "arrow", label: "Arrow", icon: ArrowUpRightIcon },
   { tool: "border", label: "Border", icon: SquareIcon },
-  { tool: "highlight", label: "Highlight", icon: SparklesIcon },
+  { tool: "highlight", label: "Highlight", icon: FocusIcon },
   { tool: "blur", label: "Blur", icon: EyeOffIcon },
   { tool: "crop", label: "Crop", icon: CropIcon },
 ];
+
+/** Desktop color picker for the active drawing tool. */
+function ToolColorPicker({
+  toolColor,
+  onToolColorChange,
+  className,
+}: {
+  readonly toolColor: string;
+  readonly onToolColorChange: (color: string) => void;
+  readonly className?: string;
+}): React.JSX.Element {
+  return (
+    <div className={className}>
+      <Label htmlFor="tool-color" className="sr-only">
+        Tool color
+      </Label>
+      <Input
+        id="tool-color"
+        type="color"
+        value={toolColor}
+        onChange={(event) => onToolColorChange(event.target.value)}
+        className="h-8 w-10 cursor-pointer p-0.5"
+        aria-label="Tool color"
+      />
+    </div>
+  );
+}
+
+/** Desktop zoom controls. */
+function ZoomControls({
+  userZoom,
+  onZoomIn,
+  onZoomOut,
+  onFitToView,
+  className,
+}: {
+  readonly userZoom: number;
+  readonly onZoomIn: () => void;
+  readonly onZoomOut: () => void;
+  readonly onFitToView: () => void;
+  readonly className?: string;
+}): React.JSX.Element {
+  return (
+    <div className={className}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        onClick={onZoomOut}
+        aria-label="Zoom out"
+      >
+        <ZoomOutIcon className="size-4" />
+      </Button>
+      <span className="text-muted-foreground min-w-[3rem] text-center text-xs tabular-nums">
+        {formatUserZoomPercent(userZoom)}
+      </span>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        onClick={onZoomIn}
+        aria-label="Zoom in"
+      >
+        <ZoomInIcon className="size-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={onFitToView}
+        aria-label="Fit to view"
+      >
+        <Maximize2Icon className="size-4" />
+        <span className="sr-only min-[500px]:not-sr-only">Fit</span>
+      </Button>
+    </div>
+  );
+}
 
 /** Toolbar: tool buttons, crop actions, export, clear, and mobile layers. */
 export function ImageEditorCommandBar({
@@ -74,6 +167,8 @@ export function ImageEditorCommandBar({
   activeTool,
   isExporting,
   canApplyCrop,
+  toolColor,
+  userZoom,
   onOpenImage,
   onReplaceImage,
   onSetTool,
@@ -82,6 +177,10 @@ export function ImageEditorCommandBar({
   onApplyCrop,
   onResetCrop,
   onOpenLayers,
+  onToolColorChange,
+  onZoomIn,
+  onZoomOut,
+  onFitToView,
 }: ImageEditorCommandBarProps): React.JSX.Element {
   const [showClearDialog, setShowClearDialog] = React.useState(false);
 
@@ -121,6 +220,12 @@ export function ImageEditorCommandBar({
               );
             })}
 
+            <ToolColorPicker
+              toolColor={toolColor}
+              onToolColorChange={onToolColorChange}
+              className="hidden md:block"
+            />
+
             {activeTool === "crop" ? (
               <>
                 <Button
@@ -149,6 +254,14 @@ export function ImageEditorCommandBar({
 
         {hasImage ? (
           <>
+            <ZoomControls
+              userZoom={userZoom}
+              onZoomIn={onZoomIn}
+              onZoomOut={onZoomOut}
+              onFitToView={onFitToView}
+              className="hidden items-center gap-1 md:flex"
+            />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button type="button" size="sm" disabled={isExporting}>
@@ -179,6 +292,68 @@ export function ImageEditorCommandBar({
               <LayersIcon className="size-4" />
               <span className="sr-only">Layers</span>
             </Button>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="md:hidden"
+                  aria-label="View settings"
+                >
+                  <SlidersHorizontalIcon className="size-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-64 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="mobile-tool-color">Tool color</Label>
+                  <Input
+                    id="mobile-tool-color"
+                    type="color"
+                    value={toolColor}
+                    onChange={(event) => onToolColorChange(event.target.value)}
+                    className="h-9 w-full cursor-pointer"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Zoom</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-sm"
+                      onClick={onZoomOut}
+                      aria-label="Zoom out"
+                    >
+                      <ZoomOutIcon className="size-4" />
+                    </Button>
+                    <span className="text-muted-foreground flex-1 text-center text-sm tabular-nums">
+                      {formatUserZoomPercent(userZoom)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-sm"
+                      onClick={onZoomIn}
+                      aria-label="Zoom in"
+                    >
+                      <ZoomInIcon className="size-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={onFitToView}
+                  >
+                    <Maximize2Icon className="size-4" />
+                    Fit to view
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
 
             <AlertDialog
               open={showClearDialog}

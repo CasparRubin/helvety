@@ -1,5 +1,8 @@
 import Konva from "konva";
 
+import { buildSpotlightRects } from "./spotlight-rects";
+import { drawTaperedArrowPath } from "./tapered-arrow";
+
 import type {
   CropRect,
   EditorElement,
@@ -50,7 +53,7 @@ function addBlurNode(
   layer.add(node);
 }
 
-/** Adds a full-stage dim with a punched-out spotlight hole to the export layer. */
+/** Adds dim strips outside a spotlight hole to the export layer. */
 function addHighlightNode(
   layer: Konva.Layer,
   element: Extract<EditorElement, { type: "highlight" }>,
@@ -58,27 +61,31 @@ function addHighlightNode(
   stageWidth: number,
   stageHeight: number
 ): void {
+  const holeX = element.x - crop.x;
+  const holeY = element.y - crop.y;
   const group = new Konva.Group({ listening: false });
-  group.add(
-    new Konva.Rect({
-      x: 0,
-      y: 0,
-      width: stageWidth,
-      height: stageHeight,
-      fill: "black",
-      opacity: element.dimOpacity,
-    })
-  );
-  group.add(
-    new Konva.Rect({
-      x: element.x - crop.x,
-      y: element.y - crop.y,
-      width: element.width,
-      height: element.height,
-      fill: "white",
-      globalCompositeOperation: "destination-out",
-    })
-  );
+
+  for (const rect of buildSpotlightRects(
+    holeX,
+    holeY,
+    element.width,
+    element.height,
+    stageWidth,
+    stageHeight
+  )) {
+    group.add(
+      new Konva.Rect({
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        fill: "black",
+        opacity: element.dimOpacity,
+        listening: false,
+      })
+    );
+  }
+
   layer.add(group);
 }
 
@@ -111,21 +118,31 @@ function addElementToLayer(
         })
       );
       break;
-    case "arrow":
+    case "arrow": {
+      const [x1, y1, x2, y2] = element.points;
+      const sx1 = x1 - crop.x;
+      const sy1 = y1 - crop.y;
+      const sx2 = x2 - crop.x;
+      const sy2 = y2 - crop.y;
       layer.add(
-        new Konva.Arrow({
-          points: element.points.map((value, index) =>
-            index % 2 === 0 ? value - crop.x : value - crop.y
-          ),
-          stroke: element.stroke,
-          strokeWidth: element.strokeWidth,
+        new Konva.Shape({
+          sceneFunc: (context, shape) => {
+            drawTaperedArrowPath(
+              context,
+              sx1,
+              sy1,
+              sx2,
+              sy2,
+              element.strokeWidth
+            );
+            context.fillStrokeShape(shape);
+          },
           fill: element.stroke,
-          pointerLength: 12,
-          pointerWidth: 12,
           listening: false,
         })
       );
       break;
+    }
     case "text":
       layer.add(
         new Konva.Text({

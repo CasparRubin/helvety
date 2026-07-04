@@ -1,7 +1,7 @@
 {
   "name": "Helvety Image Editor",
   "short_name": "Image Editor",
-  "description": "Annotate images in your browser. Crop, highlight, blur, and more. No account required. Engineered, designed and made in Switzerland.",
+  "description": "Annotate images in your browser: text, arrows, borders, spotlight highlight, blur, and crop. Layers panel and zoom; PNG and JPEG export. No account required. Engineered, designed and made in Switzerland.",
   "start_url": "/image-editor",
   "display": "standalone",
   "background_color": "#faf8f7",

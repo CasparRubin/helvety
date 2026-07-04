@@ -54,5 +54,5 @@ export function imageUpscalerNavbarAbout(
 export function imageEditorNavbarAbout(
   fileSizeLimitCopy: string = IMAGE_FILE_SIZE_LIMIT_COPY
 ): string {
-  return `Annotate images in your browser with text, arrows, borders, highlights, blur, and crop. Work stays on your device (${fileSizeLimitCopy} per file). No server upload. Switzerland-first service; not actively marketed to EU/EEA users.`;
+  return `Annotate images in your browser with text, arrows, borders, spotlight highlights, blur, and crop. Layers panel and zoom for detail work. Work stays on your device (${fileSizeLimitCopy} per file). No server upload. Switzerland-first service; not actively marketed to EU/EEA users.`;
 }

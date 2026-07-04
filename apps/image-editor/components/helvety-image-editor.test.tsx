@@ -132,7 +132,11 @@ describe("HelvetyImageEditor", () => {
       expect(screen.getByTestId("editor-canvas")).toBeInTheDocument();
     });
     expect(screen.getByRole("button", { name: "Text" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Highlight" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Export" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Zoom in" })).toBeEnabled();
+    expect(screen.getByLabelText("Tool color")).toBeInTheDocument();
+    expect(screen.getByText("100%")).toBeInTheDocument();
   });
 
   it("shows clear confirmation copy from the command bar", async () => {

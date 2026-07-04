@@ -9,7 +9,7 @@ import {
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
-  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF and image work, extensions, and desktop tools.";
+  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF, image upscaler, and image editor tools, extensions, and desktop tools.";
 
 /** Shared auth SEO / social copy. */
 export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: email verification and passkeys; returning browsers may skip re-entering email after device verification. ${HELVETY_SWISS_ORIGIN_SEO}`;
@@ -51,7 +51,7 @@ export const IMAGE_UPSCALER_APP_DESCRIPTION = `Upscale PNG, JPEG, and WebP in yo
 export const IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION = `Upscale images in your browser with AI when supported. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared image editor SEO / social copy. */
-export const IMAGE_EDITOR_APP_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, highlights, blur regions, and crop (${IMAGE_FILE_SIZE_LIMIT_COPY}). Edits stay on your device with no server-side image processing and no sign-in. Switzerland-first service posture (not actively targeted to EU/EEA markets). ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const IMAGE_EDITOR_APP_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, spotlight highlights, blur regions, and crop, with a layers panel and zoom for detail work (${IMAGE_FILE_SIZE_LIMIT_COPY}). Edits stay on your device with no server-side image processing and no sign-in. Switzerland-first service posture (not actively targeted to EU/EEA markets). ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** PWA `public/manifest.json` summary for image editor. */
-export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate images in your browser. Crop, highlight, blur, and more. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate images in your browser: text, arrows, borders, spotlight highlight, blur, and crop. Layers panel and zoom; PNG and JPEG export. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;

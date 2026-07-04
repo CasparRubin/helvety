@@ -578,7 +578,6 @@ const helvetyPdf: SaaSProduct = {
     keywords: [
       "pdf",
       "merge",
-      "split",
       "rotate",
       "extract",
       "privacy",
@@ -707,7 +706,7 @@ const helvetyImageEditor: SaaSProduct = {
   category: cHelvetyImageEditor.category,
   description: {
     intro:
-      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, highlights, blur regions, and crops with a layers panel for reordering and fine-tuning. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
+      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, spotlight highlights, blur regions, and crops with a layers panel for reordering and fine-tuning, plus zoom for detail work on large screenshots. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access model",
@@ -719,9 +718,10 @@ const helvetyImageEditor: SaaSProduct = {
         kind: "bullets",
         items: [
           "Select, move, and resize annotations on a layered canvas.",
-          "Add text, arrows, bordered boxes, spotlight highlights, and blur regions.",
+          "Add text, tapered arrows, bordered boxes, spotlight highlights, and blur regions.",
           "Crop the canvas and export PNG or JPEG at full resolution when your browser allows.",
-          "Reorder or delete layers from the side panel.",
+          "Reorder or delete layers from the right-hand panel on desktop or the mobile layers sheet.",
+          "Zoom in and out, reset fit-to-view, and set a toolbar color for new text, arrows, and borders.",
         ],
       },
       {
@@ -736,6 +736,8 @@ const helvetyImageEditor: SaaSProduct = {
   features: [
     "Text, arrow, border, highlight, blur, and crop tools",
     "Layers panel with reorder, delete, and property edits",
+    "Zoom and fit-to-view for large screenshots",
+    "Global toolbar color for new annotations",
     "PNG and JPEG export at full resolution",
     "No login or account required",
     "Dark & light mode support",
@@ -780,6 +782,8 @@ const helvetyImageEditor: SaaSProduct = {
       "blur",
       "highlight",
       "crop",
+      "zoom",
+      "layers",
       "browser",
       "client-side",
       "privacy",
@@ -821,7 +825,7 @@ const helvetyTasks: SaaSProduct = {
           "Immutable Helvety stages keep everyone aligned on meaning (from backlog through acceptance and The Void).",
           "Labels and priority live in the detail sheet while the board stays readable for status at a glance.",
           "Rich descriptions support headings, lists, and links while staying encrypted.",
-          "Link Helvety Contacts when both apps support the relationship metadata.",
+          "Link Helvety Contacts, Notes, and Links from the task editor when those apps are enabled.",
         ],
       },
       {
@@ -839,7 +843,7 @@ const helvetyTasks: SaaSProduct = {
     "Rich text editor with formatting",
     "Immutable built-in stages with consistent colors and icons",
     "Labels and priority levels",
-    "Contact linking with Helvety Contacts",
+    "Cross-app links to Helvety Contacts, Notes, and Links",
     "Drag & drop reordering",
     "Dark & light mode support",
   ],
@@ -919,8 +923,8 @@ const helvetyContacts: SaaSProduct = {
         items: [
           "Rich-text notes behave like miniature documents with headings and lists.",
           "Drag-and-drop ordering within a category or across categories keeps tactile muscle memory.",
-          "Export an encrypted backup when you need a copy; the wizard explains the format.",
-          "Hook tasks to contacts whenever both apps expose the shared linking primitives.",
+          "Export a client-side backup: decrypts on your device and downloads JSON; plaintext is not sent to Helvety servers.",
+          "Link tasks, notes, and bookmarks from the contact editor when those apps are enabled.",
         ],
       },
       {
@@ -937,9 +941,9 @@ const helvetyContacts: SaaSProduct = {
     "Rich contact fields (name, email, phone, birthday)",
     "Rich text notes with formatting",
     "Immutable built-in categories (Personal, Work, Other)",
-    "Task linking with Helvety Tasks",
+    "Cross-app links to Helvety Tasks, Notes, and Links",
     "Drag & drop reordering",
-    "Self-service encrypted data export",
+    "Self-service client-side data export (decrypted JSON on your device)",
     "Dark & light mode support",
   ],
   pricing: {
@@ -1019,7 +1023,7 @@ const helvetyNotes: SaaSProduct = {
         items: [
           "Three curated buckets (Personal, Work, Other) make sifting faster than infinite nested folders.",
           "Rich text keeps meeting minutes and scratch ideas in one canvas.",
-          "Cross-link into Helvety Tasks or Helvety Contacts only when you enable both apps.",
+          "Cross-link into Helvety Tasks, Contacts, and Links when those apps are enabled.",
         ],
       },
       {
@@ -1035,7 +1039,7 @@ const helvetyNotes: SaaSProduct = {
     "End-to-end encryption for sensitive note content",
     "Note model: encrypted title and description; fixed categories for grouping",
     "Rich text editor with formatting",
-    "Link notes with tasks and contacts",
+    "Link notes with tasks, contacts, and links",
     "Drag & drop reordering",
     "Dark & light mode support",
   ],

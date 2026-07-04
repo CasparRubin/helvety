@@ -243,6 +243,28 @@ describe("authenticateAndRateLimit", () => {
     expect(rateLimitMocks.checkRateLimit).not.toHaveBeenCalled();
   });
 
+  it("returns AUTH_HARD_LOGOUT when device trust userId mismatches authenticated user", async () => {
+    const user = buildUser("u6");
+    mockGetAuthUser.mockResolvedValue({ user, error: null });
+    mockGetValidDeviceTrustFromCookieStore.mockReturnValue({
+      v: 1,
+      userId: "other-user-id",
+      iat: 0,
+      exp: 9_999_999_999,
+    });
+
+    const result = await authenticateAndRateLimit({
+      rateLimitPrefix: "tasks",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.error).toMatch(/^AUTH_HARD_LOGOUT:/);
+      expect(result.response.error).toContain("Device trust expired");
+    }
+    expect(rateLimitMocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
   it("returns AUTH_REQUIRED with default message when error is null", async () => {
     mockGetAuthUser.mockResolvedValue({ user: null, error: null });
 

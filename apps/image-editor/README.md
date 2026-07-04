@@ -1,6 +1,6 @@
 # Helvety Image Editor
 
-Browser-local image annotation editor: text, arrows, borders, highlights, blur regions, and crop, with a layers panel for reordering and fine-tuning. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
+Browser-local image annotation editor: text, arrows, borders, spotlight highlights, blur regions, and crop, with a layers panel and zoom for reordering, detail work, and fine-tuning. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
 
 All image processing runs in the browser; no image data leaves the client in the normal flow.
 
@@ -20,6 +20,10 @@ All image processing runs in the browser; no image data leaves the client in the
 - Annotation tools: Select, Text, Arrow, Border, Highlight (spotlight dim), Blur region, and Crop
 - Canvas rendered with Konva + react-konva (loaded via `next/dynamic({ ssr: false })`); `elements[]` index is the z-order and interactive elements use a Konva `Transformer` in Select mode
 - Pure `useReducer` editor state in [`lib/editor-reducer.ts`](./lib/editor-reducer.ts) (no global store), consistent with the PDF and Image Upscaler zones
+- Workspace layout: canvas on the left and layers panel on the right on desktop (`lg+`); mobile uses a right-side layers sheet
+- Fit-to-view on load for large images (`useStageFit` × `userZoom`); toolbar zoom controls, Fit button, and Ctrl/Cmd + wheel (25%–400%)
+- Global toolbar color applies to new text, arrow, and border placements; existing layers keep their own colors in the panel
+- Tapered arrows (wider toward the arrowhead) in canvas and export
 - Layers panel: reorder, delete, and per-element property edits (color, stroke width, font size, blur radius, dim opacity, size); crop is handled separately in the command bar
 - Full-resolution PNG and JPEG export via an offscreen Konva stage; `canvas-size` probes browser canvas limits and export dimensions are clamped when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Keyboard shortcuts: Delete/Backspace removes the selection; Escape deselects or cancels crop (ignored while editing text)

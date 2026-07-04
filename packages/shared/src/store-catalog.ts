@@ -181,7 +181,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-image-editor",
     name: "Helvety Image Editor",
     shortDescription:
-      "Annotate images in the browser with text, arrows, borders, highlights, blur, and crop. Edits stay on your device.",
+      "Annotate images in the browser with text, arrows, borders, spotlight highlights, blur, and crop. Layers panel and zoom; edits stay on your device.",
     releaseDate: "2026-07-04",
     type: "saas",
     category: "utilities",

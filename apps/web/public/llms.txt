@@ -35,7 +35,7 @@ Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - [Helvety Browser Extension](https://helvety.com/store/products/helvety-browser-extension): Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, and links; manual install from GitHub releases while it is not yet in the Chrome Web Store
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Upscale images in the browser on your device
-- [Helvety Image Editor](https://helvety.com/image-editor): Annotate images in the browser on your device
+- [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser on your device with text, arrows, borders, spotlight highlights, blur, and crop; layers panel and zoom; no image upload to Helvety servers in the normal flow
 - [Helvety Contacts](https://helvety.com/contacts): Encrypted address book with export tooling
 - [Helvety Notes](https://helvety.com/notes): Encrypted notes in Personal, Work, and Other groups
 - [Helvety Links](https://helvety.com/links): Encrypted bookmarks in nested folders

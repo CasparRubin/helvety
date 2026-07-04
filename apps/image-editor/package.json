@@ -1,7 +1,7 @@
 {
   "name": "@helvety/image-editor",
   "version": "3.2.0",
-  "description": "In-browser image editor for annotations: text, arrows, borders, highlights, blur, and crop. PNG, JPEG, and WebP in; export locally. No server upload, no account required. Swiss-built.",
+  "description": "In-browser image editor for annotations: text, arrows, borders, spotlight highlights, blur, and crop, with layers, zoom, and PNG/JPEG export. WebP input supported. No server upload, no account required. Engineered, designed and made in Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-editor",
   "repository": {

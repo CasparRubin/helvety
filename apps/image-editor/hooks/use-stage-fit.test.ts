@@ -42,4 +42,28 @@ describe("useStageFit", () => {
 
     expect(result.current).toBe(1);
   });
+
+  it("fits a very large image entirely inside the container", () => {
+    const containerRef = { current: null as HTMLDivElement | null };
+
+    const element = document.createElement("div");
+    element.getBoundingClientRect = () => ({
+      width: 800,
+      height: 600,
+      top: 0,
+      left: 0,
+      right: 800,
+      bottom: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    containerRef.current = element;
+
+    const { result } = renderHook(() => useStageFit(containerRef, 4000, 3000));
+
+    expect(result.current).toBeLessThan(1);
+    expect(result.current * 4000).toBeLessThanOrEqual(800 - 32);
+    expect(result.current * 3000).toBeLessThanOrEqual(600 - 32);
+  });
 });

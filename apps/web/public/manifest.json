@@ -1,7 +1,7 @@
 {
   "name": "Helvety",
   "short_name": "Helvety",
-  "description": "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF and image work, extensions, and desktop tools.",
+  "description": "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF, image upscaler, and image editor tools, extensions, and desktop tools.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f7",

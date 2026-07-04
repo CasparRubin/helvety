@@ -20,7 +20,8 @@ interface EditorCanvasProps {
   readonly imageHeight: number;
   readonly state: EditorState;
   readonly dispatch: (action: EditorAction) => void;
-  readonly fitScale: number;
+  readonly displayScale: number;
+  readonly toolColor: string;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }

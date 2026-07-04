@@ -8,7 +8,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   EyeOffIcon,
-  SparklesIcon,
+  FocusIcon,
   SquareIcon,
   Trash2Icon,
   TypeIcon,
@@ -41,7 +41,7 @@ function layerIcon(type: EditorElement["type"]): React.JSX.Element {
     case "border":
       return <SquareIcon className="size-4 shrink-0" />;
     case "highlight":
-      return <SparklesIcon className="size-4 shrink-0" />;
+      return <FocusIcon className="size-4 shrink-0" />;
     case "blur":
       return <EyeOffIcon className="size-4 shrink-0" />;
     default: {
@@ -51,7 +51,7 @@ function layerIcon(type: EditorElement["type"]): React.JSX.Element {
   }
 }
 
-/** Left panel: layer list with reorder/delete plus a properties editor. */
+/** Right panel: layer list with reorder/delete plus a properties editor. */
 export function LayersPanel({
   elements,
   selectedId,
@@ -66,7 +66,7 @@ export function LayersPanel({
   return (
     <aside
       className={cn(
-        "bg-card border-border/50 flex w-full shrink-0 flex-col border-r lg:w-[320px]",
+        "bg-card border-border/50 flex w-full shrink-0 flex-col border-l lg:w-[320px]",
         className
       )}
     >

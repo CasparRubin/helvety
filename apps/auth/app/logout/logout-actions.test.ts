@@ -60,4 +60,34 @@ describe("signOutAction", () => {
 
     expect(mocks.signOut).toHaveBeenCalledWith({ scope: "global" });
   });
+
+  it("rejects logout when CSRF validation fails", async () => {
+    mocks.validateCSRFToken.mockResolvedValue(false);
+
+    const result = await signOutAction("bad-csrf");
+
+    expect(result).toEqual({ success: false, error: "invalid_csrf" });
+    expect(mocks.signOut).not.toHaveBeenCalled();
+    expect(mocks.clearDeviceTrustCookie).not.toHaveBeenCalled();
+  });
+
+  it("returns signout_failed when Supabase signOut errors", async () => {
+    mocks.signOut.mockResolvedValue({
+      error: { message: "network", status: 500 },
+    });
+
+    const result = await signOutAction("csrf-token");
+
+    expect(result).toEqual({ success: false, error: "signout_failed" });
+    expect(mocks.clearDeviceTrustCookie).not.toHaveBeenCalled();
+  });
+
+  it("still succeeds when device trust clear fails after sign-out", async () => {
+    mocks.clearDeviceTrustCookie.mockRejectedValue(new Error("cookie write"));
+
+    const result = await signOutAction("csrf-token");
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.signOut).toHaveBeenCalled();
+  });
 });

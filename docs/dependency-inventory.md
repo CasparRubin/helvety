@@ -1,6 +1,6 @@
 # Helvety dependency inventory (extended)
 
-Canonical list of **non-npm-only** dependencies and high-impact pins for public-tool zones (`pdf`, `image-upscaler`, `web`) plus monorepo-wide toolchain. Used by the Cursor **`dependency-update`** skill (`.cursor/skills/dependency-update/SKILL.md`).
+Canonical list of **non-npm-only** dependencies and high-impact pins for public-tool zones (`pdf`, `image-upscaler`, `image-editor`, `web`) plus monorepo-wide toolchain. Used by the Cursor **`dependency-update`** skill (`.cursor/skills/dependency-update/SKILL.md`).
 
 **Maintain this file** whenever you change a pin (SHA-256, vendored worker, git override, hosted model upload, or major vendor bump). Run `bun run deps:inventory` for a machine-readable snapshot of current pins.
 
@@ -51,6 +51,16 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 | `pdf-lib`                      | `^1.17.1`                                                         | Hopding/pdf-lib               | https://github.com/Hopding/pdf-lib/releases     | npm bump; worker merge/export tests                                                                                                                      | PDF corruption      |
 | `react-pdf`                    | `^10.4.1`                                                         | wojtekmaj/react-pdf           | https://github.com/wojtekmaj/react-pdf/releases | npm bump; `bun install`; `sync:pdf-worker`; `consistency:pdfjs-worker`; smoke viewer + merge tests                                                       | pdfjs API mismatch  |
 | `@napi-rs/canvas` (transitive) | Via `pdfjs-dist`; stubbed SSR                                     | napi-rs/canvas                | —                                               | No action unless removing stub; client-only                                                                                                              | Build-only          |
+
+---
+
+## image-editor
+
+| Name          | Current pin                                  | Upstream | Check URL                                       | Update procedure              | Risk              |
+| ------------- | -------------------------------------------- | -------- | ----------------------------------------------- | ----------------------------- | ----------------- |
+| `konva`       | `^10.2.0` — `apps/image-editor/package.json` | Konva    | https://github.com/konvajs/konva/releases       | npm bump; canvas editor smoke | Canvas API        |
+| `react-konva` | `^19.2.5` — `apps/image-editor/package.json` | Konvajs  | https://github.com/konvajs/react-konva/releases | npm bump with React 19        | React-Konva API   |
+| `canvas-size` | `^2.0.0` — `apps/image-editor/package.json`  | npm      | https://www.npmjs.com/package/canvas-size       | Standard npm bump             | Input size limits |
 
 ---
 

@@ -146,4 +146,10 @@ describe("editorReducer", () => {
     expect(elementLabel(createHighlightElement(0, 0, 1, 1))).toBe("Highlight");
     expect(elementLabel(createBlurElement(0, 0, 1, 1))).toBe("Blur");
   });
+
+  it("applies optional color when creating drawable elements", () => {
+    expect(createTextElement(0, 0, "#00ff00").fill).toBe("#00ff00");
+    expect(createArrowElement(0, 0, 1, 1, "#112233").stroke).toBe("#112233");
+    expect(createBorderElement(0, 0, 1, 1, "#445566").stroke).toBe("#445566");
+  });
 });

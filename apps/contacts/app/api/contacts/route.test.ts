@@ -121,4 +121,79 @@ describe("contacts api routes", () => {
       error: "Invalid contact ID",
     });
   });
+
+  it("returns auth failure on detail route without querying Supabase", async () => {
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: false,
+      response: { success: false, error: "Unauthorized" },
+    });
+
+    const response = await getContactById(new Request("https://helvety.com"), {
+      params: Promise.resolve({ id: "550e8400-e29b-41d4-a716-446655440000" }),
+    });
+
+    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Unauthorized",
+    });
+  });
+
+  it("returns contact not found when row is missing", async () => {
+    const single = vi.fn(async () => ({
+      data: null,
+      error: { code: "PGRST116", message: "not found" },
+    }));
+    const eqUser = vi.fn(() => ({ single }));
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const select = vi.fn(() => ({ eq: eqId }));
+    const supabase = { from: vi.fn(() => ({ select })) };
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    const response = await getContactById(new Request("https://helvety.com"), {
+      params: Promise.resolve({ id: "550e8400-e29b-41d4-a716-446655440000" }),
+    });
+
+    expect(select).toHaveBeenCalledWith(ENCRYPTED_PREFETCH_COLUMNS.contacts);
+    expect(eqId).toHaveBeenCalledWith(
+      "id",
+      "550e8400-e29b-41d4-a716-446655440000"
+    );
+    expect(eqUser).toHaveBeenCalledWith("user_id", "user-1");
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Contact not found",
+    });
+  });
+
+  it("returns encrypted contact detail with no-store header", async () => {
+    const row = {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      user_id: "user-1",
+    };
+    const single = vi.fn(async () => ({ data: row, error: null }));
+    const eqUser = vi.fn(() => ({ single }));
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const select = vi.fn(() => ({ eq: eqId }));
+    const supabase = { from: vi.fn(() => ({ select })) };
+
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { user: { id: "user-1" }, supabase },
+    });
+
+    const response = await getContactById(new Request("https://helvety.com"), {
+      params: Promise.resolve({ id: "550e8400-e29b-41d4-a716-446655440000" }),
+    });
+
+    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      data: row,
+    });
+  });
 });

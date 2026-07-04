@@ -126,7 +126,11 @@ function createElementId(): string {
 }
 
 /** Creates a text annotation at the given image coordinates. */
-export function createTextElement(x: number, y: number): TextElement {
+export function createTextElement(
+  x: number,
+  y: number,
+  color?: string
+): TextElement {
   return {
     id: createElementId(),
     type: "text",
@@ -134,7 +138,7 @@ export function createTextElement(x: number, y: number): TextElement {
     y,
     text: "Text",
     fontSize: 24,
-    fill: DEFAULT_TEXT_FILL,
+    fill: color ?? DEFAULT_TEXT_FILL,
     rotation: 0,
   };
 }
@@ -144,13 +148,14 @@ export function createArrowElement(
   x1: number,
   y1: number,
   x2: number,
-  y2: number
+  y2: number,
+  color?: string
 ): ArrowElement {
   return {
     id: createElementId(),
     type: "arrow",
     points: [x1, y1, x2, y2],
-    stroke: DEFAULT_STROKE,
+    stroke: color ?? DEFAULT_STROKE,
     strokeWidth: 3,
   };
 }
@@ -160,7 +165,8 @@ export function createBorderElement(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  color?: string
 ): BorderElement {
   return {
     id: createElementId(),
@@ -169,7 +175,7 @@ export function createBorderElement(
     y,
     width,
     height,
-    stroke: DEFAULT_STROKE,
+    stroke: color ?? DEFAULT_STROKE,
     strokeWidth: 3,
   };
 }

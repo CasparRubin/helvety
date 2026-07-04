@@ -26,6 +26,11 @@ const RETIRED_DOCS_ZONE_MARKERS = [
 
 const SCAN_ROOTS = ["apps", "packages", "scripts", "turbo.json"] as const;
 
+/** Normalizes repo-relative paths to forward slashes for allowlist checks. */
+function normalizeRepoPath(rel: string): string {
+  return rel.replaceAll("\\", "/");
+}
+
 /** Recursively lists repo-relative source paths under `dir`. */
 function collectSourceFiles(dir: string, base = dir): string[] {
   const entries = readdirSync(dir);
@@ -69,13 +74,14 @@ describe("retired Helvety Docs zone", () => {
         : [root];
 
       for (const rel of files) {
-        if (RETIRED_DOCS_ZONE_MENTION_ALLOWLIST.has(rel)) {
+        const normalizedRel = normalizeRepoPath(rel);
+        if (RETIRED_DOCS_ZONE_MENTION_ALLOWLIST.has(normalizedRel)) {
           continue;
         }
         const source = readFileSync(join(repoRoot, rel), "utf8");
         for (const marker of RETIRED_DOCS_ZONE_MARKERS) {
           if (source.includes(marker)) {
-            offenders.push(`${rel}: ${marker}`);
+            offenders.push(`${normalizedRel}: ${marker}`);
           }
         }
       }

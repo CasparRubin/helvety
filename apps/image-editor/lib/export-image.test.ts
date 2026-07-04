@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { initialEditorState } from "./editor-reducer";
+import { createHighlightElement, initialEditorState } from "./editor-reducer";
 import {
+  exportEditedImage,
   getLogicalStageSize,
   imageToStageCoords,
   pointerToImageCoords,
@@ -37,4 +38,23 @@ describe("export-image helpers", () => {
     expect(pointerToImageCoords(30, 40, crop)).toEqual({ x: 50, y: 50 });
     expect(imageToStageCoords(50, 50, crop)).toEqual({ x: 30, y: 40 });
   });
+
+  it("exports a PNG blob through the offscreen Konva stage", async () => {
+    const image = new MockImage() as unknown as HTMLImageElement;
+    const highlight = createHighlightElement(50, 50, 100, 80);
+    const state = {
+      ...initialEditorState,
+      elements: [highlight],
+    };
+
+    const blob = await exportEditedImage(image, state, "png");
+
+    expect(blob.type).toBe("image/png");
+  });
 });
+
+/** Minimal image stub for export tests. */
+class MockImage {
+  naturalWidth = 800;
+  naturalHeight = 600;
+}
