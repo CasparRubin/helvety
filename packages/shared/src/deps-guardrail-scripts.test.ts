@@ -83,3 +83,36 @@ describe("clean artifacts script", () => {
     expect(output).toContain("[clean:artifacts]");
   });
 });
+
+describe("test hygiene script", () => {
+  it("passes on the monorepo test floor (required app tests, no focused tests)", () => {
+    const output = execFileSync(
+      process.execPath,
+      [join(repoRoot, "scripts", "check-test-hygiene.mjs")],
+      { cwd: repoRoot, encoding: "utf8" }
+    );
+    expect(output).toContain("Test hygiene checks passed");
+  });
+});
+
+describe("customer copy style script", () => {
+  it("passes when user-facing copy has no em-dashes", () => {
+    const output = execFileSync(
+      process.execPath,
+      [join(repoRoot, "scripts", "check-customer-copy-style.mjs")],
+      { cwd: repoRoot, encoding: "utf8" }
+    );
+    expect(output).toContain("customer copy style OK");
+  });
+});
+
+describe("consistency guardrails script", () => {
+  it("passes on the monorepo cross-workspace invariants", () => {
+    const output = execFileSync(
+      process.execPath,
+      [join(repoRoot, "scripts", "check-consistency-guardrails.mjs")],
+      { cwd: repoRoot, encoding: "utf8" }
+    );
+    expect(output).toContain("Consistency guardrail checks passed.");
+  });
+});

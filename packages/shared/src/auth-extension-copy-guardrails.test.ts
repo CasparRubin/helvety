@@ -1,9 +1,10 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { HELVETY_STALE_COOKIE_DOC_PHRASES } from "./analytics-guardrails";
+import { CUSTOMER_COPY_LLMS_RELATIVE_PATHS } from "./customer-copy-guardrails";
 
 const repoRoot = join(import.meta.dirname, "..", "..", "..");
 
@@ -24,19 +25,6 @@ const LEGAL_PAGE_PATHS = [
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/impressum/page.tsx",
-] as const;
-
-/** Zone llms.txt files scanned for stale cookie/session copy. */
-const LLMS_TXT_PATHS = [
-  "apps/web/public/llms.txt",
-  "apps/auth/public/llms.txt",
-  "apps/store/public/llms.txt",
-  "apps/pdf/public/llms.txt",
-  "apps/image-upscaler/public/llms.txt",
-  "apps/tasks/public/llms.txt",
-  "apps/contacts/public/llms.txt",
-  "apps/notes/public/llms.txt",
-  "apps/links/public/llms.txt",
 ] as const;
 
 /** Retired extension weekly re-auth wording. */
@@ -76,7 +64,7 @@ const STALE_DEVICE_TRUST_MINT_DOC_PHRASES = [
 const DOC_COPY_SCAN_PATHS = [
   ...MAINTAINER_AUTH_DOC_PATHS,
   ...LEGAL_PAGE_PATHS,
-  ...LLMS_TXT_PATHS,
+  ...CUSTOMER_COPY_LLMS_RELATIVE_PATHS,
 ] as const;
 
 /** Reads a repo file relative to the monorepo root. */
@@ -85,6 +73,10 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe("auth and extension maintainer copy guardrails", () => {
+  it.each(MAINTAINER_AUTH_DOC_PATHS)("%s exists on disk", (rel) => {
+    expect(existsSync(join(repoRoot, rel)), rel).toBe(true);
+  });
+
   it.each(DOC_COPY_SCAN_PATHS)(
     "%s does not use retired extension weekly re-auth wording",
     (rel) => {
@@ -115,7 +107,7 @@ describe("auth and extension maintainer copy guardrails", () => {
     }
   );
 
-  it.each(LLMS_TXT_PATHS)(
+  it.each(CUSTOMER_COPY_LLMS_RELATIVE_PATHS)(
     "%s does not contain stale vault cookie TTL phrases",
     (rel) => {
       const text = readRepoFile(rel);
