@@ -152,4 +152,34 @@ describe("editorReducer", () => {
     expect(createArrowElement(0, 0, 1, 1, "#112233").stroke).toBe("#112233");
     expect(createBorderElement(0, 0, 1, 1, "#445566").stroke).toBe("#445566");
   });
+
+  it("scales default sizes from image dimensions", () => {
+    const text = createTextElement(0, 0, undefined, {
+      imageWidth: 3840,
+      imageHeight: 2160,
+    });
+    expect(text.fontSize).toBe(72);
+
+    const arrow = createArrowElement(0, 0, 1, 1, undefined, {
+      imageWidth: 1920,
+      imageHeight: 1080,
+    });
+    expect(arrow.strokeWidth).toBe(5);
+  });
+
+  it("honours explicit stroke width and font size overrides", () => {
+    const arrow = createArrowElement(0, 0, 1, 1, undefined, {
+      imageWidth: 3840,
+      imageHeight: 2160,
+      strokeWidth: 12,
+    });
+    expect(arrow.strokeWidth).toBe(12);
+
+    const text = createTextElement(0, 0, undefined, {
+      imageWidth: 3840,
+      imageHeight: 2160,
+      fontSize: 48,
+    });
+    expect(text.fontSize).toBe(48);
+  });
 });

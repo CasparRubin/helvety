@@ -19,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
-import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@helvety/ui/popover";
 import {
@@ -40,6 +39,7 @@ import {
   UploadIcon,
   ZoomInIcon,
   ZoomOutIcon,
+  Loader2Icon,
 } from "lucide-react";
 import * as React from "react";
 
@@ -53,7 +53,6 @@ interface ImageEditorCommandBarProps {
   readonly activeTool: EditorTool;
   readonly isExporting: boolean;
   readonly canApplyCrop: boolean;
-  readonly toolColor: string;
   readonly userZoom: number;
   readonly onOpenImage: () => void;
   readonly onReplaceImage: () => void;
@@ -63,7 +62,6 @@ interface ImageEditorCommandBarProps {
   readonly onApplyCrop: () => void;
   readonly onResetCrop: () => void;
   readonly onOpenLayers: () => void;
-  readonly onToolColorChange: (color: string) => void;
   readonly onZoomIn: () => void;
   readonly onZoomOut: () => void;
   readonly onFitToView: () => void;
@@ -82,33 +80,6 @@ const TOOL_BUTTONS: Array<{
   { tool: "blur", label: "Blur", icon: EyeOffIcon },
   { tool: "crop", label: "Crop", icon: CropIcon },
 ];
-
-/** Desktop color picker for the active drawing tool. */
-function ToolColorPicker({
-  toolColor,
-  onToolColorChange,
-  className,
-}: {
-  readonly toolColor: string;
-  readonly onToolColorChange: (color: string) => void;
-  readonly className?: string;
-}): React.JSX.Element {
-  return (
-    <div className={className}>
-      <Label htmlFor="tool-color" className="sr-only">
-        Tool color
-      </Label>
-      <Input
-        id="tool-color"
-        type="color"
-        value={toolColor}
-        onChange={(event) => onToolColorChange(event.target.value)}
-        className="h-8 w-10 cursor-pointer p-0.5"
-        aria-label="Tool color"
-      />
-    </div>
-  );
-}
 
 /** Desktop zoom controls. */
 function ZoomControls({
@@ -161,13 +132,12 @@ function ZoomControls({
   );
 }
 
-/** Toolbar: tool buttons, crop actions, export, clear, and mobile layers. */
+/** Main command bar: tool buttons, crop actions, export, clear, and mobile layers. */
 export function ImageEditorCommandBar({
   hasImage,
   activeTool,
   isExporting,
   canApplyCrop,
-  toolColor,
   userZoom,
   onOpenImage,
   onReplaceImage,
@@ -177,12 +147,12 @@ export function ImageEditorCommandBar({
   onApplyCrop,
   onResetCrop,
   onOpenLayers,
-  onToolColorChange,
   onZoomIn,
   onZoomOut,
   onFitToView,
 }: ImageEditorCommandBarProps): React.JSX.Element {
   const [showClearDialog, setShowClearDialog] = React.useState(false);
+  const openImageLabel = hasImage ? "Replace Image" : "Open Image";
 
   return (
     <>
@@ -192,6 +162,7 @@ export function ImageEditorCommandBar({
           variant="outline"
           size="sm"
           onClick={hasImage ? onReplaceImage : onOpenImage}
+          aria-label={openImageLabel}
         >
           <UploadIcon className="size-4" />
           <span className="sr-only min-[400px]:not-sr-only">
@@ -219,12 +190,6 @@ export function ImageEditorCommandBar({
                 </Button>
               );
             })}
-
-            <ToolColorPicker
-              toolColor={toolColor}
-              onToolColorChange={onToolColorChange}
-              className="hidden md:block"
-            />
 
             {activeTool === "crop" ? (
               <>
@@ -264,10 +229,21 @@ export function ImageEditorCommandBar({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" size="sm" disabled={isExporting}>
-                  <DownloadIcon className="size-4" />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={isExporting}
+                  aria-label={
+                    isExporting ? "Export image (processing)" : "Export image"
+                  }
+                >
+                  {isExporting ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : (
+                    <DownloadIcon className="size-4" />
+                  )}
                   <span className="sr-only min-[400px]:not-sr-only">
-                    Export
+                    {isExporting ? "Processing..." : "Export"}
                   </span>
                   <ChevronDownIcon className="size-4 opacity-70" />
                 </Button>
@@ -307,16 +283,6 @@ export function ImageEditorCommandBar({
               </PopoverTrigger>
               <PopoverContent align="end" className="w-64 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="mobile-tool-color">Tool color</Label>
-                  <Input
-                    id="mobile-tool-color"
-                    type="color"
-                    value={toolColor}
-                    onChange={(event) => onToolColorChange(event.target.value)}
-                    className="h-9 w-full cursor-pointer"
-                  />
-                </div>
-                <div className="space-y-2">
                   <Label>Zoom</Label>
                   <div className="flex items-center gap-2">
                     <Button
@@ -347,6 +313,7 @@ export function ImageEditorCommandBar({
                     size="sm"
                     className="w-full"
                     onClick={onFitToView}
+                    aria-label="Fit to view"
                   >
                     <Maximize2Icon className="size-4" />
                     Fit to view
@@ -364,7 +331,7 @@ export function ImageEditorCommandBar({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="hidden lg:inline-flex"
+                  className="hidden md:inline-flex"
                 >
                   <Trash2Icon className="size-4" />
                   <span className="sr-only min-[400px]:not-sr-only">Clear</span>
@@ -381,6 +348,7 @@ export function ImageEditorCommandBar({
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
+                    variant="destructive"
                     onClick={() => {
                       onClear();
                       setShowClearDialog(false);

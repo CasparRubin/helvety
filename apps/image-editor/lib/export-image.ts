@@ -1,7 +1,8 @@
 import Konva from "konva";
 
+import { getTextShadowProps } from "./default-tool-sizes";
 import { buildSpotlightRects } from "./spotlight-rects";
-import { drawTaperedArrowPath } from "./tapered-arrow";
+import { buildTaperedArrowPoints } from "./tapered-arrow";
 
 import type {
   CropRect,
@@ -125,18 +126,15 @@ function addElementToLayer(
       const sx2 = x2 - crop.x;
       const sy2 = y2 - crop.y;
       layer.add(
-        new Konva.Shape({
-          sceneFunc: (context, shape) => {
-            drawTaperedArrowPath(
-              context,
-              sx1,
-              sy1,
-              sx2,
-              sy2,
-              element.strokeWidth
-            );
-            context.fillStrokeShape(shape);
-          },
+        new Konva.Line({
+          points: buildTaperedArrowPoints(
+            sx1,
+            sy1,
+            sx2,
+            sy2,
+            element.strokeWidth
+          ),
+          closed: true,
           fill: element.stroke,
           listening: false,
         })
@@ -153,6 +151,7 @@ function addElementToLayer(
           fill: element.fill,
           rotation: element.rotation,
           listening: false,
+          ...getTextShadowProps(element.fontSize),
         })
       );
       break;
@@ -249,6 +248,16 @@ export function pointerToImageCoords(
   crop: CropRect
 ): { x: number; y: number } {
   return { x: stageX + crop.x, y: stageY + crop.y };
+}
+
+/** Reads pointer position from a Konva stage and converts to image coordinates. */
+export function getImagePointerFromStage(
+  stage: Konva.Stage,
+  crop: CropRect
+): { x: number; y: number } | null {
+  const pointer = stage.getRelativePointerPosition();
+  if (!pointer) return null;
+  return pointerToImageCoords(pointer.x, pointer.y, crop);
 }
 
 /** Converts natural image coordinates to stage-space coordinates. */

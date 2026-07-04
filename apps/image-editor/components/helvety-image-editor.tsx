@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 import { EditorCanvas } from "@/components/editor/editor-canvas";
 import { ImageEditorCommandBar } from "@/components/image-editor-command-bar";
+import { ImageEditorToolPropertiesBar } from "@/components/image-editor-tool-properties-bar";
 import { LayersPanel } from "@/components/layers-panel";
 import { useEditorKeyboard } from "@/hooks/use-editor-keyboard";
 import { useEditorState } from "@/hooks/use-editor-state";
@@ -24,6 +25,7 @@ import {
   clampOutputDimensions,
   getCanvasExportLimitsCached,
 } from "@/lib/canvas-export-limits";
+import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
 import { DEFAULT_STROKE } from "@/lib/editor-types";
 import { exportEditedImage } from "@/lib/export-image";
 import {
@@ -38,6 +40,7 @@ import type { CropRect, ExportFormat } from "@/lib/editor-types";
 /** Main image editor workspace. */
 export function HelvetyImageEditor(): React.JSX.Element {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const canvasSizerRef = React.useRef<HTMLDivElement>(null);
   const canvasContainerRef = React.useRef<HTMLDivElement>(null);
   const { source, loadFile, clear } = useSourceImage();
   const { state, dispatch, setTool, select, setCrop, resetAnnotations } =
@@ -47,12 +50,13 @@ export function HelvetyImageEditor(): React.JSX.Element {
   const [pendingCrop, setPendingCrop] = React.useState<CropRect | null>(null);
   const [userZoom, setUserZoom] = React.useState(1);
   const [toolColor, setToolColor] = React.useState(DEFAULT_STROKE);
+  const [toolStrokeWidth, setToolStrokeWidth] = React.useState(5);
 
   const logicalWidth = source ? (state.crop?.width ?? source.naturalWidth) : 0;
   const logicalHeight = source
     ? (state.crop?.height ?? source.naturalHeight)
     : 0;
-  const fitScale = useStageFit(canvasContainerRef, logicalWidth, logicalHeight);
+  const fitScale = useStageFit(canvasSizerRef, logicalWidth, logicalHeight);
   const displayScale = fitScale * userZoom;
 
   const resetCanvasView = React.useCallback(() => {
@@ -187,6 +191,15 @@ export function HelvetyImageEditor(): React.JSX.Element {
   });
 
   React.useEffect(() => {
+    if (!source) return;
+    const defaults = getDefaultToolSizes(
+      source.naturalWidth,
+      source.naturalHeight
+    );
+    setToolStrokeWidth(defaults.strokeWidth);
+  }, [source]);
+
+  React.useEffect(() => {
     if (state.activeTool === "crop" && source && !pendingCrop) {
       setPendingCrop(
         state.crop ?? {
@@ -230,7 +243,9 @@ export function HelvetyImageEditor(): React.JSX.Element {
         ref={fileInputRef}
         type="file"
         accept="image/png,image/jpeg,image/webp"
-        className="sr-only"
+        className="hidden"
+        aria-label="Upload image"
+        aria-describedby="image-editor-drop-description"
         onChange={(event) => {
           const files = event.target.files;
           if (files) void handleFiles(files);
@@ -243,7 +258,6 @@ export function HelvetyImageEditor(): React.JSX.Element {
         activeTool={state.activeTool}
         isExporting={isExporting}
         canApplyCrop={Boolean(pendingCrop)}
-        toolColor={toolColor}
         userZoom={userZoom}
         onOpenImage={openFilePicker}
         onReplaceImage={handleReplaceImage}
@@ -253,10 +267,23 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onApplyCrop={handleApplyCrop}
         onResetCrop={handleResetCrop}
         onOpenLayers={() => setLayersOpen(true)}
-        onToolColorChange={setToolColor}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onFitToView={resetCanvasView}
+      />
+
+      <ImageEditorToolPropertiesBar
+        hasImage={Boolean(source)}
+        activeTool={state.activeTool}
+        elements={state.elements}
+        selectedId={state.selectedId}
+        toolColor={toolColor}
+        toolStrokeWidth={toolStrokeWidth}
+        onToolColorChange={setToolColor}
+        onToolStrokeWidthChange={setToolStrokeWidth}
+        onUpdate={(id, patch) =>
+          dispatch({ type: "UPDATE_ELEMENT", id, patch })
+        }
       />
 
       <div
@@ -269,10 +296,13 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onDragOver={dragDrop.handleDragOver}
         onDragLeave={dragDrop.handleDragLeave}
         onDrop={(event) => dragDrop.handleDrop(event, handleDropWithFiles)}
+        role="region"
+        aria-label="Image editor workspace"
       >
         <div
+          ref={canvasSizerRef}
           className={cn(
-            "flex w-full flex-1 flex-col",
+            "flex min-w-0 flex-1 flex-col",
             "h-full max-h-full min-h-0",
             "relative"
           )}
@@ -280,12 +310,12 @@ export function HelvetyImageEditor(): React.JSX.Element {
           <div
             ref={canvasContainerRef}
             className={cn(
-              "bg-muted/30 border-border/50 flex min-h-0 flex-1 flex-col overflow-auto border p-6",
+              "bg-muted/30 border-border/50 flex min-h-0 flex-1 [scrollbar-gutter:stable] flex-col overflow-auto border p-6",
               dragDrop.isDragging && "border-primary bg-primary/5"
             )}
           >
             {source ? (
-              <div className="flex min-h-full min-w-full items-start justify-start">
+              <div className="flex min-h-full items-start justify-start">
                 <EditorCanvas
                   sourceImage={source.image}
                   imageWidth={source.naturalWidth}
@@ -294,70 +324,100 @@ export function HelvetyImageEditor(): React.JSX.Element {
                   dispatch={dispatch}
                   displayScale={displayScale}
                   toolColor={toolColor}
+                  toolStrokeWidth={toolStrokeWidth}
                   pendingCrop={pendingCrop}
                   onCropDraftChange={setPendingCrop}
                 />
               </div>
             ) : (
-              <button
-                type="button"
-                className="flex min-h-full w-full flex-col items-center justify-center px-6 py-12 text-center"
+              <section
+                className={cn(
+                  "relative min-h-full w-full transition-colors",
+                  dragDrop.isDragging
+                    ? "border-primary bg-primary/5 border-2 border-dashed"
+                    : "border-border cursor-pointer border-2 border-dashed"
+                )}
+                role="button"
+                tabIndex={0}
+                aria-label="File drop zone. Click to select an image."
+                aria-live="polite"
+                aria-describedby="image-editor-drop-description"
                 onClick={openFilePicker}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openFilePicker();
+                  }
+                }}
               >
-                <UploadIcon className="text-muted-foreground mb-3 size-10" />
-                <p className="text-sm font-medium">
-                  Drag and drop an image here
-                </p>
-                <p className="text-muted-foreground mt-1 text-xs">
-                  Processed locally in your browser. No server upload. No
-                  account.
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  PNG, JPEG, or WebP up to 25 MB.
-                </p>
-              </button>
+                <span id="image-editor-drop-description" className="sr-only">
+                  Drag and drop an image here, click to select a file, or use
+                  the command bar above to open an image. PNG, JPEG, or WebP up
+                  to 25 MB.
+                </span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-12 text-center">
+                  <UploadIcon
+                    className="text-muted-foreground h-12 w-12"
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <p
+                      className="text-sm font-medium"
+                      role="heading"
+                      aria-level={2}
+                    >
+                      Drag and drop an image here
+                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      Or use the command bar above to open your image
+                    </p>
+                  </div>
+                  <p className="text-muted-foreground text-xs">
+                    Processed locally in your browser. No server upload. No
+                    account.
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    PNG, JPEG, or WebP up to 25 MB.
+                  </p>
+                </div>
+              </section>
             )}
           </div>
         </div>
 
-        {source ? (
-          <aside className="hidden w-[320px] flex-shrink-0 lg:block">
-            <LayersPanel
-              className="h-full"
-              elements={state.elements}
-              selectedId={state.selectedId}
-              onSelect={select}
-              onDelete={(id) => dispatch({ type: "DELETE_ELEMENT", id })}
-              onReorder={(id, direction) =>
-                dispatch({ type: "REORDER_ELEMENT", id, direction })
-              }
-              onUpdate={(id, patch) =>
-                dispatch({ type: "UPDATE_ELEMENT", id, patch })
-              }
-            />
-          </aside>
-        ) : null}
+        <aside
+          aria-label="Image editor layer controls"
+          className="hidden flex-shrink-0 lg:block"
+        >
+          <LayersPanel
+            hasImage={Boolean(source)}
+            className="h-full"
+            elements={state.elements}
+            selectedId={state.selectedId}
+            onSelect={select}
+            onDelete={(id) => dispatch({ type: "DELETE_ELEMENT", id })}
+            onReorder={(id, direction) =>
+              dispatch({ type: "REORDER_ELEMENT", id, direction })
+            }
+          />
+        </aside>
       </div>
 
       <Sheet open={layersOpen} onOpenChange={setLayersOpen}>
-        <SheetContent side="right" className="w-[320px] p-0">
+        <SheetContent side="right" className="w-80 p-0">
           <SheetHeader className="sr-only">
             <SheetTitle>Layers</SheetTitle>
           </SheetHeader>
-          {source ? (
-            <LayersPanel
-              elements={state.elements}
-              selectedId={state.selectedId}
-              onSelect={select}
-              onDelete={(id) => dispatch({ type: "DELETE_ELEMENT", id })}
-              onReorder={(id, direction) =>
-                dispatch({ type: "REORDER_ELEMENT", id, direction })
-              }
-              onUpdate={(id, patch) =>
-                dispatch({ type: "UPDATE_ELEMENT", id, patch })
-              }
-            />
-          ) : null}
+          <LayersPanel
+            hasImage={Boolean(source)}
+            elements={state.elements}
+            selectedId={state.selectedId}
+            onSelect={select}
+            onDelete={(id) => dispatch({ type: "DELETE_ELEMENT", id })}
+            onReorder={(id, direction) =>
+              dispatch({ type: "REORDER_ELEMENT", id, direction })
+            }
+          />
         </SheetContent>
       </Sheet>
     </div>

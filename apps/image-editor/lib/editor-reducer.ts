@@ -1,3 +1,4 @@
+import { getDefaultToolSizes, STROKE_WIDTH_MIN } from "./default-tool-sizes";
 import {
   DEFAULT_BLUR_RADIUS,
   DEFAULT_DIM_OPACITY,
@@ -125,19 +126,33 @@ function createElementId(): string {
   return `el-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/** Options when creating a new annotation. */
+export interface CreateElementOptions {
+  readonly imageWidth?: number;
+  readonly imageHeight?: number;
+  readonly fontSize?: number;
+  readonly strokeWidth?: number;
+}
+
 /** Creates a text annotation at the given image coordinates. */
 export function createTextElement(
   x: number,
   y: number,
-  color?: string
+  color?: string,
+  options?: CreateElementOptions
 ): TextElement {
+  const scaled =
+    options?.imageWidth && options?.imageHeight
+      ? getDefaultToolSizes(options.imageWidth, options.imageHeight)
+      : null;
+
   return {
     id: createElementId(),
     type: "text",
     x,
     y,
     text: "Text",
-    fontSize: 24,
+    fontSize: options?.fontSize ?? scaled?.fontSize ?? 36,
     fill: color ?? DEFAULT_TEXT_FILL,
     rotation: 0,
   };
@@ -149,14 +164,24 @@ export function createArrowElement(
   y1: number,
   x2: number,
   y2: number,
-  color?: string
+  color?: string,
+  options?: CreateElementOptions
 ): ArrowElement {
+  const scaled =
+    options?.imageWidth && options?.imageHeight
+      ? getDefaultToolSizes(options.imageWidth, options.imageHeight)
+      : null;
+  const strokeWidth = Math.max(
+    STROKE_WIDTH_MIN,
+    options?.strokeWidth ?? scaled?.strokeWidth ?? 5
+  );
+
   return {
     id: createElementId(),
     type: "arrow",
     points: [x1, y1, x2, y2],
     stroke: color ?? DEFAULT_STROKE,
-    strokeWidth: 3,
+    strokeWidth,
   };
 }
 
@@ -166,8 +191,18 @@ export function createBorderElement(
   y: number,
   width: number,
   height: number,
-  color?: string
+  color?: string,
+  options?: CreateElementOptions
 ): BorderElement {
+  const scaled =
+    options?.imageWidth && options?.imageHeight
+      ? getDefaultToolSizes(options.imageWidth, options.imageHeight)
+      : null;
+  const strokeWidth = Math.max(
+    STROKE_WIDTH_MIN,
+    options?.strokeWidth ?? scaled?.strokeWidth ?? 5
+  );
+
   return {
     id: createElementId(),
     type: "border",
@@ -176,7 +211,7 @@ export function createBorderElement(
     width,
     height,
     stroke: color ?? DEFAULT_STROKE,
-    strokeWidth: 3,
+    strokeWidth,
   };
 }
 

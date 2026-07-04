@@ -3,6 +3,7 @@
 import { Textarea } from "@helvety/ui/textarea";
 import { useEffect, useRef } from "react";
 
+import { getTextShadowCss } from "@/lib/default-tool-sizes";
 import { imageToStageCoords } from "@/lib/export-image";
 
 import type { CropRect, TextElement } from "@/lib/editor-types";
@@ -43,6 +44,7 @@ export function TextEditOverlay({
         left: stagePos.x * displayScale,
         top: stagePos.y * displayScale,
         fontSize: element.fontSize * displayScale,
+        textShadow: getTextShadowCss(element.fontSize * displayScale),
         minWidth: 120,
         minHeight: 32,
       }}

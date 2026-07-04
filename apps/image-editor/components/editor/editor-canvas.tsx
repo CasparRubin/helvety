@@ -22,6 +22,7 @@ interface EditorCanvasProps {
   readonly dispatch: (action: EditorAction) => void;
   readonly displayScale: number;
   readonly toolColor: string;
+  readonly toolStrokeWidth: number;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }

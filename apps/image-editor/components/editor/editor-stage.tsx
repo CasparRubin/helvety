@@ -18,7 +18,10 @@ import {
   normalizeRect,
 } from "@/lib/editor-reducer";
 import { MIN_DRAG_SIZE_PX } from "@/lib/editor-types";
-import { getLogicalStageSize, pointerToImageCoords } from "@/lib/export-image";
+import {
+  getLogicalStageSize,
+  getImagePointerFromStage,
+} from "@/lib/export-image";
 
 import {
   ArrowNode,
@@ -57,6 +60,7 @@ interface EditorStageProps {
   readonly dispatch: (action: EditorAction) => void;
   readonly displayScale: number;
   readonly toolColor: string;
+  readonly toolStrokeWidth: number;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }
@@ -70,6 +74,7 @@ export function EditorStage({
   dispatch,
   displayScale,
   toolColor,
+  toolStrokeWidth,
   pendingCrop,
   onCropDraftChange,
 }: EditorStageProps): React.JSX.Element {
@@ -141,14 +146,27 @@ export function EditorStage({
       transformer.nodes([node]);
       transformer.getLayer()?.batchDraw();
     }
-  }, [state.activeTool, state.selectedId, selectedElement, state.elements]);
+  }, [
+    state.activeTool,
+    state.selectedId,
+    selectedElement,
+    state.elements,
+    displayScale,
+  ]);
+
+  const createOptions = useCallback(
+    () => ({
+      imageWidth,
+      imageHeight,
+      strokeWidth: toolStrokeWidth,
+    }),
+    [imageWidth, imageHeight, toolStrokeWidth]
+  );
 
   const getImagePointer = useCallback((): { x: number; y: number } | null => {
     const stage = stageRef.current;
     if (!stage) return null;
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return null;
-    return pointerToImageCoords(pointer.x, pointer.y, crop);
+    return getImagePointerFromStage(stage, crop);
   }, [crop]);
 
   const finishRectDraw = useCallback(
@@ -174,7 +192,8 @@ export function EditorStage({
             preview.y,
             preview.width,
             preview.height,
-            toolColor
+            toolColor,
+            createOptions()
           );
           break;
         case "highlight":
@@ -202,7 +221,7 @@ export function EditorStage({
         dispatch({ type: "SET_TOOL", tool: "select" });
       }
     },
-    [dispatch, onCropDraftChange, state.activeTool, toolColor]
+    [dispatch, onCropDraftChange, state.activeTool, toolColor, createOptions]
   );
 
   const handleStageMouseDown = useCallback(() => {
@@ -210,7 +229,12 @@ export function EditorStage({
     if (!pointer) return;
 
     if (state.activeTool === "text") {
-      const element = createTextElement(pointer.x, pointer.y, toolColor);
+      const element = createTextElement(
+        pointer.x,
+        pointer.y,
+        toolColor,
+        createOptions()
+      );
       dispatch({ type: "ADD_ELEMENT", element });
       dispatch({ type: "SET_TOOL", tool: "select" });
       setEditingTextId(element.id);
@@ -247,7 +271,7 @@ export function EditorStage({
         height: 0,
       });
     }
-  }, [dispatch, getImagePointer, state.activeTool, toolColor]);
+  }, [dispatch, getImagePointer, state.activeTool, toolColor, createOptions]);
 
   const handleStageMouseMove = useCallback(() => {
     if (!drawStart) return;
@@ -292,7 +316,8 @@ export function EditorStage({
             drawStart.y,
             pointer.x,
             pointer.y,
-            toolColor
+            toolColor,
+            createOptions()
           );
           dispatch({ type: "ADD_ELEMENT", element });
           dispatch({ type: "SET_TOOL", tool: "select" });
@@ -314,6 +339,7 @@ export function EditorStage({
     getImagePointer,
     state.activeTool,
     toolColor,
+    createOptions,
   ]);
 
   const updateElement = useCallback(
@@ -336,167 +362,177 @@ export function EditorStage({
   );
 
   return (
-    <div className="relative inline-block">
-      <Stage
-        ref={stageRef}
-        width={stageWidth}
-        height={stageHeight}
-        scaleX={displayScale}
-        scaleY={displayScale}
+    <div
+      className="relative inline-block"
+      style={{
+        width: stageWidth * displayScale,
+        height: stageHeight * displayScale,
+      }}
+    >
+      <div
         style={{
-          width: stageWidth * displayScale,
-          height: stageHeight * displayScale,
+          transform: `scale(${displayScale})`,
+          transformOrigin: "top left",
+          width: stageWidth,
+          height: stageHeight,
         }}
-        onMouseDown={handleStageMouseDown}
-        onMousemove={handleStageMouseMove}
-        onMouseup={handleStageMouseUp}
-        onTouchStart={handleStageMouseDown}
-        onTouchmove={handleStageMouseMove}
-        onTouchend={handleStageMouseUp}
       >
-        <Layer>
-          <KonvaImage
-            image={sourceImage}
-            x={-crop.x}
-            y={-crop.y}
-            width={imageWidth}
-            height={imageHeight}
-            listening={false}
-          />
-
-          {state.elements.map((element) => {
-            const selected = element.id === state.selectedId;
-            const onSelect = () => {
-              if (state.activeTool === "select") {
-                dispatch({ type: "SELECT", id: element.id });
-              }
-            };
-
-            switch (element.type) {
-              case "blur":
-                return (
-                  <BlurNode
-                    key={element.id}
-                    id={`element-${element.id}`}
-                    element={element}
-                    sourceImage={sourceImage}
-                    crop={crop}
-                    selected={selected}
-                    draggable={draggable}
-                    onSelect={onSelect}
-                    onChange={(patch) => updateElement(element.id, patch)}
-                  />
-                );
-              case "highlight":
-                return (
-                  <HighlightNode
-                    key={element.id}
-                    element={element}
-                    crop={crop}
-                    stageWidth={stageWidth}
-                    stageHeight={stageHeight}
-                    selected={selected}
-                    draggable={draggable}
-                    onSelect={onSelect}
-                    onChange={(patch) => updateElement(element.id, patch)}
-                  />
-                );
-              case "border":
-                return (
-                  <BorderNode
-                    key={element.id}
-                    id={`element-${element.id}`}
-                    element={element}
-                    crop={crop}
-                    selected={selected}
-                    draggable={draggable}
-                    onSelect={onSelect}
-                    onChange={(patch) => updateElement(element.id, patch)}
-                  />
-                );
-              case "arrow":
-                return (
-                  <ArrowNode
-                    key={element.id}
-                    element={element}
-                    crop={crop}
-                    selected={selected}
-                    draggable={draggable}
-                    onSelect={onSelect}
-                    onChange={(patch) => updateElement(element.id, patch)}
-                  />
-                );
-              case "text":
-                return (
-                  <TextNode
-                    key={element.id}
-                    id={`element-${element.id}`}
-                    element={element}
-                    crop={crop}
-                    selected={selected}
-                    draggable={draggable}
-                    onSelect={onSelect}
-                    onChange={(patch) => updateElement(element.id, patch)}
-                    onEdit={() => setEditingTextId(element.id)}
-                  />
-                );
-              default: {
-                const _exhaustive: never = element;
-                return _exhaustive;
-              }
-            }
-          })}
-
-          {drawPreview &&
-          (state.activeTool === "border" ||
-            state.activeTool === "highlight" ||
-            state.activeTool === "blur" ||
-            state.activeTool === "crop") ? (
-            <Rect
-              x={drawPreview.x - crop.x}
-              y={drawPreview.y - crop.y}
-              width={drawPreview.width}
-              height={drawPreview.height}
-              stroke={state.activeTool === "border" ? toolColor : "#3b82f6"}
-              dash={[6, 4]}
+        <Stage
+          ref={stageRef}
+          width={stageWidth}
+          height={stageHeight}
+          onMouseDown={handleStageMouseDown}
+          onMousemove={handleStageMouseMove}
+          onMouseup={handleStageMouseUp}
+          onTouchStart={handleStageMouseDown}
+          onTouchmove={handleStageMouseMove}
+          onTouchend={handleStageMouseUp}
+        >
+          <Layer>
+            <KonvaImage
+              image={sourceImage}
+              x={-crop.x}
+              y={-crop.y}
+              width={imageWidth}
+              height={imageHeight}
               listening={false}
             />
-          ) : null}
 
-          {drawPreview && state.activeTool === "arrow" ? (
-            <TaperedArrowPreview
-              x1={drawPreview.x - crop.x}
-              y1={drawPreview.y - crop.y}
-              x2={drawPreview.x - crop.x + drawPreview.width}
-              y2={drawPreview.y - crop.y + drawPreview.height}
-              color={toolColor}
-            />
-          ) : null}
+            {state.elements.map((element) => {
+              const selected = element.id === state.selectedId;
+              const onSelect = () => {
+                if (state.activeTool === "select") {
+                  dispatch({ type: "SELECT", id: element.id });
+                }
+              };
 
-          {activeCropOverlay ? (
-            <GroupCropOverlay
-              cropRect={activeCropOverlay}
-              viewCrop={crop}
-              stageWidth={stageWidth}
-              stageHeight={stageHeight}
-            />
-          ) : null}
-
-          <Transformer
-            ref={transformerRef}
-            rotateEnabled
-            boundBoxFunc={(oldBox, newBox) => {
-              if (
-                newBox.width < MIN_DRAG_SIZE_PX ||
-                newBox.height < MIN_DRAG_SIZE_PX
-              ) {
-                return oldBox;
+              switch (element.type) {
+                case "blur":
+                  return (
+                    <BlurNode
+                      key={element.id}
+                      id={`element-${element.id}`}
+                      element={element}
+                      sourceImage={sourceImage}
+                      crop={crop}
+                      selected={selected}
+                      draggable={draggable}
+                      onSelect={onSelect}
+                      onChange={(patch) => updateElement(element.id, patch)}
+                    />
+                  );
+                case "highlight":
+                  return (
+                    <HighlightNode
+                      key={element.id}
+                      element={element}
+                      crop={crop}
+                      stageWidth={stageWidth}
+                      stageHeight={stageHeight}
+                      selected={selected}
+                      draggable={draggable}
+                      onSelect={onSelect}
+                      onChange={(patch) => updateElement(element.id, patch)}
+                    />
+                  );
+                case "border":
+                  return (
+                    <BorderNode
+                      key={element.id}
+                      id={`element-${element.id}`}
+                      element={element}
+                      crop={crop}
+                      selected={selected}
+                      draggable={draggable}
+                      onSelect={onSelect}
+                      onChange={(patch) => updateElement(element.id, patch)}
+                    />
+                  );
+                case "arrow":
+                  return (
+                    <ArrowNode
+                      key={element.id}
+                      element={element}
+                      crop={crop}
+                      selected={selected}
+                      draggable={draggable}
+                      onSelect={onSelect}
+                      onChange={(patch) => updateElement(element.id, patch)}
+                    />
+                  );
+                case "text":
+                  return (
+                    <TextNode
+                      key={element.id}
+                      id={`element-${element.id}`}
+                      element={element}
+                      crop={crop}
+                      selected={selected}
+                      draggable={draggable}
+                      onSelect={onSelect}
+                      onChange={(patch) => updateElement(element.id, patch)}
+                      onEdit={() => setEditingTextId(element.id)}
+                    />
+                  );
+                default: {
+                  const _exhaustive: never = element;
+                  return _exhaustive;
+                }
               }
-              return newBox;
-            }}
-          />
-        </Layer>
-      </Stage>
+            })}
+
+            {drawPreview &&
+            (state.activeTool === "border" ||
+              state.activeTool === "highlight" ||
+              state.activeTool === "blur" ||
+              state.activeTool === "crop") ? (
+              <Rect
+                x={drawPreview.x - crop.x}
+                y={drawPreview.y - crop.y}
+                width={drawPreview.width}
+                height={drawPreview.height}
+                stroke={state.activeTool === "border" ? toolColor : "#3b82f6"}
+                dash={[6, 4]}
+                listening={false}
+              />
+            ) : null}
+
+            {drawPreview && state.activeTool === "arrow" ? (
+              <TaperedArrowPreview
+                x1={drawPreview.x - crop.x}
+                y1={drawPreview.y - crop.y}
+                x2={drawPreview.x - crop.x + drawPreview.width}
+                y2={drawPreview.y - crop.y + drawPreview.height}
+                color={toolColor}
+                strokeWidth={toolStrokeWidth}
+              />
+            ) : null}
+
+            {activeCropOverlay ? (
+              <GroupCropOverlay
+                cropRect={activeCropOverlay}
+                viewCrop={crop}
+                stageWidth={stageWidth}
+                stageHeight={stageHeight}
+              />
+            ) : null}
+
+            <Transformer
+              ref={transformerRef}
+              rotateEnabled
+              boundBoxFunc={(oldBox, newBox) => {
+                if (
+                  newBox.width < MIN_DRAG_SIZE_PX ||
+                  newBox.height < MIN_DRAG_SIZE_PX
+                ) {
+                  return oldBox;
+                }
+                return newBox;
+              }}
+            />
+          </Layer>
+        </Stage>
+      </div>
 
       {editingText ? (
         <TextEditOverlay

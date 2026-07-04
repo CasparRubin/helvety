@@ -90,6 +90,7 @@ describe("HelvetyImageEditor", () => {
     expect(
       screen.getByText(/Processed locally in your browser/i)
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("Upload image")).toBeInTheDocument();
   });
 
   it("rejects unsupported uploads via toast", () => {
@@ -124,6 +125,20 @@ describe("HelvetyImageEditor", () => {
     );
   });
 
+  it("shows the layers panel empty state before an image is loaded", () => {
+    render(<HelvetyImageEditor />);
+
+    expect(
+      screen.getByRole("region", { name: "Image editor workspace" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Image editor layer controls" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Open an image to see layers.")
+    ).toBeInTheDocument();
+  });
+
   it("shows the canvas and command-bar tools after a valid upload", async () => {
     render(<HelvetyImageEditor />);
     uploadImageFile();
@@ -133,10 +148,41 @@ describe("HelvetyImageEditor", () => {
     });
     expect(screen.getByRole("button", { name: "Text" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Highlight" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Export" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Export image/i })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Zoom in" })).toBeEnabled();
-    expect(screen.getByLabelText("Tool color")).toBeInTheDocument();
+    expect(
+      screen.getByText("Select a tool or layer to edit properties.")
+    ).toBeInTheDocument();
     expect(screen.getByText("100%")).toBeInTheDocument();
+  });
+
+  it("shows tool properties when a drawing tool is selected", async () => {
+    render(<HelvetyImageEditor />);
+    uploadImageFile();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Text" })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Text" }));
+
+    expect(screen.getByLabelText("Color")).toBeInTheDocument();
+  });
+
+  it("opens the file picker from the drop zone via keyboard", () => {
+    render(<HelvetyImageEditor />);
+
+    const dropZone = screen.getByRole("button", {
+      name: "File drop zone. Click to select an image.",
+    });
+    const input = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement;
+    const clickSpy = vi.spyOn(input, "click");
+
+    fireEvent.keyDown(dropZone, { key: "Enter" });
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
   it("shows clear confirmation copy from the command bar", async () => {
@@ -160,10 +206,12 @@ describe("HelvetyImageEditor", () => {
     uploadImageFile();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Export" })).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: /Export image/i })
+      ).toBeEnabled();
     });
 
-    const exportButton = screen.getByRole("button", { name: "Export" });
+    const exportButton = screen.getByRole("button", { name: /Export image/i });
     fireEvent.pointerDown(exportButton);
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })
@@ -190,10 +238,12 @@ describe("HelvetyImageEditor", () => {
     uploadImageFile();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Export" })).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: /Export image/i })
+      ).toBeEnabled();
     });
 
-    const exportButton = screen.getByRole("button", { name: "Export" });
+    const exportButton = screen.getByRole("button", { name: /Export image/i });
     fireEvent.pointerDown(exportButton);
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })
@@ -216,10 +266,12 @@ describe("HelvetyImageEditor", () => {
     uploadImageFile();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Export" })).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: /Export image/i })
+      ).toBeEnabled();
     });
 
-    const exportButton = screen.getByRole("button", { name: "Export" });
+    const exportButton = screen.getByRole("button", { name: /Export image/i });
     fireEvent.pointerDown(exportButton);
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })

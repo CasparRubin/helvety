@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { buildTaperedArrowPoints } from "./tapered-arrow";
+import { buildTaperedArrowPoints, drawTaperedArrowPath } from "./tapered-arrow";
 
 describe("buildTaperedArrowPoints", () => {
   it("places the tip at the head point for a horizontal arrow", () => {
@@ -23,5 +23,23 @@ describe("buildTaperedArrowPoints", () => {
     const headSpread = Math.abs(points[3]! - points[9]!);
 
     expect(headSpread).toBeGreaterThan(tailSpread);
+  });
+});
+
+describe("drawTaperedArrowPath", () => {
+  it("draws a closed path through tapered arrow points", () => {
+    const context = {
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+    };
+
+    drawTaperedArrowPath(context, 0, 0, 80, 0, 5);
+
+    expect(context.beginPath).toHaveBeenCalledTimes(1);
+    expect(context.moveTo).toHaveBeenCalled();
+    expect(context.lineTo).toHaveBeenCalled();
+    expect(context.closePath).toHaveBeenCalledTimes(1);
   });
 });

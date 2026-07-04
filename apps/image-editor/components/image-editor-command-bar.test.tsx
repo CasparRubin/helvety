@@ -13,7 +13,6 @@ function renderCommandBar(
       activeTool="select"
       isExporting={false}
       canApplyCrop={false}
-      toolColor="#ef4444"
       userZoom={1}
       onOpenImage={vi.fn()}
       onReplaceImage={vi.fn()}
@@ -23,7 +22,6 @@ function renderCommandBar(
       onApplyCrop={vi.fn()}
       onResetCrop={vi.fn()}
       onOpenLayers={vi.fn()}
-      onToolColorChange={vi.fn()}
       onZoomIn={vi.fn()}
       onZoomOut={vi.fn()}
       onFitToView={vi.fn()}
@@ -50,7 +48,7 @@ describe("ImageEditorCommandBar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Text" }));
 
-    const exportButton = screen.getByRole("button", { name: "Export" });
+    const exportButton = screen.getByRole("button", { name: /Export image/i });
     fireEvent.pointerDown(exportButton);
     fireEvent.click(exportButton);
     fireEvent.click(
@@ -81,7 +79,7 @@ describe("ImageEditorCommandBar", () => {
     const onExport = vi.fn();
     renderCommandBar({ hasImage: true, onExport });
 
-    const exportButton = screen.getByRole("button", { name: "Export" });
+    const exportButton = screen.getByRole("button", { name: /Export image/i });
     fireEvent.pointerDown(exportButton);
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export JPEG" })
@@ -92,7 +90,9 @@ describe("ImageEditorCommandBar", () => {
 
   it("disables export while exporting", () => {
     renderCommandBar({ hasImage: true, isExporting: true });
-    expect(screen.getByRole("button", { name: "Export" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Export image (processing)" })
+    ).toBeDisabled();
   });
 
   it("confirms clear before invoking callback", () => {
@@ -148,18 +148,13 @@ describe("ImageEditorCommandBar", () => {
     expect(onFitToView).toHaveBeenCalledTimes(1);
   });
 
-  it("wires the global tool color picker", () => {
-    const onToolColorChange = vi.fn();
-    renderCommandBar({
-      hasImage: true,
-      toolColor: "#112233",
-      onToolColorChange,
-    });
+  it("uses destructive styling for the clear confirmation action", () => {
+    const onClear = vi.fn();
+    renderCommandBar({ hasImage: true, onClear });
 
-    fireEvent.change(screen.getByLabelText("Tool color"), {
-      target: { value: "#aabbcc" },
-    });
-
-    expect(onToolColorChange).toHaveBeenCalledWith("#aabbcc");
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    const dialog = screen.getByRole("alertdialog");
+    const confirm = within(dialog).getByRole("button", { name: "Clear" });
+    expect(confirm.className).toMatch(/destructive/);
   });
 });

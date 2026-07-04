@@ -2,17 +2,11 @@
 
 import Konva from "konva";
 import { useEffect, useRef } from "react";
-import {
-  Group,
-  Image as KonvaImage,
-  Line,
-  Rect,
-  Shape,
-  Text,
-} from "react-konva";
+import { Group, Image as KonvaImage, Line, Rect, Text } from "react-konva";
 
+import { getTextShadowProps } from "@/lib/default-tool-sizes";
 import { buildSpotlightRects } from "@/lib/spotlight-rects";
-import { drawTaperedArrowPath } from "@/lib/tapered-arrow";
+import { buildTaperedArrowPoints } from "@/lib/tapered-arrow";
 
 import type {
   ArrowElement,
@@ -327,29 +321,15 @@ export function ArrowNode({
         });
       }}
     >
-      <Shape
-        sceneFunc={(context, shape) => {
-          drawTaperedArrowPath(
-            context,
-            sx1,
-            sy1,
-            sx2,
-            sy2,
-            element.strokeWidth
-          );
-          context.fillStrokeShape(shape);
-        }}
-        hitFunc={(context, shape) => {
-          drawTaperedArrowPath(
-            context,
-            sx1,
-            sy1,
-            sx2,
-            sy2,
-            element.strokeWidth
-          );
-          context.fillStrokeShape(shape);
-        }}
+      <Line
+        points={buildTaperedArrowPoints(
+          sx1,
+          sy1,
+          sx2,
+          sy2,
+          element.strokeWidth
+        )}
+        closed
         fill={element.stroke}
       />
       {selected ? (
@@ -382,14 +362,12 @@ export function TaperedArrowPreview({
   x2,
   y2,
   color,
-  strokeWidth = 3,
+  strokeWidth = 5,
 }: TaperedArrowPreviewProps): React.JSX.Element {
   return (
-    <Shape
-      sceneFunc={(context, shape) => {
-        drawTaperedArrowPath(context, x1, y1, x2, y2, strokeWidth);
-        context.fillStrokeShape(shape);
-      }}
+    <Line
+      points={buildTaperedArrowPoints(x1, y1, x2, y2, strokeWidth)}
+      closed
       fill={color}
       listening={false}
     />
@@ -452,6 +430,7 @@ export function TextNode({
       }}
       stroke={selected ? "#3b82f6" : undefined}
       strokeWidth={selected ? 0.5 : 0}
+      {...getTextShadowProps(element.fontSize)}
     />
   );
 }

@@ -54,4 +54,4 @@ export const IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION = `Upscale images in your b
 export const IMAGE_EDITOR_APP_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, spotlight highlights, blur regions, and crop, with a layers panel and zoom for detail work (${IMAGE_FILE_SIZE_LIMIT_COPY}). Edits stay on your device with no server-side image processing and no sign-in. Switzerland-first service posture (not actively targeted to EU/EEA markets). ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** PWA `public/manifest.json` summary for image editor. */
-export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate images in your browser: text, arrows, borders, spotlight highlight, blur, and crop. Layers panel and zoom; PNG and JPEG export. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, spotlight highlight, blur, and crop. Layers panel and zoom; PNG and JPEG export. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;

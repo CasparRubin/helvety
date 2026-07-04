@@ -1,24 +1,37 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  createBlurElement,
-  createBorderElement,
-  createTextElement,
-} from "@/lib/editor-reducer";
+import { createBorderElement, createTextElement } from "@/lib/editor-reducer";
 
 import { LayersPanel } from "./layers-panel";
 
 describe("LayersPanel", () => {
-  it("shows empty state when there are no layers", () => {
+  it("shows empty state when there is no image", () => {
     render(
       <LayersPanel
+        hasImage={false}
         elements={[]}
         selectedId={null}
         onSelect={vi.fn()}
         onDelete={vi.fn()}
         onReorder={vi.fn()}
-        onUpdate={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByText("Open an image to see layers.")
+    ).toBeInTheDocument();
+  });
+
+  it("shows empty state when there are no layers", () => {
+    render(
+      <LayersPanel
+        hasImage
+        elements={[]}
+        selectedId={null}
+        onSelect={vi.fn()}
+        onDelete={vi.fn()}
+        onReorder={vi.fn()}
       />
     );
 
@@ -36,12 +49,12 @@ describe("LayersPanel", () => {
 
     render(
       <LayersPanel
+        hasImage
         elements={[border, text]}
         selectedId={border.id}
         onSelect={onSelect}
         onDelete={onDelete}
         onReorder={onReorder}
-        onUpdate={vi.fn()}
       />
     );
 
@@ -69,12 +82,12 @@ describe("LayersPanel", () => {
 
     render(
       <LayersPanel
+        hasImage
         elements={[bottom, top]}
         selectedId={null}
         onSelect={vi.fn()}
         onDelete={vi.fn()}
         onReorder={vi.fn()}
-        onUpdate={vi.fn()}
       />
     );
 
@@ -91,31 +104,5 @@ describe("LayersPanel", () => {
     expect(
       within(topRow!).getByRole("button", { name: "Move layer up" })
     ).toBeDisabled();
-  });
-
-  it("wires property updates for the selected element", () => {
-    const blur = createBlurElement(0, 0, 40, 30);
-    const onUpdate = vi.fn();
-
-    render(
-      <LayersPanel
-        elements={[blur]}
-        selectedId={blur.id}
-        onSelect={vi.fn()}
-        onDelete={vi.fn()}
-        onReorder={vi.fn()}
-        onUpdate={onUpdate}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Blur radius"), {
-      target: { value: "24" },
-    });
-    fireEvent.change(screen.getByLabelText("Width"), {
-      target: { value: "80" },
-    });
-
-    expect(onUpdate).toHaveBeenCalledWith(blur.id, { blurRadius: 24 });
-    expect(onUpdate).toHaveBeenCalledWith(blur.id, { width: 80 });
   });
 });
