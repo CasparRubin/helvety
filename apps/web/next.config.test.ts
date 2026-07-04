@@ -259,4 +259,25 @@ describe("web gateway rewrites", () => {
       "AUTH_URL is required on Vercel in production."
     );
   });
+
+  it("requires IMAGE_EDITOR_URL on Vercel production when unset", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
+    vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
+    vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
+    vi.stubEnv(
+      "IMAGE_UPSCALER_URL",
+      "https://helvety-image-upscaler.vercel.app"
+    );
+    vi.stubEnv("IMAGE_EDITOR_URL", "");
+    vi.stubEnv("TASKS_URL", "https://helvety-tasks.vercel.app");
+    vi.stubEnv("CONTACTS_URL", "https://helvety-contacts.vercel.app");
+    vi.stubEnv("NOTES_URL", "https://helvety-notes.vercel.app");
+    vi.stubEnv("LINKS_URL", "https://helvety-links.vercel.app");
+
+    await expect(nextConfig.rewrites?.()).rejects.toThrow(
+      "IMAGE_EDITOR_URL is required on Vercel in production."
+    );
+  });
 });

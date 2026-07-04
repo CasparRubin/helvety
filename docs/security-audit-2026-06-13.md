@@ -47,7 +47,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 ### Manual dashboard actions
 
 1. Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to **Preview** env on `helvety-pdf` and `helvety-image-upscaler` (Production already has them on other tiers; these two zones are missing Preview Upstash).
-2. Confirm **Web Analytics** and **Speed Insights** disabled on all nine projects.
+2. Confirm **Web Analytics** and **Speed Insights** disabled on all ten projects (nine at time of audit; `helvety-image-editor` added later).
 3. After any `*_URL` gateway change, redeploy `helvety-com`.
 
 ---
@@ -117,7 +117,7 @@ Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, exten
 
 1. Complete Supabase Auth dashboard items above (leaked password protection, session JWT/time-box alignment, disable unused OAuth).
 2. ~~Add Preview Upstash env vars on `helvety-pdf` and `helvety-image-upscaler`~~ — **done** (2026-06); re-run `bun run consistency:vercel-preview-env` after any new zone.
-3. Confirm Vercel Analytics disabled on all nine projects.
+3. Confirm Vercel Analytics disabled on all ten projects (nine at time of audit; `helvety-image-editor` added later).
 4. Align `helvety-com` Node.js to 24.x.
 5. Confirm `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` includes every supported extension id (see [`docs/env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)); redeploy auth after changes.
 6. Run `supabase login` locally if you want `bun run db:gen-types` without MCP.

@@ -37,7 +37,7 @@ bun run consistency:vercel-preview-env
 
 Confirm each zone uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; JWT `eyJ…` anon keys are rejected at startup) and `SUPABASE_SECRET_KEY` on admin tiers only (not legacy `anon` / `service_role` env var names). The audit script warns on legacy key names. Preview env should mirror Production tier keys (same allow/forbid rules); never set `SKIP_ENV_VALIDATION=1` on Vercel.
 
-### Vercel dashboard (manual, all nine zone projects)
+### Vercel dashboard (manual, all ten zone projects)
 
 - **Analytics → Web Analytics** and **Speed Insights** must stay **disabled** (Helvety CSP does not allow `va.vercel-scripts.com`).
 - Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview.

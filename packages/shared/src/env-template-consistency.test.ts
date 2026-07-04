@@ -180,8 +180,18 @@ describe("env.template consistency", () => {
       "utf8"
     );
     expect(auditChecklist).toContain("helvety-com");
+    expect(auditChecklist).toContain("helvety-image-editor");
+    expect(auditChecklist).toMatch(/\*\*ten\*\* zone projects/);
+    expect(auditChecklist).toContain("IMAGE_EDITOR_URL");
     expect(auditChecklist).toContain("consistency:vercel-preview-env");
     expect(auditChecklist).not.toContain("helvety-web");
+
+    expect(turboTiers).toContain("IMAGE_EDITOR_URL");
+    expect(turboTiers).toMatch(/`pdf`, `image-upscaler`, `image-editor`/);
+    expect(vercelApps).toContain("helvety-image-editor");
+    expect(turboTiers).not.toContain("DOCS_URL");
+    expect(vercelApps).not.toContain("helvety-docs");
+    expect(vercelApps).toContain("IMAGE_EDITOR_URL");
 
     const securityRunbook = await readFile(
       resolve(repoRoot, "docs/security-review-runbook.md"),
@@ -191,6 +201,16 @@ describe("env.template consistency", () => {
     expect(securityRunbook).not.toMatch(
       /node scripts\/audit-vercel-production-env\.mjs --preview/
     );
+
+    const cookiesDoc = await readFile(
+      resolve(repoRoot, "docs/cookies-telemetry-and-footer.md"),
+      "utf8"
+    );
+    expect(cookiesDoc).toMatch(/\*\*Ten zones:\*\*/);
+    expect(cookiesDoc).toContain("image-editor");
+
+    const rootReadme = await readFile(resolve(repoRoot, "README.md"), "utf8");
+    expect(rootReadme).toMatch(/All ten Next\.js zones/);
   });
 
   it("env.template files do not document legacy Supabase key names", async () => {

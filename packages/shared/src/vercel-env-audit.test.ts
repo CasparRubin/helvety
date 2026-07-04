@@ -102,6 +102,41 @@ describe("auditProjectEnv", () => {
       "helvety-com: missing gateway rewrite URLs: LINKS_URL"
     );
     expect(WEB_GATEWAY_KEYS).toContain("LINKS_URL");
+    expect(WEB_GATEWAY_KEYS).toContain("IMAGE_EDITOR_URL");
+  });
+
+  it("flags missing IMAGE_EDITOR_URL on helvety-com", () => {
+    const webKeys = requireAppKeys(EXPECTED_KEYS_BY_APP.web, "web");
+    const { errors } = auditProjectEnv({
+      project: "helvety-com",
+      app: "web",
+      keys: webKeys.filter((key) => key !== "IMAGE_EDITOR_URL"),
+    });
+
+    expect(errors).toContain(
+      "helvety-com: missing gateway rewrite URLs: IMAGE_EDITOR_URL"
+    );
+  });
+
+  it("flags obsolete DOCS_URL on any zone project", () => {
+    const webKeys = [
+      ...requireAppKeys(EXPECTED_KEYS_BY_APP.web, "web"),
+      "DOCS_URL",
+    ];
+    const { errors, toRemove } = auditProjectEnv({
+      project: "helvety-com",
+      app: "web",
+      keys: webKeys,
+    });
+
+    expect(errors).toContain(
+      "helvety-com: remove obsolete env var (retired zone or rewrite): DOCS_URL"
+    );
+    expect(toRemove).toContainEqual({
+      project: "helvety-com",
+      app: "web",
+      key: "DOCS_URL",
+    });
   });
 });
 

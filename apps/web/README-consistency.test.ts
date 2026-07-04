@@ -12,10 +12,13 @@ describe("apps/web README gateway zones", () => {
   it("documents gateway rewrites and zone URLs", () => {
     expect(readme).toContain("/pdf");
     expect(readme).toContain("/image-upscaler");
-    expect(readme).toMatch(/pdf.*image-upscaler/i);
+    expect(readme).toContain("/image-editor");
+    expect(readme).toMatch(/pdf.*image-upscaler.*image-editor/is);
+    expect(readme).toContain("IMAGE_EDITOR_URL");
   });
 
   it("lists public zones in the public sitemap index section", () => {
     expect(readme).toMatch(/sitemap-index\.xml.*\bimage-upscaler\b/is);
+    expect(readme).toMatch(/sitemap-index\.xml.*\bimage-editor\b/is);
   });
 });

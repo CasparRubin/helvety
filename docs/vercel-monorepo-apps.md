@@ -9,6 +9,7 @@ Each Helvety zone is a **separate Vercel project** with **Root Directory** set t
 | Store          | `helvety-store`          | `apps/store`          |
 | PDF            | `helvety-pdf`            | `apps/pdf`            |
 | Image Upscaler | `helvety-image-upscaler` | `apps/image-upscaler` |
+| Image Editor   | `helvety-image-editor`   | `apps/image-editor`   |
 | Tasks          | `helvety-tasks`          | `apps/tasks`          |
 | Contacts       | `helvety-contacts`       | `apps/contacts`       |
 | Notes          | `helvety-notes`          | `apps/notes`          |
@@ -36,5 +37,5 @@ Copy keys from each zone’s `apps/<slug>/env.template` into that Vercel project
 
 - **Admin tier** (`helvety-auth`, `helvety-store`): needs `SUPABASE_SECRET_KEY`, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` (auth also needs `DEVICE_TRUST_COOKIE_SECRET` and `HELVETY_CHROME_EXTENSION_ORIGINS`).
 - **User-scoped tier** (E2EE apps): public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, and **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`); do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
-- **Public tools** (`helvety-pdf`, `helvety-image-upscaler`): public Supabase, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` only — **no** `DEVICE_TRUST_COOKIE_SECRET` (Upstash still required for auth callback rate limiting).
-- **Gateway** (`helvety-com`): public Supabase keys + all eight zone rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`; no `HELVETY_COOKIE_SIGNING_SECRET`, Upstash, or `SUPABASE_SECRET_KEY`.
+- **Public tools** (`helvety-pdf`, `helvety-image-upscaler`, `helvety-image-editor`): public Supabase, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` only — **no** `DEVICE_TRUST_COOKIE_SECRET` (Upstash still required for auth callback rate limiting).
+- **Gateway** (`helvety-com`): public Supabase keys + all nine zone rewrite URLs (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `IMAGE_EDITOR_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1`; no `HELVETY_COOKIE_SIGNING_SECRET`, Upstash, or `SUPABASE_SECRET_KEY`.

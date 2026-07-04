@@ -490,6 +490,19 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
+              Helvety Image Editor (helvety.com/image-editor):
+            </strong>{" "}
+            Annotation and export workflows run locally in your browser under
+            the current architecture: image files are edited on your device and
+            are not uploaded to our servers for processing. No login or account
+            is required. The service still uses minimal server-side endpoints
+            for platform and security functions (for example CSP reporting and
+            session/security proxy logic). The service is provided free of
+            charge; technical safeguards may still apply for security and
+            operational stability.
+          </li>
+          <li>
+            <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
             Catalog browsing and public package downloads work without creating
@@ -606,11 +619,13 @@ export default function PrivacyPage() {
           </strong>{" "}
           For Helvety Image Upscaler, we do not use your image pixels to train
           or fine-tune machine-learning models under the current architecture.
-          Model files used by the app are downloaded to your browser and may be
-          cached locally by your browser. In normal operation, the minimal
-          server-side endpoints referenced above process technical/security
-          context and are not intended to receive full image payloads for
-          upscaling.
+          For Helvety Image Editor, image pixels are not uploaded for
+          server-side annotation processing under the current architecture.
+          Model files used by the upscaler are downloaded to your browser and
+          may be cached locally by your browser. In normal operation, the
+          minimal server-side endpoints referenced above process
+          technical/security context and are not intended to receive full image
+          payloads for upscaling or annotation.
         </p>
       </section>
 
@@ -1392,8 +1407,9 @@ export default function PrivacyPage() {
           Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links
           implement end-to-end encryption to protect your content. Other Helvety
           services (helvety.com, Helvety Auth, Helvety PDF, Helvety Image
-          Upscaler, Helvety Store) do not use full-app end-to-end encryption.
-          For Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links:
+          Upscaler, Helvety Image Editor, Helvety Store) do not use full-app
+          end-to-end encryption. For Helvety Tasks, Helvety Contacts, Helvety
+          Notes, and Helvety Links:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

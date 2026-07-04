@@ -43,7 +43,7 @@ const DEVICE_TRUST_PARITY_PROJECTS = [
 const DEVICE_TRUST_SECRET_KEY = "DEVICE_TRUST_COOKIE_SECRET";
 
 /** @type {Record<string, string>} */
-const PROJECT_TO_APP = {
+export const PROJECT_TO_APP = {
   "helvety-com": "web",
   "helvety-auth": "auth",
   "helvety-store": "store",
@@ -68,6 +68,9 @@ const LEGACY_SUPABASE_KEY_NAMES = new Set([
   "SUPABASE_SERVICE_ROLE_KEY",
   "SERVICE_ROLE_KEY",
 ]);
+
+/** Retired env vars that must not remain on any zone project (removed apps / rewrites). */
+export const OBSOLETE_VERCEL_ENV_KEYS = ["DOCS_URL"];
 
 /**
  * Validates one zone project's env keys against tier expectations.
@@ -108,6 +111,14 @@ export function auditProjectEnv({ project, app, keys, target = "production" }) {
   for (const key of forbiddenPresent) {
     toRemove.push({ project, app, key });
     errors.push(`${project}: remove forbidden key for ${app} tier: ${key}`);
+  }
+  for (const key of keys) {
+    if (OBSOLETE_VERCEL_ENV_KEYS.includes(key)) {
+      toRemove.push({ project, app, key });
+      errors.push(
+        `${project}: remove obsolete env var (retired zone or rewrite): ${key}`
+      );
+    }
   }
   for (const key of unexpected) {
     warnings.push(
@@ -273,8 +284,9 @@ async function fetchEnvKeys(project, target) {
 /**
  * @param {string} project
  * @param {string} key
+ * @param {"production" | "preview"} target
  */
-async function removeProductionEnv(project, key) {
+async function removeEnvVar(project, key, target) {
   const base = await mkdtemp(join(tmpdir(), "helvety-vercel-env-"));
   const cwd = join(base, project);
   const { mkdir } = await import("node:fs/promises");
@@ -288,10 +300,15 @@ async function removeProductionEnv(project, key) {
       "--scope",
       TEAM,
     ]);
-    await runVercel(cwd, ["env", "remove", key, "production", "--yes"]);
+    await runVercel(cwd, ["env", "remove", key, target, "--yes"]);
   } finally {
     await rm(base, { recursive: true, force: true });
   }
+}
+
+/** @deprecated Use removeEnvVar */
+async function removeProductionEnv(project, key) {
+  return removeEnvVar(project, key, "production");
 }
 
 /**
@@ -378,11 +395,11 @@ async function main() {
   }
 
   if (toRemove.length > 0 && remove) {
-    console.log("Removing forbidden production env vars…");
+    console.log(`Removing forbidden/obsolete ${target} env vars…`);
     for (const { project, key } of toRemove) {
       try {
-        await removeProductionEnv(project, key);
-        console.log(`  removed ${project} / ${key}`);
+        await removeEnvVar(project, key, target);
+        console.log(`  removed ${project} / ${key} (${target})`);
       } catch (error) {
         errors.push(`${project}: failed to remove ${key} — ${error.message}`);
       }
@@ -390,7 +407,7 @@ async function main() {
     console.log("");
   } else if (toRemove.length > 0) {
     console.log(
-      `Re-run with --remove to delete forbidden ${target} keys listed above.\n`
+      `Re-run with --remove to delete forbidden/obsolete ${target} keys listed above.\n`
     );
   }
 

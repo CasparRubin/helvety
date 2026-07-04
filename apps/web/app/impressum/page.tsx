@@ -171,6 +171,10 @@ export default function ImpressumPage() {
             browser-based upscaling with on-device processing where supported.
           </li>
           <li>
+            <strong className="text-foreground">Helvety Image Editor</strong>:
+            browser-based image annotation with on-device processing.
+          </li>
+          <li>
             <strong className="text-foreground">Helvety Tasks</strong>:
             encrypted task boards with staged workflows.
           </li>

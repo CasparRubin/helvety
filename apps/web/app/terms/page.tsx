@@ -322,7 +322,8 @@ export default function TermsPage() {
           entities across Helvety Tasks, Contacts, Notes, and Links). See our
           Privacy Policy for field-level details. Other Helvety services
           (helvety.com, Helvety Auth, Helvety PDF, Helvety Image Upscaler,
-          Helvety Store) do not use full-app end-to-end encryption.
+          Helvety Image Editor, Helvety Store) do not use full-app end-to-end
+          encryption.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">Age Requirement:</strong> You must
@@ -675,11 +676,12 @@ export default function TermsPage() {
           content delivery).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          For local-processing tools such as Helvety Image Upscaler, this
-          license does not grant us rights to train machine-learning models on
-          your image pixels. Under the current architecture, image upscaling is
-          designed to run on your device and not as a server-side model-training
-          pipeline.
+          For local-processing tools such as Helvety Image Upscaler and Helvety
+          Image Editor, this license does not grant us rights to train
+          machine-learning models on your image pixels. Under the current
+          architecture, image upscaling is designed to run on your device and
+          not as a server-side model-training pipeline; image annotation in
+          Helvety Image Editor is designed to stay on your device as well.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
@@ -699,9 +701,9 @@ export default function TermsPage() {
             your User Content
           </li>
           <li>
-            For local image files processed through Helvety Image Upscaler, you
-            have the rights or permissions needed for the source image and any
-            generated output you use or distribute
+            For local image files processed through Helvety Image Upscaler or
+            Helvety Image Editor, you have the rights or permissions needed for
+            the source image and any generated output you use or distribute
           </li>
           <li>
             Your User Content does not violate any applicable law, regulation,
@@ -988,6 +990,10 @@ export default function TermsPage() {
           <li>
             <strong className="text-foreground">Helvety Image Upscaler</strong>{" "}
             likewise runs in a no-account mode for its standard upscaling flow.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Image Editor</strong>{" "}
+            likewise runs in a no-account mode for its standard annotation flow.
           </li>
           <li>
             <strong className="text-foreground">Helvety Store</strong> mixes
