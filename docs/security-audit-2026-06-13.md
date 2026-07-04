@@ -54,7 +54,9 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Npm / toolchain
 
-| Package                                                   | Was     | Now                   | Action           |
+> Snapshot at **2026-06-13** audit date. Current override pins: [`dependency-inventory.md`](./dependency-inventory.md).
+
+| Package                                                   | Was     | Now (at audit)        | Action           |
 | --------------------------------------------------------- | ------- | --------------------- | ---------------- |
 | `hono` (override)                                         | 4.12.23 | **4.12.25**           | Bumped           |
 | `rollup` (override)                                       | 4.61.1  | **4.62.0**            | Bumped           |
@@ -66,7 +68,9 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Extended assets
 
-| Asset                              | Current pin                                                          | Upstream latest                                          | Recommendation                                                                                 |
+> Pins below are **as of 2026-06-13**. For current pins, use [`dependency-inventory.md`](./dependency-inventory.md) and the [2026-07-04 sweep](#dependency-sweep-2026-07-04).
+
+| Asset                              | Pin at audit (2026-06-13)                                            | Upstream latest (at audit)                               | Recommendation                                                                                 |
 | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `onnxruntime-web`                  | 1.26.0                                                               | 1.26.0                                                   | **Keep** — latest stable                                                                       |
 | Real-ESRGAN ONNX (Supabase bucket) | SHA in `apps/image-upscaler/lib/models.ts`                           | unchanged                                                | **Keep** — no upstream model change                                                            |
@@ -100,6 +104,8 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Verification
 
+### Snapshot at 2026-06-13 (historical)
+
 ```text
 bun run consistency:supabase-rls          OK (9 tables)
 bun run consistency:supabase-schema     OK
@@ -107,6 +113,17 @@ bun run consistency:vercel-prod-env       OK (all zones)
 bun run consistency:vercel-preview-env    FAIL (pdf, image-upscaler missing Preview Upstash)
 bun run deps:security                     OK (floors + audit)
 bun run ci:check                          OK (lint, type-check, test)
+```
+
+Preview Upstash gaps were **remediated in 2026-06** (see [Subsequent updates (2026-06-20)](#subsequent-updates-2026-06-20)). Re-run the checks below for current status.
+
+### Expected as of 2026-07-04
+
+```text
+bun run consistency:vercel-preview-env    OK (after 2026-06 remediation)
+bun run deps:drift                        OK
+bun run deps:security                     OK (0 CVEs at sweep time)
+bun run ci:check                          OK
 ```
 
 Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, extension passkey curl from runbook, store package download URL validation.
@@ -185,3 +202,19 @@ Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` aft
 ## Subsequent update (2026-07-04)
 
 Treat Supabase MCP `auth_leaked_password_protection` as **not applicable** for Helvety. The product has no password-based sign-in (email OTP + passkeys only), and the setting is Pro-tier only while the hosted project is on Supabase Free. Future audits should not file leaked password protection as a finding unless the auth model or Supabase tier changes; see [`security-review-runbook.md`](./security-review-runbook.md).
+
+### Dependency sweep (2026-07-04)
+
+Full dependency sweep across monorepo + extension repos (canonical pins: [`dependency-inventory.md`](./dependency-inventory.md); expanded drift map in `scripts/check-workspace-version-drift.mjs`):
+
+| Item                                                  | As of 2026-06-22                               | As of 2026-07-04                                                                                                    |
+| ----------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `onnxruntime-web`                                     | **^1.27.0**                                    | **^1.27.0** (unchanged; upstream latest)                                                                            |
+| `@supabase/supabase-js`                               | **^2.108.2**                                   | **^2.110.0** — drift + security floor + root override; extension `pnpm.overrides` aligned                           |
+| Next.js                                               | **^16.2.9**                                    | **^16.2.10** — all 10 apps + `eslint-config-next`                                                                   |
+| Toolchain (`@helvety/dev-deps` + drift)               | lucide **^1.21.0**, tailwind **^4.3.1**        | lucide **^1.23.0**, tailwind **^4.3.2**, prettier **^3.9.4**, shadcn **^4.13.0**, knip **6.24.0**, turbo **2.10.3** |
+| Extension repo (`helvety-browser-extension-chromium`) | lucide **^1.21.0**, `@types/chrome` **^0.2.0** | lucide **^1.23.0**, `@types/chrome` **^0.2.2**, tailwindcss **^4.3.2**, vite **^8.1.3**, pnpm **9.15.9**            |
+| Drift enforcement                                     | partial `@tiptap/*`                            | **+ `@dnd-kit/*`, full `@tiptap/*`, `radix-ui`** in `REQUIRED_VERSION_BY_DEP`                                       |
+| `bun audit` / `deps:security:floors`                  | **0 CVEs**                                     | **0 CVEs** at sweep time                                                                                            |
+
+Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` after bumps.

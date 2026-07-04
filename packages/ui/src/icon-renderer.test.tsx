@@ -13,11 +13,11 @@ const uiPackagePath = join(
 );
 
 describe("icon-renderer", () => {
-  it("package.json pins lucide-react ^1.21 for drift alignment", () => {
+  it("package.json pins lucide-react ^1.23 for drift alignment", () => {
     const pkg = JSON.parse(readFileSync(uiPackagePath, "utf8")) as {
       dependencies?: Record<string, string>;
     };
-    expect(pkg.dependencies?.["lucide-react"]).toBe("^1.21.0");
+    expect(pkg.dependencies?.["lucide-react"]).toBe("^1.23.0");
   });
 
   it("resolves known lucide v1 icons", () => {

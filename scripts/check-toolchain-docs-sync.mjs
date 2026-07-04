@@ -44,7 +44,7 @@ async function main() {
     typeof nextSpec === "string" ? nextSpec.match(/^\^(\d+\.\d+\.\d+)/) : null;
   if (!nextMatch) {
     throw new Error(
-      'apps/web/package.json dependencies.next must use a caret minimum with three-part semver (e.g. "^16.2.9").'
+      'apps/web/package.json dependencies.next must use a caret minimum with three-part semver (e.g. "^16.2.10").'
     );
   }
   const nextDocTag = `v${nextMatch[1]}`;
@@ -133,6 +133,51 @@ async function main() {
   if (!/@helvety\/ui[\s\S]*@tailwindcss\/postcss/.test(devDepsReadme)) {
     throw new Error(
       "packages/dev-deps/README.md must document @helvety/ui production tailwindcss / @tailwindcss/postcss exception."
+    );
+  }
+
+  const extensionChromePackage = JSON.parse(
+    await readFile(
+      resolve(rootDir, "packages/extension-chrome/package.json"),
+      "utf8"
+    )
+  );
+  const typesChrome = extensionChromePackage.devDependencies?.["@types/chrome"];
+  if (typeof typesChrome !== "string") {
+    throw new Error(
+      "packages/extension-chrome/package.json must declare devDependencies.@types/chrome."
+    );
+  }
+  if (
+    !devDepsReadme.includes("@types/chrome") ||
+    !devDepsReadme.includes(typesChrome)
+  ) {
+    throw new Error(
+      `packages/dev-deps/README.md must cite @types/chrome ${typesChrome} (matches extension-chrome).`
+    );
+  }
+
+  const configPackage = JSON.parse(
+    await readFile(resolve(rootDir, "packages/config/package.json"), "utf8")
+  );
+  const eslintConfigNext = configPackage.dependencies?.["eslint-config-next"];
+  const configNext = configPackage.dependencies?.next;
+  const nextCaret =
+    typeof configNext === "string"
+      ? configNext.match(/^\^(\d+\.\d+\.\d+)/)
+      : null;
+  const eslintNextCaret =
+    typeof eslintConfigNext === "string"
+      ? eslintConfigNext.match(/^\^(\d+\.\d+\.\d+)/)
+      : null;
+  if (!nextCaret || !eslintNextCaret) {
+    throw new Error(
+      "packages/config/package.json must declare caret minimums for next and eslint-config-next."
+    );
+  }
+  if (nextCaret[1] !== eslintNextCaret[1]) {
+    throw new Error(
+      `packages/config eslint-config-next caret minimum (${eslintConfigNext}) must match next (${configNext}).`
     );
   }
 

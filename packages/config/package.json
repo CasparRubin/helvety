@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "eslint": "^10.6.0",
-    "eslint-config-next": "^16.2.9",
-    "next": "^16.2.9",
+    "eslint-config-next": "^16.2.10",
+    "next": "^16.2.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import-x": "^4.17.0",
     "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#f6ec87ddcc0f803881959eb690a72fa09c3b4c32",

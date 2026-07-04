@@ -73,11 +73,35 @@ describe("extended dependency inventory pin parity", () => {
     const ort = upscalerPkg.dependencies?.["onnxruntime-web"];
     const lucide = uiPkg.dependencies?.["lucide-react"];
 
-    expect(audit).toMatch(/## Subsequent updates \(2026-06-22\)/);
+    expect(audit).toMatch(/### Dependency sweep \(2026-07-04\)/);
     expect(ort).toBeTruthy();
     expect(lucide).toBeTruthy();
     expect(audit).toContain(ort);
     expect(audit).toContain(lucide);
     expect(audit).toContain("dependency-inventory.md");
+    expect(audit).not.toMatch(/\| Asset[^\n]+\| Current pin /);
+  });
+
+  it("packages/config eslint-config-next caret minimum matches next", () => {
+    const configPkg = readWorkspacePackage("packages/config/package.json");
+    const next = configPkg.dependencies?.next;
+    const eslintConfigNext = configPkg.dependencies?.["eslint-config-next"];
+    expect(next).toBeTruthy();
+    expect(eslintConfigNext).toBeTruthy();
+    expect(eslintConfigNext).toBe(next);
+  });
+
+  it("dev-deps README cites extension-chrome @types/chrome pin", () => {
+    const devDepsReadme = readFileSync(
+      join(repoRoot, "packages/dev-deps/README.md"),
+      "utf8"
+    );
+    const extensionChrome = readWorkspacePackage(
+      "packages/extension-chrome/package.json"
+    );
+    const typesChrome = extensionChrome.devDependencies?.["@types/chrome"];
+    expect(typesChrome).toBeTruthy();
+    expect(devDepsReadme).toContain("@types/chrome");
+    expect(devDepsReadme).toContain(typesChrome);
   });
 });
