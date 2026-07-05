@@ -55,6 +55,12 @@ interface UseContactsReturn {
   refresh: () => Promise<void>;
   /** Create a new contact */
   create: (input: ContactInput) => Promise<{ id: string } | null>;
+  createWithId: (
+    id: string,
+    input: ContactInput
+  ) => Promise<{ id: string } | null>;
+  seedDraft: (id: string, input: ContactInput) => void;
+  removeDraft: (id: string) => void;
   /** Update a contact */
   update: (id: string, input: Partial<ContactInput>) => Promise<boolean>;
   /** Delete a contact */
@@ -74,7 +80,7 @@ function fetchContacts(): Promise<Response> {
 }
 
 /** Fetches a single encrypted contact row via GET route handler. */
-async function fetchContactById(
+export async function fetchContactById(
   id: string
 ): Promise<ActionResponse<ContactRow>> {
   const response = await fetch(getContactsApiPath(`/api/contacts/${id}`), {
@@ -105,6 +111,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     error,
     refresh,
     create,
+    createWithId,
+    seedDraft,
+    removeDraft,
     update,
     remove,
     reorder,
@@ -188,6 +197,9 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     error,
     refresh,
     create,
+    createWithId,
+    seedDraft,
+    removeDraft,
     update,
     remove,
     reorder,

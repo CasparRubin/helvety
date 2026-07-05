@@ -27,7 +27,8 @@ const ITEMS_TABLE = "items" as const;
  */
 export async function encryptItemInput(
   input: ItemInput,
-  key: CryptoKey
+  key: CryptoKey,
+  recordId?: string
 ): Promise<{
   id: string;
   encrypted_title: string;
@@ -37,12 +38,11 @@ export async function encryptItemInput(
   stage_id?: string | null;
   label_id?: string | null;
 }> {
-  const id = crypto.randomUUID();
-  const recordId = id;
+  const id = recordId ?? crypto.randomUUID();
 
   const encryptedTitle = await encryptEntityField(input.title, key, {
     table: ITEMS_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_title",
   });
 
@@ -51,7 +51,7 @@ export async function encryptItemInput(
     encryptedDescription = serializeEncryptedData(
       await encryptEntityField(input.description, key, {
         table: ITEMS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_description",
       })
     );
@@ -62,7 +62,7 @@ export async function encryptItemInput(
     encryptedStartDate = serializeEncryptedData(
       await encryptEntityField(input.start_date, key, {
         table: ITEMS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_start_date",
       })
     );
@@ -73,7 +73,7 @@ export async function encryptItemInput(
     encryptedEndDate = serializeEncryptedData(
       await encryptEntityField(input.end_date, key, {
         table: ITEMS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_end_date",
       })
     );

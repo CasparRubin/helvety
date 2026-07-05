@@ -20,6 +20,9 @@ vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
     remove: vi.fn(),
     reorder: vi.fn(),
     patchLocal: vi.fn(),
+    createWithId: vi.fn(),
+    seedDraft: vi.fn(),
+    removeDraft: vi.fn(),
   })),
 }));
 
@@ -95,6 +98,9 @@ describe("useContacts", () => {
       remove: vi.fn(),
       reorder: vi.fn(),
       patchLocal: vi.fn(),
+      createWithId: vi.fn(),
+      seedDraft: vi.fn(),
+      removeDraft: vi.fn(),
     });
 
     const { result } = renderHook(() => useContacts());

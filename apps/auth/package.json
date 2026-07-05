@@ -1,6 +1,6 @@
 {
   "name": "@helvety/auth",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Centralized passwordless authentication for Helvety web apps on helvety.com. OTP, passkeys, and session recovery. Engineered, Designed & Made in Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/auth",

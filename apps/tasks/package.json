@@ -1,6 +1,6 @@
 {
   "name": "@helvety/tasks",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Encrypted stage-based tasks with immutable stages and optional decrypted list search. Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/tasks",

@@ -14,5 +14,5 @@ export const DEFAULT_TASK_STAGE_ID = "default-item-backlog";
 /** Default task label on create. */
 export const DEFAULT_TASK_LABEL_ID = "default-item-label";
 
-/** Default task priority on create (smallint 0–3). */
-export const DEFAULT_TASK_PRIORITY = 0;
+/** Default task priority on create (smallint 0–3; DB default is 1 = Normal). */
+export const DEFAULT_TASK_PRIORITY = 1;

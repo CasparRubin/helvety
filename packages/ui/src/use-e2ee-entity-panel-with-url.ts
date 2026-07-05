@@ -3,8 +3,10 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
+import { setE2eePanelUrlIntent } from "./e2ee-panel-url-intent";
 import {
   useE2eeEntityPanel,
+  type E2eeOpenNewDraftOptions,
   type UseE2eeEntityPanelResult,
 } from "./use-e2ee-entity-panel";
 
@@ -22,10 +24,12 @@ export function useE2eeEntityUrlSync(paramKey: string) {
       const current = searchParams.get(paramKey);
       if (id) {
         if (current === id && params.get(paramKey) === id) {
+          setE2eePanelUrlIntent("idle");
           return;
         }
         params.set(paramKey, id);
       } else if (!current) {
+        setE2eePanelUrlIntent("idle");
         return;
       } else {
         params.delete(paramKey);
@@ -34,6 +38,7 @@ export function useE2eeEntityUrlSync(paramKey: string) {
       router.replace(query ? `${pathname}?${query}` : pathname, {
         scroll: false,
       });
+      setE2eePanelUrlIntent("idle");
     },
     [paramKey, pathname, router, searchParams]
   );
@@ -57,6 +62,7 @@ export function useE2eeEntityPanelWithUrl(
 
   const openEntity = useCallback(
     (id: string) => {
+      setE2eePanelUrlIntent("opening");
       panel.openEntity(id);
       setEntityIdInUrl(id);
     },
@@ -64,18 +70,22 @@ export function useE2eeEntityPanelWithUrl(
   );
 
   const closePanel = useCallback(() => {
+    setE2eePanelUrlIntent("closing");
     panel.closePanel();
     setEntityIdInUrl(null);
   }, [panel.closePanel, setEntityIdInUrl]);
 
   const openNewDraft = useCallback(
-    (createFn: () => Promise<{ id: string } | null>) => {
-      panel.openNewDraft(async () => {
-        const result = await createFn();
-        if (result) {
-          setEntityIdInUrl(result.id);
-        }
-        return result;
+    (options: E2eeOpenNewDraftOptions) => {
+      setE2eePanelUrlIntent("opening");
+      setEntityIdInUrl(options.id);
+      panel.openNewDraft({
+        ...options,
+        onPersistFailure: (id) => {
+          setE2eePanelUrlIntent("closing");
+          setEntityIdInUrl(null);
+          options.onPersistFailure?.(id);
+        },
       });
     },
     [panel.openNewDraft, setEntityIdInUrl]

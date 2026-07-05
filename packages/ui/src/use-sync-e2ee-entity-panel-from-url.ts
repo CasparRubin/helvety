@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
+import { getE2eePanelUrlIntentRef } from "./e2ee-panel-url-intent";
+
 /** Options for {@link useSyncE2eeEntityPanelFromUrl}. */
 export interface UseSyncE2eeEntityPanelFromUrlOptions {
   /** Primary query param (e.g. `note`, `item`, `contact`). */
@@ -45,6 +47,10 @@ export function useSyncE2eeEntityPanelFromUrl({
     }
 
     if (entityIdRef.current) {
+      const intent = getE2eePanelUrlIntentRef().current;
+      if (intent === "opening" || intent === "closing") {
+        return;
+      }
       onBeforeEntityChange?.(entityIdRef.current);
       closePanel();
     }

@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => navigationMocks.searchParams,
 }));
 
+import { getE2eePanelUrlIntentRef } from "./e2ee-panel-url-intent";
 import { useSyncE2eeEntityPanelFromUrl } from "./use-sync-e2ee-entity-panel-from-url";
 
 /** Replaces the mocked `useSearchParams` value for the current test. */
@@ -55,6 +56,46 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
 
     expect(openEntity).not.toHaveBeenCalled();
     expect(closePanel).not.toHaveBeenCalled();
+  });
+
+  it("skips close while panel URL intent is opening", () => {
+    setSearchParams("");
+    const openEntity = vi.fn();
+    const closePanel = vi.fn();
+
+    getE2eePanelUrlIntentRef().current = "opening";
+
+    renderHook(() =>
+      useSyncE2eeEntityPanelFromUrl({
+        paramKey: "note",
+        entityId: "abc",
+        openEntity,
+        closePanel,
+      })
+    );
+
+    expect(closePanel).not.toHaveBeenCalled();
+    getE2eePanelUrlIntentRef().current = "idle";
+  });
+
+  it("skips close while panel URL intent is closing", () => {
+    setSearchParams("");
+    const openEntity = vi.fn();
+    const closePanel = vi.fn();
+
+    getE2eePanelUrlIntentRef().current = "closing";
+
+    renderHook(() =>
+      useSyncE2eeEntityPanelFromUrl({
+        paramKey: "note",
+        entityId: "abc",
+        openEntity,
+        closePanel,
+      })
+    );
+
+    expect(closePanel).not.toHaveBeenCalled();
+    getE2eePanelUrlIntentRef().current = "idle";
   });
 
   it("closes panel when URL has no param and entity is open", () => {

@@ -111,7 +111,7 @@ export function LinksDashboard({
   }>({ open: false, type: null, id: null, name: null });
 
   const [isRefreshPending, startRefreshTransition] = useTransition();
-  const [, startOpenDraftTransition] = useTransition();
+  const [isOpeningDraft, startOpenDraftTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
 
   const closePanel = useCallback(() => {
@@ -126,7 +126,11 @@ export function LinksDashboard({
         const link = library.links.find((l) => l.id === state.id);
         const snapshot = linkDraftSnapshots.current.get(state.id);
         if (link && snapshot && isLinkDraftUnchanged(link, snapshot)) {
-          void library.removeLink(state.id);
+          if (isOpeningDraft) {
+            library.removeLinkDraft(state.id);
+          } else {
+            void library.removeLink(state.id);
+          }
         }
         linkDraftSnapshots.current.delete(state.id);
         return;
@@ -134,11 +138,15 @@ export function LinksDashboard({
       const folder = library.folders.find((f) => f.id === state.id);
       const snapshot = folderDraftSnapshots.current.get(state.id);
       if (folder && snapshot && isFolderDraftUnchanged(folder, snapshot)) {
-        void library.removeFolder(state.id);
+        if (isOpeningDraft) {
+          library.removeFolderDraft(state.id);
+        } else {
+          void library.removeFolder(state.id);
+        }
       }
       folderDraftSnapshots.current.delete(state.id);
     },
-    [library]
+    [isOpeningDraft, library]
   );
 
   const setPanelWithCleanup = useCallback(
@@ -227,29 +235,38 @@ export function LinksDashboard({
     const storageFolderId = toStorageFolderId(
       createParentFolderId ?? ALL_FOLDER_ID
     );
+    const draftInput = {
+      name: LINK_DRAFT_DEFAULT_NAME,
+      url: LINK_DRAFT_PLACEHOLDER_URL,
+    };
+    const displayName = resolveLinkDisplayName(
+      LINK_DRAFT_DEFAULT_NAME,
+      LINK_DRAFT_PLACEHOLDER_URL
+    );
+    const draftId = crypto.randomUUID();
+    library.seedLinkDraft(draftId, draftInput, storageFolderId);
+    linkDraftSnapshots.current.set(
+      draftId,
+      createLinkDraftSnapshot(
+        displayName,
+        LINK_DRAFT_PLACEHOLDER_URL,
+        storageFolderId
+      )
+    );
+    expandFolder(storageFolderId);
+    setCreateParentFolderId(storageFolderId ?? ALL_FOLDER_ID);
+    setPanelWithCleanup({ mode: "open", kind: "link", id: draftId });
     startOpenDraftTransition(async () => {
-      const created = await library.createLink(
-        { name: LINK_DRAFT_DEFAULT_NAME, url: LINK_DRAFT_PLACEHOLDER_URL },
+      const created = await library.createLinkWithId(
+        draftId,
+        draftInput,
         storageFolderId
       );
       if (!created) {
-        return;
+        library.removeLinkDraft(draftId);
+        linkDraftSnapshots.current.delete(draftId);
+        setPanelWithCleanup({ mode: "closed" });
       }
-      const displayName = resolveLinkDisplayName(
-        LINK_DRAFT_DEFAULT_NAME,
-        LINK_DRAFT_PLACEHOLDER_URL
-      );
-      linkDraftSnapshots.current.set(
-        created.id,
-        createLinkDraftSnapshot(
-          displayName,
-          LINK_DRAFT_PLACEHOLDER_URL,
-          storageFolderId
-        )
-      );
-      expandFolder(storageFolderId);
-      setCreateParentFolderId(storageFolderId ?? ALL_FOLDER_ID);
-      setPanelWithCleanup({ mode: "open", kind: "link", id: created.id });
     });
   }, [
     cleanupDraftIfUnchanged,
@@ -267,21 +284,27 @@ export function LinksDashboard({
     const storageParentId = toStorageFolderId(
       createParentFolderId ?? ALL_FOLDER_ID
     );
+    const draftInput = { name: FOLDER_DRAFT_DEFAULT_NAME };
+    const draftId = crypto.randomUUID();
+    library.seedFolderDraft(draftId, draftInput, storageParentId);
+    folderDraftSnapshots.current.set(
+      draftId,
+      createFolderDraftSnapshot(FOLDER_DRAFT_DEFAULT_NAME, storageParentId)
+    );
+    expandFolder(storageParentId);
+    setCreateParentFolderId(storageParentId ?? ALL_FOLDER_ID);
+    setPanelWithCleanup({ mode: "open", kind: "folder", id: draftId });
     startOpenDraftTransition(async () => {
-      const created = await library.createFolder(
-        { name: FOLDER_DRAFT_DEFAULT_NAME },
+      const created = await library.createFolderWithId(
+        draftId,
+        draftInput,
         storageParentId
       );
       if (!created) {
-        return;
+        library.removeFolderDraft(draftId);
+        folderDraftSnapshots.current.delete(draftId);
+        setPanelWithCleanup({ mode: "closed" });
       }
-      folderDraftSnapshots.current.set(
-        created.id,
-        createFolderDraftSnapshot(FOLDER_DRAFT_DEFAULT_NAME, storageParentId)
-      );
-      expandFolder(storageParentId);
-      setCreateParentFolderId(storageParentId ?? ALL_FOLDER_ID);
-      setPanelWithCleanup({ mode: "open", kind: "folder", id: created.id });
     });
   }, [
     cleanupDraftIfUnchanged,

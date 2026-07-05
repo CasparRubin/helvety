@@ -15,18 +15,18 @@ const LINK_FOLDERS_TABLE = "link_folders" as const;
 export async function encryptFolderInput(
   input: LinkFolderInput,
   key: CryptoKey,
-  parentFolderId: string | null
+  parentFolderId: string | null,
+  recordId?: string
 ): Promise<{
   id: string;
   encrypted_name: string;
   parent_folder_id: string | null;
 }> {
-  const id = crypto.randomUUID();
-  const recordId = id;
+  const id = recordId ?? crypto.randomUUID();
 
   const encryptedName = await encryptEntityField(input.name, key, {
     table: LINK_FOLDERS_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_name",
   });
 

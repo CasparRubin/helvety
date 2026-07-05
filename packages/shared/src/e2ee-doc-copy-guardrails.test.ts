@@ -55,6 +55,13 @@ describe("E2EE maintainer doc copy guardrails", () => {
     expect(text).toContain("e2ee-entity-columns");
   });
 
+  it("app-consistency checklist documents open-first create and selected-entity resolution", () => {
+    const text = readRepoFile("docs/app-consistency-checklist.md");
+    expect(text).toContain("Open-first create");
+    expect(text).toContain("useE2eeDashboardSelectedEntity");
+    expect(text).not.toContain("persist-on-open");
+  });
+
   it("security audit documents ENCRYPTION_VERSION = 2 only (no legacy wire v1 support)", () => {
     const text = readRepoFile("docs/security-audit-2026-06-13.md");
     expect(text).toContain("ENCRYPTION_VERSION = 2");

@@ -40,18 +40,18 @@ const CONTACTS_TABLE = "contacts" as const;
  */
 export async function encryptItemInput(
   input: ItemInput,
-  key: CryptoKey
+  key: CryptoKey,
+  recordId?: string
 ): Promise<{
   id: string;
   encrypted_title: string;
   encrypted_description: string | null;
 }> {
-  const id = crypto.randomUUID();
-  const recordId = id;
+  const id = recordId ?? crypto.randomUUID();
 
   const encryptedTitle = await encryptEntityField(input.title, key, {
     table: NOTES_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_title",
   });
 
@@ -60,7 +60,7 @@ export async function encryptItemInput(
     encryptedDescription = serializeEncryptedData(
       await encryptEntityField(input.description, key, {
         table: NOTES_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_description",
       })
     );

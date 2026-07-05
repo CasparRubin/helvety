@@ -10,6 +10,7 @@ import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
+import { useE2eeDashboardSelectedEntity } from "@helvety/ui/use-e2ee-dashboard-selected-entity";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
@@ -18,14 +19,14 @@ import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialo
 import { EntityList } from "@/components/entity-list";
 import { ItemEditor } from "@/components/item-editor";
 import { useDataExport } from "@/hooks/use-data-export";
-import { useItems } from "@/hooks/use-items";
+import { useItems, fetchNoteById } from "@/hooks/use-items";
 import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
 import {
   createNoteDraftInput,
   createNoteDraftSnapshot,
   isNoteDraftUnchanged,
 } from "@/lib/config/draft-defaults";
-import { useEncryptionContext } from "@/lib/crypto";
+import { useEncryptionContext, decryptItemRow } from "@/lib/crypto";
 
 import type { NoteDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
@@ -47,15 +48,23 @@ export function FlatNotesDashboard({
     isRefreshing,
     error,
     refresh,
-    create,
+    createWithId,
+    seedDraft,
+    removeDraft,
     remove,
     reorder,
     update,
   } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
-    useE2eeEntityPanelWithUrl("note");
+  const {
+    isOpen,
+    entityId,
+    openEntity,
+    closePanel,
+    openNewDraft,
+    isOpeningDraft,
+  } = useE2eeEntityPanelWithUrl("note");
 
   const draftSnapshots = useRef<Map<string, NoteDraftSnapshot>>(new Map());
 
@@ -68,11 +77,23 @@ export function FlatNotesDashboard({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const selectedItem = useMemo(
-    () =>
-      entityId ? (items.find((item) => item.id === entityId) ?? null) : null,
-    [items, entityId]
-  );
+  const {
+    entity: selectedItem,
+    isLoadingEntity,
+    entityError,
+  } = useE2eeDashboardSelectedEntity({
+    entityId,
+    entities: items,
+    listIsLoading: isLoading,
+    listError: error,
+    isPersistingDraft: isOpeningDraft,
+    masterKey,
+    isUnlocked,
+    navigationSource: "notes-dashboard",
+    loadFailureMessage: "Failed to load note",
+    fetchById: fetchNoteById,
+    decryptRow: decryptItemRow,
+  });
 
   const searchableContentById = useMemo(() => {
     const index = new Map<string, string>();
@@ -102,11 +123,15 @@ export function FlatNotesDashboard({
       const item = items.find((i) => i.id === id);
       const snapshot = draftSnapshots.current.get(id);
       if (item && snapshot && isNoteDraftUnchanged(item, snapshot)) {
-        void remove(id);
+        if (isOpeningDraft) {
+          removeDraft(id);
+        } else {
+          void remove(id);
+        }
       }
       draftSnapshots.current.delete(id);
     },
-    [items, remove]
+    [items, isOpeningDraft, remove, removeDraft]
   );
 
   const handleSelectEntity = useCallback(
@@ -151,20 +176,29 @@ export function FlatNotesDashboard({
     if (entityId) {
       cleanupDraftIfUnchanged(entityId);
     }
+    const draftInput = createNoteDraftInput(defaultCategoryId);
     const snapshot = createNoteDraftSnapshot(defaultCategoryId);
-    openNewDraft(async () => {
-      const result = await create(createNoteDraftInput(defaultCategoryId));
-      if (result) {
-        draftSnapshots.current.set(result.id, snapshot);
-      }
-      return result;
+    const draftId = crypto.randomUUID();
+    openNewDraft({
+      id: draftId,
+      seedOptimistic: (id) => {
+        seedDraft(id, draftInput);
+        draftSnapshots.current.set(id, snapshot);
+      },
+      persist: (id) => createWithId(id, draftInput),
+      onPersistFailure: (id) => {
+        removeDraft(id);
+        draftSnapshots.current.delete(id);
+      },
     });
   }, [
     cleanupDraftIfUnchanged,
-    create,
+    createWithId,
     defaultCategoryId,
     entityId,
     openNewDraft,
+    removeDraft,
+    seedDraft,
   ]);
 
   const handleRefresh = useCallback(() => {
@@ -227,8 +261,8 @@ export function FlatNotesDashboard({
             key={entityId}
             itemId={entityId}
             item={selectedItem}
-            isLoading={isLoading && !selectedItem}
-            error={error}
+            isLoading={isLoadingEntity}
+            error={entityError}
             onUpdate={(input) => update(entityId, input)}
             onRemove={() => remove(entityId)}
             onRefresh={refresh}

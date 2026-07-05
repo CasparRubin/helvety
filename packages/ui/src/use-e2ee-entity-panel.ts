@@ -6,6 +6,14 @@ import { useCallback, useState, useTransition } from "react";
 export type E2eeEntityPanelState =
   { mode: "closed" } | { mode: "open"; entityId: string };
 
+/** Open-first draft: seed list, open sheet immediately, persist in background. */
+export interface E2eeOpenNewDraftOptions {
+  id: string;
+  seedOptimistic: (id: string) => void;
+  persist: (id: string) => Promise<{ id: string } | null>;
+  onPersistFailure?: (id: string) => void;
+}
+
 /** Result of {@link useE2eeEntityPanel}. */
 export interface UseE2eeEntityPanelResult {
   panel: E2eeEntityPanelState;
@@ -14,8 +22,8 @@ export interface UseE2eeEntityPanelResult {
   isOpeningDraft: boolean;
   openEntity: (id: string) => void;
   closePanel: () => void;
-  /** Persist-on-open: runs `createFn`, then opens the sheet when a row id is returned. */
-  openNewDraft: (createFn: () => Promise<{ id: string } | null>) => void;
+  /** Open-first: seeds optimistic row, opens sheet, persists in background. */
+  openNewDraft: (options: E2eeOpenNewDraftOptions) => void;
 }
 
 /**
@@ -52,17 +60,23 @@ export function useE2eeEntityPanel(
     });
   }, []);
 
-  const openNewDraft = useCallback(
-    (createFn: () => Promise<{ id: string } | null>) => {
-      startOpenDraftTransition(async () => {
-        const result = await createFn();
-        if (result) {
-          setPanel({ mode: "open", entityId: result.id });
-        }
-      });
-    },
-    []
-  );
+  const openNewDraft = useCallback((options: E2eeOpenNewDraftOptions) => {
+    const { id, seedOptimistic, persist, onPersistFailure } = options;
+    seedOptimistic(id);
+    setPanel({ mode: "open", entityId: id });
+    startOpenDraftTransition(async () => {
+      const result = await persist(id);
+      if (!result) {
+        onPersistFailure?.(id);
+        setPanel((current) => {
+          if (current.mode === "open" && current.entityId === id) {
+            return { mode: "closed" };
+          }
+          return current;
+        });
+      }
+    });
+  }, []);
 
   const isOpen = panel.mode === "open";
   const entityId = panel.mode === "open" ? panel.entityId : null;

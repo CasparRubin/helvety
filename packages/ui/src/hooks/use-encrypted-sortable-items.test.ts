@@ -119,6 +119,16 @@ function createHookOptions(
   };
 }
 
+async function waitForLoadedItems(
+  result: { current: { isLoading: boolean; items: TestItem[] } },
+  length = 1
+) {
+  await waitFor(() => {
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.items).toHaveLength(length);
+  });
+}
+
 function renderSortableHook(
   overrides: Partial<
     UseEncryptedSortableItemsOptions<TestItem, TestRow, TestInput, TestReorder>
@@ -166,7 +176,7 @@ describe("useEncryptedSortableItems", () => {
 
     const { result } = renderSortableHook({ fetchRows, decryptRows });
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
     expect(fetchRows).toHaveBeenCalled();
     expect(result.current.items[0]).toEqual(
       expect.objectContaining({ id: "loaded-1", title: "Loaded" })
@@ -214,7 +224,7 @@ describe("useEncryptedSortableItems", () => {
   it("appends a created item with optimistic sort order", async () => {
     const { result } = renderSortableHook();
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
 
     await act(async () => {
       const created = await result.current.create({ title: "Beta" });
@@ -254,7 +264,7 @@ describe("useEncryptedSortableItems", () => {
 
     const { result } = renderSortableHook({ deleteItem });
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
 
     await act(async () => {
       const ok = await result.current.remove("item-1");
@@ -268,7 +278,7 @@ describe("useEncryptedSortableItems", () => {
   it("patchLocal updates an item without a network round trip", async () => {
     const { result } = renderSortableHook();
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
 
     act(() => {
       result.current.patchLocal("item-1", { title: "Patched" });
@@ -288,7 +298,7 @@ describe("useEncryptedSortableItems", () => {
 
     const { result } = renderSortableHook({ updateItem });
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
 
     let updatePromise!: Promise<boolean>;
     act(() => {
@@ -316,7 +326,7 @@ describe("useEncryptedSortableItems", () => {
 
     const { result } = renderSortableHook({ updateItem });
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
 
     await act(async () => {
       const ok = await result.current.update("item-1", { title: "Failed" });
@@ -332,7 +342,7 @@ describe("useEncryptedSortableItems", () => {
 
     const { result } = renderSortableHook({ updateItem });
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
 
     await act(async () => {
       const ok = await result.current.update("item-1", { title: "Thrown" });
@@ -357,7 +367,7 @@ describe("useEncryptedSortableItems", () => {
 
     const { result } = renderSortableHook({ fetchRows, reorderEntities });
 
-    await waitFor(() => expect(result.current.items).toHaveLength(1));
+    await waitForLoadedItems(result);
     const callsAfterLoad = fetchRows.mock.calls.length;
 
     await act(async () => {
@@ -377,5 +387,119 @@ describe("useEncryptedSortableItems", () => {
         fallback: "Failed to reorder",
       })
     );
+  });
+
+  describe("open-first draft API", () => {
+    it("seedDraft adds an optimistic row without a network call", async () => {
+      const { result, options } = renderSortableHook();
+      await waitForLoadedItems(result);
+
+      act(() => {
+        result.current.seedDraft("draft-1", { title: "Draft" });
+      });
+
+      expect(result.current.items).toHaveLength(2);
+      expect(
+        result.current.items.find((item) => item.id === "draft-1")?.title
+      ).toBe("Draft");
+      expect(options.createItem).not.toHaveBeenCalled();
+    });
+
+    it("createWithId passes the client recordId to encryptInput", async () => {
+      const encryptInput = vi.fn().mockResolvedValue({ enc: true });
+      const createItem = vi.fn().mockResolvedValue({
+        success: true,
+        data: { id: "client-id" },
+      });
+      const { result } = renderSortableHook({ encryptInput, createItem });
+      await waitForLoadedItems(result);
+
+      await act(async () => {
+        const created = await result.current.createWithId("client-id", {
+          title: "New",
+        });
+        expect(created).toEqual({ id: "client-id" });
+      });
+
+      expect(encryptInput).toHaveBeenCalledWith(
+        { title: "New" },
+        masterKey,
+        "client-id"
+      );
+    });
+
+    it("removeDraft prevents createWithId from re-adding an aborted draft", async () => {
+      let resolveCreate!: (value: {
+        success: true;
+        data: { id: string };
+      }) => void;
+      const createItem = vi.fn(
+        () =>
+          new Promise<{ success: true; data: { id: string } }>((resolve) => {
+            resolveCreate = resolve;
+          })
+      );
+      const { result } = renderSortableHook({ createItem });
+      await waitForLoadedItems(result);
+
+      act(() => {
+        result.current.seedDraft("draft-1", { title: "Draft" });
+      });
+
+      let createPromise!: ReturnType<typeof result.current.createWithId>;
+      act(() => {
+        createPromise = result.current.createWithId("draft-1", {
+          title: "Draft",
+        });
+      });
+
+      await waitFor(() => expect(createItem).toHaveBeenCalled());
+
+      act(() => {
+        result.current.removeDraft("draft-1");
+      });
+
+      expect(
+        result.current.items.find((item) => item.id === "draft-1")
+      ).toBeUndefined();
+
+      await act(async () => {
+        resolveCreate({ success: true, data: { id: "draft-1" } });
+        await createPromise;
+      });
+
+      expect(
+        result.current.items.find((item) => item.id === "draft-1")
+      ).toBeUndefined();
+    });
+
+    it("refresh merges pending drafts missing from the server list", async () => {
+      const decryptRows = vi
+        .fn()
+        .mockResolvedValueOnce([sampleItem()])
+        .mockResolvedValueOnce([sampleItem()]);
+      const fetchRows = vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse({ success: true, data: [{ id: "row-1" }] })
+        );
+      const { result } = renderSortableHook({ fetchRows, decryptRows });
+      await waitForLoadedItems(result);
+
+      act(() => {
+        result.current.seedDraft("pending-1", { title: "Pending" });
+      });
+      expect(result.current.items.map((item) => item.id)).toEqual(
+        expect.arrayContaining(["item-1", "pending-1"])
+      );
+
+      await act(async () => {
+        await result.current.refresh();
+      });
+
+      expect(result.current.items.map((item) => item.id)).toEqual(
+        expect.arrayContaining(["item-1", "pending-1"])
+      );
+    });
   });
 });

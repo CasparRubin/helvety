@@ -290,6 +290,7 @@ describe("E2EE dashboard editor wiring (Links pattern)", () => {
     "apps/%s routes sheet saves through list hook update",
     (app, dashboardPath, editorComponent, selectedEntityVar) => {
       const src = readAppFile(app, dashboardPath);
+      expect(src).toContain("useE2eeDashboardSelectedEntity");
       expect(src).toContain("onUpdate={(input) => update(");
       expect(src).not.toContain("onLocalPatch");
       expect(src).not.toContain("patchLocal");
@@ -374,6 +375,87 @@ describe("E2EE dashboard editor wiring (Links pattern)", () => {
   });
 });
 
+describe("E2EE open-first create wiring", () => {
+  it.each([
+    ["tasks", "components/flat-tasks-dashboard.tsx"],
+    ["notes", "components/flat-notes-dashboard.tsx"],
+    ["contacts", "components/contacts-dashboard.tsx"],
+  ] as const)(
+    "apps/%s uses openNewDraft with seedDraft and createWithId",
+    (app, dashboardPath) => {
+      const src = readAppFile(app, dashboardPath);
+      expect(src).toContain("openNewDraft");
+      expect(src).toContain("seedDraft");
+      expect(src).toContain("createWithId");
+      expect(src).toContain("removeDraft");
+      expect(src).toContain("isOpeningDraft");
+      expect(src).toContain("isPersistingDraft: isOpeningDraft");
+      expect(src).toContain("onPersistFailure");
+      expect(src).toMatch(/if \(isOpeningDraft\)[\s\S]*removeDraft\(id\)/);
+    }
+  );
+
+  it("apps/links uses open-first draft helpers and guarded cleanup", () => {
+    const src = readAppFile("links", "components/links-dashboard.tsx");
+    expect(src).toContain("seedLinkDraft");
+    expect(src).toContain("createLinkWithId");
+    expect(src).toContain("removeLinkDraft");
+    expect(src).toContain("seedFolderDraft");
+    expect(src).toContain("createFolderWithId");
+    expect(src).toContain("removeFolderDraft");
+    expect(src).toContain("isOpeningDraft");
+    expect(src).toContain("startOpenDraftTransition");
+    expect(src).toContain("resolveLinkDisplayName");
+    expect(src).toMatch(
+      /if \(isOpeningDraft\)[\s\S]*removeLinkDraft\(state\.id\)/
+    );
+  });
+
+  it.each([
+    ["tasks", "hooks/use-items.ts"],
+    ["notes", "hooks/use-items.ts"],
+    ["contacts", "hooks/use-contacts.ts"],
+  ] as const)(
+    "apps/%s list hook exports draft create APIs",
+    (app, hookPath) => {
+      const src = readAppFile(app, hookPath);
+      expect(src).toContain("createWithId");
+      expect(src).toContain("seedDraft");
+      expect(src).toContain("removeDraft");
+    }
+  );
+
+  it.each([
+    ["tasks", "lib/crypto/task-encryption.ts"],
+    ["notes", "lib/crypto/note-encryption.ts"],
+    ["contacts", "lib/crypto/contact-encryption.ts"],
+    ["links", "lib/crypto/link-encryption.ts"],
+    ["links", "lib/crypto/link-folder-encryption.ts"],
+  ] as const)(
+    "apps/%s encrypt helper accepts optional recordId",
+    (app, cryptoPath) => {
+      const src = readAppFile(app, cryptoPath);
+      expect(src).toContain("recordId?: string");
+    }
+  );
+
+  it("shared sortable-items hook tracks aborted open-first drafts", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/ui/src/hooks/use-encrypted-sortable-items.ts"),
+      "utf8"
+    );
+    expect(src).toContain("abortedDraftIdsRef");
+    expect(src).toContain("pendingDraftIdsRef");
+  });
+
+  it("links library hook tracks aborted link and folder drafts", () => {
+    const src = readAppFile("links", "hooks/use-link-library.ts");
+    expect(src).toContain("abortedLinkDraftIdsRef");
+    expect(src).toContain("abortedFolderDraftIdsRef");
+    expect(src).toContain("resolveLinkDisplayName(input.name, input.url)");
+  });
+});
+
 describe("E2EE app README accuracy", () => {
   it.each(["tasks", "notes", "contacts"] as const)(
     "apps/%s README documents Links pattern sheet wiring",
@@ -393,7 +475,20 @@ describe("E2EE app README accuracy", () => {
     const src = readFileSync(join(repoRoot, "apps/links/README.md"), "utf8");
     expect(src).toContain("Links pattern");
     expect(src).toContain("library.updateLink");
+    expect(src).toContain("open-first");
   });
+
+  it.each(["tasks", "notes", "contacts"] as const)(
+    "apps/%s README documents open-first create",
+    (app) => {
+      const src = readFileSync(
+        join(repoRoot, "apps", app, "README.md"),
+        "utf8"
+      );
+      expect(src).toContain("open-first");
+      expect(src).toContain("useE2eeDashboardSelectedEntity");
+    }
+  );
 
   it("packages/ui README documents mount-only TipTap and Links pattern", () => {
     const src = readFileSync(join(repoRoot, "packages/ui/README.md"), "utf8");

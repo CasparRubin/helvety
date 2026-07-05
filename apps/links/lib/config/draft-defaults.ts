@@ -2,7 +2,7 @@ import { isDraftSnapshotUnchanged } from "@helvety/shared/e2ee-draft";
 
 import type { Link, LinkFolder } from "@/lib/types";
 
-/** Placeholder URL for persist-on-open link drafts (`createLink` requires a valid URL). */
+/** Placeholder URL for open-first link drafts (`createLink` requires a valid URL). */
 export const LINK_DRAFT_PLACEHOLDER_URL = "https://example.com";
 
 export const LINK_DRAFT_DEFAULT_NAME = "";

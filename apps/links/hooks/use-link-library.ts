@@ -105,6 +105,34 @@ interface UseLinkLibraryReturn {
     }
   ) => Promise<boolean>;
   removeLink: (id: string) => Promise<boolean>;
+  /** Add an optimistic link draft without a server call. */
+  seedLinkDraft: (
+    id: string,
+    input: LinkInput,
+    folderId: string | null
+  ) => void;
+  /** Remove a link draft from the in-memory list. */
+  removeLinkDraft: (id: string) => void;
+  /** Create a link with a pre-generated client id (open-first drafts). */
+  createLinkWithId: (
+    id: string,
+    input: LinkInput,
+    folderId: string | null
+  ) => Promise<{ id: string } | null>;
+  /** Add an optimistic folder draft without a server call. */
+  seedFolderDraft: (
+    id: string,
+    input: LinkFolderInput,
+    parentFolderId: string | null
+  ) => void;
+  /** Remove a folder draft from the in-memory list. */
+  removeFolderDraft: (id: string) => void;
+  /** Create a folder with a pre-generated client id (open-first drafts). */
+  createFolderWithId: (
+    id: string,
+    input: LinkFolderInput,
+    parentFolderId: string | null
+  ) => Promise<{ id: string } | null>;
   applyTreeDrop: (action: TreeDropAction) => Promise<boolean>;
 }
 
@@ -120,8 +148,16 @@ export function useLinkLibrary(
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [initialDataConsumed, setInitialDataConsumed] = useState(false);
+  const initialDataConsumedRef = useRef(false);
   const latestRefreshTokenRef = useRef(0);
+  const foldersLengthRef = useRef(0);
+  const linksLengthRef = useRef(0);
+  foldersLengthRef.current = folders.length;
+  linksLengthRef.current = links.length;
+  const pendingLinkDraftIdsRef = useRef<Set<string>>(new Set());
+  const pendingFolderDraftIdsRef = useRef<Set<string>>(new Set());
+  const abortedLinkDraftIdsRef = useRef<Set<string>>(new Set());
+  const abortedFolderDraftIdsRef = useRef<Set<string>>(new Set());
 
   const applyDecrypted = useCallback(
     async (data: LinksDashboardData) => {
@@ -132,8 +168,33 @@ export function useLinkLibrary(
         decryptFolderRows(data.folders, masterKey),
         decryptLinkRows(data.links, masterKey),
       ]);
-      setFolders(decryptedFolders);
-      setLinks(decryptedLinks);
+      const folderServerIds = new Set(decryptedFolders.map((f) => f.id));
+      const linkServerIds = new Set(decryptedLinks.map((l) => l.id));
+      setFolders((prev) => {
+        const pending = prev.filter(
+          (f) =>
+            pendingFolderDraftIdsRef.current.has(f.id) &&
+            !folderServerIds.has(f.id)
+        );
+        if (pending.length === 0) {
+          return decryptedFolders;
+        }
+        return [...decryptedFolders, ...pending].toSorted(
+          (a, b) => a.sort_order - b.sort_order
+        );
+      });
+      setLinks((prev) => {
+        const pending = prev.filter(
+          (l) =>
+            pendingLinkDraftIdsRef.current.has(l.id) && !linkServerIds.has(l.id)
+        );
+        if (pending.length === 0) {
+          return decryptedLinks;
+        }
+        return [...decryptedLinks, ...pending].toSorted(
+          (a, b) => a.sort_order - b.sort_order
+        );
+      });
     },
     [masterKey]
   );
@@ -150,7 +211,7 @@ export function useLinkLibrary(
     const refreshToken = ++latestRefreshTokenRef.current;
     const routeAtStart = window.location.href;
     const requestStartedAt = Date.now();
-    const hasData = folders.length > 0 || links.length > 0;
+    const hasData = foldersLengthRef.current > 0 || linksLengthRef.current > 0;
     if (hasData) {
       setIsRefreshing(true);
     } else {
@@ -194,38 +255,72 @@ export function useLinkLibrary(
         setIsRefreshing(false);
       }
     }
-  }, [applyDecrypted, folders.length, isUnlocked, links.length, masterKey]);
+  }, [applyDecrypted, isUnlocked, masterKey]);
+
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
 
   useEffect(() => {
+    if (!isUnlocked || !masterKey) return;
+
     if (
-      !initialDataConsumed &&
       options?.initialEncryptedFolders !== undefined &&
-      options.initialEncryptedLinks !== undefined &&
-      masterKey &&
-      isUnlocked
+      options.initialEncryptedLinks !== undefined
     ) {
-      setInitialDataConsumed(true);
-      void applyDecrypted({
-        folders: options.initialEncryptedFolders,
-        links: options.initialEncryptedLinks,
-      }).finally(() => {
-        setIsLoading(false);
-      });
+      if (!initialDataConsumedRef.current) {
+        initialDataConsumedRef.current = true;
+        void applyDecrypted({
+          folders: options.initialEncryptedFolders,
+          links: options.initialEncryptedLinks,
+        }).finally(() => {
+          setIsLoading(false);
+        });
+      }
       return;
     }
-    void refresh();
+
+    void refreshRef.current();
   }, [
     applyDecrypted,
-    initialDataConsumed,
     isUnlocked,
     masterKey,
     options?.initialEncryptedFolders,
     options?.initialEncryptedLinks,
-    refresh,
   ]);
 
-  const createFolderFn = useCallback(
+  const seedFolderDraft = useCallback(
+    (id: string, input: LinkFolderInput, parentFolderId: string | null) => {
+      pendingFolderDraftIdsRef.current.add(id);
+      setFolders((prev) => {
+        const maxOrder = prev
+          .filter((f) => (f.parent_folder_id ?? null) === parentFolderId)
+          .reduce((max, f) => Math.max(max, f.sort_order), -1);
+        return [
+          ...prev,
+          {
+            id,
+            user_id: prev[0]?.user_id ?? "",
+            name: input.name,
+            parent_folder_id: parentFolderId,
+            sort_order: maxOrder + 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ].toSorted((a, b) => a.sort_order - b.sort_order);
+      });
+    },
+    []
+  );
+
+  const removeFolderDraft = useCallback((id: string) => {
+    pendingFolderDraftIdsRef.current.delete(id);
+    abortedFolderDraftIdsRef.current.add(id);
+    setFolders((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  const createFolderWithId = useCallback(
     async (
+      id: string,
       input: LinkFolderInput,
       parentFolderId: string | null
     ): Promise<{ id: string } | null> => {
@@ -237,7 +332,8 @@ export function useLinkLibrary(
         const encrypted = await encryptFolderInput(
           input,
           masterKey,
-          parentFolderId
+          parentFolderId,
+          id
         );
         const result = await createFolder(encrypted, csrfToken);
         if (!result.success) {
@@ -247,11 +343,20 @@ export function useLinkLibrary(
           });
           return null;
         }
-        const maxOrder = folders
-          .filter((f) => (f.parent_folder_id ?? null) === parentFolderId)
-          .reduce((max, f) => Math.max(max, f.sort_order), -1);
-        setFolders((prev) =>
-          [
+        const wasAborted = abortedFolderDraftIdsRef.current.has(id);
+        abortedFolderDraftIdsRef.current.delete(id);
+        pendingFolderDraftIdsRef.current.delete(id);
+        setFolders((prev) => {
+          if (prev.some((f) => f.id === id)) {
+            return prev;
+          }
+          if (wasAborted) {
+            return prev;
+          }
+          const maxOrder = prev
+            .filter((f) => (f.parent_folder_id ?? null) === parentFolderId)
+            .reduce((max, f) => Math.max(max, f.sort_order), -1);
+          return [
             ...prev,
             {
               id: result.data.id,
@@ -262,8 +367,8 @@ export function useLinkLibrary(
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             },
-          ].toSorted((a, b) => a.sort_order - b.sort_order)
-        );
+          ].toSorted((a, b) => a.sort_order - b.sort_order);
+        });
         return result.data;
       } catch (err) {
         const message =
@@ -272,7 +377,17 @@ export function useLinkLibrary(
         return null;
       }
     },
-    [csrfToken, folders, masterKey]
+    [csrfToken, masterKey]
+  );
+
+  const createFolderFn = useCallback(
+    async (
+      input: LinkFolderInput,
+      parentFolderId: string | null
+    ): Promise<{ id: string } | null> => {
+      return createFolderWithId(crypto.randomUUID(), input, parentFolderId);
+    },
+    [createFolderWithId]
   );
 
   const updateFolderFn = useCallback(
@@ -347,8 +462,40 @@ export function useLinkLibrary(
     [csrfToken, refresh]
   );
 
-  const createLinkFn = useCallback(
+  const seedLinkDraft = useCallback(
+    (id: string, input: LinkInput, folderId: string | null) => {
+      pendingLinkDraftIdsRef.current.add(id);
+      setLinks((prev) => {
+        const maxOrder = prev
+          .filter((l) => (l.folder_id ?? null) === folderId)
+          .reduce((max, l) => Math.max(max, l.sort_order), -1);
+        return [
+          ...prev,
+          {
+            id,
+            user_id: prev[0]?.user_id ?? "",
+            name: resolveLinkDisplayName(input.name, input.url),
+            url: input.url,
+            folder_id: folderId,
+            sort_order: maxOrder + 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ].toSorted((a, b) => a.sort_order - b.sort_order);
+      });
+    },
+    []
+  );
+
+  const removeLinkDraft = useCallback((id: string) => {
+    pendingLinkDraftIdsRef.current.delete(id);
+    abortedLinkDraftIdsRef.current.add(id);
+    setLinks((prev) => prev.filter((l) => l.id !== id));
+  }, []);
+
+  const createLinkWithId = useCallback(
     async (
+      id: string,
       input: LinkInput,
       folderId: string | null
     ): Promise<{ id: string } | null> => {
@@ -366,7 +513,12 @@ export function useLinkLibrary(
           name: resolveLinkDisplayName(input.name, normalized.url),
           url: normalized.url,
         };
-        const encrypted = await encryptLinkInput(payload, masterKey, folderId);
+        const encrypted = await encryptLinkInput(
+          payload,
+          masterKey,
+          folderId,
+          id
+        );
         const result = await createLink(encrypted, csrfToken);
         if (!result.success) {
           reportE2eeActionFailure(result.error, {
@@ -375,11 +527,20 @@ export function useLinkLibrary(
           });
           return null;
         }
-        const maxOrder = links
-          .filter((l) => (l.folder_id ?? null) === folderId)
-          .reduce((max, l) => Math.max(max, l.sort_order), -1);
-        setLinks((prev) =>
-          [
+        const wasAborted = abortedLinkDraftIdsRef.current.has(id);
+        abortedLinkDraftIdsRef.current.delete(id);
+        pendingLinkDraftIdsRef.current.delete(id);
+        setLinks((prev) => {
+          if (prev.some((l) => l.id === id)) {
+            return prev;
+          }
+          if (wasAborted) {
+            return prev;
+          }
+          const maxOrder = prev
+            .filter((l) => (l.folder_id ?? null) === folderId)
+            .reduce((max, l) => Math.max(max, l.sort_order), -1);
+          return [
             ...prev,
             {
               id: result.data.id,
@@ -391,8 +552,8 @@ export function useLinkLibrary(
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             },
-          ].toSorted((a, b) => a.sort_order - b.sort_order)
-        );
+          ].toSorted((a, b) => a.sort_order - b.sort_order);
+        });
         return result.data;
       } catch (err) {
         const message =
@@ -401,7 +562,17 @@ export function useLinkLibrary(
         return null;
       }
     },
-    [csrfToken, links, masterKey]
+    [csrfToken, masterKey]
+  );
+
+  const createLinkFn = useCallback(
+    async (
+      input: LinkInput,
+      folderId: string | null
+    ): Promise<{ id: string } | null> => {
+      return createLinkWithId(crypto.randomUUID(), input, folderId);
+    },
+    [createLinkWithId]
   );
 
   const updateLinkFn = useCallback(
@@ -649,6 +820,12 @@ export function useLinkLibrary(
     createLink: createLinkFn,
     updateLink: updateLinkFn,
     removeLink: removeLinkFn,
+    seedLinkDraft,
+    removeLinkDraft,
+    createLinkWithId,
+    seedFolderDraft,
+    removeFolderDraft,
+    createFolderWithId,
     applyTreeDrop: applyTreeDropFn,
   };
 }

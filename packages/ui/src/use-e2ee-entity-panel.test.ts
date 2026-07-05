@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { useE2eeEntityPanel } from "./use-e2ee-entity-panel";
 
@@ -19,20 +19,49 @@ describe("useE2eeEntityPanel", () => {
     expect(result.current.entityId).toBe("abc");
   });
 
-  it("openNewDraft sets entity id on success", async () => {
+  it("openNewDraft opens immediately and persists in background", async () => {
     const { result } = renderHook(() => useE2eeEntityPanel());
-    await act(async () => {
-      result.current.openNewDraft(async () => ({ id: "new-id" }));
+    const seedOptimistic = vi.fn();
+    const persist = vi.fn().mockResolvedValue({ id: "new-id" });
+
+    act(() => {
+      result.current.openNewDraft({
+        id: "new-id",
+        seedOptimistic,
+        persist,
+      });
     });
+
+    expect(seedOptimistic).toHaveBeenCalledWith("new-id");
     expect(result.current.entityId).toBe("new-id");
     expect(result.current.isOpen).toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(persist).toHaveBeenCalledWith("new-id");
   });
 
-  it("openNewDraft leaves panel closed on failure", async () => {
+  it("openNewDraft closes panel when persist fails", async () => {
     const { result } = renderHook(() => useE2eeEntityPanel());
-    await act(async () => {
-      result.current.openNewDraft(async () => null);
+    const onPersistFailure = vi.fn();
+
+    act(() => {
+      result.current.openNewDraft({
+        id: "draft-id",
+        seedOptimistic: () => {},
+        persist: async () => null,
+        onPersistFailure,
+      });
     });
+
+    expect(result.current.isOpen).toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(onPersistFailure).toHaveBeenCalledWith("draft-id");
     expect(result.current.isOpen).toBe(false);
   });
 

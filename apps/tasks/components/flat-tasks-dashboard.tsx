@@ -10,6 +10,7 @@ import { EntityCommandBar } from "@helvety/ui/entity-command-bar";
 import { EntityDashboardShell } from "@helvety/ui/entity-dashboard-shell";
 import { ListSearchField } from "@helvety/ui/list-search-field";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
+import { useE2eeDashboardSelectedEntity } from "@helvety/ui/use-e2ee-dashboard-selected-entity";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
@@ -18,7 +19,7 @@ import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialo
 import { EntityList } from "@/components/entity-list";
 import { ItemEditor } from "@/components/item-editor";
 import { useDataExport } from "@/hooks/use-data-export";
-import { useItems } from "@/hooks/use-items";
+import { useItems, fetchTaskById } from "@/hooks/use-items";
 import { useStages } from "@/hooks/use-stages";
 import { DEFAULT_STAGE_CONFIGS } from "@/lib/config/default-stages";
 import {
@@ -26,7 +27,7 @@ import {
   createTaskDraftSnapshot,
   isTaskDraftUnchanged,
 } from "@/lib/config/draft-defaults";
-import { useEncryptionContext } from "@/lib/crypto";
+import { useEncryptionContext, decryptItemRow } from "@/lib/crypto";
 
 import type { TaskDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
@@ -47,7 +48,9 @@ export function FlatTasksDashboard({
     isRefreshing,
     error,
     refresh,
-    create,
+    createWithId,
+    seedDraft,
+    removeDraft,
     remove,
     reorder,
     update,
@@ -55,8 +58,14 @@ export function FlatTasksDashboard({
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
-    useE2eeEntityPanelWithUrl("item");
+  const {
+    isOpen,
+    entityId,
+    openEntity,
+    closePanel,
+    openNewDraft,
+    isOpeningDraft,
+  } = useE2eeEntityPanelWithUrl("item");
 
   const draftSnapshots = useRef<Map<string, TaskDraftSnapshot>>(new Map());
 
@@ -77,11 +86,23 @@ export function FlatTasksDashboard({
         ).id
       : null;
 
-  const selectedItem = useMemo(
-    () =>
-      entityId ? (items.find((item) => item.id === entityId) ?? null) : null,
-    [items, entityId]
-  );
+  const {
+    entity: selectedItem,
+    isLoadingEntity,
+    entityError,
+  } = useE2eeDashboardSelectedEntity({
+    entityId,
+    entities: items,
+    listIsLoading: isLoading,
+    listError: error,
+    isPersistingDraft: isOpeningDraft,
+    masterKey,
+    isUnlocked,
+    navigationSource: "tasks-dashboard",
+    loadFailureMessage: "Failed to load task",
+    fetchById: fetchTaskById,
+    decryptRow: decryptItemRow,
+  });
 
   const filteredItems = useMemo(() => {
     return filterE2eeDashboardItems(items, searchQuery, (item) => [
@@ -103,11 +124,15 @@ export function FlatTasksDashboard({
       const item = items.find((i) => i.id === id);
       const snapshot = draftSnapshots.current.get(id);
       if (item && snapshot && isTaskDraftUnchanged(item, snapshot)) {
-        void remove(id);
+        if (isOpeningDraft) {
+          removeDraft(id);
+        } else {
+          void remove(id);
+        }
       }
       draftSnapshots.current.delete(id);
     },
-    [items, remove]
+    [items, isOpeningDraft, remove, removeDraft]
   );
 
   const handleSelectEntity = useCallback(
@@ -152,15 +177,30 @@ export function FlatTasksDashboard({
     if (entityId) {
       cleanupDraftIfUnchanged(entityId);
     }
+    const draftInput = createTaskDraftInput(defaultStageId);
     const snapshot = createTaskDraftSnapshot(defaultStageId);
-    openNewDraft(async () => {
-      const result = await create(createTaskDraftInput(defaultStageId));
-      if (result) {
-        draftSnapshots.current.set(result.id, snapshot);
-      }
-      return result;
+    const draftId = crypto.randomUUID();
+    openNewDraft({
+      id: draftId,
+      seedOptimistic: (id) => {
+        seedDraft(id, draftInput);
+        draftSnapshots.current.set(id, snapshot);
+      },
+      persist: (id) => createWithId(id, draftInput),
+      onPersistFailure: (id) => {
+        removeDraft(id);
+        draftSnapshots.current.delete(id);
+      },
     });
-  }, [cleanupDraftIfUnchanged, create, defaultStageId, entityId, openNewDraft]);
+  }, [
+    cleanupDraftIfUnchanged,
+    createWithId,
+    defaultStageId,
+    entityId,
+    openNewDraft,
+    removeDraft,
+    seedDraft,
+  ]);
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -222,8 +262,8 @@ export function FlatTasksDashboard({
             key={entityId}
             itemId={entityId}
             item={selectedItem}
-            isLoading={isLoading && !selectedItem}
-            error={error}
+            isLoading={isLoadingEntity}
+            error={entityError}
             onUpdate={(input) => update(entityId, input)}
             onRemove={() => remove(entityId)}
             onRefresh={refresh}

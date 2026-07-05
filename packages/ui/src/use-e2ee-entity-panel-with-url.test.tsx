@@ -106,4 +106,58 @@ describe("useE2eeEntityPanelWithUrl", () => {
       { scroll: false }
     );
   });
+
+  it("openNewDraft seeds, opens, writes URL, and persists in background", async () => {
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
+    const seedOptimistic = vi.fn();
+    const persist = vi.fn().mockResolvedValue({ id: "draft-id" });
+
+    act(() => {
+      result.current.openNewDraft({
+        id: "draft-id",
+        seedOptimistic,
+        persist,
+      });
+    });
+
+    expect(seedOptimistic).toHaveBeenCalledWith("draft-id");
+    expect(result.current.isOpen).toBe(true);
+    expect(result.current.entityId).toBe("draft-id");
+    expect(navigationMocks.replace).toHaveBeenCalledWith(
+      `/tasks?item=draft-id`,
+      { scroll: false }
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(persist).toHaveBeenCalledWith("draft-id");
+  });
+
+  it("openNewDraft invokes onPersistFailure and closes when persist fails", async () => {
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
+    const onPersistFailure = vi.fn();
+
+    act(() => {
+      result.current.openNewDraft({
+        id: "draft-id",
+        seedOptimistic: () => {},
+        persist: async () => null,
+        onPersistFailure,
+      });
+    });
+
+    expect(result.current.isOpen).toBe(true);
+    expect(navigationMocks.replace).toHaveBeenCalledWith(
+      `/tasks?item=draft-id`,
+      { scroll: false }
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(onPersistFailure).toHaveBeenCalledWith("draft-id");
+    expect(result.current.isOpen).toBe(false);
+  });
 });

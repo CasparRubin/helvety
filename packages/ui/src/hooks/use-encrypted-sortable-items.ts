@@ -71,7 +71,11 @@ export interface UseEncryptedSortableItemsOptions<
     updates: TReorderUpdate[],
     csrfToken: string
   ) => Promise<EncryptedSortableMutationResponse>;
-  encryptInput: (input: TInput, masterKey: CryptoKey) => Promise<unknown>;
+  encryptInput: (
+    input: TInput,
+    masterKey: CryptoKey,
+    recordId?: string
+  ) => Promise<unknown>;
   encryptUpdate: (
     id: string,
     input: Partial<TInput>,
@@ -104,6 +108,12 @@ export interface UseEncryptedSortableItemsReturn<
   error: string | null;
   refresh: () => Promise<void>;
   create: (input: TInput) => Promise<{ id: string } | null>;
+  /** Create with a pre-generated client id (open-first drafts). */
+  createWithId: (id: string, input: TInput) => Promise<{ id: string } | null>;
+  /** Add an optimistic draft row without a server call. */
+  seedDraft: (id: string, input: TInput) => void;
+  /** Remove a draft row from the in-memory list (rollback on persist failure). */
+  removeDraft: (id: string) => void;
   update: (id: string, input: Partial<TInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: TReorderUpdate[]) => Promise<boolean>;
@@ -165,6 +175,10 @@ export function useEncryptedSortableItems<
   const [error, setError] = useState<string | null>(null);
   const initialDataConsumedRef = useRef(false);
   const latestRefreshTokenRef = useRef(0);
+  const itemsLengthRef = useRef(0);
+  itemsLengthRef.current = items.length;
+  const pendingDraftIdsRef = useRef<Set<string>>(new Set());
+  const abortedDraftIdsRef = useRef<Set<string>>(new Set());
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked) {
@@ -179,7 +193,7 @@ export function useEncryptedSortableItems<
     const routeAtStart = window.location.href;
     const requestStartedAt = Date.now();
     performance.mark(`${perfLabel}:start`);
-    const hasExistingItems = items.length > 0;
+    const hasExistingItems = itemsLengthRef.current > 0;
     if (hasExistingItems) {
       setIsRefreshing(true);
     } else {
@@ -222,7 +236,19 @@ export function useEncryptedSortableItems<
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      setItems(decrypted);
+      const serverIds = new Set(decrypted.map((item) => item.id));
+      setItems((prev) => {
+        const pendingDrafts = prev.filter(
+          (item) =>
+            pendingDraftIdsRef.current.has(item.id) && !serverIds.has(item.id)
+        );
+        if (pendingDrafts.length === 0) {
+          return decrypted;
+        }
+        return [...decrypted, ...pendingDrafts].toSorted(
+          (a, b) => a.sort_order - b.sort_order
+        );
+      });
       performance.mark(`${perfLabel}:end`);
       performance.measure(
         perfMeasureName,
@@ -253,7 +279,6 @@ export function useEncryptedSortableItems<
       }
     }
   }, [
-    items.length,
     masterKey,
     isUnlocked,
     navigationSource,
@@ -263,15 +288,34 @@ export function useEncryptedSortableItems<
     decryptRows,
   ]);
 
-  const create = useCallback(
-    async (input: TInput): Promise<{ id: string } | null> => {
+  const seedDraft = useCallback(
+    (id: string, input: TInput) => {
+      pendingDraftIdsRef.current.add(id);
+      setItems((prev) => {
+        const newItem = buildOptimisticItem(input, prev, { id });
+        return [...prev, newItem].toSorted(
+          (a, b) => a.sort_order - b.sort_order
+        );
+      });
+    },
+    [buildOptimisticItem]
+  );
+
+  const removeDraft = useCallback((id: string) => {
+    pendingDraftIdsRef.current.delete(id);
+    abortedDraftIdsRef.current.add(id);
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const createWithId = useCallback(
+    async (id: string, input: TInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
         triggerHardLogoutOnce(window.location.href, navigationSource);
         return null;
       }
 
       try {
-        const encrypted = await encryptInput(input, masterKey);
+        const encrypted = await encryptInput(input, masterKey, id);
         const payload = buildCreatePayload(encrypted, input);
         assertEncryptedWritePayloadAuto(payload as Record<string, unknown>);
         const result = await createItem(payload, csrfToken);
@@ -283,7 +327,17 @@ export function useEncryptedSortableItems<
           return null;
         }
 
+        const wasAborted = abortedDraftIdsRef.current.has(id);
+        abortedDraftIdsRef.current.delete(id);
+        pendingDraftIdsRef.current.delete(id);
         setItems((prev) => {
+          const exists = prev.some((item) => item.id === id);
+          if (exists) {
+            return prev;
+          }
+          if (wasAborted) {
+            return prev;
+          }
           const newItem = buildOptimisticItem(input, prev, result.data);
           return [...prev, newItem].toSorted(
             (a, b) => a.sort_order - b.sort_order
@@ -311,6 +365,24 @@ export function useEncryptedSortableItems<
     ]
   );
 
+  const create = useCallback(
+    async (input: TInput): Promise<{ id: string } | null> => {
+      return createWithId(crypto.randomUUID(), input);
+    },
+    [createWithId]
+  );
+
+  const restoreItemSnapshot = useCallback((id: string, snapshot: TItem) => {
+    setItems((current) => {
+      if (current.some((item) => item.id === id)) {
+        return current.map((item) => (item.id === id ? snapshot : item));
+      }
+      return [...current, snapshot].toSorted(
+        (a, b) => a.sort_order - b.sort_order
+      );
+    });
+  }, []);
+
   const update = useCallback(
     async (id: string, input: Partial<TInput>): Promise<boolean> => {
       if (!masterKey) {
@@ -318,15 +390,18 @@ export function useEncryptedSortableItems<
         return false;
       }
 
-      let prevItems: TItem[] = [];
-      setItems((prev) => {
-        prevItems = prev;
-        return patchEntityInList(
+      const previousItem = items.find((item) => item.id === id);
+      if (!previousItem) {
+        return false;
+      }
+
+      setItems((prev) =>
+        patchEntityInList(
           prev,
           id,
           input as Partial<Omit<TItem, "id" | "updated_at">>
-        );
-      });
+        )
+      );
 
       try {
         const encrypted = await encryptUpdate(id, input, masterKey);
@@ -340,7 +415,7 @@ export function useEncryptedSortableItems<
               fallback: updateFailureMessage,
             })
           ) {
-            setItems(prevItems);
+            restoreItemSnapshot(id, previousItem);
           }
           return false;
         }
@@ -353,7 +428,7 @@ export function useEncryptedSortableItems<
             fallback: updateFailureMessage,
           })
         ) {
-          setItems(prevItems);
+          restoreItemSnapshot(id, previousItem);
         }
         return false;
       }
@@ -366,16 +441,19 @@ export function useEncryptedSortableItems<
       encryptUpdate,
       updateItem,
       buildUpdatePayload,
+      restoreItemSnapshot,
+      items,
     ]
   );
 
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      let prevItems: TItem[] = [];
-      setItems((prev) => {
-        prevItems = prev;
-        return prev.filter((item) => item.id !== id);
-      });
+      const removedItem = items.find((item) => item.id === id);
+      if (!removedItem) {
+        return false;
+      }
+
+      setItems((prev) => prev.filter((item) => item.id !== id));
 
       try {
         const result = await deleteItem(id, csrfToken);
@@ -386,7 +464,7 @@ export function useEncryptedSortableItems<
               fallback: deleteFailureMessage,
             })
           ) {
-            setItems(prevItems);
+            restoreItemSnapshot(id, removedItem);
           }
           return false;
         }
@@ -399,12 +477,19 @@ export function useEncryptedSortableItems<
             fallback: deleteFailureMessage,
           })
         ) {
-          setItems(prevItems);
+          restoreItemSnapshot(id, removedItem);
         }
         return false;
       }
     },
-    [csrfToken, navigationSource, deleteFailureMessage, deleteItem]
+    [
+      csrfToken,
+      navigationSource,
+      deleteFailureMessage,
+      deleteItem,
+      restoreItemSnapshot,
+      items,
+    ]
   );
 
   const patchLocal = useCallback((id: string, input: Partial<TInput>) => {
@@ -452,6 +537,9 @@ export function useEncryptedSortableItems<
     ]
   );
 
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+
   useEffect(() => {
     if (!isUnlocked || !masterKey) return;
 
@@ -474,11 +562,10 @@ export function useEncryptedSortableItems<
       return;
     }
 
-    void refresh();
+    void refreshRef.current();
   }, [
     isUnlocked,
     masterKey,
-    refresh,
     initialEncryptedData,
     navigationSource,
     decryptFailureMessage,
@@ -492,6 +579,9 @@ export function useEncryptedSortableItems<
     error,
     refresh,
     create,
+    createWithId,
+    seedDraft,
+    removeDraft,
     update,
     remove,
     reorder,

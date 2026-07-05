@@ -44,6 +44,12 @@ interface UseItemsReturn {
   error: string | null;
   refresh: () => Promise<void>;
   create: (input: ItemInput) => Promise<{ id: string } | null>;
+  createWithId: (
+    id: string,
+    input: ItemInput
+  ) => Promise<{ id: string } | null>;
+  seedDraft: (id: string, input: ItemInput) => void;
+  removeDraft: (id: string) => void;
   update: (id: string, input: Partial<ItemInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
@@ -60,7 +66,9 @@ function fetchItems(): Promise<Response> {
 }
 
 /** Fetches a single encrypted task row via GET route handler. */
-async function fetchItemById(id: string): Promise<ActionResponse<ItemRow>> {
+export async function fetchTaskById(
+  id: string
+): Promise<ActionResponse<ItemRow>> {
   const response = await fetch(getTasksApiPath(`/api/items/${id}`), {
     method: "GET",
     cache: "no-store",
@@ -175,7 +183,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     deleteMissingIdMessage: "Task ID is missing",
     initialEncryptedData: options?.initialEncryptedData,
     initialData: options?.initialData,
-    fetchById: fetchItemById,
+    fetchById: fetchTaskById,
     decryptRow: decryptItemRow,
     encryptUpdate: encryptItemUpdate,
     buildUpdatePayload: (entityId, encrypted, input) => ({

@@ -15,24 +15,24 @@ const LINKS_TABLE = "links" as const;
 export async function encryptLinkInput(
   input: LinkInput,
   key: CryptoKey,
-  folderId: string | null
+  folderId: string | null,
+  recordId?: string
 ): Promise<{
   id: string;
   encrypted_name: string;
   encrypted_url: string;
   folder_id: string | null;
 }> {
-  const id = crypto.randomUUID();
-  const recordId = id;
+  const id = recordId ?? crypto.randomUUID();
 
   const encryptedName = await encryptEntityField(input.name, key, {
     table: LINKS_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_name",
   });
   const encryptedUrl = await encryptEntityField(input.url, key, {
     table: LINKS_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_url",
   });
 

@@ -135,6 +135,31 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toMatch(/not.*cmdk|cmdk Command/i);
   });
 
+  it("packages/ui README documents open-first create and selected-entity hook", () => {
+    const readme = readRepoFile("packages/ui/README.md");
+    expect(readme).toContain("open-first");
+    expect(readme).toContain("useE2eeDashboardSelectedEntity");
+    expect(readme).toContain("seedDraft");
+    expect(readme).toContain("createWithId");
+    expect(readme).not.toContain("persist-on-open");
+  });
+
+  it("E2EE zone READMEs describe open-first create, not persist-on-open", () => {
+    for (const relativePath of [
+      "apps/tasks/README.md",
+      "apps/notes/README.md",
+      "apps/contacts/README.md",
+      "apps/links/README.md",
+    ]) {
+      const readme = readRepoFile(relativePath);
+      expect(readme, relativePath).toContain("open-first");
+      expect(readme, relativePath).not.toContain("persist-on-open");
+      expect(readme, relativePath).not.toMatch(
+        /persist a draft row immediately, then open/i
+      );
+    }
+  });
+
   it("extension README describes @helvety/ui as Base UI shadcn primitives", () => {
     try {
       const readme = readFileSync(join(extensionRoot, "README.md"), "utf8");

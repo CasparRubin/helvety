@@ -30,7 +30,8 @@ const CONTACTS_TABLE = "contacts" as const;
  */
 export async function encryptContactInput(
   input: ContactInput,
-  key: CryptoKey
+  key: CryptoKey,
+  recordId?: string
 ): Promise<{
   id: string;
   encrypted_first_name: string;
@@ -42,17 +43,16 @@ export async function encryptContactInput(
   encrypted_notes: string | null;
   category_id: string;
 }> {
-  const id = crypto.randomUUID();
-  const recordId = id;
+  const id = recordId ?? crypto.randomUUID();
 
   const encryptedFirstName = await encryptEntityField(input.first_name, key, {
     table: CONTACTS_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_first_name",
   });
   const encryptedLastName = await encryptEntityField(input.last_name, key, {
     table: CONTACTS_TABLE,
-    recordId,
+    recordId: id,
     column: "encrypted_last_name",
   });
 
@@ -61,7 +61,7 @@ export async function encryptContactInput(
     encryptedDescription = serializeEncryptedData(
       await encryptEntityField(input.description, key, {
         table: CONTACTS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_description",
       })
     );
@@ -72,7 +72,7 @@ export async function encryptContactInput(
     encryptedEmail = serializeEncryptedData(
       await encryptEntityField(input.email, key, {
         table: CONTACTS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_email",
       })
     );
@@ -83,7 +83,7 @@ export async function encryptContactInput(
     encryptedPhone = serializeEncryptedData(
       await encryptEntityField(input.phone, key, {
         table: CONTACTS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_phone",
       })
     );
@@ -94,7 +94,7 @@ export async function encryptContactInput(
     encryptedBirthday = serializeEncryptedData(
       await encryptEntityField(input.birthday, key, {
         table: CONTACTS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_birthday",
       })
     );
@@ -105,7 +105,7 @@ export async function encryptContactInput(
     encryptedNotes = serializeEncryptedData(
       await encryptEntityField(input.notes, key, {
         table: CONTACTS_TABLE,
-        recordId,
+        recordId: id,
         column: "encrypted_notes",
       })
     );

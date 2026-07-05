@@ -330,6 +330,7 @@ export function createE2eeEntityLinksHook<
     const { masterKey, isUnlocked } = useEncryptionContext();
     const csrfToken = useCSRFToken();
     const catalogEnabled = options?.enabled ?? false;
+    const linksEnabled = options?.enabled ?? false;
 
     const [linkedItems, setLinkedItems] = useState<TLinked[]>([]);
     const [allItems, setAllItems] = useState<TCatalog[]>([]);
@@ -479,10 +480,10 @@ export function createE2eeEntityLinksHook<
     }, [masterKey, isUnlocked]);
 
     useEffect(() => {
-      if (isUnlocked && masterKey && entityId) {
+      if (linksEnabled && isUnlocked && masterKey && entityId) {
         void refresh();
       }
-    }, [isUnlocked, masterKey, entityId, refresh]);
+    }, [linksEnabled, isUnlocked, masterKey, entityId, refresh]);
 
     useEffect(() => {
       if (catalogEnabled && isUnlocked && masterKey) {

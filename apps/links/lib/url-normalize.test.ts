@@ -19,7 +19,7 @@ describe("normalizeBookmarkUrl", () => {
     expect(normalizeBookmarkUrl("  ").ok).toBe(false);
   });
 
-  it("accepts draft placeholder URL used on persist-on-open", () => {
+  it("accepts draft placeholder URL used for open-first link drafts", () => {
     const result = normalizeBookmarkUrl("https://example.com");
     expect(result.ok).toBe(true);
     if (result.ok) {

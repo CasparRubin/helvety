@@ -29,6 +29,22 @@ describe("createE2eeEntityLinksHook security wiring", () => {
   it("passes link mutations as (entityId, targetId, csrfToken)", () => {
     expect(factorySrc).toContain("config.link(entityId, targetId, csrfToken)");
   });
+
+  it("lazyCatalog mode gates link refresh on options.enabled", () => {
+    expect(factorySrc).toContain(
+      "const linksEnabled = options?.enabled ?? false"
+    );
+    expect(factorySrc).toMatch(
+      /if \(linksEnabled && isUnlocked && masterKey && entityId\)/
+    );
+  });
+
+  it("eager mode gates catalog refresh on options.enabled", () => {
+    expect(factorySrc).toContain("const enabled = options?.enabled ?? true");
+    expect(factorySrc).toMatch(
+      /if \(enabled && isUnlocked && masterKey && entityId\)/
+    );
+  });
 });
 
 /**

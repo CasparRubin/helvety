@@ -15,7 +15,7 @@ describe("e2ee-entity-defaults", () => {
     expect(DEFAULT_NOTE_CATEGORY_ID).toBe("personal");
     expect(DEFAULT_TASK_STAGE_ID).toBe("default-item-backlog");
     expect(DEFAULT_TASK_LABEL_ID).toBe("default-item-label");
-    expect(DEFAULT_TASK_PRIORITY).toBe(0);
+    expect(DEFAULT_TASK_PRIORITY).toBe(1);
   });
 
   it("default values are not plaintext content field names", () => {
