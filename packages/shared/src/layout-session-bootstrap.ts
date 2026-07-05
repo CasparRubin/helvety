@@ -1,5 +1,7 @@
 import "server-only";
 
+import { unstable_rethrow } from "next/navigation";
+
 import { getCachedCSRFToken, getCachedUser } from "./cached-server";
 import { logger } from "./logger";
 
@@ -13,6 +15,7 @@ export async function bootstrapPublicLayoutUser(): Promise<User | null> {
   try {
     return await getCachedUser();
   } catch (error) {
+    unstable_rethrow(error);
     logger.logUnexpectedError("Layout initialization failed", error);
     return null;
   }
@@ -47,6 +50,7 @@ export async function bootstrapE2eeLayoutSession(): Promise<{
     ]);
     return { csrfToken, initialUser };
   } catch (error) {
+    unstable_rethrow(error);
     logger.logUnexpectedError("Layout initialization failed", error);
     return { csrfToken: "", initialUser: null };
   }

@@ -12,6 +12,7 @@ import {
 import {
   DEFAULT_BLUR_RADIUS,
   DEFAULT_CORNER_RADIUS,
+  DEFAULT_STROKE,
   SLIDER_MAX_PX,
 } from "@/lib/editor-types";
 
@@ -33,7 +34,7 @@ function renderToolPropertiesBar(
     hasImage: true,
     elements: [],
     selectedId: null,
-    toolColor: "#ef4444",
+    toolColor: DEFAULT_STROKE,
     toolStrokeWidth: 5,
     toolBlurRadius: DEFAULT_BLUR_RADIUS,
     toolDimOpacity: 0.55,

@@ -64,7 +64,7 @@ function addBlurNode(
   layer.add(node);
 }
 
-/** Adds dim strips outside a spotlight hole to the export layer. */
+/** Adds spotlight dim outside a highlight hole to the export layer (even-odd cutout or strip rects). */
 function addHighlightNode(
   layer: Konva.Layer,
   element: Extract<EditorElement, { type: "highlight" }>,

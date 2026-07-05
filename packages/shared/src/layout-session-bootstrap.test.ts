@@ -1,14 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const { getCachedCSRFTokenMock, getCachedUserMock } = vi.hoisted(() => ({
-  getCachedCSRFTokenMock: vi.fn(),
-  getCachedUserMock: vi.fn(),
-}));
-
-vi.mock("./cached-server", () => ({
-  getCachedCSRFToken: getCachedCSRFTokenMock,
-  getCachedUser: getCachedUserMock,
-}));
+import { unstable_rethrow } from "next/navigation";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   bootstrapAuthLayoutSession,
@@ -17,9 +8,30 @@ import {
 } from "./layout-session-bootstrap";
 import { logger } from "./logger";
 
+const { getCachedCSRFTokenMock, getCachedUserMock, unstableRethrowMock } =
+  vi.hoisted(() => ({
+    getCachedCSRFTokenMock: vi.fn(),
+    getCachedUserMock: vi.fn(),
+    unstableRethrowMock: vi.fn(),
+  }));
+
+vi.mock("./cached-server", () => ({
+  getCachedCSRFToken: getCachedCSRFTokenMock,
+  getCachedUser: getCachedUserMock,
+}));
+
+vi.mock("next/navigation", () => ({
+  unstable_rethrow: unstableRethrowMock,
+}));
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe("bootstrapPublicLayoutUser", () => {
   beforeEach(() => {
     getCachedUserMock.mockReset();
+    unstableRethrowMock.mockReset();
     vi.spyOn(logger, "logUnexpectedError").mockImplementation(() => {});
   });
 
@@ -40,6 +52,18 @@ describe("bootstrapPublicLayoutUser", () => {
       "Layout initialization failed",
       error
     );
+    expect(unstable_rethrow).toHaveBeenCalledWith(error);
+  });
+
+  it("rethrows Next.js framework errors instead of logging them", async () => {
+    const nextError = new Error("dynamic server usage");
+    unstableRethrowMock.mockImplementationOnce((error: unknown) => {
+      throw error;
+    });
+    getCachedUserMock.mockRejectedValue(nextError);
+
+    await expect(bootstrapPublicLayoutUser()).rejects.toBe(nextError);
+    expect(logger.logUnexpectedError).not.toHaveBeenCalled();
   });
 });
 
@@ -47,6 +71,7 @@ describe("bootstrapAuthLayoutSession", () => {
   beforeEach(() => {
     getCachedCSRFTokenMock.mockReset();
     getCachedUserMock.mockReset();
+    unstableRethrowMock.mockReset();
     vi.spyOn(logger, "logUnexpectedError").mockImplementation(() => {});
   });
 
@@ -65,6 +90,7 @@ describe("bootstrapE2eeLayoutSession", () => {
   beforeEach(() => {
     getCachedCSRFTokenMock.mockReset();
     getCachedUserMock.mockReset();
+    unstableRethrowMock.mockReset();
     vi.spyOn(logger, "logUnexpectedError").mockImplementation(() => {});
   });
 
@@ -100,5 +126,17 @@ describe("bootstrapE2eeLayoutSession", () => {
       "Layout initialization failed",
       error
     );
+    expect(unstable_rethrow).toHaveBeenCalledWith(error);
+  });
+
+  it("rethrows Next.js framework errors instead of returning an empty session", async () => {
+    const nextError = new Error("dynamic server usage");
+    unstableRethrowMock.mockImplementationOnce((error: unknown) => {
+      throw error;
+    });
+    getCachedCSRFTokenMock.mockRejectedValue(nextError);
+
+    await expect(bootstrapE2eeLayoutSession()).rejects.toBe(nextError);
+    expect(logger.logUnexpectedError).not.toHaveBeenCalled();
   });
 });

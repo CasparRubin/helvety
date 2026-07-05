@@ -85,14 +85,19 @@ export type ExportFormat = "png" | "jpeg";
 
 export const MIN_DRAG_SIZE_PX = 4;
 
-export const DEFAULT_STROKE = "#ef4444";
+/** Default stroke/fill color for arrows and borders (`#ff0066`). */
+export const DEFAULT_STROKE = "#ff0066";
 
+/** Default text annotation color. */
 export const DEFAULT_TEXT_FILL = "#ffffff";
 
+/** Default outside dim for highlight spotlights (0–1). */
 export const DEFAULT_DIM_OPACITY = 0.55;
 
+/** Default blur strength for blur regions (px). */
 export const DEFAULT_BLUR_RADIUS = 28;
 
+/** Default corner radius for new rect annotations; highlights with radius > 0 use even-odd cutout. */
 export const DEFAULT_CORNER_RADIUS = 8;
 
 /** Upper bound for property sliders (px); number inputs may exceed this. */

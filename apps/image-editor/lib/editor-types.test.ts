@@ -4,10 +4,15 @@ import {
   DEFAULT_BLUR_RADIUS,
   DEFAULT_CORNER_RADIUS,
   DEFAULT_DIM_OPACITY,
+  DEFAULT_STROKE,
   SLIDER_MAX_PX,
 } from "./editor-types";
 
 describe("editor-types defaults", () => {
+  it("uses the Helvety fuchsia pink as the default annotation stroke", () => {
+    expect(DEFAULT_STROKE).toBe("#ff0066");
+  });
+
   it("uses a stronger default blur than the legacy 12px default", () => {
     expect(DEFAULT_BLUR_RADIUS).toBeGreaterThan(12);
   });

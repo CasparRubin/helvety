@@ -41,7 +41,7 @@ function roundRectPath(
   context.quadraticCurveTo(x, y, x + r, y);
 }
 
-/** Parameters for drawing a spotlight dim with a cutout hole. */
+/** Parameters for drawing a spotlight dim ring outside a hole. */
 export interface SpotlightCutoutParams {
   readonly stageWidth: number;
   readonly stageHeight: number;
@@ -55,7 +55,7 @@ export interface SpotlightCutoutParams {
   readonly groupOffsetY?: number;
 }
 
-/** Dims the stage and punches out a rounded or rectangular spotlight hole. */
+/** Dims the stage outside a rounded or rectangular spotlight hole. */
 export function drawSpotlightCutout(
   context: CanvasRenderingContext2D,
   params: SpotlightCutoutParams
@@ -82,9 +82,8 @@ export function drawSpotlightCutout(
   context.save();
   context.fillStyle = "black";
   context.globalAlpha = opacity;
-  context.fillRect(localStageX, localStageY, stageWidth, stageHeight);
-  context.globalCompositeOperation = "destination-out";
   context.beginPath();
+  context.rect(localStageX, localStageY, stageWidth, stageHeight);
   roundRectPath(
     context,
     localHoleX,
@@ -93,7 +92,6 @@ export function drawSpotlightCutout(
     holeHeight,
     clampedRadius
   );
-  context.fill();
-  context.globalCompositeOperation = "source-over";
+  context.fill("evenodd");
   context.restore();
 }

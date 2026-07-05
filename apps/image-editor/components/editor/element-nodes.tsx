@@ -134,7 +134,7 @@ interface SpotlightCutoutOverlayProps {
   readonly groupOffsetY?: number;
 }
 
-/** Rounded spotlight dim using destination-out compositing. */
+/** Rounded spotlight dim using even-odd fill (stage minus hole). */
 function SpotlightCutoutOverlay({
   holeX,
   holeY,
@@ -181,7 +181,7 @@ interface SpotlightRectsProps {
   readonly groupOffsetY?: number;
 }
 
-/** Renders dim strips outside a rectangular hole (no composite ops). */
+/** Renders dim strips outside a rectangular hole (used when corner radius is zero). */
 export function SpotlightRects({
   holeX,
   holeY,

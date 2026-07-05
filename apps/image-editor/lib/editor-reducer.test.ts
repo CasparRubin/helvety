@@ -15,6 +15,7 @@ import {
   DEFAULT_BLUR_RADIUS,
   DEFAULT_CORNER_RADIUS,
   DEFAULT_DIM_OPACITY,
+  DEFAULT_STROKE,
 } from "./editor-types";
 
 describe("editorReducer", () => {
@@ -156,6 +157,8 @@ describe("editorReducer", () => {
     expect(createTextElement(0, 0, "#00ff00").fill).toBe("#00ff00");
     expect(createArrowElement(0, 0, 1, 1, "#112233").stroke).toBe("#112233");
     expect(createBorderElement(0, 0, 1, 1, "#445566").stroke).toBe("#445566");
+    expect(createArrowElement(0, 0, 1, 1).stroke).toBe(DEFAULT_STROKE);
+    expect(createBorderElement(0, 0, 1, 1).stroke).toBe(DEFAULT_STROKE);
   });
 
   it("scales default sizes from image dimensions", () => {

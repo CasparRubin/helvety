@@ -25,6 +25,43 @@ import {
 
 import type Konva from "konva";
 
+/** Records fill rules used by a highlight cutout export node. */
+function getHighlightCutoutFillRules(): string[] {
+  const cutoutNode = konvaTestLayerAdds.find(
+    (node): node is { attrs: { sceneFunc: (context: unknown) => void } } =>
+      typeof node === "object" &&
+      node !== null &&
+      "attrs" in node &&
+      typeof (node as { attrs: { sceneFunc?: unknown } }).attrs.sceneFunc ===
+        "function"
+  );
+  if (!cutoutNode) {
+    return [];
+  }
+
+  const fills: string[] = [];
+  const context = {
+    _context: {
+      save: () => undefined,
+      restore: () => undefined,
+      fillStyle: "",
+      globalAlpha: 1,
+      beginPath: () => undefined,
+      fill: (rule?: string) => {
+        fills.push(rule ?? "nonzero");
+      },
+      rect: () => undefined,
+      roundRect: () => undefined,
+      moveTo: () => undefined,
+      lineTo: () => undefined,
+      quadraticCurveTo: () => undefined,
+    },
+  };
+
+  cutoutNode.attrs.sceneFunc(context);
+  return fills;
+}
+
 describe("export-image helpers", () => {
   beforeEach(() => {
     resetKonvaTestLayerAdds();
@@ -108,6 +145,7 @@ describe("export-image helpers", () => {
     const blob = await exportEditedImage(image, state, "png");
 
     expect(blob.type).toBe("image/png");
+    expect(getHighlightCutoutFillRules()).toEqual(["evenodd"]);
   });
 
   it("exports JPEG with the jpeg mime type", async () => {
@@ -255,7 +293,7 @@ describe("export-image helpers", () => {
     expect(blurNode?.attrs.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
   });
 
-  it("renders rounded highlights with a cutout shape instead of strip rects", async () => {
+  it("renders rounded highlights with an evenodd cutout shape instead of strip rects", async () => {
     const image = new MockImage() as unknown as HTMLImageElement;
     const highlight = createHighlightElement(50, 50, 100, 80, {
       cornerRadius: DEFAULT_CORNER_RADIUS,
@@ -276,6 +314,21 @@ describe("export-image helpers", () => {
           "function"
     );
     expect(cutoutNode).toBeDefined();
+    expect(getHighlightCutoutFillRules()).toEqual(["evenodd"]);
+  });
+
+  it("uses the default corner radius for new highlights and exports with evenodd cutout", async () => {
+    const image = new MockImage() as unknown as HTMLImageElement;
+    const highlight = createHighlightElement(50, 50, 100, 80);
+    expect(highlight.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
+
+    await exportEditedImage(
+      image,
+      { ...initialEditorState, elements: [highlight] },
+      "png"
+    );
+
+    expect(getHighlightCutoutFillRules()).toEqual(["evenodd"]);
   });
 
   it("renders straight highlights with strip rects when corner radius is zero", async () => {
