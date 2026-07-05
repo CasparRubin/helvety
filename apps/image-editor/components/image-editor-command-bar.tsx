@@ -228,25 +228,27 @@ export function ImageEditorCommandBar({
             />
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={isExporting}
-                  aria-label={
-                    isExporting ? "Export image (processing)" : "Export image"
-                  }
-                >
-                  {isExporting ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : (
-                    <DownloadIcon className="size-4" />
-                  )}
-                  <span className="sr-only min-[400px]:not-sr-only">
-                    {isExporting ? "Processing..." : "Export"}
-                  </span>
-                  <ChevronDownIcon className="size-4 opacity-70" />
-                </Button>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={isExporting}
+                    aria-label={
+                      isExporting ? "Export image (processing)" : "Export image"
+                    }
+                  />
+                }
+              >
+                {isExporting ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                ) : (
+                  <DownloadIcon className="size-4" />
+                )}
+                <span className="sr-only min-[400px]:not-sr-only">
+                  {isExporting ? "Processing..." : "Export"}
+                </span>
+                <ChevronDownIcon className="size-4 opacity-70" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onExport("png")}>
@@ -270,16 +272,18 @@ export function ImageEditorCommandBar({
             </Button>
 
             <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="md:hidden"
-                  aria-label="View settings"
-                >
-                  <SlidersHorizontalIcon className="size-4" />
-                </Button>
+              <PopoverTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="md:hidden"
+                    aria-label="View settings"
+                  />
+                }
+              >
+                <SlidersHorizontalIcon className="size-4" />
               </PopoverTrigger>
               <PopoverContent align="end" className="w-64 space-y-4">
                 <div className="space-y-2">
@@ -326,16 +330,18 @@ export function ImageEditorCommandBar({
               open={showClearDialog}
               onOpenChange={setShowClearDialog}
             >
-              <AlertDialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="hidden md:inline-flex"
-                >
-                  <Trash2Icon className="size-4" />
-                  <span className="sr-only min-[400px]:not-sr-only">Clear</span>
-                </Button>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="hidden md:inline-flex"
+                  />
+                }
+              >
+                <Trash2Icon className="size-4" />
+                <span className="sr-only min-[400px]:not-sr-only">Clear</span>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -361,16 +367,18 @@ export function ImageEditorCommandBar({
             </AlertDialog>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon-sm"
-                  className="lg:hidden"
-                >
-                  <EllipsisVerticalIcon className="size-4" />
-                  <span className="sr-only">More actions</span>
-                </Button>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    className="lg:hidden"
+                  />
+                }
+              >
+                <EllipsisVerticalIcon className="size-4" />
+                <span className="sr-only">More actions</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setShowClearDialog(true)}>

@@ -62,11 +62,14 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   return (
     <div className="mx-auto max-w-6xl px-0 py-6 sm:py-8">
       <div className="mb-5 sm:mb-6">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/products">
-            <ArrowLeft className="size-4" />
-            <span className="hidden sm:inline">Back to Products</span>
-          </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          render={<Link href="/products" />}
+          nativeButton={false}
+        >
+          <ArrowLeft className="size-4" />
+          <span className="hidden sm:inline">Back to Products</span>
         </Button>
       </div>
 
@@ -138,15 +141,19 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               </p>
               <div className="flex flex-col gap-2">
                 {showChromeWebStore && chromeWebStoreUrl && (
-                  <Button className="w-full" asChild>
-                    <a
-                      href={chromeWebStoreUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="size-4 shrink-0" />
-                      Add to Chrome
-                    </a>
+                  <Button
+                    className="w-full"
+                    render={
+                      <a
+                        href={chromeWebStoreUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                    nativeButton={false}
+                  >
+                    <ExternalLink className="size-4 shrink-0" />
+                    Add to Chrome
                   </Button>
                 )}
                 {showDownload && (
@@ -164,23 +171,36 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   </Button>
                 )}
                 {showAppLink && appUrl && (
-                  <Button className="w-full" asChild>
-                    <a href={appUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="size-4 shrink-0" />
-                      Go to App
-                    </a>
+                  <Button
+                    className="w-full"
+                    render={
+                      <a
+                        href={appUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                    nativeButton={false}
+                  >
+                    <ExternalLink className="size-4 shrink-0" />
+                    Go to App
                   </Button>
                 )}
                 {githubUrl && (
-                  <Button className="w-full" variant="outline" asChild>
-                    <a
-                      href={githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Code2 className="size-4 shrink-0" />
-                      View source code on GitHub
-                    </a>
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    render={
+                      <a
+                        href={githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                    nativeButton={false}
+                  >
+                    <Code2 className="size-4 shrink-0" />
+                    View source code on GitHub
                   </Button>
                 )}
               </div>

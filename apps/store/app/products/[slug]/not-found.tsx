@@ -18,11 +18,13 @@ export default function ProductNotFound() {
         The product you&apos;re looking for doesn&apos;t exist or may have been
         removed.
       </p>
-      <Button className="mt-6" asChild>
-        <Link href="/products">
-          <ArrowLeft className="size-4" />
-          Back to Products
-        </Link>
+      <Button
+        className="mt-6"
+        render={<Link href="/products" />}
+        nativeButton={false}
+      >
+        <ArrowLeft className="size-4" />
+        Back to Products
       </Button>
     </div>
   );

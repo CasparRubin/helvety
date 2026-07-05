@@ -1,3 +1,4 @@
+import { openMenuTrigger } from "@helvety/shared/test-utils/base-ui-test-helpers";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -49,8 +50,7 @@ describe("ImageEditorCommandBar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Text" }));
 
     const exportButton = screen.getByRole("button", { name: /Export image/i });
-    fireEvent.pointerDown(exportButton);
-    fireEvent.click(exportButton);
+    openMenuTrigger(exportButton);
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })
     );
@@ -79,8 +79,7 @@ describe("ImageEditorCommandBar", () => {
     const onExport = vi.fn();
     renderCommandBar({ hasImage: true, onExport });
 
-    const exportButton = screen.getByRole("button", { name: /Export image/i });
-    fireEvent.pointerDown(exportButton);
+    openMenuTrigger(screen.getByRole("button", { name: /Export image/i }));
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export JPEG" })
     );

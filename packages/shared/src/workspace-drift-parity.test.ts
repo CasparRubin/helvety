@@ -84,7 +84,7 @@ describe("workspace drift parity (package.json vs REQUIRED_VERSION_BY_DEP)", () 
       "@tiptap/extension-link",
       "@tiptap/extension-placeholder",
       "@tiptap/extension-underline",
-      "radix-ui",
+      "@base-ui/react",
     ]) {
       expect(required.has(dep), `missing drift entry for ${dep}`).toBe(true);
     }
@@ -152,7 +152,7 @@ describe("workspace drift parity (package.json vs REQUIRED_VERSION_BY_DEP)", () 
     }
   });
 
-  it("packages/ui @tiptap and radix-ui pins match drift map", () => {
+  it("packages/ui @tiptap and @base-ui/react pins match drift map", () => {
     const ui = readManifest("packages/ui/package.json");
     for (const dep of [
       "@tiptap/pm",
@@ -161,7 +161,7 @@ describe("workspace drift parity (package.json vs REQUIRED_VERSION_BY_DEP)", () 
       "@tiptap/extension-link",
       "@tiptap/extension-placeholder",
       "@tiptap/extension-underline",
-      "radix-ui",
+      "@base-ui/react",
     ] as const) {
       expect(getDeclaredVersion(ui, dep)).toBe(required.get(dep));
     }

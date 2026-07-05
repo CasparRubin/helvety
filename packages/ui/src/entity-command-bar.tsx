@@ -189,11 +189,11 @@ export function EntityCommandBar({
       )}
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="md:hidden">
-            <EllipsisVerticalIcon className="size-4" />
-            <span className="sr-only">More actions</span>
-          </Button>
+        <DropdownMenuTrigger
+          render={<Button variant="outline" size="sm" className="md:hidden" />}
+        >
+          <EllipsisVerticalIcon className="size-4" />
+          <span className="sr-only">More actions</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {onSecondaryCreateClick && secondaryCreateLabel ? (

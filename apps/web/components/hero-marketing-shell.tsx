@@ -41,15 +41,18 @@ export function HeroMarketingShell() {
           </p>
         </div>
 
-        <Button size="lg" asChild className="pointer-events-auto">
-          <Link href={getLocalAppHref(urls.store)}>
-            <PackageOpen className="size-5" aria-hidden="true" />
-            Browse Helvety products
-            <ChevronRight
-              className="size-4 transition-transform group-hover/button:translate-x-0.5"
-              aria-hidden="true"
-            />
-          </Link>
+        <Button
+          size="lg"
+          className="pointer-events-auto"
+          render={<Link href={getLocalAppHref(urls.store)} />}
+          nativeButton={false}
+        >
+          <PackageOpen className="size-5" aria-hidden="true" />
+          Browse Helvety products
+          <ChevronRight
+            className="size-4 transition-transform group-hover/button:translate-x-0.5"
+            aria-hidden="true"
+          />
         </Button>
       </div>
     </section>

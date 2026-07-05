@@ -92,7 +92,7 @@ describe("HelvetyShellNavbar", () => {
 
   it("links to the Helvety GitHub repository with an accessible label", () => {
     renderShell();
-    const github = screen.getByRole("link", {
+    const github = screen.getByRole("button", {
       name: "View source code on GitHub",
     });
     expect(github).toHaveAttribute(
@@ -199,7 +199,7 @@ describe("HelvetyShellNavbar", () => {
       account: { variant: "same-origin", href: "/account" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Open profile menu" }));
-    const account = screen.getByRole("link", { name: /Account/i });
+    const account = screen.getByRole("button", { name: /Account/i });
     expect(account).toHaveAttribute("href", "/account");
   });
 

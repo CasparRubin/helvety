@@ -45,11 +45,14 @@ export function LegalPageShell({
     <section className="legal-page-section min-h-full">
       <div className="legal-page-container">
         <div className="legal-page-back">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={backHref}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {backLabel}
-            </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            render={<Link href={backHref} />}
+            nativeButton={false}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {backLabel}
           </Button>
         </div>
         <article className={cx("legal-doc", className)}>{children}</article>

@@ -1,4 +1,4 @@
-/** No-op ResizeObserver stub for Radix Slider in jsdom. */
+/** No-op ResizeObserver stub for Base UI Slider in jsdom. */
 class ResizeObserverMock {
   observe(): void {}
   unobserve(): void {}

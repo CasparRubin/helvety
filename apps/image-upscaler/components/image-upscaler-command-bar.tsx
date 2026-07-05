@@ -111,16 +111,18 @@ export function ImageUpscalerCommandBar({
 
         {hasItems && (
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isProcessing}
-                className="hidden md:inline-flex"
-              >
-                <Trash2Icon className="mr-1.5 size-4 shrink-0" />
-                <span>Clear All</span>
-              </Button>
+            <AlertDialogTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isProcessing}
+                  className="hidden md:inline-flex"
+                />
+              }
+            >
+              <Trash2Icon className="mr-1.5 size-4 shrink-0" />
+              <span>Clear All</span>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -157,11 +159,13 @@ export function ImageUpscalerCommandBar({
         )}
 
         <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="lg:hidden">
-              <SlidersHorizontalIcon className="size-4" />
-              <span className="sr-only">Upscale settings</span>
-            </Button>
+          <PopoverTrigger
+            render={
+              <Button variant="outline" size="sm" className="lg:hidden" />
+            }
+          >
+            <SlidersHorizontalIcon className="size-4" />
+            <span className="sr-only">Upscale settings</span>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-72 p-3">
             <div className="space-y-3">
@@ -229,11 +233,13 @@ export function ImageUpscalerCommandBar({
 
         {hasItems && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="md:hidden">
-                <EllipsisVerticalIcon className="size-4" />
-                <span className="sr-only">More actions</span>
-              </Button>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="sm" className="md:hidden" />
+              }
+            >
+              <EllipsisVerticalIcon className="size-4" />
+              <span className="sr-only">More actions</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem

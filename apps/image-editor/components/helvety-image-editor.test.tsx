@@ -1,4 +1,8 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import {
+  getRangeInputByLabel,
+  openMenuTrigger,
+} from "@helvety/shared/test-utils/base-ui-test-helpers";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -177,13 +181,13 @@ describe("HelvetyImageEditor", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Blur" }));
-    expect(screen.getByRole("slider", { name: "Blur" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Blur")).toHaveAttribute(
       "aria-valuenow",
       "12"
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Highlight" }));
-    expect(screen.getByRole("slider", { name: "Dim" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Dim")).toHaveAttribute(
       "aria-valuenow",
       "0.55"
     );
@@ -200,13 +204,13 @@ describe("HelvetyImageEditor", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Arrow" }));
-    expect(screen.getByRole("slider", { name: "Stroke" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Stroke")).toHaveAttribute(
       "aria-valuenow",
       String(strokeWidth)
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Border" }));
-    expect(screen.getByRole("slider", { name: "Stroke" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Stroke")).toHaveAttribute(
       "aria-valuenow",
       String(strokeWidth)
     );
@@ -254,8 +258,7 @@ describe("HelvetyImageEditor", () => {
       ).toBeEnabled();
     });
 
-    const exportButton = screen.getByRole("button", { name: /Export image/i });
-    fireEvent.pointerDown(exportButton);
+    openMenuTrigger(screen.getByRole("button", { name: /Export image/i }));
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })
     );
@@ -286,8 +289,7 @@ describe("HelvetyImageEditor", () => {
       ).toBeEnabled();
     });
 
-    const exportButton = screen.getByRole("button", { name: /Export image/i });
-    fireEvent.pointerDown(exportButton);
+    openMenuTrigger(screen.getByRole("button", { name: /Export image/i }));
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })
     );
@@ -314,8 +316,7 @@ describe("HelvetyImageEditor", () => {
       ).toBeEnabled();
     });
 
-    const exportButton = screen.getByRole("button", { name: /Export image/i });
-    fireEvent.pointerDown(exportButton);
+    openMenuTrigger(screen.getByRole("button", { name: /Export image/i }));
     fireEvent.click(
       await screen.findByRole("menuitem", { name: "Export PNG" })
     );

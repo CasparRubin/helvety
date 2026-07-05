@@ -108,6 +108,7 @@
     "apps/pdf/public/pdf.worker.meta.json",
     "apps/pdf/lib/empty-canvas-stub.mjs",
     "apps/image-editor/vitest.konva-mock.ts",
+    "apps/image-editor/vitest.browser-mocks.ts",
     "apps/*/lib/utils.ts"
   ],
   "ignoreIssues": {

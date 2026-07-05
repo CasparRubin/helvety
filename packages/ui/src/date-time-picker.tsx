@@ -64,27 +64,29 @@ export function DateTimePicker({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            !value && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 size-4" />
-          {isValidDate
-            ? format(selectedDate, "dd.MM.yyyy HH:mm", { locale: de })
-            : placeholder}
-          {value ? (
-            <XIcon
-              className="text-muted-foreground hover:text-foreground ml-auto size-4"
-              onClick={handleClear}
-            />
-          ) : null}
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            disabled={disabled}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !value && "text-muted-foreground"
+            )}
+          />
+        }
+      >
+        <CalendarIcon className="mr-2 size-4" />
+        {isValidDate
+          ? format(selectedDate, "dd.MM.yyyy HH:mm", { locale: de })
+          : placeholder}
+        {value ? (
+          <XIcon
+            className="text-muted-foreground hover:text-foreground ml-auto size-4"
+            onClick={handleClear}
+          />
+        ) : null}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar

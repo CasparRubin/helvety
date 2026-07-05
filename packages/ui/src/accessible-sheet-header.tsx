@@ -5,14 +5,14 @@ import type { ComponentProps } from "react";
 /** Props for {@link AccessibleSheetHeader}. */
 export interface AccessibleSheetHeaderProps {
   title: string;
-  /** Screen-reader description; satisfies Radix Dialog description requirement. */
+  /** Screen-reader description; satisfies Dialog/Sheet description requirement. */
   description: string;
   className?: ComponentProps<typeof SheetHeader>["className"];
 }
 
 /**
  * Sheet header with title and screen-reader-only description.
- * Use for every {@link SheetContent} so Radix Dialog does not warn about a missing Description.
+ * Use for every {@link SheetContent} so the dialog does not warn about a missing Description.
  */
 export function AccessibleSheetHeader({
   title,

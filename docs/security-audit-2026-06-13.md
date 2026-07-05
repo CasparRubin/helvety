@@ -214,7 +214,7 @@ Full dependency sweep across monorepo + extension repos (canonical pins: [`depen
 | Next.js                                               | **^16.2.9**                                    | **^16.2.10** — all 10 apps + `eslint-config-next`                                                                   |
 | Toolchain (`@helvety/dev-deps` + drift)               | lucide **^1.21.0**, tailwind **^4.3.1**        | lucide **^1.23.0**, tailwind **^4.3.2**, prettier **^3.9.4**, shadcn **^4.13.0**, knip **6.24.0**, turbo **2.10.3** |
 | Extension repo (`helvety-browser-extension-chromium`) | lucide **^1.21.0**, `@types/chrome` **^0.2.0** | lucide **^1.23.0**, `@types/chrome` **^0.2.2**, tailwindcss **^4.3.2**, vite **^8.1.3**, pnpm **9.15.9**            |
-| Drift enforcement                                     | partial `@tiptap/*`                            | **+ `@dnd-kit/*`, full `@tiptap/*`, `radix-ui`** in `REQUIRED_VERSION_BY_DEP`                                       |
+| Drift enforcement                                     | partial `@tiptap/*`                            | **+ `@dnd-kit/*`, full `@tiptap/*`, `@base-ui/react`** in `REQUIRED_VERSION_BY_DEP`                                 |
 | `bun audit` / `deps:security:floors`                  | **0 CVEs**                                     | **0 CVEs** at sweep time                                                                                            |
 
 Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` after bumps.

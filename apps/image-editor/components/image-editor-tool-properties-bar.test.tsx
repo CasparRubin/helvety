@@ -1,3 +1,4 @@
+import { getRangeInputByLabel } from "@helvety/shared/test-utils/base-ui-test-helpers";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -65,7 +66,7 @@ describe("ImageEditorToolPropertiesBar", () => {
   it("shows blur radius slider without a color picker", () => {
     renderToolPropertiesBar({ activeTool: "blur" });
 
-    expect(screen.getByRole("slider", { name: "Blur" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Blur")).toHaveAttribute(
       "aria-valuenow",
       "12"
     );
@@ -96,7 +97,7 @@ describe("ImageEditorToolPropertiesBar", () => {
   it("shows highlight dim slider without a color picker", () => {
     renderToolPropertiesBar({ activeTool: "highlight" });
 
-    expect(screen.getByRole("slider", { name: "Dim" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Dim")).toHaveAttribute(
       "aria-valuenow",
       "0.55"
     );
@@ -110,7 +111,7 @@ describe("ImageEditorToolPropertiesBar", () => {
       onToolBlurRadiusChange,
     });
 
-    const slider = screen.getByRole("slider", { name: "Blur" });
+    const slider = getRangeInputByLabel(screen, "Blur");
     slider.focus();
     fireEvent.keyDown(slider, { key: "ArrowRight" });
 
@@ -124,7 +125,7 @@ describe("ImageEditorToolPropertiesBar", () => {
       onToolDimOpacityChange,
     });
 
-    const slider = screen.getByRole("slider", { name: "Dim" });
+    const slider = getRangeInputByLabel(screen, "Dim");
     slider.focus();
     fireEvent.keyDown(slider, { key: "ArrowLeft" });
 
@@ -146,7 +147,7 @@ describe("ImageEditorToolPropertiesBar", () => {
       onToolStrokeWidthChange,
     });
 
-    const slider = screen.getByRole("slider", { name: "Stroke" });
+    const slider = getRangeInputByLabel(screen, "Stroke");
     expect(slider).toHaveAttribute("aria-valuenow", "5");
 
     slider.focus();
@@ -172,7 +173,7 @@ describe("ImageEditorToolPropertiesBar", () => {
     fireEvent.change(screen.getByLabelText("Color"), {
       target: { value: "#aabbcc" },
     });
-    const strokeSlider = screen.getByRole("slider", { name: "Stroke" });
+    const strokeSlider = getRangeInputByLabel(screen, "Stroke");
     strokeSlider.focus();
     fireEvent.keyDown(strokeSlider, { key: "ArrowRight" });
 
@@ -191,7 +192,7 @@ describe("ImageEditorToolPropertiesBar", () => {
       onUpdate,
     });
 
-    const dimSlider = screen.getByRole("slider", { name: "Dim" });
+    const dimSlider = getRangeInputByLabel(screen, "Dim");
     dimSlider.focus();
     fireEvent.keyDown(dimSlider, { key: "ArrowLeft" });
     fireEvent.change(screen.getByLabelText("W"), {
@@ -217,7 +218,7 @@ describe("ImageEditorToolPropertiesBar", () => {
       onUpdate,
     });
 
-    const blurSlider = screen.getByRole("slider", { name: "Blur" });
+    const blurSlider = getRangeInputByLabel(screen, "Blur");
     blurSlider.focus();
     fireEvent.keyDown(blurSlider, { key: "ArrowRight" });
 

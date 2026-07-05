@@ -32,16 +32,18 @@ export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   return (
     <>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={() => setOpen(true)}
-          >
-            <Grip className="h-4 w-4" />
-            <span className="sr-only">Switch apps</span>
-          </Button>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setOpen(true)}
+            />
+          }
+        >
+          <Grip className="h-4 w-4" />
+          <span className="sr-only">Switch apps</span>
         </TooltipTrigger>
         <TooltipContent>
           <p>Helvety apps and tools</p>

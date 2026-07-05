@@ -27,11 +27,9 @@ export function AppNotFound({ homeHref, label = "Go home" }: AppNotFoundProps) {
           </p>
         </div>
 
-        <Button asChild>
-          <a href={homeHref}>
-            <ArrowLeft className="size-4" />
-            {label}
-          </a>
+        <Button render={<a href={homeHref} />} nativeButton={false}>
+          <ArrowLeft className="size-4" />
+          {label}
         </Button>
       </div>
     </div>

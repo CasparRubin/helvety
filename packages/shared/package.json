@@ -93,6 +93,7 @@
     "./supabase/admin": "./src/supabase/admin.ts",
     "./supabase-types": "./src/supabase-types.ts",
     "./test-utils/action-test-helpers": "./src/test-utils/action-test-helpers.ts",
+    "./test-utils/base-ui-test-helpers": "./src/test-utils/base-ui-test-helpers.ts",
     "./test-utils/customer-copy-test-helpers": "./src/test-utils/customer-copy-test-helpers.ts",
     "./test-utils/seo-route-test-helpers": "./src/test-utils/seo-route-test-helpers.ts",
     "./types/entities": "./src/types/entities.ts",

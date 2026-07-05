@@ -97,21 +97,23 @@ function ToolbarButton({
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onClick}
-          disabled={disabled}
-          aria-label={tooltip}
-          className={cn(
-            "text-muted-foreground hover:text-foreground h-7 w-7 p-0",
-            isActive && "bg-accent/50 text-foreground"
-          )}
-        >
-          {children}
-        </Button>
+      <TooltipTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClick}
+            disabled={disabled}
+            aria-label={tooltip}
+            className={cn(
+              "text-muted-foreground hover:text-foreground h-7 w-7 p-0",
+              isActive && "bg-accent/50 text-foreground"
+            )}
+          />
+        }
+      >
+        {children}
       </TooltipTrigger>
       <TooltipContent side="bottom" sideOffset={5}>
         {tooltip}

@@ -66,6 +66,18 @@ Private non-indexable zones (`auth`, `contacts`, `notes`, `tasks`, `links`) use 
 
 Beyond the required floor above, match these templates when adding or auditing tests. Reference implementations live in sibling apps — copy structure, swap entity names only.
 
+### Base UI shadcn (menus, sliders, link-styled buttons)
+
+Use shared helpers from `@helvety/shared/test-utils/base-ui-test-helpers` so jsdom tests stay consistent after the Radix → Base UI migration:
+
+| Helper                                            | Use when                                                                          |
+| ------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `openMenuTrigger(element)`                        | Opening `DropdownMenu` / export menus (pointerdown + click)                       |
+| `getRangeInputByLabel(screen, label)`             | Querying `@helvety/ui/slider` (hidden `input[type="range"]`, not `role="slider"`) |
+| `getByRole("button")` + `toHaveAttribute("href")` | `Button render={<a\|Link>}` + `nativeButton={false}` (role stays `button`)        |
+
+Wiring guardrails: `packages/ui/src/ui-base-ui-wiring.test.ts`, `packages/ui/src/ui-docs-copy-wiring.test.ts` (READMEs + `docs/*.md` must not describe the retired Radix/cmdk stack as current), `form-control-touch-wiring.test.ts`. Component examples: `entity-links-panel.test.tsx`, `product-filters.test.tsx`, `image-editor-command-bar.test.tsx`.
+
 ### API routes (`app/api/**/route.ts`)
 
 Colocate **`route.test.ts` beside the list handler**. Import `[id]/route` from the same file when a detail route exists (see `apps/contacts/app/api/contacts/route.test.ts`).
@@ -170,7 +182,7 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 
 Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
 
-**ScrollArea viewport selectors:** Public shells and `CommandBarPageLayout` target child viewports with `[data-slot=scroll-area-viewport]` (shadcn/Radix `data-slot`, not legacy `data-radix-scroll-area-viewport`). Guardrail: `packages/ui/src/helvety-layout-wiring.test.ts`, `command-bar-page-layout.test.tsx`.
+**ScrollArea viewport selectors:** Public shells and `CommandBarPageLayout` target child viewports with `[data-slot=scroll-area-viewport]` (shadcn Base UI `data-slot`, not legacy `data-radix-scroll-area-viewport`). Guardrail: `packages/ui/src/helvety-layout-wiring.test.ts`, `command-bar-page-layout.test.tsx`.
 
 Use JSX for root layouts: `<HelvetyPublicShellRootLayout>` or `<E2eeAppRootLayout>` (not `return HelvetyPublicShellRootLayout({...})`). E2EE zones use `export default async function RootLayout`. Enforced by `consistency:zone-modernization`.
 
@@ -263,7 +275,7 @@ See root [`README.md`](../README.md) § Environment Model.
 | Missing master key    | `guardE2eeMasterKey` in `@helvety/ui/auth-navigation` (hard logout when `isUnlocked` without key); list hooks via `useEncryptedSortableItems`; optional detail fetch via `useEncryptedSingleItem`; cross-link hooks via `createE2eeEntityLinksHook`; Links library via `use-link-library`               | E2EE apps                                                          |
 | Sheet editor wiring   | **Links pattern:** dashboard passes list-hook `update` / `remove` / `refresh` into the zone editor; derive `selectedItem` from the list; remount editor with `key={entityId}`. Rich-text: `E2eeRichTextItemEditorShell` + `initialDescription` (not live TipTap `content`). Links: `library.updateLink` | `tasks`, `notes`, `contacts`, `links`                              |
 | Vault session TTL     | `auth-session-policy.ts` + `vault-session.ts` (24h sliding idle, 7d max); enforced in `encryption-context`, Chromium extension side panel, and IndexedDB                                                                                                                                                | All zones using `EncryptionProvider` + Chromium extension          |
-| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` + `createE2eeEntityLinksHook` per-app hooks; shared section titles/icons via `@helvety/ui/e2ee-app-link-ui`                                                                                                                                                         | `tasks`, `notes`, `contacts`, `links` (four-way cross-link panels) |
+| Cross-app link panels | `EntityLinksPanel` in `@helvety/ui` (Popover + Input Add picker; not cmdk) + `createE2eeEntityLinksHook` per-app hooks; shared section titles/icons via `@helvety/ui/e2ee-app-link-ui`                                                                                                                  | `tasks`, `notes`, `contacts`, `links` (four-way cross-link panels) |
 
 ## Validation before merge
 

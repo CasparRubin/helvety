@@ -30,11 +30,11 @@ export function ThemeSwitcher(): React.JSX.Element {
   if (!mounted) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <Sun className="h-4 w-4" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+        <TooltipTrigger
+          render={<Button variant="ghost" size="icon" className="h-9 w-9" />}
+        >
+          <Sun className="h-4 w-4" />
+          <span className="sr-only">Toggle theme</span>
         </TooltipTrigger>
         <TooltipContent>
           <p>Toggle theme</p>
@@ -47,17 +47,19 @@ export function ThemeSwitcher(): React.JSX.Element {
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-        >
-          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          />
+        }
+      >
+        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        <span className="sr-only">Toggle theme</span>
       </TooltipTrigger>
       <TooltipContent>
         <p>Toggle theme</p>

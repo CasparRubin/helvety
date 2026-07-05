@@ -61,7 +61,7 @@ export function createHelvetyNextConfig({
   appName,
   basePath,
   assetPrefix,
-  optimizePackageImports = ["lucide-react", "radix-ui", "sonner"],
+  optimizePackageImports = ["lucide-react", "@base-ui/react", "sonner"],
   overrides = {},
 }) {
   const isVercelProductionBuild = process.env.VERCEL === "1";
@@ -136,7 +136,7 @@ export function createHelvetyNextConfig({
   };
 }
 
-const DEFAULT_OPTIMIZE_IMPORTS = ["lucide-react", "radix-ui", "sonner"];
+const DEFAULT_OPTIMIZE_IMPORTS = ["lucide-react", "@base-ui/react", "sonner"];
 
 const E2EE_DND_OPTIMIZE_IMPORTS = [
   ...DEFAULT_OPTIMIZE_IMPORTS,

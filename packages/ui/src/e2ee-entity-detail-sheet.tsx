@@ -13,7 +13,7 @@ export interface E2eeEntityDetailSheetProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   /**
-   * Screen-reader description for the sheet (Radix Dialog requirement).
+   * Screen-reader description for the sheet (Dialog/Sheet a11y requirement).
    * Defaults to an edit prompt derived from `title`.
    */
   description?: string;

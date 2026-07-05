@@ -62,7 +62,7 @@ describe("ProductDetailClient", () => {
   it("renders Chrome Web Store and GitHub links without a package download for Power Platform Configurator", () => {
     render(<ProductDetailClient slug="helvety-power-platform-configurator" />);
 
-    const chromeWebStore = screen.getByRole("link", {
+    const chromeWebStore = screen.getByRole("button", {
       name: /Add to Chrome/i,
     });
     expect(chromeWebStore).toHaveAttribute(
@@ -71,7 +71,7 @@ describe("ProductDetailClient", () => {
     );
     expect(chromeWebStore).toHaveAttribute("target", "_blank");
 
-    const github = screen.getByRole("link", {
+    const github = screen.getByRole("button", {
       name: /View source code on GitHub/i,
     });
     expect(github).toHaveAttribute(

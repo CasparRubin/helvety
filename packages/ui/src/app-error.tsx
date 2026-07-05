@@ -70,8 +70,12 @@ export function AppError({
               Go back
             </Button>
           ) : homeHref ? (
-            <Button variant="outline" asChild>
-              <a href={homeHref}>Go home</a>
+            <Button
+              variant="outline"
+              render={<a href={homeHref} />}
+              nativeButton={false}
+            >
+              Go home
             </Button>
           ) : null}
         </div>

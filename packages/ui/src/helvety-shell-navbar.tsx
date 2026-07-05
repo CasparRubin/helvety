@@ -110,25 +110,33 @@ function AccountMenuLink({
 }) {
   if (account.variant === "same-origin") {
     return (
-      <Button variant="outline" className={className} asChild>
-        <Link href={account.href} onClick={onNavigate}>
-          <Settings className="size-4" />
-          Account
-        </Link>
+      <Button
+        variant="outline"
+        className={className}
+        render={<Link href={account.href} onClick={onNavigate} />}
+        nativeButton={false}
+      >
+        <Settings className="size-4" />
+        Account
       </Button>
     );
   }
   return (
-    <Button variant="outline" className={className} asChild>
-      <a
-        href={`${urls.store}/account`}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={onNavigate}
-      >
-        <Settings className="size-4" />
-        Account
-      </a>
+    <Button
+      variant="outline"
+      className={className}
+      render={
+        <a
+          href={`${urls.store}/account`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+        />
+      }
+      nativeButton={false}
+    >
+      <Settings className="size-4" />
+      Account
     </Button>
   );
 }
@@ -145,25 +153,33 @@ function AccountMobileLink({
 }) {
   if (account.variant === "same-origin") {
     return (
-      <Button variant="ghost" className={className} asChild>
-        <Link href={account.href} onClick={onNavigate}>
-          <Settings className="size-4" />
-          Account
-        </Link>
+      <Button
+        variant="ghost"
+        className={className}
+        render={<Link href={account.href} onClick={onNavigate} />}
+        nativeButton={false}
+      >
+        <Settings className="size-4" />
+        Account
       </Button>
     );
   }
   return (
-    <Button variant="ghost" className={className} asChild>
-      <a
-        href={`${urls.store}/account`}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={onNavigate}
-      >
-        <Settings className="size-4" />
-        Account
-      </a>
+    <Button
+      variant="ghost"
+      className={className}
+      render={
+        <a
+          href={`${urls.store}/account`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+        />
+      }
+      nativeButton={false}
+    >
+      <Settings className="size-4" />
+      Account
     </Button>
   );
 }
@@ -237,11 +253,13 @@ export function HelvetyShellNavbar({
           <div className="hidden items-center gap-2 sm:flex">
             {encryptionBadge && (
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm">
-                    <ShieldCheck className="text-primary size-4" />
-                    <span className="hidden md:inline">Encryption enabled</span>
-                  </div>
+                <TooltipTrigger
+                  render={
+                    <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm" />
+                  }
+                >
+                  <ShieldCheck className="text-primary size-4" />
+                  <span className="hidden md:inline">Encryption enabled</span>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs space-y-2 p-3">
                   {encryptionBadge.tooltipContent}
@@ -258,14 +276,16 @@ export function HelvetyShellNavbar({
 
             {isAuthenticated && !isLoading && (
               <Popover open={profileOpen} onOpenChange={setProfileOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Open profile menu"
-                  >
-                    <UserIcon className="size-5" />
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Open profile menu"
+                    />
+                  }
+                >
+                  <UserIcon className="size-5" />
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-80">
                   <PopoverHeader>
@@ -309,16 +329,18 @@ export function HelvetyShellNavbar({
 
             <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-9"
-                    aria-label="Open about dialog"
-                    onClick={() => setAboutOpen(true)}
-                  >
-                    <Info className="size-4" />
-                  </Button>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-9"
+                      aria-label="Open about dialog"
+                      onClick={() => setAboutOpen(true)}
+                    />
+                  }
+                >
+                  <Info className="size-4" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>About</p>
@@ -343,26 +365,34 @@ export function HelvetyShellNavbar({
                       : "This is a development build."}
                   </DialogDescription>
                 </DialogHeader>
-                <DialogClose asChild>
-                  <Button variant="outline" className="w-full">
-                    Close
-                  </Button>
+                <DialogClose
+                  render={<Button variant="outline" className="w-full" />}
+                >
+                  Close
                 </DialogClose>
               </DialogContent>
             </Dialog>
 
             <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  href="https://github.com/CasparRubin/helvety"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View source code on GitHub"
-                >
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Code2 className="size-4" />
-                  </Button>
-                </a>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9"
+                    render={
+                      <a
+                        href="https://github.com/CasparRubin/helvety"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="View source code on GitHub"
+                      />
+                    }
+                    nativeButton={false}
+                  />
+                }
+              >
+                <Code2 className="size-4" />
               </TooltipTrigger>
               <TooltipContent>
                 <p>View source code on GitHub</p>
@@ -373,11 +403,18 @@ export function HelvetyShellNavbar({
           </div>
 
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="inline-flex sm:hidden">
-              <Button variant="ghost" size="icon" aria-label="Open menu">
-                <Menu className="size-5" />
-                <span className="sr-only">Open menu</span>
-              </Button>
+            <SheetTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open menu"
+                  className="inline-flex sm:hidden"
+                />
+              }
+            >
+              <Menu className="size-5" />
+              <span className="sr-only">Open menu</span>
             </SheetTrigger>
             <SheetContent side="right" className={SHEET_SCROLLABLE_SHELL_CLASS}>
               <AccessibleSheetHeader
@@ -448,17 +485,18 @@ export function HelvetyShellNavbar({
                   <Button
                     variant="ghost"
                     className="w-full justify-start"
-                    asChild
+                    render={
+                      <a
+                        href="https://github.com/CasparRubin/helvety"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setMobileMenuOpen(false)}
+                      />
+                    }
+                    nativeButton={false}
                   >
-                    <a
-                      href="https://github.com/CasparRubin/helvety"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Code2 className="size-4" />
-                      GitHub
-                    </a>
+                    <Code2 className="size-4" />
+                    GitHub
                   </Button>
                   <Button
                     variant="ghost"

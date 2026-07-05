@@ -372,11 +372,11 @@ export function ProfileTab({ initialUser }: ProfileTabProps) {
           </p>
 
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" disabled={isLoadingUser}>
-                <Trash2 className="h-4 w-4" />
-                Delete Account
-              </Button>
+            <AlertDialogTrigger
+              render={<Button variant="destructive" disabled={isLoadingUser} />}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Account
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

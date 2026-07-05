@@ -33,7 +33,6 @@ describe("form control touch-safe wiring", () => {
     "src/input.tsx",
     "src/textarea.tsx",
     "src/native-select.tsx",
-    "src/command.tsx",
     "src/tiptap-editor.tsx",
   ] as const;
 
@@ -97,6 +96,7 @@ describe("form control touch-safe wiring", () => {
     "apps/links/app/globals.css",
     "apps/pdf/app/globals.css",
     "apps/image-upscaler/app/globals.css",
+    "apps/image-editor/app/globals.css",
   ] as const)("zone %s imports shared ui globals (touch CSS chain)", (path) => {
     expect(readRepoFile(path)).toContain('@import "@helvety/ui/globals.css"');
   });
@@ -118,6 +118,7 @@ describe("form control touch-safe wiring", () => {
     const guardrails = readRepoFile("scripts/check-consistency-guardrails.mjs");
     expect(guardrails).toContain("uses raw <select>");
     expect(guardrails).toContain("uses raw <textarea>");
+    expect(guardrails).toContain("@helvety/ui/globals.css");
     expect(guardrails).toContain("@helvety/ui/form-control-touch.css");
     expect(guardrails).toContain("components/Textarea.tsx must be removed");
   });
@@ -128,18 +129,32 @@ describe("form control touch-safe wiring", () => {
     expect(policy).toContain("@helvety/ui/form-control-touch.css");
     expect(policy).toContain("@helvety/ui/textarea");
   });
+
+  it("entity-links-panel search picker uses shared Input (not cmdk Command)", () => {
+    const src = readUiFile("src/entity-links-panel.tsx");
+    expect(src).toContain("<Input");
+    expect(src).not.toContain("cmdk");
+    expect(src).not.toContain("CommandInput");
+  });
 });
 
 describe("browser extension touch-safe wiring", () => {
-  it("extension globals.css imports @helvety/ui/form-control-touch.css", () => {
+  it("extension globals.css imports shared ui globals (touch CSS chain)", () => {
     if (
       !siblingExists("../helvety-browser-extension-chromium/src/globals.css")
     ) {
       return;
     }
+    const extensionGlobals = readFileSync(
+      join(extensionRoot, "src/globals.css"),
+      "utf8"
+    );
     expect(
-      readFileSync(join(extensionRoot, "src/globals.css"), "utf8")
-    ).toContain('@import "@helvety/ui/form-control-touch.css"');
+      extensionGlobals.includes('@import "@helvety/ui/globals.css"') ||
+        extensionGlobals.includes(
+          '@import "@helvety/ui/form-control-touch.css"'
+        )
+    ).toBe(true);
   });
 
   it("extension entity forms use @helvety/ui/textarea (no local component)", () => {

@@ -1,25 +1,30 @@
+"use client";
+
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-/** Responsive table root (no overflow wrapper; use LegalTableWrap or a parent scroll region). */
-function Table({
-  className,
-  ...props
-}: React.ComponentProps<"table">): React.JSX.Element {
+/**
+ *
+ */
+function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <table
-      data-slot="table"
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
+    <div
+      data-slot="table-container"
+      className="relative w-full overflow-x-auto"
+    >
+      <table
+        data-slot="table"
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
+    </div>
   );
 }
 
-/** Table header group. */
-function TableHeader({
-  className,
-  ...props
-}: React.ComponentProps<"thead">): React.JSX.Element {
+/**
+ *
+ */
+function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
@@ -29,11 +34,10 @@ function TableHeader({
   );
 }
 
-/** Table body group. */
-function TableBody({
-  className,
-  ...props
-}: React.ComponentProps<"tbody">): React.JSX.Element {
+/**
+ *
+ */
+function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
@@ -43,11 +47,10 @@ function TableBody({
   );
 }
 
-/** Table footer group. */
-function TableFooter({
-  className,
-  ...props
-}: React.ComponentProps<"tfoot">): React.JSX.Element {
+/**
+ *
+ */
+function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
     <tfoot
       data-slot="table-footer"
@@ -60,16 +63,15 @@ function TableFooter({
   );
 }
 
-/** Table row. */
-function TableRow({
-  className,
-  ...props
-}: React.ComponentProps<"tr">): React.JSX.Element {
+/**
+ *
+ */
+function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
       className={cn(
-        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
+        "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
         className
       )}
       {...props}
@@ -77,16 +79,15 @@ function TableRow({
   );
 }
 
-/** Table header cell. */
-function TableHead({
-  className,
-  ...props
-}: React.ComponentProps<"th">): React.JSX.Element {
+/**
+ *
+ */
+function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
       className={cn(
-        "text-foreground h-10 px-3 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -94,16 +95,15 @@ function TableHead({
   );
 }
 
-/** Table body cell. */
-function TableCell({
-  className,
-  ...props
-}: React.ComponentProps<"td">): React.JSX.Element {
+/**
+ *
+ */
+function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
       className={cn(
-        "p-3 align-top whitespace-normal [&:has([role=checkbox])]:pr-0",
+        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -111,11 +111,13 @@ function TableCell({
   );
 }
 
-/** Table caption. */
+/**
+ *
+ */
 function TableCaption({
   className,
   ...props
-}: React.ComponentProps<"caption">): React.JSX.Element {
+}: React.ComponentProps<"caption">) {
   return (
     <caption
       data-slot="table-caption"

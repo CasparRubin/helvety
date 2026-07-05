@@ -38,7 +38,7 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
   appName: "web",
   optimizePackageImports: [
     "lucide-react",
-    "radix-ui",
+    "@base-ui/react",
     "sonner",
     "framer-motion",
     "gsap",

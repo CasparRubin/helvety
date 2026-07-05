@@ -1,18 +1,17 @@
 "use client";
 
+import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
 import { cn } from "@helvety/shared/utils";
-import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
-import * as React from "react";
 
-/** Combined Radix ScrollArea root props plus optional viewport class override. */
-type ScrollAreaProps = React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
-  /** Merged onto the Radix viewport (e.g. `!overflow-visible` to defeat inline overflow clipping). */
+/** Combined ScrollArea root props plus optional viewport class override. */
+type ScrollAreaProps = ScrollAreaPrimitive.Root.Props & {
+  /** Merged onto the viewport (e.g. `!overflow-visible` to defeat inline overflow clipping). */
   viewportClassName?: string;
 };
 
 /**
  * Scrollable area with custom scrollbar styling and stable gutter reservation.
- * Pass **`viewportClassName`** to override Radix inline overflow on the viewport
+ * Pass **`viewportClassName`** to override inline overflow on the viewport
  * (for example `!overflow-visible` for full-bleed content inside the scroll region).
  */
 function ScrollArea({
@@ -32,7 +31,7 @@ function ScrollArea({
         className={cn(
           "scroll-gutter-stable focus-visible:ring-ring/50 flex size-full min-h-0 flex-col rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
           /*
-           * Radix sets inline `display:table` + `minWidth:100%` on the content wrapper.
+           * Base UI sets inline layout on the content wrapper.
            * Classes alone lose to that inline rule; need `!` so flex fill works vertically.
            */
           "[&>div]:!flex [&>div]:min-h-0 [&>div]:w-full [&>div]:flex-1 [&>div]:!flex-col",
@@ -52,9 +51,9 @@ function ScrollBar({
   className,
   orientation = "vertical",
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
+}: ScrollAreaPrimitive.Scrollbar.Props) {
   return (
-    <ScrollAreaPrimitive.ScrollAreaScrollbar
+    <ScrollAreaPrimitive.Scrollbar
       data-slot="scroll-area-scrollbar"
       data-orientation={orientation}
       orientation={orientation}
@@ -64,11 +63,11 @@ function ScrollBar({
       )}
       {...props}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb
+      <ScrollAreaPrimitive.Thumb
         data-slot="scroll-area-thumb"
         className="bg-border relative flex-1 rounded-full"
       />
-    </ScrollAreaPrimitive.ScrollAreaScrollbar>
+    </ScrollAreaPrimitive.Scrollbar>
   );
 }
 

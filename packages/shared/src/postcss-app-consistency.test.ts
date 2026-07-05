@@ -34,6 +34,9 @@ describe("postcss and Tailwind build consistency", () => {
     expect(uiManifest.dependencies?.["@tailwindcss/postcss"]).toBe(
       UI_TAILWIND_BUILD_DEPENDENCIES["@tailwindcss/postcss"]
     );
+    expect(uiManifest.dependencies?.shadcn).toBe(
+      UI_TAILWIND_BUILD_DEPENDENCIES.shadcn
+    );
   });
 
   it("canonical postcss.config.mjs is unchanged", () => {

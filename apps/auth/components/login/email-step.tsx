@@ -73,13 +73,16 @@ export function EmailStep({
           </span>
         </label>
         <Dialog>
-          <DialogTrigger asChild>
-            <button
-              type="button"
-              className="text-primary mx-auto block text-xs underline underline-offset-4 hover:opacity-90"
-            >
-              Why can&apos;t Helvety currently serve EU/EEA customers?
-            </button>
+          <DialogTrigger
+            render={
+              <button
+                type="button"
+                className="text-primary mx-auto block text-xs underline underline-offset-4 hover:opacity-90"
+              />
+            }
+            nativeButton={false}
+          >
+            Why can&apos;t Helvety currently serve EU/EEA customers?
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

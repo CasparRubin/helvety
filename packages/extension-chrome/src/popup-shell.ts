@@ -21,4 +21,4 @@ export function popupChoiceRowClass(selected: boolean): string {
 
 /** Icon-only tab trigger (label via `aria-label` / `sr-only`). */
 export const POPUP_TAB_TRIGGER_ICON_CLASS =
-  "flex flex-col items-center gap-0.5 rounded-none px-1 py-1 text-[10px] data-[state=active]:shadow-none";
+  "flex flex-col items-center gap-0.5 rounded-none px-1 py-1 text-[10px] data-active:shadow-none";

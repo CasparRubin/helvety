@@ -50,11 +50,11 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - **Proxy matchers:** basePath-mounted apps **inline** the same static pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a literal `config.matcher`, not an imported binding) so static `public/` assets (`.mjs` / `.wasm` / `.json` for PDF.js and ONNX) skip the security proxy chain; `ci:check` guardrails enforce parity
 - **Vercel Root Directory (ops):** each zone project must use `apps/<slug>` as Root Directory (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)); `bun run consistency:vercel-apps` enforces identical `vercel.json` and `env.template` headers via `bun run ci:check`
 - **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`)
-- **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every Radix sheet/dialog (`packages/ui`)
+- **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every sheet/dialog (`packages/ui`)
 - **Scrollable sheets:** `@helvety/ui/sheet-scroll-layout` + `E2eeEntityDetailSheet` / `CommandBarPageLayout` flex height chain (`sheet-scroll-wiring.test.ts`; see [`ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md))
 - Store product catalog caching in `apps/store/lib/data/product-catalog-cache.ts`: cross-request `unstable_cache` for text-only catalog cards (`store-catalog` tag) plus per-request `React.cache()` for full `Product` rows (not the Next.js `'use cache'` directive)
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
-- UI majors: lucide-react v1 (`icon-renderer` kebab-case map), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
+- UI majors: **@base-ui/react** (`base-vega` shadcn primitives in `@helvety/ui`), lucide-react v1 (`icon-renderer` kebab-case map), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
 - **Dead code:** schedule `bun run deps:unused` quarterly (Knip in `ci:check`); optional local triage via `bun run fallow:*` (`.fallowrc.json`; not a CI gate); `ci:release` starts with `bun run clean:artifacts` (`.next/`, `coverage/`, `.turbo/`, and other gitignored build artifacts)
 - **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
 - Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `encrypted-prefetch-queries`, `dashboard-prefetch` overflow copy, `RATE_LIMITS.PREFETCH`, route + batch-action tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; hosted Supabase schema + `consistency:supabase-schema` (types guardrail)

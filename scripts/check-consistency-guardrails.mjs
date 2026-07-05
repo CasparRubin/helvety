@@ -14,7 +14,7 @@
  * matcher but must keep the same static-file extension exclusions (e.g. `mjs`,
  * `wasm`, `json`).
  */
-import { constants } from "node:fs";
+import { constants, existsSync } from "node:fs";
 import { access, readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { validatePostcssZoneApps } from "./postcss-app-expectations.mjs";
@@ -64,6 +64,22 @@ async function listTsxFiles(directory) {
     }
   }
   return files;
+}
+
+/** Fails if any `.tsx` file under `directory` uses the Radix `asChild` prop. */
+async function assertNoAsChildProp(directory) {
+  if (!existsSync(directory)) {
+    return;
+  }
+  const files = await listTsxFiles(directory);
+  for (const filePath of files) {
+    const source = await readFile(filePath, "utf8");
+    if (/\basChild\b/.test(source)) {
+      throw new Error(
+        `${filePath} uses asChild; migrate to Base UI render/nativeButton.`
+      );
+    }
+  }
 }
 
 const filesToCheck = [
@@ -460,7 +476,7 @@ async function main() {
   );
 
   const requiredShadcnConfig = {
-    style: "radix-vega",
+    style: "base-vega",
     rsc: true,
     tsx: true,
     iconLibrary: "lucide",
@@ -600,12 +616,14 @@ async function main() {
       "utf8"
     );
     if (
+      !extensionGlobals.includes('@import "@helvety/ui/globals.css"') &&
       !extensionGlobals.includes('@import "@helvety/ui/form-control-touch.css"')
     ) {
       throw new Error(
-        "helvety-browser-extension-chromium/src/globals.css must import @helvety/ui/form-control-touch.css."
+        "helvety-browser-extension-chromium/src/globals.css must import @helvety/ui/globals.css (or @helvety/ui/form-control-touch.css)."
       );
     }
+    await assertNoAsChildProp(resolve(extensionRoot, "src/popup"));
   } catch (error) {
     if (!(error && typeof error === "object" && error.code === "ENOENT")) {
       throw error;
@@ -815,6 +833,26 @@ async function main() {
         );
       }
     }
+  }
+
+  const lockfilePath = resolve(rootDir, "bun.lock");
+  const lockfile = await readFile(lockfilePath, "utf8");
+  const forbiddenRadixPatterns = [/"radix-ui@/, /"@radix-ui\//, /"cmdk@/];
+  for (const pattern of forbiddenRadixPatterns) {
+    if (pattern.test(lockfile)) {
+      throw new Error(
+        `bun.lock must not contain Radix or cmdk packages (${pattern}). Migrate to @base-ui/react and remove cmdk.`
+      );
+    }
+  }
+
+  const asChildScanRoots = [
+    resolve(rootDir, "packages/ui/src"),
+    resolve(rootDir, "packages/extension-chrome/src"),
+    resolve(rootDir, "apps"),
+  ];
+  for (const scanRoot of asChildScanRoots) {
+    await assertNoAsChildProp(scanRoot);
   }
 
   console.log("Consistency guardrail checks passed.");

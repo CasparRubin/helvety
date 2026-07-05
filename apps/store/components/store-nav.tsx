@@ -91,12 +91,14 @@ export function StoreNav({
 
       {/* Mobile: dropdown showing active link */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-1.5 md:hidden">
-            <ActiveIcon className="size-4" />
-            <span>{activeLink.label}</span>
-            <ChevronDownIcon className="ml-1 size-3.5 opacity-50" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" size="sm" className="gap-1.5 md:hidden" />
+          }
+        >
+          <ActiveIcon className="size-4" />
+          <span>{activeLink.label}</span>
+          <ChevronDownIcon className="ml-1 size-3.5 opacity-50" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           {links.map(({ href, label, icon }) => {
@@ -106,13 +108,12 @@ export function StoreNav({
             return (
               <DropdownMenuItem
                 key={href}
-                asChild
+                render={<Link href={href} />}
+                nativeButton={false}
                 className={cn(isActive && "bg-accent")}
               >
-                <Link href={href}>
-                  <IconComponent className="mr-2 size-4" />
-                  <span>{label}</span>
-                </Link>
+                <IconComponent className="mr-2 size-4" />
+                <span>{label}</span>
               </DropdownMenuItem>
             );
           })}

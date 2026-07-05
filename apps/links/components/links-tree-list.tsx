@@ -476,17 +476,19 @@ function FolderRowActions({
         ) : null}
       </div>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="text-muted-foreground shrink-0 md:hidden"
-            aria-label={`Actions for folder ${folderName}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <EllipsisVertical className="size-4" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="text-muted-foreground shrink-0 md:hidden"
+              aria-label={`Actions for folder ${folderName}`}
+              onClick={(e) => e.stopPropagation()}
+            />
+          }
+        >
+          <EllipsisVertical className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
           <DropdownMenuItem

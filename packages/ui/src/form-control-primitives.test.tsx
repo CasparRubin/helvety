@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Command, CommandInput } from "./command";
 import { FORM_CONTROL_TEXT_SIZE_CLASS } from "./form-control-text-size";
 import { Input } from "./input";
 import { ListSearchField } from "./list-search-field";
@@ -31,15 +30,6 @@ describe("form control primitives apply touch-safe text sizing", () => {
       <NativeSelect data-testid="field" defaultValue="a">
         <option value="a">A</option>
       </NativeSelect>
-    );
-    expectTouchSafeTextSize(screen.getByTestId("field"));
-  });
-
-  it("CommandInput applies FORM_CONTROL_TEXT_SIZE_CLASS", () => {
-    render(
-      <Command>
-        <CommandInput data-testid="field" placeholder="Search" />
-      </Command>
     );
     expectTouchSafeTextSize(screen.getByTestId("field"));
   });

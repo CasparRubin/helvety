@@ -2,7 +2,10 @@
   "extends": "@helvety/config/tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@helvety/ui/*": ["./src/*"]
+      "@/ui": ["./src"],
+      "@/ui/*": ["./src/*"],
+      "@helvety/ui/*": ["./src/*"],
+      "@helvety/shared/utils": ["../shared/src/utils.ts"]
     }
   },
   "include": [

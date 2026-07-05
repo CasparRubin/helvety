@@ -1,9 +1,10 @@
+import { getRangeInputByLabel } from "@helvety/shared/test-utils/base-ui-test-helpers";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Slider } from "./slider";
 
-/** No-op ResizeObserver stub for Radix Slider in jsdom. */
+/** No-op ResizeObserver stub for Base UI Slider in jsdom. */
 class ResizeObserverMock {
   observe(): void {}
   unobserve(): void {}
@@ -20,12 +21,12 @@ describe("Slider", () => {
         min={2}
         max={24}
         step={1}
-        value={[8]}
+        value={8}
         onValueChange={vi.fn()}
       />
     );
 
-    expect(screen.getByRole("slider", { name: "Stroke" })).toHaveAttribute(
+    expect(getRangeInputByLabel(screen, "Stroke")).toHaveAttribute(
       "aria-valuenow",
       "8"
     );
@@ -39,12 +40,12 @@ describe("Slider", () => {
         min={1}
         max={60}
         step={1}
-        value={[12]}
+        value={12}
         onValueChange={onValueChange}
       />
     );
 
-    const slider = screen.getByRole("slider", { name: "Blur" });
+    const slider = getRangeInputByLabel(screen, "Blur");
     slider.focus();
     fireEvent.keyDown(slider, { key: "ArrowRight" });
 

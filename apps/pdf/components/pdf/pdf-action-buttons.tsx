@@ -39,23 +39,25 @@ function PdfActionButtonsComponent({
 
         return (
           <Tooltip key={action.ariaLabel}>
-            <TooltipTrigger asChild>
-              <Button
-                variant={action.variant ?? "secondary"}
-                size="icon"
-                className={cn(
-                  "border-border h-9 w-9 border shadow-sm transition-all",
-                  action.variant === "destructive"
-                    ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-destructive"
-                    : "hover:bg-primary hover:text-primary-foreground hover:border-primary",
-                  action.className
-                )}
-                onClick={action.onClick}
-                disabled={action.disabled}
-                aria-label={action.ariaLabel}
-              >
-                {action.icon}
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant={action.variant ?? "secondary"}
+                  size="icon"
+                  className={cn(
+                    "border-border h-9 w-9 border shadow-sm transition-all",
+                    action.variant === "destructive"
+                      ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground border-destructive"
+                      : "hover:bg-primary hover:text-primary-foreground hover:border-primary",
+                    action.className
+                  )}
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  aria-label={action.ariaLabel}
+                />
+              }
+            >
+              {action.icon}
             </TooltipTrigger>
             <TooltipContent side="left">
               <div className="space-y-1">

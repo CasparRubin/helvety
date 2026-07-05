@@ -19,14 +19,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./collapsible";
-import {
-  Command,
-  CommandEmpty,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "./command";
+import { Input } from "./input";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { ScrollArea } from "./scroll-area";
 
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
@@ -173,57 +168,61 @@ export function EntityLinksPanel<
         if (!open) setSearchQuery("");
       }}
     >
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
-          <PlusIcon className="size-3.5" />
-          Add
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-72 p-0"
-        onOpenAutoFocus={(e) => e.preventDefault()}
+      <PopoverTrigger
+        render={
+          <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" />
+        }
       >
-        <Command shouldFilter={false}>
-          <CommandInput
-            placeholder={labels.searchPlaceholder}
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-          />
-          <CommandList>
+        <PlusIcon className="size-3.5" />
+        Add
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-72 p-0" initialFocus={false}>
+        <div className="flex flex-col overflow-hidden">
+          <div className="border-b px-3 py-2">
+            <Input
+              placeholder={labels.searchPlaceholder}
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              aria-label={labels.searchPlaceholder}
+            />
+          </div>
+          <ScrollArea className="max-h-64">
             {isLoading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2Icon className="text-muted-foreground size-4 animate-spin" />
               </div>
             ) : filteredItems.length === 0 ? (
-              <CommandEmpty>
+              <p className="text-muted-foreground py-6 text-center text-sm">
                 {allItems.length === 0
                   ? labels.emptyCatalog
                   : searchQuery
                     ? labels.emptySearch
                     : labels.allLinked}
-              </CommandEmpty>
+              </p>
             ) : (
-              filteredItems.map((item) => {
-                const name = formatName(item);
-                return (
-                  <CommandItem
-                    key={item.id}
-                    value={item.id}
-                    onSelect={() => handleLink(item.id)}
-                    disabled={isLinking}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{name}</p>
-                      {renderPickerSubtitle?.(item)}
-                    </div>
-                    <PickerGlyph className="size-3.5 shrink-0 text-amber-500" />
-                  </CommandItem>
-                );
-              })
+              <div className="p-1">
+                {filteredItems.map((item) => {
+                  const name = formatName(item);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      disabled={isLinking}
+                      onClick={() => handleLink(item.id)}
+                      className="hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium">{name}</p>
+                        {renderPickerSubtitle?.(item)}
+                      </div>
+                      <PickerGlyph className="size-3.5 shrink-0 text-amber-500" />
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </CommandList>
-        </Command>
+          </ScrollArea>
+        </div>
       </PopoverContent>
     </Popover>
   );
@@ -287,18 +286,23 @@ export function EntityLinksPanel<
   const sectionHeader = (
     <div className="flex items-center justify-between">
       {variant === "collapsible" ? (
-        <CollapsibleTrigger asChild>
-          <button type="button" className="flex items-center gap-2 text-left">
-            <SectionGlyph className="text-muted-foreground size-4" />
-            <h3 className="text-muted-foreground text-sm font-medium">
-              {labels.sectionTitle}
-            </h3>
-            {linkedItems.length > 0 && (
-              <span className="text-muted-foreground text-xs">
-                ({linkedItems.length})
-              </span>
-            )}
-          </button>
+        <CollapsibleTrigger
+          render={
+            <button
+              type="button"
+              className="flex items-center gap-2 text-left"
+            />
+          }
+        >
+          <SectionGlyph className="text-muted-foreground size-4" />
+          <h3 className="text-muted-foreground text-sm font-medium">
+            {labels.sectionTitle}
+          </h3>
+          {linkedItems.length > 0 && (
+            <span className="text-muted-foreground text-xs">
+              ({linkedItems.length})
+            </span>
+          )}
         </CollapsibleTrigger>
       ) : (
         <div className="flex items-center gap-2">

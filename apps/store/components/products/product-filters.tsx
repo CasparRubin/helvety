@@ -89,12 +89,14 @@ export function ProductFilters({
 
       {/* Mobile: dropdown showing active filter */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-1.5 md:hidden">
-            <ActiveIcon className="size-4" />
-            <span>{activeOption.label}</span>
-            <ChevronDownIcon className="ml-1 size-3.5 opacity-50" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" size="sm" className="gap-1.5 md:hidden" />
+          }
+        >
+          <ActiveIcon className="size-4" />
+          <span>{activeOption.label}</span>
+          <ChevronDownIcon className="ml-1 size-3.5 opacity-50" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           {filterOptions.map((option) => {

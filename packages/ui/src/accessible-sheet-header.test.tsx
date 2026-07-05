@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { AccessibleSheetHeader } from "./accessible-sheet-header";
 import { Sheet, SheetContent } from "./sheet";
 
-/** Renders {@link AccessibleSheetHeader} inside an open sheet (Radix Dialog context). */
+/** Renders {@link AccessibleSheetHeader} inside an open sheet (Dialog context). */
 function renderInSheet(ui: React.ReactElement) {
   return render(
     <Sheet open>
@@ -16,7 +16,7 @@ function renderInSheet(ui: React.ReactElement) {
 }
 
 describe("AccessibleSheetHeader", () => {
-  it("renders title and screen-reader-only description for Radix sheet a11y", () => {
+  it("renders title and screen-reader-only description for sheet a11y", () => {
     renderInSheet(
       <AccessibleSheetHeader
         title="Menu"

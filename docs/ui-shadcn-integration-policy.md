@@ -6,6 +6,9 @@ This policy defines where UI primitives live and how apps should consume them.
 
 - Shared primitives and cross-app compositions live in `packages/ui/src`.
 - App code should import shared primitives from `@helvety/ui/*`.
+- **shadcn style:** `base-vega` in every `components.json` (canonical: `packages/ui/components.json`). Primitives use **Base UI** (`@base-ui/react`), not Radix.
+- **Composition API:** Base UI shadcn uses **`render`** (and `nativeButton={false}` on link triggers) instead of Radix **`asChild`**. Do not add `asChild` in `packages/ui`, zone apps, or the extension popup — `consistency:guardrails` fails on it.
+- **Entity link picker:** `@helvety/ui/entity-links-panel` uses **Popover + Input + ScrollArea** for the Add search list. Do **not** reintroduce the cmdk **Command** primitive or `@helvety/ui/command` — that export was removed. This is unrelated to **`CommandBar`** / **`EntityCommandBar`** (pinned toolbar shells).
 - **New shadcn CLI adds** should target `packages/ui/components.json` first, then re-export from `@helvety/ui/*`. App `components.json` files keep shadcn aliases (for example `"ui": "@/components/ui"`) for CLI compatibility only; **do not** create `apps/*/components/ui/` directories or import `@/components/ui/*` from app code. `consistency:guardrails` enforces `rsc: true`, `tsx: true`, and a `registries` object on every app UI surface.
 - Shared date pickers live in `@helvety/ui/date-picker` and `@helvety/ui/date-time-picker` (not under any app).
 
@@ -28,7 +31,7 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 
 ## Styling And Composition Rules
 
-- **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss` (plugin loaded from `@helvety/dev-deps`). Production `tailwindcss` and `@tailwindcss/postcss` on `@helvety/ui` keep Tailwind on zone apps’ production dependency graph for Turbopack; see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
+- **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss` (plugin loaded from `@helvety/dev-deps`). Production `tailwindcss`, `@tailwindcss/postcss`, and **`shadcn`** (for `@import "shadcn/tailwind.css"` in `globals.css`) on `@helvety/ui` keep Tailwind on zone apps’ production dependency graph for Turbopack; the extension popup resolves the same import via Vite alias in `vite.config.ts`. See [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
 - Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes. Gateway marketing accents use `--brand-swiss-red` / `text-brand-swiss-red` from `packages/ui/globals.css` (not raw `#FF0000` in components).
 - Prefer reusable state primitives for list surfaces (`ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`).
 - Use shared dashboard primitives (`EntityDashboardShell`) and command bars (`EntityCommandBar`) for list-centric entity apps.
@@ -42,7 +45,7 @@ iOS Safari zooms the page when a focused text field is below **16px**. Helvety u
 
 1. **CSS safety net:** `@helvety/ui/form-control-touch.css` (imported by `@helvety/ui/globals.css` for zone apps and by the extension’s `globals.css`). Sets `font-size: 1rem` on touch/coarse-pointer devices for `input`, `select`, `textarea`, and `[contenteditable="true"]`.
 2. **Tailwind constant:** `@helvety/ui/form-control-text-size` exports `FORM_CONTROL_TEXT_SIZE_CLASS` and `FORM_CONTROL_PROSE_SIZE_CLASS` (16px on touch, 14px on mouse desktop). Use only when authoring new shared primitives — not in app code.
-3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/command` (`CommandInput`), `@helvety/ui/tiptap-editor` (rich text). Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components` or extension popup code.
+3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/tiptap-editor` (rich text). Entity link pickers use `@helvety/ui/input` inside `@helvety/ui/entity-links-panel`. Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components` or extension popup code.
 
 Do **not** disable pinch zoom via viewport `maximum-scale=1` / `user-scalable=no`.
 
@@ -53,4 +56,5 @@ Do **not** disable pinch zoom via viewport `maximum-scale=1` / `user-scalable=no
   - `postcss.config.mjs` parity and `@helvety/ui` in production dependencies on every zone that uses shared PostCSS.
   - zero app imports from `@/components/ui/*` (shared primitives must come from `@helvety/ui/*`).
   - no raw `<select>` or `<textarea>` in `apps/*/components` (use `@helvety/ui/native-select` and `@helvety/ui/textarea`).
-  - when `helvety-browser-extension-chromium` is present as a sibling repo: no raw form controls in `src/popup`, no local `Textarea.tsx`, and `src/globals.css` must import `@helvety/ui/form-control-touch.css`.
+  - when `helvety-browser-extension-chromium` is present as a sibling repo: no raw form controls in `src/popup`, no local `Textarea.tsx`, and `src/globals.css` must import `@helvety/ui/globals.css` (or `@helvety/ui/form-control-touch.css`).
+  - `bun.lock` must not contain `radix-ui`, `@radix-ui/*`, or `cmdk`.

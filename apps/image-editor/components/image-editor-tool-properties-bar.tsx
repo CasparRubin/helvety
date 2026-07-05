@@ -89,8 +89,8 @@ function PropertySlider({
         min={min}
         max={max}
         step={step}
-        value={[value]}
-        onValueChange={(next) => onChange(next[0] ?? value)}
+        value={value}
+        onValueChange={(next) => onChange(next as number)}
         aria-label={label}
         className="w-24"
       />

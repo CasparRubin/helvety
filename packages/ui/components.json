@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "radix-vega",
+  "style": "base-vega",
   "rsc": true,
   "tsx": true,
   "tailwind": {
@@ -14,11 +14,11 @@
   "menuColor": "default",
   "menuAccent": "bold",
   "aliases": {
-    "components": "@helvety/ui",
+    "components": "@/ui",
     "utils": "@helvety/shared/utils",
-    "ui": "@helvety/ui",
-    "lib": "@helvety/shared",
-    "hooks": "@helvety/ui"
+    "ui": "@/ui",
+    "lib": "@/ui",
+    "hooks": "@/ui"
   },
   "registries": {}
 }

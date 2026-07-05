@@ -84,16 +84,18 @@ export function PdfCommandBar({
         {/* Desktop only: Clear All with confirmation */}
         {hasFiles && (
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isProcessing}
-                className="hidden md:inline-flex"
-              >
-                <Trash2Icon className="mr-1.5 size-4 shrink-0" />
-                <span>Clear All</span>
-              </Button>
+            <AlertDialogTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isProcessing}
+                  className="hidden md:inline-flex"
+                />
+              }
+            >
+              <Trash2Icon className="mr-1.5 size-4 shrink-0" />
+              <span>Clear All</span>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -145,11 +147,13 @@ export function PdfCommandBar({
         {/* Mobile only: overflow dropdown for secondary actions */}
         {hasFiles && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="md:hidden">
-                <EllipsisVerticalIcon className="size-4" />
-                <span className="sr-only">More actions</span>
-              </Button>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="sm" className="md:hidden" />
+              }
+            >
+              <EllipsisVerticalIcon className="size-4" />
+              <span className="sr-only">More actions</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem

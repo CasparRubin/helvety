@@ -2,7 +2,7 @@ import { createVitestConfig } from "@helvety/config/vitest";
 
 const base = createVitestConfig(__dirname, { passWithNoTests: false });
 
-/** UI package mounts Radix sheets and Tiptap; allow extra time under parallel `turbo run test`. */
+/** UI package mounts sheets and Tiptap; allow extra time under parallel `turbo run test`. */
 export default {
   ...base,
   test: {

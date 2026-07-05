@@ -14,6 +14,8 @@ export const CANONICAL_POSTCSS_CONFIG =
 export const UI_TAILWIND_BUILD_DEPENDENCIES = {
   tailwindcss: "^4.3.2",
   "@tailwindcss/postcss": "^4.3.2",
+  /** globals.css @import "shadcn/tailwind.css" (zone apps + extension popup) */
+  shadcn: "^4.13.0",
 };
 
 /**

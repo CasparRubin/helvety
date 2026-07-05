@@ -157,7 +157,7 @@ export function ItemActionPanel({
                   <Loader2Icon className="size-3 animate-spin" />
                 )}
               </h3>
-              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-panel-open:rotate-90" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="mt-2 grid grid-cols-2 gap-2">
@@ -237,7 +237,7 @@ export function ItemActionPanel({
                   <Loader2Icon className="size-3 animate-spin" />
                 )}
               </h3>
-              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-panel-open:rotate-90" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               {isLoadingStages ? (
@@ -301,7 +301,7 @@ export function ItemActionPanel({
                   <Loader2Icon className="size-3 animate-spin" />
                 )}
               </h3>
-              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-panel-open:rotate-90" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="mt-2 flex flex-col gap-1">
@@ -362,7 +362,7 @@ export function ItemActionPanel({
                   <Loader2Icon className="size-3 animate-spin" />
                 )}
               </h3>
-              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+              <ChevronRightIcon className="text-muted-foreground size-4 transition-transform duration-200 group-data-panel-open:rotate-90" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               {isLoadingLabels ? (
