@@ -10,6 +10,7 @@ import {
   fetchOwnedEncryptedExport,
   logEncryptedExportRequested,
   mapReorderOwnedEntitiesFailure,
+  ownedUpdateMissingRow,
   reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
@@ -242,15 +243,22 @@ export async function updateContact(
     assignDefinedField(updateObj, "sort_order", validatedData.sort_order);
 
     // Update contact (RLS + explicit user_id check for defense-in-depth)
-    const { error } = await supabase
+    const { data: updatedRow, error } = await supabase
       .from(CONTACTS_TABLE)
       .update(updateObj)
       .eq("id", validatedData.id)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       logger.logUnexpectedError("Error updating contact", error);
       return { success: false, error: "Failed to update contact" };
+    }
+
+    const missingRow = ownedUpdateMissingRow(updatedRow, "Contact not found");
+    if (missingRow) {
+      return missingRow;
     }
 
     revalidateContactRoutes(validatedData.id);

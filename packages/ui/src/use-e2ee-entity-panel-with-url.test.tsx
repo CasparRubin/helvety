@@ -107,7 +107,29 @@ describe("useE2eeEntityPanelWithUrl", () => {
     );
   });
 
-  it("openNewDraft seeds, opens, writes URL, and persists in background", async () => {
+  it("openNewDraft seeds, opens, and writes URL without background persist by default", () => {
+    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
+    const seedOptimistic = vi.fn();
+    const persist = vi.fn();
+
+    act(() => {
+      result.current.openNewDraft({
+        id: "draft-id",
+        seedOptimistic,
+      });
+    });
+
+    expect(seedOptimistic).toHaveBeenCalledWith("draft-id");
+    expect(result.current.isOpen).toBe(true);
+    expect(result.current.entityId).toBe("draft-id");
+    expect(navigationMocks.replace).toHaveBeenCalledWith(
+      `/tasks?item=draft-id`,
+      { scroll: false }
+    );
+    expect(persist).not.toHaveBeenCalled();
+  });
+
+  it("openNewDraft optionally persists in background when persist is provided", async () => {
     const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
     const seedOptimistic = vi.fn();
     const persist = vi.fn().mockResolvedValue({ id: "draft-id" });

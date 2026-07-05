@@ -381,34 +381,35 @@ describe("E2EE open-first create wiring", () => {
     ["notes", "components/flat-notes-dashboard.tsx"],
     ["contacts", "components/contacts-dashboard.tsx"],
   ] as const)(
-    "apps/%s uses openNewDraft with seedDraft and createWithId",
+    "apps/%s uses openNewDraft with seedDraft and pending-draft cleanup",
     (app, dashboardPath) => {
       const src = readAppFile(app, dashboardPath);
       expect(src).toContain("openNewDraft");
       expect(src).toContain("seedDraft");
-      expect(src).toContain("createWithId");
       expect(src).toContain("removeDraft");
-      expect(src).toContain("isOpeningDraft");
-      expect(src).toContain("isPersistingDraft: isOpeningDraft");
-      expect(src).toContain("onPersistFailure");
-      expect(src).toMatch(/if \(isOpeningDraft\)[\s\S]*removeDraft\(id\)/);
+      expect(src).toContain("isPendingDraft");
+      expect(src).toMatch(
+        /if \(isPendingDraft\(id\)\)[\s\S]*removeDraft\(id\)/
+      );
+      expect(src).not.toContain("onPersistFailure");
+      expect(src).not.toContain("persist:");
     }
   );
 
-  it("apps/links uses open-first draft helpers and guarded cleanup", () => {
+  it("apps/links uses open-first draft helpers and pending-draft cleanup", () => {
     const src = readAppFile("links", "components/links-dashboard.tsx");
     expect(src).toContain("seedLinkDraft");
-    expect(src).toContain("createLinkWithId");
     expect(src).toContain("removeLinkDraft");
     expect(src).toContain("seedFolderDraft");
-    expect(src).toContain("createFolderWithId");
     expect(src).toContain("removeFolderDraft");
-    expect(src).toContain("isOpeningDraft");
-    expect(src).toContain("startOpenDraftTransition");
+    expect(src).toContain("isPendingLinkDraft");
+    expect(src).toContain("isPendingFolderDraft");
     expect(src).toContain("resolveLinkDisplayName");
     expect(src).toMatch(
-      /if \(isOpeningDraft\)[\s\S]*removeLinkDraft\(state\.id\)/
+      /if \(library\.isPendingLinkDraft\(state\.id\)\)[\s\S]*removeLinkDraft\(state\.id\)/
     );
+    expect(src).not.toContain("startOpenDraftTransition");
+    expect(src).not.toContain("createLinkWithId(");
   });
 
   it.each([
@@ -422,6 +423,7 @@ describe("E2EE open-first create wiring", () => {
       expect(src).toContain("createWithId");
       expect(src).toContain("seedDraft");
       expect(src).toContain("removeDraft");
+      expect(src).toContain("draftInputFromItem");
     }
   );
 
@@ -439,13 +441,21 @@ describe("E2EE open-first create wiring", () => {
     }
   );
 
-  it("shared sortable-items hook tracks aborted open-first drafts", () => {
+  it("shared sortable-items hook tracks pending and aborted open-first drafts", () => {
     const src = readFileSync(
       join(repoRoot, "packages/ui/src/hooks/use-encrypted-sortable-items.ts"),
       "utf8"
     );
     expect(src).toContain("abortedDraftIdsRef");
     expect(src).toContain("pendingDraftIdsRef");
+    expect(src).toContain("draftInputFromItem");
+    expect(src).not.toContain("rollback on persist failure");
+    expect(src).toMatch(
+      /pendingDraftIdsRef\.current\.has\(id\)[\s\S]*createWithId/
+    );
+    expect(src).toMatch(
+      /pendingDraftIdsRef\.current\.has\(id\)[\s\S]*removeDraft\(id\)/
+    );
   });
 
   it("links library hook tracks aborted link and folder drafts", () => {
@@ -453,6 +463,13 @@ describe("E2EE open-first create wiring", () => {
     expect(src).toContain("abortedLinkDraftIdsRef");
     expect(src).toContain("abortedFolderDraftIdsRef");
     expect(src).toContain("resolveLinkDisplayName(input.name, input.url)");
+    expect(src).toContain("isPendingLinkDraft");
+    expect(src).toMatch(
+      /pendingLinkDraftIdsRef\.current\.has\(id\)[\s\S]*createLinkWithId/
+    );
+    expect(src).toMatch(
+      /pendingLinkDraftIdsRef\.current\.has\(id\)[\s\S]*removeLinkDraft\(id\)/
+    );
   });
 });
 
@@ -479,16 +496,26 @@ describe("E2EE app README accuracy", () => {
   });
 
   it.each(["tasks", "notes", "contacts"] as const)(
-    "apps/%s README documents open-first create",
+    "apps/%s README documents open-first create on first save",
     (app) => {
       const src = readFileSync(
         join(repoRoot, "apps", app, "README.md"),
         "utf8"
       );
       expect(src).toContain("open-first");
+      expect(src).toMatch(/first save|insert on first save/i);
+      expect(src).toContain("isPendingDraft");
       expect(src).toContain("useE2eeDashboardSelectedEntity");
+      expect(src).not.toMatch(/persists in the background/i);
     }
   );
+
+  it("apps/links README documents pending link and folder draft cleanup", () => {
+    const src = readFileSync(join(repoRoot, "apps/links/README.md"), "utf8");
+    expect(src).toContain("isPendingLinkDraft");
+    expect(src).toContain("isPendingFolderDraft");
+    expect(src).toMatch(/first save/i);
+  });
 
   it("packages/ui README documents mount-only TipTap and Links pattern", () => {
     const src = readFileSync(join(repoRoot, "packages/ui/README.md"), "utf8");

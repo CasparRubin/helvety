@@ -3,7 +3,10 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { assignDefinedField } from "@helvety/shared/entity-action-primitives";
+import {
+  assignDefinedField,
+  ownedUpdateMissingRow,
+} from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import {
   parseActionInput,
@@ -176,11 +179,13 @@ export async function updateItem(
     assignDefinedField(updateObj, "category_id", validatedData.category_id);
 
     // Update item (RLS + explicit user_id check for defense-in-depth)
-    const { error } = await supabase
+    const { data: updatedRow, error } = await supabase
       .from(NOTES_ITEMS_TABLE)
       .update(updateObj)
       .eq("id", validatedData.id)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       logger.logUnexpectedError("Error updating item", error);
@@ -188,6 +193,11 @@ export async function updateItem(
         success: false,
         error: "Failed to update note",
       };
+    }
+
+    const missingRow = ownedUpdateMissingRow(updatedRow, "Note not found");
+    if (missingRow) {
+      return missingRow;
     }
 
     revalidateItemRoutes();

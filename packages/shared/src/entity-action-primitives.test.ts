@@ -23,6 +23,7 @@ import {
   isExportWithinCap,
   logEncryptedExportRequested,
   mapReorderOwnedEntitiesFailure,
+  ownedUpdateMissingRow,
   reorderOwnedEntities,
   runChunkedReorderUpdates,
   validateOwnedReorderScope,
@@ -338,5 +339,13 @@ describe("entity-action-primitives", () => {
     });
 
     expect(result).toEqual({ success: false, error: "failed", cause: dbError });
+  });
+
+  it("ownedUpdateMissingRow returns failure when update affected zero rows", () => {
+    expect(ownedUpdateMissingRow(null, "Task not found")).toEqual({
+      success: false,
+      error: "Task not found",
+    });
+    expect(ownedUpdateMissingRow({ id: "row-1" }, "Task not found")).toBeNull();
   });
 });

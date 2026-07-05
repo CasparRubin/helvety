@@ -48,9 +48,9 @@ export function FlatTasksDashboard({
     isRefreshing,
     error,
     refresh,
-    createWithId,
     seedDraft,
     removeDraft,
+    isPendingDraft,
     remove,
     reorder,
     update,
@@ -58,14 +58,8 @@ export function FlatTasksDashboard({
   const { stages } = useStages(DEFAULT_STAGE_CONFIGS.item.id);
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const {
-    isOpen,
-    entityId,
-    openEntity,
-    closePanel,
-    openNewDraft,
-    isOpeningDraft,
-  } = useE2eeEntityPanelWithUrl("item");
+  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+    useE2eeEntityPanelWithUrl("item");
 
   const draftSnapshots = useRef<Map<string, TaskDraftSnapshot>>(new Map());
 
@@ -95,7 +89,6 @@ export function FlatTasksDashboard({
     entities: items,
     listIsLoading: isLoading,
     listError: error,
-    isPersistingDraft: isOpeningDraft,
     masterKey,
     isUnlocked,
     navigationSource: "tasks-dashboard",
@@ -124,7 +117,7 @@ export function FlatTasksDashboard({
       const item = items.find((i) => i.id === id);
       const snapshot = draftSnapshots.current.get(id);
       if (item && snapshot && isTaskDraftUnchanged(item, snapshot)) {
-        if (isOpeningDraft) {
+        if (isPendingDraft(id)) {
           removeDraft(id);
         } else {
           void remove(id);
@@ -132,7 +125,7 @@ export function FlatTasksDashboard({
       }
       draftSnapshots.current.delete(id);
     },
-    [items, isOpeningDraft, remove, removeDraft]
+    [items, isPendingDraft, remove, removeDraft]
   );
 
   const handleSelectEntity = useCallback(
@@ -186,19 +179,12 @@ export function FlatTasksDashboard({
         seedDraft(id, draftInput);
         draftSnapshots.current.set(id, snapshot);
       },
-      persist: (id) => createWithId(id, draftInput),
-      onPersistFailure: (id) => {
-        removeDraft(id);
-        draftSnapshots.current.delete(id);
-      },
     });
   }, [
     cleanupDraftIfUnchanged,
-    createWithId,
     defaultStageId,
     entityId,
     openNewDraft,
-    removeDraft,
     seedDraft,
   ]);
 

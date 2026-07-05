@@ -1,5 +1,9 @@
 import { buildAuthRequiredError } from "@helvety/shared/auth-errors";
-import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
+import {
+  createAuthSuccessContext,
+  createOwnedUpdateSupabaseMock,
+  sampleEncryptedField,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -34,27 +38,45 @@ describe("notes item-actions", () => {
   });
 
   it("revalidates notes route after a successful update", async () => {
-    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
-    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
-    const update = vi.fn(() => ({ eq: updateEqId }));
-    const supabase = {
-      from: vi.fn(() => ({ update })),
-    };
-    mocks.authenticateAndRateLimit.mockResolvedValue({
-      ok: true,
-      ctx: { supabase, user: { id: "user-1" } },
+    const supabase = createOwnedUpdateSupabaseMock("notes", {
+      data: { id: ITEM_ID },
+      error: null,
     });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
 
     const result = await updateItem(
       {
         encrypted_title: sampleEncryptedField(),
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: ITEM_ID,
       },
       "csrf-token"
     );
 
     expect(result).toEqual({ success: true });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/notes");
+  });
+
+  it("returns not found when update affects zero rows", async () => {
+    const supabase = createOwnedUpdateSupabaseMock("notes", {
+      data: null,
+      error: null,
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
+
+    const result = await updateItem(
+      {
+        encrypted_title: sampleEncryptedField(),
+        id: ITEM_ID,
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Note not found" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it("returns auth guard response and skips DB work when auth fails", async () => {

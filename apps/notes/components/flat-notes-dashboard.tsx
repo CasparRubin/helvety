@@ -48,23 +48,17 @@ export function FlatNotesDashboard({
     isRefreshing,
     error,
     refresh,
-    createWithId,
     seedDraft,
     removeDraft,
+    isPendingDraft,
     remove,
     reorder,
     update,
   } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const {
-    isOpen,
-    entityId,
-    openEntity,
-    closePanel,
-    openNewDraft,
-    isOpeningDraft,
-  } = useE2eeEntityPanelWithUrl("note");
+  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+    useE2eeEntityPanelWithUrl("note");
 
   const draftSnapshots = useRef<Map<string, NoteDraftSnapshot>>(new Map());
 
@@ -86,7 +80,6 @@ export function FlatNotesDashboard({
     entities: items,
     listIsLoading: isLoading,
     listError: error,
-    isPersistingDraft: isOpeningDraft,
     masterKey,
     isUnlocked,
     navigationSource: "notes-dashboard",
@@ -123,7 +116,7 @@ export function FlatNotesDashboard({
       const item = items.find((i) => i.id === id);
       const snapshot = draftSnapshots.current.get(id);
       if (item && snapshot && isNoteDraftUnchanged(item, snapshot)) {
-        if (isOpeningDraft) {
+        if (isPendingDraft(id)) {
           removeDraft(id);
         } else {
           void remove(id);
@@ -131,7 +124,7 @@ export function FlatNotesDashboard({
       }
       draftSnapshots.current.delete(id);
     },
-    [items, isOpeningDraft, remove, removeDraft]
+    [items, isPendingDraft, remove, removeDraft]
   );
 
   const handleSelectEntity = useCallback(
@@ -185,19 +178,12 @@ export function FlatNotesDashboard({
         seedDraft(id, draftInput);
         draftSnapshots.current.set(id, snapshot);
       },
-      persist: (id) => createWithId(id, draftInput),
-      onPersistFailure: (id) => {
-        removeDraft(id);
-        draftSnapshots.current.delete(id);
-      },
     });
   }, [
     cleanupDraftIfUnchanged,
-    createWithId,
     defaultCategoryId,
     entityId,
     openNewDraft,
-    removeDraft,
     seedDraft,
   ]);
 

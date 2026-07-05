@@ -3,7 +3,10 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { assignDefinedField } from "@helvety/shared/entity-action-primitives";
+import {
+  assignDefinedField,
+  ownedUpdateMissingRow,
+} from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import {
   parseActionInput,
@@ -177,15 +180,22 @@ export async function updateFolder(
     );
     assignDefinedField(updateObj, "sort_order", validated.sort_order);
 
-    const { error } = await supabase
+    const { data: updatedRow, error } = await supabase
       .from(LINK_FOLDERS_TABLE)
       .update(updateObj)
       .eq("id", validated.id)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       logger.logUnexpectedError("Error updating folder", error);
       return { success: false, error: "Failed to update folder" };
+    }
+
+    const missingRow = ownedUpdateMissingRow(updatedRow, "Folder not found");
+    if (missingRow) {
+      return missingRow;
     }
 
     revalidateLinksRoutes();

@@ -6,11 +6,16 @@ import { useCallback, useState, useTransition } from "react";
 export type E2eeEntityPanelState =
   { mode: "closed" } | { mode: "open"; entityId: string };
 
-/** Open-first draft: seed list, open sheet immediately, persist in background. */
+/**
+ * Open-first draft: seed optimistic row and open sheet.
+ * Dashboards omit `persist` (insert on first save via the list hook); pass `persist` only for optional background insert.
+ */
 export interface E2eeOpenNewDraftOptions {
   id: string;
   seedOptimistic: (id: string) => void;
-  persist: (id: string) => Promise<{ id: string } | null>;
+  /** Optional background insert; omit so the list hook calls `createWithId` on first save. */
+  persist?: (id: string) => Promise<{ id: string } | null>;
+  /** Called when optional background `persist` fails (dashboards do not pass `persist`). */
   onPersistFailure?: (id: string) => void;
 }
 
@@ -19,10 +24,11 @@ export interface UseE2eeEntityPanelResult {
   panel: E2eeEntityPanelState;
   isOpen: boolean;
   entityId: string | null;
+  /** True while optional background `persist` runs (false when dashboards omit `persist`). */
   isOpeningDraft: boolean;
   openEntity: (id: string) => void;
   closePanel: () => void;
-  /** Open-first: seeds optimistic row, opens sheet, persists in background. */
+  /** Open-first: seeds optimistic row and opens sheet; server row on first save unless `persist` is passed. */
   openNewDraft: (options: E2eeOpenNewDraftOptions) => void;
 }
 
@@ -64,6 +70,9 @@ export function useE2eeEntityPanel(
     const { id, seedOptimistic, persist, onPersistFailure } = options;
     seedOptimistic(id);
     setPanel({ mode: "open", entityId: id });
+    if (!persist) {
+      return;
+    }
     startOpenDraftTransition(async () => {
       const result = await persist(id);
       if (!result) {

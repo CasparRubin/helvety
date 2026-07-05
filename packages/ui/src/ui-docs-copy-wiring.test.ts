@@ -141,10 +141,12 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toContain("useE2eeDashboardSelectedEntity");
     expect(readme).toContain("seedDraft");
     expect(readme).toContain("createWithId");
+    expect(readme).toContain("isPendingDraft");
+    expect(readme).toMatch(/first save|first `update\(\)`/i);
     expect(readme).not.toContain("persist-on-open");
   });
 
-  it("E2EE zone READMEs describe open-first create, not persist-on-open", () => {
+  it("E2EE zone READMEs describe open-first create on first save, not persist-on-open", () => {
     for (const relativePath of [
       "apps/tasks/README.md",
       "apps/notes/README.md",
@@ -153,10 +155,13 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     ]) {
       const readme = readRepoFile(relativePath);
       expect(readme, relativePath).toContain("open-first");
+      expect(readme, relativePath).toMatch(/first save|insert on first save/i);
+      expect(readme, relativePath).toMatch(/isPending/i);
       expect(readme, relativePath).not.toContain("persist-on-open");
       expect(readme, relativePath).not.toMatch(
         /persist a draft row immediately, then open/i
       );
+      expect(readme, relativePath).not.toMatch(/persists in the background/i);
     }
   });
 

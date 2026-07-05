@@ -111,8 +111,10 @@ interface UseLinkLibraryReturn {
     input: LinkInput,
     folderId: string | null
   ) => void;
-  /** Remove a link draft from the in-memory list. */
+  /** Discard a local open-first link draft (unchanged close, delete before first save, or cancel in-flight insert). */
   removeLinkDraft: (id: string) => void;
+  /** True while the link is a local open-first draft not yet on the server. */
+  isPendingLinkDraft: (id: string) => boolean;
   /** Create a link with a pre-generated client id (open-first drafts). */
   createLinkWithId: (
     id: string,
@@ -125,8 +127,10 @@ interface UseLinkLibraryReturn {
     input: LinkFolderInput,
     parentFolderId: string | null
   ) => void;
-  /** Remove a folder draft from the in-memory list. */
+  /** Discard a local open-first folder draft (unchanged close, delete before first save, or cancel in-flight insert). */
   removeFolderDraft: (id: string) => void;
+  /** True while the folder is a local open-first draft not yet on the server. */
+  isPendingFolderDraft: (id: string) => boolean;
   /** Create a folder with a pre-generated client id (open-first drafts). */
   createFolderWithId: (
     id: string,
@@ -318,6 +322,10 @@ export function useLinkLibrary(
     setFolders((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  const isPendingFolderDraft = useCallback((id: string) => {
+    return pendingFolderDraftIdsRef.current.has(id);
+  }, []);
+
   const createFolderWithId = useCallback(
     async (
       id: string,
@@ -403,6 +411,34 @@ export function useLinkLibrary(
         return false;
       }
       try {
+        const existing = folders.find((f) => f.id === id);
+        if (!existing) {
+          return false;
+        }
+
+        if (pendingFolderDraftIdsRef.current.has(id)) {
+          const mergedInput: LinkFolderInput = {
+            name: input.name ?? existing.name,
+          };
+          setFolders((prev) =>
+            patchEntityInList(prev, id, {
+              name: mergedInput.name,
+            })
+          );
+          const created = await createFolderWithId(
+            id,
+            mergedInput,
+            existing.parent_folder_id ?? null
+          );
+          if (!created) {
+            setFolders((prev) =>
+              prev.map((folder) => (folder.id === id ? existing : folder))
+            );
+            return false;
+          }
+          return true;
+        }
+
         const encrypted = await encryptFolderUpdate(id, input, masterKey);
         const result = await updateFolder(
           {
@@ -443,11 +479,15 @@ export function useLinkLibrary(
         return false;
       }
     },
-    [csrfToken, masterKey]
+    [createFolderWithId, csrfToken, folders, masterKey]
   );
 
   const removeFolderFn = useCallback(
     async (id: string): Promise<boolean> => {
+      if (pendingFolderDraftIdsRef.current.has(id)) {
+        removeFolderDraft(id);
+        return true;
+      }
       const result = await deleteFolder(id, csrfToken);
       if (!result.success) {
         reportE2eeActionFailure(result.error, {
@@ -459,7 +499,7 @@ export function useLinkLibrary(
       await refresh();
       return true;
     },
-    [csrfToken, refresh]
+    [csrfToken, refresh, removeFolderDraft]
   );
 
   const seedLinkDraft = useCallback(
@@ -491,6 +531,10 @@ export function useLinkLibrary(
     pendingLinkDraftIdsRef.current.delete(id);
     abortedLinkDraftIdsRef.current.add(id);
     setLinks((prev) => prev.filter((l) => l.id !== id));
+  }, []);
+
+  const isPendingLinkDraft = useCallback((id: string) => {
+    return pendingLinkDraftIdsRef.current.has(id);
   }, []);
 
   const createLinkWithId = useCallback(
@@ -598,6 +642,40 @@ export function useLinkLibrary(
       }
       try {
         const existing = links.find((l) => l.id === id);
+        if (!existing) {
+          return false;
+        }
+
+        if (pendingLinkDraftIdsRef.current.has(id)) {
+          const finalUrl = urlUpdate ?? existing.url;
+          if (!finalUrl) {
+            toast.error("URL is required", { duration: TOAST_DURATIONS.ERROR });
+            return false;
+          }
+          const mergedInput: LinkInput = {
+            name: resolveLinkDisplayName(input.name ?? existing.name, finalUrl),
+            url: finalUrl,
+          };
+          setLinks((prev) =>
+            patchEntityInList(prev, id, {
+              name: mergedInput.name,
+              url: mergedInput.url,
+            })
+          );
+          const created = await createLinkWithId(
+            id,
+            mergedInput,
+            existing.folder_id ?? null
+          );
+          if (!created) {
+            setLinks((prev) =>
+              prev.map((link) => (link.id === id ? existing : link))
+            );
+            return false;
+          }
+          return true;
+        }
+
         const finalUrl = urlUpdate ?? existing?.url;
         const encryptPayload: Partial<LinkInput> = {};
         if (input.name !== undefined || urlUpdate !== undefined) {
@@ -658,11 +736,15 @@ export function useLinkLibrary(
         return false;
       }
     },
-    [csrfToken, links, masterKey]
+    [csrfToken, createLinkWithId, links, masterKey]
   );
 
   const removeLinkFn = useCallback(
     async (id: string): Promise<boolean> => {
+      if (pendingLinkDraftIdsRef.current.has(id)) {
+        removeLinkDraft(id);
+        return true;
+      }
       const result = await deleteLink(id, csrfToken);
       if (!result.success) {
         reportE2eeActionFailure(result.error, {
@@ -674,7 +756,7 @@ export function useLinkLibrary(
       setLinks((prev) => prev.filter((l) => l.id !== id));
       return true;
     },
-    [csrfToken]
+    [csrfToken, removeLinkDraft]
   );
 
   const reorderFoldersFn = useCallback(
@@ -822,9 +904,11 @@ export function useLinkLibrary(
     removeLink: removeLinkFn,
     seedLinkDraft,
     removeLinkDraft,
+    isPendingLinkDraft,
     createLinkWithId,
     seedFolderDraft,
     removeFolderDraft,
+    isPendingFolderDraft,
     createFolderWithId,
     applyTreeDrop: applyTreeDropFn,
   };

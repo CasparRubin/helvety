@@ -7,6 +7,46 @@ export function sampleEncryptedField(ciphertextLength = 24): string {
   });
 }
 
+/** Result shape for owned `.update().eq().eq().select().maybeSingle()` action tests. */
+export interface OwnedUpdateQueryResult {
+  data: { id: string } | null;
+  error: { message: string } | null;
+}
+
+/**
+ * Supabase mock for owned entity updates that verify a row was affected
+ * (`.select("id").maybeSingle()`).
+ */
+export function createOwnedUpdateSupabaseMock(
+  tableName: string,
+  result: OwnedUpdateQueryResult
+): {
+  from: (table: string) => {
+    update: () => {
+      eq: () => {
+        eq: () => {
+          select: () => { maybeSingle: () => Promise<OwnedUpdateQueryResult> };
+        };
+      };
+    };
+  };
+} {
+  const maybeSingle = async () => result;
+  const select = () => ({ maybeSingle });
+  const updateEqUser = () => ({ select });
+  const updateEqId = () => ({ eq: updateEqUser });
+  const update = () => ({ eq: updateEqId });
+
+  return {
+    from: (table: string) => {
+      if (table !== tableName) {
+        throw new Error(`Unexpected table ${table}`);
+      }
+      return { update };
+    },
+  };
+}
+
 /** Standard successful auth guard shape used in action tests. */
 interface AuthSuccessContext<TSupabase> {
   ok: true;

@@ -177,6 +177,20 @@ export function logEncryptedExportRequested(
 }
 
 /**
+ * Returns a failure response when an owned update affected zero rows.
+ * Prevents silent no-ops when a pending open-first draft has not been inserted yet.
+ */
+export function ownedUpdateMissingRow(
+  data: { id: string } | null,
+  notFoundMessage: string
+): { success: false; error: string } | null {
+  if (!data) {
+    return { success: false, error: notFoundMessage };
+  }
+  return null;
+}
+
+/**
  * Assign a field when value is defined.
  */
 export function assignDefinedField(

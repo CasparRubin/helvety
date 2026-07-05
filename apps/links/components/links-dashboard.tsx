@@ -111,7 +111,6 @@ export function LinksDashboard({
   }>({ open: false, type: null, id: null, name: null });
 
   const [isRefreshPending, startRefreshTransition] = useTransition();
-  const [isOpeningDraft, startOpenDraftTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
 
   const closePanel = useCallback(() => {
@@ -126,7 +125,7 @@ export function LinksDashboard({
         const link = library.links.find((l) => l.id === state.id);
         const snapshot = linkDraftSnapshots.current.get(state.id);
         if (link && snapshot && isLinkDraftUnchanged(link, snapshot)) {
-          if (isOpeningDraft) {
+          if (library.isPendingLinkDraft(state.id)) {
             library.removeLinkDraft(state.id);
           } else {
             void library.removeLink(state.id);
@@ -138,7 +137,7 @@ export function LinksDashboard({
       const folder = library.folders.find((f) => f.id === state.id);
       const snapshot = folderDraftSnapshots.current.get(state.id);
       if (folder && snapshot && isFolderDraftUnchanged(folder, snapshot)) {
-        if (isOpeningDraft) {
+        if (library.isPendingFolderDraft(state.id)) {
           library.removeFolderDraft(state.id);
         } else {
           void library.removeFolder(state.id);
@@ -146,7 +145,7 @@ export function LinksDashboard({
       }
       folderDraftSnapshots.current.delete(state.id);
     },
-    [isOpeningDraft, library]
+    [library]
   );
 
   const setPanelWithCleanup = useCallback(
@@ -256,18 +255,6 @@ export function LinksDashboard({
     expandFolder(storageFolderId);
     setCreateParentFolderId(storageFolderId ?? ALL_FOLDER_ID);
     setPanelWithCleanup({ mode: "open", kind: "link", id: draftId });
-    startOpenDraftTransition(async () => {
-      const created = await library.createLinkWithId(
-        draftId,
-        draftInput,
-        storageFolderId
-      );
-      if (!created) {
-        library.removeLinkDraft(draftId);
-        linkDraftSnapshots.current.delete(draftId);
-        setPanelWithCleanup({ mode: "closed" });
-      }
-    });
   }, [
     cleanupDraftIfUnchanged,
     createParentFolderId,
@@ -294,18 +281,6 @@ export function LinksDashboard({
     expandFolder(storageParentId);
     setCreateParentFolderId(storageParentId ?? ALL_FOLDER_ID);
     setPanelWithCleanup({ mode: "open", kind: "folder", id: draftId });
-    startOpenDraftTransition(async () => {
-      const created = await library.createFolderWithId(
-        draftId,
-        draftInput,
-        storageParentId
-      );
-      if (!created) {
-        library.removeFolderDraft(draftId);
-        folderDraftSnapshots.current.delete(draftId);
-        setPanelWithCleanup({ mode: "closed" });
-      }
-    });
   }, [
     cleanupDraftIfUnchanged,
     createParentFolderId,

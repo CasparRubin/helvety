@@ -23,6 +23,7 @@ vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
     createWithId: vi.fn(),
     seedDraft: vi.fn(),
     removeDraft: vi.fn(),
+    isPendingDraft: vi.fn(() => false),
   })),
 }));
 
@@ -67,6 +68,7 @@ describe("useItems", () => {
         perfMeasureName: "notes:list-refresh-duration",
         loadFailureMessage: "Failed to load notes",
         reorderEntities: expect.any(Function),
+        draftInputFromItem: expect.any(Function),
       })
     );
   });

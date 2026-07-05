@@ -1,4 +1,8 @@
-import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
+import {
+  createAuthSuccessContext,
+  createOwnedUpdateSupabaseMock,
+  sampleEncryptedField,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -151,5 +155,41 @@ describe("links folder-actions", () => {
 
     expect(result).toEqual({ success: false, error: "Invalid folder data" });
     expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("updates a folder and revalidates the route", async () => {
+    const supabase = createOwnedUpdateSupabaseMock("link_folders", {
+      data: { id: FOLDER_ID },
+      error: null,
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
+
+    const result = await updateFolder(
+      { id: FOLDER_ID, encrypted_name: sampleEncryptedField() },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
+  });
+
+  it("returns not found when update affects zero rows", async () => {
+    const supabase = createOwnedUpdateSupabaseMock("link_folders", {
+      data: null,
+      error: null,
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
+
+    const result = await updateFolder(
+      { id: FOLDER_ID, encrypted_name: sampleEncryptedField() },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Folder not found" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });

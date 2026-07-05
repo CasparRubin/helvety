@@ -59,7 +59,20 @@ describe("E2EE maintainer doc copy guardrails", () => {
     const text = readRepoFile("docs/app-consistency-checklist.md");
     expect(text).toContain("Open-first create");
     expect(text).toContain("useE2eeDashboardSelectedEntity");
+    expect(text).toContain("isPendingDraft");
+    expect(text).toContain("isPendingFolderDraft");
+    expect(text).toContain("ownedUpdateMissingRow");
+    expect(text).toMatch(/first save/i);
     expect(text).not.toContain("persist-on-open");
+    expect(text).not.toMatch(/background `createWithId`/i);
+  });
+
+  it("sortable-items hook docs do not describe removeDraft as persist-failure-only rollback", () => {
+    const text = readRepoFile(
+      "packages/ui/src/hooks/use-encrypted-sortable-items.ts"
+    );
+    expect(text).not.toContain("rollback on persist failure");
+    expect(text).toMatch(/Discard a local open-first draft/i);
   });
 
   it("security audit documents ENCRYPTION_VERSION = 2 only (no legacy wire v1 support)", () => {

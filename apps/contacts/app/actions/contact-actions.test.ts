@@ -1,5 +1,9 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
-import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
+import {
+  createAuthSuccessContext,
+  createOwnedUpdateSupabaseMock,
+  sampleEncryptedField,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
@@ -268,16 +272,13 @@ describe("contact-actions", () => {
   });
 
   it("revalidates routes after successful update", async () => {
-    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
-    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
-    const update = vi.fn(() => ({ eq: updateEqId }));
-    const supabase = {
-      from: vi.fn(() => ({ update })),
-    };
-    mocks.authenticateAndRateLimit.mockResolvedValue({
-      ctx: { supabase, user: { id: "user-1" } },
-      ok: true,
+    const supabase = createOwnedUpdateSupabaseMock("contacts", {
+      data: { id: "550e8400-e29b-41d4-a716-446655440000" },
+      error: null,
     });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
 
     const result = await updateContact(
       {
@@ -289,6 +290,27 @@ describe("contact-actions", () => {
 
     expect(result).toEqual({ success: true });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/contacts");
+  });
+
+  it("returns not found when update affects zero rows", async () => {
+    const supabase = createOwnedUpdateSupabaseMock("contacts", {
+      data: null,
+      error: null,
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
+
+    const result = await updateContact(
+      {
+        encrypted_first_name: sampleEncryptedField(),
+        id: "550e8400-e29b-41d4-a716-446655440000",
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Contact not found" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it("rejects invalid encrypted payloads on update before DB calls", async () => {

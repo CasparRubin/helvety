@@ -18,6 +18,7 @@ export interface UseE2eeDashboardSelectedEntityOptions<
   entities: TEntity[];
   listIsLoading: boolean;
   listError: string | null;
+  /** Optional: keep the sheet in a loading state while background draft `persist` runs. Dashboards omit this (first-save create). */
   isPersistingDraft?: boolean;
   masterKey: CryptoKey | null;
   isUnlocked: boolean;

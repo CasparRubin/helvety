@@ -1,4 +1,8 @@
-import { sampleEncryptedField } from "@helvety/shared/test-utils/action-test-helpers";
+import {
+  createAuthSuccessContext,
+  createOwnedUpdateSupabaseMock,
+  sampleEncryptedField,
+} from "@helvety/shared/test-utils/action-test-helpers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -139,14 +143,13 @@ describe("links link-actions", () => {
   });
 
   it("updates a link and revalidates the route", async () => {
-    const updateEqUser = vi.fn().mockResolvedValue({ error: null });
-    const updateEqId = vi.fn(() => ({ eq: updateEqUser }));
-    const update = vi.fn(() => ({ eq: updateEqId }));
-    const supabase = { from: vi.fn(() => ({ update })) };
-    mocks.authenticateAndRateLimit.mockResolvedValue({
-      ok: true,
-      ctx: { supabase, user: { id: "user-1" } },
+    const supabase = createOwnedUpdateSupabaseMock("links", {
+      data: { id: LINK_ID },
+      error: null,
     });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
 
     const result = await updateLink(
       { id: LINK_ID, encrypted_name: sampleEncryptedField() },
@@ -155,5 +158,23 @@ describe("links link-actions", () => {
 
     expect(result).toEqual({ success: true });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/links");
+  });
+
+  it("returns not found when update affects zero rows", async () => {
+    const supabase = createOwnedUpdateSupabaseMock("links", {
+      data: null,
+      error: null,
+    });
+    mocks.authenticateAndRateLimit.mockResolvedValue(
+      createAuthSuccessContext(supabase)
+    );
+
+    const result = await updateLink(
+      { id: LINK_ID, encrypted_name: sampleEncryptedField() },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Link not found" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });

@@ -19,7 +19,25 @@ describe("useE2eeEntityPanel", () => {
     expect(result.current.entityId).toBe("abc");
   });
 
-  it("openNewDraft opens immediately and persists in background", async () => {
+  it("openNewDraft opens immediately without background persist when persist is omitted", () => {
+    const { result } = renderHook(() => useE2eeEntityPanel());
+    const seedOptimistic = vi.fn();
+    const persist = vi.fn();
+
+    act(() => {
+      result.current.openNewDraft({
+        id: "new-id",
+        seedOptimistic,
+      });
+    });
+
+    expect(seedOptimistic).toHaveBeenCalledWith("new-id");
+    expect(result.current.entityId).toBe("new-id");
+    expect(result.current.isOpen).toBe(true);
+    expect(persist).not.toHaveBeenCalled();
+  });
+
+  it("openNewDraft opens immediately and persists in background when persist is provided", async () => {
     const { result } = renderHook(() => useE2eeEntityPanel());
     const seedOptimistic = vi.fn();
     const persist = vi.fn().mockResolvedValue({ id: "new-id" });

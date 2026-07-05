@@ -3,7 +3,10 @@
 import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
-import { assignDefinedField } from "@helvety/shared/entity-action-primitives";
+import {
+  assignDefinedField,
+  ownedUpdateMissingRow,
+} from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
 import {
   parseActionInput,
@@ -233,11 +236,13 @@ export async function updateItem(
     assignDefinedField(updateObj, "sort_order", validatedData.sort_order);
 
     // Update item (RLS + explicit user_id check for defense-in-depth)
-    const { error } = await supabase
+    const { data: updatedRow, error } = await supabase
       .from(TASKS_ITEMS_TABLE)
       .update(updateObj)
       .eq("id", validatedData.id)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       logger.logUnexpectedError("Error updating item", error);
@@ -245,6 +250,11 @@ export async function updateItem(
         success: false,
         error: "Failed to update task",
       };
+    }
+
+    const missingRow = ownedUpdateMissingRow(updatedRow, "Task not found");
+    if (missingRow) {
+      return missingRow;
     }
 
     revalidateItemRoutes();

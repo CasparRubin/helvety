@@ -115,6 +115,7 @@ function createHookOptions(
         )
         .toSorted((a, b) => a.sort_order - b.sort_order);
     },
+    draftInputFromItem: (item) => ({ title: item.title }),
     ...overrides,
   };
 }
@@ -500,6 +501,82 @@ describe("useEncryptedSortableItems", () => {
       expect(result.current.items.map((item) => item.id)).toEqual(
         expect.arrayContaining(["item-1", "pending-1"])
       );
+    });
+
+    it("update on a pending draft calls createWithId with merged input, not updateItem", async () => {
+      const createItem = vi.fn().mockResolvedValue({
+        success: true,
+        data: { id: "draft-1" },
+      });
+      const updateItem = vi.fn();
+      const encryptInput = vi.fn().mockResolvedValue({ enc: true });
+      const decryptRows = vi
+        .fn()
+        .mockResolvedValueOnce([sampleItem()])
+        .mockResolvedValueOnce([sampleItem()]);
+      const fetchRows = vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse({ success: true, data: [{ id: "row-1" }] })
+        );
+      const { result } = renderSortableHook({
+        fetchRows,
+        decryptRows,
+        createItem,
+        updateItem,
+        encryptInput,
+      });
+      await waitForLoadedItems(result);
+
+      act(() => {
+        result.current.seedDraft("draft-1", { title: "" });
+      });
+
+      await act(async () => {
+        const ok = await result.current.update("draft-1", { title: "Saved" });
+        expect(ok).toBe(true);
+      });
+
+      expect(encryptInput).toHaveBeenCalledWith(
+        { title: "Saved" },
+        masterKey,
+        "draft-1"
+      );
+      expect(createItem).toHaveBeenCalled();
+      expect(updateItem).not.toHaveBeenCalled();
+    });
+
+    it("remove on a pending draft drops the local row without calling deleteItem", async () => {
+      const deleteItem = vi.fn();
+      const decryptRows = vi
+        .fn()
+        .mockResolvedValueOnce([sampleItem()])
+        .mockResolvedValueOnce([sampleItem()]);
+      const fetchRows = vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse({ success: true, data: [{ id: "row-1" }] })
+        );
+      const { result } = renderSortableHook({
+        fetchRows,
+        decryptRows,
+        deleteItem,
+      });
+      await waitForLoadedItems(result);
+
+      act(() => {
+        result.current.seedDraft("draft-1", { title: "Draft" });
+      });
+
+      await act(async () => {
+        const ok = await result.current.remove("draft-1");
+        expect(ok).toBe(true);
+      });
+
+      expect(deleteItem).not.toHaveBeenCalled();
+      expect(
+        result.current.items.find((item) => item.id === "draft-1")
+      ).toBeUndefined();
     });
   });
 });

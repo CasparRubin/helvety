@@ -69,6 +69,9 @@ assertPatterns("src/lib/entity-repository.ts", [
   "ACTION_LIMITS",
   "@helvety/shared/e2ee-write-guard",
   "assertEncryptedWritePayloadAuto",
+  "assertOwnedRowUpdated",
+  '.select("id")',
+  ".maybeSingle()",
 ]);
 
 assertNoPatterns("src/lib/entity-repository.ts", [

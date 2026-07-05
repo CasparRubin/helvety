@@ -50,6 +50,7 @@ interface UseItemsReturn {
   ) => Promise<{ id: string } | null>;
   seedDraft: (id: string, input: ItemInput) => void;
   removeDraft: (id: string) => void;
+  isPendingDraft: (id: string) => boolean;
   update: (id: string, input: Partial<ItemInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
@@ -143,6 +144,15 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       });
       return updated.toSorted((a, b) => a.sort_order - b.sort_order);
     },
+    draftInputFromItem: (item) => ({
+      title: item.title,
+      description: item.description,
+      start_date: item.start_date,
+      end_date: item.end_date,
+      stage_id: item.stage_id,
+      label_id: item.label_id,
+      priority: item.priority,
+    }),
   });
 }
 

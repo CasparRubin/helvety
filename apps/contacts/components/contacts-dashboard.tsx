@@ -50,22 +50,16 @@ export function ContactsDashboard({
     isRefreshing,
     error,
     refresh,
-    createWithId,
     seedDraft,
     removeDraft,
+    isPendingDraft,
     remove,
     reorder,
     update,
   } = useContacts({ initialEncryptedData: initialEncryptedContacts });
 
-  const {
-    isOpen,
-    entityId,
-    openEntity,
-    closePanel,
-    openNewDraft,
-    isOpeningDraft,
-  } = useE2eeEntityPanelWithUrl("contact");
+  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+    useE2eeEntityPanelWithUrl("contact");
 
   const draftSnapshots = useRef<Map<string, ContactDraftSnapshot>>(new Map());
 
@@ -99,7 +93,6 @@ export function ContactsDashboard({
     entities: contacts,
     listIsLoading: isLoading,
     listError: error,
-    isPersistingDraft: isOpeningDraft,
     masterKey,
     isUnlocked,
     navigationSource: "contacts-dashboard",
@@ -119,7 +112,7 @@ export function ContactsDashboard({
       const contact = contacts.find((c) => c.id === id);
       const snapshot = draftSnapshots.current.get(id);
       if (contact && snapshot && isContactDraftUnchanged(contact, snapshot)) {
-        if (isOpeningDraft) {
+        if (isPendingDraft(id)) {
           removeDraft(id);
         } else {
           void remove(id);
@@ -127,7 +120,7 @@ export function ContactsDashboard({
       }
       draftSnapshots.current.delete(id);
     },
-    [contacts, isOpeningDraft, remove, removeDraft]
+    [contacts, isPendingDraft, remove, removeDraft]
   );
 
   const handleSelectEntity = useCallback(
@@ -181,20 +174,8 @@ export function ContactsDashboard({
         seedDraft(id, draftInput);
         draftSnapshots.current.set(id, snapshot);
       },
-      persist: (id) => createWithId(id, draftInput),
-      onPersistFailure: (id) => {
-        removeDraft(id);
-        draftSnapshots.current.delete(id);
-      },
     });
-  }, [
-    cleanupDraftIfUnchanged,
-    createWithId,
-    entityId,
-    openNewDraft,
-    removeDraft,
-    seedDraft,
-  ]);
+  }, [cleanupDraftIfUnchanged, entityId, openNewDraft, seedDraft]);
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
     setDeleteState({ open: true, id, name });
