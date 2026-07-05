@@ -7,6 +7,7 @@ import {
   getTextShadowProps,
   imageScaleFactor,
   STROKE_WIDTH_BASE,
+  STROKE_WIDTH_MAX,
   STROKE_WIDTH_MIN,
 } from "./default-tool-sizes";
 
@@ -46,6 +47,12 @@ describe("getDefaultToolSizes", () => {
 
   it("scales stroke width down for sub-reference images", () => {
     expect(getDefaultToolSizes(800, 600).strokeWidth).toBe(2);
+  });
+
+  it("clamps scaled stroke width to the slider maximum", () => {
+    expect(getDefaultToolSizes(38400, 21600).strokeWidth).toBe(
+      STROKE_WIDTH_MAX
+    );
   });
 });
 

@@ -59,7 +59,7 @@ vi.mock("@helvety/shared/auth-logger", () => ({
 }));
 
 vi.mock("@helvety/shared/logger", () => ({
-  logger: { logUnexpectedError: vi.fn() },
+  logger: { logUnexpectedError: vi.fn(), warn: vi.fn() },
 }));
 
 vi.mock("@helvety/shared/supabase/admin", () => ({
@@ -104,6 +104,7 @@ vi.mock("@/lib/chrome-extension-origin", () => ({
     chromeOriginMocks.isAllowedChromeExtensionOrigin,
 }));
 
+import { EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR } from "./extension-auth-errors";
 import {
   generateExtensionPasskeyOptions,
   verifyExtensionPasskey,
@@ -222,7 +223,7 @@ describe("extension-passkey", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "Invalid or disallowed origin URL",
+      error: EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
     });
     expect(mocks.generateAuthenticationOptions).not.toHaveBeenCalled();
   });

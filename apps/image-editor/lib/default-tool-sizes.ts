@@ -7,7 +7,7 @@ const FONT_SIZE_MAX = 128;
 
 export const STROKE_WIDTH_BASE = 5;
 export const STROKE_WIDTH_MIN = 2;
-export const STROKE_WIDTH_MAX = 24;
+export const STROKE_WIDTH_MAX = 100;
 
 /** Scale factor from image long edge vs {@link REFERENCE_LONG_EDGE}. */
 export function imageScaleFactor(

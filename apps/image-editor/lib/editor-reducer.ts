@@ -1,6 +1,7 @@
 import { getDefaultToolSizes, STROKE_WIDTH_MIN } from "./default-tool-sizes";
 import {
   DEFAULT_BLUR_RADIUS,
+  DEFAULT_CORNER_RADIUS,
   DEFAULT_DIM_OPACITY,
   DEFAULT_STROKE,
   DEFAULT_TEXT_FILL,
@@ -134,6 +135,7 @@ export interface CreateElementOptions {
   readonly strokeWidth?: number;
   readonly blurRadius?: number;
   readonly dimOpacity?: number;
+  readonly cornerRadius?: number;
 }
 
 /** Creates a text annotation at the given image coordinates. */
@@ -214,6 +216,7 @@ export function createBorderElement(
     height,
     stroke: color ?? DEFAULT_STROKE,
     strokeWidth,
+    cornerRadius: options?.cornerRadius ?? DEFAULT_CORNER_RADIUS,
   };
 }
 
@@ -233,6 +236,7 @@ export function createHighlightElement(
     width,
     height,
     dimOpacity: options?.dimOpacity ?? DEFAULT_DIM_OPACITY,
+    cornerRadius: options?.cornerRadius ?? DEFAULT_CORNER_RADIUS,
   };
 }
 
@@ -252,6 +256,7 @@ export function createBlurElement(
     width,
     height,
     blurRadius: options?.blurRadius ?? DEFAULT_BLUR_RADIUS,
+    cornerRadius: options?.cornerRadius ?? DEFAULT_CORNER_RADIUS,
   };
 }
 

@@ -9,6 +9,11 @@ import {
   createHighlightElement,
   createTextElement,
 } from "@/lib/editor-reducer";
+import {
+  DEFAULT_BLUR_RADIUS,
+  DEFAULT_CORNER_RADIUS,
+  SLIDER_MAX_PX,
+} from "@/lib/editor-types";
 
 import { ImageEditorToolPropertiesBar } from "./image-editor-tool-properties-bar";
 
@@ -30,12 +35,14 @@ function renderToolPropertiesBar(
     selectedId: null,
     toolColor: "#ef4444",
     toolStrokeWidth: 5,
-    toolBlurRadius: 12,
+    toolBlurRadius: DEFAULT_BLUR_RADIUS,
     toolDimOpacity: 0.55,
+    toolCornerRadius: DEFAULT_CORNER_RADIUS,
     onToolColorChange: vi.fn(),
     onToolStrokeWidthChange: vi.fn(),
     onToolBlurRadiusChange: vi.fn(),
     onToolDimOpacityChange: vi.fn(),
+    onToolCornerRadiusChange: vi.fn(),
     onUpdate: vi.fn(),
     ...props,
   };
@@ -68,7 +75,11 @@ describe("ImageEditorToolPropertiesBar", () => {
 
     expect(getRangeInputByLabel(screen, "Blur")).toHaveAttribute(
       "aria-valuenow",
-      "12"
+      String(DEFAULT_BLUR_RADIUS)
+    );
+    expect(getRangeInputByLabel(screen, "Radius")).toHaveAttribute(
+      "aria-valuenow",
+      String(DEFAULT_CORNER_RADIUS)
     );
     expect(screen.queryByLabelText("Color")).not.toBeInTheDocument();
   });
@@ -101,6 +112,10 @@ describe("ImageEditorToolPropertiesBar", () => {
       "aria-valuenow",
       "0.55"
     );
+    expect(getRangeInputByLabel(screen, "Radius")).toHaveAttribute(
+      "aria-valuenow",
+      String(DEFAULT_CORNER_RADIUS)
+    );
     expect(screen.queryByLabelText("Color")).not.toBeInTheDocument();
   });
 
@@ -115,7 +130,9 @@ describe("ImageEditorToolPropertiesBar", () => {
     slider.focus();
     fireEvent.keyDown(slider, { key: "ArrowRight" });
 
-    expect(onToolBlurRadiusChange).toHaveBeenCalledWith(13);
+    expect(onToolBlurRadiusChange).toHaveBeenCalledWith(
+      DEFAULT_BLUR_RADIUS + 1
+    );
   });
 
   it("wires tool dim opacity while the highlight tool is active", () => {
@@ -222,7 +239,9 @@ describe("ImageEditorToolPropertiesBar", () => {
     blurSlider.focus();
     fireEvent.keyDown(blurSlider, { key: "ArrowRight" });
 
-    expect(onUpdate).toHaveBeenCalledWith(blur.id, { blurRadius: 13 });
+    expect(onUpdate).toHaveBeenCalledWith(blur.id, {
+      blurRadius: DEFAULT_BLUR_RADIUS + 1,
+    });
   });
 
   it("updates selected border dimensions", () => {
@@ -241,5 +260,66 @@ describe("ImageEditorToolPropertiesBar", () => {
     });
 
     expect(onUpdate).toHaveBeenCalledWith(border.id, { width: 100 });
+  });
+
+  it("allows stroke values above the slider max via number input", () => {
+    const onToolStrokeWidthChange = vi.fn();
+    renderToolPropertiesBar({
+      activeTool: "border",
+      onToolStrokeWidthChange,
+    });
+
+    fireEvent.change(screen.getByLabelText("Stroke value"), {
+      target: { value: "150" },
+    });
+
+    expect(onToolStrokeWidthChange).toHaveBeenCalledWith(150);
+  });
+
+  it("allows blur values above the slider max via number input", () => {
+    const onToolBlurRadiusChange = vi.fn();
+    renderToolPropertiesBar({
+      activeTool: "blur",
+      onToolBlurRadiusChange,
+    });
+
+    fireEvent.change(screen.getByLabelText("Blur value"), {
+      target: { value: String(SLIDER_MAX_PX + 50) },
+    });
+
+    expect(onToolBlurRadiusChange).toHaveBeenCalledWith(SLIDER_MAX_PX + 50);
+  });
+
+  it("updates selected corner radius for rect annotations", () => {
+    const border = createBorderElement(0, 0, 80, 60, "#ff0000");
+    const onUpdate = vi.fn();
+
+    renderToolPropertiesBar({
+      activeTool: "select",
+      elements: [border],
+      selectedId: border.id,
+      onUpdate,
+    });
+
+    fireEvent.change(screen.getByLabelText("Radius value"), {
+      target: { value: "0" },
+    });
+
+    expect(onUpdate).toHaveBeenCalledWith(border.id, { cornerRadius: 0 });
+  });
+
+  it("caps the stroke slider thumb at the slider max while keeping a higher input value", () => {
+    renderToolPropertiesBar({
+      activeTool: "border",
+      toolStrokeWidth: SLIDER_MAX_PX + 25,
+    });
+
+    expect(getRangeInputByLabel(screen, "Stroke")).toHaveAttribute(
+      "aria-valuenow",
+      String(SLIDER_MAX_PX)
+    );
+    expect(screen.getByLabelText("Stroke value")).toHaveValue(
+      SLIDER_MAX_PX + 25
+    );
   });
 });

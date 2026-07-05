@@ -25,6 +25,7 @@ interface EditorCanvasProps {
   readonly toolStrokeWidth: number;
   readonly toolBlurRadius: number;
   readonly toolDimOpacity: number;
+  readonly toolCornerRadius: number;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }

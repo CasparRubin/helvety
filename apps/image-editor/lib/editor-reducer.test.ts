@@ -11,7 +11,11 @@ import {
   initialEditorState,
   normalizeRect,
 } from "./editor-reducer";
-import { DEFAULT_BLUR_RADIUS, DEFAULT_DIM_OPACITY } from "./editor-types";
+import {
+  DEFAULT_BLUR_RADIUS,
+  DEFAULT_CORNER_RADIUS,
+  DEFAULT_DIM_OPACITY,
+} from "./editor-types";
 
 describe("editorReducer", () => {
   it("adds, updates, deletes, and reorders elements", () => {
@@ -184,21 +188,34 @@ describe("editorReducer", () => {
     expect(text.fontSize).toBe(48);
   });
 
-  it("uses default blur and dim values when options are omitted", () => {
+  it("uses default blur, dim, and corner radius when options are omitted", () => {
     expect(createBlurElement(0, 0, 10, 10).blurRadius).toBe(
       DEFAULT_BLUR_RADIUS
     );
     expect(createHighlightElement(0, 0, 10, 10).dimOpacity).toBe(
       DEFAULT_DIM_OPACITY
     );
+    expect(createBorderElement(0, 0, 10, 10).cornerRadius).toBe(
+      DEFAULT_CORNER_RADIUS
+    );
+    expect(createHighlightElement(0, 0, 10, 10).cornerRadius).toBe(
+      DEFAULT_CORNER_RADIUS
+    );
+    expect(createBlurElement(0, 0, 10, 10).cornerRadius).toBe(
+      DEFAULT_CORNER_RADIUS
+    );
   });
 
-  it("honours explicit blur radius and dim opacity overrides", () => {
+  it("honours explicit blur radius, dim opacity, and corner radius overrides", () => {
     expect(createBlurElement(0, 0, 10, 10, { blurRadius: 24 }).blurRadius).toBe(
       24
     );
     expect(
       createHighlightElement(0, 0, 10, 10, { dimOpacity: 0.35 }).dimOpacity
     ).toBe(0.35);
+    expect(
+      createBorderElement(0, 0, 10, 10, undefined, { cornerRadius: 0 })
+        .cornerRadius
+    ).toBe(0);
   });
 });

@@ -20,6 +20,7 @@ vi.mock("@helvety/shared/extension-weekly-proof-server", () => ({
   mintExtensionWeeklyProof: mocks.mintExtensionWeeklyProof,
 }));
 
+import { EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR } from "./extension-auth-errors";
 import { sendExtensionOtp, verifyExtensionOtp } from "./extension-otp";
 import { VALID_OTP_CODE } from "./otp-test-fixtures";
 
@@ -44,7 +45,7 @@ describe("extension-otp", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toContain("HELVETY_CHROME_EXTENSION_ORIGINS");
+      expect(result.error).toBe(EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR);
     }
     expect(mocks.sendOtpVerificationCodeCore).not.toHaveBeenCalled();
   });

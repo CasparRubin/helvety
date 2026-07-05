@@ -3,6 +3,10 @@ import { logger } from "@helvety/shared/logger";
 import { NextResponse } from "next/server";
 
 import {
+  extensionOriginParseBodyError,
+  extractExtensionOriginFromBody,
+} from "@/lib/extension-auth-errors";
+import {
   ExtensionOtpSendBodySchema,
   sendExtensionOtp,
   type ExtensionOtpSendPayload,
@@ -31,16 +35,9 @@ export async function POST(
 
     const parsed = ExtensionOtpSendBodySchema.safeParse(body);
     if (!parsed.success) {
-      const origin =
-        typeof body === "object" &&
-        body !== null &&
-        "origin" in body &&
-        typeof (body as { origin?: unknown }).origin === "string"
-          ? (body as { origin: string }).origin
-          : null;
-      const error = origin?.startsWith("chrome-extension://")
-        ? "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy."
-        : "Invalid request body";
+      const error = extensionOriginParseBodyError(
+        extractExtensionOriginFromBody(body)
+      );
       return NextResponse.json(
         { success: false, error },
         { status: 400, headers: NO_STORE_HEADERS }

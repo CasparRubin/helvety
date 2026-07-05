@@ -29,6 +29,7 @@ import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
 import {
   DEFAULT_STROKE,
   DEFAULT_BLUR_RADIUS,
+  DEFAULT_CORNER_RADIUS,
   DEFAULT_DIM_OPACITY,
 } from "@/lib/editor-types";
 import { exportEditedImage } from "@/lib/export-image";
@@ -59,6 +60,9 @@ export function HelvetyImageEditor(): React.JSX.Element {
     React.useState(DEFAULT_BLUR_RADIUS);
   const [toolDimOpacity, setToolDimOpacity] =
     React.useState(DEFAULT_DIM_OPACITY);
+  const [toolCornerRadius, setToolCornerRadius] = React.useState(
+    DEFAULT_CORNER_RADIUS
+  );
 
   const logicalWidth = source ? (state.crop?.width ?? source.naturalWidth) : 0;
   const logicalHeight = source
@@ -289,10 +293,12 @@ export function HelvetyImageEditor(): React.JSX.Element {
         toolStrokeWidth={toolStrokeWidth}
         toolBlurRadius={toolBlurRadius}
         toolDimOpacity={toolDimOpacity}
+        toolCornerRadius={toolCornerRadius}
         onToolColorChange={setToolColor}
         onToolStrokeWidthChange={setToolStrokeWidth}
         onToolBlurRadiusChange={setToolBlurRadius}
         onToolDimOpacityChange={setToolDimOpacity}
+        onToolCornerRadiusChange={setToolCornerRadius}
         onUpdate={(id, patch) =>
           dispatch({ type: "UPDATE_ELEMENT", id, patch })
         }
@@ -339,6 +345,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
                   toolStrokeWidth={toolStrokeWidth}
                   toolBlurRadius={toolBlurRadius}
                   toolDimOpacity={toolDimOpacity}
+                  toolCornerRadius={toolCornerRadius}
                   pendingCrop={pendingCrop}
                   onCropDraftChange={setPendingCrop}
                 />

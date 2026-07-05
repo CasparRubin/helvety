@@ -73,6 +73,7 @@ interface EditorStageProps {
   readonly toolStrokeWidth: number;
   readonly toolBlurRadius: number;
   readonly toolDimOpacity: number;
+  readonly toolCornerRadius: number;
   readonly pendingCrop: CropRect | null;
   readonly onCropDraftChange: (crop: CropRect) => void;
 }
@@ -89,6 +90,7 @@ export function EditorStage({
   toolStrokeWidth,
   toolBlurRadius,
   toolDimOpacity,
+  toolCornerRadius,
   pendingCrop,
   onCropDraftChange,
 }: EditorStageProps): React.JSX.Element {
@@ -174,8 +176,16 @@ export function EditorStage({
       strokeWidth: toolStrokeWidth,
       blurRadius: toolBlurRadius,
       dimOpacity: toolDimOpacity,
+      cornerRadius: toolCornerRadius,
     }),
-    [imageWidth, imageHeight, toolStrokeWidth, toolBlurRadius, toolDimOpacity]
+    [
+      imageWidth,
+      imageHeight,
+      toolStrokeWidth,
+      toolBlurRadius,
+      toolDimOpacity,
+      toolCornerRadius,
+    ]
   );
 
   const getImagePointer = useCallback((): { x: number; y: number } | null => {
@@ -547,6 +557,7 @@ export function EditorStage({
                 toolColor={toolColor}
                 toolStrokeWidth={toolStrokeWidth}
                 toolDimOpacity={toolDimOpacity}
+                toolCornerRadius={toolCornerRadius}
               />
             ) : null}
 

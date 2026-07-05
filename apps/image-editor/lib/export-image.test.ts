@@ -14,6 +14,7 @@ import {
   createTextElement,
   initialEditorState,
 } from "./editor-reducer";
+import { DEFAULT_CORNER_RADIUS } from "./editor-types";
 import {
   exportEditedImage,
   getImagePointerFromStage,
@@ -198,11 +199,15 @@ describe("export-image helpers", () => {
     expect(borderNode?.attrs.x).toBe(20);
     expect(borderNode?.attrs.y).toBe(30);
     expect(borderNode?.attrs.strokeWidth).toBe(4);
+    expect(borderNode?.attrs.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
   });
 
   it("renders blur regions with filters into the export layer", async () => {
     const image = new MockImage() as unknown as HTMLImageElement;
-    const blur = createBlurElement(40, 30, 120, 90, { blurRadius: 18 });
+    const blur = createBlurElement(40, 30, 120, 90, {
+      blurRadius: 18,
+      cornerRadius: 0,
+    });
     const state = {
       ...initialEditorState,
       elements: [blur],
@@ -221,7 +226,85 @@ describe("export-image helpers", () => {
     );
     expect(blurNode).toBeDefined();
     expect(blurNode?.attrs.blurRadius).toBe(18);
+    expect(blurNode?.attrs.cornerRadius).toBe(0);
     expect(blurNode?.cache).toHaveBeenCalled();
+  });
+
+  it("renders rounded blur regions with corner radius on the export node", async () => {
+    const image = new MockImage() as unknown as HTMLImageElement;
+    const blur = createBlurElement(40, 30, 120, 90, {
+      blurRadius: 18,
+      cornerRadius: DEFAULT_CORNER_RADIUS,
+    });
+    const state = {
+      ...initialEditorState,
+      elements: [blur],
+    };
+
+    await exportEditedImage(image, state, "png");
+
+    const blurNode = konvaTestLayerAdds.find(
+      (node): node is { attrs: Record<string, unknown> } =>
+        typeof node === "object" &&
+        node !== null &&
+        "attrs" in node &&
+        Array.isArray(
+          (node as { attrs: Record<string, unknown> }).attrs.filters
+        )
+    );
+    expect(blurNode?.attrs.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
+  });
+
+  it("renders rounded highlights with a cutout shape instead of strip rects", async () => {
+    const image = new MockImage() as unknown as HTMLImageElement;
+    const highlight = createHighlightElement(50, 50, 100, 80, {
+      cornerRadius: DEFAULT_CORNER_RADIUS,
+    });
+    const state = {
+      ...initialEditorState,
+      elements: [highlight],
+    };
+
+    await exportEditedImage(image, state, "png");
+
+    const cutoutNode = konvaTestLayerAdds.find(
+      (node): node is { attrs: Record<string, unknown> } =>
+        typeof node === "object" &&
+        node !== null &&
+        "attrs" in node &&
+        typeof (node as { attrs: Record<string, unknown> }).attrs.sceneFunc ===
+          "function"
+    );
+    expect(cutoutNode).toBeDefined();
+  });
+
+  it("renders straight highlights with strip rects when corner radius is zero", async () => {
+    const image = new MockImage() as unknown as HTMLImageElement;
+    const highlight = createHighlightElement(50, 50, 100, 80, {
+      cornerRadius: 0,
+    });
+    const state = {
+      ...initialEditorState,
+      elements: [highlight],
+    };
+
+    await exportEditedImage(image, state, "png");
+
+    const cutoutNode = konvaTestLayerAdds.find(
+      (node): node is { attrs: Record<string, unknown> } =>
+        typeof node === "object" &&
+        node !== null &&
+        "attrs" in node &&
+        typeof (node as { attrs: Record<string, unknown> }).attrs.sceneFunc ===
+          "function"
+    );
+    const stripGroup = konvaTestLayerAdds.find(
+      (node): node is { add: ReturnType<typeof vi.fn> } =>
+        typeof node === "object" && node !== null && "add" in node
+    );
+
+    expect(cutoutNode).toBeUndefined();
+    expect(stripGroup).toBeDefined();
   });
 });
 

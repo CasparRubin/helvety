@@ -2,12 +2,19 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRateLimitedUserMessage,
+  EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
   GENERIC_USER_ERROR,
 } from "./user-facing-errors";
 
 describe("user-facing-errors", () => {
   it("exposes a stable generic user error string", () => {
     expect(GENERIC_USER_ERROR).toBe("Something went wrong");
+  });
+
+  it("exposes extension allowlist user error copy", () => {
+    expect(EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR).toContain(
+      "not authorized to sign in yet"
+    );
   });
 
   it("builds default rate-limit copy with fallback seconds", () => {

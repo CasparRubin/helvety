@@ -41,6 +41,7 @@ vi.mock("@/lib/canvas-export-limits", () => ({
 
 import { clampOutputDimensions } from "@/lib/canvas-export-limits";
 import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
+import { DEFAULT_BLUR_RADIUS, DEFAULT_CORNER_RADIUS } from "@/lib/editor-types";
 import { exportEditedImage } from "@/lib/export-image";
 
 import { HelvetyImageEditor } from "./helvety-image-editor";
@@ -183,13 +184,21 @@ describe("HelvetyImageEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Blur" }));
     expect(getRangeInputByLabel(screen, "Blur")).toHaveAttribute(
       "aria-valuenow",
-      "12"
+      String(DEFAULT_BLUR_RADIUS)
+    );
+    expect(getRangeInputByLabel(screen, "Radius")).toHaveAttribute(
+      "aria-valuenow",
+      String(DEFAULT_CORNER_RADIUS)
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Highlight" }));
     expect(getRangeInputByLabel(screen, "Dim")).toHaveAttribute(
       "aria-valuenow",
       "0.55"
+    );
+    expect(getRangeInputByLabel(screen, "Radius")).toHaveAttribute(
+      "aria-valuenow",
+      String(DEFAULT_CORNER_RADIUS)
     );
   });
 

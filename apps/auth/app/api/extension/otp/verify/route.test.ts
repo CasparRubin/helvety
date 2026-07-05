@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  EXTENSION_INVALID_REQUEST_BODY_ERROR,
+  EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
+} from "@/lib/extension-auth-errors";
 import { VALID_OTP_CODE } from "@/lib/otp-test-fixtures";
 
 import { POST } from "./route";
@@ -7,6 +11,7 @@ import { POST } from "./route";
 import type * as ExtensionOtp from "@/lib/extension-otp";
 
 const ALLOWED_ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
+const BLOCKED_ORIGIN = "chrome-extension://notonthelistabcdefghijklmnop";
 
 const mocks = vi.hoisted(() => ({
   verifyExtensionOtp: vi.fn(),
@@ -35,6 +40,7 @@ vi.mock("@helvety/shared/client-ip", () => ({
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
     logUnexpectedError: mocks.logUnexpectedError,
+    warn: vi.fn(),
   },
 }));
 
@@ -63,41 +69,36 @@ describe("auth extension OTP verify route", () => {
     expect(response.status).toBe(400);
   });
 
-  it("returns 503 when trusted client IP is unavailable", async () => {
-    mocks.getTrustedClientIp.mockReturnValue(null);
+  it("returns invalid body when origin is allowlisted but other fields are missing", async () => {
     const response = await POST(
       new Request("https://auth.helvety.com/api/extension/otp/verify", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: "user@example.com",
-          code: VALID_OTP_CODE,
-          origin: ALLOWED_ORIGIN,
-        }),
+        body: JSON.stringify({ origin: ALLOWED_ORIGIN }),
       })
     );
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: EXTENSION_INVALID_REQUEST_BODY_ERROR,
+    });
     expect(mocks.verifyExtensionOtp).not.toHaveBeenCalled();
   });
 
-  it("delegates to verifyExtensionOtp on valid body", async () => {
+  it("returns allowlist user error when origin is chrome-extension but not allowlisted", async () => {
     const response = await POST(
       new Request("https://auth.helvety.com/api/extension/otp/verify", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: "user@example.com",
-          code: VALID_OTP_CODE,
-          origin: ALLOWED_ORIGIN,
-        }),
+        body: JSON.stringify({ origin: BLOCKED_ORIGIN }),
       })
     );
-    expect(response.status).toBe(200);
-    expect(mocks.verifyExtensionOtp).toHaveBeenCalledWith({
-      email: "user@example.com",
-      code: VALID_OTP_CODE,
-      origin: ALLOWED_ORIGIN,
-      clientIP: "127.0.0.1",
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
     });
+    expect(mocks.verifyExtensionOtp).not.toHaveBeenCalled();
   });
-});
+
+  it("returns generic inval

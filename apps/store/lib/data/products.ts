@@ -706,7 +706,7 @@ const helvetyImageEditor: SaaSProduct = {
   category: cHelvetyImageEditor.category,
   description: {
     intro:
-      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, spotlight highlights, blur regions, and crops with a layers panel for reordering and selection, a tool properties bar with color pickers and sliders for stroke, blur, and dim settings, and zoom for detail work on large screenshots. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
+      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, spotlight highlights, blur regions, and crops with a layers panel for reordering and selection, a tool properties bar with color pickers plus sliders and number inputs for stroke, blur, dim, and corner radius, and zoom for detail work on large screenshots. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access model",
@@ -718,10 +718,10 @@ const helvetyImageEditor: SaaSProduct = {
         kind: "bullets",
         items: [
           "Select, move, and resize annotations on a layered canvas.",
-          "Add text, tapered arrows, bordered boxes, spotlight highlights, and blur regions.",
+          "Add text, tapered arrows, bordered boxes, spotlight highlights, and blur regions with straight or rounded corners.",
           "Crop the canvas and export PNG or JPEG at full resolution when your browser allows.",
           "Reorder or delete layers from the right-hand panel on desktop or the mobile layers sheet.",
-          "Zoom in and out, reset fit-to-view, and set colors, stroke width, blur radius, and dim opacity in the tool properties bar (sliders scale defaults to your image size).",
+          "Zoom in and out, reset fit-to-view, and set colors, stroke width, blur radius, dim opacity, and corner radius in the tool properties bar (sliders scale defaults to your image size; number inputs allow finer or larger values).",
         ],
       },
       {
@@ -736,7 +736,7 @@ const helvetyImageEditor: SaaSProduct = {
   features: [
     "Text, arrow, border, highlight, blur, and crop tools",
     "Layers panel with reorder, select, and delete",
-    "Tool properties bar with color pickers, sliders for stroke/blur/dim/font size, and per-layer edits",
+    "Tool properties bar with color pickers, sliders and number inputs for stroke/blur/dim/corner radius/font size, and per-layer edits",
     "Zoom and fit-to-view for large screenshots",
     "PNG and JPEG export at full resolution",
     "No login or account required",

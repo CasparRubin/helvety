@@ -68,7 +68,12 @@ class Text {
   }
 }
 
-class Shape {}
+class Shape {
+  attrs: Record<string, unknown>;
+  constructor(attrs: Record<string, unknown> = {}) {
+    this.attrs = attrs;
+  }
+}
 
 const Konva = {
   Stage,

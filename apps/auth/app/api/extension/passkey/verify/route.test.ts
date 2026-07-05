@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR } from "@/lib/extension-auth-errors";
+
 import { POST } from "./route";
 
 import type * as ExtensionPasskey from "@/lib/extension-passkey";
@@ -44,6 +46,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
     logUnexpectedError: mocks.logUnexpectedError,
+    warn: vi.fn(),
   },
 }));
 
@@ -119,8 +122,7 @@ describe("auth extension passkey verify route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error:
-        "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy.",
+      error: EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
     });
     expect(mocks.verifyExtensionPasskey).not.toHaveBeenCalled();
   });

@@ -1,6 +1,6 @@
 # Helvety Image Editor
 
-> Annotate PNG, JPEG, or WebP in your browser on your device. Add text, arrows, borders, spotlight highlights, blur, and crop, with a layers panel and zoom. No image upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
+> Annotate PNG, JPEG, or WebP in your browser on your device. Add text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable stroke, blur, and corner radius; layers panel and zoom. No image upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety Image Editor](https://helvety.com/image-editor): Main application route

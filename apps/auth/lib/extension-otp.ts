@@ -3,7 +3,7 @@ import "server-only";
 import { mintExtensionWeeklyProof } from "@helvety/shared/extension-weekly-proof-server";
 import { z } from "zod";
 
-import { isAllowedChromeExtensionOrigin } from "@/lib/chrome-extension-origin";
+import { extensionOriginRejectedResponse } from "@/lib/extension-auth-errors";
 import {
   sendOtpVerificationCodeCore,
   verifyOtpCodeCore,
@@ -34,12 +34,9 @@ export async function sendExtensionOtp(input: {
   origin: string;
   clientIP: string;
 }): Promise<ActionResponse<ExtensionOtpSendPayload>> {
-  if (!isAllowedChromeExtensionOrigin(input.origin)) {
-    return {
-      success: false,
-      error:
-        "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy.",
-    };
+  const originRejected = extensionOriginRejectedResponse(input.origin);
+  if (originRejected) {
+    return originRejected;
   }
 
   const result = await sendOtpVerificationCodeCore(
@@ -65,12 +62,9 @@ export async function verifyExtensionOtp(input: {
   origin: string;
   clientIP: string;
 }): Promise<ActionResponse<ExtensionOtpVerifySessionPayload>> {
-  if (!isAllowedChromeExtensionOrigin(input.origin)) {
-    return {
-      success: false,
-      error:
-        "Extension id is not allowlisted on helvety-auth (HELVETY_CHROME_EXTENSION_ORIGINS). Add the id from About → Extension ID on Vercel, then redeploy.",
-    };
+  const originRejected = extensionOriginRejectedResponse(input.origin);
+  if (originRejected) {
+    return originRejected;
   }
 
   return verifyOtpCodeCore(input.email, input.code, input.clientIP).then(

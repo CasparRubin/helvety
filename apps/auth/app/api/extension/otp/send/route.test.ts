@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR } from "@/lib/extension-auth-errors";
+
 import { POST } from "./route";
 
 import type * as ExtensionOtp from "@/lib/extension-otp";
 
 const ALLOWED_ORIGIN = "chrome-extension://abcdefghijklmnopqrstuvwxyzabcdef";
+const BLOCKED_ORIGIN = "chrome-extension://notonthelistabcdefghijklmnop";
 
 const mocks = vi.hoisted(() => ({
   sendExtensionOtp: vi.fn(),
@@ -33,6 +36,7 @@ vi.mock("@helvety/shared/client-ip", () => ({
 vi.mock("@helvety/shared/logger", () => ({
   logger: {
     logUnexpectedError: mocks.logUnexpectedError,
+    warn: vi.fn(),
   },
 }));
 
@@ -56,7 +60,7 @@ describe("auth extension OTP send route", () => {
     expect(response.status).toBe(400);
   });
 
-  it("returns allowlist deployment hint when body is invalid but origin is chrome-extension", async () => {
+  it("returns invalid body when origin is allowlisted but other fields are missing", async () => {
     const response = await POST(
       new Request("https://auth.helvety.com/api/extension/otp/send", {
         method: "POST",
@@ -67,7 +71,23 @@ describe("auth extension OTP send route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: expect.stringContaining("HELVETY_CHROME_EXTENSION_ORIGINS"),
+      error: "Invalid request body",
+    });
+    expect(mocks.sendExtensionOtp).not.toHaveBeenCalled();
+  });
+
+  it("returns allowlist user error when origin is chrome-extension but not allowlisted", async () => {
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/otp/send", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ origin: BLOCKED_ORIGIN }),
+      })
+    );
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
     });
     expect(mocks.sendExtensionOtp).not.toHaveBeenCalled();
   });

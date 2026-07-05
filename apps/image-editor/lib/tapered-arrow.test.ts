@@ -33,6 +33,16 @@ describe("buildTaperedArrowPoints", () => {
     expect(headSpread / tailSpread).toBeGreaterThanOrEqual(2.5);
   });
 
+  it("widens the shaft near the neck without matching head width", () => {
+    const strokeWidth = 8;
+    const points = buildTaperedArrowPoints(0, 0, 100, 0, strokeWidth);
+    const neckHalf = Math.abs(points[3]! - points[11]!) / 2;
+    const headHalf = Math.abs(points[5]! - points[9]!) / 2;
+
+    expect(neckHalf).toBeGreaterThan(strokeWidth * 0.8);
+    expect(neckHalf).toBeLessThan(headHalf);
+  });
+
   it("uses a single tip vertex without lateral tip flare", () => {
     const points = buildTaperedArrowPoints(0, 0, 100, 0, 8);
 

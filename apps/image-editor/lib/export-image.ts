@@ -1,6 +1,7 @@
 import Konva from "konva";
 
 import { getTextShadowProps } from "./default-tool-sizes";
+import { clampCornerRadius, drawSpotlightCutout } from "./spotlight-cutout";
 import { buildSpotlightRects } from "./spotlight-rects";
 import { buildTaperedArrowPoints } from "./tapered-arrow";
 
@@ -34,6 +35,13 @@ function addBlurNode(
   sourceImage: HTMLImageElement,
   crop: CropRect
 ): void {
+  const cornerRadius = element.cornerRadius ?? 0;
+  const clippedRadius = clampCornerRadius(
+    cornerRadius,
+    element.width,
+    element.height
+  );
+
   const node = new Konva.Image({
     image: sourceImage,
     x: element.x - crop.x,
@@ -48,8 +56,10 @@ function addBlurNode(
     },
     filters: [Konva.Filters.Blur],
     blurRadius: element.blurRadius,
+    cornerRadius: clippedRadius,
     listening: false,
   });
+
   node.cache();
   layer.add(node);
 }
@@ -64,6 +74,28 @@ function addHighlightNode(
 ): void {
   const holeX = element.x - crop.x;
   const holeY = element.y - crop.y;
+  const cornerRadius = element.cornerRadius ?? 0;
+
+  if (cornerRadius > 0) {
+    const shape = new Konva.Shape({
+      listening: false,
+      sceneFunc: (context) => {
+        drawSpotlightCutout(context._context, {
+          stageWidth,
+          stageHeight,
+          holeX,
+          holeY,
+          holeWidth: element.width,
+          holeHeight: element.height,
+          cornerRadius,
+          opacity: element.dimOpacity,
+        });
+      },
+    });
+    layer.add(shape);
+    return;
+  }
+
   const group = new Konva.Group({ listening: false });
 
   for (const rect of buildSpotlightRects(
@@ -113,6 +145,11 @@ function addElementToLayer(
           y: element.y - crop.y,
           width: element.width,
           height: element.height,
+          cornerRadius: clampCornerRadius(
+            element.cornerRadius ?? 0,
+            element.width,
+            element.height
+          ),
           stroke: element.stroke,
           strokeWidth: element.strokeWidth,
           listening: false,

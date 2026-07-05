@@ -6,8 +6,9 @@ import { Label } from "@helvety/ui/label";
 import { Slider } from "@helvety/ui/slider";
 import * as React from "react";
 
-import { STROKE_WIDTH_MAX, STROKE_WIDTH_MIN } from "@/lib/default-tool-sizes";
+import { STROKE_WIDTH_MIN } from "@/lib/default-tool-sizes";
 import { elementLabel } from "@/lib/editor-reducer";
+import { SLIDER_MAX_PX } from "@/lib/editor-types";
 
 import type { EditorElement, EditorTool } from "@/lib/editor-types";
 
@@ -23,10 +24,12 @@ interface ImageEditorToolPropertiesBarProps {
   readonly toolStrokeWidth: number;
   readonly toolBlurRadius: number;
   readonly toolDimOpacity: number;
+  readonly toolCornerRadius: number;
   readonly onToolColorChange: (color: string) => void;
   readonly onToolStrokeWidthChange: (width: number) => void;
   readonly onToolBlurRadiusChange: (radius: number) => void;
   readonly onToolDimOpacityChange: (opacity: number) => void;
+  readonly onToolCornerRadiusChange: (radius: number) => void;
   readonly onUpdate: (id: string, patch: Partial<EditorElement>) => void;
 }
 
@@ -59,13 +62,13 @@ function ToolColorPicker({
   );
 }
 
-/** Label + slider + formatted value for bounded numeric properties. */
+/** Label + slider (capped) + number input (unlimited above slider max). */
 function PropertySlider({
   id,
   label,
   value,
   min,
-  max,
+  sliderMax,
   step,
   formatValue,
   onChange,
@@ -74,29 +77,51 @@ function PropertySlider({
   readonly label: string;
   readonly value: number;
   readonly min: number;
-  readonly max: number;
+  readonly sliderMax: number;
   readonly step: number;
   readonly formatValue: (value: number) => string;
   readonly onChange: (value: number) => void;
 }): React.JSX.Element {
+  const sliderValue = Math.min(Math.max(value, min), sliderMax);
+  const inputId = `${id}-input`;
+
+  const commitValue = (raw: string) => {
+    const next = Number(raw);
+    if (!Number.isFinite(next) || next < min) {
+      return;
+    }
+    onChange(next);
+  };
+
   return (
-    <div className="flex min-w-[10rem] items-center gap-2">
-      <Label htmlFor={id} className="text-muted-foreground shrink-0 text-xs">
+    <div className="flex min-w-[12rem] items-center gap-2">
+      <Label
+        htmlFor={inputId}
+        className="text-muted-foreground shrink-0 text-xs"
+      >
         {label}
       </Label>
       <Slider
         id={id}
         min={min}
-        max={max}
+        max={sliderMax}
         step={step}
-        value={value}
+        value={sliderValue}
         onValueChange={(next) => onChange(next as number)}
         aria-label={label}
         className="w-24"
       />
-      <span className="text-muted-foreground w-10 shrink-0 text-xs tabular-nums">
-        {formatValue(value)}
-      </span>
+      <Input
+        id={inputId}
+        type="number"
+        min={min}
+        step={step}
+        value={value}
+        onChange={(event) => commitValue(event.target.value)}
+        className="h-8 w-16 px-2 text-xs tabular-nums"
+        aria-label={`${label} value`}
+      />
+      <span className="sr-only">{formatValue(value)}</span>
     </div>
   );
 }
@@ -111,10 +136,12 @@ export function ImageEditorToolPropertiesBar({
   toolStrokeWidth,
   toolBlurRadius,
   toolDimOpacity,
+  toolCornerRadius,
   onToolColorChange,
   onToolStrokeWidthChange,
   onToolBlurRadiusChange,
   onToolDimOpacityChange,
+  onToolCornerRadiusChange,
   onUpdate,
 }: ImageEditorToolPropertiesBarProps): React.JSX.Element | null {
   const selected = elements.find((element) => element.id === selectedId);
@@ -133,6 +160,11 @@ export function ImageEditorToolPropertiesBar({
     activeTool === "text" || activeTool === "arrow" || activeTool === "border";
 
   const isDimDrawingTool = activeTool === "blur" || activeTool === "highlight";
+
+  const isRectDrawingTool =
+    activeTool === "border" ||
+    activeTool === "highlight" ||
+    activeTool === "blur";
 
   if (activeTool === "select" && selected) {
     return (
@@ -156,7 +188,7 @@ export function ImageEditorToolPropertiesBar({
             label="Stroke"
             value={selected.strokeWidth}
             min={STROKE_WIDTH_MIN}
-            max={STROKE_WIDTH_MAX}
+            sliderMax={SLIDER_MAX_PX}
             step={1}
             formatValue={(value) => `${value}px`}
             onChange={(strokeWidth) => onUpdate(selected.id, { strokeWidth })}
@@ -186,7 +218,7 @@ export function ImageEditorToolPropertiesBar({
               label="Size"
               value={selected.fontSize}
               min={8}
-              max={128}
+              sliderMax={128}
               step={1}
               formatValue={(value) => `${value}px`}
               onChange={(fontSize) => onUpdate(selected.id, { fontSize })}
@@ -206,7 +238,7 @@ export function ImageEditorToolPropertiesBar({
             label="Blur"
             value={selected.blurRadius}
             min={1}
-            max={60}
+            sliderMax={SLIDER_MAX_PX}
             step={1}
             formatValue={(value) => `${value}px`}
             onChange={(blurRadius) => onUpdate(selected.id, { blurRadius })}
@@ -219,7 +251,7 @@ export function ImageEditorToolPropertiesBar({
             label="Dim"
             value={selected.dimOpacity}
             min={0.1}
-            max={0.9}
+            sliderMax={0.9}
             step={0.05}
             formatValue={(value) => `${Math.round(value * 100)}%`}
             onChange={(dimOpacity) => onUpdate(selected.id, { dimOpacity })}
@@ -230,6 +262,18 @@ export function ImageEditorToolPropertiesBar({
         selected.type === "highlight" ||
         selected.type === "blur" ? (
           <>
+            <PropertySlider
+              id="prop-corner-radius"
+              label="Radius"
+              value={selected.cornerRadius ?? 0}
+              min={0}
+              sliderMax={SLIDER_MAX_PX}
+              step={1}
+              formatValue={(value) => `${value}px`}
+              onChange={(cornerRadius) =>
+                onUpdate(selected.id, { cornerRadius })
+              }
+            />
             <div className="flex items-center gap-2">
               <Label
                 htmlFor="prop-width"
@@ -292,10 +336,23 @@ export function ImageEditorToolPropertiesBar({
             label="Stroke"
             value={toolStrokeWidth}
             min={STROKE_WIDTH_MIN}
-            max={STROKE_WIDTH_MAX}
+            sliderMax={SLIDER_MAX_PX}
             step={1}
             formatValue={(value) => `${value}px`}
             onChange={onToolStrokeWidthChange}
+          />
+        ) : null}
+
+        {activeTool === "border" ? (
+          <PropertySlider
+            id="tool-corner-radius"
+            label="Radius"
+            value={toolCornerRadius}
+            min={0}
+            sliderMax={SLIDER_MAX_PX}
+            step={1}
+            formatValue={(value) => `${value}px`}
+            onChange={onToolCornerRadiusChange}
           />
         ) : null}
       </CommandBar>
@@ -311,7 +368,7 @@ export function ImageEditorToolPropertiesBar({
             label="Blur"
             value={toolBlurRadius}
             min={1}
-            max={60}
+            sliderMax={SLIDER_MAX_PX}
             step={1}
             formatValue={(value) => `${value}px`}
             onChange={onToolBlurRadiusChange}
@@ -322,12 +379,25 @@ export function ImageEditorToolPropertiesBar({
             label="Dim"
             value={toolDimOpacity}
             min={0.1}
-            max={0.9}
+            sliderMax={0.9}
             step={0.05}
             formatValue={(value) => `${Math.round(value * 100)}%`}
             onChange={onToolDimOpacityChange}
           />
         )}
+
+        {isRectDrawingTool ? (
+          <PropertySlider
+            id="tool-corner-radius"
+            label="Radius"
+            value={toolCornerRadius}
+            min={0}
+            sliderMax={SLIDER_MAX_PX}
+            step={1}
+            formatValue={(value) => `${value}px`}
+            onChange={onToolCornerRadiusChange}
+          />
+        ) : null}
       </CommandBar>
     );
   }

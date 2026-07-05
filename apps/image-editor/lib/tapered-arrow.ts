@@ -33,7 +33,7 @@ export function buildTaperedArrowPoints(
 
   const tailHalf = strokeWidth * 0.25;
   const headHalf = strokeWidth * 2;
-  const shaftEndHalf = Math.min(strokeWidth * 0.65, headHalf * 0.75);
+  const shaftEndHalf = Math.min(strokeWidth * 0.82, headHalf * 0.88);
   const headLength = Math.min(strokeWidth * 4, length * 0.4);
   const shaftLength = length - headLength;
 

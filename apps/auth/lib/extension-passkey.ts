@@ -16,6 +16,7 @@ import { z } from "zod";
 
 import { getRpId, getExpectedOrigins } from "@/app/actions/auth-rp-config";
 import { isAllowedChromeExtensionOrigin } from "@/lib/chrome-extension-origin";
+import { extensionOriginRejectedError } from "@/lib/extension-auth-errors";
 import {
   challengeFromClientDataJSON,
   createExtensionChallengeEnvelope,
@@ -143,6 +144,11 @@ async function checkPasskeyRateLimit(
 function parseExtensionOrigin(
   origin: string
 ): { ok: true; origin: string } | { ok: false; error: string } {
+  const allowlistError = extensionOriginRejectedError(origin);
+  if (allowlistError) {
+    return { ok: false, error: allowlistError };
+  }
+
   const parsed = ExtensionOriginSchema.safeParse(origin);
   if (!parsed.success) {
     return { ok: false, error: "Invalid or disallowed origin URL" };

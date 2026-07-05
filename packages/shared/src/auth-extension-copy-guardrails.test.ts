@@ -53,6 +53,22 @@ const RETIRED_PASSKEY_PARAMS_HTTP_PATH =
 /** Legacy env var name; only allowed when documenting that it is unsupported. */
 const LEGACY_EXTENSION_ORIGINS_ENV = "HELVEETY_CHROME_EXTENSION_ORIGINS";
 
+/** Retired operator-oriented extension allowlist copy (must not ship in API responses). */
+const RETIRED_EXTENSION_ALLOWLIST_USER_COPY = [
+  "About → Extension ID",
+  "Extension id is not allowlisted",
+] as const;
+
+const AUTH_EXTENSION_API_SOURCE_PATHS = [
+  "apps/auth/lib/extension-auth-errors.ts",
+  "apps/auth/lib/extension-otp.ts",
+  "apps/auth/lib/extension-passkey.ts",
+  "apps/auth/app/api/extension/otp/send/route.ts",
+  "apps/auth/app/api/extension/otp/verify/route.ts",
+  "apps/auth/app/api/extension/passkey/options/route.ts",
+  "apps/auth/app/api/extension/passkey/verify/route.ts",
+] as const;
+
 /** Outdated device-trust mint wording (read-back alone was never the only check). */
 const STALE_DEVICE_TRUST_MINT_DOC_PHRASES = [
   /mint\/read-back/i,
@@ -178,6 +194,16 @@ describe("auth and extension maintainer copy guardrails", () => {
       /auth-extension-copy-guardrails|weekly_proof|weekly proof/i
     );
   });
+
+  it.each(AUTH_EXTENSION_API_SOURCE_PATHS)(
+    "%s does not expose retired extension allowlist operator copy",
+    (rel) => {
+      const text = readRepoFile(rel);
+      for (const phrase of RETIRED_EXTENSION_ALLOWLIST_USER_COPY) {
+        expect(text, `${rel}: ${phrase}`).not.toContain(phrase);
+      }
+    }
+  );
 
   it("maintainer docs use HELVETY_CHROME_EXTENSION_ORIGINS (not legacy HELVEETY typo)", () => {
     for (const rel of MAINTAINER_AUTH_DOC_PATHS) {

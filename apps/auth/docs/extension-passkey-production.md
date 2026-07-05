@@ -28,7 +28,7 @@ curl -sS -w "\n%{http_code}\n" -X POST \
 
 - **Good:** HTTP `401` and JSON `{"success":false,"error":"Not authenticated"}` (or similar) — routes exist.
 - **Bad:** HTTP `404` or HTML — extension shows “Passkey API is not deployed…” (check gateway `AUTH_URL` and `helvety-auth` deploy).
-- **After sign-in:** JSON `400` with an allowlist message means routes work but **`HELVETY_CHROME_EXTENSION_ORIGINS`** is missing your runtime extension id (copy from extension About tab).
+- **After sign-in:** JSON `400` with “This extension is not authorized to sign in yet…” means routes work but **`HELVETY_CHROME_EXTENSION_ORIGINS`** is missing your runtime extension id (copy from `edge://extensions/?id=…`, extension About tab, or `chrome.runtime.id`). Check server logs for `Extension origin not allowlisted`.
 
 ## 2. Set `HELVETY_CHROME_EXTENSION_ORIGINS` (Production)
 

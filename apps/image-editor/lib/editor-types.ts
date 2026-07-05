@@ -41,6 +41,7 @@ export interface BorderElement {
   height: number;
   stroke: string;
   strokeWidth: number;
+  cornerRadius: number;
 }
 
 /** Spotlight annotation: dims the whole image except this rectangle. */
@@ -52,6 +53,7 @@ export interface HighlightElement {
   width: number;
   height: number;
   dimOpacity: number;
+  cornerRadius: number;
 }
 
 /** Blur annotation: obscures the source image within this rectangle. */
@@ -63,6 +65,7 @@ export interface BlurElement {
   width: number;
   height: number;
   blurRadius: number;
+  cornerRadius: number;
 }
 
 /** Any annotation on the canvas. Array index in state is the z-order. */
@@ -88,4 +91,9 @@ export const DEFAULT_TEXT_FILL = "#ffffff";
 
 export const DEFAULT_DIM_OPACITY = 0.55;
 
-export const DEFAULT_BLUR_RADIUS = 12;
+export const DEFAULT_BLUR_RADIUS = 28;
+
+export const DEFAULT_CORNER_RADIUS = 8;
+
+/** Upper bound for property sliders (px); number inputs may exceed this. */
+export const SLIDER_MAX_PX = 100;
