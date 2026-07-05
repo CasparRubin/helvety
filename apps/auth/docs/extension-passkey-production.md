@@ -4,7 +4,7 @@ Chromium extension sign-in and unlock call Bearer/public JSON routes on **`https
 
 | Route                                 | Auth                          | Purpose                                                                                                                                                                                                  |
 | ------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation                                                                                                                                                                  |
+| `POST /api/extension/otp/send`        | Public (allowlisted `origin`) | Send email OTP after EU/EEA attestation (creates a Helvety account when the email is new — same `sendOtpVerificationCodeCore` as web)                                                                    |
 | `POST /api/extension/otp/verify`      | Public (allowlisted `origin`) | Verify OTP; returns session tokens + HMAC `weekly_proof` (`setSession`: refresh in `chrome.storage.local`, access token mirrored to `chrome.storage.session`; proof in `helvety_extension_weekly_proof`) |
 | `POST /api/extension/passkey/options` | Bearer JWT + weekly proof     | WebAuthn options + signed challenge envelope                                                                                                                                                             |
 | `POST /api/extension/passkey/verify`  | Bearer JWT + weekly proof     | Verify passkey assertion (no new session)                                                                                                                                                                |
@@ -20,6 +20,7 @@ Vercel project **`helvety-auth`**, root **`apps/auth`**, branch **`main`**.
 Confirm after deploy:
 
 ```bash
+# Replace the example extension id with your runtime id (edge://extensions/?id=…).
 curl -sS -w "\n%{http_code}\n" -X POST \
   "https://helvety.com/auth/api/extension/passkey/options" \
   -H "Content-Type: application/json" \
@@ -35,6 +36,7 @@ curl -sS -w "\n%{http_code}\n" -X POST \
 In Vercel → **helvety-auth** → Settings → Environment Variables → **Production**:
 
 ```text
+# Example id only — use your runtime extension id from edge://extensions/?id=…
 HELVETY_CHROME_EXTENSION_ORIGINS=kjdldfioiofpblkchjodefakpopmkjjf
 ```
 

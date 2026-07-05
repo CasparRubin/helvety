@@ -1206,7 +1206,7 @@ const helvetyBrowserExtension: SoftwareProduct = {
         heading: "What you can do after unlock",
         kind: "bullets",
         items: [
-          "Sign in with an email one-time code, then unlock end-to-end encryption with your passkey.",
+          "Sign in with an email one-time code (new or existing Helvety account), then unlock end-to-end encryption with your passkey.",
           "Browse decrypted tasks, notes, contacts, links, and folders in grouped, edit-first lists.",
           "Create, edit, delete, and reorder records, and link entities across apps from the edit form.",
           "Open any item in the matching helvety.com app with one click.",

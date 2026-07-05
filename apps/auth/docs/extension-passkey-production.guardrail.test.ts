@@ -33,6 +33,9 @@ describe("extension passkey production docs", () => {
     expect(doc).not.toContain("localhost");
     expect(doc).toMatch(/404.*HTML|HTML.*404/i);
     expect(doc).toMatch(/allowlist/i);
+    expect(doc).toMatch(/not authorized to sign in yet|user-safe/i);
+    expect(doc).toMatch(/creates a Helvety account when the email is new/i);
+    expect(doc).toMatch(/runtime extension id|your runtime id/i);
     expect(doc).toMatch(/side panel/i);
     expect(doc).toMatch(/weekly proof|weekly_proof/i);
     expect(doc).toContain("X-Helvety-Weekly-Proof");

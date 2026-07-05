@@ -79,6 +79,20 @@ describe("extension-auth-errors", () => {
     });
   });
 
+  it("extensionOriginRejectedError returns user error for disallowed chrome-extension origins", () => {
+    mocks.isAllowedChromeExtensionOrigin.mockReturnValue(false);
+    expect(extensionOriginRejectedError(BLOCKED_ORIGIN)).toBe(
+      EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR
+    );
+    expect(mocks.warn).toHaveBeenCalledWith(
+      "Extension origin not allowlisted",
+      expect.objectContaining({
+        extensionId: "notonthelistabcdefghijklmnop",
+        envVar: "HELVETY_CHROME_EXTENSION_ORIGINS",
+      })
+    );
+  });
+
   it("extensionOriginRejectedError returns null for non-extension origins", () => {
     mocks.isAllowedChromeExtensionOrigin.mockReturnValue(false);
     expect(extensionOriginRejectedError("https://evil.example")).toBeNull();

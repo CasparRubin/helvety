@@ -15,6 +15,13 @@ export const EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR =
   "This extension is not authorized to sign in yet. Sign in at helvety.com or contact support if this persists." as const;
 
 /**
+ * Chromium extension email OTP sign-in helper (side panel, About, product copy).
+ * OTP send uses the same server path as helvety.com and creates an account when the email is new.
+ */
+export const EXTENSION_EMAIL_OTP_SIGNIN_HELPER =
+  "Enter your Helvety email for a one-time code. New and existing accounts work the same as on helvety.com." as const;
+
+/**
  * User-facing message when a rate limit is exceeded.
  *
  * @param retryAfter - Seconds until retry is sensible; defaults to 60 when missing.

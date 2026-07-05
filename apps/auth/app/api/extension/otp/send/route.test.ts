@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR } from "@/lib/extension-auth-errors";
+import {
+  EXTENSION_INVALID_REQUEST_BODY_ERROR,
+  EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
+} from "@/lib/extension-auth-errors";
 
 import { POST } from "./route";
 
@@ -71,7 +74,7 @@ describe("auth extension OTP send route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: "Invalid request body",
+      error: EXTENSION_INVALID_REQUEST_BODY_ERROR,
     });
     expect(mocks.sendExtensionOtp).not.toHaveBeenCalled();
   });
@@ -103,7 +106,7 @@ describe("auth extension OTP send route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
       success: false,
-      error: "Invalid request body",
+      error: EXTENSION_INVALID_REQUEST_BODY_ERROR,
     });
   });
 

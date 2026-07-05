@@ -140,6 +140,8 @@ describe("auth and extension maintainer copy guardrails", () => {
     expect(readme).toMatch(/does not.*HttpOnly device-trust cookie/i);
     expect(readme).toContain("resolveVerifiedExtensionSession");
     expect(readme).toContain("X-Helvety-Weekly-Proof");
+    expect(readme).toMatch(/creates a Helvety account when the email is new/i);
+    expect(readme).toContain("EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR");
   });
 
   it("root README documents extension auth APIs and weekly proof split from web cookie", () => {
@@ -184,6 +186,8 @@ describe("auth and extension maintainer copy guardrails", () => {
     expect(doc).toMatch(/chrome\.storage\.local/i);
     expect(doc).toContain("chrome.storage.session");
     expect(doc).toMatch(/weekly proof|weekly_proof/i);
+    expect(doc).toMatch(/creates a Helvety account when the email is new/i);
+    expect(doc).toMatch(/runtime extension id|your runtime id/i);
   });
 
   it("legal change guardrails references extension weekly proof verification", () => {

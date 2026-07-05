@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRateLimitedUserMessage,
+  EXTENSION_EMAIL_OTP_SIGNIN_HELPER,
   EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
   GENERIC_USER_ERROR,
 } from "./user-facing-errors";
@@ -15,6 +16,11 @@ describe("user-facing-errors", () => {
     expect(EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR).toContain(
       "not authorized to sign in yet"
     );
+  });
+
+  it("exposes extension email OTP sign-in helper copy", () => {
+    expect(EXTENSION_EMAIL_OTP_SIGNIN_HELPER).toMatch(/new and existing/i);
+    expect(EXTENSION_EMAIL_OTP_SIGNIN_HELPER).toMatch(/helvety\.com/i);
   });
 
   it("builds default rate-limit copy with fallback seconds", () => {

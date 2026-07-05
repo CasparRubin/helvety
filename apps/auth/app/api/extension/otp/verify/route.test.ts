@@ -101,4 +101,56 @@ describe("auth extension OTP verify route", () => {
     expect(mocks.verifyExtensionOtp).not.toHaveBeenCalled();
   });
 
-  it("returns generic inval
+  it("returns generic invalid body when origin is not chrome-extension", async () => {
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/otp/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: "not-an-email" }),
+      })
+    );
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: EXTENSION_INVALID_REQUEST_BODY_ERROR,
+    });
+  });
+
+  it("returns 503 when trusted client IP is unavailable", async () => {
+    mocks.getTrustedClientIp.mockReturnValue(null);
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/otp/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "user@example.com",
+          code: VALID_OTP_CODE,
+          origin: ALLOWED_ORIGIN,
+        }),
+      })
+    );
+    expect(response.status).toBe(503);
+    expect(mocks.verifyExtensionOtp).not.toHaveBeenCalled();
+  });
+
+  it("delegates to verifyExtensionOtp on valid body", async () => {
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/otp/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "user@example.com",
+          code: VALID_OTP_CODE,
+          origin: ALLOWED_ORIGIN,
+        }),
+      })
+    );
+    expect(response.status).toBe(200);
+    expect(mocks.verifyExtensionOtp).toHaveBeenCalledWith({
+      email: "user@example.com",
+      code: VALID_OTP_CODE,
+      origin: ALLOWED_ORIGIN,
+      clientIP: "127.0.0.1",
+    });
+  });
+});

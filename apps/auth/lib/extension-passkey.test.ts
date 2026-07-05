@@ -228,6 +228,31 @@ describe("extension-passkey", () => {
     expect(mocks.generateAuthenticationOptions).not.toHaveBeenCalled();
   });
 
+  it("rejects verify when origin is not on the extension allowlist", async () => {
+    const result = await verifyExtensionPasskey({
+      userId: USER_ID,
+      origin: "chrome-extension://not-on-allowlist000000000000",
+      challengeEnvelope: "envelope",
+      credential: {
+        id: "cred-a",
+        rawId: "raw-a",
+        type: "public-key",
+        response: {
+          clientDataJSON: clientDataJSONForChallenge(CHALLENGE),
+          authenticatorData: "auth-data",
+          signature: "sig",
+        },
+      },
+      clientIP: CLIENT_IP,
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
+    });
+    expect(mocks.verifyAuthenticationResponse).not.toHaveBeenCalled();
+  });
+
   it("rejects verify when assertion challenge does not match envelope", async () => {
     const options = await generateExtensionPasskeyOptions({
       userId: USER_ID,

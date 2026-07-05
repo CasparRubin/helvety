@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR } from "@/lib/extension-auth-errors";
+import {
+  EXTENSION_INVALID_REQUEST_BODY_ERROR,
+  EXTENSION_ORIGIN_NOT_ALLOWLISTED_USER_ERROR,
+} from "@/lib/extension-auth-errors";
 
 import { POST } from "./route";
 
@@ -95,6 +98,23 @@ describe("auth extension passkey verify route", () => {
       success: false,
       error: "Invalid JSON body",
     });
+  });
+
+  it("returns invalid body when origin is allowlisted but other fields are missing", async () => {
+    const response = await POST(
+      new Request("https://auth.helvety.com/api/extension/passkey/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ origin: ALLOWED_ORIGIN }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: EXTENSION_INVALID_REQUEST_BODY_ERROR,
+    });
+    expect(mocks.verifyExtensionPasskey).not.toHaveBeenCalled();
   });
 
   it("returns 400 when extension origin is not on the env allowlist", async () => {
