@@ -23,6 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
+import { ICON_SIZE_CLASS } from "@helvety/ui/icon-size";
+import { RowActionButton } from "@helvety/ui/row-action-button";
 import { useE2eeEntityListDndSensors } from "@helvety/ui/use-e2ee-entity-list-dnd-sensors";
 import {
   ChevronRight,
@@ -412,20 +414,9 @@ function RowIconButton({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      className="text-muted-foreground shrink-0"
-      disabled={disabled}
-      aria-label={label}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-    >
+    <RowActionButton label={label} disabled={disabled} onClick={onClick}>
       {children}
-    </Button>
+    </RowActionButton>
   );
 }
 
@@ -460,18 +451,18 @@ function FolderRowActions({
           disabled={directLinkCount === 0}
           onClick={onOpenDirectLinks}
         >
-          <ExternalLink className="size-4" />
+          <ExternalLink className={ICON_SIZE_CLASS} />
         </RowIconButton>
         <RowIconButton
           label={openTreeLabel}
           disabled={treeLinkCount === 0}
           onClick={onOpenAllLinks}
         >
-          <FolderTree className="size-4" />
+          <FolderTree className={ICON_SIZE_CLASS} />
         </RowIconButton>
         {showEdit && onEdit ? (
           <RowIconButton label={`Edit folder ${folderName}`} onClick={onEdit}>
-            <Pencil className="size-4" />
+            <Pencil className={ICON_SIZE_CLASS} />
           </RowIconButton>
         ) : null}
       </div>
@@ -705,7 +696,7 @@ function LinkTreeRow({
         <span className="truncate font-medium">{link.name}</span>
       </button>
       <RowIconButton label={`Edit link ${link.name}`} onClick={onEdit}>
-        <Pencil className="size-4" />
+        <Pencil className={ICON_SIZE_CLASS} />
       </RowIconButton>
     </li>
   );

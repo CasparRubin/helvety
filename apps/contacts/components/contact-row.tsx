@@ -3,12 +3,14 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
+import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
+import { ICON_SIZE_CLASS } from "@helvety/ui/icon-size";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
   GripVerticalIcon,
-  TrashIcon,
+  Trash2Icon,
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -93,13 +95,13 @@ export const ContactRow = memo(
             {...attributes}
             {...listeners}
           >
-            <GripVerticalIcon className="size-4" />
+            <GripVerticalIcon className={ICON_SIZE_CLASS} />
           </button>
         )}
 
         {/* Icon */}
         <UserIcon
-          className="size-4 shrink-0"
+          className={cn(ICON_SIZE_CLASS, "shrink-0")}
           style={categoryColor ? { color: categoryColor } : undefined}
         />
 
@@ -134,7 +136,7 @@ export const ContactRow = memo(
                 disabled={isFirst}
                 aria-label="Move to previous category"
               >
-                <ChevronUpIcon className="size-4" />
+                <ChevronUpIcon className={ICON_SIZE_CLASS} />
               </Button>
               <Button
                 variant="ghost"
@@ -148,7 +150,7 @@ export const ContactRow = memo(
                 disabled={isLast}
                 aria-label="Move to next category"
               >
-                <ChevronDownIcon className="size-4" />
+                <ChevronDownIcon className={ICON_SIZE_CLASS} />
               </Button>
             </div>
           )}
@@ -163,7 +165,7 @@ export const ContactRow = memo(
                 onDelete();
               }}
             >
-              <TrashIcon className="size-4" />
+              <Trash2Icon className={ICON_SIZE_CLASS} />
             </Button>
           )}
         </div>

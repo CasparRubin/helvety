@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@helvety/ui/date-picker";
+import { E2EE_FORM_FIELD_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
@@ -295,7 +296,7 @@ export function ContactEditor({
         hasInitialized ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
+              <div className={E2EE_FORM_FIELD_CLASS}>
                 <Label htmlFor="first-name">First Name(s)</Label>
                 <Input
                   id="first-name"
@@ -304,7 +305,7 @@ export function ContactEditor({
                   placeholder="First name(s)"
                 />
               </div>
-              <div className="grid gap-2">
+              <div className={E2EE_FORM_FIELD_CLASS}>
                 <Label htmlFor="last-name">Last Name(s)</Label>
                 <Input
                   id="last-name"
@@ -315,7 +316,7 @@ export function ContactEditor({
               </div>
             </div>
 
-            <div className="grid gap-2">
+            <div className={E2EE_FORM_FIELD_CLASS}>
               <Label htmlFor="description">Description</Label>
               <Input
                 id="description"
@@ -326,7 +327,7 @@ export function ContactEditor({
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
+              <div className={E2EE_FORM_FIELD_CLASS}>
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -336,7 +337,7 @@ export function ContactEditor({
                   placeholder="email@example.com"
                 />
               </div>
-              <div className="grid gap-2">
+              <div className={E2EE_FORM_FIELD_CLASS}>
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
@@ -348,7 +349,7 @@ export function ContactEditor({
               </div>
             </div>
 
-            <div className="grid gap-2">
+            <div className={E2EE_FORM_FIELD_CLASS}>
               <Label>Birthday</Label>
               <DatePicker
                 value={birthday}

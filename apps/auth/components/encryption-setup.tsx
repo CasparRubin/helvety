@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@helvety/ui/card";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { toast } from "@helvety/ui/sonner";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -32,7 +33,6 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { saveKeyCheckValue } from "@/app/actions/encryption-actions";
 import {

@@ -623,6 +623,20 @@ async function main() {
         "helvety-browser-extension-chromium/src/globals.css must import @helvety/ui/globals.css (or @helvety/ui/form-control-touch.css)."
       );
     }
+    if (
+      !extensionGlobals.includes(
+        '@import "@helvety/extension-chrome/extension-tokens.css"'
+      )
+    ) {
+      throw new Error(
+        "helvety-browser-extension-chromium/src/globals.css must import @helvety/extension-chrome/extension-tokens.css (canonical OKLCH profile)."
+      );
+    }
+    if (extensionGlobals.includes("./popup/extension-tokens.css")) {
+      throw new Error(
+        "helvety-browser-extension-chromium must not use a local extension-tokens.css fork; use @helvety/extension-chrome/extension-tokens.css."
+      );
+    }
     await assertNoAsChildProp(resolve(extensionRoot, "src/popup"));
   } catch (error) {
     if (!(error && typeof error === "object" && error.code === "ENOENT")) {

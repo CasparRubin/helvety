@@ -5,6 +5,10 @@ import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { Label } from "@helvety/ui/label";
 import { NativeSelect } from "@helvety/ui/native-select";
+import {
+  PUBLIC_TOOL_SIDEBAR_PANEL_CLASS,
+  PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS,
+} from "@helvety/ui/public-tool-workspace";
 import { X } from "lucide-react";
 import * as React from "react";
 
@@ -58,14 +62,14 @@ function PdfToolkitComponent({
     <div
       className={cn(
         "flex",
-        "w-80 flex-shrink-0",
+        PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS,
         "flex-col gap-6",
         "h-full max-h-full"
       )}
     >
       <div
         className={cn(
-          "bg-surface-panel border-border/50 border p-6",
+          PUBLIC_TOOL_SIDEBAR_PANEL_CLASS,
           "flex flex-col gap-6",
           "flex-1 overflow-y-auto"
         )}

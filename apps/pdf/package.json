@@ -38,8 +38,7 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-pdf": "^10.4.1",
-    "server-only": "^0.0.1",
-    "sonner": "^2.0.7"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",

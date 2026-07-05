@@ -7,9 +7,15 @@ import { Button } from "@helvety/ui/button";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { NativeSelect } from "@helvety/ui/native-select";
+import {
+  PUBLIC_TOOL_CANVAS_SHELL_CLASS,
+  PUBLIC_TOOL_SIDEBAR_PANEL_CLASS,
+  PUBLIC_TOOL_SIDEBAR_WIDTH_PX_CLASS,
+  PUBLIC_TOOL_WORKSPACE_ROW_CLASS,
+} from "@helvety/ui/public-tool-workspace";
+import { toast } from "@helvety/ui/sonner";
 import { Download, Upload, X } from "lucide-react";
 import * as React from "react";
-import { toast } from "sonner";
 
 import { ImageUpscalerCommandBar } from "@/components/image-upscaler-command-bar";
 import {
@@ -379,8 +385,8 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
 
       <div
         className={cn(
-          "min-h-0 flex-1 overflow-hidden py-4",
-          "flex flex-col gap-4 lg:flex-row"
+          "min-h-0 flex-1 overflow-hidden",
+          PUBLIC_TOOL_WORKSPACE_ROW_CLASS
         )}
         onDragEnter={dragDrop.handleDragEnter}
         onDragOver={dragDrop.handleDragOver}
@@ -395,9 +401,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
           )}
         >
           <div
-            className={cn(
-              "bg-muted/30 border-border/50 flex min-h-0 flex-1 flex-col overflow-y-auto border p-6"
-            )}
+            className={cn(PUBLIC_TOOL_CANVAS_SHELL_CLASS, "overflow-y-auto")}
           >
             <section
               className={cn(
@@ -431,7 +435,11 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                       aria-hidden="true"
                     />
                     <div>
-                      <p className="text-sm font-medium">
+                      <p
+                        className="text-sm font-medium"
+                        role="heading"
+                        aria-level={2}
+                      >
                         Drag and drop images here
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
@@ -585,9 +593,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
 
         <aside
           aria-label="Image upscaler controls"
-          className="hidden w-[320px] flex-shrink-0 lg:block"
+          className={cn("hidden lg:block", PUBLIC_TOOL_SIDEBAR_WIDTH_PX_CLASS)}
         >
-          <div className="bg-card space-y-4 rounded-lg border p-4">
+          <div className={cn(PUBLIC_TOOL_SIDEBAR_PANEL_CLASS, "space-y-4")}>
             <div className="space-y-2">
               <Label htmlFor="desktop-upscale-mode">Mode</Label>
               <NativeSelect

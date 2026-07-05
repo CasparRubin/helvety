@@ -3,6 +3,10 @@
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import {
+  PUBLIC_TOOL_SIDEBAR_PANEL_CLASS,
+  PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS,
+} from "@helvety/ui/public-tool-workspace";
+import {
   ArrowUpRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
@@ -62,13 +66,15 @@ export function LayersPanel({
   return (
     <div
       className={cn(
-        "flex h-full max-h-full w-80 flex-shrink-0 flex-col",
+        "flex h-full max-h-full flex-col",
+        PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS,
         className
       )}
     >
       <div
         className={cn(
-          "bg-surface-panel border-border/50 flex flex-1 flex-col overflow-y-auto border p-6"
+          PUBLIC_TOOL_SIDEBAR_PANEL_CLASS,
+          "flex flex-1 flex-col overflow-y-auto"
         )}
       >
         <div>

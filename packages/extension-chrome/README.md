@@ -9,16 +9,16 @@ Used by:
 
 ## Exports
 
-| Subpath                              | Purpose                                                                                  |
-| ------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `theme-boot`                         | Sync import at extension UI entry (OS `prefers-color-scheme` before React)               |
-| `theme-preference`                   | Parse/apply `light` / `dark` only (invalid stored values → OS default); no `next-themes` |
-| `use-popup-theme`                    | React hook + `chrome.storage.local` persistence                                          |
-| `popup-shell`                        | `POPUP_WIDTH_CLASS` (800px popups), `POPUP_SHELL_CLASS`, tab scroll, choice row classes  |
-| `popup-header`                       | Product name + icon + optional version row                                               |
-| `helvety-mark`                       | About **Developer** section mark                                                         |
-| `extension-version`                  | `readExtensionVersion()` / `readExtensionId()` from the Chromium manifest                |
-| `popup.css` / `extension-tokens.css` | Shared extension Tailwind utilities                                                      |
+| Subpath                              | Purpose                                                                                            |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `theme-boot`                         | Sync import at extension UI entry (OS `prefers-color-scheme` before React)                         |
+| `theme-preference`                   | Parse/apply `light` / `dark` only (invalid stored values → OS default); no `next-themes`           |
+| `use-popup-theme`                    | React hook + `chrome.storage.local` persistence                                                    |
+| `popup-shell`                        | `POPUP_WIDTH_CLASS` (800px popups), `POPUP_SHELL_CLASS`, tab scroll, choice row classes            |
+| `popup-header`                       | Product name + icon + optional version row                                                         |
+| `helvety-mark`                       | About **Developer** section mark                                                                   |
+| `extension-version`                  | `readExtensionVersion()` / `readExtensionId()` from the Chromium manifest                          |
+| `popup.css` / `extension-tokens.css` | Shared extension Tailwind utilities (OKLCH design tokens; scrollbars use `color-mix(in oklch, …)`) |
 
 Each extension passes its own **storage key** (for example `popupThemePreference` vs `helvetyPopupThemePreference`) and icon URL into the wrappers in its UI module (for example `src/popup/components/` in consumer repos).
 

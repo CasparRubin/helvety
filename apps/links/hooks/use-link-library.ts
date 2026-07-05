@@ -9,8 +9,8 @@ import {
   triggerHardLogoutOnce,
 } from "@helvety/ui/auth-navigation";
 import { useCSRFToken } from "@helvety/ui/csrf-provider";
+import { toast } from "@helvety/ui/sonner";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { reorderFolders, reorderLinks } from "@/app/actions/entity-actions";
 import {

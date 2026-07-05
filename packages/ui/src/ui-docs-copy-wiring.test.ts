@@ -102,6 +102,23 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(policy).toContain("Popover");
     expect(policy).toContain("CommandBar");
     expect(policy).toMatch(/not.*cmdk/i);
+    expect(policy).toContain("ui-action-button-contract");
+    expect(policy).toContain("@helvety/ui/sonner");
+    expect(policy).toContain("consistency:ui-actions");
+  });
+
+  it("ui-action-button contract documents Trash2 and toast import path", () => {
+    const contract = readRepoFile("docs/ui-action-button-contract.md");
+    expect(contract).toContain("Trash2Icon");
+    expect(contract).toContain("@helvety/ui/sonner");
+    expect(contract).toMatch(/not legacy `TrashIcon`/i);
+  });
+
+  it("root README documents consistency:ui-actions in ci:check order", () => {
+    const readme = readRepoFile("README.md");
+    expect(readme).toContain(
+      "`consistency:guardrails`, `consistency:ui-actions`"
+    );
   });
 
   it("dependency inventory documents @base-ui/react and base-vega", () => {
@@ -124,6 +141,11 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
       expect(readme).toContain("@helvety/ui");
       expect(readme).toMatch(/Base UI|base-vega/);
       expect(readme).not.toContain("radix-vega");
+      expect(readme).toContain(
+        "@helvety/extension-chrome/extension-tokens.css"
+      );
+      expect(readme).toContain("header command bar");
+      expect(readme).not.toMatch(/local fork/i);
     } catch {
       // Sibling extension repo optional in some checkouts.
     }

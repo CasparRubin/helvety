@@ -2,6 +2,10 @@
 
 import { useDragDrop } from "@helvety/shared/hooks/use-drag-drop";
 import { cn } from "@helvety/shared/utils";
+import {
+  PUBLIC_TOOL_CANVAS_SHELL_CLASS,
+  PUBLIC_TOOL_WORKSPACE_ROW_CLASS,
+} from "@helvety/ui/public-tool-workspace";
 import { Upload } from "lucide-react";
 import * as React from "react";
 
@@ -167,8 +171,7 @@ export function HelvetyPdf(): React.JSX.Element {
       <div
         className={cn(
           "min-h-0 flex-1 overflow-hidden",
-          "flex flex-col gap-4 lg:flex-row",
-          "py-4"
+          PUBLIC_TOOL_WORKSPACE_ROW_CLASS
         )}
         onDragEnter={dragDrop.handleDragEnter}
         onDragOver={dragDrop.handleDragOver}
@@ -186,9 +189,7 @@ export function HelvetyPdf(): React.JSX.Element {
           )}
         >
           <div
-            className={cn(
-              "bg-muted/30 border-border/50 flex min-h-0 flex-1 flex-col overflow-y-auto border p-6"
-            )}
+            className={cn(PUBLIC_TOOL_CANVAS_SHELL_CLASS, "overflow-y-auto")}
           >
             {/* Unified Drag and Drop Zone / Canvas - min-h-full fills scroll container */}
             <section

@@ -27,10 +27,10 @@ import {
   invalidateAuthUserProbeCache,
 } from "@helvety/ui/auth-session-singleflight";
 import { useCSRFToken, useSetCSRFToken } from "@helvety/ui/csrf-provider";
+import { toast } from "@helvety/ui/sonner";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { getDeviceTrustStatus } from "@/app/actions/device-trust-actions";
 import {

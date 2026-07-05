@@ -71,7 +71,7 @@ export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
   }, [filter, allProducts, isEnhanced]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
         <p className="text-muted-foreground mt-1 max-w-2xl text-pretty">

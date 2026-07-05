@@ -26,6 +26,7 @@ import { useCSRFToken } from "@helvety/ui/csrf-provider";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
+import { toast } from "@helvety/ui/sonner";
 import {
   User,
   Mail,
@@ -36,7 +37,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import * as React from "react";
-import { toast } from "sonner";
 
 import {
   updateUserEmail,

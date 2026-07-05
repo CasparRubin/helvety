@@ -136,6 +136,18 @@ Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/compo
 
 See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) for the flex height chain (`min-h-0`, `flex-1`, `overflow-hidden`). Entity editors use `stacked` action panels inside the scroll region (no sticky sidebars in sheets).
 
+### List row and toolbar actions
+
+| Pattern                                 | Canonical                                                              | Guard                                                                                      |
+| --------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Row icon actions (web lists)            | `@helvety/ui/row-action-button` (`aria-label`; optional local wrapper) | [`ui-action-button-contract.md`](./ui-action-button-contract.md), `consistency:ui-actions` |
+| Row delete icon                         | `Trash2Icon` + `ICON_SIZE_CLASS`                                       | `consistency:ui-actions`, `ui-actions-wiring.test.ts`                                      |
+| Editor form fields (extension + shared) | `@helvety/ui/form-field`, `@helvety/ui/e2ee-form-layout`               | Extension `entity-form-view.test.ts`                                                       |
+| Public-tool sidebars                    | `@helvety/ui/public-tool-workspace`                                    | PDF toolkit, image-upscaler, image-editor layers panel                                     |
+| Toasts in apps                          | `import { toast } from "@helvety/ui/sonner"`                           | Knip (`deps:unused`), `consistency:ui-actions`                                             |
+
+Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; delete in edit mode is in the **header** (`DataTabsView`), not `EntityFormView` footer.
+
 ### Lib / copy / crypto
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
@@ -294,3 +306,4 @@ Optional local E2E: `bun run ci:check:e2e` (installs Chromium if needed and star
 - [`quality-modernization-baseline.md`](./quality-modernization-baseline.md)
 - [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md)
 - [`ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md)
+- [`ui-action-button-contract.md`](./ui-action-button-contract.md) — action placement, icons, responsive labels

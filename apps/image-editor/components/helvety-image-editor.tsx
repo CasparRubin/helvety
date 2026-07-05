@@ -9,9 +9,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@helvety/ui/sheet";
+import { toast } from "@helvety/ui/sonner";
 import { UploadIcon } from "lucide-react";
 import * as React from "react";
-import { toast } from "sonner";
 
 import { EditorCanvas } from "@/components/editor/editor-canvas";
 import { ImageEditorCommandBar } from "@/components/image-editor-command-bar";

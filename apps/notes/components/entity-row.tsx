@@ -3,13 +3,15 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDateTime } from "@helvety/shared/dates";
+import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
+import { ICON_SIZE_CLASS } from "@helvety/ui/icon-size";
 import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import {
   GripVerticalIcon,
   ChevronUpIcon,
   ChevronDownIcon,
-  TrashIcon,
+  Trash2Icon,
   BoxIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -89,12 +91,12 @@ export const EntityRow = memo(
             {...attributes}
             {...listeners}
           >
-            <GripVerticalIcon className="size-4" />
+            <GripVerticalIcon className={ICON_SIZE_CLASS} />
           </button>
         )}
 
         <BoxIcon
-          className="size-4 shrink-0"
+          className={cn(ICON_SIZE_CLASS, "shrink-0")}
           style={categoryColor ? { color: categoryColor } : undefined}
         />
 
@@ -126,7 +128,7 @@ export const EntityRow = memo(
                 disabled={isFirst}
                 aria-label="Move to previous category"
               >
-                <ChevronUpIcon className="size-4" />
+                <ChevronUpIcon className={ICON_SIZE_CLASS} />
               </Button>
               <Button
                 variant="ghost"
@@ -140,7 +142,7 @@ export const EntityRow = memo(
                 disabled={isLast}
                 aria-label="Move to next category"
               >
-                <ChevronDownIcon className="size-4" />
+                <ChevronDownIcon className={ICON_SIZE_CLASS} />
               </Button>
             </div>
           )}
@@ -155,7 +157,7 @@ export const EntityRow = memo(
                 onDelete();
               }}
             >
-              <TrashIcon className="size-4" />
+              <Trash2Icon className={ICON_SIZE_CLASS} />
             </Button>
           )}
         </div>

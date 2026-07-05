@@ -1,6 +1,6 @@
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { toast } from "@helvety/ui/sonner";
 import * as React from "react";
-import { toast } from "sonner";
 
 import { CRITICAL_ERROR_PATTERNS } from "@/lib/constants";
 

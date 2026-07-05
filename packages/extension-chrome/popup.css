@@ -1,11 +1,12 @@
 /**
  * Themed scrollbars for native `overflow-y-auto` (OS defaults ignore `.dark`).
- * Chromium: ::-webkit-scrollbar; Firefox: scrollbar-color / scrollbar-width.
+ * Uses OKLCH design tokens from extension-tokens.css / @helvety/ui/globals.css.
  */
 @layer utilities {
   .popup-tab-scroll {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--foreground) / 0.35) hsl(var(--muted));
+    scrollbar-color: color-mix(in oklch, var(--foreground) 35%, transparent)
+      var(--muted);
   }
 
   .popup-tab-scroll::-webkit-scrollbar {
@@ -14,14 +15,14 @@
   }
 
   .popup-tab-scroll::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
+    background: var(--muted);
   }
 
   .popup-tab-scroll::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--foreground) / 0.28);
+    background-color: color-mix(in oklch, var(--foreground) 28%, transparent);
   }
 
   .popup-tab-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--foreground) / 0.45);
+    background-color: color-mix(in oklch, var(--foreground) 45%, transparent);
   }
 }
