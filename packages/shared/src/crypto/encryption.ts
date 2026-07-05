@@ -8,18 +8,11 @@ import { CryptoError, CryptoErrorType } from "./types";
 
 import type { EncryptedData } from "./types";
 
-/** Current encryption format: AAD binds table + record id + column. */
+/** Wire format version: AAD binds table + record id + column. */
 export const ENCRYPTION_VERSION = 2;
 
-/** Supported `EncryptedData.version` values for read paths. */
-export const SUPPORTED_ENCRYPTION_VERSIONS = [ENCRYPTION_VERSION] as const;
-
-/** Supported encryption format version literal union. */
-export type SupportedEncryptionVersion =
-  (typeof SUPPORTED_ENCRYPTION_VERSIONS)[number];
-
 /** Current key version - increment when rotating encryption keys */
-export const CURRENT_KEY_VERSION = 1;
+const CURRENT_KEY_VERSION = 1;
 
 const ALLOWED_AAD_TABLES = new Set([
   "items",
@@ -33,15 +26,32 @@ const ALLOWED_AAD_TABLES = new Set([
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-7][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-/** Column names allowed in v2 field-bound AAD (encrypted_* DB columns). */
+/** Column names allowed in field-bound AAD (encrypted_* DB columns). */
 const COLUMN_NAME_REGEX = /^encrypted_[a-z0-9_]+$/;
 
-/** Context for entity field encryption/decryption with version-aware AAD. */
-export type EntityFieldAadContext = {
+/** Context for entity field encryption/decryption. */
+type EntityFieldAadContext = {
   table: string;
   recordId: string;
   column: string;
 };
+
+/** Returns true when `version` matches the current encryption wire format. */
+function isCurrentEncryptionVersion(
+  version: number
+): version is typeof ENCRYPTION_VERSION {
+  return version === ENCRYPTION_VERSION;
+}
+
+/** Validates encryption version before decrypt; throws on unsupported values. */
+function assertCurrentEncryptionVersion(version: number): void {
+  if (!isCurrentEncryptionVersion(version)) {
+    throw new CryptoError(
+      CryptoErrorType.DECRYPTION_FAILED,
+      `Unsupported encryption version: ${version}`
+    );
+  }
+}
 
 /** Validates table name against the allowlist used for AAD binding. */
 function assertAllowedTable(table: string): void {
@@ -63,7 +73,7 @@ function assertUuidRecordId(recordId: string): void {
   }
 }
 
-/** Validates encrypted column name format for v2 field-bound AAD. */
+/** Validates encrypted column name format for field-bound AAD. */
 function assertAllowedColumn(column: string): void {
   if (!COLUMN_NAME_REGEX.test(column)) {
     throw new CryptoError(
@@ -73,25 +83,8 @@ function assertAllowedColumn(column: string): void {
   }
 }
 
-/** Returns true when `version` is a supported encryption format version. */
-export function isSupportedEncryptionVersion(
-  version: number
-): version is SupportedEncryptionVersion {
-  return (SUPPORTED_ENCRYPTION_VERSIONS as readonly number[]).includes(version);
-}
-
-/** Validates encryption version before decrypt; throws on unsupported values. */
-export function assertSupportedEncryptionVersion(version: number): void {
-  if (!isSupportedEncryptionVersion(version)) {
-    throw new CryptoError(
-      CryptoErrorType.DECRYPTION_FAILED,
-      `Unsupported encryption version: ${version}`
-    );
-  }
-}
-
 /**
- * Build field-bound AAD for v2 encryption (`table:recordId:column`).
+ * Build field-bound AAD (`table:recordId:column`).
  * Prevents intra-record ciphertext column swaps.
  */
 export function buildFieldAAD(
@@ -105,46 +98,29 @@ export function buildFieldAAD(
   return `${table}:${recordId}:${column}`;
 }
 
-/**
- * Encrypt a string using AES-256-GCM
- *
- * @param data - The plaintext string to encrypt
- * @param key - The CryptoKey to use for encryption
- * @param aad - Optional Additional Authenticated Data to bind ciphertext to its context.
- *              When provided, the same AAD must be supplied during decryption.
- *              Use to prevent ciphertext from being moved between records/contexts.
- *              Format: v2 field-bound `table:recordId:column` (`buildFieldAAD` / `encryptEntityField`)
- * @param encryptionVersion - Format version stored in the payload (default: v2).
- * @returns Encrypted data with IV and ciphertext
- */
-export async function encrypt(
+/** Encrypt a string with AES-256-GCM and field-bound AAD. */
+async function encryptWithAad(
   data: string,
   key: CryptoKey,
-  aad?: string,
-  encryptionVersion: number = ENCRYPTION_VERSION
+  aad: string
 ): Promise<EncryptedData> {
-  if (!isSupportedEncryptionVersion(encryptionVersion)) {
-    throw new CryptoError(
-      CryptoErrorType.ENCRYPTION_FAILED,
-      `Unsupported encryption version: ${encryptionVersion}`
-    );
-  }
-
   try {
     const iv = generateIV();
     const encoded = new TextEncoder().encode(data);
 
-    const algorithm: AesGcmParams = { name: "AES-GCM", iv, tagLength: 128 };
-    if (aad) {
-      algorithm.additionalData = new TextEncoder().encode(aad);
-    }
+    const algorithm: AesGcmParams = {
+      name: "AES-GCM",
+      iv,
+      tagLength: 128,
+      additionalData: new TextEncoder().encode(aad),
+    };
 
     const ciphertext = await crypto.subtle.encrypt(algorithm, key, encoded);
 
     return {
       iv: base64Encode(iv),
       ciphertext: base64Encode(new Uint8Array(ciphertext)),
-      version: encryptionVersion,
+      version: ENCRYPTION_VERSION,
       keyVersion: CURRENT_KEY_VERSION,
     };
   } catch (error) {
@@ -159,32 +135,13 @@ export async function encrypt(
   }
 }
 
-/**
- * Encrypt an entity field with v2 field-bound AAD (preferred for new writes).
- */
-export async function encryptEntityField(
-  data: string,
-  key: CryptoKey,
-  context: EntityFieldAadContext
-): Promise<EncryptedData> {
-  const aad = buildFieldAAD(context.table, context.recordId, context.column);
-  return encrypt(data, key, aad, ENCRYPTION_VERSION);
-}
-
-/**
- * Decrypt encrypted data using AES-256-GCM
- *
- * @param encrypted - The encrypted data object
- * @param key - The CryptoKey to use for decryption
- * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
- * @returns The decrypted plaintext string
- */
-export async function decrypt(
+/** Decrypt AES-256-GCM ciphertext with field-bound AAD. */
+async function decryptWithAad(
   encrypted: EncryptedData,
   key: CryptoKey,
-  aad?: string
+  aad: string
 ): Promise<string> {
-  assertSupportedEncryptionVersion(encrypted.version);
+  assertCurrentEncryptionVersion(encrypted.version);
 
   if (
     encrypted.keyVersion !== undefined &&
@@ -200,10 +157,12 @@ export async function decrypt(
     const iv = base64Decode(encrypted.iv);
     const ciphertext = base64Decode(encrypted.ciphertext);
 
-    const algorithm: AesGcmParams = { name: "AES-GCM", iv, tagLength: 128 };
-    if (aad) {
-      algorithm.additionalData = new TextEncoder().encode(aad);
-    }
+    const algorithm: AesGcmParams = {
+      name: "AES-GCM",
+      iv,
+      tagLength: 128,
+      additionalData: new TextEncoder().encode(aad),
+    };
 
     const decrypted = await crypto.subtle.decrypt(algorithm, key, ciphertext);
 
@@ -220,59 +179,24 @@ export async function decrypt(
   }
 }
 
-/**
- * Decrypt an entity field using v2 field-bound AAD.
- */
+/** Encrypt an entity field with field-bound AAD. */
+export async function encryptEntityField(
+  data: string,
+  key: CryptoKey,
+  context: EntityFieldAadContext
+): Promise<EncryptedData> {
+  const aad = buildFieldAAD(context.table, context.recordId, context.column);
+  return encryptWithAad(data, key, aad);
+}
+
+/** Decrypt an entity field using field-bound AAD. */
 export async function decryptEntityField(
   encrypted: EncryptedData,
   key: CryptoKey,
   context: EntityFieldAadContext
 ): Promise<string> {
-  assertSupportedEncryptionVersion(encrypted.version);
   const aad = buildFieldAAD(context.table, context.recordId, context.column);
-  return decrypt(encrypted, key, aad);
-}
-
-/**
- * Encrypt a JavaScript object by JSON-serializing it first
- *
- * @param data - The object to encrypt
- * @param key - The CryptoKey to use for encryption
- * @param aad - Optional Additional Authenticated Data
- * @returns Encrypted data
- */
-export async function encryptObject<T extends object>(
-  data: T,
-  key: CryptoKey,
-  aad?: string,
-  encryptionVersion: number = ENCRYPTION_VERSION
-): Promise<EncryptedData> {
-  const json = JSON.stringify(data);
-  return encrypt(json, key, aad, encryptionVersion);
-}
-
-/**
- * Decrypt and parse encrypted data as a JavaScript object
- *
- * @param encrypted - The encrypted data
- * @param key - The CryptoKey to use for decryption
- * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
- * @returns The decrypted and parsed object
- */
-export async function decryptObject<T extends object>(
-  encrypted: EncryptedData,
-  key: CryptoKey,
-  aad?: string
-): Promise<T> {
-  const json = await decrypt(encrypted, key, aad);
-  try {
-    return JSON.parse(json) as T;
-  } catch {
-    throw new CryptoError(
-      CryptoErrorType.DECRYPTION_FAILED,
-      "Decrypted data is not valid JSON"
-    );
-  }
+  return decryptWithAad(encrypted, key, aad);
 }
 
 /**
@@ -296,7 +220,7 @@ export function parseEncryptedData(serialized: string): EncryptedData {
     ) {
       throw new Error("Invalid encrypted data structure");
     }
-    assertSupportedEncryptionVersion(parsed.version);
+    assertCurrentEncryptionVersion(parsed.version);
     if (
       parsed.keyVersion !== undefined &&
       typeof parsed.keyVersion !== "number"
@@ -314,100 +238,4 @@ export function parseEncryptedData(serialized: string): EncryptedData {
       error instanceof Error ? error : undefined
     );
   }
-}
-
-/**
- * Check if a value looks like encrypted data with a supported version.
- */
-export function isEncryptedData(value: unknown): value is EncryptedData {
-  if (
-    typeof value !== "object" ||
-    value === null ||
-    !("iv" in value) ||
-    !("ciphertext" in value) ||
-    !("version" in value)
-  ) {
-    return false;
-  }
-
-  const candidate = value as EncryptedData;
-  if (
-    typeof candidate.iv !== "string" ||
-    typeof candidate.ciphertext !== "string" ||
-    typeof candidate.version !== "number"
-  ) {
-    return false;
-  }
-
-  if (!isSupportedEncryptionVersion(candidate.version)) {
-    return false;
-  }
-
-  if (
-    candidate.keyVersion !== undefined &&
-    typeof candidate.keyVersion !== "number"
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Batch encrypt multiple fields of an object
- * Only encrypts string values, leaves other types unchanged
- *
- * @param aad - Optional Additional Authenticated Data applied to all fields
- */
-export async function encryptFields<T extends Record<string, unknown>>(
-  data: T,
-  fieldsToEncrypt: (keyof T)[],
-  key: CryptoKey,
-  aad?: string
-): Promise<Record<string, unknown>> {
-  const result: Record<string, unknown> = { ...data };
-
-  await Promise.all(
-    fieldsToEncrypt.map(async (field) => {
-      const value = data[field];
-      if (value !== null && value !== undefined) {
-        if (typeof value === "string") {
-          result[field as string] = await encrypt(value, key, aad);
-        } else if (typeof value === "object") {
-          result[field as string] = await encryptObject(
-            value as Record<string, unknown>,
-            key,
-            aad
-          );
-        }
-      }
-    })
-  );
-
-  return result;
-}
-
-/**
- * Batch decrypt multiple fields of an object
- *
- * @param aad - Optional Additional Authenticated Data. Must match the AAD used during encryption.
- */
-export async function decryptFields<T extends Record<string, unknown>>(
-  data: Record<string, unknown>,
-  fieldsToDecrypt: (keyof T)[],
-  key: CryptoKey,
-  aad?: string
-): Promise<T> {
-  const result: Record<string, unknown> = { ...data };
-
-  await Promise.all(
-    fieldsToDecrypt.map(async (field) => {
-      const value = data[field as string];
-      if (isEncryptedData(value)) {
-        result[field as string] = await decrypt(value, key, aad);
-      }
-    })
-  );
-
-  return result as T;
 }

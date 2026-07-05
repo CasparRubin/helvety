@@ -259,22 +259,13 @@ Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` aft
 | Preview env audit    | **OK**                                                                                                         |
 | `helvety-auth`       | `HELVETY_CHROME_EXTENSION_ORIGINS`, Upstash, `SUPABASE_SECRET_KEY` present                                     |
 
-### E2EE encryption version sample (live DB)
+### E2EE encryption format (resolved July 2026)
 
-Legacy v1 ciphertext (weaker AAD: record-level only) still present on a subset of rows; v2 field-bound AAD is used for all new writes:
-
-| Table      | v1 rows | v2 rows | Total sampled |
-| ---------- | ------- | ------- | ------------- |
-| `items`    | 2       | 1       | 3             |
-| `contacts` | 1       | 0       | 1             |
-| `notes`    | 0       | 2       | 2             |
-| `links`    | 0       | 0       | 0             |
-
-Read paths support both versions; migration to v2 on next edit is acceptable backlog.
+All entity ciphertext uses field-bound AAD (`table:recordId:column`, `ENCRYPTION_VERSION = 2`) via `encryptEntityField` / `decryptEntityField`. Legacy record-level format data was cleared from the database; read/write paths accept only the current wire format.
 
 ### Code review highlights (no regressions)
 
-- **Crypto:** AES-256-GCM v2 field-bound AAD via `encryptEntityField` in all vault apps; PRF → HKDF (`helvety-e2ee-v1`); KCV wrong-key detection; master key in IndexedDB with 24h idle / 7d max vault policy.
+- **Crypto:** AES-256-GCM field-bound AAD via `encryptEntityField` in all vault apps (`ENCRYPTION_VERSION = 2` wire format only; legacy record-level ciphertext was cleared); PRF → HKDF with info label `helvety-e2ee-v1` (HKDF domain separation, not ciphertext wire version); KCV wrong-key detection; master key in IndexedDB with 24h idle / 7d max vault policy.
 - **Auth:** `getUser()`-first in server guards and extension session (`extension-session.ts` uses `getSession()` only after JWT validation). Extension passkey verify omits PRF from JSON body.
 - **Admin client:** `createAdminClient()` limited to approved call sites (OTP send, passkey lookup, user lookup, store package downloads); user-owned mutations use scoped client or RLS-scoped user client.
 - **Public tools:** PDF, image-editor, image-upscaler — no user file upload to Supabase in normal flow (client-local processing only).
@@ -297,7 +288,6 @@ Read paths support both versions; migration to v2 on next edit is acceptable bac
 | ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | **Critical** | —                                                                             | None                                                                                       |
 | **High**     | —                                                                             | None                                                                                       |
-| **Medium**   | Legacy v1 ciphertext on 3 entity rows                                         | Re-encrypt on next user edit or schedule background migration                              |
 | **Medium**   | Supabase Free: hosted session time-box / inactivity settings not configurable | App-layer vault + device trust compensate; align Dashboard on Pro upgrade                  |
 | **Medium**   | Structural metadata (category/stage/folder ids) stored plaintext              | By design — privacy policy aligned                                                         |
 | **Low**      | `apps/web/.env.local` missing `IMAGE_EDITOR_URL`                              | Add from [`apps/web/env.template`](apps/web/env.template) for local gateway rewrites       |
@@ -390,7 +380,7 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 **E2EE & crypto**
 
-- All vault app encryption modules use `encryptEntityField` / v2 field-bound AAD (enforced by `consistency:e2ee-aad`).
+- All vault app encryption modules use `encryptEntityField` / field-bound AAD (enforced by `consistency:e2ee-aad`).
 - Extension writes use `encryptEntityField` (`encrypt-entities.ts`); `assertEncryptedWritePayloadAuto` from `@helvety/shared/e2ee-write-guard` blocks plaintext column names (`entity-repository.test.ts`, shared `e2ee-entity-columns` / `e2ee-write-guard` tests).
 - Passkey unlock strips `clientExtensionResults` from verify JSON body; PRF derived locally (`passkey-unlock.ts`; `passkey-unlock.test.ts`).
 - KCV wrong-key detection before writes; vault idle/max policy via `vault-session.ts`, `key-storage.ts`, `useVaultIdleLock`.
@@ -424,7 +414,6 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 | ------------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | **Critical** | —                                                                                 | None                                                             |
 | **High**     | —                                                                                 | None                                                             |
-| **Medium**   | Legacy v1 ciphertext on subset of rows (per prior live DB sample)                 | Re-encrypt on next user edit                                     |
 | **Medium**   | Supabase Free: hosted session time-box / inactivity not configurable in Dashboard | App-layer vault + device trust compensate; align on Pro upgrade  |
 | **Medium**   | Structural metadata plaintext                                                     | By design                                                        |
 | **Low**      | `consistency:supabase-rls` skipped (no local export)                              | Regenerate `supabase/supabase.json` locally after schema changes |
@@ -469,16 +458,16 @@ Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pin
 | **React**             | `^19.2.7`; E2EE pages auth-gated in Server Components                                        | **Aligned**                                                           |
 | **Vercel**            | `failClosedOnAuthRefresh` on auth gateway; prod/preview env audits                           | **Aligned**                                                           |
 | **Session mutations** | `createServerMutatingClient` for OTP/callback/logout; read client no-ops after proxy refresh | **Aligned**                                                           |
-| **E2EE**              | v2 field-bound AAD; PRF → HKDF; device trust + weekly proof HMAC                             | **Aligned**                                                           |
+| **E2EE**              | Field-bound AAD; PRF → HKDF; device trust + weekly proof HMAC                                | **Aligned**                                                           |
 
 ### Plan phase completeness
 
-| Phase                  | Status       | Notes                                                                                                                                                                                                           |
-| ---------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 Automated guardrails | **Complete** | Both repos; all auth/E2EE scripts re-confirmed                                                                                                                                                                  |
-| 2 Live infra           | **Partial**  | Vercel + production curl OK; Supabase MCP/RLS export **not** re-run (no local `supabase.json`); v1/v2 ciphertext sample **not** re-queried (prior July sample still valid backlog); Vercel Analytics **manual** |
-| 3 Code review          | **Complete** | Auth, E2EE, extension surfaces reviewed                                                                                                                                                                         |
-| 4 Interactive smoke    | **Deferred** | Requires operator passkey/OTP; automated substitutes documented                                                                                                                                                 |
-| 5 Findings report      | **Complete** | This section + tables above                                                                                                                                                                                     |
+| Phase                  | Status       | Notes                                                                                                                       |
+| ---------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| 1 Automated guardrails | **Complete** | Both repos; all auth/E2EE scripts re-confirmed                                                                              |
+| 2 Live infra           | **Partial**  | Vercel + production curl OK; Supabase MCP/RLS export **not** re-run (no local `supabase.json`); Vercel Analytics **manual** |
+| 3 Code review          | **Complete** | Auth, E2EE, extension surfaces reviewed                                                                                     |
+| 4 Interactive smoke    | **Deferred** | Requires operator passkey/OTP; automated substitutes documented                                                             |
+| 5 Findings report      | **Complete** | This section + tables above                                                                                                 |
 
 **Nothing broken:** audit execution was read-only (doc append + verification commands). No application code or dependency changes were made during this pass.

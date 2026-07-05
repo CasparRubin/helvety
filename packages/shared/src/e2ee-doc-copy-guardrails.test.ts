@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -27,12 +27,7 @@ const RETIRED_E2EE_MODULE_REFS = [
   /e2ee-data-select\.test\.ts/i,
 ] as const;
 
-/** Legacy record-level AAD helper — docs must not instruct using it (guard scripts may mention it). */
-const RETIRED_BUILD_AAD_INSTRUCTION = /\bbuildAAD\s*\(/;
-
-/**
- *
- */
+/** Reads a maintainer doc from the monorepo root. */
 function readRepoFile(relativePath: string): string {
   return readFileSync(join(repoRoot, relativePath), "utf8");
 }
@@ -52,26 +47,19 @@ describe("E2EE maintainer doc copy guardrails", () => {
     }
   );
 
-  it("app-consistency checklist does not instruct buildAAD in entity crypto", () => {
+  it("app-consistency checklist documents field-bound entity crypto", () => {
     const text = readRepoFile("docs/app-consistency-checklist.md");
-    expect(text).not.toMatch(RETIRED_BUILD_AAD_INSTRUCTION);
     expect(text).toContain("buildFieldAAD");
+    expect(text).toContain("encryptEntityField");
+    expect(text).toContain("decryptEntityField");
     expect(text).toContain("e2ee-entity-columns");
   });
 
-  it("consistency scripts may mention buildAAD only as a forbidden legacy pattern", () => {
-    const scriptPaths = readdirSync(join(repoRoot, "scripts"))
-      .filter((name) => name.includes("e2ee") && name.endsWith(".mjs"))
-      .map((name) => `scripts/${name}`);
-
-    for (const rel of scriptPaths) {
-      const text = readRepoFile(rel);
-      if (!text.includes("buildAAD")) {
-        continue;
-      }
-      expect(text, `${rel} must frame buildAAD as legacy/forbidden`).toMatch(
-        /legacy|forbidden|instead of/i
-      );
-    }
+  it("security audit documents ENCRYPTION_VERSION = 2 only (no legacy wire v1 support)", () => {
+    const text = readRepoFile("docs/security-audit-2026-06-13.md");
+    expect(text).toContain("ENCRYPTION_VERSION = 2");
+    expect(text).toContain("encryptEntityField");
+    expect(text).not.toMatch(/supports encryption version 1/i);
+    expect(text).not.toMatch(/migrate.*version 1/i);
   });
 });

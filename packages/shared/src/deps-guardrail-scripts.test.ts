@@ -116,3 +116,14 @@ describe("consistency guardrails script", () => {
     expect(output).toContain("Consistency guardrail checks passed.");
   });
 });
+
+describe("E2EE AAD guardrail script", () => {
+  it("passes when entity crypto modules use field-bound helpers", () => {
+    const output = execFileSync(
+      process.execPath,
+      [join(repoRoot, "scripts", "check-e2ee-aad-patterns.mjs")],
+      { cwd: repoRoot, encoding: "utf8" }
+    );
+    expect(output).toContain("E2EE AAD guardrail passed");
+  });
+});

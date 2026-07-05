@@ -105,9 +105,7 @@ export type CreateE2eeEntityLinksHookConfig<
       TCatalogPayload
     >;
 
-/**
- *
- */
+/** Tracks mount state and stale async request ids for entity link loads. */
 function useRequestLifecycle() {
   const mountedRef = useRef(true);
   const latestRefreshRequestRef = useRef(0);

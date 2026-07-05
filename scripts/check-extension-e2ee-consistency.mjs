@@ -87,6 +87,13 @@ assertPatterns("src/lib/entity-defaults.ts", [
   "@helvety/shared/e2ee-entity-defaults",
 ]);
 
+assertPatterns("src/lib/extension-entity-links-hooks.tsx", [
+  "getE2eeHookErrorMessage",
+  "toast.error",
+]);
+
+assertNoPatterns("src/lib/extension-entity-links-hooks.tsx", ["catch {}"]);
+
 if (existsSync(join(extensionRoot, "src/lib/e2ee-data-select.ts"))) {
   failures.push("Remove legacy src/lib/e2ee-data-select.ts");
 }

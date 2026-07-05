@@ -145,6 +145,9 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
         "@helvety/extension-chrome/extension-tokens.css"
       );
       expect(readme).toContain("header command bar");
+      expect(readme).toContain("sonner");
+      expect(readme).toContain("getE2eeHookErrorMessage");
+      expect(readme).not.toMatch(/\| `@helvety\/ui`[^\n]*@helvety\/ui\/sonner/);
       expect(readme).not.toMatch(/local fork/i);
     } catch {
       // Sibling extension repo optional in some checkouts.

@@ -3,9 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useSourceImage } from "./use-source-image";
 
-/**
- *
- */
+/** Minimal `Image` stub for hook tests. */
 class MockImage {
   naturalWidth = 640;
   naturalHeight = 480;

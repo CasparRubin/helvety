@@ -268,7 +268,7 @@ export function EncryptionSetup({
             await saveKeyCheckValue(csrfToken, kcv);
           } catch (kcvError) {
             logger.warn(
-              "Failed to save key check value during registration (will be generated on first unlock):",
+              "Failed to save key check value during registration; KCV backfills on first unlock:",
               kcvError
             );
           }
@@ -277,9 +277,8 @@ export function EncryptionSetup({
             "Master key derived and stored during passkey registration (zero extra touches)"
           );
         } catch (prfError) {
-          // Non-fatal: EncryptionGate will handle unlock as fallback
           logger.warn(
-            "Failed to derive master key from registration PRF output (will use fallback):",
+            "Failed to derive master key during registration; EncryptionGate will prompt for unlock:",
             prfError
           );
         }

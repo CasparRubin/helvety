@@ -15,7 +15,7 @@ describe("e2ee-write-guard", () => {
     );
   });
 
-  it("validates encrypted fields are v2 ciphertext strings", () => {
+  it("validates encrypted fields are current-format ciphertext strings", () => {
     const payload = {
       encrypted_title: JSON.stringify({
         iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
@@ -26,22 +26,22 @@ describe("e2ee-write-guard", () => {
     expect(() => assertEncryptedWritePayloadAuto(payload)).not.toThrow();
   });
 
-  it("rejects legacy v1 encrypted payloads", () => {
+  it("rejects unsupported encryption versions", () => {
     const payload = {
       encrypted_title: JSON.stringify({
         iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
         ciphertext: "QUFBQUFBQUFBQUFBQUFBQQ==",
-        version: 1,
+        version: 99,
       }),
     };
     expect(() => assertEncryptedWritePayloadAuto(payload)).toThrow(
-      /invalid encrypted field|Unsupported encryption version|version 2/
+      /invalid encrypted field|Invalid encrypted data format/
     );
   });
 });
 
 describe("assertEncryptedWritePayload", () => {
-  const validV2 = JSON.stringify({
+  const validEncrypted = JSON.stringify({
     iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
     ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
     version: 2,
@@ -49,7 +49,7 @@ describe("assertEncryptedWritePayload", () => {
 
   it("allows null encrypted fields and skips undefined keys", () => {
     const payload = {
-      encrypted_title: validV2,
+      encrypted_title: validEncrypted,
       encrypted_description: null,
     };
     expect(() =>
@@ -63,11 +63,11 @@ describe("assertEncryptedWritePayload", () => {
 
   it("validates only the named encrypted fields", () => {
     const payload = {
-      encrypted_title: validV2,
+      encrypted_title: validEncrypted,
       encrypted_description: JSON.stringify({
         iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
         ciphertext: "QUFBQUFBQUFBQUFBQUFBQQ==",
-        version: 1,
+        version: 99,
       }),
     };
     expect(() =>
@@ -75,9 +75,7 @@ describe("assertEncryptedWritePayload", () => {
     ).not.toThrow();
     expect(() =>
       assertEncryptedWritePayload(payload, ["encrypted_description"])
-    ).toThrow(
-      /invalid encrypted field|version 2|Invalid encrypted data format/
-    );
+    ).toThrow(/invalid encrypted field|Invalid encrypted data format/);
   });
 
   it("rejects non-string non-null encrypted values", () => {

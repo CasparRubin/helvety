@@ -2,7 +2,6 @@
  * Client-side E2EE write invariants shared by web apps and the Chromium extension.
  */
 
-import { ENCRYPTION_VERSION } from "./crypto/encryption";
 import { EncryptedDataSchema } from "./validation/encrypted-data";
 
 /** Plaintext content field names that must never appear in DB write payloads. */
@@ -32,7 +31,7 @@ export function assertNoPlaintextContentKeys(
   }
 }
 
-/** Validates encrypted field strings in a write payload (v2-only). */
+/** Validates encrypted field strings in a write payload. */
 export function assertEncryptedWritePayload(
   payload: Record<string, unknown>,
   encryptedFieldNames: readonly string[]
@@ -56,12 +55,6 @@ export function assertEncryptedWritePayload(
     if (!result.success) {
       throw new Error(
         `E2EE write guard: invalid encrypted field "${field}": ${result.error.message}`
-      );
-    }
-    const parsed = JSON.parse(value) as { version?: number };
-    if (parsed.version !== ENCRYPTION_VERSION) {
-      throw new Error(
-        `E2EE write guard: encrypted field "${field}" must use version ${ENCRYPTION_VERSION}`
       );
     }
   }

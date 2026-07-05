@@ -57,9 +57,7 @@ describe("authenticateAndRateLimit", () => {
     mockGetValidDeviceTrustFromCookieStore.mockReturnValue(null);
   });
 
-  /**
-   *
-   */
+  /** Stubs a valid device-trust cookie for the given user id. */
   function mockDeviceTrustForUser(userId: string): void {
     mockGetValidDeviceTrustFromCookieStore.mockReturnValue({
       v: 1,

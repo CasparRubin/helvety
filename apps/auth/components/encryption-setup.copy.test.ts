@@ -17,4 +17,14 @@ describe("encryption-setup copy", () => {
     expect(source).toContain("helvety.com/notes");
     expect(source).toContain("helvety.com/links");
   });
+
+  it("does not describe registration PRF failures as legacy crypto fallback", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/auth/components/encryption-setup.tsx"),
+      "utf8"
+    );
+    expect(source).not.toMatch(/will use fallback/i);
+    expect(source).not.toMatch(/Non-fatal:/i);
+    expect(source).toContain("EncryptionGate will prompt for unlock");
+  });
 });

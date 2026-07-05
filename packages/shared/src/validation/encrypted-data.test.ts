@@ -35,21 +35,23 @@ describe("EncryptedDataSchema", () => {
 
   it("rejects invalid encrypted JSON shape", () => {
     expect(
-      EncryptedDataSchema.safeParse(JSON.stringify({ iv: "short", version: 1 }))
+      EncryptedDataSchema.safeParse(JSON.stringify({ iv: "short", version: 2 }))
         .success
     ).toBe(false);
   });
 
-  it("rejects legacy v1 payloads (schema requires v2 via isSupportedEncryptionVersion)", () => {
-    expect(
-      EncryptedDataSchema.safeParse(
-        JSON.stringify({
-          iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
-          ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-          version: 1,
-        })
-      ).success
-    ).toBe(false);
+  it("rejects non-current encryption versions", () => {
+    for (const version of [0, 1, 99]) {
+      expect(
+        EncryptedDataSchema.safeParse(
+          JSON.stringify({
+            iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+            ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
+            version,
+          })
+        ).success
+      ).toBe(false);
+    }
   });
 
   it("rejects IV shorter than 16 characters", () => {
@@ -71,18 +73,6 @@ describe("EncryptedDataSchema", () => {
           iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
           ciphertext: "c2hvcnQ=",
           version: 2,
-        })
-      ).success
-    ).toBe(false);
-  });
-
-  it("rejects version below 1", () => {
-    expect(
-      EncryptedDataSchema.safeParse(
-        JSON.stringify({
-          iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
-          ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-          version: 0,
         })
       ).success
     ).toBe(false);

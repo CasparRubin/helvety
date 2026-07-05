@@ -24,9 +24,6 @@ export interface LinkedContact extends Contact {
   linked_at: string;
 }
 
-/**
- *
- */
 interface ContactPickerRow {
   id: string;
   user_id: string;
@@ -47,9 +44,6 @@ interface ItemContactLinkRow {
   created_at: string;
 }
 
-/**
- *
- */
 async function decryptContactPickerRows(
   rows: ContactPickerRow[],
   key: CryptoKey

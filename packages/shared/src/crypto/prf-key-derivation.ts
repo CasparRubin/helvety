@@ -11,7 +11,7 @@ import { CryptoError, CryptoErrorType, type PRFKeyParams } from "./types";
 
 export type { PRFKeyParams };
 
-/** Current PRF encryption version */
+/** PRF params schema version stored in `user_passkey_params.version` (not ciphertext `ENCRYPTION_VERSION`). */
 export const PRF_VERSION = 1;
 
 /** PRF salt length in bytes */

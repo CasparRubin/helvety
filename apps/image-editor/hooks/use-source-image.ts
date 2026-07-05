@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /** Loaded source image plus its object URL and natural dimensions. */
-export interface SourceImageState {
+interface SourceImageState {
   file: File;
   objectUrl: string;
   image: HTMLImageElement;

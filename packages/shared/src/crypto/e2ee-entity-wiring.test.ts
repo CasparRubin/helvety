@@ -26,11 +26,6 @@ describe("E2EE entity encryption wiring", () => {
       const src = readRepoFile(relativePath);
       expect(src).toContain("encryptEntityField");
       expect(src).toContain("decryptEntityField");
-      expect(src).not.toMatch(/\bawait\s+encrypt\s*\(/);
-      expect(src).not.toMatch(/\bawait\s+decrypt\s*\(/);
-      expect(src).not.toMatch(/\bencryptFields\s*\(/);
-      expect(src).not.toMatch(/\bdecryptFields\s*\(/);
-      expect(src).not.toMatch(/\bbuildAAD\s*\(/);
     }
   );
 
@@ -41,7 +36,15 @@ describe("E2EE entity encryption wiring", () => {
     ]) {
       const src = readRepoFile(relativePath);
       expect(src).toContain("decryptEntityField");
-      expect(src).not.toMatch(/\bawait\s+decrypt\s*\(/);
     }
   });
+
+  it.each(ENTITY_CRYPTO_MODULES)(
+    "%s does not call raw low-level encrypt/decrypt",
+    (relativePath) => {
+      const src = readRepoFile(relativePath);
+      expect(src).not.toMatch(/\bawait\s+encrypt\s*\(/);
+      expect(src).not.toMatch(/\bawait\s+decrypt\s*\(/);
+    }
+  );
 });

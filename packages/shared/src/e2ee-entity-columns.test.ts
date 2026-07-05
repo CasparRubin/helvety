@@ -8,9 +8,7 @@ import {
 } from "./e2ee-entity-columns";
 import { PLAINTEXT_CONTENT_FIELD_NAMES } from "./e2ee-write-guard";
 
-/**
- *
- */
+/** Splits a comma-separated SQL select list into trimmed column tokens. */
 function columnTokens(select: string): string[] {
   return select.split(",").map((column) => column.trim());
 }

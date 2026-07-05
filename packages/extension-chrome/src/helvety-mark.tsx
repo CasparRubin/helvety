@@ -4,10 +4,6 @@ import { cn } from "@helvety/shared/utils";
 import type { JSX } from "react";
 
 /** Helvety identifier mark for About tab **Developer** sections. */
-
-/**
- *
- */
 export function HelvetyMark({
   className,
 }: {

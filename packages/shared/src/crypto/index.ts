@@ -19,26 +19,10 @@ export { CryptoError, CryptoErrorType } from "./types";
 // Encryption
 export {
   ENCRYPTION_VERSION,
-  SUPPORTED_ENCRYPTION_VERSIONS,
-  CURRENT_KEY_VERSION,
-  buildFieldAAD,
-  encrypt,
-  decrypt,
   encryptEntityField,
   decryptEntityField,
-  encryptObject,
-  decryptObject,
   serializeEncryptedData,
   parseEncryptedData,
-  isEncryptedData,
-  isSupportedEncryptionVersion,
-  assertSupportedEncryptionVersion,
-  encryptFields,
-  decryptFields,
-} from "./encryption";
-export type {
-  EntityFieldAadContext,
-  SupportedEncryptionVersion,
 } from "./encryption";
 
 // Key Storage

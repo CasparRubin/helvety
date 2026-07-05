@@ -153,7 +153,7 @@ Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; d
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
 - `lib/product-copy.test.ts`: `pdf` / `image-upscaler` / `image-editor` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
 - `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`links`).
-- Crypto: v2 field-bound AAD (`buildFieldAAD`) allowlist per zone in `lib/crypto/encryption.test.ts`; entity encryption modules use `encryptEntityField` / `decryptEntityField` (`consistency:e2ee-aad`). Shared E2EE SSOT: `@helvety/shared/e2ee-entity-columns`, `@helvety/shared/e2ee-write-guard`, `@helvety/shared/e2ee-entity-defaults`.
+- Crypto: field-bound AAD (`buildFieldAAD`) allowlist per zone in `lib/crypto/encryption.test.ts`; entity encryption modules use `encryptEntityField` / `decryptEntityField` only (`consistency:e2ee-aad`; no raw `await encrypt(` / `await decrypt(`). Ciphertext wire format is `ENCRYPTION_VERSION = 2` only. Shared E2EE SSOT: `@helvety/shared/e2ee-entity-columns`, `@helvety/shared/e2ee-write-guard`, `@helvety/shared/e2ee-entity-defaults`.
 
 ## `package.json` conventions
 

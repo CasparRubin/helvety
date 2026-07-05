@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isSupportedEncryptionVersion } from "../crypto/encryption";
+import { ENCRYPTION_VERSION } from "../crypto/encryption";
 
 /** Default max serialized length for encrypted fields (100KB). */
 const DEFAULT_MAX_ENCRYPTED_DATA_CHARS = 100000;
@@ -34,7 +34,7 @@ export function createEncryptedDataSchema(
             base64Regex.test(parsed.ciphertext) &&
             typeof parsed.version === "number" &&
             Number.isInteger(parsed.version) &&
-            isSupportedEncryptionVersion(parsed.version)
+            parsed.version === ENCRYPTION_VERSION
           );
         } catch {
           return false;
