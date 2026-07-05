@@ -8,17 +8,11 @@ import { CryptoError, CryptoErrorType } from "./types";
 
 import type { EncryptedData } from "./types";
 
-/** Legacy encryption format: AAD binds table + record id only. */
-export const ENCRYPTION_VERSION_LEGACY = 1;
-
 /** Current encryption format: AAD binds table + record id + column. */
 export const ENCRYPTION_VERSION = 2;
 
 /** Supported `EncryptedData.version` values for read paths. */
-export const SUPPORTED_ENCRYPTION_VERSIONS = [
-  ENCRYPTION_VERSION_LEGACY,
-  ENCRYPTION_VERSION,
-] as const;
+export const SUPPORTED_ENCRYPTION_VERSIONS = [ENCRYPTION_VERSION] as const;
 
 /** Supported encryption format version literal union. */
 export type SupportedEncryptionVersion =
@@ -97,21 +91,6 @@ export function assertSupportedEncryptionVersion(version: number): void {
 }
 
 /**
- * Build Additional Authenticated Data (AAD) for AES-GCM encryption (v1 legacy).
- * AAD binds ciphertext to its database record, preventing encrypted data from being moved
- * between records or tables.
- *
- * @param table - The database table name (e.g. "items", "contacts")
- * @param recordId - The UUID of the record
- * @returns AAD string in the format "table:recordId"
- */
-export function buildAAD(table: string, recordId: string): string {
-  assertAllowedTable(table);
-  assertUuidRecordId(recordId);
-  return `${table}:${recordId}`;
-}
-
-/**
  * Build field-bound AAD for v2 encryption (`table:recordId:column`).
  * Prevents intra-record ciphertext column swaps.
  */
@@ -127,20 +106,6 @@ export function buildFieldAAD(
 }
 
 /**
- * Resolve the AAD string used during encryption for a stored ciphertext version.
- */
-export function resolveAADForDecrypt(
-  context: EntityFieldAadContext,
-  version: number
-): string {
-  assertSupportedEncryptionVersion(version);
-  if (version >= ENCRYPTION_VERSION) {
-    return buildFieldAAD(context.table, context.recordId, context.column);
-  }
-  return buildAAD(context.table, context.recordId);
-}
-
-/**
  * Encrypt a string using AES-256-GCM
  *
  * @param data - The plaintext string to encrypt
@@ -148,16 +113,15 @@ export function resolveAADForDecrypt(
  * @param aad - Optional Additional Authenticated Data to bind ciphertext to its context.
  *              When provided, the same AAD must be supplied during decryption.
  *              Use to prevent ciphertext from being moved between records/contexts.
- *              Format: legacy v1 `table:recordId` (`buildAAD`); v2 field-bound
- *              `table:recordId:column` (`buildFieldAAD` / `encryptEntityField`)
- * @param encryptionVersion - Format version stored in the payload (default: legacy v1).
+ *              Format: v2 field-bound `table:recordId:column` (`buildFieldAAD` / `encryptEntityField`)
+ * @param encryptionVersion - Format version stored in the payload (default: v2).
  * @returns Encrypted data with IV and ciphertext
  */
 export async function encrypt(
   data: string,
   key: CryptoKey,
   aad?: string,
-  encryptionVersion: number = ENCRYPTION_VERSION_LEGACY
+  encryptionVersion: number = ENCRYPTION_VERSION
 ): Promise<EncryptedData> {
   if (!isSupportedEncryptionVersion(encryptionVersion)) {
     throw new CryptoError(
@@ -257,14 +221,15 @@ export async function decrypt(
 }
 
 /**
- * Decrypt an entity field using version-aware AAD resolution (v1 + v2).
+ * Decrypt an entity field using v2 field-bound AAD.
  */
 export async function decryptEntityField(
   encrypted: EncryptedData,
   key: CryptoKey,
   context: EntityFieldAadContext
 ): Promise<string> {
-  const aad = resolveAADForDecrypt(context, encrypted.version);
+  assertSupportedEncryptionVersion(encrypted.version);
+  const aad = buildFieldAAD(context.table, context.recordId, context.column);
   return decrypt(encrypted, key, aad);
 }
 
@@ -280,7 +245,7 @@ export async function encryptObject<T extends object>(
   data: T,
   key: CryptoKey,
   aad?: string,
-  encryptionVersion: number = ENCRYPTION_VERSION_LEGACY
+  encryptionVersion: number = ENCRYPTION_VERSION
 ): Promise<EncryptedData> {
   const json = JSON.stringify(data);
   return encrypt(json, key, aad, encryptionVersion);

@@ -28,6 +28,8 @@ describe("E2EE entity encryption wiring", () => {
       expect(src).toContain("decryptEntityField");
       expect(src).not.toMatch(/\bawait\s+encrypt\s*\(/);
       expect(src).not.toMatch(/\bawait\s+decrypt\s*\(/);
+      expect(src).not.toMatch(/\bencryptFields\s*\(/);
+      expect(src).not.toMatch(/\bdecryptFields\s*\(/);
       expect(src).not.toMatch(/\bbuildAAD\s*\(/);
     }
   );

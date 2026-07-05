@@ -2,7 +2,7 @@
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
-  generateKeyCheckValue,
+  backfillKeyCheckValueIfMissing,
   verifyKeyCheckValue,
 } from "@helvety/shared/crypto/key-check";
 import {
@@ -33,10 +33,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getDeviceTrustStatus } from "@/app/actions/device-trust-actions";
-import {
-  getPasskeyParams,
-  saveKeyCheckValue,
-} from "@/app/actions/encryption-actions";
+import { getPasskeyParams } from "@/app/actions/encryption-actions";
 import {
   sendVerificationCode,
   verifyEmailCode,
@@ -900,12 +897,20 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
                     }
                   } else {
                     try {
-                      const newKeyCheckValue =
-                        await generateKeyCheckValue(masterKey);
-                      await saveKeyCheckValue(csrfToken, newKeyCheckValue);
+                      const backfill = await backfillKeyCheckValueIfMissing(
+                        supabase,
+                        verifyResult.data.userId,
+                        masterKey
+                      );
+                      if (!backfill.ok) {
+                        logger.warn(
+                          "Unable to backfill key check value during login bootstrap:",
+                          backfill.message
+                        );
+                      }
                     } catch (kcvError) {
                       logger.warn(
-                        "Unable to save key check value during login bootstrap:",
+                        "Unable to backfill key check value during login bootstrap:",
                         kcvError
                       );
                     }
@@ -955,6 +960,7 @@ export function useLoginFlow(options: UseLoginFlowOptions): LoginFlowState {
       email,
       passkeySupported,
       redirectUri,
+      supabase,
       surfaceLoginError,
     ]
   );

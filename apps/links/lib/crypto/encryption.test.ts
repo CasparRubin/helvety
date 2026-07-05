@@ -1,44 +1,27 @@
+import { buildFieldAAD } from "@helvety/shared/crypto/encryption";
 import { describe, expect, it } from "vitest";
-
-import { buildAAD } from "./encryption";
-import * as linkEncryption from "./link-encryption";
-import * as folderEncryption from "./link-folder-encryption";
 
 const VALID_UUID = "550e8400-e29b-41d4-a716-446655440000";
 
-describe("links crypto buildAAD", () => {
-  it("accepts link_folders and links table names", () => {
-    expect(buildAAD("link_folders", VALID_UUID)).toBe(
-      `link_folders:${VALID_UUID}`
+describe("links crypto buildFieldAAD", () => {
+  it("builds field-bound AAD for allowed tables", () => {
+    expect(buildFieldAAD("link_folders", VALID_UUID, "encrypted_name")).toBe(
+      `link_folders:${VALID_UUID}:encrypted_name`
     );
-    expect(buildAAD("links", VALID_UUID)).toBe(`links:${VALID_UUID}`);
+    expect(buildFieldAAD("links", VALID_UUID, "encrypted_url")).toBe(
+      `links:${VALID_UUID}:encrypted_url`
+    );
   });
 
-  it("rejects invalid table names", () => {
-    expect(() => buildAAD("stages", VALID_UUID)).toThrow(
+  it("rejects disallowed table names", () => {
+    expect(() => buildFieldAAD("stages", VALID_UUID, "encrypted_name")).toThrow(
       "Invalid AAD table name"
     );
   });
 
-  it("rejects invalid UUID record ids", () => {
-    expect(() => buildAAD("links", "not-a-uuid")).toThrow(
+  it("rejects non-UUID record ids", () => {
+    expect(() => buildFieldAAD("links", "not-a-uuid", "encrypted_url")).toThrow(
       "Invalid AAD record ID"
     );
-  });
-});
-
-describe("links encryption module surface", () => {
-  it("exposes folder encrypt/decrypt entrypoints", () => {
-    expect(typeof folderEncryption.encryptFolderInput).toBe("function");
-    expect(typeof folderEncryption.encryptFolderUpdate).toBe("function");
-    expect(typeof folderEncryption.decryptFolderRow).toBe("function");
-    expect(typeof folderEncryption.decryptFolderRows).toBe("function");
-  });
-
-  it("exposes link encrypt/decrypt entrypoints", () => {
-    expect(typeof linkEncryption.encryptLinkInput).toBe("function");
-    expect(typeof linkEncryption.encryptLinkUpdate).toBe("function");
-    expect(typeof linkEncryption.decryptLinkRow).toBe("function");
-    expect(typeof linkEncryption.decryptLinkRows).toBe("function");
   });
 });

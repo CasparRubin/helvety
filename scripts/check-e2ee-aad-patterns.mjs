@@ -25,6 +25,8 @@ const ALLOWLIST_SUFFIXES = [".test.ts", ".test.tsx"];
 const FORBIDDEN_PATTERNS = [
   /\bawait\s+encrypt\s*\(/u,
   /\bawait\s+decrypt\s*\(/u,
+  /\bencryptFields\s*\(/u,
+  /\bdecryptFields\s*\(/u,
   /\bbuildAAD\s*\(/u,
 ];
 

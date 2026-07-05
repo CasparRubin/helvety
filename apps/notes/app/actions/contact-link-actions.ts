@@ -4,7 +4,7 @@ import "server-only";
 
 import { authenticateAndRateLimit } from "@helvety/shared/action-helpers";
 import { ACTION_LIMITS } from "@helvety/shared/constants";
-import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
+import { CONTACT_LINK_PICKER_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createCanonicalLink,
   deleteCanonicalLink,
@@ -44,7 +44,7 @@ export async function getContacts(): Promise<ActionResponse<ContactRow[]>> {
 
     const { data: contacts, error } = await supabase
       .from("contacts")
-      .select(ENCRYPTED_PREFETCH_COLUMNS.contacts)
+      .select(CONTACT_LINK_PICKER_COLUMNS)
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false })

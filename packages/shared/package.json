@@ -44,7 +44,10 @@
     "./e2ee-dashboard-search": "./src/e2ee-dashboard-search.ts",
     "./e2ee-deep-link": "./src/e2ee-deep-link.ts",
     "./e2ee-draft": "./src/e2ee-draft.ts",
+    "./e2ee-entity-columns": "./src/e2ee-entity-columns.ts",
+    "./e2ee-entity-defaults": "./src/e2ee-entity-defaults.ts",
     "./e2ee-json-export": "./src/e2ee-json-export.ts",
+    "./e2ee-write-guard": "./src/e2ee-write-guard.ts",
     "./constants": "./src/constants.ts",
     "./dashboard-prefetch": "./src/dashboard-prefetch.ts",
     "./client-env": "./src/client-env.ts",
@@ -112,7 +115,8 @@
     "./validation/encrypted-data": "./src/validation/encrypted-data.ts",
     "./uuid-string": "./src/uuid-string.ts",
     "./encryption-actions": "./src/encryption-actions.ts",
-    "./user-passkey-params-db": "./src/user-passkey-params-db.ts"
+    "./user-passkey-params-db": "./src/user-passkey-params-db.ts",
+    "./user-passkey-params-client": "./src/user-passkey-params-client.ts"
   },
   "dependencies": {
     "@helvety/config": "workspace:*",

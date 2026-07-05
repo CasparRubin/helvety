@@ -3,6 +3,8 @@
  * Stages are immutable and defined in code.
  */
 
+import { DEFAULT_TASK_STAGE_ID } from "@helvety/shared/e2ee-entity-defaults";
+
 /** Fixed default stage shape. */
 interface DefaultStage {
   id: string;
@@ -98,7 +100,7 @@ export const DEFAULT_STAGE_CONFIGS = {
 };
 
 /** First stage ID per entity - use when stage_id is required and omitted. */
-export const DEFAULT_ITEM_STAGE_ID = DEFAULT_STAGE_CONFIGS.item.stages[0]?.id;
+export const DEFAULT_ITEM_STAGE_ID = DEFAULT_TASK_STAGE_ID;
 
 /** Returns true when a config ID is a built-in default ID. */
 export function isDefaultConfigId(configId: string): boolean {

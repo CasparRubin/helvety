@@ -3,7 +3,7 @@ export function sampleEncryptedField(ciphertextLength = 24): string {
   return JSON.stringify({
     iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
     ciphertext: "A".repeat(ciphertextLength),
-    version: 1,
+    version: 2,
   });
 }
 

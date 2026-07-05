@@ -481,6 +481,15 @@ export function EncryptionSetup({
             </div>
           </div>
 
+          <div className="rounded-lg border p-3">
+            <p className="text-muted-foreground text-sm">
+              After setup, you can export a JSON backup of your encrypted data
+              from any Helvety web app (Settings → Export). Keep that file safe
+              alongside your passkey. Helvety cannot recover your data without
+              both.
+            </p>
+          </div>
+
           <div className="space-y-3 rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">

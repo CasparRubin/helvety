@@ -235,7 +235,7 @@ Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` aft
 | `bun run consistency:vercel-preview-env`         | **OK**                                                                                                  |
 | `bun run consistency:supabase-rls`               | **OK** (9 user-data tables)                                                                             |
 | `bun run consistency:local-env`                  | **FAIL** — `apps/web/.env.local` missing `IMAGE_EDITOR_URL` (local dev only; production gateway env OK) |
-| `pnpm run ci:check` (extension)                  | **OK** (265 tests + `consistency:extension-auth`)                                                       |
+| `pnpm run ci:check` (extension)                  | **OK** (all pass + `consistency:extension-auth`)                                                        |
 
 ### Live Supabase MCP (`helvety`, `bkdzeihxzvrkndjvyzye`, eu-central-2, Postgres **17.6.1**, `ACTIVE_HEALTHY`)
 
@@ -363,7 +363,7 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 | `bun run consistency:vercel-preview-env`         | **OK**                                                                                                                                                                     |
 | `bun run consistency:supabase-rls`               | **SKIPPED** — no local `supabase/supabase.json` (generate via `supabase/getSupabase.sql` to verify RLS locally)                                                            |
 | `bun run consistency:local-env`                  | **OK** (10 missing `.env.local` warnings — expected when zones are not run locally)                                                                                        |
-| `pnpm run ci:check` (extension)                  | **OK** (258 tests + `consistency:extension-auth`)                                                                                                                          |
+| `pnpm run ci:check` (extension)                  | **OK** (all pass + `consistency:extension-auth`)                                                                                                                           |
 
 ### Production spot-checks (curl against helvety.com)
 
@@ -391,14 +391,15 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 **E2EE & crypto**
 
 - All vault app encryption modules use `encryptEntityField` / v2 field-bound AAD (enforced by `consistency:e2ee-aad`).
-- Extension writes use `encryptEntityField` (`encrypt-entities.ts`); privacy guards block plaintext column names (`e2ee-privacy.ts`, tests).
+- Extension writes use `encryptEntityField` (`encrypt-entities.ts`); `assertEncryptedWritePayloadAuto` from `@helvety/shared/e2ee-write-guard` blocks plaintext column names (`entity-repository.test.ts`, shared `e2ee-entity-columns` / `e2ee-write-guard` tests).
 - Passkey unlock strips `clientExtensionResults` from verify JSON body; PRF derived locally (`passkey-unlock.ts`; `passkey-unlock.test.ts`).
 - KCV wrong-key detection before writes; vault idle/max policy via `vault-session.ts`, `key-storage.ts`, `useVaultIdleLock`.
 - Prefetch API routes use explicit ciphertext columns + `authenticateAndRateLimit` with E2EE device-trust default (`apps/*/app/api/**/route.ts`).
 
 **Extension session wipe**
 
-- Sign-out and `user_id` change call `deleteMasterKey` + `clearDecryptedEntityState` (`src/popup/App.tsx`).
+- **Vault lock:** `deleteMasterKey` + `clearAllKeys` + `clearDecryptedEntityState`; PRF salt cache kept for faster re-unlock (`App.tsx`).
+- **Sign-out / `user_id` change:** `clearAllKeys` + `clearCachedPRFSalt` + weekly proof clear + `clearDecryptedEntityState` (`App.tsx`).
 
 ### Interactive smoke (manual)
 
@@ -406,14 +407,14 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 **Automated coverage used as substitute:**
 
-| Scenario                                               | Automated coverage                                                              |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| Extension session bootstrap (`getUser` + weekly proof) | `extension-session.test.ts`                                                     |
-| Bearer weekly-proof gate                               | `extension-bearer-auth.test.ts` + production curl                               |
-| PRF omitted from verify body                           | `passkey-unlock.test.ts`, `helvety-auth-api.test.ts`                            |
-| Plaintext column guardrails                            | `e2ee-privacy.test.ts`, `e2ee-data-select.test.ts`, `entity-repository.test.ts` |
-| Logout CSRF + device trust clear                       | `logout-actions.test.ts`                                                        |
-| E2EE page device trust                                 | `auth-guard.test.ts`, `e2ee-page-auth.test.ts`                                  |
+| Scenario                                               | Automated coverage                                                                                                                  |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Extension session bootstrap (`getUser` + weekly proof) | `extension-session.test.ts`                                                                                                         |
+| Bearer weekly-proof gate                               | `extension-bearer-auth.test.ts` + production curl                                                                                   |
+| PRF omitted from verify body                           | `passkey-unlock.test.ts`, `helvety-auth-api.test.ts`                                                                                |
+| Plaintext column guardrails                            | Shared `e2ee-entity-columns.test.ts`, `e2ee-write-guard.test.ts`, extension `entity-repository.test.ts`, `decrypt-entities.test.ts` |
+| Logout CSRF + device trust clear                       | `logout-actions.test.ts`                                                                                                            |
+| E2EE page device trust                                 | `auth-guard.test.ts`, `e2ee-page-auth.test.ts`                                                                                      |
 
 **Quarterly manual checklist** (unchanged): web sign-in → passkey unlock → mutate → logout; extension OTP → weekly proof → passkey → PostgREST write; confirm Vercel Analytics disabled on all 10 projects.
 
@@ -435,24 +436,24 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 ### Deltas vs earlier 2026-07-04 pass (same document)
 
-| Item                    | Earlier pass | This pass                                  |
-| ----------------------- | ------------ | ------------------------------------------ |
-| `ci:check`              | OK           | **OK** (re-confirmed)                      |
-| `deps:security`         | 0 CVEs       | **0 CVEs**                                 |
-| Vercel prod/preview env | OK           | **OK**                                     |
-| Extension `ci:check`    | 265 tests    | **258 tests** (all pass; count drift only) |
-| Live Supabase MCP       | Used         | **Not used** (RLS check skipped locally)   |
-| Production curl         | OK           | **OK** (weekly-proof gate re-verified)     |
-| Critical/High findings  | None         | **None**                                   |
+| Item                    | Earlier pass | This pass                                                                   |
+| ----------------------- | ------------ | --------------------------------------------------------------------------- |
+| `ci:check`              | OK           | **OK** (re-confirmed)                                                       |
+| `deps:security`         | 0 CVEs       | **0 CVEs**                                                                  |
+| Vercel prod/preview env | OK           | **OK**                                                                      |
+| Extension `ci:check`    | All pass     | **All pass** (re-confirmed; see current extension repo `pnpm run ci:check`) |
+| Live Supabase MCP       | Used         | **Not used** (RLS check skipped locally)                                    |
+| Production curl         | OK           | **OK** (weekly-proof gate re-verified)                                      |
+| Critical/High findings  | None         | **None**                                                                    |
 
 ### Customer-facing copy guardrails (Phase 5)
 
-| Check                                                          | Result                                                   |
-| -------------------------------------------------------------- | -------------------------------------------------------- |
-| `consistency:customer-copy` (no em-dashes in user-facing copy) | **OK** (re-run this pass)                                |
-| Extension `tests/security-e2ee-docs.test.ts`                   | **OK** (15 tests in security-e2ee + copy-accuracy suite) |
-| Extension `tests/copy-accuracy.test.ts`                        | **OK**                                                   |
-| `auth-extension-copy-guardrails` (in monorepo `ci:check`)      | **OK** (July pass; included in full `ci:check` re-run)   |
+| Check                                                          | Result                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------ |
+| `consistency:customer-copy` (no em-dashes in user-facing copy) | **OK** (re-run this pass)                              |
+| Extension `tests/security-e2ee-docs.test.ts`                   | **OK** (see extension `ci:check`)                      |
+| Extension `tests/copy-accuracy.test.ts`                        | **OK**                                                 |
+| `auth-extension-copy-guardrails` (in monorepo `ci:check`)      | **OK** (July pass; included in full `ci:check` re-run) |
 
 No misleading E2EE or extension weekly-re-auth claims detected by automated guardrails.
 

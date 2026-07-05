@@ -1,6 +1,7 @@
 "use client";
 
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { assertEncryptedWritePayloadAuto } from "@helvety/shared/e2ee-write-guard";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -184,10 +185,9 @@ export function useEncryptedSingleItem<
 
       try {
         const encrypted = await encryptUpdate(id, input, masterKey);
-        const result = await updateEntity(
-          buildUpdatePayload(id, encrypted, input),
-          csrfToken
-        );
+        const payload = buildUpdatePayload(id, encrypted, input);
+        assertEncryptedWritePayloadAuto(payload as Record<string, unknown>);
+        const result = await updateEntity(payload, csrfToken);
         if (!result.success) {
           reportE2eeActionFailure(result.error, {
             source: navigationSource,

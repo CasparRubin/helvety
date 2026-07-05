@@ -1,5 +1,5 @@
 import { ACTION_LIMITS } from "@helvety/shared/constants";
-import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
+import { CONTACT_LINK_PICKER_COLUMNS } from "@helvety/shared/encrypted-prefetch-api";
 import {
   createAuthSuccessContext,
   createOrderedContactListSupabaseMock,
@@ -67,9 +67,7 @@ describe("notes contact-link-actions", () => {
     const result = await getContacts();
 
     expect(result.success).toBe(true);
-    expect(supabase.getLastSelectColumns()).toBe(
-      ENCRYPTED_PREFETCH_COLUMNS.contacts
-    );
+    expect(supabase.getLastSelectColumns()).toBe(CONTACT_LINK_PICKER_COLUMNS);
     expect(supabase.getLastLimit()).toBe(ACTION_LIMITS.MAX_DASHBOARD_ROWS);
   });
 

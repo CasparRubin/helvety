@@ -3,7 +3,7 @@ import { decryptEntityField, parseEncryptedData } from "./encryption";
 /** Shown when ciphertext cannot be decrypted for UI display (wrong key, corrupt payload). */
 const DEFAULT_DISPLAY_FALLBACK = "(encrypted)";
 
-/** Allowed `buildAAD` table names for title/display decryption in E2EE apps. */
+/** Allowed entity tables for title/display decryption in E2EE apps. */
 export type SafeDecryptDisplayAadTable =
   | "items"
   | "contacts"

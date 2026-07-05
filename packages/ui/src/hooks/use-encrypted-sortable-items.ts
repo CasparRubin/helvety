@@ -1,5 +1,6 @@
 "use client";
 
+import { assertEncryptedWritePayloadAuto } from "@helvety/shared/e2ee-write-guard";
 import { patchEntityInList } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -271,10 +272,9 @@ export function useEncryptedSortableItems<
 
       try {
         const encrypted = await encryptInput(input, masterKey);
-        const result = await createItem(
-          buildCreatePayload(encrypted, input),
-          csrfToken
-        );
+        const payload = buildCreatePayload(encrypted, input);
+        assertEncryptedWritePayloadAuto(payload as Record<string, unknown>);
+        const result = await createItem(payload, csrfToken);
         if (!result.success) {
           reportE2eeActionFailure(result.error, {
             source: navigationSource,
@@ -330,10 +330,9 @@ export function useEncryptedSortableItems<
 
       try {
         const encrypted = await encryptUpdate(id, input, masterKey);
-        const result = await updateItem(
-          buildUpdatePayload(id, encrypted, input),
-          csrfToken
-        );
+        const payload = buildUpdatePayload(id, encrypted, input);
+        assertEncryptedWritePayloadAuto(payload as Record<string, unknown>);
+        const result = await updateItem(payload, csrfToken);
         if (!result.success) {
           if (
             !reportE2eeActionFailure(result.error, {

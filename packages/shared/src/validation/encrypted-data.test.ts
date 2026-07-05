@@ -12,7 +12,7 @@ function validEncryptedJson(ciphertextLength = 24): string {
   return JSON.stringify({
     iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
     ciphertext: "A".repeat(ciphertextLength),
-    version: 1,
+    version: 2,
   });
 }
 
@@ -40,13 +40,25 @@ describe("EncryptedDataSchema", () => {
     ).toBe(false);
   });
 
+  it("rejects legacy v1 payloads (schema requires v2 via isSupportedEncryptionVersion)", () => {
+    expect(
+      EncryptedDataSchema.safeParse(
+        JSON.stringify({
+          iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+          ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
+          version: 1,
+        })
+      ).success
+    ).toBe(false);
+  });
+
   it("rejects IV shorter than 16 characters", () => {
     expect(
       EncryptedDataSchema.safeParse(
         JSON.stringify({
           iv: "c2hvcnQ=",
           ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-          version: 1,
+          version: 2,
         })
       ).success
     ).toBe(false);
@@ -58,7 +70,7 @@ describe("EncryptedDataSchema", () => {
         JSON.stringify({
           iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
           ciphertext: "c2hvcnQ=",
-          version: 1,
+          version: 2,
         })
       ).success
     ).toBe(false);
@@ -82,7 +94,7 @@ describe("EncryptedDataSchema", () => {
         JSON.stringify({
           iv: "!!!!not-base64!!!!!!",
           ciphertext: "QUFBQUFBQUFBQUFBQUFBQUFBQQ==",
-          version: 1,
+          version: 2,
         })
       ).success
     ).toBe(false);

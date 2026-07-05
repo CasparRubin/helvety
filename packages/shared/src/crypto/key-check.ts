@@ -14,6 +14,8 @@
 
 import { constantTimeEqual } from "./encoding";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 const KCV_PLAINTEXT = "helvety-kcv-v1";
 const KCV_VERSION = 1;
 
@@ -97,4 +99,35 @@ function base64ToUint8(str: string): Uint8Array {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes;
+}
+
+/**
+ * Backfill `key_check_value` when missing (client-side PostgREST update).
+ * Used by extension passkey unlock and auth login bootstrap.
+ */
+export async function backfillKeyCheckValueIfMissing(
+  supabase: SupabaseClient,
+  userId: string,
+  masterKey: CryptoKey
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  try {
+    const newKeyCheckValue = await generateKeyCheckValue(masterKey);
+    const { error } = await supabase
+      .from("user_passkey_params")
+      .update({ key_check_value: newKeyCheckValue })
+      .eq("user_id", userId)
+      .is("key_check_value", null);
+
+    if (error) {
+      return { ok: false, message: error.message };
+    }
+
+    return { ok: true };
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to backfill key check value";
+    return { ok: false, message };
+  }
 }

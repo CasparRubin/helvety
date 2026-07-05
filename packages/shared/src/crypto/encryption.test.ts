@@ -6,16 +6,15 @@ import { describe, expect, it } from "vitest";
 
 import {
   ENCRYPTION_VERSION,
-  ENCRYPTION_VERSION_LEGACY,
-  buildAAD,
   buildFieldAAD,
   decryptEntityField,
   encrypt,
   encryptEntityField,
+  encryptFields,
+  decryptFields,
   isEncryptedData,
   isSupportedEncryptionVersion,
   parseEncryptedData,
-  resolveAADForDecrypt,
   serializeEncryptedData,
 } from "./encryption";
 
@@ -30,9 +29,9 @@ async function testKey(): Promise<CryptoKey> {
 }
 
 describe("encryption version constants", () => {
-  it("supports legacy and current versions", () => {
-    expect(isSupportedEncryptionVersion(ENCRYPTION_VERSION_LEGACY)).toBe(true);
+  it("supports v2 only", () => {
     expect(isSupportedEncryptionVersion(ENCRYPTION_VERSION)).toBe(true);
+    expect(isSupportedEncryptionVersion(1)).toBe(false);
     expect(isSupportedEncryptionVersion(99)).toBe(false);
   });
 });
@@ -48,34 +47,6 @@ describe("buildFieldAAD", () => {
     expect(() => buildFieldAAD("contacts", RECORD_ID, "email")).toThrow(
       "Invalid AAD column name"
     );
-  });
-});
-
-describe("resolveAADForDecrypt", () => {
-  it("uses record-level AAD for v1", () => {
-    expect(
-      resolveAADForDecrypt(
-        {
-          table: "contacts",
-          recordId: RECORD_ID,
-          column: "encrypted_email",
-        },
-        ENCRYPTION_VERSION_LEGACY
-      )
-    ).toBe(buildAAD("contacts", RECORD_ID));
-  });
-
-  it("uses field-bound AAD for v2", () => {
-    expect(
-      resolveAADForDecrypt(
-        {
-          table: "contacts",
-          recordId: RECORD_ID,
-          column: "encrypted_email",
-        },
-        ENCRYPTION_VERSION
-      )
-    ).toBe(buildFieldAAD("contacts", RECORD_ID, "encrypted_email"));
   });
 });
 
@@ -112,28 +83,19 @@ describe("encryptEntityField / decryptEntityField", () => {
     ).rejects.toThrow();
   });
 
-  it("decrypts legacy v1 ciphertext with record-level AAD", async () => {
+  it("defaults encrypt() to v2", async () => {
     const key = await testKey();
-    const aad = buildAAD("contacts", RECORD_ID);
-    const legacy = await encrypt(
-      "legacy value",
-      key,
-      aad,
-      ENCRYPTION_VERSION_LEGACY
-    );
-    const plain = await decryptEntityField(legacy, key, {
-      table: "contacts",
-      recordId: RECORD_ID,
-      column: "encrypted_email",
-    });
-    expect(plain).toBe("legacy value");
+    const aad = buildFieldAAD("contacts", RECORD_ID, "encrypted_email");
+    const payload = await encrypt("value", key, aad);
+    expect(payload.version).toBe(ENCRYPTION_VERSION);
   });
 });
 
 describe("parseEncryptedData / isEncryptedData", () => {
   it("rejects unsupported versions", async () => {
     const key = await testKey();
-    const payload = await encrypt("x", key, buildAAD("notes", RECORD_ID));
+    const aad = buildFieldAAD("notes", RECORD_ID, "encrypted_title");
+    const payload = await encrypt("x", key, aad);
     const serialized = serializeEncryptedData({
       ...payload,
       version: 99,
@@ -150,7 +112,20 @@ describe("parseEncryptedData / isEncryptedData", () => {
     ).toBe(false);
   });
 
-  it("accepts v1 and v2 payloads", async () => {
+  it("rejects legacy v1 payloads", async () => {
+    const key = await testKey();
+    const payload = await encryptEntityField("title", key, {
+      table: "notes",
+      recordId: RECORD_ID,
+      column: "encrypted_title",
+    });
+    const serialized = serializeEncryptedData({ ...payload, version: 1 });
+    expect(() => parseEncryptedData(serialized)).toThrow(
+      "Unsupported encryption version"
+    );
+  });
+
+  it("accepts v2 payloads", async () => {
     const key = await testKey();
     const v2 = await encryptEntityField("title", key, {
       table: "notes",
@@ -160,5 +135,32 @@ describe("parseEncryptedData / isEncryptedData", () => {
     const parsed = parseEncryptedData(serializeEncryptedData(v2));
     expect(isEncryptedData(parsed)).toBe(true);
     expect(parsed.version).toBe(ENCRYPTION_VERSION);
+  });
+});
+
+describe("encryptFields / decryptFields (shared-AAD batch helpers)", () => {
+  it("round-trips string fields with the same optional AAD", async () => {
+    const key = await testKey();
+    const aad = "batch:context";
+    const encrypted = await encryptFields(
+      { title: "Hello", stage_id: "default-item-backlog" },
+      ["title"],
+      key,
+      aad
+    );
+    expect(encrypted.stage_id).toBe("default-item-backlog");
+    expect(encrypted.title).toMatchObject({
+      iv: expect.any(String),
+      ciphertext: expect.any(String),
+      version: ENCRYPTION_VERSION,
+    });
+
+    const decrypted = await decryptFields<{ title: string }>(
+      encrypted,
+      ["title"],
+      key,
+      aad
+    );
+    expect(decrypted.title).toBe("Hello");
   });
 });

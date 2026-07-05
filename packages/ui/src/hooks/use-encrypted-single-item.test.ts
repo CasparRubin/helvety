@@ -31,9 +31,19 @@ vi.mock("sonner", () => ({
 type TestEntity = { id: string; title: string };
 type TestRow = { id: string; title: string };
 type TestInput = { title: string };
-type TestUpdatePayload = { id: string; title: string };
+type TestUpdatePayload = {
+  id: string;
+  title?: string;
+  encrypted_title?: string;
+};
 
 const masterKey = {} as CryptoKey;
+
+const validEncryptedTitle = JSON.stringify({
+  iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+  ciphertext: "QUFBQUFBQUFBQUFBQUFBQQ==",
+  version: 2,
+});
 
 function createHookOptions(
   overrides: Partial<
@@ -65,10 +75,12 @@ function createHookOptions(
       data: { id: "item-1", title: "Alpha" },
     }),
     decryptRow: vi.fn().mockResolvedValue({ id: "item-1", title: "Alpha" }),
-    encryptUpdate: vi.fn().mockResolvedValue({ title: "Beta" }),
+    encryptUpdate: vi.fn().mockResolvedValue({
+      encrypted_title: validEncryptedTitle,
+    }),
     buildUpdatePayload: (id, encrypted) => ({
       id,
-      title: (encrypted as { title: string }).title,
+      ...(encrypted as Record<string, string>),
     }),
     updateEntity: vi.fn().mockResolvedValue({ success: true }),
     deleteEntity: vi.fn().mockResolvedValue({ success: true }),
@@ -245,7 +257,7 @@ describe("useEncryptedSingleItem", () => {
       masterKey
     );
     expect(updateEntity).toHaveBeenCalledWith(
-      { id: "item-1", title: "Beta" },
+      { id: "item-1", encrypted_title: validEncryptedTitle },
       "test-csrf"
     );
     expect(result.current.item?.title).toBe("Beta");

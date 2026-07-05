@@ -47,10 +47,7 @@ export async function encryptLinkInput(
 /**
  *
  */
-export async function decryptLinkRow(
-  row: LinkRow,
-  key: CryptoKey
-): Promise<Link> {
+async function decryptLinkRow(row: LinkRow, key: CryptoKey): Promise<Link> {
   const ctx = { table: LINKS_TABLE, recordId: row.id };
   const name = await decryptEntityField(
     parseEncryptedData(row.encrypted_name),

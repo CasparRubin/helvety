@@ -86,9 +86,13 @@ function createHookOptions(
     encryptInput: vi.fn().mockResolvedValue({ enc: true }),
     encryptUpdate: vi.fn().mockResolvedValue({ enc: true }),
     decryptRows: vi.fn().mockResolvedValue([sampleItem()]),
-    buildCreatePayload: (encrypted: unknown, input: TestInput) => ({
+    buildCreatePayload: (encrypted: unknown, _input: TestInput) => ({
       encrypted,
-      title: input.title,
+      encrypted_title: JSON.stringify({
+        iv: "QUFBQUFBQUFBQUFBQUFBQQ==",
+        ciphertext: "QUFBQUFBQUFBQUFBQUFBQQ==",
+        version: 2,
+      }),
     }),
     buildUpdatePayload: (id: string, encrypted: unknown) => ({ id, encrypted }),
     buildOptimisticItem: (

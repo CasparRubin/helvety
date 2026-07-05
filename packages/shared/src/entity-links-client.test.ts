@@ -120,7 +120,22 @@ describe("entity-links-client", () => {
       target_entity_type: "items",
       target_entity_id: TASK_ID,
       relation_type: "related",
+      metadata: {},
     });
+  });
+
+  it("createEntityLink rejects non-empty metadata", async () => {
+    await expect(
+      createEntityLink({
+        supabase: { from: vi.fn() } as never,
+        userId: USER_ID,
+        sourceEntityType: "items",
+        sourceEntityId: TASK_ID,
+        targetEntityType: "contacts",
+        targetEntityId: CONTACT_ID,
+        metadata: { note: "secret" } as never,
+      })
+    ).rejects.toThrow("entity_links.metadata must remain empty");
   });
 
   it("createEntityLink supports links as endpoints", async () => {
@@ -152,6 +167,7 @@ describe("entity-links-client", () => {
       target_entity_type: "links",
       target_entity_id: LINK_ID,
       relation_type: "related",
+      metadata: {},
     });
   });
 
@@ -221,6 +237,40 @@ describe("entity-links-client", () => {
     expect(select).toHaveBeenCalledWith("id");
     expect(eqId).toHaveBeenCalledWith("id", LINK_ID);
     expect(eqUser).toHaveBeenCalledWith("user_id", USER_ID);
+  });
+
+  it("ensureOwnedEntityExists returns false for invalid UUIDs", async () => {
+    const from = vi.fn();
+    const supabase = { from };
+
+    await expect(
+      ensureOwnedEntityExists(supabase as never, "not-a-uuid", "links", LINK_ID)
+    ).resolves.toBe(false);
+    await expect(
+      ensureOwnedEntityExists(supabase as never, USER_ID, "links", "bad-id")
+    ).resolves.toBe(false);
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("ensureOwnedEntityExists returns false when Supabase reports an error", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "not found" },
+    });
+    const eqUser = vi.fn(() => ({ single }));
+    const eqId = vi.fn(() => ({ eq: eqUser }));
+    const select = vi.fn(() => ({ eq: eqId }));
+    const supabase = { from: vi.fn(() => ({ select })) };
+
+    const exists = await ensureOwnedEntityExists(
+      supabase as never,
+      USER_ID,
+      "items",
+      TASK_ID
+    );
+
+    expect(exists).toBe(false);
+    expect(supabase.from).toHaveBeenCalledWith("items");
   });
 
   it("getEntityLinksForEndpoint queries both directions for bookmark endpoints", async () => {

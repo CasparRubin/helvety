@@ -19,12 +19,9 @@ export { CryptoError, CryptoErrorType } from "./types";
 // Encryption
 export {
   ENCRYPTION_VERSION,
-  ENCRYPTION_VERSION_LEGACY,
   SUPPORTED_ENCRYPTION_VERSIONS,
   CURRENT_KEY_VERSION,
-  buildAAD,
   buildFieldAAD,
-  resolveAADForDecrypt,
   encrypt,
   decrypt,
   encryptEntityField,
@@ -104,7 +101,11 @@ export type {
 } from "./prf-key-derivation";
 
 // Key Check Value (defense-in-depth against wrong-key derivation)
-export { generateKeyCheckValue, verifyKeyCheckValue } from "./key-check";
+export {
+  generateKeyCheckValue,
+  verifyKeyCheckValue,
+  backfillKeyCheckValueIfMissing,
+} from "./key-check";
 
 // PRF Salt Cache (for single-touch login + encryption unlock)
 export {

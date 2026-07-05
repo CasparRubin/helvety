@@ -41,7 +41,7 @@ export const DEFAULT_NOTE_CATEGORIES: DefaultNoteCategory[] = [
   },
 ];
 
-export const DEFAULT_NOTE_CATEGORY_ID = "personal";
+export { DEFAULT_NOTE_CATEGORY_ID } from "@helvety/shared/e2ee-entity-defaults";
 
 export const ALLOWED_NOTE_CATEGORY_IDS = DEFAULT_NOTE_CATEGORIES.map(
   (c) => c.id

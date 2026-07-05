@@ -153,14 +153,14 @@ Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; d
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
 - `lib/product-copy.test.ts`: `pdf` / `image-upscaler` / `image-editor` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
 - `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`links`).
-- Crypto: `buildAAD` + module surface tests in `lib/crypto/` (see `apps/notes/lib/crypto/encryption.test.ts`).
+- Crypto: v2 field-bound AAD (`buildFieldAAD`) allowlist per zone in `lib/crypto/encryption.test.ts`; entity encryption modules use `encryptEntityField` / `decryptEntityField` (`consistency:e2ee-aad`). Shared E2EE SSOT: `@helvety/shared/e2ee-entity-columns`, `@helvety/shared/e2ee-write-guard`, `@helvety/shared/e2ee-entity-defaults`.
 
 ## `package.json` conventions
 
 - **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*` (UI carries production `tailwindcss` / `@tailwindcss/postcss` for Turbopack CSS; `@helvety/config/postcss` loads the plugin from `@helvety/dev-deps`)
 - **DevDependencies**: `@helvety/config`, `@helvety/dev-deps` as `workspace:*`
 - **Scripts**: `dev`, `build`, `start`, `lint`, `lint:fix`, `type-check`, `format`, `format:check`, `test`, `test:watch`, `test:coverage`
-- **Version**: align with sibling product apps (currently `3.2.0`) unless the zone is intentionally versioned separately
+- **Version**: align with sibling product apps (currently `3.3.0`) unless the zone is intentionally versioned separately
 - **Do not** duplicate toolchain packages pinned in `@helvety/dev-deps` (`bun run deps:drift`, in `ci:check`)
 
 ## Proxy profile selection

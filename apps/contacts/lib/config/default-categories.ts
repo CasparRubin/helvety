@@ -41,7 +41,7 @@ export const DEFAULT_CATEGORIES: DefaultCategory[] = [
   },
 ];
 
-export const DEFAULT_CONTACT_CATEGORY_ID = "personal";
+export { DEFAULT_CONTACT_CATEGORY_ID } from "@helvety/shared/e2ee-entity-defaults";
 
 export const ALLOWED_CATEGORY_IDS = DEFAULT_CATEGORIES.map((c) => c.id) as [
   string,

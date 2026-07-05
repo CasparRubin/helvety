@@ -40,7 +40,7 @@ export async function encryptFolderInput(
 /**
  *
  */
-export async function decryptFolderRow(
+async function decryptFolderRow(
   row: LinkFolderRow,
   key: CryptoKey
 ): Promise<LinkFolder> {

@@ -9,6 +9,19 @@ export type LinkEntityType = "notes" | "items" | "contacts" | "links";
 export const ENTITY_LINK_COLUMNS =
   "id,user_id,source_entity_type,source_entity_id,target_entity_type,target_entity_id,relation_type,metadata,created_at" as const;
 
+/** Empty metadata contract for `entity_links` inserts (structural links only). */
+export type EntityLinkInsertMetadata = Record<string, never>;
+
+/** Throws when link metadata would store non-empty or content-bearing data. */
+export function assertEntityLinkMetadataEmpty(
+  metadata: Record<string, unknown> | undefined
+): void {
+  if (!metadata || Object.keys(metadata).length === 0) {
+    return;
+  }
+  throw new Error("entity_links.metadata must remain empty");
+}
+
 /** Row shape returned by the `entity_links` table. */
 export interface EntityLinkRow {
   id: string;
@@ -37,6 +50,7 @@ interface CreateEntityLinkInput {
   targetEntityType: LinkEntityType;
   targetEntityId: string;
   relationType?: string;
+  metadata?: EntityLinkInsertMetadata;
 }
 
 /** Input required to query links for a single endpoint. */
@@ -114,6 +128,7 @@ export async function createEntityLink({
   targetEntityType,
   targetEntityId,
   relationType = "related",
+  metadata,
 }: CreateEntityLinkInput): Promise<{
   data: Pick<EntityLinkRow, "id" | "created_at"> | null;
   error: { code?: string; message: string } | null;
@@ -135,6 +150,8 @@ export async function createEntityLink({
     { entityType: targetEntityType, entityId: targetEntityId }
   );
 
+  assertEntityLinkMetadataEmpty(metadata);
+
   const { data, error } = await supabase
     .from("entity_links")
     .insert({
@@ -144,6 +161,7 @@ export async function createEntityLink({
       target_entity_type: canonical.target.entityType,
       target_entity_id: canonical.target.entityId,
       relation_type: relationType,
+      metadata: {} satisfies EntityLinkInsertMetadata,
     })
     .select("id, created_at")
     .single();
