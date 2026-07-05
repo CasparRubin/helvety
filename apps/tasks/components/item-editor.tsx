@@ -1,13 +1,15 @@
 "use client";
 
+import { emptyTaskInput } from "@helvety/shared/e2ee-create-inputs";
+import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
 import {
-  E2eeRichTextItemEditorShell,
-  useE2eeRichTextItemEditorSave,
-} from "@helvety/ui/e2ee-item-editor-shell";
+  serializeRichTextContent,
+  type JSONContent,
+} from "@helvety/ui/tiptap-utils";
 import { Loader2Icon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemActionPanel } from "@/components/item-action-panel";
@@ -61,17 +63,21 @@ const LinkEntityLinksPanel = dynamic(
 
 const APP_HOME_PATH = "/tasks";
 
-/** Task editor for title, description, dates, and metadata inside the detail sheet. */
-export function ItemEditor({
-  itemId,
-  item,
-  isLoading,
-  error,
-  onUpdate,
-  onRemove,
-  onRefresh,
-  onClose,
-}: {
+/** Shared props for task editor create and edit modes. */
+type ItemEditorBaseProps = {
+  onClose?: () => void;
+};
+
+/** Save-first create mode: inserts on first save via dashboard list hook. */
+type ItemEditorCreateProps = ItemEditorBaseProps & {
+  formMode: "create";
+  onCreate: (input: ItemInput) => Promise<{ id: string } | null>;
+  onCreated: (id: string) => void;
+};
+
+/** Edit mode: dashboard supplies the resolved task and list-hook CRUD callbacks. */
+type ItemEditorEditProps = ItemEditorBaseProps & {
+  formMode: "edit";
   itemId: string;
   item: Item | null;
   isLoading?: boolean;
@@ -79,8 +85,14 @@ export function ItemEditor({
   onUpdate: (input: Partial<ItemInput>) => Promise<boolean>;
   onRemove: () => Promise<boolean>;
   onRefresh: () => Promise<void>;
-  onClose?: () => void;
-}) {
+};
+
+/** Props for ItemEditor */
+export type ItemEditorProps = ItemEditorCreateProps | ItemEditorEditProps;
+
+/** Task editor for title, description, dates, and metadata inside the detail sheet. */
+export function ItemEditor(props: ItemEditorProps) {
+  const { formMode, onClose } = props;
   const router = useRouter();
   const { stages, isLoading: isLoadingStages } = useStages(
     DEFAULT_STAGE_CONFIGS.item.id
@@ -96,18 +108,100 @@ export function ItemEditor({
   const [isSavingDates, setIsSavingDates] = useState(false);
 
   const [title, setTitle] = useState("");
+  const [stageId, setStageId] = useState<string | null>(
+    () => emptyTaskInput().stage_id ?? null
+  );
+  const [labelId, setLabelId] = useState<string | null>(
+    () => emptyTaskInput().label_id ?? null
+  );
+  const [priority, setPriority] = useState(
+    () => emptyTaskInput().priority ?? 1
+  );
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const onSave = useE2eeRichTextItemEditorSave({ update: onUpdate });
+  const item = formMode === "edit" ? props.item : null;
+  const itemId = formMode === "edit" ? props.itemId : "create";
+  const isLoading = formMode === "edit" ? props.isLoading : false;
+  const error = formMode === "edit" ? props.error : null;
 
   useEffect(() => {
-    if (item && !hasInitialized) {
-      setTitle(item.title);
+    if (formMode === "create" && !hasInitialized) {
+      const defaults = emptyTaskInput();
+      setTitle(defaults.title);
+      setStageId(defaults.stage_id ?? null);
+      setLabelId(defaults.label_id ?? null);
+      setPriority(defaults.priority ?? 1);
+      setStartDate(defaults.start_date ?? null);
+      setEndDate(defaults.end_date ?? null);
       setHasInitialized(true);
     }
-  }, [item, hasInitialized]);
+  }, [formMode, hasInitialized]);
+
+  useEffect(() => {
+    if (formMode === "edit" && item && !hasInitialized) {
+      setTitle(item.title);
+      setStageId(item.stage_id);
+      setLabelId(item.label_id);
+      setPriority(item.priority);
+      setStartDate(item.start_date);
+      setEndDate(item.end_date);
+      setHasInitialized(true);
+    }
+  }, [formMode, item, hasInitialized]);
+
+  const hasAdditionalUnsavedChanges = useMemo(() => {
+    if (formMode !== "create" || !hasInitialized) return false;
+    const defaults = emptyTaskInput();
+    return (
+      stageId !== (defaults.stage_id ?? null) ||
+      labelId !== (defaults.label_id ?? null) ||
+      priority !== (defaults.priority ?? 1) ||
+      startDate !== (defaults.start_date ?? null) ||
+      endDate !== (defaults.end_date ?? null)
+    );
+  }, [
+    endDate,
+    formMode,
+    hasInitialized,
+    labelId,
+    priority,
+    stageId,
+    startDate,
+  ]);
+
+  const onSave = useCallback(
+    async (newTitle: string, newDescription: JSONContent | null) => {
+      const description = newDescription
+        ? serializeRichTextContent(newDescription)
+        : null;
+
+      if (formMode === "create") {
+        const created = await props.onCreate({
+          title: newTitle,
+          description,
+          start_date: startDate,
+          end_date: endDate,
+          stage_id: stageId,
+          label_id: labelId,
+          priority,
+        });
+        if (created) {
+          props.onCreated(created.id);
+        }
+        return Boolean(created);
+      }
+
+      return props.onUpdate({
+        title: newTitle,
+        description,
+      });
+    },
+    [endDate, formMode, labelId, priority, props, stageId, startDate]
+  );
 
   const doBack = useCallback(() => {
     if (onClose) {
@@ -118,14 +212,20 @@ export function ItemEditor({
   }, [onClose, router]);
 
   const handleEditorRefresh = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setHasInitialized(false);
-    await onRefresh();
-  }, [onRefresh]);
+    await props.onRefresh();
+  }, [formMode, props]);
 
   const handleDeleteItem = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setIsDeleting(true);
     try {
-      const success = await onRemove();
+      const success = await props.onRemove();
       if (success) {
         if (onClose) {
           onClose();
@@ -137,71 +237,111 @@ export function ItemEditor({
       setIsDeleting(false);
       setIsDeleteOpen(false);
     }
-  }, [onClose, onRemove, router]);
+  }, [formMode, onClose, props, router]);
 
   const handleStageChange = useCallback(
     async (stageId: string) => {
+      if (formMode === "create") {
+        setStageId(stageId);
+        return;
+      }
       if (!item) return;
       if (item.stage_id === stageId) return;
       setIsSavingStage(true);
       try {
-        await onUpdate({ stage_id: stageId });
+        await props.onUpdate({ stage_id: stageId });
       } finally {
         setIsSavingStage(false);
       }
     },
-    [item, onUpdate]
+    [formMode, item, props]
   );
 
   const handleLabelChange = useCallback(
     async (labelId: string) => {
+      if (formMode === "create") {
+        setLabelId(labelId);
+        return;
+      }
       setIsSavingLabel(true);
       try {
-        await onUpdate({ label_id: labelId });
+        await props.onUpdate({ label_id: labelId });
       } finally {
         setIsSavingLabel(false);
       }
     },
-    [onUpdate]
+    [formMode, props]
   );
 
   const handlePriorityChange = useCallback(
     async (priority: number) => {
+      if (formMode === "create") {
+        setPriority(priority);
+        return;
+      }
       setIsSavingPriority(true);
       try {
-        await onUpdate({ priority });
+        await props.onUpdate({ priority });
       } finally {
         setIsSavingPriority(false);
       }
     },
-    [onUpdate]
+    [formMode, props]
   );
 
   const handleStartDateChange = useCallback(
     async (startDate: string | null) => {
+      if (formMode === "create") {
+        setStartDate(startDate);
+        return;
+      }
       setIsSavingDates(true);
       try {
-        await onUpdate({ start_date: startDate });
+        await props.onUpdate({ start_date: startDate });
       } finally {
         setIsSavingDates(false);
       }
     },
-    [onUpdate]
+    [formMode, props]
   );
 
   const handleEndDateChange = useCallback(
     async (endDate: string | null) => {
+      if (formMode === "create") {
+        setEndDate(endDate);
+        return;
+      }
       setIsSavingDates(true);
       try {
-        await onUpdate({ end_date: endDate });
+        await props.onUpdate({ end_date: endDate });
       } finally {
         setIsSavingDates(false);
       }
     },
-    [onUpdate]
+    [formMode, props]
   );
 
-  if (!item && !error && isLoading) {
+  const metadataItem: Item | null =
+    formMode === "edit"
+      ? item
+      : hasInitialized
+        ? ({
+            id: "create",
+            user_id: "",
+            title,
+            description: null,
+            start_date: startDate,
+            end_date: endDate,
+            stage_id: stageId,
+            label_id: labelId,
+            priority,
+            sort_order: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } satisfies Item)
+        : null;
+
+  if (formMode === "edit" && !item && !error && isLoading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
@@ -215,7 +355,7 @@ export function ItemEditor({
       title={title}
       initialDescription={item?.description ?? null}
       isLoading={Boolean(isLoading)}
-      hasItem={Boolean(item)}
+      hasItem={formMode === "create" ? hasInitialized : Boolean(item)}
       error={error ?? null}
       hasInitialized={hasInitialized}
       onTitleChange={setTitle}
@@ -225,25 +365,28 @@ export function ItemEditor({
       titlePlaceholder="Task title..."
       notFoundMessage="Task not found"
       loadErrorMessage="Couldn't load this task. Please try again."
-      onDeleteRequested={() => setIsDeleteOpen(true)}
+      hasAdditionalUnsavedChanges={hasAdditionalUnsavedChanges}
+      onDeleteRequested={
+        formMode === "edit" ? () => setIsDeleteOpen(true) : undefined
+      }
       renderCommandBar={(props) => (
         <ItemCommandBar
           onBack={props.onBack}
           showBack={props.showBack}
-          onRefresh={props.onRefresh}
+          onRefresh={formMode === "edit" ? props.onRefresh : undefined}
           isRefreshing={props.isRefreshing}
           onSave={props.onSave}
           isSaving={props.isSaving}
           hasUnsavedChanges={props.hasUnsavedChanges}
           saveStatus={props.saveStatus}
-          onDelete={props.onDelete}
+          onDelete={formMode === "edit" ? props.onDelete : undefined}
           deleteLabel="Delete Task"
         />
       )}
       renderMetadata={
-        item ? (
+        metadataItem ? (
           <ItemActionPanel
-            item={item}
+            item={metadataItem}
             stages={stages}
             isLoadingStages={isLoadingStages}
             onStageChange={handleStageChange}
@@ -262,14 +405,16 @@ export function ItemEditor({
         ) : null
       }
       renderLinks={
-        <>
-          <ContactLinksPanel itemId={itemId} />
-          <NoteLinksPanel itemId={itemId} />
-          <LinkEntityLinksPanel itemId={itemId} />
-        </>
+        formMode === "edit" ? (
+          <>
+            <ContactLinksPanel itemId={itemId} />
+            <NoteLinksPanel itemId={itemId} />
+            <LinkEntityLinksPanel itemId={itemId} />
+          </>
+        ) : null
       }
       deleteDialog={
-        item ? (
+        formMode === "edit" && item ? (
           <DeleteConfirmationDialog
             open={isDeleteOpen}
             onOpenChange={setIsDeleteOpen}

@@ -40,7 +40,7 @@ export interface EditorCommandBarProps {
   backLabel?: string;
   onBack: () => void;
   showBack?: boolean;
-  onRefresh: () => void;
+  onRefresh?: () => void;
   isRefreshing?: boolean;
   onSave?: () => void;
   isSaving?: boolean;
@@ -170,18 +170,20 @@ export function EditorCommandBar({
           {getSaveButtonContent(isSaving, hasUnsavedChanges, saveStatus)}
         </Button>
       )}
-      <Button
-        variant="outline"
-        size="icon-sm"
-        onClick={onRefresh}
-        disabled={isRefreshing}
-        className="hidden shrink-0 gap-0 md:inline-flex"
-      >
-        <RefreshCwIcon
-          className={cn("size-4 shrink-0", isRefreshing && "animate-spin")}
-        />
-        <span className="sr-only">Refresh</span>
-      </Button>
+      {onRefresh ? (
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="hidden shrink-0 gap-0 md:inline-flex"
+        >
+          <RefreshCwIcon
+            className={cn("size-4 shrink-0", isRefreshing && "animate-spin")}
+          />
+          <span className="sr-only">Refresh</span>
+        </Button>
+      ) : null}
 
       <CommandBarSpacer />
 
@@ -206,11 +208,15 @@ export function EditorCommandBar({
           <span className="sr-only">More actions</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
-            <RefreshCwIcon className="mr-2 size-4" />
-            <span>Refresh</span>
-          </DropdownMenuItem>
-          {desktopActions.length > 0 && <DropdownMenuSeparator />}
+          {onRefresh ? (
+            <DropdownMenuItem onClick={onRefresh} disabled={isRefreshing}>
+              <RefreshCwIcon className="mr-2 size-4" />
+              <span>Refresh</span>
+            </DropdownMenuItem>
+          ) : null}
+          {onRefresh && desktopActions.length > 0 ? (
+            <DropdownMenuSeparator />
+          ) : null}
           {desktopActions.map((action) => (
             <DropdownMenuItem
               key={action.id}

@@ -93,8 +93,6 @@ export interface UseEncryptedSortableItemsOptions<
     prev: TItem[],
     created: { id: string }
   ) => TItem;
-  /** Maps a list row to create input when persisting a pending open-first draft. */
-  draftInputFromItem: (item: TItem) => TInput;
   applyReorderOptimistic: (prev: TItem[], updates: TReorderUpdate[]) => TItem[];
 }
 
@@ -110,14 +108,6 @@ export interface UseEncryptedSortableItemsReturn<
   error: string | null;
   refresh: () => Promise<void>;
   create: (input: TInput) => Promise<{ id: string } | null>;
-  /** Create with a pre-generated client id (open-first drafts). */
-  createWithId: (id: string, input: TInput) => Promise<{ id: string } | null>;
-  /** Add an optimistic draft row without a server call. */
-  seedDraft: (id: string, input: TInput) => void;
-  /** Discard a local open-first draft (unchanged close, delete before first save, or cancel in-flight insert). */
-  removeDraft: (id: string) => void;
-  /** True while the row is a local open-first draft not yet inserted on the server. */
-  isPendingDraft: (id: string) => boolean;
   update: (id: string, input: Partial<TInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: TReorderUpdate[]) => Promise<boolean>;
@@ -132,11 +122,7 @@ export interface UseEncryptedSortableItemsReturn<
  * Shared list CRUD/reorder hook for E2EE apps (tasks, notes, contacts).
  * Apps inject crypto, server actions, and domain-specific optimistic builders.
  * `update()` patches the list optimistically before the network call and rolls back on failure.
- * When `initialEncryptedData` is provided (SSR prefetch), the hook decrypts once
- * and does not auto-refetch on effect re-runs (React Strict Mode safe).
- *
- * **Dashboard sheet editors:** pass this hook's `update` / `remove` / `refresh` into zone
- * editors (Links pattern). Do not pair sheet editors with {@link useEncryptedSingleItem}.
+ * Save-first create: call `create(input)` on first save (client UUID + encrypt at save time).
  */
 export function useEncryptedSortableItems<
   TItem extends EncryptedSortableEntity,
@@ -170,7 +156,6 @@ export function useEncryptedSortableItems<
     buildCreatePayload,
     buildUpdatePayload,
     buildOptimisticItem,
-    draftInputFromItem,
     applyReorderOptimistic,
   } = options;
 
@@ -182,8 +167,6 @@ export function useEncryptedSortableItems<
   const latestRefreshTokenRef = useRef(0);
   const itemsLengthRef = useRef(0);
   itemsLengthRef.current = items.length;
-  const pendingDraftIdsRef = useRef<Set<string>>(new Set());
-  const abortedDraftIdsRef = useRef<Set<string>>(new Set());
 
   const refresh = useCallback(async () => {
     if (!masterKey || !isUnlocked) {
@@ -241,19 +224,7 @@ export function useEncryptedSortableItems<
       if (refreshToken !== latestRefreshTokenRef.current) {
         return;
       }
-      const serverIds = new Set(decrypted.map((item) => item.id));
-      setItems((prev) => {
-        const pendingDrafts = prev.filter(
-          (item) =>
-            pendingDraftIdsRef.current.has(item.id) && !serverIds.has(item.id)
-        );
-        if (pendingDrafts.length === 0) {
-          return decrypted;
-        }
-        return [...decrypted, ...pendingDrafts].toSorted(
-          (a, b) => a.sort_order - b.sort_order
-        );
-      });
+      setItems(decrypted);
       performance.mark(`${perfLabel}:end`);
       performance.measure(
         perfMeasureName,
@@ -293,35 +264,14 @@ export function useEncryptedSortableItems<
     decryptRows,
   ]);
 
-  const seedDraft = useCallback(
-    (id: string, input: TInput) => {
-      pendingDraftIdsRef.current.add(id);
-      setItems((prev) => {
-        const newItem = buildOptimisticItem(input, prev, { id });
-        return [...prev, newItem].toSorted(
-          (a, b) => a.sort_order - b.sort_order
-        );
-      });
-    },
-    [buildOptimisticItem]
-  );
-
-  const removeDraft = useCallback((id: string) => {
-    pendingDraftIdsRef.current.delete(id);
-    abortedDraftIdsRef.current.add(id);
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  }, []);
-
-  const isPendingDraft = useCallback((id: string) => {
-    return pendingDraftIdsRef.current.has(id);
-  }, []);
-
-  const createWithId = useCallback(
-    async (id: string, input: TInput): Promise<{ id: string } | null> => {
+  const create = useCallback(
+    async (input: TInput): Promise<{ id: string } | null> => {
       if (!masterKey) {
         triggerHardLogoutOnce(window.location.href, navigationSource);
         return null;
       }
+
+      const id = crypto.randomUUID();
 
       try {
         const encrypted = await encryptInput(input, masterKey, id);
@@ -336,17 +286,7 @@ export function useEncryptedSortableItems<
           return null;
         }
 
-        const wasAborted = abortedDraftIdsRef.current.has(id);
-        abortedDraftIdsRef.current.delete(id);
-        pendingDraftIdsRef.current.delete(id);
         setItems((prev) => {
-          const exists = prev.some((item) => item.id === id);
-          if (exists) {
-            return prev;
-          }
-          if (wasAborted) {
-            return prev;
-          }
           const newItem = buildOptimisticItem(input, prev, result.data);
           return [...prev, newItem].toSorted(
             (a, b) => a.sort_order - b.sort_order
@@ -372,13 +312,6 @@ export function useEncryptedSortableItems<
       buildCreatePayload,
       buildOptimisticItem,
     ]
-  );
-
-  const create = useCallback(
-    async (input: TInput): Promise<{ id: string } | null> => {
-      return createWithId(crypto.randomUUID(), input);
-    },
-    [createWithId]
   );
 
   const restoreItemSnapshot = useCallback((id: string, snapshot: TItem) => {
@@ -413,19 +346,6 @@ export function useEncryptedSortableItems<
       );
 
       try {
-        if (pendingDraftIdsRef.current.has(id)) {
-          const mergedInput: TInput = {
-            ...draftInputFromItem(previousItem),
-            ...input,
-          };
-          const created = await createWithId(id, mergedInput);
-          if (!created) {
-            restoreItemSnapshot(id, previousItem);
-            return false;
-          }
-          return true;
-        }
-
         const encrypted = await encryptUpdate(id, input, masterKey);
         const payload = buildUpdatePayload(id, encrypted, input);
         assertEncryptedWritePayloadAuto(payload as Record<string, unknown>);
@@ -464,19 +384,12 @@ export function useEncryptedSortableItems<
       updateItem,
       buildUpdatePayload,
       restoreItemSnapshot,
-      draftInputFromItem,
-      createWithId,
       items,
     ]
   );
 
   const remove = useCallback(
     async (id: string): Promise<boolean> => {
-      if (pendingDraftIdsRef.current.has(id)) {
-        removeDraft(id);
-        return true;
-      }
-
       const removedItem = items.find((item) => item.id === id);
       if (!removedItem) {
         return false;
@@ -517,7 +430,6 @@ export function useEncryptedSortableItems<
       deleteFailureMessage,
       deleteItem,
       restoreItemSnapshot,
-      removeDraft,
       items,
     ]
   );
@@ -609,10 +521,6 @@ export function useEncryptedSortableItems<
     error,
     refresh,
     create,
-    createWithId,
-    seedDraft,
-    removeDraft,
-    isPendingDraft,
     update,
     remove,
     reorder,

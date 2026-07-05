@@ -304,23 +304,31 @@ describe("E2EE dashboard editor wiring (Links pattern)", () => {
 
   it("apps/links routes sheet saves through library updateLink", () => {
     const src = readAppFile("links", "components/links-dashboard.tsx");
+    expect(src).toContain('formMode="create"');
+    expect(src).toContain("onCreate={(input) =>");
+    expect(src).toContain("library.createLink(");
+    expect(src).toContain("library.createFolder(");
     expect(src).toContain("onSave={(input) => library.updateLink(");
     expect(src).toMatch(/key=\{editingLink\.id\}/);
     expect(src).toContain("onRefresh={library.refresh}");
     expect(src).not.toContain("onLocalPatch");
     expect(src).not.toContain("patchLocal");
+    expect(src).not.toContain("seedLinkDraft");
+    expect(src).not.toContain("removeLinkDraft");
   });
 
   it.each([
     ["tasks", "components/item-editor.tsx"],
     ["notes", "components/item-editor.tsx"],
   ] as const)(
-    "apps/%s sheet editor uses shared save helper",
+    "apps/%s sheet editor uses list props and save-first create",
     (app, editorPath) => {
       const src = readAppFile(app, editorPath);
       expect(src).toContain("onUpdate");
+      expect(src).toContain("onCreate");
+      expect(src).toContain("onCreated");
+      expect(src).toContain('formMode: "create"');
       expect(src).toContain("initialDescription");
-      expect(src).toContain("useE2eeRichTextItemEditorSave");
       expect(src).toMatch(/setHasInitialized\(false\)/);
       expect(src).not.toMatch(/useItem\s*\(/);
     }
@@ -375,41 +383,65 @@ describe("E2EE dashboard editor wiring (Links pattern)", () => {
   });
 });
 
-describe("E2EE open-first create wiring", () => {
+describe("E2EE save-first create wiring", () => {
   it.each([
-    ["tasks", "components/flat-tasks-dashboard.tsx"],
-    ["notes", "components/flat-notes-dashboard.tsx"],
-    ["contacts", "components/contacts-dashboard.tsx"],
+    ["tasks", "components/flat-tasks-dashboard.tsx", "emptyTaskInput"],
+    ["notes", "components/flat-notes-dashboard.tsx", "emptyNoteInput"],
+    ["contacts", "components/contacts-dashboard.tsx", "emptyContactInput"],
   ] as const)(
-    "apps/%s uses openNewDraft with seedDraft and pending-draft cleanup",
-    (app, dashboardPath) => {
+    "apps/%s uses openCreate with formMode create/edit branches",
+    (app, dashboardPath, _emptyInputExport) => {
       const src = readAppFile(app, dashboardPath);
-      expect(src).toContain("openNewDraft");
-      expect(src).toContain("seedDraft");
-      expect(src).toContain("removeDraft");
-      expect(src).toContain("isPendingDraft");
-      expect(src).toMatch(
-        /if \(isPendingDraft\(id\)\)[\s\S]*removeDraft\(id\)/
-      );
-      expect(src).not.toContain("onPersistFailure");
-      expect(src).not.toContain("persist:");
+      expect(src).toContain("openCreate");
+      expect(src).toContain("formMode");
+      expect(src).toContain('formMode === "create"');
+      expect(src).toContain("onCreated");
+      expect(src).not.toContain("openNewDraft");
+      expect(src).not.toContain("seedDraft");
+      expect(src).not.toContain("removeDraft");
+      expect(src).not.toContain("isPendingDraft");
     }
   );
 
-  it("apps/links uses open-first draft helpers and pending-draft cleanup", () => {
-    const src = readAppFile("links", "components/links-dashboard.tsx");
-    expect(src).toContain("seedLinkDraft");
-    expect(src).toContain("removeLinkDraft");
-    expect(src).toContain("seedFolderDraft");
-    expect(src).toContain("removeFolderDraft");
-    expect(src).toContain("isPendingLinkDraft");
-    expect(src).toContain("isPendingFolderDraft");
-    expect(src).toContain("resolveLinkDisplayName");
-    expect(src).toMatch(
-      /if \(library\.isPendingLinkDraft\(state\.id\)\)[\s\S]*removeLinkDraft\(state\.id\)/
+  it.each([
+    ["tasks", "components/item-editor.tsx", "emptyTaskInput"],
+    ["notes", "components/item-editor.tsx", "emptyNoteInput"],
+    ["contacts", "components/contact-editor.tsx", "emptyContactInput"],
+  ] as const)(
+    "apps/%s editor uses formMode and shared empty create input",
+    (app, editorPath, emptyInputHelper) => {
+      const src = readAppFile(app, editorPath);
+      expect(src).toContain(emptyInputHelper);
+      expect(src).toContain('formMode: "create"');
+      expect(src).toContain('formMode === "edit"');
+    }
+  );
+
+  it("apps/links uses save-first create and create-mode panel state", () => {
+    const dashboardSrc = readAppFile("links", "components/links-dashboard.tsx");
+    expect(dashboardSrc).toContain('mode: "create"');
+    expect(dashboardSrc).toContain('formMode="create"');
+    expect(dashboardSrc).toContain("onCreated={handleLinkCreated}");
+    expect(dashboardSrc).toContain("onCreated={handleFolderCreated}");
+    expect(dashboardSrc).not.toContain("seedLinkDraft");
+    expect(dashboardSrc).not.toContain("removeLinkDraft");
+    expect(dashboardSrc).not.toContain("seedFolderDraft");
+    expect(dashboardSrc).not.toContain("removeFolderDraft");
+    expect(dashboardSrc).not.toContain("isPendingLinkDraft");
+    expect(dashboardSrc).not.toContain("isPendingFolderDraft");
+    expect(dashboardSrc).not.toContain("cleanupDraftIfUnchanged");
+    expect(dashboardSrc).not.toContain("createLinkWithId(");
+
+    const linkEditorSrc = readAppFile("links", "components/link-editor.tsx");
+    expect(linkEditorSrc).toContain("emptyLinkInput");
+    expect(linkEditorSrc).toContain('formMode: "create"');
+
+    const folderEditorSrc = readAppFile(
+      "links",
+      "components/folder-editor.tsx"
     );
-    expect(src).not.toContain("startOpenDraftTransition");
-    expect(src).not.toContain("createLinkWithId(");
+    expect(folderEditorSrc).toContain("emptyLinkFolderInput");
+    expect(folderEditorSrc).toContain('formMode: "create"');
   });
 
   it.each([
@@ -417,13 +449,14 @@ describe("E2EE open-first create wiring", () => {
     ["notes", "hooks/use-items.ts"],
     ["contacts", "hooks/use-contacts.ts"],
   ] as const)(
-    "apps/%s list hook exports draft create APIs",
+    "apps/%s list hook exports save-first create API",
     (app, hookPath) => {
       const src = readAppFile(app, hookPath);
-      expect(src).toContain("createWithId");
-      expect(src).toContain("seedDraft");
-      expect(src).toContain("removeDraft");
-      expect(src).toContain("draftInputFromItem");
+      expect(src).toContain("create:");
+      expect(src).not.toContain("seedDraft");
+      expect(src).not.toContain("removeDraft");
+      expect(src).not.toContain("draftInputFromItem");
+      expect(src).not.toContain("createWithId");
     }
   );
 
@@ -441,35 +474,28 @@ describe("E2EE open-first create wiring", () => {
     }
   );
 
-  it("shared sortable-items hook tracks pending and aborted open-first drafts", () => {
+  it("shared sortable-items hook creates on save with client UUID", () => {
     const src = readFileSync(
       join(repoRoot, "packages/ui/src/hooks/use-encrypted-sortable-items.ts"),
       "utf8"
     );
-    expect(src).toContain("abortedDraftIdsRef");
-    expect(src).toContain("pendingDraftIdsRef");
-    expect(src).toContain("draftInputFromItem");
-    expect(src).not.toContain("rollback on persist failure");
-    expect(src).toMatch(
-      /pendingDraftIdsRef\.current\.has\(id\)[\s\S]*createWithId/
-    );
-    expect(src).toMatch(
-      /pendingDraftIdsRef\.current\.has\(id\)[\s\S]*removeDraft\(id\)/
-    );
+    expect(src).toContain("crypto.randomUUID()");
+    expect(src).toMatch(/Save-first create/i);
+    expect(src).not.toContain("seedDraft");
+    expect(src).not.toContain("removeDraft");
+    expect(src).not.toContain("isPendingDraft");
+    expect(src).not.toContain("pendingDraftIdsRef");
+    expect(src).not.toContain("draftInputFromItem");
   });
 
-  it("links library hook tracks aborted link and folder drafts", () => {
+  it("links library hook creates on save with client UUID", () => {
     const src = readAppFile("links", "hooks/use-link-library.ts");
-    expect(src).toContain("abortedLinkDraftIdsRef");
-    expect(src).toContain("abortedFolderDraftIdsRef");
-    expect(src).toContain("resolveLinkDisplayName(input.name, input.url)");
-    expect(src).toContain("isPendingLinkDraft");
-    expect(src).toMatch(
-      /pendingLinkDraftIdsRef\.current\.has\(id\)[\s\S]*createLinkWithId/
-    );
-    expect(src).toMatch(
-      /pendingLinkDraftIdsRef\.current\.has\(id\)[\s\S]*removeLinkDraft\(id\)/
-    );
+    expect(src).toContain("crypto.randomUUID()");
+    expect(src).toContain("resolveLinkDisplayName(input.name, normalized.url)");
+    expect(src).not.toContain("pendingLinkDraftIdsRef");
+    expect(src).not.toContain("pendingFolderDraftIdsRef");
+    expect(src).not.toContain("seedLinkDraft");
+    expect(src).not.toContain("createLinkWithId");
   });
 });
 
@@ -492,29 +518,31 @@ describe("E2EE app README accuracy", () => {
     const src = readFileSync(join(repoRoot, "apps/links/README.md"), "utf8");
     expect(src).toContain("Links pattern");
     expect(src).toContain("library.updateLink");
-    expect(src).toContain("open-first");
+    expect(src).toContain("save-first");
   });
 
   it.each(["tasks", "notes", "contacts"] as const)(
-    "apps/%s README documents open-first create on first save",
+    "apps/%s README documents save-first create on first save",
     (app) => {
       const src = readFileSync(
         join(repoRoot, "apps", app, "README.md"),
         "utf8"
       );
-      expect(src).toContain("open-first");
+      expect(src).toContain("save-first");
       expect(src).toMatch(/first save|insert on first save/i);
-      expect(src).toContain("isPendingDraft");
+      expect(src).toContain("formMode");
       expect(src).toContain("useE2eeDashboardSelectedEntity");
+      expect(src).not.toContain("open-first");
+      expect(src).not.toContain("isPendingDraft");
       expect(src).not.toMatch(/persists in the background/i);
     }
   );
 
-  it("apps/links README documents pending link and folder draft cleanup", () => {
+  it("apps/links README documents save-first create on first save", () => {
     const src = readFileSync(join(repoRoot, "apps/links/README.md"), "utf8");
-    expect(src).toContain("isPendingLinkDraft");
-    expect(src).toContain("isPendingFolderDraft");
-    expect(src).toMatch(/first save/i);
+    expect(src).toMatch(/save-first|first save/i);
+    expect(src).toContain("formMode");
+    expect(src).toContain("library.createLink");
   });
 
   it("packages/ui README documents mount-only TipTap and Links pattern", () => {

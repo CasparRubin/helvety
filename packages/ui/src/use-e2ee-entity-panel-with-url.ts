@@ -6,7 +6,6 @@ import { useCallback } from "react";
 import { setE2eePanelUrlIntent } from "./e2ee-panel-url-intent";
 import {
   useE2eeEntityPanel,
-  type E2eeOpenNewDraftOptions,
   type UseE2eeEntityPanelResult,
 } from "./use-e2ee-entity-panel";
 
@@ -60,6 +59,10 @@ export function useE2eeEntityPanelWithUrl(
   const panel = useE2eeEntityPanel(initialEntityId);
   const { setEntityIdInUrl } = useE2eeEntityUrlSync(paramKey);
 
+  const openCreate = useCallback(() => {
+    panel.openCreate();
+  }, [panel.openCreate]);
+
   const openEntity = useCallback(
     (id: string) => {
       setE2eePanelUrlIntent("opening");
@@ -75,26 +78,10 @@ export function useE2eeEntityPanelWithUrl(
     setEntityIdInUrl(null);
   }, [panel.closePanel, setEntityIdInUrl]);
 
-  const openNewDraft = useCallback(
-    (options: E2eeOpenNewDraftOptions) => {
-      setE2eePanelUrlIntent("opening");
-      setEntityIdInUrl(options.id);
-      panel.openNewDraft({
-        ...options,
-        onPersistFailure: (id) => {
-          setE2eePanelUrlIntent("closing");
-          setEntityIdInUrl(null);
-          options.onPersistFailure?.(id);
-        },
-      });
-    },
-    [panel.openNewDraft, setEntityIdInUrl]
-  );
-
   return {
     ...panel,
+    openCreate,
     openEntity,
     closePanel,
-    openNewDraft,
   };
 }

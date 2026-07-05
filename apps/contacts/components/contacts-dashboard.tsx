@@ -12,25 +12,16 @@ import { ListSearchField } from "@helvety/ui/list-search-field";
 import { useE2eeDashboardSelectedEntity } from "@helvety/ui/use-e2ee-dashboard-selected-entity";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 
 import { ContactEditor } from "@/components/contact-editor";
 import { ContactList } from "@/components/contact-list";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { useContacts, fetchContactById } from "@/hooks/use-contacts";
 import { useDataExport } from "@/hooks/use-data-export";
-import {
-  DEFAULT_CATEGORIES,
-  DEFAULT_CONTACT_CATEGORY_ID,
-} from "@/lib/config/default-categories";
-import {
-  createContactDraftInput,
-  createContactDraftSnapshot,
-  isContactDraftUnchanged,
-} from "@/lib/config/draft-defaults";
+import { DEFAULT_CATEGORIES } from "@/lib/config/default-categories";
 import { useEncryptionContext, decryptContactRow } from "@/lib/crypto";
 
-import type { ContactDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ContactRow } from "@/lib/types";
 
 /** Props for the main contacts dashboard component. */
@@ -50,18 +41,14 @@ export function ContactsDashboard({
     isRefreshing,
     error,
     refresh,
-    seedDraft,
-    removeDraft,
-    isPendingDraft,
+    create,
     remove,
     reorder,
     update,
   } = useContacts({ initialEncryptedData: initialEncryptedContacts });
 
-  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+  const { isOpen, formMode, entityId, openEntity, closePanel, openCreate } =
     useE2eeEntityPanelWithUrl("contact");
-
-  const draftSnapshots = useRef<Map<string, ContactDraftSnapshot>>(new Map());
 
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
@@ -89,7 +76,7 @@ export function ContactsDashboard({
     isLoadingEntity,
     entityError,
   } = useE2eeDashboardSelectedEntity({
-    entityId,
+    entityId: formMode === "edit" ? entityId : null,
     entities: contacts,
     listIsLoading: isLoading,
     listError: error,
@@ -107,45 +94,19 @@ export function ContactsDashboard({
     emptyMessage: "No contacts match your search.",
   });
 
-  const cleanupDraftIfUnchanged = useCallback(
-    (id: string) => {
-      const contact = contacts.find((c) => c.id === id);
-      const snapshot = draftSnapshots.current.get(id);
-      if (contact && snapshot && isContactDraftUnchanged(contact, snapshot)) {
-        if (isPendingDraft(id)) {
-          removeDraft(id);
-        } else {
-          void remove(id);
-        }
-      }
-      draftSnapshots.current.delete(id);
-    },
-    [contacts, isPendingDraft, remove, removeDraft]
-  );
-
   const handleSelectEntity = useCallback(
     (id: string) => {
-      if (entityId && entityId !== id) {
-        cleanupDraftIfUnchanged(entityId);
-      }
       openEntity(id);
     },
-    [cleanupDraftIfUnchanged, entityId, openEntity]
-  );
-
-  const onBeforeEntityChange = useCallback(
-    (previousId: string) => {
-      cleanupDraftIfUnchanged(previousId);
-    },
-    [cleanupDraftIfUnchanged]
+    [openEntity]
   );
 
   useSyncE2eeEntityPanelFromUrl({
     paramKey: "contact",
     entityId,
+    formMode,
     openEntity,
     closePanel,
-    onBeforeEntityChange,
   });
 
   const handleSheetOpenChange = useCallback(
@@ -153,29 +114,21 @@ export function ContactsDashboard({
       if (open) {
         return;
       }
-      if (entityId) {
-        cleanupDraftIfUnchanged(entityId);
-      }
       closePanel();
     },
-    [cleanupDraftIfUnchanged, closePanel, entityId]
+    [closePanel]
   );
 
   const handleCreateClick = useCallback(() => {
-    if (entityId) {
-      cleanupDraftIfUnchanged(entityId);
-    }
-    const draftInput = createContactDraftInput(DEFAULT_CONTACT_CATEGORY_ID);
-    const snapshot = createContactDraftSnapshot(DEFAULT_CONTACT_CATEGORY_ID);
-    const draftId = crypto.randomUUID();
-    openNewDraft({
-      id: draftId,
-      seedOptimistic: (id) => {
-        seedDraft(id, draftInput);
-        draftSnapshots.current.set(id, snapshot);
-      },
-    });
-  }, [cleanupDraftIfUnchanged, entityId, openNewDraft, seedDraft]);
+    openCreate();
+  }, [openCreate]);
+
+  const handleCreated = useCallback(
+    (id: string) => {
+      openEntity(id);
+    },
+    [openEntity]
+  );
 
   const handleDeleteClick = useCallback((id: string, name: string) => {
     setDeleteState({ open: true, id, name });
@@ -185,7 +138,6 @@ export function ContactsDashboard({
     const deleteId = deleteState.id;
     if (!deleteId) return;
     startDeleteTransition(async () => {
-      draftSnapshots.current.delete(deleteId);
       await remove(deleteId);
       if (entityId === deleteId) {
         closePanel();
@@ -247,9 +199,18 @@ export function ContactsDashboard({
         onOpenChange={handleSheetOpenChange}
         title="Contact Details"
       >
-        {entityId ? (
+        {formMode === "create" ? (
+          <ContactEditor
+            key="create"
+            formMode="create"
+            onCreate={create}
+            onCreated={handleCreated}
+            onClose={() => handleSheetOpenChange(false)}
+          />
+        ) : entityId ? (
           <ContactEditor
             key={entityId}
+            formMode="edit"
             contactId={entityId}
             contact={selectedContact}
             isLoading={isLoadingEntity}

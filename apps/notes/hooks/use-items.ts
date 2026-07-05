@@ -44,13 +44,6 @@ interface UseItemsReturn {
   error: string | null;
   refresh: () => Promise<void>;
   create: (input: ItemInput) => Promise<{ id: string } | null>;
-  createWithId: (
-    id: string,
-    input: ItemInput
-  ) => Promise<{ id: string } | null>;
-  seedDraft: (id: string, input: ItemInput) => void;
-  removeDraft: (id: string) => void;
-  isPendingDraft: (id: string) => boolean;
   update: (id: string, input: Partial<ItemInput>) => Promise<boolean>;
   remove: (id: string) => Promise<boolean>;
   reorder: (updates: ReorderUpdate[]) => Promise<boolean>;
@@ -146,11 +139,6 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       });
       return updated.toSorted((a, b) => a.sort_order - b.sort_order);
     },
-    draftInputFromItem: (item) => ({
-      title: item.title,
-      description: item.description,
-      category_id: item.category_id,
-    }),
   });
 }
 

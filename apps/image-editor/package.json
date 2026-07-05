@@ -1,6 +1,6 @@
 {
   "name": "@helvety/image-editor",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "In-browser image editor for annotations: text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable corners, plus layers, property controls, zoom, and PNG/JPEG export. WebP input supported. No server upload, no account required. Engineered, designed and made in Switzerland.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-editor",

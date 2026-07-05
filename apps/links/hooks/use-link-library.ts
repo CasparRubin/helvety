@@ -105,38 +105,6 @@ interface UseLinkLibraryReturn {
     }
   ) => Promise<boolean>;
   removeLink: (id: string) => Promise<boolean>;
-  /** Add an optimistic link draft without a server call. */
-  seedLinkDraft: (
-    id: string,
-    input: LinkInput,
-    folderId: string | null
-  ) => void;
-  /** Discard a local open-first link draft (unchanged close, delete before first save, or cancel in-flight insert). */
-  removeLinkDraft: (id: string) => void;
-  /** True while the link is a local open-first draft not yet on the server. */
-  isPendingLinkDraft: (id: string) => boolean;
-  /** Create a link with a pre-generated client id (open-first drafts). */
-  createLinkWithId: (
-    id: string,
-    input: LinkInput,
-    folderId: string | null
-  ) => Promise<{ id: string } | null>;
-  /** Add an optimistic folder draft without a server call. */
-  seedFolderDraft: (
-    id: string,
-    input: LinkFolderInput,
-    parentFolderId: string | null
-  ) => void;
-  /** Discard a local open-first folder draft (unchanged close, delete before first save, or cancel in-flight insert). */
-  removeFolderDraft: (id: string) => void;
-  /** True while the folder is a local open-first draft not yet on the server. */
-  isPendingFolderDraft: (id: string) => boolean;
-  /** Create a folder with a pre-generated client id (open-first drafts). */
-  createFolderWithId: (
-    id: string,
-    input: LinkFolderInput,
-    parentFolderId: string | null
-  ) => Promise<{ id: string } | null>;
   applyTreeDrop: (action: TreeDropAction) => Promise<boolean>;
 }
 
@@ -158,10 +126,6 @@ export function useLinkLibrary(
   const linksLengthRef = useRef(0);
   foldersLengthRef.current = folders.length;
   linksLengthRef.current = links.length;
-  const pendingLinkDraftIdsRef = useRef<Set<string>>(new Set());
-  const pendingFolderDraftIdsRef = useRef<Set<string>>(new Set());
-  const abortedLinkDraftIdsRef = useRef<Set<string>>(new Set());
-  const abortedFolderDraftIdsRef = useRef<Set<string>>(new Set());
 
   const applyDecrypted = useCallback(
     async (data: LinksDashboardData) => {
@@ -172,33 +136,8 @@ export function useLinkLibrary(
         decryptFolderRows(data.folders, masterKey),
         decryptLinkRows(data.links, masterKey),
       ]);
-      const folderServerIds = new Set(decryptedFolders.map((f) => f.id));
-      const linkServerIds = new Set(decryptedLinks.map((l) => l.id));
-      setFolders((prev) => {
-        const pending = prev.filter(
-          (f) =>
-            pendingFolderDraftIdsRef.current.has(f.id) &&
-            !folderServerIds.has(f.id)
-        );
-        if (pending.length === 0) {
-          return decryptedFolders;
-        }
-        return [...decryptedFolders, ...pending].toSorted(
-          (a, b) => a.sort_order - b.sort_order
-        );
-      });
-      setLinks((prev) => {
-        const pending = prev.filter(
-          (l) =>
-            pendingLinkDraftIdsRef.current.has(l.id) && !linkServerIds.has(l.id)
-        );
-        if (pending.length === 0) {
-          return decryptedLinks;
-        }
-        return [...decryptedLinks, ...pending].toSorted(
-          (a, b) => a.sort_order - b.sort_order
-        );
-      });
+      setFolders(decryptedFolders);
+      setLinks(decryptedLinks);
     },
     [masterKey]
   );
@@ -292,43 +231,8 @@ export function useLinkLibrary(
     options?.initialEncryptedLinks,
   ]);
 
-  const seedFolderDraft = useCallback(
-    (id: string, input: LinkFolderInput, parentFolderId: string | null) => {
-      pendingFolderDraftIdsRef.current.add(id);
-      setFolders((prev) => {
-        const maxOrder = prev
-          .filter((f) => (f.parent_folder_id ?? null) === parentFolderId)
-          .reduce((max, f) => Math.max(max, f.sort_order), -1);
-        return [
-          ...prev,
-          {
-            id,
-            user_id: prev[0]?.user_id ?? "",
-            name: input.name,
-            parent_folder_id: parentFolderId,
-            sort_order: maxOrder + 1,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ].toSorted((a, b) => a.sort_order - b.sort_order);
-      });
-    },
-    []
-  );
-
-  const removeFolderDraft = useCallback((id: string) => {
-    pendingFolderDraftIdsRef.current.delete(id);
-    abortedFolderDraftIdsRef.current.add(id);
-    setFolders((prev) => prev.filter((f) => f.id !== id));
-  }, []);
-
-  const isPendingFolderDraft = useCallback((id: string) => {
-    return pendingFolderDraftIdsRef.current.has(id);
-  }, []);
-
-  const createFolderWithId = useCallback(
+  const createFolderFn = useCallback(
     async (
-      id: string,
       input: LinkFolderInput,
       parentFolderId: string | null
     ): Promise<{ id: string } | null> => {
@@ -336,6 +240,7 @@ export function useLinkLibrary(
         triggerHardLogoutOnce(window.location.href, "links-use-library");
         return null;
       }
+      const id = crypto.randomUUID();
       try {
         const encrypted = await encryptFolderInput(
           input,
@@ -351,16 +256,7 @@ export function useLinkLibrary(
           });
           return null;
         }
-        const wasAborted = abortedFolderDraftIdsRef.current.has(id);
-        abortedFolderDraftIdsRef.current.delete(id);
-        pendingFolderDraftIdsRef.current.delete(id);
         setFolders((prev) => {
-          if (prev.some((f) => f.id === id)) {
-            return prev;
-          }
-          if (wasAborted) {
-            return prev;
-          }
           const maxOrder = prev
             .filter((f) => (f.parent_folder_id ?? null) === parentFolderId)
             .reduce((max, f) => Math.max(max, f.sort_order), -1);
@@ -388,16 +284,6 @@ export function useLinkLibrary(
     [csrfToken, masterKey]
   );
 
-  const createFolderFn = useCallback(
-    async (
-      input: LinkFolderInput,
-      parentFolderId: string | null
-    ): Promise<{ id: string } | null> => {
-      return createFolderWithId(crypto.randomUUID(), input, parentFolderId);
-    },
-    [createFolderWithId]
-  );
-
   const updateFolderFn = useCallback(
     async (
       id: string,
@@ -414,29 +300,6 @@ export function useLinkLibrary(
         const existing = folders.find((f) => f.id === id);
         if (!existing) {
           return false;
-        }
-
-        if (pendingFolderDraftIdsRef.current.has(id)) {
-          const mergedInput: LinkFolderInput = {
-            name: input.name ?? existing.name,
-          };
-          setFolders((prev) =>
-            patchEntityInList(prev, id, {
-              name: mergedInput.name,
-            })
-          );
-          const created = await createFolderWithId(
-            id,
-            mergedInput,
-            existing.parent_folder_id ?? null
-          );
-          if (!created) {
-            setFolders((prev) =>
-              prev.map((folder) => (folder.id === id ? existing : folder))
-            );
-            return false;
-          }
-          return true;
         }
 
         const encrypted = await encryptFolderUpdate(id, input, masterKey);
@@ -479,15 +342,11 @@ export function useLinkLibrary(
         return false;
       }
     },
-    [createFolderWithId, csrfToken, folders, masterKey]
+    [csrfToken, folders, masterKey]
   );
 
   const removeFolderFn = useCallback(
     async (id: string): Promise<boolean> => {
-      if (pendingFolderDraftIdsRef.current.has(id)) {
-        removeFolderDraft(id);
-        return true;
-      }
       const result = await deleteFolder(id, csrfToken);
       if (!result.success) {
         reportE2eeActionFailure(result.error, {
@@ -499,47 +358,11 @@ export function useLinkLibrary(
       await refresh();
       return true;
     },
-    [csrfToken, refresh, removeFolderDraft]
+    [csrfToken, refresh]
   );
 
-  const seedLinkDraft = useCallback(
-    (id: string, input: LinkInput, folderId: string | null) => {
-      pendingLinkDraftIdsRef.current.add(id);
-      setLinks((prev) => {
-        const maxOrder = prev
-          .filter((l) => (l.folder_id ?? null) === folderId)
-          .reduce((max, l) => Math.max(max, l.sort_order), -1);
-        return [
-          ...prev,
-          {
-            id,
-            user_id: prev[0]?.user_id ?? "",
-            name: resolveLinkDisplayName(input.name, input.url),
-            url: input.url,
-            folder_id: folderId,
-            sort_order: maxOrder + 1,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ].toSorted((a, b) => a.sort_order - b.sort_order);
-      });
-    },
-    []
-  );
-
-  const removeLinkDraft = useCallback((id: string) => {
-    pendingLinkDraftIdsRef.current.delete(id);
-    abortedLinkDraftIdsRef.current.add(id);
-    setLinks((prev) => prev.filter((l) => l.id !== id));
-  }, []);
-
-  const isPendingLinkDraft = useCallback((id: string) => {
-    return pendingLinkDraftIdsRef.current.has(id);
-  }, []);
-
-  const createLinkWithId = useCallback(
+  const createLinkFn = useCallback(
     async (
-      id: string,
       input: LinkInput,
       folderId: string | null
     ): Promise<{ id: string } | null> => {
@@ -552,6 +375,7 @@ export function useLinkLibrary(
         toast.error(normalized.error, { duration: TOAST_DURATIONS.ERROR });
         return null;
       }
+      const id = crypto.randomUUID();
       try {
         const payload: LinkInput = {
           name: resolveLinkDisplayName(input.name, normalized.url),
@@ -571,16 +395,7 @@ export function useLinkLibrary(
           });
           return null;
         }
-        const wasAborted = abortedLinkDraftIdsRef.current.has(id);
-        abortedLinkDraftIdsRef.current.delete(id);
-        pendingLinkDraftIdsRef.current.delete(id);
         setLinks((prev) => {
-          if (prev.some((l) => l.id === id)) {
-            return prev;
-          }
-          if (wasAborted) {
-            return prev;
-          }
           const maxOrder = prev
             .filter((l) => (l.folder_id ?? null) === folderId)
             .reduce((max, l) => Math.max(max, l.sort_order), -1);
@@ -609,16 +424,6 @@ export function useLinkLibrary(
     [csrfToken, masterKey]
   );
 
-  const createLinkFn = useCallback(
-    async (
-      input: LinkInput,
-      folderId: string | null
-    ): Promise<{ id: string } | null> => {
-      return createLinkWithId(crypto.randomUUID(), input, folderId);
-    },
-    [createLinkWithId]
-  );
-
   const updateLinkFn = useCallback(
     async (
       id: string,
@@ -644,36 +449,6 @@ export function useLinkLibrary(
         const existing = links.find((l) => l.id === id);
         if (!existing) {
           return false;
-        }
-
-        if (pendingLinkDraftIdsRef.current.has(id)) {
-          const finalUrl = urlUpdate ?? existing.url;
-          if (!finalUrl) {
-            toast.error("URL is required", { duration: TOAST_DURATIONS.ERROR });
-            return false;
-          }
-          const mergedInput: LinkInput = {
-            name: resolveLinkDisplayName(input.name ?? existing.name, finalUrl),
-            url: finalUrl,
-          };
-          setLinks((prev) =>
-            patchEntityInList(prev, id, {
-              name: mergedInput.name,
-              url: mergedInput.url,
-            })
-          );
-          const created = await createLinkWithId(
-            id,
-            mergedInput,
-            existing.folder_id ?? null
-          );
-          if (!created) {
-            setLinks((prev) =>
-              prev.map((link) => (link.id === id ? existing : link))
-            );
-            return false;
-          }
-          return true;
         }
 
         const finalUrl = urlUpdate ?? existing?.url;
@@ -736,15 +511,11 @@ export function useLinkLibrary(
         return false;
       }
     },
-    [csrfToken, createLinkWithId, links, masterKey]
+    [csrfToken, links, masterKey]
   );
 
   const removeLinkFn = useCallback(
     async (id: string): Promise<boolean> => {
-      if (pendingLinkDraftIdsRef.current.has(id)) {
-        removeLinkDraft(id);
-        return true;
-      }
       const result = await deleteLink(id, csrfToken);
       if (!result.success) {
         reportE2eeActionFailure(result.error, {
@@ -756,7 +527,7 @@ export function useLinkLibrary(
       setLinks((prev) => prev.filter((l) => l.id !== id));
       return true;
     },
-    [csrfToken, removeLinkDraft]
+    [csrfToken]
   );
 
   const reorderFoldersFn = useCallback(
@@ -902,14 +673,6 @@ export function useLinkLibrary(
     createLink: createLinkFn,
     updateLink: updateLinkFn,
     removeLink: removeLinkFn,
-    seedLinkDraft,
-    removeLinkDraft,
-    isPendingLinkDraft,
-    createLinkWithId,
-    seedFolderDraft,
-    removeFolderDraft,
-    isPendingFolderDraft,
-    createFolderWithId,
     applyTreeDrop: applyTreeDropFn,
   };
 }

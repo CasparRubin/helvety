@@ -46,6 +46,7 @@
     "./e2ee-draft": "./src/e2ee-draft.ts",
     "./e2ee-entity-columns": "./src/e2ee-entity-columns.ts",
     "./e2ee-entity-defaults": "./src/e2ee-entity-defaults.ts",
+    "./e2ee-create-inputs": "./src/e2ee-create-inputs.ts",
     "./e2ee-json-export": "./src/e2ee-json-export.ts",
     "./e2ee-write-guard": "./src/e2ee-write-guard.ts",
     "./constants": "./src/constants.ts",

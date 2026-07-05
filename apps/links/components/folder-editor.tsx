@@ -1,5 +1,6 @@
 "use client";
 
+import { emptyLinkFolderInput } from "@helvety/shared/e2ee-create-inputs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,33 +34,48 @@ import type { LinkFolder } from "@/lib/types";
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-/** Props for the folder editor panel. */
-interface FolderEditorProps {
-  folder: LinkFolder;
+/** Shared props for folder editor create and edit modes. */
+type FolderEditorBaseProps = {
   folders: LinkFolder[];
   onClose?: () => void;
+  onRefresh?: () => Promise<void>;
+};
+
+/** Save-first create mode: inserts on first save via library hook. */
+type FolderEditorCreateProps = FolderEditorBaseProps & {
+  formMode: "create";
+  defaultParentFolderId: string | null;
+  onCreate: (input: {
+    name: string;
+    parent_folder_id: string | null;
+  }) => Promise<{ id: string } | null>;
+  onCreated: (id: string) => void;
+};
+
+/** Edit mode: dashboard supplies the resolved folder and save/delete callbacks. */
+type FolderEditorEditProps = FolderEditorBaseProps & {
+  formMode: "edit";
+  folder: LinkFolder;
   onSave: (input: {
     name: string;
     parent_folder_id: string | null;
   }) => Promise<boolean>;
   onDelete?: () => void;
-  onRefresh?: () => Promise<void>;
-}
+};
+
+/** Props for the folder editor panel. */
+export type FolderEditorProps = FolderEditorCreateProps | FolderEditorEditProps;
 
 /**
  * Folder detail editor with pinned save bar and unsaved-change detection.
  */
-export function FolderEditor({
-  folder,
-  folders,
-  onClose,
-  onSave,
-  onDelete,
-  onRefresh,
-}: FolderEditorProps): React.JSX.Element {
+export function FolderEditor(props: FolderEditorProps): React.JSX.Element {
+  const { formMode, folders, onClose, onRefresh } = props;
+  const folder = formMode === "edit" ? props.folder : null;
+
   const [name, setName] = useState("");
   const [parentFolderId, setParentFolderId] = useState("");
-  const [baselineCaptured, setBaselineCaptured] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const savedNameRef = useRef("");
   const savedParentFolderIdRef = useRef<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -81,41 +97,52 @@ export function FolderEditor({
   }, []);
 
   useEffect(() => {
-    if (!baselineCaptured) {
+    if (formMode === "create" && !hasInitialized) {
+      const defaults = emptyLinkFolderInput();
+      const initialParentId =
+        props.defaultParentFolderId ?? defaults.parent_folder_id ?? null;
+      setName(defaults.name);
+      setParentFolderId(toDisplayFolderId(initialParentId) ?? "");
+      savedNameRef.current = defaults.name;
+      savedParentFolderIdRef.current = initialParentId;
+      setHasInitialized(true);
+      setSaveStatus("idle");
+      return;
+    }
+    if (formMode === "edit" && folder && !hasInitialized) {
       setName(folder.name);
       setParentFolderId(toDisplayFolderId(folder.parent_folder_id) ?? "");
       savedNameRef.current = folder.name;
       savedParentFolderIdRef.current = folder.parent_folder_id;
-      setBaselineCaptured(true);
+      setHasInitialized(true);
       setSaveStatus("idle");
     }
-  }, [baselineCaptured, folder]);
+  }, [folder, formMode, hasInitialized, props]);
 
-  const parentOptions = useMemo(
-    () =>
-      folders.filter(
-        (f) =>
-          f.id !== folder.id && canMoveFolderToParent(folders, folder.id, f.id)
-      ),
-    [folder.id, folders]
-  );
+  const parentOptions = useMemo(() => {
+    if (formMode === "create") {
+      return folders;
+    }
+    return folders.filter(
+      (f) =>
+        f.id !== folder?.id && canMoveFolderToParent(folders, folder!.id, f.id)
+    );
+  }, [folder, folders, formMode]);
 
   const targetParentId = toStorageFolderId(parentFolderId);
-  const parentMoveAllowed = canMoveFolderToParent(
-    folders,
-    folder.id,
-    targetParentId ?? ALL_FOLDER_ID
-  );
+  const parentMoveAllowed =
+    formMode === "create" ||
+    canMoveFolderToParent(folders, folder!.id, targetParentId ?? ALL_FOLDER_ID);
 
   const hasUnsavedChanges = useMemo(() => {
-    if (!baselineCaptured) {
+    if (!hasInitialized) {
       return false;
     }
     return (
       name.trim() !== savedNameRef.current ||
       targetParentId !== savedParentFolderIdRef.current
     );
-  }, [baselineCaptured, name, targetParentId]);
+  }, [hasInitialized, name, targetParentId]);
 
   const captureBaseline = useCallback(
     (nextName: string, nextParentId: string | null) => {
@@ -135,10 +162,24 @@ export function FolderEditor({
 
     try {
       const trimmedName = name.trim();
-      const success = await onSave({
+      const input = {
         name: trimmedName,
         parent_folder_id: targetParentId,
-      });
+      };
+
+      if (formMode === "create") {
+        const created = await props.onCreate(input);
+        if (created) {
+          captureBaseline(trimmedName, targetParentId);
+          setSaveStatus("saved");
+          props.onCreated(created.id);
+        } else {
+          setSaveStatus("error");
+        }
+        return;
+      }
+
+      const success = await props.onSave(input);
 
       if (success) {
         captureBaseline(trimmedName, targetParentId);
@@ -159,10 +200,11 @@ export function FolderEditor({
     }
   }, [
     captureBaseline,
+    formMode,
     isSaving,
     name,
-    onSave,
     parentMoveAllowed,
+    props,
     targetParentId,
   ]);
 
@@ -179,22 +221,28 @@ export function FolderEditor({
   }, [doBack, hasUnsavedChanges]);
 
   const runRefresh = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setIsRefreshing(true);
-    setBaselineCaptured(false);
+    setHasInitialized(false);
     try {
       await onRefresh?.();
     } finally {
       setIsRefreshing(false);
     }
-  }, [onRefresh]);
+  }, [formMode, onRefresh]);
 
   const handleRefresh = useCallback(() => {
+    if (formMode !== "edit") {
+      return;
+    }
     if (hasUnsavedChanges) {
       setPendingAction("refresh");
       return;
     }
     void runRefresh();
-  }, [hasUnsavedChanges, runRefresh]);
+  }, [formMode, hasUnsavedChanges, runRefresh]);
 
   const handleConfirmDiscard = useCallback(() => {
     const action = pendingAction;
@@ -216,13 +264,13 @@ export function FolderEditor({
           <LinksEditorCommandBar
             onBack={handleBack}
             showBack={false}
-            onRefresh={handleRefresh}
+            onRefresh={formMode === "edit" ? handleRefresh : undefined}
             isRefreshing={isRefreshing}
             onSave={() => void handleSave()}
             isSaving={isSaving}
             hasUnsavedChanges={hasUnsavedChanges}
             saveStatus={saveStatus}
-            onDelete={onDelete}
+            onDelete={formMode === "edit" ? props.onDelete : undefined}
             deleteLabel="Delete folder"
           />
         }

@@ -10,7 +10,7 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 interface LinksEditorCommandBarProps {
   onBack: () => void;
   showBack?: boolean;
-  onRefresh: () => void;
+  onRefresh?: () => void;
   isRefreshing?: boolean;
   onSave?: () => void;
   isSaving?: boolean;

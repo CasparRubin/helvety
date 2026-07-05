@@ -55,13 +55,6 @@ interface UseContactsReturn {
   refresh: () => Promise<void>;
   /** Create a new contact */
   create: (input: ContactInput) => Promise<{ id: string } | null>;
-  createWithId: (
-    id: string,
-    input: ContactInput
-  ) => Promise<{ id: string } | null>;
-  seedDraft: (id: string, input: ContactInput) => void;
-  removeDraft: (id: string) => void;
-  isPendingDraft: (id: string) => boolean;
   /** Update a contact */
   update: (id: string, input: Partial<ContactInput>) => Promise<boolean>;
   /** Delete a contact */
@@ -112,10 +105,6 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     error,
     refresh,
     create,
-    createWithId,
-    seedDraft,
-    removeDraft,
-    isPendingDraft,
     update,
     remove,
     reorder,
@@ -190,16 +179,6 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
       });
       return updated.toSorted((a, b) => a.sort_order - b.sort_order);
     },
-    draftInputFromItem: (item) => ({
-      first_name: item.first_name,
-      last_name: item.last_name,
-      description: item.description,
-      email: item.email,
-      phone: item.phone,
-      birthday: item.birthday,
-      notes: item.notes,
-      category_id: item.category_id,
-    }),
   });
 
   return {
@@ -209,10 +188,6 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     error,
     refresh,
     create,
-    createWithId,
-    seedDraft,
-    removeDraft,
-    isPendingDraft,
     update,
     remove,
     reorder,

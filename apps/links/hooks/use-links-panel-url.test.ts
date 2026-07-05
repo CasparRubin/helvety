@@ -24,35 +24,45 @@ describe("useLinksPanelUrlSync", () => {
     navigationMocks.searchParams = new URLSearchParams();
   });
 
-  it("reads an open link panel from ?link=", () => {
+  it("returns closed when no link or folder param is present", () => {
+    const { result } = renderHook(() => useLinksPanelUrlSync());
+
+    expect(result.current.readPanelFromUrl()).toEqual({ mode: "closed" });
+  });
+
+  it("reads an edit link panel from ?link=", () => {
     navigationMocks.searchParams = new URLSearchParams(`link=${LINK_ID}`);
     const { result } = renderHook(() => useLinksPanelUrlSync());
 
     expect(result.current.readPanelFromUrl()).toEqual({
-      mode: "open",
+      mode: "edit",
       kind: "link",
       id: LINK_ID,
     });
   });
 
-  it("reads an open folder panel from ?folder=", () => {
+  it("reads an edit folder panel from ?folder=", () => {
     navigationMocks.searchParams = new URLSearchParams(`folder=${FOLDER_ID}`);
     const { result } = renderHook(() => useLinksPanelUrlSync());
 
     expect(result.current.readPanelFromUrl()).toEqual({
-      mode: "open",
+      mode: "edit",
       kind: "folder",
       id: FOLDER_ID,
     });
   });
 
-  it("writes link panels to ?link= and drops folder params", () => {
+  it("writes edit link panels to ?link= and drops folder params", () => {
     navigationMocks.searchParams = new URLSearchParams(
       `folder=${FOLDER_ID}&view=tree`
     );
     const { result } = renderHook(() => useLinksPanelUrlSync());
 
-    result.current.writePanelToUrl({ mode: "open", kind: "link", id: LINK_ID });
+    result.current.writePanelToUrl({
+      mode: "edit",
+      kind: "link",
+      id: LINK_ID,
+    });
 
     expect(navigationMocks.replace).toHaveBeenCalledWith(
       `/links?view=tree&link=${LINK_ID}`,
@@ -71,5 +81,13 @@ describe("useLinksPanelUrlSync", () => {
     expect(navigationMocks.replace).toHaveBeenCalledWith("/links", {
       scroll: false,
     });
+  });
+
+  it("does not write URL params for create mode (save-first panels stay local)", () => {
+    const { result } = renderHook(() => useLinksPanelUrlSync());
+
+    result.current.writePanelToUrl({ mode: "closed" });
+
+    expect(navigationMocks.replace).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,7 @@
 
 ## Product behavior
 - Encrypted names, numbers, birthdays, and notes in Personal, Work, and Other groups
+- New contact opens an empty editor sheet (save-first create); the record is stored on first save with a client-generated id
 - Client-side search on decrypted fields and JSON export when you need a copy
 - Shareable links use `?contact=<uuid>` to open a contact in the detail sheet after sign-in and vault unlock
 - Optional cross-app links to Helvety Tasks, Notes, and Links when those apps are in use

@@ -20,10 +20,6 @@ vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
     remove: vi.fn(),
     reorder: vi.fn(),
     patchLocal: vi.fn(),
-    createWithId: vi.fn(),
-    seedDraft: vi.fn(),
-    removeDraft: vi.fn(),
-    isPendingDraft: vi.fn(() => false),
   })),
 }));
 
@@ -68,9 +64,28 @@ describe("useItems", () => {
         perfMeasureName: "notes:list-refresh-duration",
         loadFailureMessage: "Failed to load notes",
         reorderEntities: expect.any(Function),
-        draftInputFromItem: expect.any(Function),
       })
     );
+  });
+
+  it("exports save-first create from the shared sortable hook", () => {
+    const create = vi.fn();
+    vi.mocked(useEncryptedSortableItems).mockReturnValueOnce({
+      items: [],
+      isLoading: false,
+      isRefreshing: false,
+      error: null,
+      refresh: vi.fn(),
+      create,
+      update: vi.fn(),
+      remove: vi.fn(),
+      reorder: vi.fn(),
+      patchLocal: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useItems());
+
+    expect(result.current.create).toBe(create);
   });
 });
 

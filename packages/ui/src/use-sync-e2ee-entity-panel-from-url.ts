@@ -9,22 +9,25 @@ import { getE2eePanelUrlIntentRef } from "./e2ee-panel-url-intent";
 export interface UseSyncE2eeEntityPanelFromUrlOptions {
   /** Primary query param (e.g. `note`, `item`, `contact`). */
   paramKey: string;
-  /** Active entity id from {@link useE2eeEntityPanelWithUrl}. */
+  /** Active entity id from {@link useE2eeEntityPanelWithUrl} (null in create mode). */
   entityId: string | null;
+  /** `create` while composing an unsaved record (no URL param). */
+  formMode: "create" | "edit" | null;
   openEntity: (id: string) => void;
   closePanel: () => void;
-  /** Called before closing or switching entities (e.g. draft cleanup). */
+  /** Called before closing or switching edit entities. */
   onBeforeEntityChange?: (previousEntityId: string) => void;
 }
 
 /**
  * Syncs sheet panel state from URL query params (back/forward, deep links).
  * Only updates panel when URL state differs from current — avoids React #185 loops.
- * Pair with {@link useE2eeEntityPanelWithUrl}; mirrors Links dashboard guarded sync.
+ * Pair with {@link useE2eeEntityPanelWithUrl}; save-first create stays open without a URL param.
  */
 export function useSyncE2eeEntityPanelFromUrl({
   paramKey,
   entityId,
+  formMode,
   openEntity,
   closePanel,
   onBeforeEntityChange,
@@ -32,6 +35,8 @@ export function useSyncE2eeEntityPanelFromUrl({
   const searchParams = useSearchParams();
   const entityIdRef = useRef(entityId);
   entityIdRef.current = entityId;
+  const formModeRef = useRef(formMode);
+  formModeRef.current = formMode;
 
   useEffect(() => {
     const idFromUrl = searchParams.get(paramKey);
@@ -43,6 +48,10 @@ export function useSyncE2eeEntityPanelFromUrl({
         }
         openEntity(idFromUrl);
       }
+      return;
+    }
+
+    if (formModeRef.current === "create") {
       return;
     }
 

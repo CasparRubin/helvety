@@ -394,6 +394,54 @@ describe("E2eeRichTextItemEditorShell", () => {
     expect(onRefresh).toHaveBeenCalled();
   });
 
+  it("shows load error when the item is missing and an error is set", () => {
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="test-item"
+        hasItem={false}
+        error="List failed"
+        hasInitialized={false}
+        renderCommandBar={() => null}
+      />
+    );
+
+    expect(screen.getByText("Load failed")).toBeInTheDocument();
+  });
+
+  it("shows not-found when the item is missing without an error", () => {
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="test-item"
+        hasItem={false}
+        error={null}
+        hasInitialized={false}
+        renderCommandBar={() => null}
+      />
+    );
+
+    expect(screen.getByText("Not found")).toBeInTheDocument();
+  });
+
+  it("renders the editor when hasItem is true even if a list error is set", () => {
+    render(
+      <E2eeRichTextItemEditorShell
+        {...baseShellProps}
+        editorSessionKey="test-item"
+        hasItem
+        error="Failed to refresh list"
+        title="Loaded title"
+        renderCommandBar={() => null}
+      />
+    );
+
+    expect(
+      screen.queryByText("Failed to refresh list")
+    ).not.toBeInTheDocument();
+    expect(screen.getByDisplayValue("Loaded title")).toBeInTheDocument();
+  });
+
   it("uses a flex-filling loading placeholder before initialization", () => {
     const { container } = render(
       <E2eeRichTextItemEditorShell

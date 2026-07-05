@@ -1,5 +1,6 @@
 "use client";
 
+import { emptyLinkInput } from "@helvety/shared/e2ee-create-inputs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,35 +66,51 @@ const ContactLinksPanel = dynamic(
 /** Save status type */
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-/** Props for the link editor panel. */
-interface LinkEditorProps {
-  link: Link;
+/** Shared props for link editor create and edit modes. */
+type LinkEditorBaseProps = {
   folders: LinkFolder[];
   onClose?: () => void;
+  onRefresh?: () => Promise<void>;
+};
+
+/** Save-first create mode: inserts on first save via library hook. */
+type LinkEditorCreateProps = LinkEditorBaseProps & {
+  formMode: "create";
+  defaultFolderId: string | null;
+  onCreate: (input: {
+    name: string;
+    url: string;
+    folder_id: string | null;
+  }) => Promise<{ id: string } | null>;
+  onCreated: (id: string) => void;
+};
+
+/** Edit mode: dashboard supplies the resolved link and save/delete callbacks. */
+type LinkEditorEditProps = LinkEditorBaseProps & {
+  formMode: "edit";
+  link: Link;
   onSave: (input: {
     name: string;
     url: string;
     folder_id: string | null;
   }) => Promise<boolean>;
   onDelete?: () => void;
-  onRefresh?: () => Promise<void>;
-}
+};
+
+/** Props for the link editor panel. */
+export type LinkEditorProps = LinkEditorCreateProps | LinkEditorEditProps;
 
 /**
  * Link detail editor with pinned save bar and unsaved-change detection.
  */
-export function LinkEditor({
-  link,
-  folders,
-  onClose,
-  onSave,
-  onDelete,
-  onRefresh,
-}: LinkEditorProps): React.JSX.Element {
+export function LinkEditor(props: LinkEditorProps): React.JSX.Element {
+  const { formMode, folders, onClose, onRefresh } = props;
+  const link = formMode === "edit" ? props.link : null;
+
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [folderId, setFolderId] = useState("");
-  const [baselineCaptured, setBaselineCaptured] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const savedNameRef = useRef("");
   const savedUrlRef = useRef("");
   const savedFolderIdRef = useRef<string | null>(null);
@@ -116,22 +133,36 @@ export function LinkEditor({
   }, []);
 
   useEffect(() => {
-    if (!baselineCaptured) {
+    if (formMode === "create" && !hasInitialized) {
+      const defaults = emptyLinkInput();
+      const initialFolderId =
+        props.defaultFolderId ?? defaults.folder_id ?? null;
+      setName(defaults.name);
+      setUrl(defaults.url);
+      setFolderId(toDisplayFolderId(initialFolderId) ?? "");
+      savedNameRef.current = defaults.name;
+      savedUrlRef.current = defaults.url;
+      savedFolderIdRef.current = initialFolderId;
+      setHasInitialized(true);
+      setSaveStatus("idle");
+      return;
+    }
+    if (formMode === "edit" && link && !hasInitialized) {
       setName(link.name);
       setUrl(link.url);
       setFolderId(toDisplayFolderId(link.folder_id) ?? "");
       savedNameRef.current = link.name;
       savedUrlRef.current = link.url;
       savedFolderIdRef.current = link.folder_id;
-      setBaselineCaptured(true);
+      setHasInitialized(true);
       setSaveStatus("idle");
     }
-  }, [baselineCaptured, link]);
+  }, [formMode, hasInitialized, link, props]);
 
   const folderIdValue = toStorageFolderId(folderId);
 
   const hasUnsavedChanges = useMemo(() => {
-    if (!baselineCaptured) {
+    if (!hasInitialized) {
       return false;
     }
     return (
@@ -139,7 +170,7 @@ export function LinkEditor({
       url.trim() !== savedUrlRef.current ||
       folderIdValue !== savedFolderIdRef.current
     );
-  }, [baselineCaptured, name, url, folderIdValue]);
+  }, [folderIdValue, hasInitialized, name, url]);
 
   const captureBaseline = useCallback(
     (nextName: string, nextUrl: string, nextFolderId: string | null) => {
@@ -161,11 +192,25 @@ export function LinkEditor({
     try {
       const trimmedName = name.trim();
       const trimmedUrl = url.trim();
-      const success = await onSave({
+      const input = {
         name: trimmedName,
         url: trimmedUrl,
         folder_id: folderIdValue,
-      });
+      };
+
+      if (formMode === "create") {
+        const created = await props.onCreate(input);
+        if (created) {
+          captureBaseline(trimmedName, trimmedUrl, folderIdValue);
+          setSaveStatus("saved");
+          props.onCreated(created.id);
+        } else {
+          setSaveStatus("error");
+        }
+        return;
+      }
+
+      const success = await props.onSave(input);
 
       if (success) {
         captureBaseline(trimmedName, trimmedUrl, folderIdValue);
@@ -184,7 +229,7 @@ export function LinkEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [captureBaseline, folderIdValue, isSaving, name, onSave, url]);
+  }, [captureBaseline, folderIdValue, formMode, isSaving, name, props, url]);
 
   const doBack = useCallback(() => {
     onClose?.();
@@ -199,22 +244,28 @@ export function LinkEditor({
   }, [doBack, hasUnsavedChanges]);
 
   const runRefresh = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setIsRefreshing(true);
-    setBaselineCaptured(false);
+    setHasInitialized(false);
     try {
       await onRefresh?.();
     } finally {
       setIsRefreshing(false);
     }
-  }, [onRefresh]);
+  }, [formMode, onRefresh]);
 
   const handleRefresh = useCallback(() => {
+    if (formMode !== "edit") {
+      return;
+    }
     if (hasUnsavedChanges) {
       setPendingAction("refresh");
       return;
     }
     void runRefresh();
-  }, [hasUnsavedChanges, runRefresh]);
+  }, [formMode, hasUnsavedChanges, runRefresh]);
 
   const handleConfirmDiscard = useCallback(() => {
     const action = pendingAction;
@@ -236,13 +287,13 @@ export function LinkEditor({
           <LinksEditorCommandBar
             onBack={handleBack}
             showBack={false}
-            onRefresh={handleRefresh}
+            onRefresh={formMode === "edit" ? handleRefresh : undefined}
             isRefreshing={isRefreshing}
             onSave={() => void handleSave()}
             isSaving={isSaving}
             hasUnsavedChanges={hasUnsavedChanges}
             saveStatus={saveStatus}
-            onDelete={onDelete}
+            onDelete={formMode === "edit" ? props.onDelete : undefined}
             deleteLabel="Delete link"
           />
         }
@@ -258,11 +309,13 @@ export function LinkEditor({
             onFolderIdChange={setFolderId}
             autoFocusUrl
           />
-          <div className="mb-6 space-y-6">
-            <TaskLinksPanel linkId={link.id} />
-            <ContactLinksPanel linkId={link.id} />
-            <NoteLinksPanel linkId={link.id} />
-          </div>
+          {formMode === "edit" && link ? (
+            <div className="mb-6 space-y-6">
+              <TaskLinksPanel linkId={link.id} />
+              <ContactLinksPanel linkId={link.id} />
+              <NoteLinksPanel linkId={link.id} />
+            </div>
+          ) : null}
         </div>
       </CommandBarPageLayout>
 

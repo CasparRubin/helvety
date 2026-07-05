@@ -8,7 +8,7 @@
 - Link rows open the URL in a new tab; pencil opens link/folder editors in right sheets
 - Dashboard command bar: primary New link, secondary New folder
 - Folder actions: open links in a folder, or in a folder and all nested subfolders (on All, open every bookmark in the library)
-- New link / New folder create a draft row and open the right-hand editor sheet; closing without edits removes the draft
+- New link / New folder open an empty editor sheet (save-first create); no list row or shareable URL until first save; cross-app link panels appear only in edit mode
 - Edit with pinned save bar, refresh, and unsaved-change detection (same pattern as other Helvety E2EE apps)
 - Shareable links use `?link=<uuid>` or `?folder=<uuid>` to open the editor sheet after sign-in and vault unlock; they do not expand the folder tree
 - Optional cross-app links to Helvety Tasks, Contacts, and Notes when those apps are in use

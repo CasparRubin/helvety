@@ -135,18 +135,18 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toMatch(/not.*cmdk|cmdk Command/i);
   });
 
-  it("packages/ui README documents open-first create and selected-entity hook", () => {
+  it("packages/ui README documents save-first create and selected-entity hook", () => {
     const readme = readRepoFile("packages/ui/README.md");
-    expect(readme).toContain("open-first");
+    expect(readme).toContain("save-first");
     expect(readme).toContain("useE2eeDashboardSelectedEntity");
-    expect(readme).toContain("seedDraft");
-    expect(readme).toContain("createWithId");
-    expect(readme).toContain("isPendingDraft");
-    expect(readme).toMatch(/first save|first `update\(\)`/i);
-    expect(readme).not.toContain("persist-on-open");
+    expect(readme).toContain("openCreate");
+    expect(readme).toContain("formMode");
+    expect(readme).toMatch(/first save/i);
+    expect(readme).not.toContain("open-first");
+    expect(readme).not.toContain("seedDraft");
   });
 
-  it("E2EE zone READMEs describe open-first create on first save, not persist-on-open", () => {
+  it("E2EE zone READMEs describe save-first create on first save, not persist-on-open", () => {
     for (const relativePath of [
       "apps/tasks/README.md",
       "apps/notes/README.md",
@@ -154,14 +154,30 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
       "apps/links/README.md",
     ]) {
       const readme = readRepoFile(relativePath);
-      expect(readme, relativePath).toContain("open-first");
+      expect(readme, relativePath).toContain("save-first");
       expect(readme, relativePath).toMatch(/first save|insert on first save/i);
-      expect(readme, relativePath).toMatch(/isPending/i);
+      expect(readme, relativePath).toContain("formMode");
+      expect(readme, relativePath).not.toContain("open-first");
       expect(readme, relativePath).not.toContain("persist-on-open");
       expect(readme, relativePath).not.toMatch(
         /persist a draft row immediately, then open/i
       );
       expect(readme, relativePath).not.toMatch(/persists in the background/i);
+    }
+  });
+
+  it("E2EE zone llms.txt summaries describe save-first create, not draft-row persist", () => {
+    for (const relativePath of [
+      "apps/tasks/public/llms.txt",
+      "apps/notes/public/llms.txt",
+      "apps/contacts/public/llms.txt",
+      "apps/links/public/llms.txt",
+    ]) {
+      const llms = readRepoFile(relativePath);
+      expect(llms, relativePath).toMatch(/save-first/i);
+      expect(llms, relativePath).not.toMatch(/draft row/i);
+      expect(llms, relativePath).not.toMatch(/persist-on-open/i);
+      expect(llms, relativePath).not.toMatch(/closing without edits removes/i);
     }
   });
 

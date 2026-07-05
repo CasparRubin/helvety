@@ -178,7 +178,7 @@ export function logEncryptedExportRequested(
 
 /**
  * Returns a failure response when an owned update affected zero rows.
- * Prevents silent no-ops when a pending open-first draft has not been inserted yet.
+ * Prevents silent no-ops when an owned update affects zero rows (missing or deleted entity).
  */
 export function ownedUpdateMissingRow(
   data: { id: string } | null,

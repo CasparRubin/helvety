@@ -1,5 +1,6 @@
 "use client";
 
+import { emptyContactInput } from "@helvety/shared/e2ee-create-inputs";
 import { DatePicker } from "@helvety/ui/date-picker";
 import { E2EE_FORM_FIELD_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
@@ -72,8 +73,21 @@ interface ContactMetadataSnapshot {
   birthday: string | null;
 }
 
-/** Props for ContactEditor */
-interface ContactEditorProps {
+/** Shared props for contact editor create and edit modes. */
+type ContactEditorBaseProps = {
+  onClose?: () => void;
+};
+
+/** Save-first create mode: inserts on first save via dashboard list hook. */
+type ContactEditorCreateProps = ContactEditorBaseProps & {
+  formMode: "create";
+  onCreate: (input: ContactInput) => Promise<{ id: string } | null>;
+  onCreated: (id: string) => void;
+};
+
+/** Edit mode: dashboard supplies the resolved contact and list-hook CRUD callbacks. */
+type ContactEditorEditProps = ContactEditorBaseProps & {
+  formMode: "edit";
   contactId: string;
   contact: Contact | null;
   isLoading?: boolean;
@@ -81,20 +95,15 @@ interface ContactEditorProps {
   onUpdate: (input: Partial<ContactInput>) => Promise<boolean>;
   onRemove: () => Promise<boolean>;
   onRefresh: () => Promise<void>;
-  onClose?: () => void;
-}
+};
 
-/** Contact editor for a single contact inside the dashboard detail sheet. */
-export function ContactEditor({
-  contactId,
-  contact,
-  isLoading,
-  error,
-  onUpdate,
-  onRemove,
-  onRefresh,
-  onClose,
-}: ContactEditorProps) {
+/** Props for ContactEditor */
+export type ContactEditorProps =
+  ContactEditorCreateProps | ContactEditorEditProps;
+
+/** Contact editor for create or edit inside the dashboard detail sheet. */
+export function ContactEditor(props: ContactEditorProps) {
+  const { formMode, onClose } = props;
   const router = useRouter();
 
   const [firstName, setFirstName] = useState("");
@@ -103,6 +112,9 @@ export function ContactEditor({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [birthday, setBirthday] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState(
+    () => emptyContactInput().category_id ?? "personal"
+  );
   const [hasInitialized, setHasInitialized] = useState(false);
   const savedMetadataRef = useRef<ContactMetadataSnapshot>({
     firstName: "",
@@ -117,14 +129,42 @@ export function ContactEditor({
   const [isDeletingContact, setIsDeletingContact] = useState(false);
   const [isSavingCategory, setIsSavingCategory] = useState(false);
 
+  const contact = formMode === "edit" ? props.contact : null;
+  const contactId = formMode === "edit" ? props.contactId : "create";
+  const isLoading = formMode === "edit" ? props.isLoading : false;
+  const error = formMode === "edit" ? props.error : null;
+
   useEffect(() => {
-    if (contact && !hasInitialized) {
+    if (formMode === "create" && !hasInitialized) {
+      const defaults = emptyContactInput();
+      setFirstName(defaults.first_name);
+      setLastName(defaults.last_name);
+      setDescription("");
+      setEmail("");
+      setPhone("");
+      setBirthday(null);
+      setCategoryId(defaults.category_id ?? "personal");
+      savedMetadataRef.current = {
+        firstName: defaults.first_name,
+        lastName: defaults.last_name,
+        description: "",
+        email: "",
+        phone: "",
+        birthday: null,
+      };
+      setHasInitialized(true);
+    }
+  }, [formMode, hasInitialized]);
+
+  useEffect(() => {
+    if (formMode === "edit" && contact && !hasInitialized) {
       setFirstName(contact.first_name);
       setLastName(contact.last_name);
       setDescription(contact.description ?? "");
       setEmail(contact.email ?? "");
       setPhone(contact.phone ?? "");
       setBirthday(contact.birthday);
+      setCategoryId(contact.category_id);
       savedMetadataRef.current = {
         firstName: contact.first_name,
         lastName: contact.last_name,
@@ -135,7 +175,7 @@ export function ContactEditor({
       };
       setHasInitialized(true);
     }
-  }, [contact, hasInitialized]);
+  }, [contact, formMode, hasInitialized]);
 
   const hasAdditionalUnsavedChanges = useMemo(() => {
     if (!hasInitialized) return false;
@@ -159,19 +199,16 @@ export function ContactEditor({
     birthday,
   ]);
 
-  const onSave = useCallback(
-    async (_title: string, notesContent: JSONContent | null) => {
-      if (!contact) return false;
-
+  const buildContactInput = useCallback(
+    (notesContent: JSONContent | null): ContactInput => {
       const notes = notesContent
         ? serializeRichTextContent(notesContent)
         : null;
-
       const trimmedDescription = description.trim();
       const trimmedEmail = email.trim();
       const trimmedPhone = phone.trim();
 
-      const success = await onUpdate({
+      return {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         description: trimmedDescription === "" ? null : trimmedDescription,
@@ -179,31 +216,47 @@ export function ContactEditor({
         phone: trimmedPhone === "" ? null : trimmedPhone,
         birthday,
         notes,
-      });
+        category_id: categoryId,
+      };
+    },
+    [birthday, categoryId, description, email, firstName, lastName, phone]
+  );
+
+  const onSave = useCallback(
+    async (_title: string, notesContent: JSONContent | null) => {
+      if (!firstName.trim()) {
+        return false;
+      }
+
+      if (formMode === "create") {
+        const created = await props.onCreate(buildContactInput(notesContent));
+        if (created) {
+          props.onCreated(created.id);
+        }
+        return Boolean(created);
+      }
+
+      if (!contact) {
+        return false;
+      }
+
+      const input = buildContactInput(notesContent);
+      const success = await props.onUpdate(input);
 
       if (success) {
         savedMetadataRef.current = {
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          description: trimmedDescription,
-          email: trimmedEmail,
-          phone: trimmedPhone,
-          birthday,
+          firstName: input.first_name,
+          lastName: input.last_name,
+          description: input.description ?? "",
+          email: input.email ?? "",
+          phone: input.phone ?? "",
+          birthday: input.birthday ?? null,
         };
       }
 
       return success;
     },
-    [
-      contact,
-      firstName,
-      lastName,
-      description,
-      email,
-      phone,
-      birthday,
-      onUpdate,
-    ]
+    [buildContactInput, contact, firstName, formMode, props]
   );
 
   const doBack = useCallback(() => {
@@ -215,27 +268,40 @@ export function ContactEditor({
   }, [onClose, router]);
 
   const handleEditorRefresh = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setHasInitialized(false);
-    await onRefresh();
-  }, [onRefresh]);
+    await props.onRefresh();
+  }, [formMode, props]);
 
   const handleCategoryChange = useCallback(
-    async (categoryId: string) => {
-      if (!contact || categoryId === contact.category_id) return;
+    async (nextCategoryId: string) => {
+      if (formMode === "create") {
+        setCategoryId(nextCategoryId);
+        return;
+      }
+      if (!contact || nextCategoryId === contact.category_id) {
+        return;
+      }
       setIsSavingCategory(true);
       try {
-        await onUpdate({ category_id: categoryId });
+        await props.onUpdate({ category_id: nextCategoryId });
+        setCategoryId(nextCategoryId);
       } finally {
         setIsSavingCategory(false);
       }
     },
-    [contact, onUpdate]
+    [contact, formMode, props]
   );
 
   const handleDeleteConfirm = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setIsDeletingContact(true);
     try {
-      const success = await onRemove();
+      const success = await props.onRemove();
       if (success) {
         if (onClose) {
           onClose();
@@ -247,9 +313,30 @@ export function ContactEditor({
       setIsDeletingContact(false);
       setIsDeleteOpen(false);
     }
-  }, [onClose, onRemove, router]);
+  }, [formMode, onClose, props, router]);
 
-  if (!contact && !error && isLoading) {
+  const metadataContact: Contact | null =
+    formMode === "edit"
+      ? contact
+      : hasInitialized
+        ? ({
+            id: "create",
+            user_id: "",
+            first_name: firstName,
+            last_name: lastName,
+            description: description || null,
+            email: email || null,
+            phone: phone || null,
+            birthday,
+            notes: null,
+            category_id: categoryId,
+            sort_order: 0,
+            created_at: "",
+            updated_at: "",
+          } satisfies Contact)
+        : null;
+
+  if (formMode === "edit" && !contact && !error && isLoading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
@@ -263,7 +350,7 @@ export function ContactEditor({
       title=""
       initialDescription={contact?.notes ?? null}
       isLoading={Boolean(isLoading)}
-      hasItem={Boolean(contact)}
+      hasItem={formMode === "create" ? hasInitialized : Boolean(contact)}
       error={error ?? null}
       hasInitialized={hasInitialized}
       onTitleChange={() => undefined}
@@ -278,18 +365,22 @@ export function ContactEditor({
       hasAdditionalUnsavedChanges={hasAdditionalUnsavedChanges}
       richTextLabel="Notes"
       richTextPlaceholder="Add notes about this contact..."
-      onDeleteRequested={() => setIsDeleteOpen(true)}
-      renderCommandBar={(props) => (
+      onDeleteRequested={
+        formMode === "edit" ? () => setIsDeleteOpen(true) : undefined
+      }
+      renderCommandBar={(commandBarProps) => (
         <ContactEditorCommandBar
-          onBack={props.onBack}
-          showBack={props.showBack}
-          onRefresh={props.onRefresh}
-          isRefreshing={props.isRefreshing}
-          onSave={props.onSave}
-          isSaving={props.isSaving}
-          hasUnsavedChanges={props.hasUnsavedChanges}
-          saveStatus={props.saveStatus}
-          onDelete={props.onDelete}
+          onBack={commandBarProps.onBack}
+          showBack={commandBarProps.showBack}
+          onRefresh={
+            formMode === "edit" ? commandBarProps.onRefresh : undefined
+          }
+          isRefreshing={commandBarProps.isRefreshing}
+          onSave={commandBarProps.onSave}
+          isSaving={commandBarProps.isSaving}
+          hasUnsavedChanges={commandBarProps.hasUnsavedChanges}
+          saveStatus={commandBarProps.saveStatus}
+          onDelete={formMode === "edit" ? commandBarProps.onDelete : undefined}
         />
       )}
       renderBeforeEditor={
@@ -361,12 +452,12 @@ export function ContactEditor({
         ) : null
       }
       renderMetadata={
-        contact ? (
+        metadataContact ? (
           <ContactActionPanel
-            contact={contact}
+            contact={metadataContact}
             categories={DEFAULT_CATEGORIES}
-            onCategoryChange={(categoryId) => {
-              void handleCategoryChange(categoryId);
+            onCategoryChange={(nextCategoryId) => {
+              void handleCategoryChange(nextCategoryId);
             }}
             isSavingCategory={isSavingCategory}
             stacked
@@ -374,14 +465,16 @@ export function ContactEditor({
         ) : null
       }
       renderLinks={
-        <>
-          <TaskLinksPanel contactId={contactId} />
-          <NoteLinksPanel contactId={contactId} />
-          <LinkEntityLinksPanel contactId={contactId} />
-        </>
+        formMode === "edit" && props.contactId ? (
+          <>
+            <TaskLinksPanel contactId={props.contactId} />
+            <NoteLinksPanel contactId={props.contactId} />
+            <LinkEntityLinksPanel contactId={props.contactId} />
+          </>
+        ) : null
       }
       deleteDialog={
-        contact ? (
+        formMode === "edit" && contact ? (
           <DeleteConfirmationDialog
             open={isDeleteOpen}
             onOpenChange={setIsDeleteOpen}

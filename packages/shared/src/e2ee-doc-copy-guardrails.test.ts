@@ -55,25 +55,47 @@ describe("E2EE maintainer doc copy guardrails", () => {
     expect(text).toContain("e2ee-entity-columns");
   });
 
-  it("app-consistency checklist documents open-first create and selected-entity resolution", () => {
+  it("app-consistency checklist documents save-first create and selected-entity resolution", () => {
     const text = readRepoFile("docs/app-consistency-checklist.md");
-    expect(text).toContain("Open-first create");
+    expect(text).toContain("Save-first create");
     expect(text).toContain("useE2eeDashboardSelectedEntity");
-    expect(text).toContain("isPendingDraft");
-    expect(text).toContain("isPendingFolderDraft");
+    expect(text).toContain("e2ee-create-inputs");
     expect(text).toContain("ownedUpdateMissingRow");
     expect(text).toMatch(/first save/i);
     expect(text).not.toContain("persist-on-open");
-    expect(text).not.toMatch(/background `createWithId`/i);
+    expect(text).not.toContain("isPendingDraft");
   });
 
-  it("sortable-items hook docs do not describe removeDraft as persist-failure-only rollback", () => {
+  it("sortable-items hook docs describe save-first create", () => {
     const text = readRepoFile(
       "packages/ui/src/hooks/use-encrypted-sortable-items.ts"
     );
-    expect(text).not.toContain("rollback on persist failure");
-    expect(text).toMatch(/Discard a local open-first draft/i);
+    expect(text).toMatch(/Save-first create/i);
+    expect(text).not.toContain("seedDraft");
+    expect(text).not.toContain("removeDraft");
   });
+
+  it("e2ee-draft no longer exports open-first snapshot helpers", () => {
+    const text = readRepoFile("packages/shared/src/e2ee-draft.ts");
+    expect(text).toContain("getE2eeListTitle");
+    expect(text).not.toContain("isDraftSnapshotUnchanged");
+  });
+
+  it.each([
+    "apps/tasks/public/llms.txt",
+    "apps/contacts/public/llms.txt",
+    "apps/notes/public/llms.txt",
+    "apps/links/public/llms.txt",
+  ] as const)(
+    "%s documents save-first create, not draft-row persist-on-open",
+    (rel) => {
+      const text = readRepoFile(rel);
+      expect(text).toMatch(/save-first/i);
+      expect(text).not.toMatch(/draft row/i);
+      expect(text).not.toMatch(/persist-on-open/i);
+      expect(text).not.toMatch(/closing without edits removes/i);
+    }
+  );
 
   it("security audit documents ENCRYPTION_VERSION = 2 only (no legacy wire v1 support)", () => {
     const text = readRepoFile("docs/security-audit-2026-06-13.md");

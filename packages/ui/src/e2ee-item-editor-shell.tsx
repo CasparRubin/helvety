@@ -315,7 +315,7 @@ export function E2eeRichTextItemEditorShell({
     );
   }
 
-  if (error || !hasItem) {
+  if (!hasItem) {
     return (
       <CommandBarPageLayout className="min-h-0 flex-1" commandBar={commandBar}>
         <EditorErrorPanel

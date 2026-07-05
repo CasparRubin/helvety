@@ -4,6 +4,7 @@
 
 ## Product behavior
 - Encrypted titles and rich-text bodies in Personal, Work, and Other groups
+- New note opens an empty editor sheet (save-first create); the record is stored on first save with a client-generated id
 - Shareable links use `?note=<uuid>` to open a note in the detail sheet after sign-in and vault unlock
 - Optional cross-app links to Helvety Tasks, Contacts, and Links when those apps are in use
 

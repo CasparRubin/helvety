@@ -1,59 +1,48 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useState } from "react";
 
 /** Panel state for a single-entity E2EE dashboard sheet. */
 export type E2eeEntityPanelState =
-  { mode: "closed" } | { mode: "open"; entityId: string };
-
-/**
- * Open-first draft: seed optimistic row and open sheet.
- * Dashboards omit `persist` (insert on first save via the list hook); pass `persist` only for optional background insert.
- */
-export interface E2eeOpenNewDraftOptions {
-  id: string;
-  seedOptimistic: (id: string) => void;
-  /** Optional background insert; omit so the list hook calls `createWithId` on first save. */
-  persist?: (id: string) => Promise<{ id: string } | null>;
-  /** Called when optional background `persist` fails (dashboards do not pass `persist`). */
-  onPersistFailure?: (id: string) => void;
-}
+  { mode: "closed" } | { mode: "create" } | { mode: "edit"; entityId: string };
 
 /** Result of {@link useE2eeEntityPanel}. */
 export interface UseE2eeEntityPanelResult {
   panel: E2eeEntityPanelState;
   isOpen: boolean;
+  /** `create` when opening a new unsaved form; `edit` when editing a saved entity. */
+  formMode: "create" | "edit" | null;
   entityId: string | null;
-  /** True while optional background `persist` runs (false when dashboards omit `persist`). */
-  isOpeningDraft: boolean;
+  openCreate: () => void;
   openEntity: (id: string) => void;
   closePanel: () => void;
-  /** Open-first: seeds optimistic row and opens sheet; server row on first save unless `persist` is passed. */
-  openNewDraft: (options: E2eeOpenNewDraftOptions) => void;
 }
 
 /**
  * Shared sheet panel state for E2EE list dashboards (panel state only).
  * For `?param=` deep links, use {@link useE2eeEntityPanelWithUrl} and
  * {@link useSyncE2eeEntityPanelFromUrl} instead.
- * Pair with {@link E2eeEntityDetailSheet} and per-app draft snapshot cleanup on close.
+ * Pair with {@link E2eeEntityDetailSheet}; save-first create opens without an id or URL.
  */
 export function useE2eeEntityPanel(
   initialEntityId: string | null = null
 ): UseE2eeEntityPanelResult {
   const [panel, setPanel] = useState<E2eeEntityPanelState>(() =>
     initialEntityId
-      ? { mode: "open", entityId: initialEntityId }
+      ? { mode: "edit", entityId: initialEntityId }
       : { mode: "closed" }
   );
-  const [isOpeningDraft, startOpenDraftTransition] = useTransition();
+
+  const openCreate = useCallback(() => {
+    setPanel({ mode: "create" });
+  }, []);
 
   const openEntity = useCallback((id: string) => {
     setPanel((current) => {
-      if (current.mode === "open" && current.entityId === id) {
+      if (current.mode === "edit" && current.entityId === id) {
         return current;
       }
-      return { mode: "open", entityId: id };
+      return { mode: "edit", entityId: id };
     });
   }, []);
 
@@ -66,37 +55,18 @@ export function useE2eeEntityPanel(
     });
   }, []);
 
-  const openNewDraft = useCallback((options: E2eeOpenNewDraftOptions) => {
-    const { id, seedOptimistic, persist, onPersistFailure } = options;
-    seedOptimistic(id);
-    setPanel({ mode: "open", entityId: id });
-    if (!persist) {
-      return;
-    }
-    startOpenDraftTransition(async () => {
-      const result = await persist(id);
-      if (!result) {
-        onPersistFailure?.(id);
-        setPanel((current) => {
-          if (current.mode === "open" && current.entityId === id) {
-            return { mode: "closed" };
-          }
-          return current;
-        });
-      }
-    });
-  }, []);
-
-  const isOpen = panel.mode === "open";
-  const entityId = panel.mode === "open" ? panel.entityId : null;
+  const isOpen = panel.mode === "create" || panel.mode === "edit";
+  const formMode =
+    panel.mode === "create" ? "create" : panel.mode === "edit" ? "edit" : null;
+  const entityId = panel.mode === "edit" ? panel.entityId : null;
 
   return {
     panel,
     isOpen,
+    formMode,
     entityId,
-    isOpeningDraft,
+    openCreate,
     openEntity,
     closePanel,
-    openNewDraft,
   };
 }

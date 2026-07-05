@@ -13,7 +13,7 @@ import { getRichTextPlainText } from "@helvety/ui/tiptap-utils";
 import { useE2eeDashboardSelectedEntity } from "@helvety/ui/use-e2ee-dashboard-selected-entity";
 import { useE2eeEntityPanelWithUrl } from "@helvety/ui/use-e2ee-entity-panel-with-url";
 import { useSyncE2eeEntityPanelFromUrl } from "@helvety/ui/use-sync-e2ee-entity-panel-from-url";
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { EntityList } from "@/components/entity-list";
@@ -21,14 +21,8 @@ import { ItemEditor } from "@/components/item-editor";
 import { useDataExport } from "@/hooks/use-data-export";
 import { useItems, fetchNoteById } from "@/hooks/use-items";
 import { DEFAULT_NOTE_CATEGORIES } from "@/lib/config/default-note-categories";
-import {
-  createNoteDraftInput,
-  createNoteDraftSnapshot,
-  isNoteDraftUnchanged,
-} from "@/lib/config/draft-defaults";
 import { useEncryptionContext, decryptItemRow } from "@/lib/crypto";
 
-import type { NoteDraftSnapshot } from "@/lib/config/draft-defaults";
 import type { ItemRow } from "@/lib/types";
 
 /** Props for the main `/notes` dashboard (category-grouped list + sheet editor). */
@@ -40,7 +34,6 @@ interface FlatNotesDashboardProps {
 export function FlatNotesDashboard({
   initialEncryptedItems,
 }: FlatNotesDashboardProps): React.JSX.Element {
-  const defaultCategoryId = DEFAULT_NOTE_CATEGORIES[0]?.id ?? "";
   const { isUnlocked, masterKey } = useEncryptionContext();
   const {
     items,
@@ -48,19 +41,15 @@ export function FlatNotesDashboard({
     isRefreshing,
     error,
     refresh,
-    seedDraft,
-    removeDraft,
-    isPendingDraft,
+    create,
     remove,
     reorder,
     update,
   } = useItems({ initialEncryptedData: initialEncryptedItems });
   const { isExporting, handleExportData } = useDataExport(masterKey);
 
-  const { isOpen, entityId, openEntity, closePanel, openNewDraft } =
+  const { isOpen, formMode, entityId, openEntity, closePanel, openCreate } =
     useE2eeEntityPanelWithUrl("note");
-
-  const draftSnapshots = useRef<Map<string, NoteDraftSnapshot>>(new Map());
 
   const [isRefreshPending, startRefreshTransition] = useTransition();
   const [deleteState, setDeleteState] = useState<{
@@ -76,7 +65,7 @@ export function FlatNotesDashboard({
     isLoadingEntity,
     entityError,
   } = useE2eeDashboardSelectedEntity({
-    entityId,
+    entityId: formMode === "edit" ? entityId : null,
     entities: items,
     listIsLoading: isLoading,
     listError: error,
@@ -111,45 +100,19 @@ export function FlatNotesDashboard({
     emptyMessage: "No notes match your search.",
   });
 
-  const cleanupDraftIfUnchanged = useCallback(
-    (id: string) => {
-      const item = items.find((i) => i.id === id);
-      const snapshot = draftSnapshots.current.get(id);
-      if (item && snapshot && isNoteDraftUnchanged(item, snapshot)) {
-        if (isPendingDraft(id)) {
-          removeDraft(id);
-        } else {
-          void remove(id);
-        }
-      }
-      draftSnapshots.current.delete(id);
-    },
-    [items, isPendingDraft, remove, removeDraft]
-  );
-
   const handleSelectEntity = useCallback(
     (id: string) => {
-      if (entityId && entityId !== id) {
-        cleanupDraftIfUnchanged(entityId);
-      }
       openEntity(id);
     },
-    [cleanupDraftIfUnchanged, entityId, openEntity]
-  );
-
-  const onBeforeEntityChange = useCallback(
-    (previousId: string) => {
-      cleanupDraftIfUnchanged(previousId);
-    },
-    [cleanupDraftIfUnchanged]
+    [openEntity]
   );
 
   useSyncE2eeEntityPanelFromUrl({
     paramKey: "note",
     entityId,
+    formMode,
     openEntity,
     closePanel,
-    onBeforeEntityChange,
   });
 
   const handleSheetOpenChange = useCallback(
@@ -157,35 +120,21 @@ export function FlatNotesDashboard({
       if (open) {
         return;
       }
-      if (entityId) {
-        cleanupDraftIfUnchanged(entityId);
-      }
       closePanel();
     },
-    [cleanupDraftIfUnchanged, closePanel, entityId]
+    [closePanel]
   );
 
   const handleCreateClick = useCallback(() => {
-    if (entityId) {
-      cleanupDraftIfUnchanged(entityId);
-    }
-    const draftInput = createNoteDraftInput(defaultCategoryId);
-    const snapshot = createNoteDraftSnapshot(defaultCategoryId);
-    const draftId = crypto.randomUUID();
-    openNewDraft({
-      id: draftId,
-      seedOptimistic: (id) => {
-        seedDraft(id, draftInput);
-        draftSnapshots.current.set(id, snapshot);
-      },
-    });
-  }, [
-    cleanupDraftIfUnchanged,
-    defaultCategoryId,
-    entityId,
-    openNewDraft,
-    seedDraft,
-  ]);
+    openCreate();
+  }, [openCreate]);
+
+  const handleCreated = useCallback(
+    (id: string) => {
+      openEntity(id);
+    },
+    [openEntity]
+  );
 
   const handleRefresh = useCallback(() => {
     startRefreshTransition(async () => {
@@ -242,9 +191,18 @@ export function FlatNotesDashboard({
         onOpenChange={handleSheetOpenChange}
         title="Note Details"
       >
-        {entityId ? (
+        {formMode === "create" ? (
+          <ItemEditor
+            key="create"
+            formMode="create"
+            onCreate={create}
+            onCreated={handleCreated}
+            onClose={() => handleSheetOpenChange(false)}
+          />
+        ) : entityId ? (
           <ItemEditor
             key={entityId}
+            formMode="edit"
             itemId={entityId}
             item={selectedItem}
             isLoading={isLoadingEntity}
@@ -270,7 +228,6 @@ export function FlatNotesDashboard({
           const deleteId = deleteState.id;
           if (!deleteId) return;
           startDeleteTransition(async () => {
-            draftSnapshots.current.delete(deleteId);
             await remove(deleteId);
             if (entityId === deleteId) {
               closePanel();

@@ -5,12 +5,13 @@ import { useCallback } from "react";
 
 /** Right-hand sheet panel state for links and folders. */
 export type LinksPanelState =
-  { mode: "closed" } | { mode: "open"; kind: "link" | "folder"; id: string };
+  | { mode: "closed" }
+  | { mode: "create"; kind: "link" | "folder" }
+  | { mode: "edit"; kind: "link" | "folder"; id: string };
 
 /**
  * URL read/write helpers for the links detail sheet (`?link=` / `?folder=`).
- * Pair with a guarded `useEffect` on `searchParams` in the dashboard (see `links-dashboard.tsx`)
- * so back/forward and external links reopen the sheet only when URL state differs.
+ * Save-first create stays open without a URL param; only edit mode syncs to the URL.
  */
 export function useLinksPanelUrlSync() {
   const router = useRouter();
@@ -20,11 +21,11 @@ export function useLinksPanelUrlSync() {
   const readPanelFromUrl = useCallback((): LinksPanelState => {
     const linkId = searchParams.get("link");
     if (linkId) {
-      return { mode: "open", kind: "link", id: linkId };
+      return { mode: "edit", kind: "link", id: linkId };
     }
     const folderId = searchParams.get("folder");
     if (folderId) {
-      return { mode: "open", kind: "folder", id: folderId };
+      return { mode: "edit", kind: "folder", id: folderId };
     }
     return { mode: "closed" };
   }, [searchParams]);
@@ -37,7 +38,7 @@ export function useLinksPanelUrlSync() {
       params.delete("link");
       params.delete("folder");
 
-      if (panel.mode === "open") {
+      if (panel.mode === "edit") {
         if (panel.kind === "link") {
           if (currentLink === panel.id && !currentFolder) {
             return;

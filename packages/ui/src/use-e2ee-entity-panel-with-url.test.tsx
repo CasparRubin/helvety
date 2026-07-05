@@ -32,6 +32,7 @@ describe("useE2eeEntityPanelWithUrl", () => {
     });
 
     expect(result.current.isOpen).toBe(true);
+    expect(result.current.formMode).toBe("edit");
     expect(result.current.entityId).toBe(ENTITY_ID);
     expect(navigationMocks.replace).toHaveBeenCalledWith(
       `/tasks?item=${ENTITY_ID}`,
@@ -58,6 +59,7 @@ describe("useE2eeEntityPanelWithUrl", () => {
     const { result } = renderHook(() => useE2eeEntityPanelWithUrl("note"));
 
     expect(result.current.isOpen).toBe(true);
+    expect(result.current.formMode).toBe("edit");
     expect(result.current.entityId).toBe(ENTITY_ID);
   });
 
@@ -94,92 +96,16 @@ describe("useE2eeEntityPanelWithUrl", () => {
     expect(navigationMocks.replace).not.toHaveBeenCalled();
   });
 
-  it("writes the canonical param when opening from a blank URL", () => {
-    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("note"));
-
-    act(() => {
-      result.current.openEntity(ENTITY_ID);
-    });
-
-    expect(navigationMocks.replace).toHaveBeenCalledWith(
-      `/tasks?note=${ENTITY_ID}`,
-      { scroll: false }
-    );
-  });
-
-  it("openNewDraft seeds, opens, and writes URL without background persist by default", () => {
+  it("openCreate opens create mode without writing the URL", () => {
     const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
-    const seedOptimistic = vi.fn();
-    const persist = vi.fn();
 
     act(() => {
-      result.current.openNewDraft({
-        id: "draft-id",
-        seedOptimistic,
-      });
-    });
-
-    expect(seedOptimistic).toHaveBeenCalledWith("draft-id");
-    expect(result.current.isOpen).toBe(true);
-    expect(result.current.entityId).toBe("draft-id");
-    expect(navigationMocks.replace).toHaveBeenCalledWith(
-      `/tasks?item=draft-id`,
-      { scroll: false }
-    );
-    expect(persist).not.toHaveBeenCalled();
-  });
-
-  it("openNewDraft optionally persists in background when persist is provided", async () => {
-    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
-    const seedOptimistic = vi.fn();
-    const persist = vi.fn().mockResolvedValue({ id: "draft-id" });
-
-    act(() => {
-      result.current.openNewDraft({
-        id: "draft-id",
-        seedOptimistic,
-        persist,
-      });
-    });
-
-    expect(seedOptimistic).toHaveBeenCalledWith("draft-id");
-    expect(result.current.isOpen).toBe(true);
-    expect(result.current.entityId).toBe("draft-id");
-    expect(navigationMocks.replace).toHaveBeenCalledWith(
-      `/tasks?item=draft-id`,
-      { scroll: false }
-    );
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-    expect(persist).toHaveBeenCalledWith("draft-id");
-  });
-
-  it("openNewDraft invokes onPersistFailure and closes when persist fails", async () => {
-    const { result } = renderHook(() => useE2eeEntityPanelWithUrl("item"));
-    const onPersistFailure = vi.fn();
-
-    act(() => {
-      result.current.openNewDraft({
-        id: "draft-id",
-        seedOptimistic: () => {},
-        persist: async () => null,
-        onPersistFailure,
-      });
+      result.current.openCreate();
     });
 
     expect(result.current.isOpen).toBe(true);
-    expect(navigationMocks.replace).toHaveBeenCalledWith(
-      `/tasks?item=draft-id`,
-      { scroll: false }
-    );
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(onPersistFailure).toHaveBeenCalledWith("draft-id");
-    expect(result.current.isOpen).toBe(false);
+    expect(result.current.formMode).toBe("create");
+    expect(result.current.entityId).toBeNull();
+    expect(navigationMocks.replace).not.toHaveBeenCalled();
   });
 });

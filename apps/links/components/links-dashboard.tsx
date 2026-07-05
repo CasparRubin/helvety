@@ -40,23 +40,9 @@ import {
   isAllFolderId,
   toStorageFolderId,
 } from "@/lib/all-folder";
-import {
-  createFolderDraftSnapshot,
-  createLinkDraftSnapshot,
-  FOLDER_DRAFT_DEFAULT_NAME,
-  isFolderDraftUnchanged,
-  isLinkDraftUnchanged,
-  LINK_DRAFT_DEFAULT_NAME,
-  LINK_DRAFT_PLACEHOLDER_URL,
-} from "@/lib/config/draft-defaults";
 import { useEncryptionContext } from "@/lib/crypto";
 import { formatFolderPath } from "@/lib/link-tree";
-import { resolveLinkDisplayName } from "@/lib/url-normalize";
 
-import type {
-  FolderDraftSnapshot,
-  LinkDraftSnapshot,
-} from "@/lib/config/draft-defaults";
 import type { Link, LinkFolderRow, LinkRow } from "@/lib/types";
 
 const LinkEditor = dynamic(
@@ -98,10 +84,6 @@ export function LinksDashboard({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [panel, setPanel] = useState<LinksPanelState>(() => readPanelFromUrl());
-  const linkDraftSnapshots = useRef<Map<string, LinkDraftSnapshot>>(new Map());
-  const folderDraftSnapshots = useRef<Map<string, FolderDraftSnapshot>>(
-    new Map()
-  );
 
   const [deleteState, setDeleteState] = useState<{
     open: boolean;
@@ -119,50 +101,12 @@ export function LinksDashboard({
     writePanelToUrl(next);
   }, [writePanelToUrl]);
 
-  const cleanupDraftIfUnchanged = useCallback(
-    (state: Extract<LinksPanelState, { mode: "open" }>) => {
-      if (state.kind === "link") {
-        const link = library.links.find((l) => l.id === state.id);
-        const snapshot = linkDraftSnapshots.current.get(state.id);
-        if (link && snapshot && isLinkDraftUnchanged(link, snapshot)) {
-          if (library.isPendingLinkDraft(state.id)) {
-            library.removeLinkDraft(state.id);
-          } else {
-            void library.removeLink(state.id);
-          }
-        }
-        linkDraftSnapshots.current.delete(state.id);
-        return;
-      }
-      const folder = library.folders.find((f) => f.id === state.id);
-      const snapshot = folderDraftSnapshots.current.get(state.id);
-      if (folder && snapshot && isFolderDraftUnchanged(folder, snapshot)) {
-        if (library.isPendingFolderDraft(state.id)) {
-          library.removeFolderDraft(state.id);
-        } else {
-          void library.removeFolder(state.id);
-        }
-      }
-      folderDraftSnapshots.current.delete(state.id);
-    },
-    [library]
-  );
-
-  const setPanelWithCleanup = useCallback(
-    (next: LinksPanelState) => {
-      if (panel.mode === "open") {
-        const unchangedTarget =
-          next.mode === "open" &&
-          next.id === panel.id &&
-          next.kind === panel.kind;
-        if (!unchangedTarget) {
-          cleanupDraftIfUnchanged(panel);
-        }
-      }
+  const openEditPanel = useCallback(
+    (next: Extract<LinksPanelState, { mode: "edit" }>) => {
       setPanel(next);
       writePanelToUrl(next);
     },
-    [cleanupDraftIfUnchanged, panel, writePanelToUrl]
+    [writePanelToUrl]
   );
 
   const panelRef = useRef(panel);
@@ -170,36 +114,32 @@ export function LinksDashboard({
 
   useEffect(() => {
     const fromUrl = readPanelFromUrl();
-    if (fromUrl.mode === "open") {
+    if (fromUrl.mode === "edit") {
       if (
-        panelRef.current.mode !== "open" ||
+        panelRef.current.mode !== "edit" ||
         panelRef.current.id !== fromUrl.id ||
         panelRef.current.kind !== fromUrl.kind
       ) {
-        if (panelRef.current.mode === "open") {
-          cleanupDraftIfUnchanged(panelRef.current);
-        }
         setPanel(fromUrl);
       }
       return;
     }
-    if (panelRef.current.mode === "open") {
-      cleanupDraftIfUnchanged(panelRef.current);
+    if (panelRef.current.mode === "create") {
+      return;
+    }
+    if (panelRef.current.mode === "edit") {
       setPanel({ mode: "closed" });
     }
-  }, [searchParams, readPanelFromUrl, cleanupDraftIfUnchanged]);
+  }, [searchParams, readPanelFromUrl]);
 
   const handleSheetOpenChange = useCallback(
     (open: boolean) => {
       if (open) {
         return;
       }
-      if (panel.mode === "open") {
-        cleanupDraftIfUnchanged(panel);
-      }
       closePanel();
     },
-    [cleanupDraftIfUnchanged, closePanel, panel]
+    [closePanel]
   );
 
   const expandFolder = useCallback((folderId: string | null) => {
@@ -228,73 +168,28 @@ export function LinksDashboard({
   }, []);
 
   const openCreateLink = useCallback(() => {
-    if (panel.mode === "open") {
-      cleanupDraftIfUnchanged(panel);
-    }
     const storageFolderId = toStorageFolderId(
       createParentFolderId ?? ALL_FOLDER_ID
     );
-    const draftInput = {
-      name: LINK_DRAFT_DEFAULT_NAME,
-      url: LINK_DRAFT_PLACEHOLDER_URL,
-    };
-    const displayName = resolveLinkDisplayName(
-      LINK_DRAFT_DEFAULT_NAME,
-      LINK_DRAFT_PLACEHOLDER_URL
-    );
-    const draftId = crypto.randomUUID();
-    library.seedLinkDraft(draftId, draftInput, storageFolderId);
-    linkDraftSnapshots.current.set(
-      draftId,
-      createLinkDraftSnapshot(
-        displayName,
-        LINK_DRAFT_PLACEHOLDER_URL,
-        storageFolderId
-      )
-    );
     expandFolder(storageFolderId);
     setCreateParentFolderId(storageFolderId ?? ALL_FOLDER_ID);
-    setPanelWithCleanup({ mode: "open", kind: "link", id: draftId });
-  }, [
-    cleanupDraftIfUnchanged,
-    createParentFolderId,
-    expandFolder,
-    library,
-    panel,
-    setPanelWithCleanup,
-  ]);
+    setPanel({ mode: "create", kind: "link" });
+  }, [createParentFolderId, expandFolder]);
 
   const openCreateFolder = useCallback(() => {
-    if (panel.mode === "open") {
-      cleanupDraftIfUnchanged(panel);
-    }
     const storageParentId = toStorageFolderId(
       createParentFolderId ?? ALL_FOLDER_ID
     );
-    const draftInput = { name: FOLDER_DRAFT_DEFAULT_NAME };
-    const draftId = crypto.randomUUID();
-    library.seedFolderDraft(draftId, draftInput, storageParentId);
-    folderDraftSnapshots.current.set(
-      draftId,
-      createFolderDraftSnapshot(FOLDER_DRAFT_DEFAULT_NAME, storageParentId)
-    );
     expandFolder(storageParentId);
     setCreateParentFolderId(storageParentId ?? ALL_FOLDER_ID);
-    setPanelWithCleanup({ mode: "open", kind: "folder", id: draftId });
-  }, [
-    cleanupDraftIfUnchanged,
-    createParentFolderId,
-    expandFolder,
-    library,
-    panel,
-    setPanelWithCleanup,
-  ]);
+    setPanel({ mode: "create", kind: "folder" });
+  }, [createParentFolderId, expandFolder]);
 
   const openEditLink = useCallback(
     (linkId: string) => {
-      setPanelWithCleanup({ mode: "open", kind: "link", id: linkId });
+      openEditPanel({ mode: "edit", kind: "link", id: linkId });
     },
-    [setPanelWithCleanup]
+    [openEditPanel]
   );
 
   const openEditFolder = useCallback(
@@ -302,14 +197,33 @@ export function LinksDashboard({
       if (isAllFolderId(folderId)) {
         return;
       }
-      setPanelWithCleanup({ mode: "open", kind: "folder", id: folderId });
+      openEditPanel({ mode: "edit", kind: "folder", id: folderId });
     },
-    [setPanelWithCleanup]
+    [openEditPanel]
+  );
+
+  const handleLinkCreated = useCallback(
+    (id: string) => {
+      openEditPanel({ mode: "edit", kind: "link", id });
+    },
+    [openEditPanel]
+  );
+
+  const handleFolderCreated = useCallback(
+    (id: string) => {
+      openEditPanel({ mode: "edit", kind: "folder", id });
+    },
+    [openEditPanel]
+  );
+
+  const createDefaultFolderId = useMemo(
+    () => toStorageFolderId(createParentFolderId ?? ALL_FOLDER_ID),
+    [createParentFolderId]
   );
 
   const editingLink = useMemo(
     () =>
-      panel.mode === "open" && panel.kind === "link"
+      panel.mode === "edit" && panel.kind === "link"
         ? (library.links.find((l) => l.id === panel.id) ?? null)
         : null,
     [library.links, panel]
@@ -317,18 +231,24 @@ export function LinksDashboard({
 
   const editingFolder = useMemo(
     () =>
-      panel.mode === "open" && panel.kind === "folder"
+      panel.mode === "edit" && panel.kind === "folder"
         ? (library.folders.find((f) => f.id === panel.id) ?? null)
         : null,
     [library.folders, panel]
   );
 
+  const isPanelOpen = panel.mode === "create" || panel.mode === "edit";
+
   const sheetTitle =
-    panel.mode === "open"
+    panel.mode === "create"
       ? panel.kind === "link"
-        ? "Link Details"
-        : "Folder Details"
-      : "";
+        ? "New Link"
+        : "New Folder"
+      : panel.mode === "edit"
+        ? panel.kind === "link"
+          ? "Link Details"
+          : "Folder Details"
+        : "";
 
   const searchActive = searchQuery.trim().length > 0;
 
@@ -358,7 +278,6 @@ export function LinksDashboard({
     startDeleteTransition(async () => {
       if (targetType === "folder") {
         await library.removeFolder(targetId);
-        folderDraftSnapshots.current.delete(targetId);
         setExpandedFolderIds((prev) => {
           const next = new Set(prev);
           next.delete(targetId);
@@ -367,13 +286,12 @@ export function LinksDashboard({
         if (createParentFolderId === targetId) {
           setCreateParentFolderId(null);
         }
-        if (panel.mode === "open" && panel.id === targetId) {
+        if (panel.mode === "edit" && panel.id === targetId) {
           closePanel();
         }
       } else {
         await library.removeLink(targetId);
-        linkDraftSnapshots.current.delete(targetId);
-        if (panel.mode === "open" && panel.id === targetId) {
+        if (panel.mode === "edit" && panel.id === targetId) {
           closePanel();
         }
       }
@@ -464,13 +382,30 @@ export function LinksDashboard({
       </CommandBarPageLayout>
 
       <E2eeEntityDetailSheet
-        open={panel.mode === "open"}
+        open={isPanelOpen}
         onOpenChange={handleSheetOpenChange}
         title={sheetTitle}
       >
-        {panel.mode === "open" && panel.kind === "link" && editingLink ? (
+        {panel.mode === "create" && panel.kind === "link" ? (
+          <LinkEditor
+            key="create-link"
+            formMode="create"
+            folders={library.folders}
+            defaultFolderId={createDefaultFolderId}
+            onCreate={(input) =>
+              library.createLink(
+                { name: input.name, url: input.url },
+                input.folder_id
+              )
+            }
+            onCreated={handleLinkCreated}
+            onClose={() => handleSheetOpenChange(false)}
+          />
+        ) : null}
+        {panel.mode === "edit" && panel.kind === "link" && editingLink ? (
           <LinkEditor
             key={editingLink.id}
+            formMode="edit"
             link={editingLink}
             folders={library.folders}
             onClose={() => handleSheetOpenChange(false)}
@@ -486,9 +421,23 @@ export function LinksDashboard({
             onSave={(input) => library.updateLink(editingLink.id, input)}
           />
         ) : null}
-        {panel.mode === "open" && panel.kind === "folder" && editingFolder ? (
+        {panel.mode === "create" && panel.kind === "folder" ? (
+          <FolderEditor
+            key="create-folder"
+            formMode="create"
+            folders={library.folders}
+            defaultParentFolderId={createDefaultFolderId}
+            onCreate={(input) =>
+              library.createFolder({ name: input.name }, input.parent_folder_id)
+            }
+            onCreated={handleFolderCreated}
+            onClose={() => handleSheetOpenChange(false)}
+          />
+        ) : null}
+        {panel.mode === "edit" && panel.kind === "folder" && editingFolder ? (
           <FolderEditor
             key={editingFolder.id}
+            formMode="edit"
             folder={editingFolder}
             folders={library.folders}
             onClose={() => handleSheetOpenChange(false)}

@@ -85,16 +85,6 @@ describe("useE2eeDashboardSelectedEntity", () => {
     expect(result.current.isLoadingEntity).toBe(false);
   });
 
-  it("keeps loading while a draft is persisting and not yet in the list", () => {
-    const { result } = renderSelectedEntity({
-      entityId: "draft-id",
-      isPersistingDraft: true,
-    });
-
-    expect(result.current.entity).toBeNull();
-    expect(result.current.isLoadingEntity).toBe(true);
-  });
-
   it("surfaces fetch errors when single-row load fails", async () => {
     reportE2eeActionFailure.mockReturnValue(false);
     const fetchById = vi

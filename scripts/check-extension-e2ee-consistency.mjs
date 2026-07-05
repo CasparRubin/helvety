@@ -97,6 +97,87 @@ assertPatterns("src/lib/extension-entity-links-hooks.tsx", [
 
 assertNoPatterns("src/lib/extension-entity-links-hooks.tsx", ["catch {}"]);
 
+assertPatterns("src/popup/entity-drafts.ts", [
+  "@helvety/shared/e2ee-create-inputs",
+  "emptyContactInput",
+  "emptyTaskInput",
+]);
+
+assertPatterns("src/lib/entity-repository.ts", ["clientRecordId"]);
+
+/** @param {string} relativePath */
+function readHelvetyFile(relativePath) {
+  const fullPath = join(repoRoot, relativePath);
+  if (!existsSync(fullPath)) {
+    failures.push(`Missing helvety file: ${relativePath}`);
+    return null;
+  }
+  return readFileSync(fullPath, "utf8");
+}
+
+/** @param {string} relativePath @param {string[]} forbidden */
+function assertNoPatternsInHelvety(relativePath, forbidden) {
+  const src = readHelvetyFile(relativePath);
+  if (!src) {
+    return;
+  }
+  for (const pattern of forbidden) {
+    if (src.includes(pattern)) {
+      failures.push(`${relativePath}: forbidden pattern "${pattern}"`);
+    }
+  }
+}
+
+for (const dashboard of [
+  "apps/tasks/components/flat-tasks-dashboard.tsx",
+  "apps/notes/components/flat-notes-dashboard.tsx",
+  "apps/contacts/components/contacts-dashboard.tsx",
+  "apps/links/components/links-dashboard.tsx",
+]) {
+  assertNoPatternsInHelvety(dashboard, [
+    "seedDraft",
+    "openNewDraft",
+    "isPendingDraft",
+    "seedLinkDraft",
+    "seedFolderDraft",
+  ]);
+}
+
+for (const hook of [
+  "apps/tasks/hooks/use-items.ts",
+  "apps/notes/hooks/use-items.ts",
+  "apps/contacts/hooks/use-contacts.ts",
+]) {
+  const src = readHelvetyFile(hook);
+  if (src) {
+    if (!src.includes("create:") && !src.match(/\bcreate\b/)) {
+      failures.push(`${hook}: missing save-first create export`);
+    }
+    if (src.includes("seedDraft")) {
+      failures.push(`${hook}: forbidden pattern "seedDraft"`);
+    }
+  }
+}
+
+const sharedCreateInputs = readHelvetyFile(
+  "packages/shared/src/e2ee-create-inputs.ts"
+);
+if (sharedCreateInputs) {
+  for (const helper of [
+    "emptyContactInput",
+    "emptyTaskInput",
+    "emptyNoteInput",
+    "emptyLinkInput",
+    "emptyLinkFolderInput",
+  ]) {
+    if (!sharedCreateInputs.includes(helper)) {
+      failures.push(
+        `packages/shared/src/e2ee-create-inputs.ts: missing ${helper}`
+      );
+    }
+  }
+}
+
 if (existsSync(join(extensionRoot, "src/lib/e2ee-data-select.ts"))) {
   failures.push("Remove legacy src/lib/e2ee-data-select.ts");
 }

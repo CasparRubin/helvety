@@ -115,7 +115,6 @@ function createHookOptions(
         )
         .toSorted((a, b) => a.sort_order - b.sort_order);
     },
-    draftInputFromItem: (item) => ({ title: item.title }),
     ...overrides,
   };
 }
@@ -390,193 +389,54 @@ describe("useEncryptedSortableItems", () => {
     );
   });
 
-  describe("open-first draft API", () => {
-    it("seedDraft adds an optimistic row without a network call", async () => {
-      const { result, options } = renderSortableHook();
-      await waitForLoadedItems(result);
-
-      act(() => {
-        result.current.seedDraft("draft-1", { title: "Draft" });
-      });
-
-      expect(result.current.items).toHaveLength(2);
-      expect(
-        result.current.items.find((item) => item.id === "draft-1")?.title
-      ).toBe("Draft");
-      expect(options.createItem).not.toHaveBeenCalled();
-    });
-
-    it("createWithId passes the client recordId to encryptInput", async () => {
+  describe("save-first create API", () => {
+    it("create generates a client UUID and passes it to encryptInput", async () => {
       const encryptInput = vi.fn().mockResolvedValue({ enc: true });
       const createItem = vi.fn().mockResolvedValue({
         success: true,
-        data: { id: "client-id" },
+        data: { id: "server-id" },
       });
       const { result } = renderSortableHook({ encryptInput, createItem });
       await waitForLoadedItems(result);
 
       await act(async () => {
-        const created = await result.current.createWithId("client-id", {
-          title: "New",
-        });
-        expect(created).toEqual({ id: "client-id" });
+        const created = await result.current.create({ title: "New" });
+        expect(created).toEqual({ id: "server-id" });
       });
 
       expect(encryptInput).toHaveBeenCalledWith(
         { title: "New" },
         masterKey,
-        "client-id"
+        expect.any(String)
       );
+      expect(result.current.items).toHaveLength(2);
+      expect(
+        result.current.items.find((item) => item.title === "New")
+      ).toBeDefined();
     });
 
-    it("removeDraft prevents createWithId from re-adding an aborted draft", async () => {
-      let resolveCreate!: (value: {
-        success: true;
-        data: { id: string };
-      }) => void;
-      const createItem = vi.fn(
-        () =>
-          new Promise<{ success: true; data: { id: string } }>((resolve) => {
-            resolveCreate = resolve;
-          })
-      );
+    it("create does not add a list row until save succeeds", async () => {
+      const { result, options } = renderSortableHook();
+      await waitForLoadedItems(result);
+
+      expect(result.current.items).toHaveLength(1);
+      expect(options.createItem).not.toHaveBeenCalled();
+    });
+
+    it("create returns null and does not add a row when the server rejects", async () => {
+      const createItem = vi.fn().mockResolvedValue({
+        success: false,
+        error: "Failed",
+      });
       const { result } = renderSortableHook({ createItem });
       await waitForLoadedItems(result);
 
-      act(() => {
-        result.current.seedDraft("draft-1", { title: "Draft" });
-      });
-
-      let createPromise!: ReturnType<typeof result.current.createWithId>;
-      act(() => {
-        createPromise = result.current.createWithId("draft-1", {
-          title: "Draft",
-        });
-      });
-
-      await waitFor(() => expect(createItem).toHaveBeenCalled());
-
-      act(() => {
-        result.current.removeDraft("draft-1");
-      });
-
-      expect(
-        result.current.items.find((item) => item.id === "draft-1")
-      ).toBeUndefined();
-
       await act(async () => {
-        resolveCreate({ success: true, data: { id: "draft-1" } });
-        await createPromise;
+        const created = await result.current.create({ title: "New" });
+        expect(created).toBeNull();
       });
 
-      expect(
-        result.current.items.find((item) => item.id === "draft-1")
-      ).toBeUndefined();
-    });
-
-    it("refresh merges pending drafts missing from the server list", async () => {
-      const decryptRows = vi
-        .fn()
-        .mockResolvedValueOnce([sampleItem()])
-        .mockResolvedValueOnce([sampleItem()]);
-      const fetchRows = vi
-        .fn()
-        .mockResolvedValue(
-          jsonResponse({ success: true, data: [{ id: "row-1" }] })
-        );
-      const { result } = renderSortableHook({ fetchRows, decryptRows });
-      await waitForLoadedItems(result);
-
-      act(() => {
-        result.current.seedDraft("pending-1", { title: "Pending" });
-      });
-      expect(result.current.items.map((item) => item.id)).toEqual(
-        expect.arrayContaining(["item-1", "pending-1"])
-      );
-
-      await act(async () => {
-        await result.current.refresh();
-      });
-
-      expect(result.current.items.map((item) => item.id)).toEqual(
-        expect.arrayContaining(["item-1", "pending-1"])
-      );
-    });
-
-    it("update on a pending draft calls createWithId with merged input, not updateItem", async () => {
-      const createItem = vi.fn().mockResolvedValue({
-        success: true,
-        data: { id: "draft-1" },
-      });
-      const updateItem = vi.fn();
-      const encryptInput = vi.fn().mockResolvedValue({ enc: true });
-      const decryptRows = vi
-        .fn()
-        .mockResolvedValueOnce([sampleItem()])
-        .mockResolvedValueOnce([sampleItem()]);
-      const fetchRows = vi
-        .fn()
-        .mockResolvedValue(
-          jsonResponse({ success: true, data: [{ id: "row-1" }] })
-        );
-      const { result } = renderSortableHook({
-        fetchRows,
-        decryptRows,
-        createItem,
-        updateItem,
-        encryptInput,
-      });
-      await waitForLoadedItems(result);
-
-      act(() => {
-        result.current.seedDraft("draft-1", { title: "" });
-      });
-
-      await act(async () => {
-        const ok = await result.current.update("draft-1", { title: "Saved" });
-        expect(ok).toBe(true);
-      });
-
-      expect(encryptInput).toHaveBeenCalledWith(
-        { title: "Saved" },
-        masterKey,
-        "draft-1"
-      );
-      expect(createItem).toHaveBeenCalled();
-      expect(updateItem).not.toHaveBeenCalled();
-    });
-
-    it("remove on a pending draft drops the local row without calling deleteItem", async () => {
-      const deleteItem = vi.fn();
-      const decryptRows = vi
-        .fn()
-        .mockResolvedValueOnce([sampleItem()])
-        .mockResolvedValueOnce([sampleItem()]);
-      const fetchRows = vi
-        .fn()
-        .mockResolvedValue(
-          jsonResponse({ success: true, data: [{ id: "row-1" }] })
-        );
-      const { result } = renderSortableHook({
-        fetchRows,
-        decryptRows,
-        deleteItem,
-      });
-      await waitForLoadedItems(result);
-
-      act(() => {
-        result.current.seedDraft("draft-1", { title: "Draft" });
-      });
-
-      await act(async () => {
-        const ok = await result.current.remove("draft-1");
-        expect(ok).toBe(true);
-      });
-
-      expect(deleteItem).not.toHaveBeenCalled();
-      expect(
-        result.current.items.find((item) => item.id === "draft-1")
-      ).toBeUndefined();
+      expect(result.current.items).toHaveLength(1);
     });
   });
 });

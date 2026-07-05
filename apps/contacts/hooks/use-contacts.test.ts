@@ -20,10 +20,6 @@ vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
     remove: vi.fn(),
     reorder: vi.fn(),
     patchLocal: vi.fn(),
-    createWithId: vi.fn(),
-    seedDraft: vi.fn(),
-    removeDraft: vi.fn(),
-    isPendingDraft: vi.fn(() => false),
   })),
 }));
 
@@ -68,9 +64,28 @@ describe("useContacts", () => {
         perfMeasureName: "contacts:list-refresh-duration",
         loadFailureMessage: "Failed to load contacts",
         reorderEntities: expect.any(Function),
-        draftInputFromItem: expect.any(Function),
       })
     );
+  });
+
+  it("exports save-first create from the shared sortable hook", () => {
+    const create = vi.fn();
+    vi.mocked(useEncryptedSortableItems).mockReturnValueOnce({
+      items: [],
+      isLoading: false,
+      isRefreshing: false,
+      error: null,
+      refresh: vi.fn(),
+      create,
+      update: vi.fn(),
+      remove: vi.fn(),
+      reorder: vi.fn(),
+      patchLocal: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useContacts());
+
+    expect(result.current.create).toBe(create);
   });
 
   it("maps shared hook items to contacts in the public API", () => {
@@ -100,10 +115,6 @@ describe("useContacts", () => {
       remove: vi.fn(),
       reorder: vi.fn(),
       patchLocal: vi.fn(),
-      createWithId: vi.fn(),
-      seedDraft: vi.fn(),
-      removeDraft: vi.fn(),
-      isPendingDraft: vi.fn(() => false),
     });
 
     const { result } = renderHook(() => useContacts());

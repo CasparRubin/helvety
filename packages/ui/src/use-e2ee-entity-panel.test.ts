@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { useE2eeEntityPanel } from "./use-e2ee-entity-panel";
 
@@ -8,79 +8,29 @@ describe("useE2eeEntityPanel", () => {
     const { result } = renderHook(() => useE2eeEntityPanel());
     expect(result.current.isOpen).toBe(false);
     expect(result.current.entityId).toBeNull();
+    expect(result.current.formMode).toBeNull();
   });
 
-  it("opens entity by id", () => {
+  it("opens entity by id in edit mode", () => {
     const { result } = renderHook(() => useE2eeEntityPanel());
     act(() => {
       result.current.openEntity("abc");
     });
     expect(result.current.isOpen).toBe(true);
+    expect(result.current.formMode).toBe("edit");
     expect(result.current.entityId).toBe("abc");
   });
 
-  it("openNewDraft opens immediately without background persist when persist is omitted", () => {
+  it("openCreate opens create mode without an entity id", () => {
     const { result } = renderHook(() => useE2eeEntityPanel());
-    const seedOptimistic = vi.fn();
-    const persist = vi.fn();
 
     act(() => {
-      result.current.openNewDraft({
-        id: "new-id",
-        seedOptimistic,
-      });
-    });
-
-    expect(seedOptimistic).toHaveBeenCalledWith("new-id");
-    expect(result.current.entityId).toBe("new-id");
-    expect(result.current.isOpen).toBe(true);
-    expect(persist).not.toHaveBeenCalled();
-  });
-
-  it("openNewDraft opens immediately and persists in background when persist is provided", async () => {
-    const { result } = renderHook(() => useE2eeEntityPanel());
-    const seedOptimistic = vi.fn();
-    const persist = vi.fn().mockResolvedValue({ id: "new-id" });
-
-    act(() => {
-      result.current.openNewDraft({
-        id: "new-id",
-        seedOptimistic,
-        persist,
-      });
-    });
-
-    expect(seedOptimistic).toHaveBeenCalledWith("new-id");
-    expect(result.current.entityId).toBe("new-id");
-    expect(result.current.isOpen).toBe(true);
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-    expect(persist).toHaveBeenCalledWith("new-id");
-  });
-
-  it("openNewDraft closes panel when persist fails", async () => {
-    const { result } = renderHook(() => useE2eeEntityPanel());
-    const onPersistFailure = vi.fn();
-
-    act(() => {
-      result.current.openNewDraft({
-        id: "draft-id",
-        seedOptimistic: () => {},
-        persist: async () => null,
-        onPersistFailure,
-      });
+      result.current.openCreate();
     });
 
     expect(result.current.isOpen).toBe(true);
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(onPersistFailure).toHaveBeenCalledWith("draft-id");
-    expect(result.current.isOpen).toBe(false);
+    expect(result.current.formMode).toBe("create");
+    expect(result.current.entityId).toBeNull();
   });
 
   it("closePanel resets state", () => {
@@ -89,6 +39,7 @@ describe("useE2eeEntityPanel", () => {
       result.current.closePanel();
     });
     expect(result.current.isOpen).toBe(false);
+    expect(result.current.formMode).toBeNull();
   });
 
   it("openEntity is a no-op when already open with the same id", () => {

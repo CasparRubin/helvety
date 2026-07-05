@@ -14,7 +14,7 @@ export interface ItemCommandBarProps {
   /** Whether to show the back button */
   showBack?: boolean;
   /** Callback to refresh the item data */
-  onRefresh: () => void;
+  onRefresh?: () => void;
   /** Whether a refresh operation is in progress */
   isRefreshing?: boolean;
   /** Callback to save the item */

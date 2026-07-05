@@ -1,5 +1,6 @@
 "use client";
 
+import { emptyNoteInput } from "@helvety/shared/e2ee-create-inputs";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { Card, CardContent } from "@helvety/ui/card";
@@ -8,16 +9,17 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
-import {
-  E2eeRichTextItemEditorShell,
-  useE2eeRichTextItemEditorSave,
-} from "@helvety/ui/e2ee-item-editor-shell";
+import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
 import { renderIcon } from "@helvety/ui/icon-renderer";
+import {
+  serializeRichTextContent,
+  type JSONContent,
+} from "@helvety/ui/tiptap-utils";
 import { useIsMobile } from "@helvety/ui/use-is-mobile";
 import { ChevronRightIcon, Loader2Icon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 import { ItemCommandBar } from "@/components/item-command-bar";
@@ -67,17 +69,21 @@ const LinkEntityLinksPanel = dynamic(
 
 const APP_HOME_PATH = "/notes";
 
-/** Note editor for title and description inside the dashboard detail sheet. */
-export function ItemEditor({
-  itemId,
-  item,
-  isLoading,
-  error,
-  onUpdate,
-  onRemove,
-  onRefresh,
-  onClose,
-}: {
+/** Shared props for note editor create and edit modes. */
+type ItemEditorBaseProps = {
+  onClose?: () => void;
+};
+
+/** Save-first create mode: inserts on first save via dashboard list hook. */
+type ItemEditorCreateProps = ItemEditorBaseProps & {
+  formMode: "create";
+  onCreate: (input: ItemInput) => Promise<{ id: string } | null>;
+  onCreated: (id: string) => void;
+};
+
+/** Edit mode: dashboard supplies the resolved note and list-hook CRUD callbacks. */
+type ItemEditorEditProps = ItemEditorBaseProps & {
+  formMode: "edit";
   itemId: string;
   item: Item | null;
   isLoading?: boolean;
@@ -85,10 +91,19 @@ export function ItemEditor({
   onUpdate: (input: Partial<ItemInput>) => Promise<boolean>;
   onRemove: () => Promise<boolean>;
   onRefresh: () => Promise<void>;
-  onClose?: () => void;
-}) {
+};
+
+/** Props for ItemEditor */
+export type ItemEditorProps = ItemEditorCreateProps | ItemEditorEditProps;
+
+/** Note editor for title and description inside the dashboard detail sheet. */
+export function ItemEditor(props: ItemEditorProps) {
+  const { formMode, onClose } = props;
   const router = useRouter();
   const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState(
+    () => emptyNoteInput().category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? ""
+  );
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -99,14 +114,64 @@ export function ItemEditor({
   );
   const categoryOpen = categoryOverride ?? !isMobile;
 
-  const onSave = useE2eeRichTextItemEditorSave({ update: onUpdate });
+  const item = formMode === "edit" ? props.item : null;
+  const itemId = formMode === "edit" ? props.itemId : "create";
+  const isLoading = formMode === "edit" ? props.isLoading : false;
+  const error = formMode === "edit" ? props.error : null;
 
   useEffect(() => {
-    if (item && !hasInitialized) {
-      setTitle(item.title);
+    if (formMode === "create" && !hasInitialized) {
+      const defaults = emptyNoteInput();
+      setTitle(defaults.title);
+      setCategoryId(
+        defaults.category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? ""
+      );
       setHasInitialized(true);
     }
-  }, [item, hasInitialized]);
+  }, [formMode, hasInitialized]);
+
+  useEffect(() => {
+    if (formMode === "edit" && item && !hasInitialized) {
+      setTitle(item.title);
+      setCategoryId(item.category_id);
+      setHasInitialized(true);
+    }
+  }, [formMode, item, hasInitialized]);
+
+  const hasAdditionalUnsavedChanges = useMemo(() => {
+    if (formMode !== "create" || !hasInitialized) return false;
+    const defaults = emptyNoteInput();
+    return (
+      categoryId !==
+      (defaults.category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? "")
+    );
+  }, [categoryId, formMode, hasInitialized]);
+
+  const onSave = useCallback(
+    async (newTitle: string, newDescription: JSONContent | null) => {
+      const description = newDescription
+        ? serializeRichTextContent(newDescription)
+        : null;
+
+      if (formMode === "create") {
+        const created = await props.onCreate({
+          title: newTitle,
+          description,
+          category_id: categoryId,
+        });
+        if (created) {
+          props.onCreated(created.id);
+        }
+        return Boolean(created);
+      }
+
+      return props.onUpdate({
+        title: newTitle,
+        description,
+      });
+    },
+    [categoryId, formMode, props]
+  );
 
   const doBack = useCallback(() => {
     if (onClose) {
@@ -117,27 +182,38 @@ export function ItemEditor({
   }, [onClose, router]);
 
   const handleEditorRefresh = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setHasInitialized(false);
-    await onRefresh();
-  }, [onRefresh]);
+    await props.onRefresh();
+  }, [formMode, props]);
 
   const handleCategoryChange = useCallback(
     async (categoryId: string) => {
+      if (formMode === "create") {
+        setCategoryId(categoryId);
+        return;
+      }
       if (!item || categoryId === item.category_id) return;
       setIsSavingCategory(true);
       try {
-        await onUpdate({ category_id: categoryId });
+        await props.onUpdate({ category_id: categoryId });
+        setCategoryId(categoryId);
       } finally {
         setIsSavingCategory(false);
       }
     },
-    [item, onUpdate]
+    [formMode, item, props]
   );
 
   const handleDeleteItem = useCallback(async () => {
+    if (formMode !== "edit") {
+      return;
+    }
     setIsDeleting(true);
     try {
-      const success = await onRemove();
+      const success = await props.onRemove();
       if (success) {
         if (onClose) {
           onClose();
@@ -149,9 +225,25 @@ export function ItemEditor({
       setIsDeleting(false);
       setIsDeleteOpen(false);
     }
-  }, [onClose, onRemove, router]);
+  }, [formMode, onClose, props, router]);
 
-  if (!item && !error && isLoading) {
+  const metadataItem: Item | null =
+    formMode === "edit"
+      ? item
+      : hasInitialized
+        ? ({
+            id: "create",
+            user_id: "",
+            title,
+            description: null,
+            category_id: categoryId,
+            sort_order: 0,
+            created_at: "",
+            updated_at: "",
+          } satisfies Item)
+        : null;
+
+  if (formMode === "edit" && !item && !error && isLoading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2Icon className="text-muted-foreground size-8 animate-spin" />
@@ -165,7 +257,7 @@ export function ItemEditor({
       title={title}
       initialDescription={item?.description ?? null}
       isLoading={Boolean(isLoading)}
-      hasItem={Boolean(item)}
+      hasItem={formMode === "create" ? hasInitialized : Boolean(item)}
       error={error ?? null}
       hasInitialized={hasInitialized}
       onTitleChange={setTitle}
@@ -175,23 +267,26 @@ export function ItemEditor({
       titlePlaceholder="Note title..."
       notFoundMessage="Note not found"
       loadErrorMessage="Couldn't load this note. Please try again."
-      onDeleteRequested={() => setIsDeleteOpen(true)}
+      hasAdditionalUnsavedChanges={hasAdditionalUnsavedChanges}
+      onDeleteRequested={
+        formMode === "edit" ? () => setIsDeleteOpen(true) : undefined
+      }
       renderCommandBar={(props) => (
         <ItemCommandBar
           onBack={props.onBack}
           showBack={props.showBack}
-          onRefresh={props.onRefresh}
+          onRefresh={formMode === "edit" ? props.onRefresh : undefined}
           isRefreshing={props.isRefreshing}
           onSave={props.onSave}
           isSaving={props.isSaving}
           hasUnsavedChanges={props.hasUnsavedChanges}
           saveStatus={props.saveStatus}
-          onDelete={props.onDelete}
+          onDelete={formMode === "edit" ? props.onDelete : undefined}
           deleteLabel="Delete Note"
         />
       )}
       renderMetadata={
-        item ? (
+        metadataItem ? (
           <div className="mb-6">
             <Card size="sm" className="bg-surface-panel">
               <CardContent>
@@ -211,7 +306,8 @@ export function ItemEditor({
                   <CollapsibleContent>
                     <div className="mt-2 flex flex-col gap-1">
                       {DEFAULT_NOTE_CATEGORIES.map((category) => {
-                        const isActive = item.category_id === category.id;
+                        const isActive =
+                          metadataItem.category_id === category.id;
                         return (
                           <Button
                             key={category.id}
@@ -256,14 +352,16 @@ export function ItemEditor({
         ) : null
       }
       renderLinks={
-        <>
-          <TaskLinksPanel noteId={itemId} />
-          <ContactLinksPanel itemId={itemId} />
-          <LinkEntityLinksPanel noteId={itemId} />
-        </>
+        formMode === "edit" ? (
+          <>
+            <TaskLinksPanel noteId={itemId} />
+            <ContactLinksPanel itemId={itemId} />
+            <LinkEntityLinksPanel noteId={itemId} />
+          </>
+        ) : null
       }
       deleteDialog={
-        item ? (
+        formMode === "edit" && item ? (
           <DeleteConfirmationDialog
             open={isDeleteOpen}
             onOpenChange={setIsDeleteOpen}

@@ -4,6 +4,7 @@
 
 ## Product behavior
 - Stage-based tasks with encrypted titles, descriptions, and dates
+- New task opens an empty editor sheet (save-first create); the record is stored on first save with a client-generated id
 - Shareable links use `?item=<uuid>` to open a task in the detail sheet after sign-in and vault unlock
 - Optional cross-app links to Helvety Contacts, Notes, and Links when those apps are in use
 

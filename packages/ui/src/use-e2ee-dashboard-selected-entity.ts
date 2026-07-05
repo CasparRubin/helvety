@@ -18,8 +18,6 @@ export interface UseE2eeDashboardSelectedEntityOptions<
   entities: TEntity[];
   listIsLoading: boolean;
   listError: string | null;
-  /** Optional: keep the sheet in a loading state while background draft `persist` runs. Dashboards omit this (first-save create). */
-  isPersistingDraft?: boolean;
   masterKey: CryptoKey | null;
   isUnlocked: boolean;
   navigationSource: string;
@@ -50,7 +48,6 @@ export function useE2eeDashboardSelectedEntity<
     entities,
     listIsLoading,
     listError,
-    isPersistingDraft = false,
     masterKey,
     isUnlocked,
     navigationSource,
@@ -156,10 +153,7 @@ export function useE2eeDashboardSelectedEntity<
 
   const entity = listMatch ?? fetchedEntity;
   const isLoadingEntity =
-    Boolean(entityId) &&
-    !entity &&
-    !listError &&
-    (listIsLoading || isFetching || isPersistingDraft);
+    Boolean(entityId) && !entity && !listError && (listIsLoading || isFetching);
   const entityError = listError ?? fetchError;
 
   return {

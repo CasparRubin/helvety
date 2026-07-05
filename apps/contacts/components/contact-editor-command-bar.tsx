@@ -13,7 +13,7 @@ interface ContactEditorCommandBarProps {
   /** Whether to show the back button */
   showBack?: boolean;
   /** Callback to refresh the contact data */
-  onRefresh: () => void;
+  onRefresh?: () => void;
   /** Whether a refresh operation is in progress */
   isRefreshing?: boolean;
   /** Callback to save the contact */

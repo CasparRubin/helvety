@@ -31,6 +31,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: null,
+        formMode: null,
         openEntity,
         closePanel,
       })
@@ -49,12 +50,31 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: "abc",
+        formMode: "edit",
         openEntity,
         closePanel,
       })
     );
 
     expect(openEntity).not.toHaveBeenCalled();
+    expect(closePanel).not.toHaveBeenCalled();
+  });
+
+  it("skips close while panel is in create mode", () => {
+    setSearchParams("");
+    const openEntity = vi.fn();
+    const closePanel = vi.fn();
+
+    renderHook(() =>
+      useSyncE2eeEntityPanelFromUrl({
+        paramKey: "note",
+        entityId: null,
+        formMode: "create",
+        openEntity,
+        closePanel,
+      })
+    );
+
     expect(closePanel).not.toHaveBeenCalled();
   });
 
@@ -69,6 +89,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: "abc",
+        formMode: "edit",
         openEntity,
         closePanel,
       })
@@ -89,6 +110,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: "abc",
+        formMode: "edit",
         openEntity,
         closePanel,
       })
@@ -108,6 +130,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: "abc",
+        formMode: "edit",
         openEntity,
         closePanel,
         onBeforeEntityChange,
@@ -128,6 +151,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: null,
+        formMode: null,
         openEntity,
         closePanel,
       })
@@ -145,6 +169,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: null,
+        formMode: null,
         openEntity,
         closePanel: vi.fn(),
       })
@@ -163,6 +188,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
       useSyncE2eeEntityPanelFromUrl({
         paramKey: "note",
         entityId: "old-id",
+        formMode: "edit",
         openEntity,
         closePanel,
         onBeforeEntityChange,
@@ -184,6 +210,7 @@ describe("useSyncE2eeEntityPanelFromUrl", () => {
         useSyncE2eeEntityPanelFromUrl({
           paramKey: "note",
           entityId,
+          formMode: entityId ? "edit" : null,
           openEntity,
           closePanel,
         }),

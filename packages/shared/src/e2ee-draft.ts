@@ -1,6 +1,5 @@
 /**
- * Helpers for E2EE list dashboards: display titles and pristine-draft detection
- * when closing a detail sheet without edits.
+ * Helpers for E2EE list dashboards: display titles for decrypted list rows.
  */
 
 /** Fallback list label when a note or task title is empty. */
@@ -13,19 +12,4 @@ export function getE2eeListTitle(
 ): string {
   const trimmed = title.trim();
   return trimmed.length > 0 ? trimmed : fallback;
-}
-
-/**
- * Shallow equality for draft cleanup: all keys in `snapshot` match `current`.
- */
-export function isDraftSnapshotUnchanged<T extends Record<string, unknown>>(
-  current: T,
-  snapshot: T
-): boolean {
-  for (const key of Object.keys(snapshot) as (keyof T)[]) {
-    if (current[key] !== snapshot[key]) {
-      return false;
-    }
-  }
-  return true;
 }
