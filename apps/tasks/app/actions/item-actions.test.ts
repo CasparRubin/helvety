@@ -180,6 +180,84 @@ describe("tasks item-actions", () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/tasks");
   });
 
+  it("creates a task with save-first structural defaults", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: { id: ITEM_ID }, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createItem(
+      {
+        ...getCreatePayload(),
+        stage_id: "default-item-backlog",
+        label_id: null,
+        priority: 1,
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true, data: { id: ITEM_ID } });
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: ITEM_ID,
+        user_id: "user-1",
+        stage_id: "default-item-backlog",
+        label_id: "default-item-label",
+        priority: 1,
+      })
+    );
+  });
+
+  it("rejects createItem with an invalid label_id before DB calls", async () => {
+    const insert = vi.fn();
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createItem(
+      {
+        ...getCreatePayload(),
+        label_id: "not-a-real-label",
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: false, error: "Invalid task data" });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("accepts createItem with DB label sentinel from round-trip payloads", async () => {
+    const single = vi
+      .fn()
+      .mockResolvedValue({ data: { id: ITEM_ID }, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const supabase = { from: vi.fn(() => ({ insert })) };
+    mocks.authenticateAndRateLimit.mockResolvedValue({
+      ok: true,
+      ctx: { supabase, user: { id: "user-1" } },
+    });
+
+    const result = await createItem(
+      {
+        ...getCreatePayload(),
+        label_id: "default-item-label",
+      },
+      "csrf-token"
+    );
+
+    expect(result).toEqual({ success: true, data: { id: ITEM_ID } });
+    expect(insert).toHaveBeenCalled();
+  });
+
   it("rejects invalid encrypted payload on createItem before DB calls", async () => {
     const insert = vi.fn();
     const supabase = { from: vi.fn(() => ({ insert })) };

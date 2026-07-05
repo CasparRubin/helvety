@@ -176,6 +176,11 @@ if (sharedCreateInputs) {
       );
     }
   }
+  if (!sharedCreateInputs.includes("label_id: null")) {
+    failures.push(
+      "packages/shared/src/e2ee-create-inputs.ts: emptyTaskInput must use label_id: null (not DB sentinel)"
+    );
+  }
 }
 
 if (existsSync(join(extensionRoot, "src/lib/e2ee-data-select.ts"))) {

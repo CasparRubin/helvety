@@ -87,6 +87,42 @@ describe("useItems", () => {
 
     expect(result.current.create).toBe(create);
   });
+
+  it("merges note category_id in create and update payloads", () => {
+    renderHook(() => useItems());
+
+    const options = vi.mocked(useEncryptedSortableItems).mock.calls.at(-1)?.[0];
+    expect(options).toBeDefined();
+
+    const encrypted = {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      encrypted_title: "enc-title",
+      encrypted_description: null,
+    };
+
+    expect(
+      options!.buildCreatePayload(encrypted, {
+        title: "Note",
+        category_id: "work",
+      })
+    ).toEqual({
+      ...encrypted,
+      category_id: "work",
+    });
+
+    expect(
+      options!.buildUpdatePayload(
+        "550e8400-e29b-41d4-a716-446655440000",
+        encrypted,
+        {
+          category_id: "personal",
+        }
+      )
+    ).toEqual({
+      ...encrypted,
+      category_id: "personal",
+    });
+  });
 });
 
 describe("useItem", () => {

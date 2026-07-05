@@ -88,6 +88,46 @@ describe("useContacts", () => {
     expect(result.current.create).toBe(create);
   });
 
+  it("passes encrypted create payload through and merges category_id on update", () => {
+    renderHook(() => useContacts());
+
+    const options = vi.mocked(useEncryptedSortableItems).mock.calls.at(-1)?.[0];
+    expect(options).toBeDefined();
+
+    const encrypted = {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      encrypted_first_name: "enc",
+      encrypted_last_name: "enc",
+      encrypted_description: null,
+      encrypted_email: null,
+      encrypted_phone: null,
+      encrypted_birthday: null,
+      encrypted_notes: null,
+      category_id: "personal",
+    };
+
+    expect(
+      options!.buildCreatePayload(encrypted, {
+        first_name: "",
+        last_name: "",
+        category_id: "personal",
+      })
+    ).toEqual(encrypted);
+
+    expect(
+      options!.buildUpdatePayload(
+        "550e8400-e29b-41d4-a716-446655440000",
+        encrypted,
+        {
+          category_id: "work",
+        }
+      )
+    ).toEqual({
+      ...encrypted,
+      category_id: "work",
+    });
+  });
+
   it("maps shared hook items to contacts in the public API", () => {
     const mockContact = {
       id: "abc-123",

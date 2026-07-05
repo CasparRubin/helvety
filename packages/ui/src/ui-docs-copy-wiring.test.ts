@@ -142,6 +142,7 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toContain("openCreate");
     expect(readme).toContain("formMode");
     expect(readme).toMatch(/first save/i);
+    expect(readme).toContain("pickDefinedStructuralFields");
     expect(readme).not.toContain("open-first");
     expect(readme).not.toContain("seedDraft");
   });

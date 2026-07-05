@@ -13,7 +13,6 @@ import {
 import {
   DEFAULT_CONTACT_CATEGORY_ID,
   DEFAULT_NOTE_CATEGORY_ID,
-  DEFAULT_TASK_LABEL_ID,
   DEFAULT_TASK_PRIORITY,
   DEFAULT_TASK_STAGE_ID,
 } from "./e2ee-entity-defaults";
@@ -47,7 +46,7 @@ describe("e2ee-create-inputs", () => {
       start_date: null,
       end_date: null,
       stage_id: DEFAULT_TASK_STAGE_ID,
-      label_id: DEFAULT_TASK_LABEL_ID,
+      label_id: null,
       priority: DEFAULT_TASK_PRIORITY,
     });
   });
@@ -83,6 +82,28 @@ describe("e2ee-create-inputs extension parity", () => {
         birthday: null,
         notes: null,
         category_id: DEFAULT_CONTACT_CATEGORY_ID,
+      });
+    } catch {
+      // Sibling extension repo optional in some checkouts.
+    }
+  });
+
+  it("matches extension entity-drafts emptyTaskInput when sibling repo is present", () => {
+    const extensionDraftsPath = resolve(
+      import.meta.dirname,
+      "../../../helvety-browser-extension-chromium/src/popup/entity-drafts.ts"
+    );
+    try {
+      const src = readFileSync(extensionDraftsPath, "utf8");
+      expect(src).toContain("emptyTaskInput");
+      expect(emptyTaskInput()).toEqual({
+        title: "",
+        description: null,
+        start_date: null,
+        end_date: null,
+        stage_id: DEFAULT_TASK_STAGE_ID,
+        label_id: null,
+        priority: DEFAULT_TASK_PRIORITY,
       });
     } catch {
       // Sibling extension repo optional in some checkouts.

@@ -1,5 +1,6 @@
 "use client";
 
+import { pickDefinedStructuralFields } from "@helvety/shared/e2ee-structural-payload";
 import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
@@ -24,6 +25,8 @@ import type {
 } from "@/lib/types";
 
 const TASKS_BASE_PATH = "/tasks";
+
+const TASK_STRUCTURAL_KEYS = ["stage_id", "label_id", "priority"] as const;
 
 /** Builds a tasks API route using the app base path. */
 export function getTasksApiPath(path: string): string {
@@ -97,13 +100,14 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
     encryptInput: encryptItemInput,
     encryptUpdate: encryptItemUpdate,
     decryptRows: decryptItemRows,
-    buildCreatePayload: (encrypted) => encrypted,
+    buildCreatePayload: (encrypted, input) => ({
+      ...(encrypted as object),
+      ...pickDefinedStructuralFields(input, TASK_STRUCTURAL_KEYS),
+    }),
     buildUpdatePayload: (id, encrypted, input) => ({
       id,
       ...(encrypted as object),
-      ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
-      ...(input.label_id !== undefined && { label_id: input.label_id }),
-      ...(input.priority !== undefined && { priority: input.priority }),
+      ...pickDefinedStructuralFields(input, TASK_STRUCTURAL_KEYS),
     }),
     buildOptimisticItem: (input, prev, created) => {
       const maxSortOrder =
@@ -183,9 +187,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     buildUpdatePayload: (entityId, encrypted, input) => ({
       id: entityId,
       ...encrypted,
-      ...(input.stage_id !== undefined && { stage_id: input.stage_id }),
-      ...(input.label_id !== undefined && { label_id: input.label_id }),
-      ...(input.priority !== undefined && { priority: input.priority }),
+      ...pickDefinedStructuralFields(input, TASK_STRUCTURAL_KEYS),
     }),
     updateEntity: updateItem,
     deleteEntity: deleteItem,

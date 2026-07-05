@@ -273,6 +273,26 @@ describe("store product catalog", () => {
     }
   });
 
+  it("Helvety Browser Extension store copy describes save-first create accurately", () => {
+    const product = getProductBySlug("helvety-browser-extension");
+    expect(product).toBeDefined();
+    if (!product) {
+      return;
+    }
+
+    const blob = [
+      product.description.intro,
+      ...product.features,
+      ...(product.description.sections ?? []).flatMap((s) =>
+        s.kind === "paragraph" ? [s.body] : s.items
+      ),
+    ].join("\n");
+
+    expect(blob).toMatch(/save-first|first save/i);
+    expect(blob).not.toMatch(/draft row/i);
+    expect(blob).not.toMatch(/persist-on-open/i);
+  });
+
   it("Power Platform Configurator listing uses canonical store card copy", () => {
     const product = getProductBySlug("helvety-power-platform-configurator");
     expect(product).toBeDefined();

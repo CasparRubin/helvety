@@ -63,6 +63,8 @@ const LinkEntityLinksPanel = dynamic(
 
 const APP_HOME_PATH = "/tasks";
 
+const EMPTY_TASK_CREATE_DEFAULTS = emptyTaskInput();
+
 /** Shared props for task editor create and edit modes. */
 type ItemEditorBaseProps = {
   onClose?: () => void;
@@ -109,13 +111,13 @@ export function ItemEditor(props: ItemEditorProps) {
 
   const [title, setTitle] = useState("");
   const [stageId, setStageId] = useState<string | null>(
-    () => emptyTaskInput().stage_id ?? null
+    () => EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null
   );
   const [labelId, setLabelId] = useState<string | null>(
-    () => emptyTaskInput().label_id ?? null
+    () => EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null
   );
   const [priority, setPriority] = useState(
-    () => emptyTaskInput().priority ?? 1
+    () => EMPTY_TASK_CREATE_DEFAULTS.priority ?? 1
   );
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
@@ -130,13 +132,12 @@ export function ItemEditor(props: ItemEditorProps) {
 
   useEffect(() => {
     if (formMode === "create" && !hasInitialized) {
-      const defaults = emptyTaskInput();
-      setTitle(defaults.title);
-      setStageId(defaults.stage_id ?? null);
-      setLabelId(defaults.label_id ?? null);
-      setPriority(defaults.priority ?? 1);
-      setStartDate(defaults.start_date ?? null);
-      setEndDate(defaults.end_date ?? null);
+      setTitle(EMPTY_TASK_CREATE_DEFAULTS.title);
+      setStageId(EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null);
+      setLabelId(EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null);
+      setPriority(EMPTY_TASK_CREATE_DEFAULTS.priority ?? 1);
+      setStartDate(EMPTY_TASK_CREATE_DEFAULTS.start_date ?? null);
+      setEndDate(EMPTY_TASK_CREATE_DEFAULTS.end_date ?? null);
       setHasInitialized(true);
     }
   }, [formMode, hasInitialized]);
@@ -155,13 +156,12 @@ export function ItemEditor(props: ItemEditorProps) {
 
   const hasAdditionalUnsavedChanges = useMemo(() => {
     if (formMode !== "create" || !hasInitialized) return false;
-    const defaults = emptyTaskInput();
     return (
-      stageId !== (defaults.stage_id ?? null) ||
-      labelId !== (defaults.label_id ?? null) ||
-      priority !== (defaults.priority ?? 1) ||
-      startDate !== (defaults.start_date ?? null) ||
-      endDate !== (defaults.end_date ?? null)
+      stageId !== (EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null) ||
+      labelId !== (EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null) ||
+      priority !== (EMPTY_TASK_CREATE_DEFAULTS.priority ?? 1) ||
+      startDate !== (EMPTY_TASK_CREATE_DEFAULTS.start_date ?? null) ||
+      endDate !== (EMPTY_TASK_CREATE_DEFAULTS.end_date ?? null)
     );
   }, [
     endDate,

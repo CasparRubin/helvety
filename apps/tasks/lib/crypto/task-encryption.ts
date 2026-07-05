@@ -35,8 +35,6 @@ export async function encryptItemInput(
   encrypted_description: string | null;
   encrypted_start_date: string | null;
   encrypted_end_date: string | null;
-  stage_id?: string | null;
-  label_id?: string | null;
 }> {
   const id = recordId ?? crypto.randomUUID();
 
@@ -85,8 +83,6 @@ export async function encryptItemInput(
     encrypted_description: encryptedDescription,
     encrypted_start_date: encryptedStartDate,
     encrypted_end_date: encryptedEndDate,
-    stage_id: input.stage_id,
-    label_id: input.label_id,
   };
 }
 

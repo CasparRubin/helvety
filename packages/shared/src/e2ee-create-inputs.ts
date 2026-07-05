@@ -5,7 +5,6 @@
 import {
   DEFAULT_CONTACT_CATEGORY_ID,
   DEFAULT_NOTE_CATEGORY_ID,
-  DEFAULT_TASK_LABEL_ID,
   DEFAULT_TASK_PRIORITY,
   DEFAULT_TASK_STAGE_ID,
 } from "./e2ee-entity-defaults";
@@ -36,7 +35,8 @@ export interface E2eeTaskCreateInput {
   start_date?: string | null;
   end_date?: string | null;
   stage_id?: string;
-  label_id?: string;
+  /** Null means unset; server coalesces to DEFAULT_TASK_LABEL_ID on insert. */
+  label_id?: string | null;
   priority?: number;
 }
 
@@ -84,7 +84,7 @@ export function emptyTaskInput(): E2eeTaskCreateInput {
     start_date: null,
     end_date: null,
     stage_id: DEFAULT_TASK_STAGE_ID,
-    label_id: DEFAULT_TASK_LABEL_ID,
+    label_id: null,
     priority: DEFAULT_TASK_PRIORITY,
   };
 }

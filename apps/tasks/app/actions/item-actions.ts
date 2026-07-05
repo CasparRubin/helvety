@@ -46,11 +46,14 @@ const ALLOWED_ITEM_STAGE_IDS = DEFAULT_STAGE_CONFIGS.item.stages.map(
 ) as [string, ...string[]];
 const StageIdSchema = z.enum(ALLOWED_ITEM_STAGE_IDS).nullable().optional();
 
-/** Schema for label_id - accepts only built-in default item label IDs */
+/** Schema for label_id - user-selectable labels plus the DB unset sentinel */
 const ALLOWED_ITEM_LABEL_IDS = DEFAULT_LABEL_CONFIG.labels.map(
   (label) => label.id
 ) as [string, ...string[]];
-const LabelIdSchema = z.enum(ALLOWED_ITEM_LABEL_IDS).nullable().optional();
+const LabelIdSchema = z
+  .union([z.enum(ALLOWED_ITEM_LABEL_IDS), z.literal(DEFAULT_ITEM_LABEL_ID)])
+  .nullable()
+  .optional();
 
 /** Priority validation: smallint 0-3 */
 const PrioritySchema = z.number().int().min(0).max(3).optional();

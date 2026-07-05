@@ -11,7 +11,11 @@ export const DEFAULT_NOTE_CATEGORY_ID = "personal";
 /** Default task stage on create. */
 export const DEFAULT_TASK_STAGE_ID = "default-item-backlog";
 
-/** Default task label on create. */
+/**
+ * DB/server sentinel for tasks with no user-selected label.
+ * Form defaults use `null` for label_id; server actions and extension encrypt
+ * coalesce to this value at write time.
+ */
 export const DEFAULT_TASK_LABEL_ID = "default-item-label";
 
 /** Default task priority on create (smallint 0–3; DB default is 1 = Normal). */

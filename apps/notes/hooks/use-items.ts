@@ -1,5 +1,6 @@
 "use client";
 
+import { pickDefinedStructuralFields } from "@helvety/shared/e2ee-structural-payload";
 import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
 import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
@@ -25,6 +26,8 @@ import type {
 } from "@/lib/types";
 
 const NOTES_BASE_PATH = "/notes";
+
+const NOTE_STRUCTURAL_KEYS = ["category_id"] as const;
 
 /** Builds a notes API route using the app base path. */
 export function getNotesApiPath(path: string): string {
@@ -99,16 +102,12 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
     decryptRows: decryptItemRows,
     buildCreatePayload: (encrypted, input) => ({
       ...(encrypted as object),
-      ...(input.category_id !== undefined
-        ? { category_id: input.category_id }
-        : {}),
+      ...pickDefinedStructuralFields(input, NOTE_STRUCTURAL_KEYS),
     }),
     buildUpdatePayload: (id, encrypted, input) => ({
       id,
       ...(encrypted as object),
-      ...(input.category_id !== undefined
-        ? { category_id: input.category_id }
-        : {}),
+      ...pickDefinedStructuralFields(input, NOTE_STRUCTURAL_KEYS),
     }),
     buildOptimisticItem: (input, prev, created) => {
       const maxSortOrder =
@@ -186,9 +185,7 @@ export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
     buildUpdatePayload: (entityId, encrypted, input) => ({
       id: entityId,
       ...encrypted,
-      ...(input.category_id !== undefined
-        ? { category_id: input.category_id }
-        : {}),
+      ...pickDefinedStructuralFields(input, NOTE_STRUCTURAL_KEYS),
     }),
     updateEntity: updateItem,
     deleteEntity: deleteItem,

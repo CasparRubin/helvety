@@ -460,8 +460,14 @@ describe("E2EE save-first create wiring", () => {
     }
   );
 
+  it("apps/tasks encrypt create helper accepts optional recordId and omits structural fields", () => {
+    const src = readAppFile("tasks", "lib/crypto/task-encryption.ts");
+    expect(src).toContain("recordId?: string");
+    expect(src).not.toMatch(/stage_id:\s*input\.stage_id/);
+    expect(src).not.toMatch(/label_id:\s*input\.label_id/);
+  });
+
   it.each([
-    ["tasks", "lib/crypto/task-encryption.ts"],
     ["notes", "lib/crypto/note-encryption.ts"],
     ["contacts", "lib/crypto/contact-encryption.ts"],
     ["links", "lib/crypto/link-encryption.ts"],
@@ -486,6 +492,29 @@ describe("E2EE save-first create wiring", () => {
     expect(src).not.toContain("isPendingDraft");
     expect(src).not.toContain("pendingDraftIdsRef");
     expect(src).not.toContain("draftInputFromItem");
+  });
+
+  it.each([
+    ["tasks", "hooks/use-items.ts", "pickDefinedStructuralFields"],
+    ["notes", "hooks/use-items.ts", "pickDefinedStructuralFields"],
+    ["contacts", "hooks/use-contacts.ts", "pickDefinedStructuralFields"],
+  ] as const)(
+    "apps/%s list hook merges structural fields via shared helper",
+    (app, hookPath, helper) => {
+      const src = readAppFile(app, hookPath);
+      expect(src).toContain(helper);
+      expect(src).toContain("buildCreatePayload");
+      expect(src).toContain("buildUpdatePayload");
+    }
+  );
+
+  it("shared emptyTaskInput uses null label_id for unset label", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/shared/src/e2ee-create-inputs.ts"),
+      "utf8"
+    );
+    expect(src).toContain("label_id: null");
+    expect(src).not.toMatch(/label_id:\s*DEFAULT_TASK_LABEL_ID/);
   });
 
   it("links library hook creates on save with client UUID", () => {

@@ -62,6 +62,7 @@ describe("E2EE maintainer doc copy guardrails", () => {
     expect(text).toContain("e2ee-create-inputs");
     expect(text).toContain("ownedUpdateMissingRow");
     expect(text).toMatch(/first save/i);
+    expect(text).toMatch(/label_id.*null|null.*label_id/i);
     expect(text).not.toContain("persist-on-open");
     expect(text).not.toContain("isPendingDraft");
   });
@@ -75,10 +76,43 @@ describe("E2EE maintainer doc copy guardrails", () => {
     expect(text).not.toContain("removeDraft");
   });
 
+  it("e2ee-create-inputs form defaults do not embed DB label sentinel", () => {
+    const text = readRepoFile("packages/shared/src/e2ee-create-inputs.ts");
+    expect(text).toContain("label_id: null");
+    expect(text).not.toMatch(/label_id:\s*DEFAULT_TASK_LABEL_ID/);
+  });
+
+  it("shared README documents structural payload merge helper", () => {
+    const text = readRepoFile("packages/shared/README.md");
+    expect(text).toContain("e2ee-structural-payload");
+    expect(text).toContain("pickDefinedStructuralFields");
+  });
+
   it("e2ee-draft no longer exports open-first snapshot helpers", () => {
     const text = readRepoFile("packages/shared/src/e2ee-draft.ts");
     expect(text).toContain("getE2eeListTitle");
     expect(text).not.toContain("isDraftSnapshotUnchanged");
+  });
+
+  it.each([
+    "apps/tasks/README.md",
+    "apps/notes/README.md",
+    "apps/contacts/README.md",
+    "apps/links/README.md",
+  ] as const)("%s documents save-first create, not persist-on-open", (rel) => {
+    const text = readRepoFile(rel);
+    expect(text).toMatch(/save-first/i);
+    expect(text).toMatch(/first save|insert on first save/i);
+    expect(text).toContain("e2ee-create-inputs");
+    expect(text).not.toMatch(/persist-on-open/i);
+    expect(text).not.toMatch(/draft row/i);
+    expect(text).not.toMatch(/persists in the background/i);
+  });
+
+  it("packages/ui README documents structural payload merge for list hooks", () => {
+    const text = readRepoFile("packages/ui/README.md");
+    expect(text).toContain("e2ee-structural-payload");
+    expect(text).toContain("pickDefinedStructuralFields");
   });
 
   it.each([

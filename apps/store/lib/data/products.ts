@@ -1208,7 +1208,7 @@ const helvetyBrowserExtension: SoftwareProduct = {
         items: [
           "Sign in with an email one-time code (new or existing Helvety account), then unlock end-to-end encryption with your passkey.",
           "Browse decrypted tasks, notes, contacts, links, and folders in grouped, edit-first lists.",
-          "Create, edit, delete, and reorder records, and link entities across apps from the edit form.",
+          "Create, edit, delete, and reorder records (save-first create: new items open as empty forms and are stored on first save), and link entities across apps from the edit form.",
           "Open any item in the matching helvety.com app with one click.",
         ],
       },
