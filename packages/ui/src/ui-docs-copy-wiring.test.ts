@@ -159,6 +159,20 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).not.toContain("seedDraft");
   });
 
+  it("gateway hero docs describe three Badge value pills with Lucide icons", () => {
+    for (const relativePath of [
+      "README.md",
+      "packages/ui/README.md",
+      "apps/web/README.md",
+      "docs/ui-shadcn-integration-policy.md",
+    ]) {
+      const doc = readRepoFile(relativePath);
+      expect(doc, relativePath).toMatch(/three shadcn.*Badge.*pills/i);
+      expect(doc, relativePath).toMatch(/Lucide icons/i);
+      expect(doc, relativePath).not.toMatch(/no icons or emoji/i);
+    }
+  });
+
   it("E2EE zone READMEs describe save-first create on first save, not persist-on-open", () => {
     for (const relativePath of [
       "apps/tasks/README.md",

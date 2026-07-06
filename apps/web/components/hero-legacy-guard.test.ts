@@ -21,11 +21,16 @@ describe("hero legacy cleanup guards", () => {
     expect(readme).toContain("HeroMarketingShell");
     expect(readme).toContain("HeroHyperspeedLayer");
     expect(readme).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
-    expect(readme).toMatch(/shadcn.*`Badge`/i);
+    expect(readme).toMatch(/three shadcn.*`Badge`.*pills/i);
+    expect(readme).toContain("Lock");
+    expect(readme).toContain("Minimize2");
+    expect(readme).toContain("Sparkles");
+    expect(readme).toContain("text-base");
     expect(readme).toContain("packages/ui/src/badge.tsx");
     expect(readme).toContain("2000ms");
     expect(readme).toContain("canUseWebGL");
     expect(readme).not.toContain("700ms");
+    expect(readme).not.toMatch(/no icons or emoji/i);
     expect(readme).not.toContain("components/hero-section.tsx");
     expect(readme).not.toMatch(/Legacy [`[]HeroSection/);
     expect(readme).toMatch(
@@ -46,14 +51,20 @@ describe("hero legacy cleanup guards", () => {
     expect(shell).not.toContain("ShinyText");
   });
 
-  it("production hero shell uses shadcn Badge for company values tagline", () => {
+  it("production hero shell uses three shadcn Badge pills with Lucide icons", () => {
     const shell = readFileSync(
       join(webRoot, "components/hero-marketing-shell.tsx"),
       "utf8"
     );
     expect(shell).toContain("@helvety/ui/badge");
     expect(shell).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
+    expect(shell).toContain("HERO_COMPANY_VALUE_PILLS");
+    expect(shell).toContain("Lock");
+    expect(shell).toContain("Minimize2");
+    expect(shell).toContain("Sparkles");
     expect(shell).toContain('variant="outline"');
+    expect(shell).toContain("text-base");
+    expect(shell).toContain("flex flex-wrap items-center justify-center gap-2");
     expect(shell).not.toMatch(/private\s*·\s*simple/);
     expect(shell).not.toMatch(/\p{Extended_Pictographic}/u);
   });
@@ -65,9 +76,13 @@ describe("hero legacy cleanup guards", () => {
     );
     expect(policy).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
     expect(policy).toContain("@helvety/ui/badge");
+    expect(policy).toMatch(/three shadcn.*Badge.*pills/i);
+    expect(policy).toMatch(/Lucide icons/i);
+    expect(policy).toContain("text-base");
     expect(policy).toContain("2000ms");
     expect(policy).toContain("canUseWebGL");
     expect(policy).not.toContain("700ms");
+    expect(policy).not.toMatch(/no icons or emoji/i);
   });
 
   it("hero-text JSDoc points at production shell, not removed harness", () => {
@@ -76,6 +91,8 @@ describe("hero legacy cleanup guards", () => {
       "utf8"
     );
     expect(heroText).toContain("hero-marketing-shell");
+    expect(heroText).toMatch(/three shadcn `Badge` value pills/i);
+    expect(heroText).toMatch(/Lucide icons/i);
     expect(heroText).not.toContain("hero-section");
   });
 });
