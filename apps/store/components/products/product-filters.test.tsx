@@ -18,11 +18,11 @@ describe("ProductFilters", () => {
     render(<ProductFilters value="all" onChange={onChange} />);
 
     const desktopButtons = screen
-      .getAllByRole("button", { name: /Software/i })
+      .getAllByRole("button", { name: /SharePoint Apps/i })
       .filter((el) => !el.classList.contains("md:hidden"));
     fireEvent.click(desktopButtons[0]!);
 
-    expect(onChange).toHaveBeenCalledWith("software");
+    expect(onChange).toHaveBeenCalledWith("sharepoint-apps");
   });
 
   it("mobile dropdown selects a filter via menuitem", async () => {
@@ -30,8 +30,10 @@ describe("ProductFilters", () => {
     render(<ProductFilters value="all" onChange={onChange} />);
 
     openMenuTrigger(getMobileFilterTrigger(/All Products/i));
-    fireEvent.click(await screen.findByRole("menuitem", { name: /Software/i }));
+    fireEvent.click(
+      await screen.findByRole("menuitem", { name: /File Tools/i })
+    );
 
-    expect(onChange).toHaveBeenCalledWith("software");
+    expect(onChange).toHaveBeenCalledWith("file-tools");
   });
 });

@@ -2,7 +2,7 @@
   "name": "@helvety/ui",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared UI: shadcn/ui (Base UI / base-vega), Sonner, footer, theme, Tiptap, ListSearchField (E2EE search), CSRF, EncryptionGateApp (wraps internal EncryptionGate), EncryptionTooltipContent, CommandBar, CommandBarPageLayout, E2eeAppRootLayout, HelvetyPublicShellRootLayout, HelvetyShellNavbar, E2eeAppNavbar, AccessibleSheetHeader, E2eeEntityDetailSheet, RootGlobalError, Slider, useE2eeEntityListDndSensors, AppSwitcher (canonical links in app-switcher-sections), ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent (Vitest on selected exports)",
+  "description": "Shared UI: shadcn/ui (Base UI / base-vega), Sonner, footer, theme, Tiptap, ListSearchField (E2EE search), CSRF, EncryptionGateApp (wraps internal EncryptionGate), EncryptionTooltipContent, CommandBar, CommandBarPageLayout, E2eeAppRootLayout, HelvetyPublicShellRootLayout, HelvetyShellNavbar, E2eeAppNavbar, AccessibleSheetHeader, E2eeEntityDetailSheet, RootGlobalError, Slider, useE2eeEntityListDndSensors, AppSwitcher (product sections from helvety-ecosystem-sections via app-switcher-sections), ThemeSwitcher, AuthTokenHandler, SessionRecovery, SkipToContent (Vitest on selected exports)",
   "author": "Helvety",
   "license": "AGPL-3.0-or-later",
   "homepage": "https://helvety.com",

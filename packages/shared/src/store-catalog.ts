@@ -1,22 +1,28 @@
 /**
  * Card-level Helvety Store catalog fields for @helvety/store product cards.
  * Full Product rows (images, pricing, long copy, artwork, artist credit) stay in
- * the Store app; badge UI (type colors, “Art by …” surface) is in
- * `apps/store/components/products/product-badge.tsx`.
+ * the Store app; category badge UI is in `apps/store/components/products/product-badge.tsx`.
+ * Product categories derive from `@helvety/shared/helvety-ecosystem-sections`.
  * Power Platform Configurator card blurbs are composed from
  * `./power-platform-configurator-copy` so they stay aligned with the Chromium extension manifest
  * (`CasparRubin/power-platform-configurator-browser-extension-chromium`);
  * public install is the Chrome Web Store (see `power-platform-configurator-copy.ts`).
  */
 
+import {
+  ecosystemCategoryForStoreSlug,
+  type HelvetyEcosystemCategorySlug,
+} from "./helvety-ecosystem-sections";
 import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";
 
-/** Mirrors {@link ProductType} in apps/store without importing Next-specific types. */
+/** Product delivery model union mirrored in `apps/store/lib/types/products.ts`. */
 export type StoreProductType = "saas" | "software" | "physical";
 
-/** Mirrors store {@link ProductCategory}. */
-export type StoreProductCategory =
-  "productivity" | "developer-tools" | "utilities" | "integrations" | "other";
+/** Ecosystem category slug (derived from {@link helvety-ecosystem-sections}). */
+export type StoreProductCategory = HelvetyEcosystemCategorySlug;
+
+/** Card fields before category is derived from the ecosystem registry. */
+type StoreProductCardBase = Omit<StoreProductCard, "category">;
 
 /** Fields shown on Store product cards. */
 export interface StoreProductCard {
@@ -40,6 +46,14 @@ export interface StoreProductCard {
   isOpenSource: boolean;
 }
 
+/** Attaches the ecosystem category derived from the card slug. */
+function withDerivedCategory(card: StoreProductCardBase): StoreProductCard {
+  return {
+    ...card,
+    category: ecosystemCategoryForStoreSlug(card.slug),
+  };
+}
+
 /**
  * When two products share the same `releaseDate`, higher number sorts first
  * (newer for display when using newest-first sort).
@@ -58,8 +72,8 @@ export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-pdf": 1,
 };
 
-/** Source order: oldest → newest (see tie map). */
-export const STORE_PRODUCT_CARDS = [
+/** Source order: oldest → newest (see tie map). Category is derived from slug. */
+const STORE_PRODUCT_CARDS_BASE = [
   {
     id: "helvety-pdf",
     slug: "helvety-pdf",
@@ -68,7 +82,6 @@ export const STORE_PRODUCT_CARDS = [
       "Reorder, merge, rotate, extract, or add images to a PDF. Supported edits stay in your browser, not on Helvety servers.",
     releaseDate: "2025-09-14",
     type: "saas",
-    category: "utilities",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -81,7 +94,6 @@ export const STORE_PRODUCT_CARDS = [
       "Jump between SharePoint sites from the header. Favorites and settings stay on your device.",
     releaseDate: "2025-10-05",
     type: "software",
-    category: "integrations",
     runsOn: "SharePoint Online",
     isFree: true,
     isOpenSource: true,
@@ -94,7 +106,6 @@ export const STORE_PRODUCT_CARDS = [
       "Stage-based task board with encrypted titles, descriptions, and dates. Labels, priority, and optional cross-app links to Helvety Contacts, Notes, and Links.",
     releaseDate: "2025-11-11",
     type: "saas",
-    category: "productivity",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -107,7 +118,6 @@ export const STORE_PRODUCT_CARDS = [
       "Encrypted contacts with names, numbers, birthdays, and notes. Personal, Work, and Other groups, drag to reorder, optional cross-app links, and export when you need a copy.",
     releaseDate: "2025-12-02",
     type: "saas",
-    category: "productivity",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -120,7 +130,6 @@ export const STORE_PRODUCT_CARDS = [
       "Encrypted notes with titles and rich text. Group by Personal, Work, or Other, with cross-app links to Tasks, Contacts, and Links when you use those apps.",
     releaseDate: "2026-01-20",
     type: "saas",
-    category: "productivity",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -133,7 +142,6 @@ export const STORE_PRODUCT_CARDS = [
       "Encrypted bookmarks in nested folders you control. Names and URLs stay encrypted on your device before storage, with optional cross-app links to Tasks, Contacts, and Notes.",
     releaseDate: "2026-05-16",
     type: "saas",
-    category: "productivity",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -145,7 +153,6 @@ export const STORE_PRODUCT_CARDS = [
     shortDescription: POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
     releaseDate: "2026-04-03",
     type: "software",
-    category: "integrations",
     runsOn: "Edge & Chrome",
     isFree: true,
     isOpenSource: true,
@@ -158,7 +165,6 @@ export const STORE_PRODUCT_CARDS = [
       "Windows app for quick screenshots and a see-through drawing layer on top of your desktop.",
     releaseDate: "2026-04-21",
     type: "software",
-    category: "utilities",
     runsOn: "Windows 10 & 11",
     isFree: true,
     isOpenSource: true,
@@ -171,7 +177,6 @@ export const STORE_PRODUCT_CARDS = [
       "Upscale PNG, JPEG, or WebP in the browser. AI quality when your device supports it, with sensible limits so tabs stay responsive.",
     releaseDate: "2026-04-28",
     type: "saas",
-    category: "utilities",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -184,7 +189,6 @@ export const STORE_PRODUCT_CARDS = [
       "Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, spotlight highlights, blur regions, and crop. Adjustable stroke, blur, and corners; layers panel and zoom; edits stay on your device.",
     releaseDate: "2026-07-04",
     type: "saas",
-    category: "utilities",
     runsOn: "Browser",
     isFree: true,
     isOpenSource: true,
@@ -197,12 +201,14 @@ export const STORE_PRODUCT_CARDS = [
       "Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, links, and folders. Sign in, unlock with a passkey, then create and edit without leaving the page.",
     releaseDate: "2026-06-27",
     type: "software",
-    category: "productivity",
     runsOn: "Edge & Chrome",
     isFree: true,
     isOpenSource: true,
   },
-] as const satisfies readonly StoreProductCard[];
+] as const satisfies readonly StoreProductCardBase[];
+
+export const STORE_PRODUCT_CARDS =
+  STORE_PRODUCT_CARDS_BASE.map(withDerivedCategory);
 
 /**
  * Literal union of every product id in {@link STORE_PRODUCT_CARDS}.
@@ -210,14 +216,17 @@ export const STORE_PRODUCT_CARDS = [
  * overrides), so TypeScript catches missing entries when a new product is
  * added to the catalog.
  */
-export type StoreProductId = (typeof STORE_PRODUCT_CARDS)[number]["id"];
+export type StoreProductId = (typeof STORE_PRODUCT_CARDS_BASE)[number]["id"];
 
 /**
  * Catalog entry with its literal {@link StoreProductId} preserved (instead of
  * widening `id` to `string`). Returned from listing helpers so consumers can
  * key exhaustive registries directly off `entry.id`.
  */
-export type StoreProductCardEntry = (typeof STORE_PRODUCT_CARDS)[number];
+export type StoreProductCardEntry = StoreProductCard & {
+  id: StoreProductId;
+  slug: (typeof STORE_PRODUCT_CARDS_BASE)[number]["slug"];
+};
 
 const storeCardById: ReadonlyMap<string, StoreProductCard> = new Map(
   STORE_PRODUCT_CARDS.map((c) => [c.id, c])
@@ -236,7 +245,11 @@ export function requireStoreProductCard(id: string): StoreProductCard {
 export function findStoreProductCardBySlug(
   slug: string
 ): StoreProductCardEntry | undefined {
-  return STORE_PRODUCT_CARDS.find((card) => card.slug === slug);
+  const card = STORE_PRODUCT_CARDS.find((c) => c.slug === slug);
+  if (!card) {
+    return undefined;
+  }
+  return card as StoreProductCardEntry;
 }
 
 /** Newest `releaseDate` first; ties use {@link PRODUCT_RELEASE_TIE_PRIORITY}. */
@@ -262,5 +275,7 @@ export function compareStoreCatalogEntriesNewestFirst(
  * callers can key off `entry.id` against {@link StoreProductId} registries.
  */
 export function getStoreCatalogNewestFirst(): StoreProductCardEntry[] {
-  return [...STORE_PRODUCT_CARDS].sort(compareStoreCatalogEntriesNewestFirst);
+  return [...STORE_PRODUCT_CARDS]
+    .sort(compareStoreCatalogEntriesNewestFirst)
+    .map((card) => card as StoreProductCardEntry);
 }

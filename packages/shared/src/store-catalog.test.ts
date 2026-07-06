@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { ecosystemCategoryForStoreSlug } from "./helvety-ecosystem-sections";
 import { HELVETY_LLMS_LICENSING_NOTE } from "./licensing";
 import {
   POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE,
@@ -61,6 +62,12 @@ describe("store-catalog", () => {
     for (const card of STORE_PRODUCT_CARDS) {
       expect(card.isFree).toBe(true);
       expect(card.isOpenSource).toBe(true);
+    }
+  });
+
+  it("derives ecosystem categories from helvety-ecosystem-sections for every card", () => {
+    for (const card of STORE_PRODUCT_CARDS) {
+      expect(card.category).toBe(ecosystemCategoryForStoreSlug(card.slug));
     }
   });
 

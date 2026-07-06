@@ -46,7 +46,7 @@ const mockProducts: Product[] = [
     name: "Helvety PDF",
     type: "saas",
     shortDescription: "PDF in the browser",
-    category: "utilities",
+    category: "file-tools",
     description: { intro: "Intro" },
     features: [],
     pricing: { tiers: [], hasFreeTier: true },
@@ -57,7 +57,7 @@ const mockProducts: Product[] = [
     name: "Helvety SPO Explorer",
     type: "software",
     shortDescription: "SharePoint header extension",
-    category: "utilities",
+    category: "sharepoint-apps",
     description: { intro: "Intro" },
     features: [],
     pricing: { tiers: [], hasFreeTier: true },
@@ -80,19 +80,32 @@ describe("ProductsCatalog", () => {
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
   });
 
-  it("filters products by type using getFilteredProducts", () => {
+  it("filters products by category using getFilteredProducts", () => {
     render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Software/i }));
+    fireEvent.click(screen.getByRole("button", { name: /SharePoint Apps/i }));
 
     expect(screen.queryByText("Helvety PDF")).not.toBeInTheDocument();
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
   });
 
-  it("does not expose a physical product type filter", () => {
+  it("lists all five ecosystem category filters", () => {
     render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
-    expect(screen.queryByRole("button", { name: /Physical/i })).toBeNull();
-    expect(screen.queryByRole("menuitem", { name: /Physical/i })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /Encryption Apps/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /File Tools/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Browser Extensions/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /SharePoint Apps/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Desktop Apps/i })
+    ).toBeInTheDocument();
   });
 });

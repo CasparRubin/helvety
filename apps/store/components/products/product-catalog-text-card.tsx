@@ -1,3 +1,4 @@
+import { ecosystemCategoryTitle } from "@helvety/shared/helvety-ecosystem-sections";
 import Link from "next/link";
 
 import type { StoreProductCardEntry } from "@helvety/shared/store-catalog";
@@ -18,7 +19,7 @@ export function ProductCatalogTextCard({ card }: ProductCatalogTextCardProps) {
     >
       <article>
         <div className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
-          {card.type}
+          {ecosystemCategoryTitle(card.category)}
         </div>
         <h2 className="text-foreground text-lg font-semibold tracking-tight">
           {card.name}

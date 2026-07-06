@@ -31,7 +31,7 @@ const product = {
   name: "Helvety PDF",
   type: "saas",
   shortDescription: "Reorder and merge PDFs in your browser.",
-  category: "utilities",
+  category: "file-tools",
   description: { intro: "Intro" },
   features: [],
   pricing: { tiers: [], hasFreeTier: true },
@@ -59,7 +59,7 @@ describe("ProductCard", () => {
     expect(link).toHaveAttribute("data-prefetch", "false");
   });
 
-  it("renders type and artist badges with readable surfaces over the artwork", () => {
+  it("renders category and artist badges with readable surfaces over the artwork", () => {
     render(
       <ProductCard
         product={{
@@ -69,9 +69,10 @@ describe("ProductCard", () => {
       />
     );
 
-    const typeBadge = screen.getByText("Web App");
-    expect(typeBadge).toHaveAttribute("data-slot", "badge");
-    expect(typeBadge).toHaveClass("bg-sky-500/15");
+    const categoryBadge = screen.getByText("File Tools");
+    expect(categoryBadge).toHaveAttribute("data-slot", "badge");
+    expect(categoryBadge).toHaveClass("bg-card/90");
+    expect(categoryBadge).toHaveClass("backdrop-blur-sm");
 
     const artistBadge = screen.getByText("Art by Alexandre Calame");
     expect(artistBadge).toHaveAttribute("data-slot", "badge");

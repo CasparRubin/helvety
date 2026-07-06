@@ -1,11 +1,16 @@
 "use client";
 
 /**
- * Product filters component - filter products by type
+ * Product filters component - filter products by ecosystem category
  * Desktop: inline button row with active state and optional counts
  * Mobile: dropdown menu showing active filter with selection list
  */
 
+import {
+  HELVETY_ECOSYSTEM_PRODUCT_SECTIONS,
+  type HelvetyEcosystemCategorySlug,
+  type HelvetyEcosystemSection,
+} from "@helvety/shared/helvety-ecosystem-sections";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import {
@@ -14,12 +19,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
-import { ChevronDownIcon, Cloud, MonitorCloud, LayoutGrid } from "lucide-react";
+import {
+  Building2,
+  ChevronDownIcon,
+  FileText,
+  LayoutGrid,
+  Monitor,
+  Puzzle,
+  ShieldCheck,
+} from "lucide-react";
 
-import type { ProductType } from "@/lib/types/products";
-
-/** Product type filter including the "all" option (catalog has no physical products today). */
-export type FilterType = "all" | Extract<ProductType, "saas" | "software">;
+/** Product category filter including the "all" option. */
+export type FilterType = "all" | HelvetyEcosystemCategorySlug;
 
 /** Props for the ProductFilters component. */
 interface ProductFiltersProps {
@@ -30,17 +41,31 @@ interface ProductFiltersProps {
   counts?: Record<FilterType, number>;
 }
 
+const categoryIcons: Record<HelvetyEcosystemCategorySlug, typeof ShieldCheck> =
+  {
+    "encryption-apps": ShieldCheck,
+    "file-tools": FileText,
+    "browser-extensions": Puzzle,
+    "sharepoint-apps": Building2,
+    "desktop-apps": Monitor,
+  };
+
 const filterOptions: {
   value: FilterType;
   label: string;
   icon: typeof LayoutGrid;
 }[] = [
   { value: "all", label: "All Products", icon: LayoutGrid },
-  { value: "saas", label: "Web Apps", icon: Cloud },
-  { value: "software", label: "Software", icon: MonitorCloud },
+  ...HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map(
+    (section: HelvetyEcosystemSection) => ({
+      value: section.slug,
+      label: section.title,
+      icon: categoryIcons[section.slug],
+    })
+  ),
 ];
 
-/** Renders the product type filter bar (desktop) or dropdown (mobile). */
+/** Renders the product category filter bar (desktop) or dropdown (mobile). */
 export function ProductFilters({
   value,
   onChange,

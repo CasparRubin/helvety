@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { productArtwork } from "@/lib/data/product-artwork";
 
-import { ArtistBadge, ProductBadge, ReleaseDateBadge } from "./product-badge";
+import { ArtistBadge, CategoryBadge, ReleaseDateBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
@@ -44,9 +44,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
           className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
         />
 
-        {/* Badges over artwork: tinted type label + frosted artist credit */}
+        {/* Badges over artwork: frosted category label + artist credit */}
         <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center justify-end gap-2">
-          <ProductBadge type={product.type} showIcon={false} />
+          <CategoryBadge category={product.category} />
           {product.metadata?.releaseDate && (
             <ReleaseDateBadge
               isoDate={product.metadata.releaseDate}

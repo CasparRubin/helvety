@@ -54,6 +54,30 @@ describe("automation policy consistency", () => {
     ).rejects.toThrow();
   });
 
+  it("extension sibling does not ship GitHub Actions workflow files", async () => {
+    const extensionRoot = resolve(
+      repoRoot,
+      "../helvety-browser-extension-chromium"
+    );
+    try {
+      await access(extensionRoot, constants.F_OK);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        (error as NodeJS.ErrnoException).code === "ENOENT"
+      ) {
+        return;
+      }
+      throw error;
+    }
+
+    await expect(
+      access(resolve(extensionRoot, ".github/workflows"), constants.F_OK)
+    ).rejects.toThrow();
+  });
+
   it.each(AUTOMATION_DOC_PATHS)(
     "%s avoids stale remote-CI / GitHub Actions wording",
     async (relativePath) => {

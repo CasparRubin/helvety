@@ -2,14 +2,14 @@
 
 /**
  * Product detail hero: full-bleed artwork with title, badges, and summary in the lower third.
- * Type and artist badges reuse {@link ./product-badge} (same styling as catalog cards).
+ * Category and artist badges reuse {@link ./product-badge} (same styling as catalog cards).
  */
 
 import Image from "next/image";
 
 import { productArtwork } from "@/lib/data/product-artwork";
 
-import { ArtistBadge, ProductBadge, ReleaseDateBadge } from "./product-badge";
+import { ArtistBadge, CategoryBadge, ReleaseDateBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
@@ -46,7 +46,7 @@ export function ProductDetailHero({ product }: { product: Product }) {
                   {product.name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2">
-                  <ProductBadge type={product.type} />
+                  <CategoryBadge category={product.category} />
                   {product.metadata?.releaseDate && (
                     <ReleaseDateBadge isoDate={product.metadata.releaseDate} />
                   )}

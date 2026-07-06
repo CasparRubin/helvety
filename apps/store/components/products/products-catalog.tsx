@@ -1,12 +1,12 @@
 "use client";
 
+import { HELVETY_ECOSYSTEM_PRODUCT_SECTIONS } from "@helvety/shared/helvety-ecosystem-sections";
 import { useSyncExternalStore, useMemo, useState, useTransition } from "react";
 
 import { ProductCatalogTextCard } from "@/components/products/product-catalog-text-card";
 import { getAllProducts, getFilteredProducts } from "@/lib/data/products";
 
-import { type FilterType } from "./product-filters";
-import { ProductFilters } from "./product-filters";
+import { type FilterType, ProductFilters } from "./product-filters";
 import { ProductGrid } from "./product-grid";
 
 import type { StoreProductCardEntry } from "@helvety/shared/store-catalog";
@@ -17,8 +17,13 @@ import type { StoreProductCardEntry } from "@helvety/shared/store-catalog";
  * full `Product` rows (with artwork) via `getAllProducts()`.
  */
 
+/** No-op subscribe for `useSyncExternalStore` client-only hydration gate. */
 const subscribeNoop = () => () => {};
+
+/** Returns true on the client after hydration. */
 const getClientEnhanced = () => true;
+
+/** Returns false during SSR. */
 const getServerEnhanced = () => false;
 
 /** Props for the interactive products catalog. */
@@ -51,17 +56,17 @@ export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
     if (filter === "all") {
       return initialCards;
     }
-    return initialCards.filter((card) => card.type === filter);
+    return initialCards.filter((card) => card.category === filter);
   }, [filter, initialCards]);
 
   const counts = useMemo(() => {
-    let software = 0;
-    let saas = 0;
-    for (const card of initialCards) {
-      if (card.type === "software") software++;
-      else if (card.type === "saas") saas++;
+    const result = { all: initialCards.length } as Record<FilterType, number>;
+    for (const section of HELVETY_ECOSYSTEM_PRODUCT_SECTIONS) {
+      result[section.slug] = initialCards.filter(
+        (card) => card.category === section.slug
+      ).length;
     }
-    return { all: initialCards.length, software, saas };
+    return result;
   }, [initialCards]);
 
   const filteredProducts = useMemo(() => {
@@ -71,7 +76,7 @@ export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
     if (filter === "all") {
       return allProducts;
     }
-    return getFilteredProducts({ type: filter });
+    return getFilteredProducts({ category: filter });
   }, [filter, allProducts, isEnhanced]);
 
   return (
@@ -79,14 +84,15 @@ export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
         <p className="text-muted-foreground mt-1 max-w-2xl text-pretty">
-          Filter by delivery model, read the long-form About panels, then jump
-          into each repo or installer. Everything here is free to use with no
+          Filter by category, read the long-form About panels, then jump into
+          each repo or installer. Everything here is free to use with no
           subscription upsell.
         </p>
       </div>
+
       <section className="mb-6">
         <h2 className="text-muted-foreground mb-2 text-sm font-medium">
-          Product type
+          Category
         </h2>
         <ProductFilters
           value={filter}
@@ -94,6 +100,7 @@ export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
           counts={counts}
         />
       </section>
+
       <div className={isPending ? "opacity-70 transition-opacity" : ""}>
         {isEnhanced ? (
           <ProductGrid products={filteredProducts} columns={3} />

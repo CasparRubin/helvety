@@ -52,6 +52,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - **CSS chunking:** all apps inherit `experimental.cssChunking: "strict"` from `@helvety/config/next` (`packages/config/next.test.mjs`)
 - **Sheet/Dialog a11y:** use `AccessibleSheetHeader` or an explicit `*Description` on every sheet/dialog (`packages/ui`)
 - **Scrollable sheets:** `@helvety/ui/sheet-scroll-layout` + `E2eeEntityDetailSheet` / `CommandBarPageLayout` flex height chain (`sheet-scroll-wiring.test.ts`; see [`ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md))
+- Store ecosystem categories and app-switcher product grouping: `@helvety/shared/helvety-ecosystem-sections` (derived onto `@helvety/shared/store-catalog` cards by `storeProductSlug`; see `apps/store/README.md` › Adding a New Product)
 - Store product catalog caching in `apps/store/lib/data/product-catalog-cache.ts`: cross-request `unstable_cache` for text-only catalog cards (`store-catalog` tag) plus per-request `React.cache()` for full `Product` rows (not the Next.js `'use cache'` directive)
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
 - UI majors: **@base-ui/react** (`base-vega` shadcn primitives in `@helvety/ui`), lucide-react v1 (`icon-renderer` kebab-case map), react-day-picker v10 (`Calendar`), shadcn CLI v4 devDep
@@ -86,6 +87,6 @@ When a contract moves into `@helvety/shared` or `@helvety/ui`, migrate **every c
 | `@helvety/shared/link-tree-ops`             | `apps/links/lib/link-tree.ts`, extension `link-tree.ts`                    |
 | `@helvety/ui/sonner`                        | All zones and extension (not direct `sonner` imports)                      |
 
-Guardrails: `consistency:e2ee-catalogs`, `consistency:extension-e2ee`, `e2ee-catalog-wiring.test.ts`, `e2ee-crypto-wiring.test.ts`, `e2ee-extension-wiring.test.ts`, `entity-list-grouping.test.ts`, `link-tree-ops.test.ts`, `crypto/e2ee-entity-crypto.test.ts`, `check-extension-e2ee-consistency.mjs` (monorepo + extension CI).
+Guardrails: `consistency:e2ee-catalogs`, `consistency:extension-e2ee`, `e2ee-catalog-wiring.test.ts`, `e2ee-crypto-wiring.test.ts`, `e2ee-extension-wiring.test.ts`, `entity-list-grouping.test.ts`, `link-tree-ops.test.ts`, `crypto/e2ee-entity-crypto.test.ts`, `check-extension-e2ee-consistency.mjs` (monorepo + extension `ci:check`, run locally).
 
 **Stack note:** Helvety uses **Supabase + Next.js** (not Convex) for backend and auth.

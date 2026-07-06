@@ -8,7 +8,7 @@ Product catalog app for Helvety products: specs, Store-hosted downloads (for exa
 ## Key Features
 
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`) with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`; `bootstrapE2eeLayoutSession()` from `@helvety/shared/layout-session-bootstrap` feeds CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
-- Public product catalog at `/store/products` with product cards that overlay badges on artwork: per-type tinted labels (sky / violet / amber) and a frosted “Art by …” artist credit ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
+- Public product catalog at `/store/products` with product cards that overlay frosted ecosystem category badges and an “Art by …” artist credit on artwork ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
 - Public SPFx package download endpoints (no login required); browser extensions link to vendor stores (for example Chrome Web Store) from product pages
 - Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
@@ -26,17 +26,25 @@ Product catalog app for Helvety products: specs, Store-hosted downloads (for exa
 
 ## Adding a New Product
 
-Card-level fields (name, blurb, release date, type, category, runs-on, free /
-open-source flags) live in `@helvety/shared/store-catalog` as the single source
-of truth for Store product cards (listing grid, detail metadata, and related surfaces).
+Card-level fields (name, blurb, release date, type, runs-on, free / open-source
+flags) live in `@helvety/shared/store-catalog`. **Ecosystem category** (Encryption
+Apps, File Tools, Browser Extensions, SharePoint Apps, Desktop Apps) is derived
+from `@helvety/shared/helvety-ecosystem-sections` and drives store filters,
+category pills, and the app switcher product sections.
 
-1. **Add the card entry** in `packages/shared/src/store-catalog.ts`:
-   - Append to `STORE_PRODUCT_CARDS` (preserves source order; sorting is done at
-     read time via `getStoreCatalogNewestFirst()` / `compareStoreCatalogEntriesNewestFirst`).
+1. **Register the product in the ecosystem** in
+   `packages/shared/src/helvety-ecosystem-sections.ts`:
+   - Add an item under the correct section (`displayName`, `storeProductSlug`,
+     optional `webAppUrlKey` for monorepo web zones).
+   - Add an icon in `packages/ui/src/app-switcher-sections.tsx`
+     (`ecosystemItemIcons`).
+2. **Add the card entry** in `packages/shared/src/store-catalog.ts`:
+   - Append to `STORE_PRODUCT_CARDS_BASE` (category is derived from the ecosystem
+     registry via `storeProductSlug`; do not set `category` manually).
    - If the new product shares a `releaseDate` with an existing card, add a
      priority value to `PRODUCT_RELEASE_TIE_PRIORITY` (higher = newer).
-   - Run `bun run test --filter=@helvety/shared` (from repo root; same `--filter=` style as the root [`README.md`](../../README.md)) to confirm catalog tests still pass: id uniqueness, `PRODUCT_RELEASE_TIE_PRIORITY` parity with every card id, runs-on labels, free/open-source flags, and default sort endpoints.
-2. **Add the full Store product** in `apps/store/lib/data/products.ts`:
+   - Run `bun run test --filter=@helvety/shared` (from repo root; same `--filter=` style as the root [`README.md`](../../README.md)) to confirm catalog and ecosystem wiring tests still pass.
+3. **Add the full Store product** in `apps/store/lib/data/products.ts`:
    - Call `cardCore("<id>", "<saas|software|physical>")`: TS narrows `type`
      to the literal you pass, and the helper throws at startup if the catalog
      declares a different `type` for that id (no `as` casts needed).
@@ -45,9 +53,9 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      free-tier flags only; the Store does not render price amounts in the UI),
      `links`,
      `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`,
-     `artist` for the “Art by …” badge on cards and product heroes; badge
-     styling lives in [`components/products/product-badge.tsx`](components/products/product-badge.tsx)
-     (tinted type labels, frosted artist surface for readability over artwork).
+     `artist` for the “Art by …” badge on cards and product heroes; category
+     and release badges use a frosted overlay in
+     [`components/products/product-badge.tsx`](components/products/product-badge.tsx).
    - For new hero art: add `public/artwork_<n>.webp`, register it in
      `lib/data/product-artwork.ts`, assign it in `products.ts`, and update the
      canonical slug → artwork/artist map in `lib/data/products.test.ts`
@@ -59,15 +67,13 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      repeat the catalog `shortDescription` opening (see
      [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
    - Add the new product to the `products` array near the bottom of the file.
-3. **Sync other surfaces** for the same product (when applicable):
+4. **Sync other surfaces** for the same product (when applicable):
    - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json` (SEO describes the product; do not add AGPL to metadata or manifest `description`)
    - `public/llms.txt` for that app or Store/web crawler files (`>` tagline = product/company summary; license text under `## Licensing` only)
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
    - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and Chrome Web Store listing URL; run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside the allowlisted negative-test paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
    - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
      `bun run consistency:install-manifest-metadata`
-4. **(Optional) Add a switcher entry** in
-   [`packages/ui/src/app-switcher-sections.tsx`](../../packages/ui/src/app-switcher-sections.tsx) if the product should appear in the helvety.com app switcher (left sheet in the shared navbar). Keep `links[].icon` aligned with product identity (same Lucide icons as store product UI where applicable).
 5. **Run pre-deployment validations** from the repo root:
    `bun run ci:release` (full guardrails, Knip, format, lint, type-check, test, and build).
 
@@ -113,7 +119,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + client hydration (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), opaque product-detail panels, artwork registry parity (`lib/data/product-artwork.test.ts`), and canonical per-product artwork/artist assignments (`lib/data/products.test.ts`).
+Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + client hydration (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), ecosystem category wiring (`packages/shared/src/helvety-ecosystem-sections.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`, `components/products/product-ui-wiring.test.ts`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), opaque product-detail panels, artwork registry parity (`lib/data/product-artwork.test.ts`), and canonical per-product artwork/artist assignments (`lib/data/products.test.ts`).
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 

@@ -1,4 +1,16 @@
+/**
+ * App switcher navigation sections for {@link AppSwitcher}.
+ * Product sections derive from `@helvety/shared/helvety-ecosystem-sections`; Core Apps
+ * (Home, Store) and per-product Lucide icons stay in this UI module.
+ */
+
 import { urls } from "@helvety/shared/config";
+import {
+  ecosystemItemHref,
+  HELVETY_ECOSYSTEM_PRODUCT_SECTIONS,
+  type HelvetyEcosystemItem,
+  type HelvetyEcosystemSection,
+} from "@helvety/shared/helvety-ecosystem-sections";
 import {
   Building2,
   FileText,
@@ -30,9 +42,49 @@ export interface AppSwitcherSection {
   links: AppSwitcherSectionLink[];
 }
 
+/** Icons keyed by store product slug (React components stay in the UI package). */
+const ecosystemItemIcons: Record<
+  string,
+  ComponentType<SVGProps<SVGSVGElement>>
+> = {
+  "helvety-tasks": ListTodo,
+  "helvety-contacts": Users,
+  "helvety-notes": NotebookPen,
+  "helvety-links": Link2,
+  "helvety-pdf": FileText,
+  "helvety-image-upscaler": ImageUp,
+  "helvety-image-editor": ImagePlus,
+  "helvety-browser-extension": PanelRight,
+  "helvety-power-platform-configurator": Puzzle,
+  "helvety-spo-explorer": Building2,
+  "helvety-screen-tools": Monitor,
+};
+
+/** Maps a shared ecosystem section to app-switcher links with Lucide icons. */
+function ecosystemSectionToSwitcherSection(
+  section: HelvetyEcosystemSection
+): AppSwitcherSection {
+  return {
+    title: section.title,
+    links: section.items.map((item: HelvetyEcosystemItem) => {
+      const icon = ecosystemItemIcons[item.storeProductSlug];
+      if (!icon) {
+        throw new Error(
+          `Missing app-switcher icon for store product slug: ${item.storeProductSlug}`
+        );
+      }
+      return {
+        name: item.displayName,
+        href: ecosystemItemHref(item),
+        icon,
+      };
+    }),
+  };
+}
+
 /**
- * Canonical navigation data for {@link AppSwitcher}. Kept in a non–client-boundary module
- * so Vitest can import the same structure the component renders (no duplicated expectations).
+ * Canonical navigation data for {@link AppSwitcher}. Product sections derive from
+ * `@helvety/shared/helvety-ecosystem-sections`; Core Apps stay UI-local.
  */
 export const appSwitcherSections: AppSwitcherSection[] = [
   {
@@ -42,56 +94,9 @@ export const appSwitcherSections: AppSwitcherSection[] = [
       { name: "Store", href: urls.store, icon: Store },
     ],
   },
-  {
-    title: "Encryption Apps",
-    links: [
-      { name: "Tasks", href: urls.tasks, icon: ListTodo },
-      { name: "Contacts", href: urls.contacts, icon: Users },
-      { name: "Notes", href: urls.notes, icon: NotebookPen },
-      { name: "Links", href: urls.links, icon: Link2 },
-    ],
-  },
-  {
-    title: "File Tools",
-    links: [
-      { name: "PDF", href: urls.pdf, icon: FileText },
-      { name: "Image Upscaler", href: urls.imageUpscaler, icon: ImageUp },
-      { name: "Image Editor", href: urls.imageEditor, icon: ImagePlus },
-    ],
-  },
-  {
-    title: "Browser Extensions",
-    links: [
-      {
-        name: "Helvety Browser Extension",
-        href: `${urls.store}/products/helvety-browser-extension`,
-        icon: PanelRight,
-      },
-      {
-        name: "Power Platform Configurator",
-        href: `${urls.store}/products/helvety-power-platform-configurator`,
-        icon: Puzzle,
-      },
-    ],
-  },
-  {
-    title: "SharePoint Apps",
-    links: [
-      {
-        name: "Helvety SPO Explorer",
-        href: `${urls.store}/products/helvety-spo-explorer`,
-        icon: Building2,
-      },
-    ],
-  },
-  {
-    title: "Desktop Apps",
-    links: [
-      {
-        name: "Helvety Screen Tools",
-        href: `${urls.store}/products/helvety-screen-tools`,
-        icon: Monitor,
-      },
-    ],
-  },
+  ...HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map(ecosystemSectionToSwitcherSection),
 ];
+
+/** Store product slugs that require an icon in {@link ecosystemItemIcons}. */
+export const ECOSYSTEM_SWITCHER_STORE_PRODUCT_SLUGS =
+  Object.keys(ecosystemItemIcons);

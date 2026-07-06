@@ -3,6 +3,7 @@
  * Flexible system supporting SaaS, software, and physical products
  */
 
+import type { HelvetyEcosystemCategorySlug } from "@helvety/shared/helvety-ecosystem-sections";
 import type { StaticImageData } from "next/image";
 
 // =============================================================================
@@ -10,12 +11,12 @@ import type { StaticImageData } from "next/image";
 // =============================================================================
 
 /**
- * Type of product being sold
+ * Product delivery model.
  * - saas: Web-delivered application
  * - software: Downloadable software package (public or access-controlled)
  * - physical: Physical goods that require shipping
  */
-export type ProductType = "saas" | "software" | "physical";
+type ProductType = "saas" | "software" | "physical";
 
 /**
  * Billing interval for pricing
@@ -24,10 +25,9 @@ export type ProductType = "saas" | "software" | "physical";
 type BillingInterval = "one-time";
 
 /**
- * Product category for filtering and organization
+ * Product category for filtering and organization (ecosystem grid sections).
  */
-type ProductCategory =
-  "productivity" | "developer-tools" | "utilities" | "integrations" | "other";
+export type ProductCategory = HelvetyEcosystemCategorySlug;
 
 // =============================================================================
 // PRICING TYPES
@@ -129,7 +129,7 @@ export interface Product {
   description: ProductDescription;
   /** Product type */
   type: ProductType;
-  /** Category for filtering */
+  /** Ecosystem category for filtering and category badges */
   category: ProductCategory;
   /** Product image URL */
   image?: string | StaticImageData;
@@ -261,8 +261,8 @@ export interface SaaSProduct extends Product {
  * Filter options for product listings
  */
 export interface ProductFilters {
-  /** Filter by product type */
-  type?: ProductType | "all";
+  /** Filter by ecosystem category */
+  category?: ProductCategory | "all";
 }
 
 // =============================================================================

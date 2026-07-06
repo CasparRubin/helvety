@@ -23,7 +23,9 @@ import {
 
 /**
  * Card-level fields (name, blurbs, release date, type, category) from
- * `@helvety/shared/store-catalog`, narrowed to the literal `type` the caller
+ * `@helvety/shared/store-catalog` (`category` is derived from
+ * `@helvety/shared/helvety-ecosystem-sections`), narrowed to the literal `type`
+ * the caller
  * declares (e.g. `"saas"` or `"software"`). Throws if the catalog declares a
  * different `type` for `id`, so {@link StoreProductCard.type} cannot drift
  * away from the Store-side `Product` discriminant.
@@ -1362,10 +1364,11 @@ export function getProductBySlug(slug: string): Product | undefined {
  * Get products filtered by criteria
  * @param filters
  */
+/** Returns products filtered by ecosystem category (`filters.category`). */
 export function getFilteredProducts(filters: ProductFilters): Product[] {
   const all = getAllProducts();
-  if (!filters.type || filters.type === "all") {
+  if (!filters.category || filters.category === "all") {
     return all;
   }
-  return all.filter((product) => product.type === filters.type);
+  return all.filter((product) => product.category === filters.category);
 }

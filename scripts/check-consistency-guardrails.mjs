@@ -574,6 +574,16 @@ async function main() {
   );
   try {
     await access(extensionRoot, constants.F_OK);
+    try {
+      await access(resolve(extensionRoot, ".github/workflows"), constants.F_OK);
+      throw new Error(
+        "helvety-browser-extension-chromium/.github/workflows must not exist (use local pnpm ci:check / pnpm ci:release only)."
+      );
+    } catch (error) {
+      if (!(error && typeof error === "object" && error.code === "ENOENT")) {
+        throw error;
+      }
+    }
     const extensionPopupTsx = await listTsxFiles(
       resolve(extensionRoot, "src/popup")
     );

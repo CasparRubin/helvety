@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ArtistBadge, ProductBadge } from "./product-badge";
+import { ArtistBadge, CategoryBadge, ReleaseDateBadge } from "./product-badge";
 
-import type { ProductType } from "@/lib/types/products";
+import type { ProductCategory } from "@/lib/types/products";
 
 /** Asserts the element is a {@link @helvety/ui/badge} root and returns it. */
 function expectBadge(element: HTMLElement): HTMLElement {
@@ -11,61 +11,52 @@ function expectBadge(element: HTMLElement): HTMLElement {
   return element;
 }
 
-const productTypeExpectations = [
-  {
-    type: "saas" as const,
-    label: "Web App",
-    backgroundClass: "bg-sky-500/15",
-    borderClass: "border-sky-500/35",
-    textClass: "text-sky-950",
-  },
-  {
-    type: "software" as const,
-    label: "Software",
-    backgroundClass: "bg-violet-500/15",
-    borderClass: "border-violet-500/35",
-    textClass: "text-violet-950",
-  },
-  {
-    type: "physical" as const,
-    label: "Physical",
-    backgroundClass: "bg-amber-500/15",
-    borderClass: "border-amber-500/35",
-    textClass: "text-amber-950",
-  },
+const categoryExpectations = [
+  { category: "encryption-apps" as const, label: "Encryption Apps" },
+  { category: "file-tools" as const, label: "File Tools" },
+  { category: "browser-extensions" as const, label: "Browser Extensions" },
+  { category: "sharepoint-apps" as const, label: "SharePoint Apps" },
+  { category: "desktop-apps" as const, label: "Desktop Apps" },
 ] satisfies ReadonlyArray<{
-  type: ProductType;
+  category: ProductCategory;
   label: string;
-  backgroundClass: string;
-  borderClass: string;
-  textClass: string;
 }>;
 
-describe("ProductBadge", () => {
-  it.each(productTypeExpectations)(
-    "renders $label with a tinted outline surface for $type",
-    ({ type, label, backgroundClass, borderClass, textClass }) => {
-      render(<ProductBadge type={type} showIcon={false} />);
+describe("CategoryBadge", () => {
+  it.each(categoryExpectations)(
+    "renders $label with a frosted overlay surface for $category",
+    ({ category, label }) => {
+      render(<CategoryBadge category={category} />);
 
       const badge = expectBadge(screen.getByText(label));
       expect(badge).toHaveAttribute("data-variant", "outline");
-      expect(badge).toHaveClass(backgroundClass);
-      expect(badge).toHaveClass(borderClass);
-      expect(badge).toHaveClass(textClass);
+      expect(badge).toHaveClass("bg-card/90");
+      expect(badge).toHaveClass("backdrop-blur-sm");
+      expect(badge).toHaveClass("text-card-foreground");
     }
   );
 
-  it("renders the type icon when showIcon is true", () => {
-    const { container } = render(<ProductBadge type="saas" />);
-    expect(screen.getByText("Web App")).toBeInTheDocument();
-    expect(container.querySelector("svg")).toBeInTheDocument();
+  it("merges optional className overrides", () => {
+    render(<CategoryBadge category="file-tools" className="test-override" />);
+    expect(screen.getByText("File Tools")).toHaveClass("test-override");
+  });
+});
+
+describe("ReleaseDateBadge", () => {
+  it("renders a formatted date with a frosted overlay surface", () => {
+    render(<ReleaseDateBadge isoDate="2025-09-14" showIcon={false} />);
+
+    const badge = expectBadge(screen.getByText("Sep 14, 2025"));
+    expect(badge).toHaveAttribute("data-variant", "outline");
+    expect(badge).toHaveClass("bg-card/90");
+    expect(badge).toHaveClass("backdrop-blur-sm");
+    expect(badge).toHaveClass("text-card-foreground");
   });
 
-  it("merges optional className overrides", () => {
-    render(
-      <ProductBadge type="saas" showIcon={false} className="test-override" />
-    );
-    expect(screen.getByText("Web App")).toHaveClass("test-override");
+  it("renders the calendar icon when showIcon is true", () => {
+    const { container } = render(<ReleaseDateBadge isoDate="2025-09-14" />);
+    expect(screen.getByText("Sep 14, 2025")).toBeInTheDocument();
+    expect(container.querySelector("svg")).toBeInTheDocument();
   });
 });
 

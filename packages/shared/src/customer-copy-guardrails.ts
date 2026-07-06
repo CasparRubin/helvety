@@ -60,6 +60,7 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
   ...CUSTOMER_COPY_LLMS_RELATIVE_PATHS,
   ...CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS,
   "packages/shared/src/store-catalog.ts",
+  "packages/shared/src/helvety-ecosystem-sections.ts",
   "packages/shared/src/app-product-descriptions.ts",
   "packages/shared/src/app-navbar-about.ts",
   "packages/shared/src/licensing.ts",

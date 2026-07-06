@@ -1,69 +1,37 @@
 /**
  * Store catalog badge components (cards and product detail hero).
- * - {@link ProductBadge}: per-type tinted surfaces (sky / violet / amber).
+ * - {@link CategoryBadge}: frosted category label over artwork.
  * - {@link ArtistBadge}: frosted card surface for readable credit over artwork.
- * - {@link ReleaseDateBadge}: release date badge variant.
+ * - {@link ReleaseDateBadge}: frosted release date badge over artwork.
  */
 
+import { ecosystemCategoryTitle } from "@helvety/shared/helvety-ecosystem-sections";
 import { cn } from "@helvety/shared/utils";
 import { Badge } from "@helvety/ui/badge";
-import { Calendar, Cloud, Download, Package, Palette } from "lucide-react";
+import { Calendar, Palette } from "lucide-react";
 
 import { formatStoreReleaseDate } from "@/lib/utils/format-release-date";
 
-import type { ProductType } from "@/lib/types/products";
+import type { ProductCategory } from "@/lib/types/products";
 
-/** Props for the ProductBadge component. */
-interface ProductBadgeProps {
-  type: ProductType;
+/** Frosted surface for readable text over product artwork. */
+const overlayBadgeSurfaceClassName =
+  "border-border/60 bg-card/90 text-card-foreground shadow-sm backdrop-blur-sm";
+
+/** Props for the CategoryBadge component. */
+interface CategoryBadgeProps {
+  category: ProductCategory;
   className?: string;
-  showIcon?: boolean;
 }
 
-const typeConfig: Record<
-  ProductType,
-  {
-    label: string;
-    icon: typeof Cloud;
-    className: string;
-  }
-> = {
-  saas: {
-    label: "Web App",
-    icon: Cloud,
-    className:
-      "border-sky-500/35 bg-sky-500/15 text-sky-950 dark:bg-sky-500/25 dark:text-sky-100",
-  },
-  software: {
-    label: "Software",
-    icon: Download,
-    className:
-      "border-violet-500/35 bg-violet-500/15 text-violet-950 dark:bg-violet-500/25 dark:text-violet-100",
-  },
-  physical: {
-    label: "Physical",
-    icon: Package,
-    className:
-      "border-amber-500/35 bg-amber-500/15 text-amber-950 dark:bg-amber-500/25 dark:text-amber-100",
-  },
-};
-
-/** Renders a product type badge with a distinct tinted surface per {@link ProductType}. */
-export function ProductBadge({
-  type,
-  className,
-  showIcon = true,
-}: ProductBadgeProps) {
-  const config = typeConfig[type];
-  const Icon = config.icon;
-
+/** Renders an ecosystem category badge with a frosted surface for readability. */
+export function CategoryBadge({ category, className }: CategoryBadgeProps) {
   return (
     <Badge
       variant="outline"
-      className={cn("gap-1.5", config.className, className)}
+      className={cn(overlayBadgeSurfaceClassName, className)}
     >
-      {showIcon && <Icon className="size-3" />}
-      {config.label}
+      {ecosystemCategoryTitle(category)}
     </Badge>
   );
 }
@@ -75,14 +43,17 @@ interface ReleaseDateBadgeProps {
   showIcon?: boolean;
 }
 
-/** Renders a catalog release date badge. */
+/** Renders a catalog release date badge with a frosted surface over artwork. */
 export function ReleaseDateBadge({
   isoDate,
   className,
   showIcon = true,
 }: ReleaseDateBadgeProps) {
   return (
-    <Badge variant="secondary" className={cn("gap-1.5", className)}>
+    <Badge
+      variant="outline"
+      className={cn("gap-1.5", overlayBadgeSurfaceClassName, className)}
+    >
       {showIcon && <Calendar className="size-3" />}
       {formatStoreReleaseDate(isoDate)}
     </Badge>
@@ -96,10 +67,6 @@ interface ArtistBadgeProps {
   showIcon?: boolean;
 }
 
-/** Frosted surface for readable text over product artwork. */
-const artistBadgeSurfaceClassName =
-  "border-border/60 bg-card/90 text-card-foreground shadow-sm backdrop-blur-sm";
-
 /** Renders "Art by <name>" with a frosted semi-opaque surface for readability over artwork. */
 export function ArtistBadge({
   artist,
@@ -109,7 +76,7 @@ export function ArtistBadge({
   return (
     <Badge
       variant="outline"
-      className={cn("gap-1.5", artistBadgeSurfaceClassName, className)}
+      className={cn("gap-1.5", overlayBadgeSurfaceClassName, className)}
     >
       {showIcon && <Palette className="size-3" />}
       {`Art by ${artist}`}

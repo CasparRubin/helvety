@@ -2,6 +2,7 @@ import {
   CUSTOMER_COPY_EM_DASH,
   CUSTOMER_COPY_CARD_ABOUT_PREFIX_OVERLAP_MAX,
 } from "@helvety/shared/customer-copy-guardrails";
+import { ecosystemCategoryForStoreSlug } from "@helvety/shared/helvety-ecosystem-sections";
 import {
   HELVETY_FREE_AGPL_FEATURE,
   HELVETY_FREE_AGPL_INLINE,
@@ -44,6 +45,30 @@ describe("store product catalog", () => {
     }
   });
 
+  it("assigns ecosystem categories from the shared registry on every listing", () => {
+    for (const product of getAllProducts()) {
+      expect(product.category).toBe(
+        ecosystemCategoryForStoreSlug(product.slug)
+      );
+    }
+
+    const counts = getAllProducts().reduce<Record<string, number>>(
+      (acc, product) => {
+        acc[product.category] = (acc[product.category] ?? 0) + 1;
+        return acc;
+      },
+      {}
+    );
+
+    expect(counts).toEqual({
+      "encryption-apps": 4,
+      "file-tools": 3,
+      "browser-extensions": 2,
+      "sharepoint-apps": 1,
+      "desktop-apps": 1,
+    });
+  });
+
   it("shared catalog ids match store listing count", () => {
     expect(new Set(getAllProducts().map((p) => p.id))).toEqual(
       new Set(STORE_PRODUCT_CARDS.map((c) => c.id))
@@ -56,22 +81,28 @@ describe("store product catalog", () => {
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
-  it("getFilteredProducts returns catalog-sorted listings filtered by type only", () => {
+  it("getFilteredProducts returns catalog-sorted listings filtered by category only", () => {
     const all = getAllProducts();
-    expect(getFilteredProducts({ type: "all" })).toEqual(all);
+    expect(getFilteredProducts({ category: "all" })).toEqual(all);
     expect(getFilteredProducts({})).toEqual(all);
 
-    const software = getFilteredProducts({ type: "software" });
-    expect(software.every((product) => product.type === "software")).toBe(true);
-    expect(software.length).toBeGreaterThan(0);
+    const fileTools = getFilteredProducts({ category: "file-tools" });
+    expect(
+      fileTools.every((product) => product.category === "file-tools")
+    ).toBe(true);
+    expect(fileTools.length).toBeGreaterThan(0);
 
-    const saas = getFilteredProducts({ type: "saas" });
-    expect(saas.every((product) => product.type === "saas")).toBe(true);
-    expect(saas.length).toBeGreaterThan(0);
+    const encryptionApps = getFilteredProducts({ category: "encryption-apps" });
+    expect(
+      encryptionApps.every((product) => product.category === "encryption-apps")
+    ).toBe(true);
+    expect(encryptionApps.length).toBeGreaterThan(0);
 
-    const softwareIds = software.map((product) => product.id);
-    expect(softwareIds).toEqual(
-      all.filter((product) => product.type === "software").map((p) => p.id)
+    const fileToolIds = fileTools.map((product) => product.id);
+    expect(fileToolIds).toEqual(
+      all
+        .filter((product) => product.category === "file-tools")
+        .map((p) => p.id)
     );
   });
 

@@ -50,6 +50,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/image-upscaler/public/manifest.json",
   "apps/image-editor/public/manifest.json",
   "packages/shared/src/store-catalog.ts",
+  "packages/shared/src/helvety-ecosystem-sections.ts",
   "packages/shared/src/app-product-descriptions.ts",
   "packages/shared/src/app-navbar-about.ts",
   "packages/shared/src/licensing.ts",

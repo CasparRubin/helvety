@@ -147,6 +147,40 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toMatch(/not.*cmdk|cmdk Command/i);
   });
 
+  it("store README documents ecosystem registry as category source of truth", () => {
+    const readme = readRepoFile("apps/store/README.md");
+    expect(readme).toContain("helvety-ecosystem-sections");
+    expect(readme).toContain("STORE_PRODUCT_CARDS_BASE");
+    expect(readme).toContain("ecosystemItemIcons");
+    expect(readme).toMatch(/Encryption Apps|File Tools|Browser Extensions/);
+    expect(readme).not.toMatch(/tinted type labels/i);
+    expect(readme).not.toMatch(/per-type tinted labels/i);
+    expect(readme).not.toContain(
+      "app-switcher-sections.tsx` if the product should appear"
+    );
+  });
+
+  it("shared README documents helvety-ecosystem-sections as store category SSOT", () => {
+    const readme = readRepoFile("packages/shared/README.md");
+    expect(readme).toContain("helvety-ecosystem-sections");
+    expect(readme).toContain("HELVETY_ECOSYSTEM_PRODUCT_SECTIONS");
+    expect(readme).toMatch(/app switcher|store filter/i);
+  });
+
+  it("navbar-brand JSDoc references ecosystem registry for AppSwitcher", () => {
+    const source = readRepoFile("packages/ui/src/navbar-brand.tsx");
+    expect(source).toContain("helvety-ecosystem-sections");
+    expect(source).toContain("app-switcher-sections");
+  });
+
+  it("legal and naming docs list helvety-ecosystem-sections in store copy sync", () => {
+    const legal = readRepoFile("docs/legal-change-guardrails.md");
+    const naming = readRepoFile("docs/naming-conventions.md");
+    expect(legal).toContain("helvety-ecosystem-sections.ts");
+    expect(naming).toContain("helvety-ecosystem-sections.ts");
+    expect(naming).toMatch(/Ecosystem category/i);
+  });
+
   it("packages/ui README documents save-first create and selected-entity hook", () => {
     const readme = readRepoFile("packages/ui/README.md");
     expect(readme).toContain("save-first");
