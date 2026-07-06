@@ -1,8 +1,8 @@
 import Konva from "konva";
 
 import { getTextShadowProps } from "./default-tool-sizes";
-import { clampCornerRadius, drawSpotlightCutout } from "./spotlight-cutout";
-import { buildSpotlightRects } from "./spotlight-rects";
+import { DEFAULT_DIM_OPACITY } from "./editor-types";
+import { clampCornerRadius, drawSpotlightCutouts } from "./spotlight-cutout";
 import { buildTaperedArrowPoints } from "./tapered-arrow";
 
 import type {
@@ -10,6 +10,7 @@ import type {
   EditorElement,
   EditorState,
   ExportFormat,
+  HighlightElement,
 } from "./editor-types";
 
 /** Returns the committed crop, or a full-image rect when no crop is set. */
@@ -64,62 +65,41 @@ function addBlurNode(
   layer.add(node);
 }
 
-/** Adds spotlight dim outside a highlight hole to the export layer (even-odd cutout or strip rects). */
-function addHighlightNode(
+/** Adds one shared spotlight dim layer with all highlight holes punched out. */
+function addHighlightDimOverlay(
   layer: Konva.Layer,
-  element: Extract<EditorElement, { type: "highlight" }>,
+  highlights: readonly HighlightElement[],
   crop: CropRect,
   stageWidth: number,
   stageHeight: number
 ): void {
-  const holeX = element.x - crop.x;
-  const holeY = element.y - crop.y;
-  const cornerRadius = element.cornerRadius ?? 0;
-
-  if (cornerRadius > 0) {
-    const shape = new Konva.Shape({
-      listening: false,
-      sceneFunc: (context) => {
-        drawSpotlightCutout(context._context, {
-          stageWidth,
-          stageHeight,
-          holeX,
-          holeY,
-          holeWidth: element.width,
-          holeHeight: element.height,
-          cornerRadius,
-          opacity: element.dimOpacity,
-        });
-      },
-    });
-    layer.add(shape);
+  if (highlights.length === 0) {
     return;
   }
 
-  const group = new Konva.Group({ listening: false });
+  const holes = highlights.map((highlight) => ({
+    x: highlight.x - crop.x,
+    y: highlight.y - crop.y,
+    width: highlight.width,
+    height: highlight.height,
+    cornerRadius: highlight.cornerRadius ?? 0,
+  }));
 
-  for (const rect of buildSpotlightRects(
-    holeX,
-    holeY,
-    element.width,
-    element.height,
-    stageWidth,
-    stageHeight
-  )) {
-    group.add(
-      new Konva.Rect({
-        x: rect.x,
-        y: rect.y,
-        width: rect.width,
-        height: rect.height,
-        fill: "black",
-        opacity: element.dimOpacity,
-        listening: false,
-      })
-    );
-  }
+  const opacity = highlights[0]?.dimOpacity ?? DEFAULT_DIM_OPACITY;
 
-  layer.add(group);
+  layer.add(
+    new Konva.Shape({
+      listening: false,
+      sceneFunc: (context) => {
+        drawSpotlightCutouts(context._context, {
+          stageWidth,
+          stageHeight,
+          holes,
+          opacity,
+        });
+      },
+    })
+  );
 }
 
 /** Renders a single annotation into the export layer, offset by the crop. */
@@ -127,16 +107,14 @@ function addElementToLayer(
   layer: Konva.Layer,
   element: EditorElement,
   sourceImage: HTMLImageElement,
-  crop: CropRect,
-  stageWidth: number,
-  stageHeight: number
+  crop: CropRect
 ): void {
   switch (element.type) {
     case "blur":
       addBlurNode(layer, element, sourceImage, crop);
       break;
     case "highlight":
-      addHighlightNode(layer, element, crop, stageWidth, stageHeight);
+      // Dim is rendered once by addHighlightDimOverlay before this loop.
       break;
     case "border":
       layer.add(
@@ -232,15 +210,13 @@ function renderEditorToStage(
     })
   );
 
+  const highlights = state.elements.filter(
+    (element): element is HighlightElement => element.type === "highlight"
+  );
+  addHighlightDimOverlay(layer, highlights, crop, stageWidth, stageHeight);
+
   for (const element of state.elements) {
-    addElementToLayer(
-      layer,
-      element,
-      sourceImage,
-      crop,
-      stageWidth,
-      stageHeight
-    );
+    addElementToLayer(layer, element, sourceImage, crop);
   }
 
   layer.draw();

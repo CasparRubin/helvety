@@ -13,7 +13,11 @@ import {
 } from "react-konva";
 
 import { getTextShadowProps } from "@/lib/default-tool-sizes";
-import { clampCornerRadius, drawSpotlightCutout } from "@/lib/spotlight-cutout";
+import { DEFAULT_DIM_OPACITY } from "@/lib/editor-types";
+import {
+  clampCornerRadius,
+  drawSpotlightCutouts,
+} from "@/lib/spotlight-cutout";
 import { buildSpotlightRects } from "@/lib/spotlight-rects";
 import { buildTaperedArrowPoints } from "@/lib/tapered-arrow";
 
@@ -120,54 +124,6 @@ export function BlurNode({
   );
 }
 
-/** Props for {@link SpotlightCutoutOverlay}. */
-interface SpotlightCutoutOverlayProps {
-  readonly holeX: number;
-  readonly holeY: number;
-  readonly holeWidth: number;
-  readonly holeHeight: number;
-  readonly stageWidth: number;
-  readonly stageHeight: number;
-  readonly cornerRadius: number;
-  readonly opacity: number;
-  readonly groupOffsetX?: number;
-  readonly groupOffsetY?: number;
-}
-
-/** Rounded spotlight dim using even-odd fill (stage minus hole). */
-function SpotlightCutoutOverlay({
-  holeX,
-  holeY,
-  holeWidth,
-  holeHeight,
-  stageWidth,
-  stageHeight,
-  cornerRadius,
-  opacity,
-  groupOffsetX = 0,
-  groupOffsetY = 0,
-}: SpotlightCutoutOverlayProps): React.JSX.Element {
-  return (
-    <Shape
-      listening={false}
-      sceneFunc={(context) => {
-        drawSpotlightCutout(context._context, {
-          stageWidth,
-          stageHeight,
-          holeX,
-          holeY,
-          holeWidth,
-          holeHeight,
-          cornerRadius,
-          opacity,
-          groupOffsetX,
-          groupOffsetY,
-        });
-      }}
-    />
-  );
-}
-
 /** Props for {@link SpotlightRects}. */
 interface SpotlightRectsProps {
   readonly holeX: number;
@@ -181,7 +137,7 @@ interface SpotlightRectsProps {
   readonly groupOffsetY?: number;
 }
 
-/** Renders dim strips outside a rectangular hole (used when corner radius is zero). */
+/** Renders dim strips outside a rectangular hole (crop overlay). */
 export function SpotlightRects({
   holeX,
   holeY,
@@ -220,26 +176,92 @@ export function SpotlightRects({
   );
 }
 
+/** Props for {@link HighlightDimOverlay}. */
+interface HighlightDimOverlayProps {
+  readonly highlights: readonly HighlightElement[];
+  readonly crop: CropRect;
+  readonly stageWidth: number;
+  readonly stageHeight: number;
+  readonly previewHole?: {
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+    readonly cornerRadius: number;
+  };
+  readonly previewDimOpacity?: number;
+}
+
+/** Single shared dim layer with all highlight holes punched out. */
+export function HighlightDimOverlay({
+  highlights,
+  crop,
+  stageWidth,
+  stageHeight,
+  previewHole,
+  previewDimOpacity,
+}: HighlightDimOverlayProps): React.JSX.Element | null {
+  const holes = [
+    ...highlights.map((highlight) => ({
+      x: highlight.x - crop.x,
+      y: highlight.y - crop.y,
+      width: highlight.width,
+      height: highlight.height,
+      cornerRadius: highlight.cornerRadius ?? 0,
+    })),
+    ...(previewHole
+      ? [
+          {
+            x: previewHole.x - crop.x,
+            y: previewHole.y - crop.y,
+            width: previewHole.width,
+            height: previewHole.height,
+            cornerRadius: previewHole.cornerRadius,
+          },
+        ]
+      : []),
+  ];
+
+  if (holes.length === 0) {
+    return null;
+  }
+
+  const opacity =
+    previewHole !== undefined && previewDimOpacity !== undefined
+      ? previewDimOpacity
+      : (highlights[0]?.dimOpacity ?? previewDimOpacity ?? DEFAULT_DIM_OPACITY);
+
+  return (
+    <Shape
+      listening={false}
+      sceneFunc={(context) => {
+        drawSpotlightCutouts(context._context, {
+          stageWidth,
+          stageHeight,
+          holes,
+          opacity,
+        });
+      }}
+    />
+  );
+}
+
 /** Props for {@link HighlightNode}. */
 interface HighlightNodeProps {
   readonly id?: string;
   readonly element: HighlightElement;
   readonly crop: CropRect;
-  readonly stageWidth: number;
-  readonly stageHeight: number;
   readonly selected: boolean;
   readonly draggable: boolean;
   readonly onSelect: () => void;
   readonly onChange: (patch: Partial<HighlightElement>) => void;
 }
 
-/** Spotlight: dims the stage outside the highlight rectangle. */
+/** Spotlight highlight interaction target (selection, drag, transform). */
 export function HighlightNode({
   id,
   element,
   crop,
-  stageWidth,
-  stageHeight,
   selected,
   draggable,
   onSelect,
@@ -282,34 +304,6 @@ export function HighlightNode({
         });
       }}
     >
-      <Group listening={false}>
-        {cornerRadius > 0 ? (
-          <SpotlightCutoutOverlay
-            holeX={x}
-            holeY={y}
-            holeWidth={element.width}
-            holeHeight={element.height}
-            stageWidth={stageWidth}
-            stageHeight={stageHeight}
-            cornerRadius={cornerRadius}
-            opacity={element.dimOpacity}
-            groupOffsetX={x}
-            groupOffsetY={y}
-          />
-        ) : (
-          <SpotlightRects
-            holeX={x}
-            holeY={y}
-            holeWidth={element.width}
-            holeHeight={element.height}
-            stageWidth={stageWidth}
-            stageHeight={stageHeight}
-            opacity={element.dimOpacity}
-            groupOffsetX={x}
-            groupOffsetY={y}
-          />
-        )}
-      </Group>
       <Rect
         width={element.width}
         height={element.height}
@@ -537,12 +531,9 @@ export function ArrowNode({
 interface RectDrawPreviewProps {
   readonly rect: CropRect;
   readonly crop: CropRect;
-  readonly stageWidth: number;
-  readonly stageHeight: number;
   readonly tool: EditorTool;
   readonly toolColor: string;
   readonly toolStrokeWidth: number;
-  readonly toolDimOpacity: number;
   readonly toolCornerRadius: number;
 }
 
@@ -550,12 +541,9 @@ interface RectDrawPreviewProps {
 export function RectDrawPreview({
   rect,
   crop,
-  stageWidth,
-  stageHeight,
   tool,
   toolColor,
   toolStrokeWidth,
-  toolDimOpacity,
   toolCornerRadius,
 }: RectDrawPreviewProps): React.JSX.Element | null {
   if (rect.width < 1 && rect.height < 1) {
@@ -572,41 +560,17 @@ export function RectDrawPreview({
 
   if (tool === "highlight") {
     return (
-      <>
-        {toolCornerRadius > 0 ? (
-          <SpotlightCutoutOverlay
-            holeX={x}
-            holeY={y}
-            holeWidth={rect.width}
-            holeHeight={rect.height}
-            stageWidth={stageWidth}
-            stageHeight={stageHeight}
-            cornerRadius={toolCornerRadius}
-            opacity={toolDimOpacity}
-          />
-        ) : (
-          <SpotlightRects
-            holeX={x}
-            holeY={y}
-            holeWidth={rect.width}
-            holeHeight={rect.height}
-            stageWidth={stageWidth}
-            stageHeight={stageHeight}
-            opacity={toolDimOpacity}
-          />
-        )}
-        <Rect
-          x={x}
-          y={y}
-          width={rect.width}
-          height={rect.height}
-          cornerRadius={previewRadius}
-          stroke="#3b82f6"
-          strokeWidth={1}
-          dash={[6, 4]}
-          listening={false}
-        />
-      </>
+      <Rect
+        x={x}
+        y={y}
+        width={rect.width}
+        height={rect.height}
+        cornerRadius={previewRadius}
+        stroke="#3b82f6"
+        strokeWidth={1}
+        dash={[6, 4]}
+        listening={false}
+      />
     );
   }
 

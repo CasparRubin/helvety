@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { buildSpotlightRects } from "./spotlight-rects";
 
 describe("buildSpotlightRects", () => {
-  it("returns four strips around a centered hole", () => {
+  it("returns four strips around a centered hole (crop overlay geometry)", () => {
     const rects = buildSpotlightRects(100, 50, 200, 100, 400, 300);
 
     expect(rects).toHaveLength(4);

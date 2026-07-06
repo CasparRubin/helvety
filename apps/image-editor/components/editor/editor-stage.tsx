@@ -27,6 +27,7 @@ import {
   ArrowNode,
   BlurNode,
   BorderNode,
+  HighlightDimOverlay,
   HighlightNode,
   RectDrawPreview,
   SpotlightRects,
@@ -40,6 +41,7 @@ import type {
   CropRect,
   EditorElement,
   EditorState,
+  HighlightElement,
   TextElement,
 } from "@/lib/editor-types";
 import type Konva from "konva";
@@ -423,6 +425,18 @@ export function EditorStage({
       element.id === editingTextId && element.type === "text"
   );
 
+  const highlights = state.elements.filter(
+    (element): element is HighlightElement => element.type === "highlight"
+  );
+
+  const highlightPreviewHole =
+    drawPreview &&
+    state.activeTool === "highlight" &&
+    drawPreview.width >= MIN_DRAG_SIZE_PX &&
+    drawPreview.height >= MIN_DRAG_SIZE_PX
+      ? { ...drawPreview, cornerRadius: toolCornerRadius }
+      : undefined;
+
   return (
     <div
       className="relative inline-block"
@@ -460,6 +474,15 @@ export function EditorStage({
               listening={false}
             />
 
+            <HighlightDimOverlay
+              highlights={highlights}
+              crop={crop}
+              stageWidth={stageWidth}
+              stageHeight={stageHeight}
+              previewHole={highlightPreviewHole}
+              previewDimOpacity={toolDimOpacity}
+            />
+
             {state.elements.map((element) => {
               const selected = element.id === state.selectedId;
               const onSelect = () => {
@@ -490,8 +513,6 @@ export function EditorStage({
                       id={`element-${element.id}`}
                       element={element}
                       crop={crop}
-                      stageWidth={stageWidth}
-                      stageHeight={stageHeight}
                       selected={selected}
                       draggable={draggable}
                       onSelect={onSelect}
@@ -551,12 +572,9 @@ export function EditorStage({
               <RectDrawPreview
                 rect={drawPreview}
                 crop={crop}
-                stageWidth={stageWidth}
-                stageHeight={stageHeight}
                 tool={state.activeTool}
                 toolColor={toolColor}
                 toolStrokeWidth={toolStrokeWidth}
-                toolDimOpacity={toolDimOpacity}
                 toolCornerRadius={toolCornerRadius}
               />
             ) : null}

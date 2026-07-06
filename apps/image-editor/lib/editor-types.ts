@@ -44,7 +44,7 @@ export interface BorderElement {
   cornerRadius: number;
 }
 
-/** Spotlight annotation: dims the whole image except this rectangle. */
+/** Spotlight hole: geometry for a bright region; dim is rendered once by the shared overlay. */
 export interface HighlightElement {
   id: string;
   type: "highlight";
@@ -97,7 +97,7 @@ export const DEFAULT_DIM_OPACITY = 0.55;
 /** Default blur strength for blur regions (px). */
 export const DEFAULT_BLUR_RADIUS = 28;
 
-/** Default corner radius for new rect annotations; highlights with radius > 0 use even-odd cutout. */
+/** Default corner radius for new rect annotations (border, blur, highlight holes). */
 export const DEFAULT_CORNER_RADIUS = 8;
 
 /** Upper bound for property sliders (px); number inputs may exceed this. */

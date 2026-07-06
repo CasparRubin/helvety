@@ -64,6 +64,16 @@ export function HelvetyImageEditor(): React.JSX.Element {
     DEFAULT_CORNER_RADIUS
   );
 
+  const handleToolDimOpacityChange = React.useCallback(
+    (dimOpacity: number) => {
+      setToolDimOpacity(dimOpacity);
+      if (state.activeTool === "highlight") {
+        dispatch({ type: "SYNC_HIGHLIGHT_DIM", dimOpacity });
+      }
+    },
+    [dispatch, state.activeTool]
+  );
+
   const logicalWidth = source ? (state.crop?.width ?? source.naturalWidth) : 0;
   const logicalHeight = source
     ? (state.crop?.height ?? source.naturalHeight)
@@ -297,7 +307,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onToolColorChange={setToolColor}
         onToolStrokeWidthChange={setToolStrokeWidth}
         onToolBlurRadiusChange={setToolBlurRadius}
-        onToolDimOpacityChange={setToolDimOpacity}
+        onToolDimOpacityChange={handleToolDimOpacityChange}
         onToolCornerRadiusChange={setToolCornerRadius}
         onUpdate={(id, patch) =>
           dispatch({ type: "UPDATE_ELEMENT", id, patch })

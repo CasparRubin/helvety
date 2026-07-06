@@ -25,9 +25,13 @@ import {
 
 import type Konva from "konva";
 
-/** Records fill rules used by a highlight cutout export node. */
-function getHighlightCutoutFillRules(): string[] {
-  const cutoutNode = konvaTestLayerAdds.find(
+/** Records compositing used by the shared highlight dim export node. */
+function getHighlightDimCompositing(): {
+  fillRectCount: number;
+  compositeOperations: string[];
+  holeFillCount: number;
+} {
+  const dimNode = konvaTestLayerAdds.find(
     (node): node is { attrs: { sceneFunc: (context: unknown) => void } } =>
       typeof node === "object" &&
       node !== null &&
@@ -35,11 +39,13 @@ function getHighlightCutoutFillRules(): string[] {
       typeof (node as { attrs: { sceneFunc?: unknown } }).attrs.sceneFunc ===
         "function"
   );
-  if (!cutoutNode) {
-    return [];
+  if (!dimNode) {
+    return { fillRectCount: 0, compositeOperations: [], holeFillCount: 0 };
   }
 
-  const fills: string[] = [];
+  let fillRectCount = 0;
+  let holeFillCount = 0;
+  const compositeOperations: string[] = [];
   const context = {
     _context: {
       save: () => undefined,
@@ -47,8 +53,11 @@ function getHighlightCutoutFillRules(): string[] {
       fillStyle: "",
       globalAlpha: 1,
       beginPath: () => undefined,
-      fill: (rule?: string) => {
-        fills.push(rule ?? "nonzero");
+      fill: () => {
+        holeFillCount += 1;
+      },
+      fillRect: () => {
+        fillRectCount += 1;
       },
       rect: () => undefined,
       roundRect: () => undefined,
@@ -57,9 +66,27 @@ function getHighlightCutoutFillRules(): string[] {
       quadraticCurveTo: () => undefined,
     },
   };
+  Object.defineProperty(context._context, "globalCompositeOperation", {
+    get: () => compositeOperations.at(-1) ?? "source-over",
+    set: (value: string) => {
+      compositeOperations.push(value);
+    },
+  });
 
-  cutoutNode.attrs.sceneFunc(context);
-  return fills;
+  dimNode.attrs.sceneFunc(context);
+  return { fillRectCount, compositeOperations, holeFillCount };
+}
+
+/** Counts shared highlight dim export nodes (sceneFunc shapes). */
+function countHighlightDimNodes(): number {
+  return konvaTestLayerAdds.filter(
+    (node) =>
+      typeof node === "object" &&
+      node !== null &&
+      "attrs" in node &&
+      typeof (node as { attrs: { sceneFunc?: unknown } }).attrs.sceneFunc ===
+        "function"
+  ).length;
 }
 
 describe("export-image helpers", () => {
@@ -145,7 +172,6 @@ describe("export-image helpers", () => {
     const blob = await exportEditedImage(image, state, "png");
 
     expect(blob.type).toBe("image/png");
-    expect(getHighlightCutoutFillRules()).toEqual(["evenodd"]);
   });
 
   it("exports JPEG with the jpeg mime type", async () => {
@@ -293,71 +319,95 @@ describe("export-image helpers", () => {
     expect(blurNode?.attrs.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
   });
 
-  it("renders rounded highlights with an evenodd cutout shape instead of strip rects", async () => {
-    const image = new MockImage() as unknown as HTMLImageElement;
-    const highlight = createHighlightElement(50, 50, 100, 80, {
-      cornerRadius: DEFAULT_CORNER_RADIUS,
+  describe("highlight dim export", () => {
+    it("renders one shared dim layer with fill-once and destination-out punches", async () => {
+      const image = new MockImage() as unknown as HTMLImageElement;
+      const highlight = createHighlightElement(50, 50, 100, 80, {
+        cornerRadius: DEFAULT_CORNER_RADIUS,
+      });
+
+      await exportEditedImage(
+        image,
+        { ...initialEditorState, elements: [highlight] },
+        "png"
+      );
+
+      expect(countHighlightDimNodes()).toBe(1);
+      const dim = getHighlightDimCompositing();
+      expect(dim.fillRectCount).toBe(1);
+      expect(dim.holeFillCount).toBe(1);
+      expect(dim.compositeOperations).toContain("destination-out");
     });
-    const state = {
-      ...initialEditorState,
-      elements: [highlight],
-    };
 
-    await exportEditedImage(image, state, "png");
+    it.each([
+      { label: "rounded corners", cornerRadius: DEFAULT_CORNER_RADIUS },
+      { label: "square corners", cornerRadius: 0 },
+    ])(
+      "punches out a single highlight hole ($label)",
+      async ({ cornerRadius }) => {
+        const image = new MockImage() as unknown as HTMLImageElement;
+        const highlight = createHighlightElement(50, 50, 100, 80, {
+          cornerRadius,
+        });
 
-    const cutoutNode = konvaTestLayerAdds.find(
-      (node): node is { attrs: Record<string, unknown> } =>
-        typeof node === "object" &&
-        node !== null &&
-        "attrs" in node &&
-        typeof (node as { attrs: Record<string, unknown> }).attrs.sceneFunc ===
-          "function"
-    );
-    expect(cutoutNode).toBeDefined();
-    expect(getHighlightCutoutFillRules()).toEqual(["evenodd"]);
-  });
+        await exportEditedImage(
+          image,
+          { ...initialEditorState, elements: [highlight] },
+          "png"
+        );
 
-  it("uses the default corner radius for new highlights and exports with evenodd cutout", async () => {
-    const image = new MockImage() as unknown as HTMLImageElement;
-    const highlight = createHighlightElement(50, 50, 100, 80);
-    expect(highlight.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
-
-    await exportEditedImage(
-      image,
-      { ...initialEditorState, elements: [highlight] },
-      "png"
+        expect(getHighlightDimCompositing().holeFillCount).toBe(1);
+      }
     );
 
-    expect(getHighlightCutoutFillRules()).toEqual(["evenodd"]);
-  });
+    it("exports multiple highlights as one shared dim layer", async () => {
+      const image = new MockImage() as unknown as HTMLImageElement;
+      const highlightA = createHighlightElement(20, 20, 80, 60);
+      const highlightB = createHighlightElement(200, 120, 100, 70);
 
-  it("renders straight highlights with strip rects when corner radius is zero", async () => {
-    const image = new MockImage() as unknown as HTMLImageElement;
-    const highlight = createHighlightElement(50, 50, 100, 80, {
-      cornerRadius: 0,
+      await exportEditedImage(
+        image,
+        { ...initialEditorState, elements: [highlightA, highlightB] },
+        "png"
+      );
+
+      expect(countHighlightDimNodes()).toBe(1);
+      const dim = getHighlightDimCompositing();
+      expect(dim.fillRectCount).toBe(1);
+      expect(dim.holeFillCount).toBe(2);
     });
-    const state = {
-      ...initialEditorState,
-      elements: [highlight],
-    };
 
-    await exportEditedImage(image, state, "png");
+    it("does not add a dim layer when there are no highlights", async () => {
+      const image = new MockImage() as unknown as HTMLImageElement;
+      const blur = createBlurElement(40, 30, 120, 90);
 
-    const cutoutNode = konvaTestLayerAdds.find(
-      (node): node is { attrs: Record<string, unknown> } =>
-        typeof node === "object" &&
-        node !== null &&
-        "attrs" in node &&
-        typeof (node as { attrs: Record<string, unknown> }).attrs.sceneFunc ===
-          "function"
-    );
-    const stripGroup = konvaTestLayerAdds.find(
-      (node): node is { add: ReturnType<typeof vi.fn> } =>
-        typeof node === "object" && node !== null && "add" in node
-    );
+      await exportEditedImage(
+        image,
+        { ...initialEditorState, elements: [blur] },
+        "png"
+      );
 
-    expect(cutoutNode).toBeUndefined();
-    expect(stripGroup).toBeDefined();
+      expect(countHighlightDimNodes()).toBe(0);
+    });
+
+    it("keeps a single dim layer when highlights are mixed with other elements", async () => {
+      const image = new MockImage() as unknown as HTMLImageElement;
+      const highlightA = createHighlightElement(20, 20, 80, 60);
+      const blur = createBlurElement(40, 30, 120, 90);
+      const highlightB = createHighlightElement(200, 120, 100, 70);
+
+      await exportEditedImage(
+        image,
+        {
+          ...initialEditorState,
+          elements: [highlightA, blur, highlightB],
+        },
+        "png"
+      );
+
+      expect(countHighlightDimNodes()).toBe(1);
+      expect(getHighlightDimCompositing().holeFillCount).toBe(2);
+    });
   });
 });
 

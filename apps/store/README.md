@@ -49,9 +49,12 @@ of truth for Store product cards (listing grid, detail metadata, and related sur
      styling lives in [`components/products/product-badge.tsx`](components/products/product-badge.tsx)
      (tinted type labels, frosted artist surface for readability over artwork).
    - For new hero art: add `public/artwork_<n>.webp`, register it in
-     `lib/data/product-artwork.ts`, and pick an unused `productArtwork.artwork<n>`
-     (each asset should map to one product; tests enforce registry parity and
-     unique assignments).
+     `lib/data/product-artwork.ts`, assign it in `products.ts`, and update the
+     canonical slug → artwork/artist map in `lib/data/products.test.ts`
+     (`assigns canonical store artwork and artist per product`). Pick an unused
+     `productArtwork.artwork<n>` for the product (each assigned asset should map
+     to one product; tests enforce registry parity, unique assignments, and the
+     canonical map).
    - Write `description.intro` and sections in plain language; it must **not**
      repeat the catalog `shortDescription` opening (see
      [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
@@ -110,7 +113,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + client hydration (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), and opaque product-detail panels.
+Notable tests include layout shell providers without WebGL backdrop (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + client hydration (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), opaque product-detail panels, artwork registry parity (`lib/data/product-artwork.test.ts`), and canonical per-product artwork/artist assignments (`lib/data/products.test.ts`).
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 

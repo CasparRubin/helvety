@@ -123,6 +123,61 @@ describe("store product catalog", () => {
     expect(new Set(images).size).toBe(images.length);
   });
 
+  it("assigns canonical store artwork and artist per product", () => {
+    const expected: Record<
+      string,
+      { artwork: keyof typeof productArtwork; artist: string }
+    > = {
+      "helvety-spo-explorer": {
+        artwork: "artwork1",
+        artist: "Alexandre Calame",
+      },
+      "helvety-image-upscaler": {
+        artwork: "artwork2",
+        artist: "Alexandre Calame",
+      },
+      "helvety-tasks": { artwork: "artwork3", artist: "Alexandre Calame" },
+      "helvety-contacts": {
+        artwork: "artwork4",
+        artist: "Ferdinand Hodler",
+      },
+      "helvety-notes": { artwork: "artwork5", artist: "Rudolf Koller" },
+      "helvety-power-platform-configurator": {
+        artwork: "artwork6",
+        artist: "Rudolf Koller",
+      },
+      "helvety-pdf": { artwork: "artwork7", artist: "Alexandre Calame" },
+      "helvety-screen-tools": {
+        artwork: "artwork8",
+        artist: "Ferdinand Hodler",
+      },
+      "helvety-links": {
+        artwork: "artwork9",
+        artist: "Anny Meisser Vonzun",
+      },
+      "helvety-image-editor": {
+        artwork: "artwork11",
+        artist: "Clara von Rappard",
+      },
+      "helvety-browser-extension": {
+        artwork: "artwork12",
+        artist: "Clara von Rappard",
+      },
+    };
+
+    expect(Object.keys(expected)).toHaveLength(getAllProducts().length);
+
+    for (const [slug, { artwork, artist }] of Object.entries(expected)) {
+      const product = getProductBySlug(slug);
+      expect(product, slug).toBeDefined();
+      if (!product) {
+        continue;
+      }
+      expect(product.image, slug).toBe(productArtwork[artwork]);
+      expect(product.artist, slug).toBe(artist);
+    }
+  });
+
   it("Helvety Links is a SaaS listing with store artwork and monorepo source", () => {
     const product = getProductBySlug("helvety-links");
     expect(product).toBeDefined();
@@ -130,8 +185,6 @@ describe("store product catalog", () => {
       return;
     }
     expect(product.type).toBe("saas");
-    expect(product.image).toBe(productArtwork.artwork9);
-    expect(product.artist).toBe("Anny Meisser Vonzun");
     expect(product.links?.github).toContain("apps/links");
     expect(product.description.intro).toMatch(/before storage/i);
     expect(product.description.intro).not.toMatch(/before they sync/i);
@@ -273,12 +326,15 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Helvety Browser Extension store copy describes save-first create accurately", () => {
+  it("Helvety Browser Extension uses Clara von Rappard artwork and save-first copy", () => {
     const product = getProductBySlug("helvety-browser-extension");
     expect(product).toBeDefined();
     if (!product) {
       return;
     }
+
+    expect(product.image).toBe(productArtwork.artwork12);
+    expect(product.artist).toBe("Clara von Rappard");
 
     const blob = [
       product.description.intro,

@@ -1191,8 +1191,8 @@ const helvetyBrowserExtension: SoftwareProduct = {
   shortDescription: cHelvetyBrowserExtension.shortDescription,
   type: cHelvetyBrowserExtension.type,
   category: cHelvetyBrowserExtension.category,
-  image: productArtwork.artwork10,
-  artist: "Alexandre Calame",
+  image: productArtwork.artwork12,
+  artist: "Clara von Rappard",
   description: {
     intro:
       "Reach your encrypted Helvety data from a Chromium side panel while you browse. After email sign-in and a passkey unlock, the panel decrypts your tasks, notes, contacts, links, and folders on your device so you can read, create, edit, delete, and reorder them without opening the web app. This is an open beta and is not in the Chrome Web Store yet, so you install it manually from a GitHub release.",

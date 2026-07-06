@@ -194,7 +194,7 @@ export const STORE_PRODUCT_CARDS = [
     slug: "helvety-browser-extension",
     name: "Helvety Browser Extension",
     shortDescription:
-      "Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, and links. Sign in, unlock with a passkey, then create and edit without leaving the page.",
+      "Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, links, and folders. Sign in, unlock with a passkey, then create and edit without leaving the page.",
     releaseDate: "2026-06-27",
     type: "software",
     category: "productivity",

@@ -41,7 +41,71 @@ function roundRectPath(
   context.quadraticCurveTo(x, y, x + r, y);
 }
 
-/** Parameters for drawing a spotlight dim ring outside a hole. */
+/** A transparent hole punched out of a spotlight dim overlay. */
+interface SpotlightHole {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly cornerRadius: number;
+}
+
+/** Parameters for drawing a spotlight dim with one or more holes. */
+export interface SpotlightCutoutsParams {
+  readonly stageWidth: number;
+  readonly stageHeight: number;
+  readonly holes: readonly SpotlightHole[];
+  readonly opacity: number;
+  readonly offsetX?: number;
+  readonly offsetY?: number;
+}
+
+/** Dims the stage once, then punches out each hole (union-safe for overlaps). */
+export function drawSpotlightCutouts(
+  context: CanvasRenderingContext2D,
+  params: SpotlightCutoutsParams
+): void {
+  const {
+    stageWidth,
+    stageHeight,
+    holes,
+    opacity,
+    offsetX = 0,
+    offsetY = 0,
+  } = params;
+
+  if (holes.length === 0) {
+    return;
+  }
+
+  context.save();
+  context.fillStyle = "black";
+  context.globalAlpha = opacity;
+  context.fillRect(offsetX, offsetY, stageWidth, stageHeight);
+
+  context.globalCompositeOperation = "destination-out";
+  context.globalAlpha = 1;
+  for (const hole of holes) {
+    const clampedRadius = clampCornerRadius(
+      hole.cornerRadius,
+      hole.width,
+      hole.height
+    );
+    context.beginPath();
+    roundRectPath(
+      context,
+      hole.x,
+      hole.y,
+      hole.width,
+      hole.height,
+      clampedRadius
+    );
+    context.fill();
+  }
+  context.restore();
+}
+
+/** Parameters for drawing a single-hole spotlight dim (convenience wrapper). */
 export interface SpotlightCutoutParams {
   readonly stageWidth: number;
   readonly stageHeight: number;
@@ -55,7 +119,7 @@ export interface SpotlightCutoutParams {
   readonly groupOffsetY?: number;
 }
 
-/** Dims the stage outside a rounded or rectangular spotlight hole. */
+/** Dims the stage outside one hole; delegates to {@link drawSpotlightCutouts}. */
 export function drawSpotlightCutout(
   context: CanvasRenderingContext2D,
   params: SpotlightCutoutParams
@@ -73,25 +137,20 @@ export function drawSpotlightCutout(
     groupOffsetY = 0,
   } = params;
 
-  const localHoleX = holeX - groupOffsetX;
-  const localHoleY = holeY - groupOffsetY;
-  const localStageX = -groupOffsetX;
-  const localStageY = -groupOffsetY;
-  const clampedRadius = clampCornerRadius(cornerRadius, holeWidth, holeHeight);
-
-  context.save();
-  context.fillStyle = "black";
-  context.globalAlpha = opacity;
-  context.beginPath();
-  context.rect(localStageX, localStageY, stageWidth, stageHeight);
-  roundRectPath(
-    context,
-    localHoleX,
-    localHoleY,
-    holeWidth,
-    holeHeight,
-    clampedRadius
-  );
-  context.fill("evenodd");
-  context.restore();
+  drawSpotlightCutouts(context, {
+    stageWidth,
+    stageHeight,
+    holes: [
+      {
+        x: holeX - groupOffsetX,
+        y: holeY - groupOffsetY,
+        width: holeWidth,
+        height: holeHeight,
+        cornerRadius,
+      },
+    ],
+    opacity,
+    offsetX: -groupOffsetX,
+    offsetY: -groupOffsetY,
+  });
 }

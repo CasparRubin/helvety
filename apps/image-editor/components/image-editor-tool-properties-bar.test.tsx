@@ -199,7 +199,7 @@ describe("ImageEditorToolPropertiesBar", () => {
     expect(onUpdate).toHaveBeenCalledWith(arrow.id, { strokeWidth: 7 });
   });
 
-  it("updates selected highlight dim and dimensions", () => {
+  it("wires selected highlight dim through onUpdate for reducer sync", () => {
     const highlight = createHighlightElement(10, 20, 100, 80);
     const onUpdate = vi.fn();
 

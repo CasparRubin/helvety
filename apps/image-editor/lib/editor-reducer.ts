@@ -35,7 +35,8 @@ export type EditorAction =
   | { type: "SELECT"; id: string | null }
   | { type: "SET_TOOL"; tool: EditorTool }
   | { type: "SET_CROP"; crop: CropRect | null }
-  | { type: "RESET_ANNOTATIONS" };
+  | { type: "RESET_ANNOTATIONS" }
+  | { type: "SYNC_HIGHLIGHT_DIM"; dimOpacity: number };
 
 /** Moves an element one step up or down in z-order (array order). */
 function reorderElements(
@@ -72,21 +73,52 @@ export function editorReducer(
   action: EditorAction
 ): EditorState {
   switch (action.type) {
-    case "ADD_ELEMENT":
+    case "ADD_ELEMENT": {
+      if (action.element.type === "highlight") {
+        const dimOpacity = action.element.dimOpacity;
+        return {
+          ...state,
+          elements: [
+            ...state.elements.map((element) =>
+              element.type === "highlight"
+                ? { ...element, dimOpacity }
+                : element
+            ),
+            action.element,
+          ],
+          selectedId: action.element.id,
+        };
+      }
+
       return {
         ...state,
         elements: [...state.elements, action.element],
         selectedId: action.element.id,
       };
-    case "UPDATE_ELEMENT":
+    }
+    case "UPDATE_ELEMENT": {
+      const target = state.elements.find((element) => element.id === action.id);
+      const patchDimOpacity =
+        "dimOpacity" in action.patch ? action.patch.dimOpacity : undefined;
+      const syncDim =
+        patchDimOpacity !== undefined && target?.type === "highlight";
+
       return {
         ...state,
-        elements: state.elements.map((element) =>
-          element.id === action.id
-            ? patchElement(element, action.patch)
-            : element
-        ),
+        elements: state.elements.map((element) => {
+          if (element.id === action.id) {
+            return patchElement(element, action.patch);
+          }
+          if (syncDim && element.type === "highlight") {
+            return {
+              ...element,
+              dimOpacity: patchDimOpacity,
+            };
+          }
+          return element;
+        }),
       };
+    }
     case "DELETE_ELEMENT":
       return {
         ...state,
@@ -111,6 +143,15 @@ export function editorReducer(
         selectedId: null,
         crop: null,
         activeTool: "select",
+      };
+    case "SYNC_HIGHLIGHT_DIM":
+      return {
+        ...state,
+        elements: state.elements.map((element) =>
+          element.type === "highlight"
+            ? { ...element, dimOpacity: action.dimOpacity }
+            : element
+        ),
       };
     default: {
       const _exhaustive: never = action;
@@ -220,7 +261,7 @@ export function createBorderElement(
   };
 }
 
-/** Creates a spotlight-highlight annotation. */
+/** Creates a highlight hole (shared dim overlay renders all holes). */
 export function createHighlightElement(
   x: number,
   y: number,

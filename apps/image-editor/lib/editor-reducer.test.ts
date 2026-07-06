@@ -221,4 +221,123 @@ describe("editorReducer", () => {
         .cornerRadius
     ).toBe(0);
   });
+
+  it("syncs dim opacity across all highlights when one is updated", () => {
+    const highlightA = createHighlightElement(0, 0, 40, 30, {
+      dimOpacity: 0.55,
+    });
+    const highlightB = createHighlightElement(100, 50, 60, 40, {
+      dimOpacity: 0.55,
+    });
+    const border = createBorderElement(0, 0, 10, 10);
+
+    let state = editorReducer(initialEditorState, {
+      type: "ADD_ELEMENT",
+      element: highlightA,
+    });
+    state = editorReducer(state, {
+      type: "ADD_ELEMENT",
+      element: highlightB,
+    });
+    state = editorReducer(state, {
+      type: "ADD_ELEMENT",
+      element: border,
+    });
+
+    state = editorReducer(state, {
+      type: "UPDATE_ELEMENT",
+      id: highlightA.id,
+      patch: { dimOpacity: 0.4 },
+    });
+
+    const highlights = state.elements.filter(
+      (element) => element.type === "highlight"
+    );
+    expect(highlights).toHaveLength(2);
+    expect(highlights.every((element) => element.dimOpacity === 0.4)).toBe(
+      true
+    );
+    expect(state.elements.find((element) => element.id === border.id)).toEqual(
+      border
+    );
+  });
+
+  it("syncs dim opacity when adding a highlight", () => {
+    const highlightA = createHighlightElement(0, 0, 40, 30, {
+      dimOpacity: 0.55,
+    });
+    const highlightB = createHighlightElement(100, 50, 60, 40, {
+      dimOpacity: 0.35,
+    });
+
+    let state = editorReducer(initialEditorState, {
+      type: "ADD_ELEMENT",
+      element: highlightA,
+    });
+    state = editorReducer(state, {
+      type: "ADD_ELEMENT",
+      element: highlightB,
+    });
+
+    const highlights = state.elements.filter(
+      (element) => element.type === "highlight"
+    );
+    expect(highlights).toHaveLength(2);
+    expect(highlights.every((element) => element.dimOpacity === 0.35)).toBe(
+      true
+    );
+  });
+
+  it("syncs dim opacity across highlights via SYNC_HIGHLIGHT_DIM", () => {
+    const highlightA = createHighlightElement(0, 0, 40, 30, {
+      dimOpacity: 0.55,
+    });
+    const highlightB = createHighlightElement(100, 50, 60, 40, {
+      dimOpacity: 0.55,
+    });
+
+    let state = editorReducer(initialEditorState, {
+      type: "ADD_ELEMENT",
+      element: highlightA,
+    });
+    state = editorReducer(state, {
+      type: "ADD_ELEMENT",
+      element: highlightB,
+    });
+    state = editorReducer(state, {
+      type: "SYNC_HIGHLIGHT_DIM",
+      dimOpacity: 0.7,
+    });
+
+    const highlights = state.elements.filter(
+      (element) => element.type === "highlight"
+    );
+    expect(highlights.every((element) => element.dimOpacity === 0.7)).toBe(
+      true
+    );
+  });
+
+  it("SYNC_HIGHLIGHT_DIM leaves non-highlight elements unchanged", () => {
+    const highlight = createHighlightElement(0, 0, 40, 30, {
+      dimOpacity: 0.55,
+    });
+    const blur = createBlurElement(10, 10, 50, 40, { blurRadius: 12 });
+
+    let state = editorReducer(initialEditorState, {
+      type: "ADD_ELEMENT",
+      element: highlight,
+    });
+    state = editorReducer(state, { type: "ADD_ELEMENT", element: blur });
+    state = editorReducer(state, {
+      type: "SYNC_HIGHLIGHT_DIM",
+      dimOpacity: 0.65,
+    });
+
+    expect(
+      state.elements.find((element) => element.id === highlight.id)
+    ).toEqual({ ...highlight, dimOpacity: 0.65 });
+    expect(state.elements.find((element) => element.id === blur.id)).toEqual(
+      blur
+    );
+  });
 });

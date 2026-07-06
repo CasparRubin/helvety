@@ -21,7 +21,8 @@ function positiveRect(
 
 /**
  * Returns up to four rectangles that dim everything outside a hole region.
- * Used for straight-corner highlights (`cornerRadius === 0`) and crop overlays.
+ * Used for the live crop overlay (`GroupCropOverlay`); highlights use
+ * `drawSpotlightCutouts` instead.
  */
 export function buildSpotlightRects(
   holeX: number,
