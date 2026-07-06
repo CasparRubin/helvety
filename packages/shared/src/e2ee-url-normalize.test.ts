@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeBookmarkUrl, resolveLinkDisplayName } from "./url-normalize";
+import {
+  normalizeBookmarkUrl,
+  resolveLinkDisplayName,
+} from "./e2ee-url-normalize";
 
 describe("normalizeBookmarkUrl", () => {
   it("adds https when scheme missing", () => {

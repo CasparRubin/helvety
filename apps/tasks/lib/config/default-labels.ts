@@ -3,6 +3,12 @@
  * Labels are immutable and defined in code.
  */
 
+import {
+  TASK_LABELS,
+  type CatalogLabelEntry,
+} from "@helvety/shared/e2ee-entity-catalogs";
+import { DEFAULT_TASK_LABEL_ID } from "@helvety/shared/e2ee-entity-defaults";
+
 // =============================================================================
 // Types for Default Label Configs
 // =============================================================================
@@ -11,13 +17,7 @@
  * Represents a single label within a default label configuration.
  * These labels are read-only and cannot be modified by users.
  */
-interface DefaultLabel {
-  id: string;
-  name: string;
-  color: string;
-  icon: string;
-  sort_order: number;
-}
+type DefaultLabel = CatalogLabelEntry;
 
 /**
  * Represents a default label configuration.
@@ -38,43 +38,7 @@ const ITEM_DEFAULT: DefaultLabelConfig = {
   id: "default-labels",
   name: "Default Labels",
   isDefault: true,
-  labels: [
-    {
-      id: "default-label-bug",
-      name: "Bug",
-      color: "#f87171",
-      icon: "bug",
-      sort_order: 0,
-    },
-    {
-      id: "default-label-change-request",
-      name: "Change Request",
-      color: "#fb923c",
-      icon: "refresh-cw",
-      sort_order: 1,
-    },
-    {
-      id: "default-label-feature",
-      name: "Feature",
-      color: "#4ade80",
-      icon: "star",
-      sort_order: 2,
-    },
-    {
-      id: "default-label-improvement",
-      name: "Improvement",
-      color: "#60a5fa",
-      icon: "trending-up",
-      sort_order: 3,
-    },
-    {
-      id: "default-label-internal-task",
-      name: "Internal Task",
-      color: "#a78bfa",
-      icon: "briefcase",
-      sort_order: 4,
-    },
-  ],
+  labels: TASK_LABELS,
 };
 
 // =============================================================================
@@ -87,7 +51,7 @@ const ITEM_DEFAULT: DefaultLabelConfig = {
  * and the built-in fixed label IDs below. Use when creating items without
  * a specific label.
  */
-export const DEFAULT_ITEM_LABEL_ID = "default-item-label";
+export const DEFAULT_ITEM_LABEL_ID = DEFAULT_TASK_LABEL_ID;
 
 /**
  * The default label config used for task items.

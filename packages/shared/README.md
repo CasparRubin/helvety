@@ -60,6 +60,14 @@ This package centralizes:
 - `@helvety/shared/e2ee-entity-columns` — canonical PostgREST `.select(...)` strings (`E2EE_LIST_COLUMNS`, `E2EE_DETAIL_COLUMNS`, `E2EE_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS`) for web zones and the Chromium extension.
 - `@helvety/shared/e2ee-write-guard` — client write invariants (`assertEncryptedWritePayloadAuto`, `PLAINTEXT_CONTENT_FIELD_NAMES`); used by `@helvety/ui` encrypted hooks and the extension `entity-repository`.
 - `@helvety/shared/e2ee-entity-defaults` — server/DB structural defaults (stage, unset-label sentinel, category, priority); form defaults live in `e2ee-create-inputs`.
+- `@helvety/shared/e2ee-entity-catalogs` — display catalogs (stage/label/category colors, priority metadata) for E2EE pickers and list grouping; consumed by zone `default-*.ts` and the Chromium extension (`consistency:e2ee-catalogs`).
+- `@helvety/shared/e2ee-url-normalize` — canonical link URL normalization before encryption (`apps/links`, extension `link-url-normalize.ts` re-export).
+- `@helvety/shared/crypto/e2ee-entity-crypto` — field-bound entity encrypt/decrypt (`encryptEntityField`, `decryptEntityField`, create/update helpers); zone `*-encryption.ts` and extension `encrypt-entities.ts` / `decrypt-entities.ts` are thin re-exports (`e2ee-crypto-wiring.test.ts`).
+- `@helvety/shared/e2ee-domain-types` — shared E2EE record/input TypeScript types (extension `entity-types.ts` re-export; web zones migrating).
+- `@helvety/shared/e2ee-record-to-input` — map decrypted records to editor inputs (extension `entity-drafts.ts`).
+- `@helvety/shared/validate-e2ee-draft` — shared draft validation before save (extension `use-extension-entity-form.ts`).
+- `@helvety/shared/entity-list-grouping` — list group/reorder helpers (`apps/links`, extension `list-group-utils.ts` re-export).
+- `@helvety/shared/link-tree-ops` — link folder tree sort/children (`apps/links/lib/link-tree.ts`, extension `link-tree.ts` re-export).
 - `@helvety/shared/user-passkey-params-client` — `PASSKEY_PARAMS_SELECT`, `fetchPasskeyParamsForUser` for browser/PostgREST passkey param reads.
 - `@helvety/shared/crypto/key-check` — `backfillKeyCheckValueIfMissing` for KCV backfill after unlock.
 - `@helvety/shared/encrypted-prefetch-queries` — shared Supabase list queries for encrypted dashboard batch actions and list API routes (tasks, contacts, notes, links).

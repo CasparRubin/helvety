@@ -265,9 +265,8 @@ export function createEslintConfig(rootDir) {
       },
       settings: importResolverSettings,
       rules: {
-        // eslint-plugin-react-hooks 7.x (via eslint-config-next) flags patterns that
-        // are still valid pre–React Compiler (e.g. baseline refs in derived memos).
-        // Revisit when migrating those call sites.
+        // react-hooks 7.x flags valid pre–React Compiler patterns across editors/PDF.
+        // Intentionally off while --max-warnings 0 is repo-wide; re-enable as warn after call-site migrations.
         "react-hooks/set-state-in-effect": "off",
         "react-hooks/refs": "off",
         "react-hooks/exhaustive-deps": "warn",
@@ -322,6 +321,7 @@ export function createEslintConfig(rootDir) {
         "**/upscale-worker-types.ts",
         "**/canvas-export-limits.ts",
         "**/helvety-image-upscaler.tsx",
+        "**/lib/crypto/*-encryption.ts",
       ],
       rules: {
         "jsdoc/require-jsdoc": "off",

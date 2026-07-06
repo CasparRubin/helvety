@@ -68,3 +68,24 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - Fail-closed auth refresh on all session-bearing proxy profiles; deprecated E2EE deep-link helpers removed; prefetch/export/pickers use explicit Supabase column lists (`ENCRYPTED_PREFETCH_COLUMNS`, `CONTACT_LINK_PICKER_COLUMNS` for Tasks contact picker, `ENTITY_LINK_COLUMNS` for `entity_links` reads). Cross-app link mutations use `entity-link-action-primitives`; E2EE create/update server actions import `EncryptedDataSchema` (`encrypted-data-wiring.test.ts`).
 - Upstash rate-limit metrics/dashboard enabled in production (not site visitor analytics).
 - **Supabase release:** before schema migrations, run Supabase security/performance advisors (Dashboard or MCP) and address critical findings.
+
+## Adjust everywhere (E2EE + extension parity)
+
+When a contract moves into `@helvety/shared` or `@helvety/ui`, migrate **every consumer in the same change series** — all four E2EE web zones (`tasks`, `contacts`, `notes`, `links`) and the Chromium extension (vendors `@helvety/*` via `.helvety/`). Do not leave one zone on a local copy.
+
+| Shared module                               | Required consumers                                                         |
+| ------------------------------------------- | -------------------------------------------------------------------------- |
+| `@helvety/shared/e2ee-entity-catalogs`      | Zone `default-*.ts`, `priorities.ts` metadata, extension pickers/lists     |
+| `@helvety/shared/e2ee-url-normalize`        | `apps/links`, extension encrypt path                                       |
+| `@helvety/shared/e2ee-domain-types`         | Extension `entity-types.ts`; zone types re-export or alias                 |
+| `@helvety/shared/crypto/e2ee-entity-crypto` | Zone `*-encryption.ts` thin wrappers; extension encrypt/decrypt re-exports |
+| `@helvety/shared/e2ee-record-to-input`      | Extension `entity-drafts.ts`                                               |
+| `@helvety/shared/validate-e2ee-draft`       | Extension `use-extension-entity-form.ts`, `EntityFormView.tsx`             |
+| `@helvety/shared/entity-delete-message`     | Zone `entity-config.ts`; extension `entity-config.ts`                      |
+| `@helvety/shared/entity-list-grouping`      | Extension list reorder UI                                                  |
+| `@helvety/shared/link-tree-ops`             | `apps/links/lib/link-tree.ts`, extension `link-tree.ts`                    |
+| `@helvety/ui/sonner`                        | All zones and extension (not direct `sonner` imports)                      |
+
+Guardrails: `consistency:e2ee-catalogs`, `consistency:extension-e2ee`, `e2ee-catalog-wiring.test.ts`, `e2ee-crypto-wiring.test.ts`, `e2ee-extension-wiring.test.ts`, `entity-list-grouping.test.ts`, `link-tree-ops.test.ts`, `crypto/e2ee-entity-crypto.test.ts`, `check-extension-e2ee-consistency.mjs` (monorepo + extension CI).
+
+**Stack note:** Helvety uses **Supabase + Next.js** (not Convex) for backend and auth.

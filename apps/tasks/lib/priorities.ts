@@ -1,8 +1,9 @@
+import { TASK_PRIORITY_METADATA } from "@helvety/shared/e2ee-entity-catalogs";
 import {
-  ArrowDownIcon,
-  MinusIcon,
-  ArrowUpIcon,
   AlertTriangleIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  MinusIcon,
 } from "lucide-react";
 
 // =============================================================================
@@ -12,10 +13,7 @@ import {
 /** Numeric priority values stored in the database (smallint 0-3) */
 type Priority = 0 | 1 | 2 | 3;
 
-const PRIORITY_LOW: Priority = 0;
 const PRIORITY_NORMAL: Priority = 1;
-const PRIORITY_HIGH: Priority = 2;
-const PRIORITY_URGENT: Priority = 3;
 
 // =============================================================================
 // Priority Configuration
@@ -29,28 +27,22 @@ interface PriorityConfig {
   icon: typeof ArrowDownIcon;
 }
 
-/** All priority levels in ascending order */
-export const PRIORITIES: readonly PriorityConfig[] = [
-  { value: PRIORITY_LOW, label: "Low", color: "#4b5563", icon: ArrowDownIcon },
-  {
-    value: PRIORITY_NORMAL,
-    label: "Normal",
-    color: "#2563eb",
-    icon: MinusIcon,
-  },
-  {
-    value: PRIORITY_HIGH,
-    label: "High",
-    color: "#d97706",
-    icon: ArrowUpIcon,
-  },
-  {
-    value: PRIORITY_URGENT,
-    label: "Urgent",
-    color: "#dc2626",
-    icon: AlertTriangleIcon,
-  },
+const PRIORITY_ICONS = [
+  ArrowDownIcon,
+  MinusIcon,
+  ArrowUpIcon,
+  AlertTriangleIcon,
 ] as const;
+
+/** All priority levels in ascending order */
+export const PRIORITIES: readonly PriorityConfig[] = TASK_PRIORITY_METADATA.map(
+  (meta, index) => ({
+    value: meta.value,
+    label: meta.label,
+    color: meta.color,
+    icon: PRIORITY_ICONS[index] ?? MinusIcon,
+  })
+);
 
 // =============================================================================
 // Helpers

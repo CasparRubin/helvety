@@ -109,38 +109,59 @@ export function ItemEditor(props: ItemEditorProps) {
   const [isSavingPriority, setIsSavingPriority] = useState(false);
   const [isSavingDates, setIsSavingDates] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [stageId, setStageId] = useState<string | null>(
-    () => EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null
+  const [title, setTitle] = useState(() =>
+    formMode === "create"
+      ? EMPTY_TASK_CREATE_DEFAULTS.title
+      : props.formMode === "edit"
+        ? (props.item?.title ?? "")
+        : ""
   );
-  const [labelId, setLabelId] = useState<string | null>(
-    () => EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null
+  const [stageId, setStageId] = useState<string | null>(() =>
+    formMode === "create"
+      ? (EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null)
+      : props.formMode === "edit"
+        ? (props.item?.stage_id ?? null)
+        : null
   );
-  const [priority, setPriority] = useState(
-    () => EMPTY_TASK_CREATE_DEFAULTS.priority ?? 1
+  const [labelId, setLabelId] = useState<string | null>(() =>
+    formMode === "create"
+      ? (EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null)
+      : props.formMode === "edit"
+        ? (props.item?.label_id ?? null)
+        : null
   );
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [priority, setPriority] = useState(() =>
+    formMode === "create"
+      ? (EMPTY_TASK_CREATE_DEFAULTS.priority ?? 1)
+      : props.formMode === "edit"
+        ? (props.item?.priority ?? 1)
+        : 1
+  );
+  const [startDate, setStartDate] = useState<string | null>(() =>
+    formMode === "create"
+      ? (EMPTY_TASK_CREATE_DEFAULTS.start_date ?? null)
+      : props.formMode === "edit"
+        ? (props.item?.start_date ?? null)
+        : null
+  );
+  const [endDate, setEndDate] = useState<string | null>(() =>
+    formMode === "create"
+      ? (EMPTY_TASK_CREATE_DEFAULTS.end_date ?? null)
+      : props.formMode === "edit"
+        ? (props.item?.end_date ?? null)
+        : null
+  );
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(
+    () =>
+      formMode === "create" || (props.formMode === "edit" && props.item != null)
+  );
 
   const item = formMode === "edit" ? props.item : null;
   const itemId = formMode === "edit" ? props.itemId : "create";
   const isLoading = formMode === "edit" ? props.isLoading : false;
   const error = formMode === "edit" ? props.error : null;
-
-  useEffect(() => {
-    if (formMode === "create" && !hasInitialized) {
-      setTitle(EMPTY_TASK_CREATE_DEFAULTS.title);
-      setStageId(EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null);
-      setLabelId(EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null);
-      setPriority(EMPTY_TASK_CREATE_DEFAULTS.priority ?? 1);
-      setStartDate(EMPTY_TASK_CREATE_DEFAULTS.start_date ?? null);
-      setEndDate(EMPTY_TASK_CREATE_DEFAULTS.end_date ?? null);
-      setHasInitialized(true);
-    }
-  }, [formMode, hasInitialized]);
 
   useEffect(() => {
     if (formMode === "edit" && item && !hasInitialized) {
@@ -155,7 +176,7 @@ export function ItemEditor(props: ItemEditorProps) {
   }, [formMode, item, hasInitialized]);
 
   const hasAdditionalUnsavedChanges = useMemo(() => {
-    if (formMode !== "create" || !hasInitialized) return false;
+    if (formMode !== "create") return false;
     return (
       stageId !== (EMPTY_TASK_CREATE_DEFAULTS.stage_id ?? null) ||
       labelId !== (EMPTY_TASK_CREATE_DEFAULTS.label_id ?? null) ||
@@ -163,15 +184,7 @@ export function ItemEditor(props: ItemEditorProps) {
       startDate !== (EMPTY_TASK_CREATE_DEFAULTS.start_date ?? null) ||
       endDate !== (EMPTY_TASK_CREATE_DEFAULTS.end_date ?? null)
     );
-  }, [
-    endDate,
-    formMode,
-    hasInitialized,
-    labelId,
-    priority,
-    stageId,
-    startDate,
-  ]);
+  }, [endDate, formMode, labelId, priority, stageId, startDate]);
 
   const onSave = useCallback(
     async (newTitle: string, newDescription: JSONContent | null) => {

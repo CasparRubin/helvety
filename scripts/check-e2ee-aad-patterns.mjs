@@ -11,11 +11,8 @@ const rootDir = process.cwd();
 
 /** Client-side entity encryption modules that must use field-bound helpers. */
 const ENTITY_CRYPTO_PATHS = [
-  "apps/contacts/lib/crypto/contact-encryption.ts",
-  "apps/tasks/lib/crypto/task-encryption.ts",
-  "apps/notes/lib/crypto/note-encryption.ts",
-  "apps/links/lib/crypto/link-encryption.ts",
-  "apps/links/lib/crypto/link-folder-encryption.ts",
+  "packages/shared/src/crypto/e2ee-entity-crypto-encrypt.ts",
+  "packages/shared/src/crypto/e2ee-entity-crypto-decrypt.ts",
 ];
 
 /** Raw low-level encrypt/decrypt must not appear in entity modules. */
@@ -46,13 +43,13 @@ async function scanEntityCryptoModules() {
       }
     }
 
-    if (
-      !content.includes("encryptEntityField") ||
-      !content.includes("decryptEntityField")
-    ) {
-      violations.push(
-        `${relativePath}: missing encryptEntityField or decryptEntityField usage`
-      );
+    const isEncryptModule = relativePath.includes("encrypt");
+    const isDecryptModule = relativePath.includes("decrypt");
+    if (isEncryptModule && !content.includes("encryptEntityField")) {
+      violations.push(`${relativePath}: missing encryptEntityField usage`);
+    }
+    if (isDecryptModule && !content.includes("decryptEntityField")) {
+      violations.push(`${relativePath}: missing decryptEntityField usage`);
     }
   }
 

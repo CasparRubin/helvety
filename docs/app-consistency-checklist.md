@@ -140,7 +140,7 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 | --------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Row icon actions (web lists)            | `@helvety/ui/row-action-button` (`aria-label`; optional local wrapper) | [`ui-action-button-contract.md`](./ui-action-button-contract.md), `consistency:ui-actions` |
 | Row delete icon                         | `Trash2Icon` + `ICON_SIZE_CLASS`                                       | `consistency:ui-actions`, `ui-actions-wiring.test.ts`                                      |
-| Editor form fields (extension + shared) | `@helvety/ui/form-field`, `@helvety/ui/e2ee-form-layout`               | Extension `entity-form-view.test.ts`                                                       |
+| Editor form fields (extension + shared) | `@helvety/ui/form-field`, `@helvety/ui/e2ee-form-layout`               | Extension `src/popup/views/entity-form-view.test.ts`                                       |
 | Public-tool sidebars                    | `@helvety/ui/public-tool-workspace`                                    | PDF toolkit, image-upscaler, image-editor layers panel                                     |
 | Toasts in apps                          | `import { toast } from "@helvety/ui/sonner"`                           | Knip (`deps:unused`), `consistency:ui-actions`                                             |
 
@@ -151,14 +151,14 @@ Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; d
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
 - `lib/product-copy.test.ts`: `pdf` / `image-upscaler` / `image-editor` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
 - `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`links`).
-- Crypto: field-bound AAD (`buildFieldAAD`) allowlist per zone in `lib/crypto/encryption.test.ts`; entity encryption modules use `encryptEntityField` / `decryptEntityField` only (`consistency:e2ee-aad`; no raw `await encrypt(` / `await decrypt(`). Ciphertext wire format is `ENCRYPTION_VERSION = 2` only. Shared E2EE SSOT: `@helvety/shared/e2ee-entity-columns`, `@helvety/shared/e2ee-write-guard`, `@helvety/shared/e2ee-entity-defaults`.
+- Crypto: field-bound AAD (`buildFieldAAD`) allowlist per zone in `lib/crypto/*encryption*.test.ts` (contacts: `contact-encryption.test.ts`); entity encryption modules use `encryptEntityField` / `decryptEntityField` only (`consistency:e2ee-aad`; no raw `await encrypt(` / `await decrypt(`). Ciphertext wire format is `ENCRYPTION_VERSION = 2` only. Shared E2EE SSOT: `@helvety/shared/e2ee-entity-columns`, `@helvety/shared/e2ee-write-guard`, `@helvety/shared/e2ee-entity-defaults`, `@helvety/shared/e2ee-entity-catalogs`, `@helvety/shared/e2ee-url-normalize`, `@helvety/shared/crypto/e2ee-entity-crypto`, `@helvety/shared/e2ee-domain-types`, `@helvety/shared/e2ee-record-to-input`, `@helvety/shared/validate-e2ee-draft`, `@helvety/shared/entity-list-grouping`, `@helvety/shared/link-tree-ops` (`consistency:e2ee-catalogs`; wiring tests in `packages/shared/src/e2ee-*-wiring.test.ts`, `entity-list-grouping.test.ts`, `link-tree-ops.test.ts`, `crypto/e2ee-entity-crypto.test.ts`).
 
 ## `package.json` conventions
 
 - **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*` (UI carries production `tailwindcss` / `@tailwindcss/postcss` for Turbopack CSS; `@helvety/config/postcss` loads the plugin from `@helvety/dev-deps`)
 - **DevDependencies**: `@helvety/config`, `@helvety/dev-deps` as `workspace:*`
 - **Scripts**: `dev`, `build`, `start`, `lint`, `lint:fix`, `type-check`, `format`, `format:check`, `test`, `test:watch`, `test:coverage`
-- **Version**: align with sibling product apps (currently `3.3.0`) unless the zone is intentionally versioned separately
+- **Version**: align with sibling product apps (currently `3.6.1`) unless the zone is intentionally versioned separately
 - **Do not** duplicate toolchain packages pinned in `@helvety/dev-deps` (`bun run deps:drift`, in `ci:check`)
 
 ## Proxy profile selection
@@ -242,7 +242,7 @@ Wired by `packages/shared/src/app-navbar-wiring.test.ts` and `packages/ui/src/e2
 
 ## Centralized zone wiring tests
 
-In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
+In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `e2ee-catalog-wiring`, `e2ee-crypto-wiring`, `e2ee-extension-wiring` (when the extension sibling repo is present), `entity-list-grouping`, `link-tree-ops`, `validate-e2ee-draft`, `e2ee-record-to-input`, `crypto/e2ee-entity-crypto`, `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
 
 ## Multi-zone static assets (`assetPrefix`)
 

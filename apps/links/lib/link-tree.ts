@@ -1,3 +1,5 @@
+import { sortE2eeByOrder } from "@helvety/shared/link-tree-ops";
+
 import {
   ALL_FOLDER_ID,
   ALL_FOLDER_NAME,
@@ -18,18 +20,6 @@ export interface FolderBreadcrumb {
 export interface FolderChildren {
   folders: LinkFolder[];
   links: Link[];
-}
-
-/** Sorts tree items by `sort_order`, then `created_at` descending. */
-function sortByOrder<T extends { sort_order: number; created_at: string }>(
-  items: T[]
-): T[] {
-  return [...items].sort((a, b) => {
-    if (a.sort_order !== b.sort_order) {
-      return a.sort_order - b.sort_order;
-    }
-    return b.created_at.localeCompare(a.created_at);
-  });
 }
 
 /** All descendant folder ids under `folderId` (not including `folderId`). */
@@ -64,9 +54,11 @@ export function getDescendantFolderIds(
 /** Links stored directly in `folderId` (sorted). */
 export function listLinksInFolder(links: Link[], folderId: string): Link[] {
   if (isAllFolderId(folderId)) {
-    return sortByOrder(links.filter((l) => (l.folder_id ?? null) === null));
+    return sortE2eeByOrder(links.filter((l) => (l.folder_id ?? null) === null));
   }
-  return sortByOrder(links.filter((l) => (l.folder_id ?? null) === folderId));
+  return sortE2eeByOrder(
+    links.filter((l) => (l.folder_id ?? null) === folderId)
+  );
 }
 
 /** Links in `folderId` and every nested subfolder (sorted). */
@@ -76,14 +68,14 @@ export function listLinksInFolderTree(
   folderId: string
 ): Link[] {
   if (isAllFolderId(folderId)) {
-    return sortByOrder(links);
+    return sortE2eeByOrder(links);
   }
 
   const folderIds = new Set([
     folderId,
     ...getDescendantFolderIds(folders, folderId),
   ]);
-  return sortByOrder(
+  return sortE2eeByOrder(
     links.filter((l) => l.folder_id != null && folderIds.has(l.folder_id))
   );
 }
@@ -113,8 +105,8 @@ export function getChildren(
     (l) => (l.folder_id ?? null) === storageParentId
   );
   return {
-    folders: sortByOrder(childFolders),
-    links: sortByOrder(childLinks),
+    folders: sortE2eeByOrder(childFolders),
+    links: sortE2eeByOrder(childLinks),
   };
 }
 

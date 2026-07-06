@@ -11,6 +11,17 @@ function readAppFile(app: string, relativePath: string): string {
   return readFileSync(join(repoRoot, "apps", app, relativePath), "utf8");
 }
 
+/** Thin app crypto wrappers may delegate create encrypt to shared (recordId lives there). */
+function appEncryptCreateAcceptsRecordId(appSrc: string): boolean {
+  if (appSrc.includes("recordId?: string")) {
+    return true;
+  }
+  return (
+    appSrc.includes("@helvety/shared/crypto/e2ee-entity-crypto") &&
+    /encrypt\w+Create/.test(appSrc)
+  );
+}
+
 /** Counts `ssr: false` occurrences (client-only dynamic imports in a source file). */
 function countSsrFalse(source: string): number {
   return (source.match(/ssr:\s*false/g) ?? []).length;
@@ -295,7 +306,7 @@ describe("E2EE dashboard editor wiring (Links pattern)", () => {
       expect(src).not.toContain("onLocalPatch");
       expect(src).not.toContain("patchLocal");
       expect(src).toContain(selectedEntityVar);
-      expect(src).toContain(`key={entityId}`);
+      expect(src).toMatch(/key=\{.*entityId/);
       expect(src).toContain(`<${editorComponent}`);
       expect(src).toContain("onRemove={() => remove(");
       expect(src).toContain("onRefresh={refresh}");
@@ -462,9 +473,17 @@ describe("E2EE save-first create wiring", () => {
 
   it("apps/tasks encrypt create helper accepts optional recordId and omits structural fields", () => {
     const src = readAppFile("tasks", "lib/crypto/task-encryption.ts");
-    expect(src).toContain("recordId?: string");
-    expect(src).not.toMatch(/stage_id:\s*input\.stage_id/);
-    expect(src).not.toMatch(/label_id:\s*input\.label_id/);
+    expect(appEncryptCreateAcceptsRecordId(src)).toBe(true);
+    expect(src).toContain("encryptTaskCreate");
+    const sharedSrc = readFileSync(
+      join(
+        repoRoot,
+        "packages/shared/src/crypto/e2ee-entity-crypto-encrypt.ts"
+      ),
+      "utf8"
+    );
+    expect(sharedSrc).not.toMatch(/encrypted_stage_id/);
+    expect(sharedSrc).not.toMatch(/encrypted_label_id/);
   });
 
   it.each([
@@ -476,9 +495,20 @@ describe("E2EE save-first create wiring", () => {
     "apps/%s encrypt helper accepts optional recordId",
     (app, cryptoPath) => {
       const src = readAppFile(app, cryptoPath);
-      expect(src).toContain("recordId?: string");
+      expect(appEncryptCreateAcceptsRecordId(src)).toBe(true);
     }
   );
+
+  it("shared entity crypto encrypt accepts optional clientRecordId on create", () => {
+    const src = readFileSync(
+      join(
+        repoRoot,
+        "packages/shared/src/crypto/e2ee-entity-crypto-encrypt.ts"
+      ),
+      "utf8"
+    );
+    expect(src).toContain("clientRecordId?: string");
+  });
 
   it("shared sortable-items hook creates on save with client UUID", () => {
     const src = readFileSync(

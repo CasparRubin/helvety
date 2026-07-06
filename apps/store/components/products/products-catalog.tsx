@@ -1,12 +1,6 @@
 "use client";
 
-/**
- * Products catalog component (client filter shell).
- * SSR uses {@link ProductCatalogTextCard} from `initialCards`; after mount loads
- * full `Product` rows (with artwork) via `getAllProducts()`.
- */
-
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useSyncExternalStore, useMemo, useState, useTransition } from "react";
 
 import { ProductCatalogTextCard } from "@/components/products/product-catalog-text-card";
 import { getAllProducts, getFilteredProducts } from "@/lib/data/products";
@@ -17,6 +11,16 @@ import { ProductGrid } from "./product-grid";
 
 import type { StoreProductCardEntry } from "@helvety/shared/store-catalog";
 
+/**
+ * Products catalog component (client filter shell).
+ * SSR uses {@link ProductCatalogTextCard} from `initialCards`; after mount loads
+ * full `Product` rows (with artwork) via `getAllProducts()`.
+ */
+
+const subscribeNoop = () => () => {};
+const getClientEnhanced = () => true;
+const getServerEnhanced = () => false;
+
 /** Props for the interactive products catalog. */
 interface ProductsCatalogProps {
   initialCards: StoreProductCardEntry[];
@@ -26,11 +30,11 @@ interface ProductsCatalogProps {
 export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
   const [filter, setFilter] = useState<FilterType>("all");
   const [isPending, startTransition] = useTransition();
-  const [isEnhanced, setIsEnhanced] = useState(false);
-
-  useEffect(() => {
-    setIsEnhanced(true);
-  }, []);
+  const isEnhanced = useSyncExternalStore(
+    subscribeNoop,
+    getClientEnhanced,
+    getServerEnhanced
+  );
 
   const handleFilterChange = (newFilter: FilterType) => {
     startTransition(() => {

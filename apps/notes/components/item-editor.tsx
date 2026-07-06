@@ -100,14 +100,27 @@ export type ItemEditorProps = ItemEditorCreateProps | ItemEditorEditProps;
 export function ItemEditor(props: ItemEditorProps) {
   const { formMode, onClose } = props;
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [categoryId, setCategoryId] = useState(
-    () => emptyNoteInput().category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? ""
+  const [title, setTitle] = useState(() =>
+    formMode === "create"
+      ? emptyNoteInput().title
+      : props.formMode === "edit"
+        ? (props.item?.title ?? "")
+        : ""
   );
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [categoryId, setCategoryId] = useState(() =>
+    formMode === "create"
+      ? (emptyNoteInput().category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? "")
+      : props.formMode === "edit"
+        ? (props.item?.category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? "")
+        : (DEFAULT_NOTE_CATEGORIES[0]?.id ?? "")
+  );
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(
+    () =>
+      formMode === "create" || (props.formMode === "edit" && props.item != null)
+  );
   const isMobile = useIsMobile();
   const [categoryOverride, setCategoryOverride] = useState<boolean | null>(
     null
@@ -120,17 +133,6 @@ export function ItemEditor(props: ItemEditorProps) {
   const error = formMode === "edit" ? props.error : null;
 
   useEffect(() => {
-    if (formMode === "create" && !hasInitialized) {
-      const defaults = emptyNoteInput();
-      setTitle(defaults.title);
-      setCategoryId(
-        defaults.category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? ""
-      );
-      setHasInitialized(true);
-    }
-  }, [formMode, hasInitialized]);
-
-  useEffect(() => {
     if (formMode === "edit" && item && !hasInitialized) {
       setTitle(item.title);
       setCategoryId(item.category_id);
@@ -139,13 +141,13 @@ export function ItemEditor(props: ItemEditorProps) {
   }, [formMode, item, hasInitialized]);
 
   const hasAdditionalUnsavedChanges = useMemo(() => {
-    if (formMode !== "create" || !hasInitialized) return false;
+    if (formMode !== "create") return false;
     const defaults = emptyNoteInput();
     return (
       categoryId !==
       (defaults.category_id ?? DEFAULT_NOTE_CATEGORIES[0]?.id ?? "")
     );
-  }, [categoryId, formMode, hasInitialized]);
+  }, [categoryId, formMode]);
 
   const onSave = useCallback(
     async (newTitle: string, newDescription: JSONContent | null) => {

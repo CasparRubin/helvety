@@ -201,7 +201,7 @@ export function FlatNotesDashboard({
           />
         ) : entityId ? (
           <ItemEditor
-            key={entityId}
+            key={selectedItem ? entityId : `${entityId}-loading`}
             formMode="edit"
             itemId={entityId}
             item={selectedItem}

@@ -99,9 +99,54 @@ assertNoPatterns("src/lib/extension-entity-links-hooks.tsx", ["catch {}"]);
 
 assertPatterns("src/popup/entity-drafts.ts", [
   "@helvety/shared/e2ee-create-inputs",
+  "@helvety/shared/e2ee-record-to-input",
   "emptyContactInput",
   "emptyTaskInput",
 ]);
+
+assertPatterns("src/lib/entity-config.ts", [
+  "defineEntityDeleteRegistry",
+  "buildDeleteMessage",
+]);
+
+assertNoPatterns("src/popup/App.tsx", ['from "sonner"', "Delete permanently?"]);
+
+for (const relativePath of [
+  "src/popup/App.tsx",
+  "src/lib/extension-entity-links-hooks.tsx",
+  "src/popup/hooks/use-extension-entity-form.ts",
+]) {
+  const src = readExtensionFile(relativePath);
+  if (src && src.includes('from "sonner"')) {
+    failures.push(`${relativePath}: use @helvety/ui/sonner instead of sonner`);
+  }
+}
+
+if (existsSync(join(extensionRoot, "src/lib/entity-catalogs.ts"))) {
+  failures.push(
+    "Remove src/lib/entity-catalogs.ts; use @helvety/shared/e2ee-entity-catalogs"
+  );
+}
+
+const encryptSrc = readExtensionFile("src/lib/encrypt-entities.ts");
+if (
+  encryptSrc &&
+  !encryptSrc.includes("@helvety/shared/crypto/e2ee-entity-crypto")
+) {
+  failures.push(
+    "src/lib/encrypt-entities.ts must re-export @helvety/shared/crypto/e2ee-entity-crypto"
+  );
+}
+
+const entityTypesSrc = readExtensionFile("src/lib/entity-types.ts");
+if (
+  entityTypesSrc &&
+  !entityTypesSrc.includes("@helvety/shared/e2ee-domain-types")
+) {
+  failures.push(
+    "src/lib/entity-types.ts must re-export @helvety/shared/e2ee-domain-types"
+  );
+}
 
 assertPatterns("src/lib/entity-repository.ts", ["clientRecordId"]);
 

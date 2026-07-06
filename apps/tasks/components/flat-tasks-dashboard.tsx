@@ -195,7 +195,7 @@ export function FlatTasksDashboard({
           />
         ) : entityId ? (
           <ItemEditor
-            key={entityId}
+            key={selectedItem ? entityId : `${entityId}-loading`}
             formMode="edit"
             itemId={entityId}
             item={selectedItem}

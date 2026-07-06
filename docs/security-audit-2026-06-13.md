@@ -182,7 +182,7 @@ Auth, sessions, token TTL, and E2EE cross-repo audit (see [`security-review-runb
 | Supabase MCP (`get_advisors` security) | RLS forced on all 9 user-data tables; **WARN** leaked-password protection _(not applicable as of 2026-07-04)_ |
 | Session policy docs | Canonical: **JWT 3600s + time-box 7d + inactivity 24h** (`auth-session-policy.ts`) |
 | `deps:security` / `deps:drift` | **0 CVEs**; no `@supabase/*` or `@simplewebauthn/*` bumps required at audit time |
-| CI guardrails | Monorepo `consistency:extension-auth`; extension `ci:check` includes auth consistency script |
+| CI guardrails | Monorepo `consistency:extension-auth`, `consistency:extension-e2ee`, `consistency:e2ee-catalogs`; extension `ci:check` runs `check-extension-auth-consistency.mjs` and `check-extension-e2ee-consistency.mjs` |
 | `clean:artifacts` during `test:coverage` | could delete active Vitest `coverage/.tmp` | **Fixed** — skips `coverage/` dirs with active `.tmp` or when `HELVEY_SKIP_COVERAGE_CLEAN=1` |
 
 **Post-deploy verification (after auth + extension ship):** Supabase MCP `get_logs` (auth API errors), Vercel MCP runtime logs on `helvety-auth`, spot-check extension OTP verify returns `weekly_proof`, passkey routes reject missing `X-Helvety-Weekly-Proof`.
@@ -237,7 +237,7 @@ Re-run `bun run deps:drift`, `bun run deps:security`, and `bun run ci:check` aft
 | `bun run consistency:vercel-preview-env`         | **OK**                                                                                                  |
 | `bun run consistency:supabase-rls`               | **OK** (9 user-data tables)                                                                             |
 | `bun run consistency:local-env`                  | **FAIL** — `apps/web/.env.local` missing `IMAGE_EDITOR_URL` (local dev only; production gateway env OK) |
-| `pnpm run ci:check` (extension)                  | **OK** (all pass + `consistency:extension-auth`)                                                        |
+| `pnpm run ci:check` (extension)                  | **OK** (all pass + `consistency:extension-auth` + `consistency:extension-e2ee`)                         |
 
 ### Live Supabase MCP (`helvety`, `bkdzeihxzvrkndjvyzye`, eu-central-2, Postgres **17.6.1**, `ACTIVE_HEALTHY`)
 
@@ -390,8 +390,8 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 **Extension session wipe**
 
-- **Vault lock:** `deleteMasterKey` + `clearAllKeys` + `clearDecryptedEntityState`; PRF salt cache kept for faster re-unlock (`App.tsx`).
-- **Sign-out / `user_id` change:** `clearAllKeys` + `clearCachedPRFSalt` + weekly proof clear + `clearDecryptedEntityState` (`App.tsx`).
+- **Vault lock:** `deleteMasterKey` + `clearAllKeys` in `use-extension-vault.ts`; `clearDecryptedEntityState` + form wipe in `use-extension-entities.ts` / `use-extension-entity-form.ts` (wired from `App.tsx` `onLocked`); PRF salt cache kept for faster re-unlock.
+- **Sign-out / `user_id` change:** `clearAllKeys` + `clearCachedPRFSalt` + weekly proof clear in `use-extension-auth.ts` / `use-extension-vault.ts`; decrypted list/form state via `clearDecryptedEntityState` in `use-extension-entities.ts`.
 
 ### Interactive smoke (manual)
 
@@ -399,14 +399,14 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 **Automated coverage used as substitute:**
 
-| Scenario                                               | Automated coverage                                                                                                                  |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Extension session bootstrap (`getUser` + weekly proof) | `extension-session.test.ts`                                                                                                         |
-| Bearer weekly-proof gate                               | `extension-bearer-auth.test.ts` + production curl                                                                                   |
-| PRF omitted from verify body                           | `passkey-unlock.test.ts`, `helvety-auth-api.test.ts`                                                                                |
-| Plaintext column guardrails                            | Shared `e2ee-entity-columns.test.ts`, `e2ee-write-guard.test.ts`, extension `entity-repository.test.ts`, `decrypt-entities.test.ts` |
-| Logout CSRF + device trust clear                       | `logout-actions.test.ts`                                                                                                            |
-| E2EE page device trust                                 | `auth-guard.test.ts`, `e2ee-page-auth.test.ts`                                                                                      |
+| Scenario                                               | Automated coverage                                                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Extension session bootstrap (`getUser` + weekly proof) | `extension-session.test.ts`                                                                                                           |
+| Bearer weekly-proof gate                               | `extension-bearer-auth.test.ts` + production curl                                                                                     |
+| PRF omitted from verify body                           | `passkey-unlock.test.ts`, `helvety-auth-api.test.ts`                                                                                  |
+| Plaintext column guardrails                            | Shared `e2ee-entity-columns.test.ts`, `e2ee-write-guard.test.ts`, `e2ee-entity-crypto.test.ts`, extension `entity-repository.test.ts` |
+| Logout CSRF + device trust clear                       | `logout-actions.test.ts`                                                                                                              |
+| E2EE page device trust                                 | `auth-guard.test.ts`, `e2ee-page-auth.test.ts`                                                                                        |
 
 **Quarterly manual checklist** (unchanged): web sign-in → passkey unlock → mutate → logout; extension OTP → weekly proof → passkey → PostgREST write; confirm Vercel Analytics disabled on all 10 projects.
 

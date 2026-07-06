@@ -11,24 +11,7 @@ function readRepoFile(relativePath: string): string {
   return readFileSync(join(repoRoot, relativePath), "utf8");
 }
 
-const ENTITY_CRYPTO_MODULES = [
-  "apps/contacts/lib/crypto/contact-encryption.ts",
-  "apps/tasks/lib/crypto/task-encryption.ts",
-  "apps/notes/lib/crypto/note-encryption.ts",
-  "apps/links/lib/crypto/link-encryption.ts",
-  "apps/links/lib/crypto/link-folder-encryption.ts",
-] as const;
-
 describe("E2EE entity encryption wiring", () => {
-  it.each(ENTITY_CRYPTO_MODULES)(
-    "%s uses field-bound encryptEntityField/decryptEntityField",
-    (relativePath) => {
-      const src = readRepoFile(relativePath);
-      expect(src).toContain("encryptEntityField");
-      expect(src).toContain("decryptEntityField");
-    }
-  );
-
   it("contact link hooks decrypt with per-column context", () => {
     for (const relativePath of [
       "apps/tasks/hooks/use-contact-links.ts",
@@ -38,13 +21,4 @@ describe("E2EE entity encryption wiring", () => {
       expect(src).toContain("decryptEntityField");
     }
   });
-
-  it.each(ENTITY_CRYPTO_MODULES)(
-    "%s does not call raw low-level encrypt/decrypt",
-    (relativePath) => {
-      const src = readRepoFile(relativePath);
-      expect(src).not.toMatch(/\bawait\s+encrypt\s*\(/);
-      expect(src).not.toMatch(/\bawait\s+decrypt\s*\(/);
-    }
-  );
 });
