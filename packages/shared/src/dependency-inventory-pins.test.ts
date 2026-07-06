@@ -35,6 +35,16 @@ describe("extended dependency inventory pin parity", () => {
     );
   });
 
+  it("image-editor konva pin matches apps/image-editor/package.json and inventory table", () => {
+    const editorPkg = readWorkspacePackage("apps/image-editor/package.json");
+    const declared = editorPkg.dependencies?.konva;
+    expect(declared).toBeTruthy();
+    expect(inventory).toContain("konva");
+    expect(inventory).toContain(
+      `\`${declared}\` — \`apps/image-editor/package.json\``
+    );
+  });
+
   it("drift map lucide-react pin matches packages/ui package.json", () => {
     const drift = readFileSync(
       join(repoRoot, "scripts/check-workspace-version-drift.mjs"),
@@ -69,15 +79,24 @@ describe("extended dependency inventory pin parity", () => {
       "apps/image-upscaler/package.json"
     );
     const uiPkg = readWorkspacePackage("packages/ui/package.json");
+    const devDepsPkg = readWorkspacePackage("packages/dev-deps/package.json");
+    const editorPkg = readWorkspacePackage("apps/image-editor/package.json");
 
     const ort = upscalerPkg.dependencies?.["onnxruntime-web"];
     const lucide = uiPkg.dependencies?.["lucide-react"];
+    const vitest = devDepsPkg.dependencies?.vitest;
+    const konva = editorPkg.dependencies?.konva;
 
     expect(audit).toMatch(/### Dependency sweep \(2026-07-04\)/);
+    expect(audit).toMatch(/## Subsequent updates \(2026-07-07\)/);
     expect(ort).toBeTruthy();
     expect(lucide).toBeTruthy();
+    expect(vitest).toBeTruthy();
+    expect(konva).toBeTruthy();
     expect(audit).toContain(ort);
     expect(audit).toContain(lucide);
+    expect(audit).toContain(vitest);
+    expect(audit).toContain(konva);
     expect(audit).toContain("dependency-inventory.md");
     expect(audit).not.toMatch(/\| Asset[^\n]+\| Current pin /);
   });

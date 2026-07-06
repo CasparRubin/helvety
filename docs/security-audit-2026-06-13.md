@@ -473,3 +473,20 @@ Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pin
 | 5 Findings report      | **Complete** | This section + tables above                                                                                                 |
 
 **Nothing broken:** audit execution was read-only (doc append + verification commands). No application code or dependency changes were made during this pass.
+
+## Subsequent updates (2026-07-07)
+
+Patch/minor dependency sweep across monorepo + extension (canonical pins: [`dependency-inventory.md`](./dependency-inventory.md); drift map in `scripts/check-workspace-version-drift.mjs`). Core stack (Next `^16.2.10`, React `^19.2.7`, `@supabase/supabase-js` `2.110.0`, `onnxruntime-web` `^1.27.0`, `react-pdf` `^10.4.1`) already at latest stable and left unchanged.
+
+| Item                                    | As of 2026-07-04     | As of 2026-07-07                                                                                                           |
+| --------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Toolchain (`@helvety/dev-deps` + drift) | vitest **^4.1.9**    | vitest / `@vitest/coverage-v8` **^4.1.10**, `fake-indexeddb` **^6.2.5** (now drift-managed)                                |
+| `@tiptap/*` (`packages/ui` + drift)     | **^3.27.1**          | **^3.27.2** (all six packages)                                                                                             |
+| `@helvety/config` lint tooling          | ts-eslint **8.62.0** | typescript-eslint **^8.63.0**, eslint-plugin-import-x **^4.17.1**, eslint-plugin-jsdoc **^63.0.12**                        |
+| `konva` (`apps/image-editor`)           | **^10.2.0**          | **^10.3.0** (`react-konva` **^19.2.5** unchanged)                                                                          |
+| `turbo` (root)                          | **2.10.3**           | **^2.10.4**                                                                                                                |
+| Root security overrides                 | —                    | `hono` **4.12.28**, `brace-expansion` **5.0.7** (patch); major jumps deferred (`protobufjs`/`js-yaml`/`undici`/`ajv`/etc.) |
+| Extension repo                          | vitest **^4.1.9**    | vitest **^4.1.10** (mirrors drift map; other pins unchanged, pnpm **9.15.9**)                                              |
+| `bun audit` / `deps:security:floors`    | **0 CVEs**           | **0 CVEs** at sweep time                                                                                                   |
+
+Verification: `bun run deps:drift`, `bun run deps:security`, `bun run consistency:pdfjs-worker`, `bun run deps:unused`, `bun run ci:check` (monorepo) and `pnpm run ci:check` (extension) all pass. `@types/node` deliberately held at `24.13.2` (matches `engines.node: 24.x`). Historical tables above remain audit snapshots; use **dependency-inventory.md** for current pins.
