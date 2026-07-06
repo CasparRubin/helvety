@@ -41,6 +41,7 @@ category pills, and the app switcher product sections.
 2. **Add the card entry** in `packages/shared/src/store-catalog.ts`:
    - Append to `STORE_PRODUCT_CARDS_BASE` (category is derived from the ecosystem
      registry via `storeProductSlug`; do not set `category` manually).
+   - Card `type` uses the shared `StoreProductType` union (`"saas" | "software" | "physical"`).
    - If the new product shares a `releaseDate` with an existing card, add a
      priority value to `PRODUCT_RELEASE_TIE_PRIORITY` (higher = newer).
    - Run `bun run test --filter=@helvety/shared` (from repo root; same `--filter=` style as the root [`README.md`](../../README.md)) to confirm catalog and ecosystem wiring tests still pass.

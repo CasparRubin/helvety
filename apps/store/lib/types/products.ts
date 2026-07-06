@@ -1,22 +1,16 @@
 /**
- * Product type definitions for the Store app (@helvety/store)
- * Flexible system supporting SaaS, software, and physical products
+ * Product type definitions for the Store app (@helvety/store).
+ * Delivery model (`StoreProductType`) is defined in `@helvety/shared/store-catalog`
+ * and reused here for the full `Product` row shape.
  */
 
 import type { HelvetyEcosystemCategorySlug } from "@helvety/shared/helvety-ecosystem-sections";
+import type { StoreProductType } from "@helvety/shared/store-catalog";
 import type { StaticImageData } from "next/image";
 
 // =============================================================================
-// PRODUCT TYPES
+// CATALOG TYPES
 // =============================================================================
-
-/**
- * Product delivery model.
- * - saas: Web-delivered application
- * - software: Downloadable software package (public or access-controlled)
- * - physical: Physical goods that require shipping
- */
-type ProductType = "saas" | "software" | "physical";
 
 /**
  * Billing interval for pricing
@@ -110,12 +104,10 @@ interface ProductDescription {
 }
 
 // =============================================================================
-// PRODUCT TYPES
+// PRODUCT MODEL
 // =============================================================================
 
-/**
- * Base product information
- */
+/** Base product information */
 export interface Product {
   /** Unique identifier */
   id: string;
@@ -128,7 +120,7 @@ export interface Product {
   /** Full structured copy for the product detail About section */
   description: ProductDescription;
   /** Product type */
-  type: ProductType;
+  type: StoreProductType;
   /** Ecosystem category for filtering and category badges */
   category: ProductCategory;
   /** Product image URL */

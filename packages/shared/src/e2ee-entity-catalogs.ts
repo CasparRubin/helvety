@@ -130,7 +130,7 @@ export const NOTE_CATEGORIES: CatalogEntry[] = [
 ];
 
 /** Contacts use the same category catalog as notes. */
-export const CONTACT_CATEGORIES: CatalogEntry[] = NOTE_CATEGORIES;
+export { NOTE_CATEGORIES as CONTACT_CATEGORIES };
 
 export const TASK_LABELS: CatalogLabelEntry[] = [
   {

@@ -118,4 +118,16 @@ describe("store-catalog", () => {
       expect(text).toContain(HELVETY_LLMS_LICENSING_NOTE);
     }
   });
+
+  it("documents StoreProductType as SSOT for store Product.type (not a mirrored duplicate)", () => {
+    const src = readFileSync(
+      join(repoRoot, "packages/shared/src/store-catalog.ts"),
+      "utf8"
+    );
+    expect(src).toContain("StoreProductType");
+    expect(src).toContain("apps/store/lib/types/products.ts");
+    expect(src).not.toMatch(
+      /mirrored in `apps\/store\/lib\/types\/products\.ts`/
+    );
+  });
 });

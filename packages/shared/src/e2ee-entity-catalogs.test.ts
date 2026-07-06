@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -11,6 +15,17 @@ import {
 describe("e2ee-entity-catalogs", () => {
   it("contacts and notes share category catalog", () => {
     expect(CONTACT_CATEGORIES).toBe(NOTE_CATEGORIES);
+  });
+
+  it("exports CONTACT_CATEGORIES as a NOTE_CATEGORIES alias (no duplicate binding)", () => {
+    const src = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "e2ee-entity-catalogs.ts"),
+      "utf8"
+    );
+    expect(src).toContain("export { NOTE_CATEGORIES as CONTACT_CATEGORIES }");
+    expect(src).not.toMatch(
+      /export const CONTACT_CATEGORIES:\s*CatalogEntry\[\]\s*=\s*NOTE_CATEGORIES/
+    );
   });
 
   it("task stages have unique ids", () => {

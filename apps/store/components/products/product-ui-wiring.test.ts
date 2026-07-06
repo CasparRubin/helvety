@@ -16,6 +16,11 @@ describe("store product UI wiring", () => {
     const types = readStoreSource("lib/types/products.ts");
     expect(types).not.toContain("ProductStatus");
     expect(types).not.toMatch(/status\?:\s*ProductStatus/);
+    expect(types).toContain(
+      'import type { StoreProductType } from "@helvety/shared/store-catalog"'
+    );
+    expect(types).toContain("type: StoreProductType");
+    expect(types).not.toMatch(/type ProductType\s*=/);
 
     const badge = readStoreSource("components/products/product-badge.tsx");
     expect(badge).not.toContain("StatusBadge");

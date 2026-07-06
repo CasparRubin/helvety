@@ -1,11 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreBinaries": ["eslint", "tsc", "vitest", "prettier", "fallow"],
   "workspaces": {
     ".": {
       "entry": ["scripts/**/*.{mjs,js}", "e2e/**/*.{ts,tsx}"],
-      "project": ["scripts/**/*.{mjs,js}", "e2e/**/*.{ts,tsx}"],
-      "ignoreDependencies": ["onnxruntime-web"]
+      "project": ["scripts/**/*.{mjs,js}", "e2e/**/*.{ts,tsx}"]
     },
     "packages/dev-deps": {
       "entry": [],
@@ -39,11 +37,7 @@
         "**/*.{test,spec}.{ts,tsx}"
       ],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreDependencies": [
-        "@helvety/dev-deps",
-        "@testing-library/jest-dom",
-        "@testing-library/react"
-      ]
+      "ignoreDependencies": ["@helvety/dev-deps"]
     },
     "packages/*": {
       "entry": [
@@ -54,20 +48,12 @@
         "**/*.{test,spec}.{ts,tsx}"
       ],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreDependencies": [
-        "@helvety/dev-deps",
-        "@testing-library/jest-dom",
-        "@testing-library/react"
-      ]
+      "ignoreDependencies": ["@helvety/dev-deps"]
     },
     "packages/config": {
       "entry": ["*.{ts,tsx,js,jsx,mjs,cjs}"],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreDependencies": [
-        "@helvety/dev-deps",
-        "eslint-plugin-react",
-        "postcss-load-config"
-      ]
+      "ignoreDependencies": ["@helvety/dev-deps", "eslint-plugin-react"]
     },
     "packages/ui": {
       "entry": [
@@ -78,13 +64,7 @@
         "**/*.{test,spec}.{ts,tsx}"
       ],
       "project": ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
-      "ignoreDependencies": [
-        "@helvety/dev-deps",
-        "@tailwindcss/postcss",
-        "@testing-library/jest-dom",
-        "@testing-library/react",
-        "shadcn"
-      ]
+      "ignoreDependencies": ["@helvety/dev-deps", "@tailwindcss/postcss"]
     },
     "packages/extension-chrome": {
       "entry": [
@@ -98,20 +78,15 @@
       "ignoreDependencies": ["@helvety/dev-deps", "@types/chrome"]
     }
   },
-  "ignoreDependencies": [
-    "@helvety/dev-deps",
-    "@testing-library/jest-dom",
-    "@testing-library/react"
-  ],
+  "ignoreDependencies": ["@helvety/dev-deps"],
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
-    "apps/pdf/public/pdf.worker.meta.json",
     "apps/pdf/lib/empty-canvas-stub.mjs",
-    "apps/image-editor/vitest.konva-mock.ts",
     "apps/image-editor/vitest.browser-mocks.ts",
     "apps/*/lib/utils.ts"
   ],
   "ignoreIssues": {
+    "apps/image-editor/vitest.konva-mock.ts": ["exports"],
     "packages/shared/src/types/database.types.ts": [
       "exports",
       "types",

@@ -15,7 +15,7 @@ import {
 } from "./helvety-ecosystem-sections";
 import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";
 
-/** Product delivery model union mirrored in `apps/store/lib/types/products.ts`. */
+/** Product delivery model union (`StoreProductType`); imported by `apps/store/lib/types/products.ts` for `Product.type`. */
 export type StoreProductType = "saas" | "software" | "physical";
 
 /** Ecosystem category slug (derived from {@link helvety-ecosystem-sections}). */
