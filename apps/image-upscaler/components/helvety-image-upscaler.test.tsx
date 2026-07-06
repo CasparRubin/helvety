@@ -61,6 +61,9 @@ describe("HelvetyImageUpscaler", () => {
 
     expect(screen.getByText("Drag and drop images here")).toBeInTheDocument();
     expect(
+      screen.getByText("Or use the command bar above to add your images")
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(/Processed locally in your browser\./)
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Upscale all" })).toBeDisabled();
@@ -95,11 +98,8 @@ describe("HelvetyImageUpscaler", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
     });
-    expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Upscale all" })).toBeEnabled();
-    expect(
-      screen.getByRole("button", { name: "Clear All", hidden: true })
-    ).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Clear All" })).toBeEnabled();
   });
 
   it("shows clear confirmation copy from the command bar", async () => {
@@ -111,12 +111,23 @@ describe("HelvetyImageUpscaler", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
 
-    expect(screen.getByText("Clear all images?")).toBeInTheDocument();
+    expect(screen.getByText("Clear All Images?")).toBeInTheDocument();
     expect(
       screen.getByText(
         "This will remove all queued and processed images. This action cannot be undone."
       )
     ).toBeInTheDocument();
+  });
+
+  it("exposes remove controls with accessible names on queued cards", async () => {
+    render(<HelvetyImageUpscaler />);
+    uploadImageFile();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Remove sample.png" })
+      ).toBeEnabled();
+    });
   });
 
   it("shows target input controls when target dimension mode is selected", () => {

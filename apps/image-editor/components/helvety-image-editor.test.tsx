@@ -92,9 +92,13 @@ describe("HelvetyImageEditor", () => {
     render(<HelvetyImageEditor />);
     expect(screen.getByText("Drag and drop an image here")).toBeInTheDocument();
     expect(
+      screen.getByText("Or use the command bar above to add your image")
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(/Processed locally in your browser/i)
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Upload image")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add Image" })).toBeEnabled();
   });
 
   it("rejects unsupported uploads via toast", () => {
@@ -138,9 +142,7 @@ describe("HelvetyImageEditor", () => {
     expect(
       screen.getByRole("complementary", { name: "Image editor layer controls" })
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("Open an image to see layers.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Add an image to see layers.")).toBeInTheDocument();
   });
 
   it("shows the canvas and command-bar tools after a valid upload", async () => {
@@ -246,12 +248,14 @@ describe("HelvetyImageEditor", () => {
     uploadImageFile();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Clear" })).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: "Clear Annotations" })
+      ).toBeEnabled();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear Annotations" }));
 
-    expect(screen.getByText("Clear annotations?")).toBeInTheDocument();
+    expect(screen.getByText("Clear Annotations?")).toBeInTheDocument();
     expect(
       screen.getByText(/removes all layers and crop settings/i)
     ).toBeInTheDocument();

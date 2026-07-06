@@ -4,7 +4,7 @@ import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
 /**
- * CommandBar - shared pinned toolbar shell used below the main app navbar on
+ * CommandBar: shared pinned command bar shell used below the main app navbar on
  * surfaces that expose an action row (tasks, contacts, notes, links, PDF, image
  * upscaler, store). Parents must place this **outside** scroll regions (shell
  * prefix slot or {@link CommandBarPageLayout}); layout owns pinning via

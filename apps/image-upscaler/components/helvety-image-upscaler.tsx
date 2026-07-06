@@ -10,7 +10,7 @@ import { NativeSelect } from "@helvety/ui/native-select";
 import {
   PUBLIC_TOOL_CANVAS_SHELL_CLASS,
   PUBLIC_TOOL_SIDEBAR_PANEL_CLASS,
-  PUBLIC_TOOL_SIDEBAR_WIDTH_PX_CLASS,
+  PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS,
   PUBLIC_TOOL_WORKSPACE_ROW_CLASS,
 } from "@helvety/ui/public-tool-workspace";
 import { toast } from "@helvety/ui/sonner";
@@ -443,6 +443,9 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                         Drag and drop images here
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
+                        Or use the command bar above to add your images
+                      </p>
+                      <p className="text-muted-foreground mt-1 text-xs">
                         Processed locally in your browser. No server upload. No
                         account.
                       </p>
@@ -509,6 +512,7 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
                             size="icon"
                             onClick={() => removeItem(item.id)}
                             disabled={isProcessing}
+                            aria-label={`Remove ${item.file.name}`}
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -593,9 +597,10 @@ export function HelvetyImageUpscaler(): React.JSX.Element {
 
         <aside
           aria-label="Image upscaler controls"
-          className={cn("hidden lg:block", PUBLIC_TOOL_SIDEBAR_WIDTH_PX_CLASS)}
+          className={cn("hidden lg:block", PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS)}
         >
           <div className={cn(PUBLIC_TOOL_SIDEBAR_PANEL_CLASS, "space-y-4")}>
+            <h3 className="text-sm font-semibold">Settings</h3>
             <div className="space-y-2">
               <Label htmlFor="desktop-upscale-mode">Mode</Label>
               <NativeSelect

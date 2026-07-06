@@ -215,8 +215,8 @@ export function HelvetyPdf(): React.JSX.Element {
             >
               <span id="drop-zone-description" className="sr-only">
                 {pdfFiles.length === 0
-                  ? "Drag and drop PDF files or images here, click to select files, or use the toolbar above to add files."
-                  : `Drag and drop PDF files or images here, or use the toolbar above to add files. Currently displaying ${pageOrder.length} page${pageOrder.length !== 1 ? "s" : ""}.`}
+                  ? "Drag and drop PDF files or images here, click to select files, or use the command bar above to add your files."
+                  : `Drag and drop PDF files or images here, or use the command bar above to add your files. Currently displaying ${pageOrder.length} page${pageOrder.length !== 1 ? "s" : ""}.`}
               </span>
               {/* Empty State - Drag and Drop Zone */}
               {pdfFiles.length === 0 && (
@@ -239,7 +239,7 @@ export function HelvetyPdf(): React.JSX.Element {
                         Drag and drop PDF files or images here
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
-                        Or use the toolbar above to add your files
+                        Or use the command bar above to add your files
                       </p>
                     </div>
                   </div>

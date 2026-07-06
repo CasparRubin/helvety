@@ -53,10 +53,69 @@ System radius is `--radius: 0`. Allowed exceptions: auth/legal callouts (`rounde
 
 The side panel omits DnD, search, and full command bars by design. Align **icons, variants, labels, and form spacing** (`@helvety/ui/e2ee-form-layout`, `@helvety/ui/form-field`) with web E2EE editors where viewport allows.
 
+## Canvas tools (PDF, image upscaler, image editor)
+
+Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*` classes in `@helvety/ui/public-tool-workspace`). Store section nav is **not** a canvas tool.
+
+### Command bar placement and variants
+
+| Zone      | Buttons                                                                                                                        |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Left**  | Add {Files\|Images\|Image} / **Add More**, app process action (e.g. Upscale all), **Clear All** (multi-file apps)              |
+| **Right** | Download / Export, mobile settings popover, **More actions** overflow; image editor **Clear Annotations** (partial reset only) |
+
+| Variant       | Use                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| `default`     | Import, process, download/export                                                         |
+| `outline`     | Clear, settings, overflow triggers, inactive tools                                       |
+| `destructive` | `AlertDialog` confirm actions and destructive `DropdownMenuItem` in mobile overflow only |
+
+**Labels**
+
+| State         | Multi-file (PDF, upscaler)  | Single-file (image editor) |
+| ------------- | --------------------------- | -------------------------- |
+| Empty import  | Add Files / Add Images      | Add Image                  |
+| Loaded import | Add More                    | Add More                   |
+| Processing    | Processing...               | Processing...              |
+| Output        | Download PDF / Download All | Export (+ format menu)     |
+| Full reset    | Clear All                   | —                          |
+| Partial reset | —                           | Clear Annotations          |
+
+**Responsive:** icon-only bar labels below `min-[400px]`; desktop inline clear `hidden md:inline-flex`; mobile overflow `md:hidden`; sidebars `hidden lg:block`.
+
+**Dialog titles (title case):** Clear All Files?, Clear All Images?, Clear Annotations?
+
+### Sidebar and card patterns
+
+| Pattern            | Rule                                                                  |
+| ------------------ | --------------------------------------------------------------------- |
+| Width              | `PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS` + `PUBLIC_TOOL_SIDEBAR_PANEL_CLASS` |
+| Section headings   | `text-sm font-semibold` h3 when a panel has named sections            |
+| Remove queued file | `ghost` icon, `aria-label="Remove {name}"`                            |
+| Delete layer/page  | `ghost` / `icon-sm`, `aria-label="Delete {layer\|page}"`              |
+| Per-item process   | `outline` `sm` (e.g. Upscale, Download on card)                       |
+
+### Empty state copy
+
+- Reference **command bar** (never "toolbar").
+- Secondary hint when empty: **Or use the command bar above to add your {files\|images\|image}**.
+- Optional privacy line: _Processed locally in your browser. No server upload. No account._
+
+### Icon map (canvas)
+
+| Action            | Icon                          | Label                                                    |
+| ----------------- | ----------------------------- | -------------------------------------------------------- |
+| Import            | `UploadIcon`                  | Add Files / Add Images / Add Image / Add More            |
+| Process           | `WandSparklesIcon` (upscaler) | Upscale all                                              |
+| Download          | `DownloadIcon`                | Download PDF / Download All / Export / per-card Download |
+| Clear workspace   | `Trash2Icon`                  | Clear All                                                |
+| Clear annotations | `Trash2Icon`                  | Clear Annotations                                        |
+| Remove file       | `X`                           | `aria-label` only: Remove {name}                         |
+
 ## Responsive smoke matrix
 
 Manual check at **320px**, **400px**, **768px**, **1280px** per app family before shipping UI consistency changes:
 
 - E2EE: command bar label collapse, links row overflow menu, contact editor `sm:grid-cols-2`.
-- Tools: sidebar visibility at `lg`, download button labels.
+- Tools: sidebar visibility at `lg`, download button labels, empty-state command-bar hint on all canvas apps.
 - Extension: icon tabs, form footer save gating, scrollbar theming in dark mode.

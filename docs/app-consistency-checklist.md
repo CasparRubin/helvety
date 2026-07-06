@@ -125,7 +125,7 @@ Links library state uses `use-link-library` (not the shared sortable/single-item
 | Cross-app links panels | `apps/notes/components/contact-links-panel.test.ts`   | `buildE2eeDeepLink` contract only                                              |
 | Contact picker columns | `apps/tasks/app/actions/contact-link-actions.test.ts` | `CONTACT_LINK_PICKER_COLUMNS` on `getContacts`                                 |
 
-Public tools: command bars use RTL + `getByRole` (see `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`).
+Public canvas tools (PDF, image upscaler, image editor): pinned `CommandBar` labels, placement, and empty-state copy follow [`ui-action-button-contract.md`](./ui-action-button-contract.md) (Canvas tools section). Command bar RTL + `getByRole` tests: `apps/pdf/components/pdf/pdf-command-bar.test.tsx`, `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`, `apps/image-editor/components/image-editor-command-bar.test.tsx`.
 
 ### Scrollable sheets and detail panels
 

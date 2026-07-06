@@ -69,9 +69,12 @@ describe("ui action app wiring", () => {
     expect(readAppFile("pdf", "components/helvety-pdf.tsx")).toContain(
       "@helvety/ui/public-tool-workspace"
     );
-    expect(
-      readAppFile("image-upscaler", "components/helvety-image-upscaler.tsx")
-    ).toContain("@helvety/ui/public-tool-workspace");
+    const upscalerWorkspace = readAppFile(
+      "image-upscaler",
+      "components/helvety-image-upscaler.tsx"
+    );
+    expect(upscalerWorkspace).toContain("@helvety/ui/public-tool-workspace");
+    expect(upscalerWorkspace).toContain("PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS");
     expect(readAppFile("pdf", "components/pdf/pdf-toolkit.tsx")).toContain(
       "PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS"
     );

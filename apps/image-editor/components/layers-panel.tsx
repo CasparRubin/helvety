@@ -87,7 +87,7 @@ export function LayersPanel({
         <div className="mt-4 min-h-0 flex-1">
           {!hasImage ? (
             <p className="text-muted-foreground text-xs">
-              Open an image to see layers.
+              Add an image to see layers.
             </p>
           ) : elements.length === 0 ? (
             <p className="text-muted-foreground text-xs">

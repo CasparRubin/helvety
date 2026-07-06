@@ -23,7 +23,7 @@ unavailable. No image data ever leaves the client.
   single native 4x AI model; 2x outputs are produced by final resampling.
 - Uses `canvas-size` to probe browser canvas limits and clamps export dimensions when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Batch queue with per-item statuses and an animated "Processing" indicator
-- Shared pinned command bar UX (primary/secondary actions; stays visible while the canvas scrolls)
+- Shared pinned command bar UX per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Images** / **Add More** (primary), **Download All** (secondary), **Clear All** (destructive, right); empty-state hint references the command bar above
 - No login required
 
 ## Engine

@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * PDF command bar - pinned toolbar below navbar for the PDF app.
- * Primary actions (always visible): add files, download
- * Secondary actions (desktop inline, mobile dropdown): clear all
+ * PDF command bar: pinned below the navbar for the PDF app.
+ * Primary actions (always visible): Add Files / Add More, Download PDF
+ * Secondary actions (desktop inline, mobile overflow menu): Clear All
  */
 
 import {

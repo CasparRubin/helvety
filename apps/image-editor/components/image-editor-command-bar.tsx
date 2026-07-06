@@ -152,21 +152,20 @@ export function ImageEditorCommandBar({
   onFitToView,
 }: ImageEditorCommandBarProps): React.JSX.Element {
   const [showClearDialog, setShowClearDialog] = React.useState(false);
-  const openImageLabel = hasImage ? "Replace Image" : "Open Image";
+  const addButtonLabel = hasImage ? "Add More" : "Add Image";
 
   return (
     <>
       <CommandBar>
         <Button
           type="button"
-          variant="outline"
           size="sm"
           onClick={hasImage ? onReplaceImage : onOpenImage}
-          aria-label={openImageLabel}
+          aria-label={addButtonLabel}
         >
-          <UploadIcon className="size-4" />
+          <UploadIcon className="size-4 shrink-0 min-[400px]:mr-1.5" />
           <span className="sr-only min-[400px]:not-sr-only">
-            {hasImage ? "Replace Image" : "Open Image"}
+            {addButtonLabel}
           </span>
         </Button>
 
@@ -340,12 +339,14 @@ export function ImageEditorCommandBar({
                   />
                 }
               >
-                <Trash2Icon className="size-4" />
-                <span className="sr-only min-[400px]:not-sr-only">Clear</span>
+                <Trash2Icon className="mr-1.5 size-4 shrink-0" />
+                <span className="sr-only min-[400px]:not-sr-only">
+                  Clear Annotations
+                </span>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Clear annotations?</AlertDialogTitle>
+                  <AlertDialogTitle>Clear Annotations?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This removes all layers and crop settings. The image stays
                     loaded.
@@ -360,7 +361,7 @@ export function ImageEditorCommandBar({
                       setShowClearDialog(false);
                     }}
                   >
-                    Clear
+                    Clear Annotations
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -373,7 +374,7 @@ export function ImageEditorCommandBar({
                     type="button"
                     variant="outline"
                     size="icon-sm"
-                    className="lg:hidden"
+                    className="md:hidden"
                   />
                 }
               >
@@ -381,8 +382,12 @@ export function ImageEditorCommandBar({
                 <span className="sr-only">More actions</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
-                  Clear annotations
+                <DropdownMenuItem
+                  onClick={() => setShowClearDialog(true)}
+                  variant="destructive"
+                >
+                  <Trash2Icon className="mr-2 size-4" />
+                  <span>Clear Annotations</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

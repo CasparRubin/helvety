@@ -32,9 +32,63 @@ function renderCommandBar(
 }
 
 describe("ImageEditorCommandBar", () => {
-  it("shows open image when no file is loaded", () => {
+  it("wires add image and add more to the file picker callbacks", () => {
+    const onOpenImage = vi.fn();
+    const onReplaceImage = vi.fn();
+
+    const { rerender } = render(
+      <ImageEditorCommandBar
+        hasImage={false}
+        activeTool="select"
+        isExporting={false}
+        canApplyCrop={false}
+        userZoom={1}
+        onOpenImage={onOpenImage}
+        onReplaceImage={onReplaceImage}
+        onSetTool={vi.fn()}
+        onExport={vi.fn()}
+        onClear={vi.fn()}
+        onApplyCrop={vi.fn()}
+        onResetCrop={vi.fn()}
+        onOpenLayers={vi.fn()}
+        onZoomIn={vi.fn()}
+        onZoomOut={vi.fn()}
+        onFitToView={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Add Image" }));
+    expect(onOpenImage).toHaveBeenCalledTimes(1);
+    expect(onReplaceImage).not.toHaveBeenCalled();
+
+    rerender(
+      <ImageEditorCommandBar
+        hasImage
+        activeTool="select"
+        isExporting={false}
+        canApplyCrop={false}
+        userZoom={1}
+        onOpenImage={onOpenImage}
+        onReplaceImage={onReplaceImage}
+        onSetTool={vi.fn()}
+        onExport={vi.fn()}
+        onClear={vi.fn()}
+        onApplyCrop={vi.fn()}
+        onResetCrop={vi.fn()}
+        onOpenLayers={vi.fn()}
+        onZoomIn={vi.fn()}
+        onZoomOut={vi.fn()}
+        onFitToView={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Add More" }));
+    expect(onReplaceImage).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows add image when no file is loaded", () => {
     renderCommandBar();
-    expect(screen.getByRole("button", { name: "Open Image" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Add Image" })).toBeEnabled();
   });
 
   it("wires tool and export callbacks when an image is loaded", async () => {
@@ -70,9 +124,9 @@ describe("ImageEditorCommandBar", () => {
     expect(screen.getByRole("button", { name: "Reset Crop" })).toBeEnabled();
   });
 
-  it("shows replace image when a file is already loaded", () => {
+  it("shows add more when a file is already loaded", () => {
     renderCommandBar({ hasImage: true });
-    expect(screen.getByRole("button", { name: "Replace Image" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
   });
 
   it("exports jpeg from the dropdown menu", async () => {
@@ -94,14 +148,17 @@ describe("ImageEditorCommandBar", () => {
     ).toBeDisabled();
   });
 
-  it("confirms clear before invoking callback", () => {
+  it("confirms clear annotations before invoking callback", () => {
     const onClear = vi.fn();
     renderCommandBar({ hasImage: true, onClear });
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear Annotations" }));
     const dialog = screen.getByRole("alertdialog");
-    expect(within(dialog).getByText("Clear annotations?")).toBeInTheDocument();
-    fireEvent.click(within(dialog).getByRole("button", { name: "Clear" }));
+    expect(within(dialog).getByText("Clear Annotations?")).toBeInTheDocument();
+    expect(onClear).not.toHaveBeenCalled();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Clear Annotations" })
+    );
 
     expect(onClear).toHaveBeenCalledTimes(1);
   });
@@ -151,9 +208,11 @@ describe("ImageEditorCommandBar", () => {
     const onClear = vi.fn();
     renderCommandBar({ hasImage: true, onClear });
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear Annotations" }));
     const dialog = screen.getByRole("alertdialog");
-    const confirm = within(dialog).getByRole("button", { name: "Clear" });
+    const confirm = within(dialog).getByRole("button", {
+      name: "Clear Annotations",
+    });
     expect(confirm.className).toMatch(/destructive/);
   });
 });

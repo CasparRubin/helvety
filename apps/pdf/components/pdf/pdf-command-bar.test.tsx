@@ -51,5 +51,8 @@ describe("PdfCommandBar", () => {
     expect(
       screen.getByRole("button", { name: "Clear All" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Download PDF" })
+    ).toBeInTheDocument();
   });
 });

@@ -30,7 +30,7 @@ All image processing runs in the browser; no image data leaves the client in the
 - Image-scaled default font size and stroke width via [`lib/default-tool-sizes.ts`](lib/default-tool-sizes.ts); text annotations include a simple shadow for readability
 - Live drag previews while drawing borders, highlights, blur regions, arrows, and crop rectangles
 - Tapered arrows: shaft widens toward the neck but stays narrower than the distinct pointy head; same geometry in canvas ([`lib/tapered-arrow.ts`](lib/tapered-arrow.ts)) and export
-- Crop is handled in the main command bar (Apply / Reset)
+- Main command bar per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Image** / **Add More** (primary), **Export** (secondary), **Clear Annotations** (destructive, right; keeps the loaded image), zoom and crop **Apply** / **Reset** when the crop tool is active
 - Full-resolution PNG and JPEG export via an offscreen Konva stage; `canvas-size` probes browser canvas limits and export dimensions are clamped when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Keyboard shortcuts: Delete/Backspace removes the selection; Escape deselects or cancels crop (ignored while editing text)
 - No login required

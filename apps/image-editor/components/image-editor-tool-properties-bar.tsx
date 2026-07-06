@@ -150,7 +150,7 @@ export function ImageEditorToolPropertiesBar({
     return (
       <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
         <p className="text-muted-foreground text-xs">
-          Open an image to edit tool properties.
+          Add an image to edit tool properties.
         </p>
       </CommandBar>
     );

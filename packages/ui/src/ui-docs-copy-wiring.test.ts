@@ -114,6 +114,18 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(contract).toMatch(/not legacy `TrashIcon`/i);
   });
 
+  it("ui-action-button contract documents canvas tool command bars", () => {
+    const contract = readRepoFile("docs/ui-action-button-contract.md");
+    expect(contract).toContain(
+      "## Canvas tools (PDF, image upscaler, image editor)"
+    );
+    expect(contract).toContain("Add Image");
+    expect(contract).toContain("Add Images");
+    expect(contract).toContain("Clear Annotations");
+    expect(contract).toMatch(/command bar above/i);
+    expect(contract).not.toMatch(/toolbar above/i);
+  });
+
   it("root README documents consistency:ui-actions in ci:check order", () => {
     const readme = readRepoFile("README.md");
     expect(readme).toContain(

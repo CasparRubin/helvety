@@ -126,7 +126,7 @@ export function ImageUpscalerCommandBar({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Clear all images?</AlertDialogTitle>
+                <AlertDialogTitle>Clear All Images?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This will remove all queued and processed images. This action
                   cannot be undone.
@@ -258,7 +258,7 @@ export function ImageUpscalerCommandBar({
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear all images?</AlertDialogTitle>
+            <AlertDialogTitle>Clear All Images?</AlertDialogTitle>
             <AlertDialogDescription>
               This will remove all queued and processed images. This action
               cannot be undone.

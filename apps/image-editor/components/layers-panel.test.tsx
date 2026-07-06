@@ -18,9 +18,7 @@ describe("LayersPanel", () => {
       />
     );
 
-    expect(
-      screen.getByText("Open an image to see layers.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Add an image to see layers.")).toBeInTheDocument();
   });
 
   it("shows empty state when there are no layers", () => {

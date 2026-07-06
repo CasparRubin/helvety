@@ -109,11 +109,16 @@ const upscaler = resolve(
   "components",
   "helvety-image-upscaler.tsx"
 );
-if (
-  existsSync(upscaler) &&
-  !read(upscaler).includes("@helvety/ui/public-tool-workspace")
-) {
-  failures.push(`${upscaler}: import public-tool-workspace constants`);
+if (existsSync(upscaler)) {
+  const upscalerSrc = read(upscaler);
+  if (!upscalerSrc.includes("@helvety/ui/public-tool-workspace")) {
+    failures.push(`${upscaler}: import public-tool-workspace constants`);
+  }
+  if (!upscalerSrc.includes("PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS")) {
+    failures.push(
+      `${upscaler}: use PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS from public-tool-workspace`
+    );
+  }
 }
 
 const pdfToolkit = resolve(

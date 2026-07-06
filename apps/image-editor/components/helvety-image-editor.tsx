@@ -383,7 +383,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
               >
                 <span id="image-editor-drop-description" className="sr-only">
                   Drag and drop an image here, click to select a file, or use
-                  the command bar above to open an image. PNG, JPEG, or WebP up
+                  the command bar above to add your image. PNG, JPEG, or WebP up
                   to 25 MB.
                 </span>
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-12 text-center">
@@ -400,7 +400,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
                       Drag and drop an image here
                     </p>
                     <p className="text-muted-foreground mt-1 text-xs">
-                      Or use the command bar above to open your image
+                      Or use the command bar above to add your image
                     </p>
                   </div>
                   <p className="text-muted-foreground text-xs">

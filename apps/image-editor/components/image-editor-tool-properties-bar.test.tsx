@@ -56,7 +56,7 @@ describe("ImageEditorToolPropertiesBar", () => {
     renderToolPropertiesBar({ hasImage: false, activeTool: "select" });
 
     expect(
-      screen.getByText("Open an image to edit tool properties.")
+      screen.getByText("Add an image to edit tool properties.")
     ).toBeInTheDocument();
   });
 

@@ -101,6 +101,14 @@ describe("HelvetyPdf", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the empty-state command bar hint", () => {
+    render(<HelvetyPdf />);
+
+    expect(
+      screen.getByText("Or use the command bar above to add your files")
+    ).toBeInTheDocument();
+  });
+
   it("wires downloadMerged to the command bar when files are loaded", () => {
     mockUsePdfFiles.mockReturnValue(loadedFilesMock());
 

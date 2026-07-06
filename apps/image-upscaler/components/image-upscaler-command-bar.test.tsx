@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -147,7 +147,11 @@ describe("ImageUpscalerCommandBar", () => {
     renderCommandBar({ hasItems: true, onClearAll });
 
     fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
-    fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
+    const dialog = screen.getByRole("alertdialog");
+    expect(screen.getByText("Clear All Images?")).toBeInTheDocument();
+    expect(onClearAll).not.toHaveBeenCalled();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "Clear All" }));
 
     expect(onClearAll).toHaveBeenCalledTimes(1);
   });
