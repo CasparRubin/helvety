@@ -1,6 +1,6 @@
 {
   "name": "@helvety/contacts",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "description": "Encrypted contacts with Personal, Work, and Other groups, client-side search, export tooling, and shareable deep links. Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/contacts",

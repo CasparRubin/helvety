@@ -1,6 +1,6 @@
 {
   "name": "@helvety/image-upscaler",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "description": "In-browser image upscaler with on-device AI when supported and a quality resize fallback. 2×/4× or target dimensions, batches up to five files, no server upload, no account required. Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-upscaler",
