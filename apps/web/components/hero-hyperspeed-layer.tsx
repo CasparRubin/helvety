@@ -11,7 +11,7 @@ import "./hero-hyperspeed-bleed.css";
 /**
  * Client-only Hyperspeed backdrop for the gateway hero.
  * Skips mount when `prefers-reduced-motion` is set or `canUseWebGL()` is false.
- * Static copy is server-rendered in {@link HeroMarketingShell}.
+ * Static copy (including {@link ./hero-company-values-tagline} ElectricBorder tagline) is server-rendered in {@link HeroMarketingShell}.
  */
 export function HeroHyperspeedLayer() {
   const prefersReducedMotion = useReducedMotion();

@@ -159,7 +159,7 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).not.toContain("seedDraft");
   });
 
-  it("gateway hero docs describe three Badge value pills with Lucide icons", () => {
+  it("gateway hero docs describe ElectricBorder tagline with middle-dot copy", () => {
     for (const relativePath of [
       "README.md",
       "packages/ui/README.md",
@@ -167,9 +167,9 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
       "docs/ui-shadcn-integration-policy.md",
     ]) {
       const doc = readRepoFile(relativePath);
-      expect(doc, relativePath).toMatch(/three shadcn.*Badge.*pills/i);
-      expect(doc, relativePath).toMatch(/Lucide icons/i);
-      expect(doc, relativePath).not.toMatch(/no icons or emoji/i);
+      expect(doc, relativePath).toMatch(/ElectricBorder/i);
+      expect(doc, relativePath).toMatch(/private\s*·\s*simple/i);
+      expect(doc, relativePath).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
     }
   });
 

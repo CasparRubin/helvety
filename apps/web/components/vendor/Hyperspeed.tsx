@@ -816,6 +816,8 @@ class App {
   private readonly onInitError?: () => void;
   private readyFired = false;
   private rafId: number | null = null;
+  /** When true, the RAF loop is stopped (e.g. background tab) without disposing WebGL. */
+  private paused = false;
 
   constructor(
     container: HTMLElement,
@@ -1176,8 +1178,28 @@ class App {
   private readonly onDocumentVisibilityChange = (): void => {
     if (document.visibilityState === "hidden") {
       this.endInteractBoost();
+      this.pause();
+    } else {
+      this.resume();
     }
   };
+
+  pause(): void {
+    if (this.disposed || this.paused) return;
+    this.paused = true;
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  resume(): void {
+    if (this.disposed || !this.paused) return;
+    this.paused = false;
+    if (this.rafId === null) {
+      this.rafId = requestAnimationFrame(this.tick);
+    }
+  }
 
   beginInteractBoost(ev?: MouseEvent | TouchEvent | PointerEvent): void {
     if (this.disposed || this.interactionBoostActive) return;
@@ -1346,7 +1368,7 @@ class App {
   }
 
   tick(time: number) {
-    if (this.disposed) return;
+    if (this.disposed || this.paused) return;
 
     if (!this.hasValidSize) {
       const w = this.container.offsetWidth;
