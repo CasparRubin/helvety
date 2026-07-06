@@ -1,14 +1,12 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
-import {
-  HELVETY_SWISS_ORIGIN_COUNTRY,
-} from "@helvety/shared/licensing";
+import { HELVETY_SWISS_ORIGIN_COUNTRY } from "@helvety/shared/licensing";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { ChevronRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 
 import { HeroCompanyValuesTagline } from "@/components/hero-company-values-tagline";
-import { HeroHyperspeedLayer } from "@/components/hero-hyperspeed-layer";
+import { HeroSideRaysLayer } from "@/components/hero-side-rays-layer";
 
 export {
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
@@ -20,8 +18,8 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
  * Server-rendered marketing hero copy for `/`.
- * Company values render in React Bits {@link ElectricBorder} via {@link HeroCompanyValuesTagline};
- * WebGL backdrop hydrates via {@link HeroHyperspeedLayer}.
+ * Company values render via {@link HeroCompanyValuesTagline};
+ * WebGL backdrop hydrates via {@link HeroSideRaysLayer}.
  */
 export function HeroMarketingShell() {
   return (
@@ -32,7 +30,7 @@ export function HeroMarketingShell() {
         "bg-background"
       )}
     >
-      <HeroHyperspeedLayer />
+      <HeroSideRaysLayer />
 
       <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 text-center md:px-6">
         <div className="space-y-5">

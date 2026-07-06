@@ -14,7 +14,7 @@ const DEFAULT_SHELL_PROPS = {
   bodyClassName: "overflow-x-clip",
 } as const;
 
-/** Shell overflow props for the web gateway: Hyperspeed bleed on `/` only. */
+/** Shell overflow props for the web gateway: SideRays bleed on `/` only. */
 export async function getGatewayShellLayoutProps(): Promise<
   typeof HERO_OVERFLOW_PROPS | typeof DEFAULT_SHELL_PROPS
 > {

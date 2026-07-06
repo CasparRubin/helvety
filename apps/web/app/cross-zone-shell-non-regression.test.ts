@@ -46,7 +46,7 @@ describe("cross-zone shell non-regression", () => {
       const src = readFileSync(join(repoRoot, relativePath), "utf8");
       expect(
         src,
-        `${relativePath} must not opt into Hyperspeed overflow-visible shell props`
+        `${relativePath} must not opt into SideRays overflow-visible shell props`
       ).not.toContain("overflow-visible");
     }
   });

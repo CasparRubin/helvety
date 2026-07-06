@@ -26,7 +26,7 @@ function subscribeHtmlDarkTheme(onStoreChange: () => void): () => void {
 /**
  * True when the resolved theme is dark (`html.dark`).
  * Works outside `ThemeProvider` (e.g. Store navbar-only scope) when client code must read
- * `html.dark` for the gateway Hyperspeed hero or other theme-aware UI. Full-tree shells
+ * `html.dark` for theme-aware UI. Full-tree shells
  * also inject blocking `HelvetyThemeInitScript` in `<head>` so `html.dark` is set before body paint.
  */
 export function useHtmlDarkTheme(): boolean {

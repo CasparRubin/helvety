@@ -4,8 +4,9 @@
  * React Bits text animation presets (Shuffle eyebrow, ShinyText tagline).
  *
  * **Not mounted on production `/`.** {@link ./hero-marketing-shell} server-renders the live hero
- * (middle-dot company-values tagline in React Bits {@link ./vendor/ElectricBorder} via {@link ./hero-company-values-tagline}; no Shuffle/ShinyText). {@link ./hero-hyperspeed-layer}
- * adds client WebGL only. Keep this module for vendor refresh, preset tuning, and {@link ./hero-text.test.tsx}.
+ * (middle-dot company-values tagline via {@link ./hero-company-values-tagline}; no Shuffle/ShinyText).
+ * {@link ./hero-side-rays-layer} adds client WebGL only. Keep this module for vendor refresh,
+ * preset tuning, and {@link ./hero-text.test.tsx}.
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Switzerland**: static Helvety red (`--brand-swiss-red` from `@helvety/ui/globals.css`).
@@ -28,11 +29,11 @@ const TAGLINE = HERO_COMPANY_VALUES_TAGLINE_DISPLAY;
 
 const TAGLINE_CLASS = "text-base tracking-[0.08em] md:text-lg";
 
-/** Shiny Text on the Hyperspeed road (dark mode). */
+/** Shiny Text demo color for dark mode. */
 const TAGLINE_SHINY_COLOR_DARK = "rgba(255, 255, 255, 0.82)";
 const TAGLINE_SHINE_COLOR_DARK = "#ffffff";
 
-/** Shiny Text on the Hyperspeed road (light mode: black + red pair). */
+/** Shiny Text demo color for light mode. */
 const TAGLINE_SHINY_COLOR_LIGHT = "rgba(0, 0, 0, 0.82)";
 const TAGLINE_SHINE_COLOR_LIGHT = "#000000";
 

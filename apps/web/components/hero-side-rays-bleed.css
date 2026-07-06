@@ -1,9 +1,8 @@
 /*
- * Hyperspeed breakout layer (`w-[100svw]`, centered). Hero pairs this with
+ * SideRays breakout layer (`w-[100svw]`, centered). Hero pairs this with
  * `motion-reduce:hidden` on the host so reduced-motion users never see the canvas slot.
- * Softer lateral edges so the road doesn’t read as hard cut-off on very wide monitors.
  */
-.hero-hyperspeed-bleed {
+.hero-side-rays-bleed {
   -webkit-mask-image: linear-gradient(
     to right,
     transparent,

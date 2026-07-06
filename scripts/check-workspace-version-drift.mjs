@@ -63,7 +63,6 @@ const REQUIRED_VERSION_BY_DEP = new Map([
   ["@dnd-kit/sortable", "^10.0.0"],
   ["@dnd-kit/utilities", "^3.2.2"],
   ["@base-ui/react", "^1.6.0"],
-  ["@types/three", "0.185.0"],
   ["react-day-picker", "^10.0.1"],
 ]);
 

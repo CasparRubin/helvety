@@ -2,7 +2,7 @@
 
 Shared WebGL backdrop utilities for the Helvety marketing homepage hero.
 
-Used by `apps/web` only: React Bits **Hyperspeed** via [`hero-hyperspeed-backdrop.tsx`](../../apps/web/components/hero-hyperspeed-backdrop.tsx). That component owns the **reveal wrapper** (`opacity-0` until `onReady` with a stable `html.dark`, then **2000ms** fade-in), hides before cross-zone navigation / `pagehide`, re-reveals when the tab becomes visible, and remounts WebGL after bfcache restore. [`hero-hyperspeed-layer.tsx`](../../apps/web/components/hero-hyperspeed-layer.tsx) skips mounting when `prefers-reduced-motion: reduce` or `canUseWebGL()` is false. This package supplies shared classes, timing helpers, and the WebGL probe only. Other public apps use semantic `bg-background` from `HelvetyPublicShellRootLayout` (blocking theme init in `<head>` on all scopes, including Store).
+Used by `apps/web` only: React Bits **SideRays** via [`hero-side-rays-backdrop.tsx`](../../apps/web/components/hero-side-rays-backdrop.tsx). That component owns the **reveal wrapper** (`opacity-0` until `onReady`, then **2000ms** fade-in) and remounts WebGL after bfcache restore. [`hero-side-rays-layer.tsx`](../../apps/web/components/hero-side-rays-layer.tsx) skips mounting when `prefers-reduced-motion: reduce` or `canUseWebGL()` is false. This package supplies shared classes, timing helpers, and the WebGL probe only. Other public apps use semantic `bg-background` from `HelvetyPublicShellRootLayout` (blocking theme init in `<head>` on all scopes, including Store).
 
 ## Usage
 
@@ -14,9 +14,9 @@ import {
 } from "@helvety/light-pillar";
 import { createHelvetyWebglDynamic } from "@helvety/light-pillar/webgl-dynamic";
 
-const HeroHyperspeed = createHelvetyWebglDynamic(
-  () => import("@/components/vendor/Hyperspeed"),
-  "hero-hyperspeed-loading"
+const HeroSideRays = createHelvetyWebglDynamic(
+  () => import("@/components/vendor/SideRays"),
+  "hero-side-rays-loading"
 );
 ```
 

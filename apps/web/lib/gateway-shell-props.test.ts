@@ -14,7 +14,7 @@ describe("getGatewayShellLayoutProps", () => {
     headersMock.mockReset();
   });
 
-  it("enables Hyperspeed bleed shell props on the home route", async () => {
+  it("enables SideRays bleed shell props on the home route", async () => {
     headersMock.mockResolvedValue(
       new Headers([[HELVETY_PATHNAME_HEADER_NAME, "/"]])
     );

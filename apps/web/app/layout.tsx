@@ -51,7 +51,7 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
  * gutters, fixed footer (contact + legal links).
  *
- * Full-bleed Hyperspeed on `/` only (light and dark) paints wider than the content column
+ * Full-bleed SideRays on `/` only paints wider than the content column
  * (`100svw`, centered on the hero; WebGL mounts client-side when motion is allowed).
  * {@link getGatewayShellLayoutProps} passes overflow escape props only on `/` so legal and
  * other subpages keep default scroll clipping; see `@helvety/ui` README for optional

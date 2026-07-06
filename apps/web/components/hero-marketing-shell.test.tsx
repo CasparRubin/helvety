@@ -30,18 +30,6 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-vi.mock("@/components/hero-hyperspeed-layer", () => ({
-  HeroHyperspeedLayer: () => <div data-testid="hero-hyperspeed-layer" />,
-}));
-
-vi.mock("@/components/hero-company-values-tagline", () => ({
-  HeroCompanyValuesTagline: () => (
-    <div data-testid="hero-company-values-tagline">
-      {HERO_COMPANY_VALUES_TAGLINE_DISPLAY}
-    </div>
-  ),
-}));
-
 describe("HeroMarketingShell", () => {
   it("uses the country accent constant, not the full Swiss SEO closing", () => {
     const src = readFileSync(shellPath, "utf8");
@@ -51,6 +39,7 @@ describe("HeroMarketingShell", () => {
     expect(src).toContain("hero-company-values-copy");
     expect(src).toContain("HERO_COMPANY_VALUES_TAGLINE_DISPLAY");
     expect(src).toContain("HeroCompanyValuesTagline");
+    expect(src).toContain("HeroSideRaysLayer");
     expect(src).toContain("lg:whitespace-nowrap");
     expect(src).toContain("text-base");
     expect(src).not.toContain("@helvety/ui/badge");
@@ -62,7 +51,9 @@ describe("HeroMarketingShell", () => {
       HELVETY_COMPANY_VALUES_TAGLINE.replace(/\.$/, "").toLowerCase()
     );
     expect(HERO_COMPANY_VALUES_TAGLINE_TEXT).toBe("private, simple, clean");
-    expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).toBe("private · simple · clean");
+    expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).toBe(
+      "private · simple · clean"
+    );
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
   });
 
@@ -79,7 +70,10 @@ describe("HeroMarketingShell", () => {
     expect((html.match(/Engineered/gi) ?? []).length).toBe(1);
     expect(html).toContain("private · simple · clean");
     expect(html).not.toContain("private, simple, clean");
-    expect(html).toContain('data-testid="hero-company-values-tagline"');
+    expect(html).toContain("text-muted-foreground");
+    expect(html).toContain("font-medium");
+    expect(html).toContain("tracking-[0.08em]");
+    expect(html).not.toContain("hero-side-rays-host");
     expect(html).toContain("Browse Helvety products");
     expect(html).toContain("/store");
     expect(html).not.toMatch(EMOJI_PATTERN);

@@ -43,8 +43,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     "framer-motion",
     "gsap",
     "@gsap/react",
-    "three",
-    "postprocessing",
   ],
   overrides: {
     // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.

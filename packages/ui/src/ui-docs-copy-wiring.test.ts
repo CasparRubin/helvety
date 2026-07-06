@@ -159,17 +159,51 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).not.toContain("seedDraft");
   });
 
-  it("gateway hero docs describe ElectricBorder tagline with middle-dot copy", () => {
-    for (const relativePath of [
+  it("gateway hero docs describe the current SideRays stack", () => {
+    const heroDocPaths = [
       "README.md",
       "packages/ui/README.md",
       "apps/web/README.md",
       "docs/ui-shadcn-integration-policy.md",
-    ]) {
+      "packages/light-pillar/README.md",
+    ] as const;
+
+    const implementationDetailPaths = new Set([
+      "README.md",
+      "apps/web/README.md",
+      "docs/ui-shadcn-integration-policy.md",
+      "packages/light-pillar/README.md",
+    ]);
+
+    const taglineDocPaths = new Set([
+      "README.md",
+      "packages/ui/README.md",
+      "apps/web/README.md",
+      "docs/ui-shadcn-integration-policy.md",
+    ]);
+
+    for (const relativePath of heroDocPaths) {
       const doc = readRepoFile(relativePath);
-      expect(doc, relativePath).toMatch(/ElectricBorder/i);
-      expect(doc, relativePath).toMatch(/private\s*·\s*simple/i);
-      expect(doc, relativePath).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
+      expect(doc, relativePath).toMatch(/SideRays/i);
+      if (taglineDocPaths.has(relativePath)) {
+        expect(doc, relativePath).toMatch(/private\s*·\s*simple/i);
+        expect(doc, relativePath).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
+      }
+      expect(doc, relativePath).not.toMatch(/Hyperspeed/i);
+      expect(doc, relativePath).not.toMatch(/ElectricBorder/i);
+      expect(doc, relativePath).not.toMatch(/HeroHyperspeedLayer/i);
+      expect(doc, relativePath).not.toMatch(/\b700ms\b/);
+      expect(doc, relativePath).not.toMatch(
+        /pagehide|hides before cross-zone/i
+      );
+
+      if (implementationDetailPaths.has(relativePath)) {
+        expect(doc, relativePath).toMatch(/2000ms|duration-2000/i);
+        expect(doc, relativePath).toMatch(/canUseWebGL|bfcache/i);
+        expect(doc, relativePath).toMatch(
+          /HeroSideRaysLayer|hero-side-rays-layer/i
+        );
+      }
     }
   });
 

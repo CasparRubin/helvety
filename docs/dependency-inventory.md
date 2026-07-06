@@ -69,14 +69,13 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 ## web (gateway)
 
-| Name                                        | Current pin                             | Upstream              | Check URL                                         | Update procedure                                                                                  | Risk              |
-| ------------------------------------------- | --------------------------------------- | --------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------- |
-| React Bits (Hyperspeed, ElectricBorder, Shuffle, ShinyText) | Vendored `apps/web/components/vendor/*` | reactbits.dev         | https://reactbits.dev                             | `cd apps/web && shadcn add @react-bits/...`; reconcile per `docs/ui-shadcn-integration-policy.md` | Hero motion/WebGL |
-| `three`                                     | `^0.185.1`                              | three.js              | https://github.com/mrdoob/three.js/releases       | Bump with `@types/three` (`0.185.0` drift); Hyperspeed tests                                      | WebGL shaders     |
-| `postprocessing`                            | `^6.39.2`                               | pmndrs/postprocessing | https://github.com/pmndrs/postprocessing/releases | npm bump; hero visual check                                                                       | Bloom/pass API    |
-| `gsap` / `@gsap/react`                      | `^3.15.0` / `^2.1.2`                    | GreenSock             | https://github.com/greensock/GSAP/releases        | npm bump; Shuffle tests                                                                           | Animation API     |
-| `framer-motion`                             | `^12.42.2`                              | Motion                | https://github.com/motiondivision/motion/releases | npm bump; hero-text tests                                                                         | Motion v12 API    |
-| `@helvety/light-pillar`                     | workspace                               | In-repo               | —                                                 | Co-change with Hyperspeed backdrop                                                                | Gateway hero      |
+| Name                                      | Current pin                             | Upstream      | Check URL                                         | Update procedure                                                                                  | Risk              |
+| ----------------------------------------- | --------------------------------------- | ------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------- |
+| React Bits (SideRays, Shuffle, ShinyText) | Vendored `apps/web/components/vendor/*` | reactbits.dev | https://reactbits.dev                             | `cd apps/web && shadcn add @react-bits/...`; reconcile per `docs/ui-shadcn-integration-policy.md` | Hero motion/WebGL |
+| `ogl`                                     | `^1.0.11`                               | OGL           | https://github.com/oframe/ogl/releases            | npm bump; SideRays visual check                                                                   | WebGL shaders     |
+| `gsap` / `@gsap/react`                    | `^3.15.0` / `^2.1.2`                    | GreenSock     | https://github.com/greensock/GSAP/releases        | npm bump; Shuffle tests                                                                           | Animation API     |
+| `framer-motion`                           | `^12.42.2`                              | Motion        | https://github.com/motiondivision/motion/releases | npm bump; hero-text tests                                                                         | Motion v12 API    |
+| `@helvety/light-pillar`                   | workspace                               | In-repo       | —                                                 | Co-change with SideRays backdrop                                                                  | Gateway hero      |
 
 ---
 

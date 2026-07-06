@@ -155,7 +155,7 @@ function buildMainBlock(
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
  * **`bodyClassName`**. {@link HelvetyThemeInitScript} in `<head>` applies `html.dark` before body
- * paint so semantic tokens match storage/system (gateway Hyperspeed and Store catalog).
+ * paint so semantic tokens match storage/system (gateway SideRays and Store catalog).
  *
  * E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */
