@@ -1,6 +1,8 @@
 "use client";
 
+import { canUseWebGL } from "@helvety/light-pillar";
 import { useReducedMotion } from "framer-motion";
+import { useSyncExternalStore } from "react";
 
 import { HeroHyperspeedBackdrop } from "@/components/hero-hyperspeed-backdrop";
 
@@ -8,11 +10,17 @@ import "./hero-hyperspeed-bleed.css";
 
 /**
  * Client-only Hyperspeed backdrop for the gateway hero.
+ * Skips mount when `prefers-reduced-motion` is set or `canUseWebGL()` is false.
  * Static copy is server-rendered in {@link HeroMarketingShell}.
  */
 export function HeroHyperspeedLayer() {
   const prefersReducedMotion = useReducedMotion();
-  const showHyperspeed = !prefersReducedMotion;
+  const webglAvailable = useSyncExternalStore(
+    () => () => {},
+    () => canUseWebGL(),
+    () => false
+  );
+  const showHyperspeed = !prefersReducedMotion && webglAvailable;
 
   if (!showHyperspeed) {
     return null;

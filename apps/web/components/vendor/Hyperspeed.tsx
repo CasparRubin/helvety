@@ -103,6 +103,8 @@ interface HyperspeedProps {
   effectOptions?: Partial<HyperspeedOptions>;
   /** Fires once after the first successful WebGL composer frame (same tick as first render). */
   onReady?: () => void;
+  /** Fires when WebGL or postprocessing init fails before the first frame. */
+  onInitError?: () => void;
 }
 
 /** Registry defaults mirror {@link hyperspeedDefaultPreset}. */
@@ -811,13 +813,14 @@ class App {
   /** True while press/hold boosting; window listeners tear down releases outside `#lights`. */
   interactionBoostActive = false;
   private readonly onReady?: () => void;
+  private readonly onInitError?: () => void;
   private readyFired = false;
   private rafId: number | null = null;
 
   constructor(
     container: HTMLElement,
     options: HyperspeedOptions,
-    callbacks?: { onReady?: () => void }
+    callbacks?: { onReady?: () => void; onInitError?: () => void }
   ) {
     this.options = options;
     if (!this.options.distortion) {
@@ -911,6 +914,7 @@ class App {
     this.variationTargetFreq = null;
     this.variationTargetAmp = null;
     this.onReady = callbacks?.onReady;
+    this.onInitError = callbacks?.onInitError;
 
     this.tick = this.tick.bind(this);
     this.init = this.init.bind(this);
@@ -1053,36 +1057,48 @@ class App {
     const gl = this.renderer.getContext();
     if (!gl?.getContextAttributes?.()) return false;
 
-    this.renderPass = new RenderPass(this.scene, this.camera);
-    const bloomThreshold = this.options.bloom?.luminanceThreshold ?? 0.2;
-    this.bloomPass = new EffectPass(
-      this.camera,
-      new BloomEffect({
-        luminanceThreshold: bloomThreshold,
-        luminanceSmoothing: 0,
-        resolutionScale: 1,
-      })
-    );
+    try {
+      this.renderPass = new RenderPass(this.scene, this.camera);
+      const bloomThreshold = this.options.bloom?.luminanceThreshold ?? 0.2;
+      this.bloomPass = new EffectPass(
+        this.camera,
+        new BloomEffect({
+          luminanceThreshold: bloomThreshold,
+          luminanceSmoothing: 0,
+          resolutionScale: 1,
+        })
+      );
+      this.renderPass.renderToScreen = false;
+      this.bloomPass.renderToScreen = false;
 
-    const smaaPass = new EffectPass(
-      this.camera,
-      new SMAAEffect({
-        preset: SMAAPreset.MEDIUM,
-      })
-    );
-    this.renderPass.renderToScreen = false;
-    this.bloomPass.renderToScreen = false;
-    smaaPass.renderToScreen = true;
+      this.composer.addPass(this.renderPass);
+      this.composer.addPass(this.bloomPass);
 
-    this.composer.addPass(this.renderPass);
-    this.composer.addPass(this.bloomPass);
-    this.composer.addPass(smaaPass);
-    return true;
+      try {
+        const smaaPass = new EffectPass(
+          this.camera,
+          new SMAAEffect({
+            preset: SMAAPreset.MEDIUM,
+          })
+        );
+        smaaPass.renderToScreen = true;
+        this.composer.addPass(smaaPass);
+      } catch {
+        this.bloomPass.renderToScreen = true;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   init() {
     if (this.disposed) return;
-    if (!this.initPasses()) return;
+    if (!this.initPasses()) {
+      this.onInitError?.();
+      return;
+    }
 
     const options = this.options;
     this.road.init();
@@ -1374,11 +1390,17 @@ class App {
   }
 }
 
-const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {}, onReady }) => {
+const Hyperspeed: FC<HyperspeedProps> = ({
+  effectOptions = {},
+  onReady,
+  onInitError,
+}) => {
   const hyperspeed = useRef<HTMLDivElement>(null);
   const appRef = useRef<App | null>(null);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  const onInitErrorRef = useRef(onInitError);
+  onInitErrorRef.current = onInitError;
 
   const mountHyperspeed = useCallback(
     (container: HTMLDivElement | null) => {
@@ -1407,14 +1429,22 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {}, onReady }) => {
         },
       };
 
-      const myApp = new App(container, options, {
-        onReady: () => onReadyRef.current?.(),
-      });
-      appRef.current = myApp;
-      void Promise.resolve().then(() => {
-        if (myApp.disposed || appRef.current !== myApp) return;
-        myApp.init();
-      });
+      try {
+        const myApp = new App(container, options, {
+          onReady: () => onReadyRef.current?.(),
+          onInitError: () => onInitErrorRef.current?.(),
+        });
+        appRef.current = myApp;
+        void Promise.resolve().then(() => {
+          if (myApp.disposed || appRef.current !== myApp) return;
+          myApp.init();
+        });
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[Hyperspeed] webgl_unavailable", error);
+        }
+        onInitErrorRef.current?.();
+      }
     },
     [effectOptions]
   );

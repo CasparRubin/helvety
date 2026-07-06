@@ -15,6 +15,10 @@ const themeMocks = vi.hoisted(() => ({
   readDark: true,
 }));
 
+const hyperspeedStubMocks = vi.hoisted(() => ({
+  failInit: false,
+}));
+
 vi.mock("@helvety/ui/use-html-dark-theme", () => ({
   useHtmlDarkTheme: () => themeMocks.isDark,
   readHtmlDarkTheme: () => themeMocks.readDark,
@@ -23,11 +27,25 @@ vi.mock("@helvety/ui/use-html-dark-theme", () => ({
 vi.mock("next/dynamic", () => ({
   __esModule: true,
   default: () =>
-    function SyncHyperspeedStub({ onReady }: { onReady?: () => void }) {
+    function SyncHyperspeedStub({
+      onReady,
+      onInitError,
+    }: {
+      onReady?: () => void;
+      onInitError?: () => void;
+    }) {
       useEffect(() => {
+        if (hyperspeedStubMocks.failInit) {
+          onInitError?.();
+          return;
+        }
         onReady?.();
-      }, [onReady]);
-      return <div data-testid="stub-hyperspeed" id="lights" />;
+      }, [onReady, onInitError]);
+      return (
+        <div data-testid="stub-hyperspeed" id="lights">
+          <canvas />
+        </div>
+      );
     },
 }));
 
@@ -40,6 +58,7 @@ describe("HeroHyperspeedBackdrop", () => {
     vi.restoreAllMocks();
     themeMocks.isDark = true;
     themeMocks.readDark = true;
+    hyperspeedStubMocks.failInit = false;
     document.documentElement.classList.remove("dark");
   });
 
@@ -73,7 +92,7 @@ describe("HeroHyperspeedBackdrop", () => {
     expect(reveal).not.toHaveClass("pointer-events-none");
   });
 
-  it("fades in reveal wrapper after onReady with shared 700ms transition", async () => {
+  it("fades in reveal wrapper after onReady with shared 2000ms transition", async () => {
     render(<HeroHyperspeedBackdrop />);
 
     const reveal = screen.getByTestId("hero-hyperspeed-reveal");
@@ -134,6 +153,26 @@ describe("HeroHyperspeedBackdrop", () => {
     await waitFor(() => {
       expect(screen.getByTestId("stub-hyperspeed")).toBeInTheDocument();
     });
+  });
+
+  it("keeps reveal hidden when WebGL init fails", async () => {
+    hyperspeedStubMocks.failInit = true;
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("stub-hyperspeed")).toBeInTheDocument();
+    });
+
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
+    expect(reveal).toHaveClass("opacity-0");
+    expect(reveal).toHaveClass("pointer-events-none");
+
+    await waitFor(
+      () => {
+        expect(reveal).toHaveClass("opacity-0");
+      },
+      { timeout: 500 }
+    );
   });
 
   it("does not reveal when DOM theme disagrees with hook on ready", async () => {
@@ -210,7 +249,7 @@ describe("HeroHyperspeedBackdrop", () => {
     );
   });
 
-  it("resets reveal on bfcache pageshow", async () => {
+  it("resets reveal on bfcache pageshow then fades in again after remount", async () => {
     render(<HeroHyperspeedBackdrop />);
 
     await waitFor(() => {
@@ -226,9 +265,48 @@ describe("HeroHyperspeedBackdrop", () => {
       );
     });
 
+    const reveal = screen.getByTestId("hero-hyperspeed-reveal");
+    expect(reveal).toHaveClass("opacity-0");
+
+    await waitFor(() => {
+      expect(reveal).toHaveClass("opacity-100");
+    });
+  });
+
+  it("re-reveals when the tab becomes visible again", async () => {
+    render(<HeroHyperspeedBackdrop />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
+
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        value: "hidden",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
     expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
       "opacity-0"
     );
+
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        value: "visible",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-hyperspeed-reveal")).toHaveClass(
+        "opacity-100"
+      );
+    });
   });
 
   it("hides reveal on cross-zone link pointerdown", async () => {

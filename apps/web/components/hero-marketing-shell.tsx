@@ -1,6 +1,10 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
-import { HELVETY_SWISS_ORIGIN_COUNTRY } from "@helvety/shared/licensing";
+import {
+  HELVETY_COMPANY_VALUES_TAGLINE,
+  HELVETY_SWISS_ORIGIN_COUNTRY,
+} from "@helvety/shared/licensing";
 import { cn } from "@helvety/shared/utils";
+import { Badge } from "@helvety/ui/badge";
 import { Button } from "@helvety/ui/button";
 import { ChevronRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
@@ -10,9 +14,17 @@ import { HeroHyperspeedLayer } from "@/components/hero-hyperspeed-layer";
 /** Minimum main height for the gateway hero layout. */
 const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
+/** Frosted outline Badge surface (same tokens as Store catalog artist badges). */
+const HERO_TAGLINE_BADGE_CLASS =
+  "border-border/60 bg-card/90 text-card-foreground shadow-sm backdrop-blur-sm";
+
+/** Gateway hero pill copy: lowercase company values, no trailing period, ASCII separators only. */
+export const HERO_COMPANY_VALUES_TAGLINE_TEXT =
+  HELVETY_COMPANY_VALUES_TAGLINE.replace(/\.$/, "").toLowerCase();
+
 /**
  * Server-rendered marketing hero copy for `/`.
- * WebGL backdrop and motion enhancements hydrate via {@link HeroHyperspeedLayer}.
+ * Company values render in a shadcn outline `Badge`; WebGL backdrop hydrates via {@link HeroHyperspeedLayer}.
  */
 export function HeroMarketingShell() {
   return (
@@ -36,9 +48,15 @@ export function HeroMarketingShell() {
               {HELVETY_SWISS_ORIGIN_COUNTRY}
             </span>
           </h1>
-          <p className="text-muted-foreground text-base tracking-[0.08em] md:text-lg">
-            private · simple · clean
-          </p>
+          <Badge
+            variant="outline"
+            className={cn(
+              HERO_TAGLINE_BADGE_CLASS,
+              "h-auto px-4 py-1.5 text-sm font-medium tracking-[0.08em] md:text-base"
+            )}
+          >
+            {HERO_COMPANY_VALUES_TAGLINE_TEXT}
+          </Badge>
         </div>
 
         <Button

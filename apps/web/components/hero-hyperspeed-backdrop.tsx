@@ -39,12 +39,18 @@ function resolveEffectIsDark(isDark: boolean): boolean {
   return isDark;
 }
 
+/** True when the Hyperspeed host already has a composited canvas. */
+function hasHyperspeedCanvas(): boolean {
+  return document.querySelector("#lights canvas") !== null;
+}
+
 /**
  * Semantic base + Hyperspeed WebGL inside a reveal wrapper that stays at
  * `opacity-0` until the first composited frame (`onReady` →
- * {@link scheduleWebglBackdropReady}), then fades in over **700ms**.
+ * {@link scheduleWebglBackdropReady}), then fades in over **2000ms**.
  * Theme toggle hides the wrapper, remounts Hyperspeed (`key`), and fades in again.
- * Hides immediately on cross-zone navigation, `pagehide`, and bfcache restore.
+ * Hides on cross-zone navigation and `pagehide`; re-reveals when the tab returns or
+ * remounts WebGL after bfcache restore.
  */
 export function HeroHyperspeedBackdrop() {
   const isDark = useHtmlDarkTheme();
@@ -54,6 +60,7 @@ export function HeroHyperspeedBackdrop() {
     () => false
   );
   const [themeStable, setThemeStable] = useState(false);
+  const [remountKey, setRemountKey] = useState(0);
   const effectIsDark = resolveEffectIsDark(isDark);
   const effectOptions = useMemo(
     () => getHeroHyperspeedEffectOptions(effectIsDark),
@@ -76,6 +83,21 @@ export function HeroHyperspeedBackdrop() {
     readyGeneration.current += 1;
   }, []);
 
+  const tryReveal = useCallback(() => {
+    const gen = readyGeneration.current;
+    scheduleWebglBackdropReady(() => {
+      if (gen !== readyGeneration.current) {
+        return;
+      }
+      if (readHtmlDarkTheme() !== isDark) {
+        readyGeneration.current += 1;
+        setRevealed(false);
+        return;
+      }
+      setRevealed(true);
+    });
+  }, [isDark]);
+
   useEffect(() => {
     const onPageHide = () => {
       hideReveal();
@@ -83,11 +105,16 @@ export function HeroHyperspeedBackdrop() {
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         hideReveal();
+        return;
+      }
+      if (document.visibilityState === "visible" && hasHyperspeedCanvas()) {
+        tryReveal();
       }
     };
     const onPageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
         hideReveal();
+        setRemountKey((key) => key + 1);
       }
     };
     const onPointerDown = (event: PointerEvent) => {
@@ -116,24 +143,21 @@ export function HeroHyperspeedBackdrop() {
       window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("pointerdown", onPointerDown, true);
     };
-  }, [hideReveal]);
+  }, [hideReveal, tryReveal]);
 
   const handleReady = useCallback(() => {
-    const gen = readyGeneration.current;
-    scheduleWebglBackdropReady(() => {
-      if (gen !== readyGeneration.current) {
-        return;
-      }
-      if (readHtmlDarkTheme() !== isDark) {
-        readyGeneration.current += 1;
-        setRevealed(false);
-        return;
-      }
-      setRevealed(true);
-    });
-  }, [isDark]);
+    tryReveal();
+  }, [tryReveal]);
+
+  const handleInitError = useCallback(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[hero-hyperspeed] init_passes_failed");
+    }
+    hideReveal();
+  }, [hideReveal]);
 
   const canMountGl = clientMounted && themeStable;
+  const hyperspeedKey = `${isDark ? "dark" : "light"}-${remountKey}`;
 
   return (
     <div
@@ -150,9 +174,10 @@ export function HeroHyperspeedBackdrop() {
       <div className="absolute inset-0 z-[1] h-full min-h-0 w-full">
         {canMountGl ? (
           <HeroHyperspeed
-            key={isDark ? "dark" : "light"}
+            key={hyperspeedKey}
             effectOptions={effectOptions}
             onReady={handleReady}
+            onInitError={handleInitError}
           />
         ) : null}
       </div>

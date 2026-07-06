@@ -20,6 +20,12 @@ describe("hero legacy cleanup guards", () => {
     const readme = readFileSync(join(webRoot, "README.md"), "utf8");
     expect(readme).toContain("HeroMarketingShell");
     expect(readme).toContain("HeroHyperspeedLayer");
+    expect(readme).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
+    expect(readme).toMatch(/shadcn.*`Badge`/i);
+    expect(readme).toContain("packages/ui/src/badge.tsx");
+    expect(readme).toContain("2000ms");
+    expect(readme).toContain("canUseWebGL");
+    expect(readme).not.toContain("700ms");
     expect(readme).not.toContain("components/hero-section.tsx");
     expect(readme).not.toMatch(/Legacy [`[]HeroSection/);
     expect(readme).toMatch(
@@ -38,6 +44,30 @@ describe("hero legacy cleanup guards", () => {
     expect(shell).not.toContain("hero-text");
     expect(shell).not.toContain("Shuffle");
     expect(shell).not.toContain("ShinyText");
+  });
+
+  it("production hero shell uses shadcn Badge for company values tagline", () => {
+    const shell = readFileSync(
+      join(webRoot, "components/hero-marketing-shell.tsx"),
+      "utf8"
+    );
+    expect(shell).toContain("@helvety/ui/badge");
+    expect(shell).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
+    expect(shell).toContain('variant="outline"');
+    expect(shell).not.toMatch(/private\s*·\s*simple/);
+    expect(shell).not.toMatch(/\p{Extended_Pictographic}/u);
+  });
+
+  it("ui-shadcn policy documents current gateway hero behavior", () => {
+    const policy = readFileSync(
+      join(webRoot, "..", "..", "docs", "ui-shadcn-integration-policy.md"),
+      "utf8"
+    );
+    expect(policy).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
+    expect(policy).toContain("@helvety/ui/badge");
+    expect(policy).toContain("2000ms");
+    expect(policy).toContain("canUseWebGL");
+    expect(policy).not.toContain("700ms");
   });
 
   it("hero-text JSDoc points at production shell, not removed harness", () => {

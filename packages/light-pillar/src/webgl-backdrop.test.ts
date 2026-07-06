@@ -16,7 +16,7 @@ describe("webgl-backdrop", () => {
       "absolute inset-0 bg-background"
     );
     expect(WEBGL_BACKDROP_REVEAL_TRANSITION_CLASS).toBe(
-      "transition-opacity duration-700 ease-out motion-reduce:transition-none"
+      "transition-opacity duration-2000 ease-out motion-reduce:transition-none"
     );
   });
 

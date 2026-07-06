@@ -1,15 +1,15 @@
 "use client";
 
 /**
- * React Bits text presets for the gateway hero (Shuffle eyebrow, ShinyText tagline).
+ * React Bits text animation presets (Shuffle eyebrow, ShinyText tagline).
  *
- * **Not mounted on production `/` today**. {@link ./hero-marketing-shell} uses static SSR copy;
- * {@link ./hero-hyperspeed-layer} adds client WebGL only. Keep this module for vendor refresh,
- * preset tuning, and {@link ./hero-text.test.tsx}.
+ * **Not mounted on production `/`.** {@link ./hero-marketing-shell} server-renders the live hero
+ * (shadcn `Badge` tagline from `HELVETY_COMPANY_VALUES_TAGLINE`; no Shuffle/ShinyText). {@link ./hero-hyperspeed-layer}
+ * adds client WebGL only. Keep this module for vendor refresh, preset tuning, and {@link ./hero-text.test.tsx}.
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Switzerland**: static Helvety red (`--brand-swiss-red` from `@helvety/ui/globals.css`).
- * - **Shiny Text**: tagline (white/red or black/red shine per theme); muted static paragraph when `useReducedMotion()` is true.
+ * - **Shiny Text**: experimental tagline preset (middle-dot separators for the animation demo only; production uses comma form from shared licensing).
  *
  * Upstream: https://reactbits.dev/text-animations. Refresh via `bunx shadcn add @react-bits/…` (see `apps/web` README).
  */
@@ -22,6 +22,7 @@ import { useReducedMotion } from "framer-motion";
 import ShinyText from "@/components/vendor/ShinyText";
 import Shuffle from "@/components/vendor/Shuffle";
 
+/** Vendor ShinyText demo copy (middle dots); production hero uses {@link HERO_COMPANY_VALUES_TAGLINE_TEXT}. */
 const TAGLINE = "private · simple · clean";
 
 const TAGLINE_CLASS = "text-base tracking-[0.08em] md:text-lg";
