@@ -7,17 +7,12 @@ import { describe, expect, it } from "vitest";
 const layoutPath = join(dirname(fileURLToPath(import.meta.url)), "layout.tsx");
 
 /**
- * Contract for gateway shell scroll viewport: hero bleed is scoped to `/` via
- * {@link getGatewayShellLayoutProps} (see layout.tsx).
+ * Contract for gateway shell props passed from the root layout.
  */
 describe("web root layout shell props", () => {
-  it("derives shell overflow props from getGatewayShellLayoutProps", () => {
+  it("passes the static shell props inline", () => {
     const src = readFileSync(layoutPath, "utf8");
-    expect(src).toContain("getGatewayShellLayoutProps");
-    expect(src).toContain("{...shellLayoutProps}");
-    expect(src).not.toMatch(
-      /scrollAreaViewportClassName[=:]\s*["']!overflow-visible bg-background["']/
-    );
+    expect(src).toContain('bodyClassName="overflow-x-clip"');
   });
 
   it("documents head theme init for correct tokens before body paint", () => {

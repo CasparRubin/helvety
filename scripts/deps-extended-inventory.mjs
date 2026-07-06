@@ -14,7 +14,6 @@ const ROOT = process.cwd();
 const LOCKFILE_PACKAGES = [
   "onnxruntime-web",
   "pdfjs-dist",
-  "ogl",
   "pdf-lib",
   "react-pdf",
 ];

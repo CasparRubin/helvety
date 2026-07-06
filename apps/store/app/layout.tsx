@@ -58,7 +58,7 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: blocking `HelvetyThemeInitScript` in `<head>`; ThemeProvider wraps only the Navbar.
  * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
  * Navbar-only ThemeProvider keeps next-themes off catalog routes; head script sets `html.dark` before body paint.
- * Does not use shell overflow overrides (unlike the gateway SideRays hero).
+ * Does not use shell overflow overrides.
  * Session bootstrap: `bootstrapE2eeLayoutSession()` (CSRF + user for `CSRFProvider` and nav).
  */
 export default async function RootLayout({

@@ -327,7 +327,7 @@ export function createEslintConfig(rootDir) {
         "jsdoc/require-jsdoc": "off",
       },
     },
-    // Vendored React Bits / WebGL (apps/web/components/vendor): upstream style, not Helvety conventions.
+    // Vendored React Bits components (apps/web/components/vendor): upstream style, not Helvety conventions.
     {
       files: ["**/components/vendor/**"],
       rules: {

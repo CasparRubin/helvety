@@ -58,15 +58,6 @@ describe("Helvety layout wiring", () => {
     }
   );
 
-  it.each(["auth", "store"] as const)(
-    "apps/%s does not mount an animated WebGL shell backdrop",
-    (app) => {
-      const src = readAppFile(app, "app/layout.tsx");
-      expect(src).not.toContain("@helvety/light-pillar");
-      expect(src).not.toContain("HelvetyShellWithLightPillarBackdrop");
-    }
-  );
-
   it.each(E2EE_SHELL_APPS)("apps/%s uses E2eeAppRootLayout", (app) => {
     const src = readAppFile(app, "app/layout.tsx");
     expect(src).toContain("E2eeAppRootLayout");

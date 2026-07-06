@@ -79,7 +79,6 @@ describe("workspace package manifests", () => {
     "packages/brand/package.json",
     "packages/dev-deps/package.json",
     "packages/extension-chrome/package.json",
-    "packages/light-pillar/package.json",
   ];
 
   it("declares AGPL-3.0-or-later in every workspace package.json", () => {

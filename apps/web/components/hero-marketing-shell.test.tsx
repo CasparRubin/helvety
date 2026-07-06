@@ -39,7 +39,7 @@ describe("HeroMarketingShell", () => {
     expect(src).toContain("hero-company-values-copy");
     expect(src).toContain("HERO_COMPANY_VALUES_TAGLINE_DISPLAY");
     expect(src).toContain("HeroCompanyValuesTagline");
-    expect(src).toContain("HeroSideRaysLayer");
+    expect(src).not.toMatch(/WebGL/);
     expect(src).toContain("lg:whitespace-nowrap");
     expect(src).toContain("text-base");
     expect(src).not.toContain("@helvety/ui/badge");
@@ -73,7 +73,8 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("text-muted-foreground");
     expect(html).toContain("font-medium");
     expect(html).toContain("tracking-[0.08em]");
-    expect(html).not.toContain("hero-side-rays-host");
+    expect(html).not.toContain("<canvas");
+    expect(html).toContain("bg-background");
     expect(html).toContain("Browse Helvety products");
     expect(html).toContain("/store");
     expect(html).not.toMatch(EMOJI_PATTERN);

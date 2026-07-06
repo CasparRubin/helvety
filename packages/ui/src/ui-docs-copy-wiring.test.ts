@@ -159,20 +159,18 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).not.toContain("seedDraft");
   });
 
-  it("gateway hero docs describe the current SideRays stack", () => {
+  it("gateway hero docs describe the current plain-background stack", () => {
     const heroDocPaths = [
       "README.md",
       "packages/ui/README.md",
       "apps/web/README.md",
       "docs/ui-shadcn-integration-policy.md",
-      "packages/light-pillar/README.md",
     ] as const;
 
     const implementationDetailPaths = new Set([
       "README.md",
       "apps/web/README.md",
       "docs/ui-shadcn-integration-policy.md",
-      "packages/light-pillar/README.md",
     ]);
 
     const taglineDocPaths = new Set([
@@ -184,7 +182,9 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
 
     for (const relativePath of heroDocPaths) {
       const doc = readRepoFile(relativePath);
-      expect(doc, relativePath).toMatch(/SideRays/i);
+      expect(doc, relativePath).toMatch(
+        /bg-background|plain theme background/i
+      );
       if (taglineDocPaths.has(relativePath)) {
         expect(doc, relativePath).toMatch(/private\s*·\s*simple/i);
         expect(doc, relativePath).toContain("HELVETY_COMPANY_VALUES_TAGLINE");
@@ -198,10 +198,10 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
       );
 
       if (implementationDetailPaths.has(relativePath)) {
-        expect(doc, relativePath).toMatch(/2000ms|duration-2000/i);
-        expect(doc, relativePath).toMatch(/canUseWebGL|bfcache/i);
+        expect(doc, relativePath).not.toMatch(/2000ms|duration-2000/i);
+        expect(doc, relativePath).not.toMatch(/canUseWebGL|bfcache/i);
         expect(doc, relativePath).toMatch(
-          /HeroSideRaysLayer|hero-side-rays-layer/i
+          /plain `bg-background`|plain theme background/i
         );
       }
     }

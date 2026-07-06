@@ -32,8 +32,8 @@ describe("web gateway proxy matcher", () => {
     expect(pattern).toContain("woff2?");
   });
 
-  it("forwards pathname for gateway shell layout scoping", () => {
+  it("uses the public-marketing profile without pathname forwarding", () => {
     const src = readFileSync(proxyPath, "utf8");
-    expect(src).toContain("includeRequestPathname: true");
+    expect(src).toContain('createProfiledSecurityProxy("public-marketing")');
   });
 });

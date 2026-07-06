@@ -6,7 +6,6 @@ import { ChevronRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 
 import { HeroCompanyValuesTagline } from "@/components/hero-company-values-tagline";
-import { HeroSideRaysLayer } from "@/components/hero-side-rays-layer";
 
 export {
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
@@ -18,21 +17,18 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 
 /**
  * Server-rendered marketing hero copy for `/`.
- * Company values render via {@link HeroCompanyValuesTagline};
- * WebGL backdrop hydrates via {@link HeroSideRaysLayer}.
+ * Company values render via {@link HeroCompanyValuesTagline}.
  */
 export function HeroMarketingShell() {
   return (
     <section
       className={cn(
-        "relative isolate flex w-full min-w-0 flex-1 flex-col justify-center overflow-visible",
+        "flex w-full min-w-0 flex-1 flex-col justify-center",
         HERO_MIN_MAIN,
         "bg-background"
       )}
     >
-      <HeroSideRaysLayer />
-
-      <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 text-center md:px-6">
+      <div className="pointer-events-none mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 text-center md:px-6">
         <div className="space-y-5">
           <p className="text-muted-foreground text-base font-medium tracking-[0.12em] uppercase">
             Software products

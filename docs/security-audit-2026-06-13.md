@@ -70,14 +70,14 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 > Pins below are **as of 2026-06-13**. For current pins, use [`dependency-inventory.md`](./dependency-inventory.md) and the [2026-07-04 sweep](#dependency-sweep-2026-07-04).
 
-| Asset                              | Pin at audit (2026-06-13)                                            | Upstream latest (at audit)                               | Recommendation                                                                                 |
-| ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `onnxruntime-web`                  | 1.26.0                                                               | 1.26.0                                                   | **Keep** — latest stable                                                                       |
-| Real-ESRGAN ONNX (Supabase bucket) | SHA in `apps/image-upscaler/lib/models.ts`                           | unchanged                                                | **Keep** — no upstream model change                                                            |
-| `pdfjs-dist`                       | via `react-pdf@10.4.1` → `5.4.296` (transitive; do not root/app pin) | see [`dependency-inventory.md`](dependency-inventory.md) | **Follow react-pdf** — worker must match runtime API; `consistency:pdfjs-worker` in `ci:check` |
-| `three` / `postprocessing`         | 0.184.0 / 6.39.1                                                     | same                                                     | **Removed (2026-07)** — gateway hero uses `ogl` (SideRays) instead; row kept as audit snapshot |
+| Asset                              | Pin at audit (2026-06-13)                                            | Upstream latest (at audit)                               | Recommendation                                                                                   |
+| ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `onnxruntime-web`                  | 1.26.0                                                               | 1.26.0                                                   | **Keep** — latest stable                                                                         |
+| Real-ESRGAN ONNX (Supabase bucket) | SHA in `apps/image-upscaler/lib/models.ts`                           | unchanged                                                | **Keep** — no upstream model change                                                              |
+| `pdfjs-dist`                       | via `react-pdf@10.4.1` → `5.4.296` (transitive; do not root/app pin) | see [`dependency-inventory.md`](dependency-inventory.md) | **Follow react-pdf** — worker must match runtime API; `consistency:pdfjs-worker` in `ci:check`   |
+| `three` / `postprocessing`         | 0.184.0 / 6.39.1                                                     | same                                                     | **Removed (2026-07)** — gateway hero no longer uses a WebGL backdrop; row kept as audit snapshot |
 
-> **Correction (2026-07-06):** Gateway hero WebGL no longer uses `three` / `postprocessing`. See [`dependency-inventory.md`](./dependency-inventory.md) (web zone: `ogl`, SideRays).
+> **Correction (2026-07-06):** Gateway hero no longer uses `three` / `postprocessing`, and the later follow-up WebGL backdrop was removed as well. See [`dependency-inventory.md`](./dependency-inventory.md).
 
 > **Correction (2026-07-01):** An earlier draft of this table listed a direct `pdfjs-dist@6.0.227` pin. In production, `pdfjs-dist` is **transitive via `react-pdf`**; syncing the worker from a separate pin caused API/worker version skew. See [`docs/dependency-inventory.md`](dependency-inventory.md) (pdf zone) and root `consistency:pdfjs-worker`.
 

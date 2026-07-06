@@ -28,14 +28,12 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `app/seo-routes.test.ts`             | Robots + sitemap expectations for the zone (public: `expectPublicCrawlerRobots` + `assertValidPublicSitemapEntries`; private: `expectPrivateZoneRobots` only) |
 | `app/layout-metadata.test.ts`        | Metadata + JSON-LD alignment; mock only what `layout.tsx` imports (see below)                                                                                 |
-| `app/layout-shell-providers.test.ts` | Root layout uses the correct shell (public vs E2EE) without gateway WebGL in layout                                                                           |
+| `app/layout-shell-providers.test.ts` | Root layout uses the correct shell (public vs E2EE)                                                                                                           |
 | `proxy.test.ts`                      | Static matcher matches shared baseline                                                                                                                        |
 
 Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layout-shell + env JSDoc), and sibling app patterns.
 
 ### `layout-shell-providers.test.ts` families
-
-Every zone asserts layouts omit `@helvety/light-pillar` and `HelvetyShellWithLightPillarBackdrop` (gateway WebGL stays on `web` route components only).
 
 | Family            | Apps                                    | Also assert                                                                                                                                                                                                                                               |
 | ----------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -191,8 +189,6 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 | ------------------------------ | --------------------------------------------------------------- |
 | `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler`, `image-editor` |
 | `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`                           |
-
-Gateway marketing WebGL (`@helvety/light-pillar`) belongs on the homepage route/component in `web`, not in zone layouts.
 
 **ScrollArea viewport selectors:** Public shells and `CommandBarPageLayout` target child viewports with `[data-slot=scroll-area-viewport]` (shadcn Base UI `data-slot`, not legacy `data-radix-scroll-area-viewport`). Guardrail: `packages/ui/src/helvety-layout-wiring.test.ts`, `command-bar-page-layout.test.tsx`.
 

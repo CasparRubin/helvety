@@ -52,7 +52,7 @@ export type CreateSecurityProxyOptions = {
   includeHelvetyUrl?: boolean;
   /** Whether to bootstrap/re-issue signed CSRF cookies (default: true). Public marketing profile disables this. */
   includeCsrf?: boolean;
-  /** Whether to set {@link HELVETY_PATHNAME_HEADER_NAME} (default: false). Web gateway enables for hero bleed scoping. */
+  /** Whether to set {@link HELVETY_PATHNAME_HEADER_NAME} (default: false). */
   includeRequestPathname?: boolean;
 };
 

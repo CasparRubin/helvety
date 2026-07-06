@@ -5,14 +5,13 @@ import { cn } from "@helvety/shared/utils";
 
 /** Combined ScrollArea root props plus optional viewport class override. */
 type ScrollAreaProps = ScrollAreaPrimitive.Root.Props & {
-  /** Merged onto the viewport (e.g. `!overflow-visible` to defeat inline overflow clipping). */
+  /** Merged onto the viewport when callers need custom overflow behavior. */
   viewportClassName?: string;
 };
 
 /**
  * Scrollable area with custom scrollbar styling and stable gutter reservation.
- * Pass **`viewportClassName`** to override inline overflow on the viewport
- * (for example `!overflow-visible` for full-bleed content inside the scroll region).
+ * Pass **`viewportClassName`** to override inline overflow on the viewport.
  */
 function ScrollArea({
   className,

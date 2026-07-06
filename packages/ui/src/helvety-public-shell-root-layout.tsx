@@ -69,16 +69,15 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   scrollAreaMainClassName?: string;
   /**
    * Optional extra classes on the ScrollArea **root** (`ScrollAreaPrimitive.Root`).
-   * Passed last in `cn(...)` so callers can override defaults (e.g. `!overflow-visible` for horizontal bleed).
+   * Passed last in `cn(...)` so callers can override defaults when a route needs custom overflow.
    */
   scrollAreaRootClassName?: string;
   /** Optional classes on the ScrollArea **viewport**; see {@link ScrollArea} `viewportClassName`. */
   scrollAreaViewportClassName?: string;
   /**
    * Optional classes on the outer **`h-svh`** shell column (navbar + main + footer).
-   * Defaults to `overflow-hidden`. Use e.g. `!overflow-visible` when main content must paint
-   * horizontally past the column (full-bleed heroes); pair with `bodyClassName` e.g.
-   * `overflow-x-clip` if stray horizontal scrollbars appear.
+   * Defaults to `overflow-hidden`. Use a custom override only when the route's layout
+   * needs content to paint past the shell column.
    */
   shellColumnClassName?: string;
   /** Extra classes on `<body>` (both theme branches). */
@@ -147,15 +146,14 @@ function buildMainBlock(
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
  * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
- * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**, **`scrollAreaRootClassName`**,
- * **`scrollAreaViewportClassName`**, and **`bodyClassName`** escape default overflow clipping so main
- * content can extend horizontally (`apps/web` homepage `/` only via
- * `getGatewayShellLayoutProps`; legal and other gateway routes keep default clipping).
- * Other public apps keep the defaults.
+ * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**,
+ * **`scrollAreaRootClassName`**, **`scrollAreaViewportClassName`**, and **`bodyClassName`**
+ * can still override the default clipping when a caller needs it. Other public apps keep
+ * the defaults.
  *
  * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
  * **`bodyClassName`**. {@link HelvetyThemeInitScript} in `<head>` applies `html.dark` before body
- * paint so semantic tokens match storage/system (gateway SideRays and Store catalog).
+ * paint so semantic tokens match storage/system (for example the gateway hero and Store catalog).
  *
  * E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
  */

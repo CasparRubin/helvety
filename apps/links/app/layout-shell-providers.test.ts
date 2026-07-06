@@ -7,11 +7,9 @@ import { describe, expect, it } from "vitest";
 const layoutPath = join(dirname(fileURLToPath(import.meta.url)), "layout.tsx");
 
 describe("links root layout shell providers", () => {
-  it("uses async E2eeAppRootLayout with a local encryption provider and no WebGL backdrop", () => {
+  it("uses async E2eeAppRootLayout with a local encryption provider", () => {
     const src = readFileSync(layoutPath, "utf8");
 
-    expect(src).not.toContain("@helvety/light-pillar");
-    expect(src).not.toContain("HelvetyShellWithLightPillarBackdrop");
     expect(src).toMatch(/export default async function RootLayout/);
     expect(src).toContain("<E2eeAppRootLayout");
     expect(src).toContain("encryptionProvider={EncryptionProvider}");

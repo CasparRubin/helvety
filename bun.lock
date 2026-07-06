@@ -207,14 +207,12 @@
       "dependencies": {
         "@gsap/react": "^2.1.2",
         "@helvety/brand": "workspace:*",
-        "@helvety/light-pillar": "workspace:*",
         "@helvety/shared": "workspace:*",
         "@helvety/ui": "workspace:*",
         "framer-motion": "^12.42.2",
         "gsap": "^3.15.0",
         "lucide-react": "^1.23.0",
         "next": "^16.2.10",
-        "ogl": "^1.0.11",
         "react": "^19.2.7",
         "react-dom": "^19.2.7",
         "server-only": "^0.0.1",
@@ -300,22 +298,6 @@
       },
       "peerDependencies": {
         "react": "^19.2.7",
-      },
-    },
-    "packages/light-pillar": {
-      "name": "@helvety/light-pillar",
-      "version": "0.1.0",
-      "devDependencies": {
-        "@helvety/config": "workspace:*",
-        "@helvety/dev-deps": "workspace:*",
-        "next": "^16.2.10",
-        "react": "^19.2.7",
-        "react-dom": "^19.2.7",
-      },
-      "peerDependencies": {
-        "next": "^16.2.10",
-        "react": "^19.2.7",
-        "react-dom": "^19.2.7",
       },
     },
     "packages/shared": {
@@ -569,8 +551,6 @@
     "@helvety/image-editor": ["@helvety/image-editor@workspace:apps/image-editor"],
 
     "@helvety/image-upscaler": ["@helvety/image-upscaler@workspace:apps/image-upscaler"],
-
-    "@helvety/light-pillar": ["@helvety/light-pillar@workspace:packages/light-pillar"],
 
     "@helvety/links": ["@helvety/links@workspace:apps/links"],
 
@@ -1836,8 +1816,6 @@
 
     "obug": ["obug@2.1.1", "", {}, "sha512-uTqF9MuPraAQ+IsnPf366RG4cP9RtUi7MLO1N3KEc+wb0a6yKpeL0lmk2IB1jY5KHPAlTc6T/JRdC/YqxHNwkQ=="],
 
-    "ogl": ["ogl@1.0.11", "", {}, "sha512-kUpC154AFfxi16pmZUK4jk3J+8zxwTWGPo03EoYA8QPbzikHoaC82n6pNTbd+oEaJonaE8aPWBlX7ad9zrqLsA=="],
-
     "on-finished": ["on-finished@2.4.1", "", { "dependencies": { "ee-first": "1.1.1" } }, "sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg=="],
 
     "once": ["once@1.4.0", "", { "dependencies": { "wrappy": "1" } }, "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w=="],
@@ -2384,6 +2362,8 @@
 
     "@upstash/core-analytics/@upstash/redis": ["@upstash/redis@1.37.0", "", { "dependencies": { "uncrypto": "^0.1.3" } }, "sha512-LqOJ3+XWPLSZ2rGSed5DYG3ixybxb8EhZu3yQqF7MdZX1wLBG/FRcI6xcUZXHy/SS7mmXWyadrud0HJHkOc+uw=="],
 
+    "eslint-config-next/eslint-plugin-react": ["eslint-plugin-react@github:jsx-eslint/eslint-plugin-react#f6ec87d", { "dependencies": { "array-includes": "^3.1.9", "array.prototype.findlast": "^1.2.5", "array.prototype.flatmap": "^1.3.3", "array.prototype.tosorted": "^1.1.4", "doctrine": "^2.1.0", "es-iterator-helpers": "^1.2.2", "estraverse": "^5.3.0", "hasown": "^2.0.2", "jsx-ast-utils": "^2.4.1 || ^3.0.0", "minimatch": "^3.1.2", "object.entries": "^1.1.9", "object.fromentries": "^2.0.8", "object.values": "^1.2.1", "prop-types": "^15.8.1", "resolve": "^2.0.0-next.5", "semver": "^6.3.1", "string.prototype.matchall": "^4.0.12", "string.prototype.repeat": "^1.0.0" }, "peerDependencies": { "eslint": "^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7" } }, "jsx-eslint-eslint-plugin-react-f6ec87d", "sha512-BwK7Yq1mcYjGiv+UJC5N/wiev4VpMhcd4x2d57EWjSRYl2++R+bb+nqcp4xgI9fUWTFiECq+dJMJgVZVxzmNRw=="],
+
     "eslint-import-resolver-node/debug": ["debug@3.2.7", "", { "dependencies": { "ms": "^2.1.1" } }, "sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ=="],
 
     "eslint-import-resolver-typescript/tinyglobby": ["tinyglobby@0.2.16", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.4" } }, "sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg=="],
@@ -2547,6 +2527,8 @@
     "@unrs/resolver-binding-wasm32-wasi/@napi-rs/wasm-runtime/@emnapi/runtime": ["@emnapi/runtime@1.9.2", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-3U4+MIWHImeyu1wnmVygh5WlgfYDtyf0k8AbLhMFxOipihf6nrWC4syIm/SwEeec0mNSafiiNnMJwbza/Is6Lw=="],
 
     "@unrs/resolver-binding-wasm32-wasi/@napi-rs/wasm-runtime/@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
+
+    "eslint-config-next/eslint-plugin-react/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "eslint-plugin-import/tsconfig-paths/json5": ["json5@1.0.2", "", { "dependencies": { "minimist": "^1.2.0" }, "bin": { "json5": "lib/cli.js" } }, "sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA=="],
 

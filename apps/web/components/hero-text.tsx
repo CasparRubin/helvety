@@ -5,8 +5,7 @@
  *
  * **Not mounted on production `/`.** {@link ./hero-marketing-shell} server-renders the live hero
  * (middle-dot company-values tagline via {@link ./hero-company-values-tagline}; no Shuffle/ShinyText).
- * {@link ./hero-side-rays-layer} adds client WebGL only. Keep this module for vendor refresh,
- * preset tuning, and {@link ./hero-text.test.tsx}.
+ * Keep this module for vendor refresh, preset tuning, and {@link ./hero-text.test.tsx}.
  *
  * - **Shuffle**: eyebrow (`Software products`), replays every 5s; `respectReducedMotion` handles reduced motion internally.
  * - **Switzerland**: static Helvety red (`--brand-swiss-red` from `@helvety/ui/globals.css`).

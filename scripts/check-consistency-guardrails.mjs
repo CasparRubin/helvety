@@ -658,24 +658,6 @@ async function main() {
         `apps/${entry.name}/proxy.ts must document SECURITY_PROXY_MATCHER parity above config.matcher (see apps/pdf/proxy.ts).`
       );
     }
-
-    const layoutShellTestPath = resolve(
-      rootDir,
-      "apps",
-      entry.name,
-      "app/layout-shell-providers.test.ts"
-    );
-    const layoutShellTest = await readFile(layoutShellTestPath, "utf8");
-    for (const forbidden of [
-      "@helvety/light-pillar",
-      "HelvetyShellWithLightPillarBackdrop",
-    ]) {
-      if (!layoutShellTest.includes(forbidden)) {
-        throw new Error(
-          `apps/${entry.name}/app/layout-shell-providers.test.ts must assert layouts do not use ${forbidden}.`
-        );
-      }
-    }
   }
 
   const e2eeApps = ["contacts", "tasks", "notes", "links"];

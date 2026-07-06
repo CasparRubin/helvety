@@ -8,7 +8,6 @@ import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
-import { getGatewayShellLayoutProps } from "@/lib/gateway-shell-props";
 
 export { WEB_SITE_DESCRIPTION };
 
@@ -51,12 +50,6 @@ export const metadata = createHelvetyProductMetadata({
  * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
  * gutters, fixed footer (contact + legal links).
  *
- * Full-bleed SideRays on `/` only paints wider than the content column
- * (`100svw`, centered on the hero; WebGL mounts client-side when motion is allowed).
- * {@link getGatewayShellLayoutProps} passes overflow escape props only on `/` so legal and
- * other subpages keep default scroll clipping; see `@helvety/ui` README for optional
- * `HelvetyPublicShellRootLayout` shell props.
- *
  * `app/loading.tsx` re-exports `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)
  * so pending navigations keep a full-viewport `bg-background` shell. The public shell injects
  * blocking `HelvetyThemeInitScript` in `<head>` so theme tokens are correct before body paint.
@@ -75,14 +68,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.JSX.Element> {
-  const [initialUser, shellLayoutProps] = await Promise.all([
-    bootstrapPublicLayoutUser(),
-    getGatewayShellLayoutProps(),
-  ]);
+  const initialUser = await bootstrapPublicLayoutUser();
 
   return (
     <HelvetyPublicShellRootLayout
-      {...shellLayoutProps}
+      bodyClassName="overflow-x-clip"
       organizationLogoUrl={brandAssets.identifierLogo}
       jsonLdGraphTail={[
         {

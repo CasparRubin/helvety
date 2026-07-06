@@ -40,7 +40,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - E2EE URL sync (tasks, notes, contacts, links): `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl`; Links uses `useLinksPanelUrlSync` (`?link=` / `?folder=`); E2EE `app/page.tsx` files wrap dashboards in `<Suspense>`; cross-link editor panels use `dynamic(..., { ssr: false })`
 - **React 19 hook/effect hygiene:** synced dashboard selected-item state with live URL search params; timer cleanup in editors; app-local fallback navigation paths (not root-relative); mobile viewport hook via `useSyncExternalStore`
 - EncryptionGate redirect intent derivation (fewer effects)
-- SideRays WebGL backdrop source under `apps/web/components/vendor/`, with React Bits text presets kept out of the production hero shell
+- Plain theme-backed gateway hero, with React Bits text presets kept out of the production hero shell
 - E2EE list hooks: `useEncryptedSortableItems` in `@helvety/ui`; tasks, notes, and contacts list hooks are thin wrappers; hook errors via `reportE2eeHookError` / `reportE2eeActionFailure` (not ad-hoc toast + redirect)
 - E2EE sheet editors (Links pattern): list dashboards pass `update` / `remove` / `refresh` from the list hook into zone editors; rich-text zones use `E2eeRichTextItemEditorShell` with mount-only TipTap (`initialDescription` + `editorSessionKey`, not live `content` sync). Links passes `library.updateLink` from `use-link-library`.
 - E2EE single-entity hooks: `useEncryptedSingleItem` in `@helvety/ui`; tasks, notes, and contacts `useItem` / `useContact` wrappers remain for optional non-dashboard fetch paths (same refresh-token and hard-logout semantics)
