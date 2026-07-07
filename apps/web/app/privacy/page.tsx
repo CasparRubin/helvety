@@ -285,17 +285,31 @@ export default function PrivacyPage() {
           2.3 Technical and Usage Data
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          We automatically collect certain information when you use the
-          Services:
+          We automatically process a limited amount of technical data when you
+          use the Services, primarily for security, abuse prevention, and
+          reliable operation:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-          <li>IP address</li>
-          <li>Browser type and version</li>
-          <li>Device information</li>
-          <li>Pages visited and navigation patterns</li>
-          <li>Date and time of access</li>
-          <li>Referring website</li>
+          <li>
+            IP address and request timestamps (rate limiting, abuse prevention,
+            and security logging)
+          </li>
+          <li>
+            Browser and device signals needed for authentication and security
+            (for example passkey credential metadata and session security
+            information)
+          </li>
+          <li>
+            Standard web server and hosting logs kept by our infrastructure
+            providers, which can include the requested page or endpoint,
+            browser user agent, and referrer header when your browser sends it
+          </li>
         </ul>
+        <p className="text-muted-foreground mb-4 text-sm">
+          We do not use third-party analytics on our web Services, and we do
+          not build navigation or usage profiles of visitors. See Section 9
+          (Cookies and Tracking) for details on cookies and similar storage.
+        </p>
 
         <h3 className="mb-3 text-lg font-medium">2.4 Communication Data</h3>
         <p className="text-muted-foreground mb-4 text-sm">
@@ -475,8 +489,10 @@ export default function PrivacyPage() {
             The sign-in surface processes email address, passkey credentials,
             PRF encryption parameters, location-attestation status (confirmation
             that you are not located in the EU/EEA and the timestamp of that
-            confirmation), IP address (for rate limiting), and user agent (for
-            device detection). Those elements power authentication and security
+            confirmation), IP address (for rate limiting), and device signals
+            used for authentication (for example passkey device metadata and
+            session user-agent information recorded by our authentication
+            provider). Those elements power authentication and security
             first, and may also be processed where necessary for legal
             compliance, abuse prevention, and service reliability.
           </li>
