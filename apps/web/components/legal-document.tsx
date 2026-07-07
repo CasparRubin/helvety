@@ -80,7 +80,11 @@ export function LegalHeader({
 
 /** Container for a legal table of contents block. */
 export function LegalToc({ children, className }: WithClassName) {
-  return <nav className={cx("legal-toc", className)}>{children}</nav>;
+  return (
+    <nav aria-label="Table of contents" className={cx("legal-toc", className)}>
+      {children}
+    </nav>
+  );
 }
 
 /** Major section block for numbered legal headings. */
