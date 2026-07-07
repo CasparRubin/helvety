@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="June 19, 2026"
+        lastReviewed="July 7, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -122,11 +122,12 @@ export default function ImpressumPage() {
           applications across Microsoft 365 integrations, browser utilities,
           desktop tooling, and encrypted Tasks, Contacts, Notes, and Links. The
           listed products are currently offered free of charge. Where source
-          repositories are published, source is released under the GNU Affero
-          General Public License version 3 or later (AGPL-3.0), including
-          browser extensions, SharePoint solutions, and desktop tools outside
-          the helvety.com monorepo. Product development is primarily based in
-          Switzerland.
+          repositories are published, the applicable repository LICENSE file
+          governs that source. The `helvety.com` monorepo is licensed under the
+          GNU Affero General Public License version 3 or later (AGPL-3.0).
+          Separately distributed Helvety product repositories may use different
+          open-source licenses, including MIT. Product development is primarily
+          based in Switzerland.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -199,8 +200,7 @@ export default function ImpressumPage() {
           The Helvety name is used as a trademark by Helvety by Rubin. All
           rights reserved for trademarks and brand assets to the extent
           permitted by law. This does not limit source-code rights granted in
-          official public repositories under the GNU Affero General Public
-          License version 3 (AGPL-3.0) or later.
+          official public repositories under the applicable repository license.
         </p>
       </LegalSection>
 
@@ -352,8 +352,7 @@ export default function ImpressumPage() {
             distribution, and any kind of use outside the limits of copyright
             law require the written consent of the respective author or creator.
             Source code published in Helvety public repositories is licensed
-            under the GNU Affero General Public License version 3 (AGPL-3.0) or
-            later.
+            under the terms stated in the relevant repository LICENSE file.
           </p>
         </LegalSubsection>
       </LegalSection>

@@ -35,7 +35,7 @@
 - [Helvety Tasks](https://helvety.com/tasks)
 
 ## Licensing
-All Helvety products with published source are released under AGPL-3.0 or later (including browser extensions, SharePoint solutions, and desktop tools distributed outside this repository).
+The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.
 
 ## Source
 - [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

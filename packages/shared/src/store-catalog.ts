@@ -42,7 +42,7 @@ export interface StoreProductCard {
   runsOn: string;
   /** True when the product has a free tier with no paywalled feature gates. */
   isFree: boolean;
-  /** True when source is publicly available under AGPL-3.0-or-later. */
+  /** True when source is publicly available under an open-source repository license. */
   isOpenSource: boolean;
 }
 

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="June 19, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="July 7, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -218,7 +218,11 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           These Terms constitute a legally binding agreement between you and
           Helvety by Rubin, a sole proprietorship (Einzelfirma) registered in
-          Switzerland.
+          Switzerland. They apply to Helvety websites, apps, browser extensions,
+          downloadable software, and related services that link to or reference
+          these Terms, unless a more specific additional notice, store term,
+          repository license, or product-specific agreement expressly states
+          otherwise for a given context.
         </p>
         <p className="text-muted-foreground text-sm">
           Your continued use of the Services following the posting of any
@@ -352,20 +356,19 @@ export default function TermsPage() {
           and account-based apps is governed by these Terms.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          Source code published in our official public repositories for Helvety
-          products (including this website, browser extensions, SharePoint
-          solutions, and desktop tools) is licensed under the GNU Affero General
-          Public License version 3 (AGPL-3.0) or later. Your rights to use,
-          study, modify, and share that source code are governed by the
-          applicable repository LICENSE file, including copyleft obligations
-          when you convey modified versions or offer the software as a network
-          service.
+          Source code published in our official public repositories is governed
+          by the LICENSE file in the specific repository. The `helvety.com`
+          monorepo is licensed under the GNU Affero General Public License
+          version 3 (AGPL-3.0) or later. Separately distributed Helvety product
+          repositories may use different open-source licenses, including MIT.
+          Your rights to use, study, modify, and share published source code are
+          determined by the applicable repository LICENSE file.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           These Terms govern the use of our hosted services, websites, account
-          features, and product delivery flows. They do not reduce or override
-          rights or obligations under the applicable open-source license for
-          repository source code.
+          features, distribution flows, and end-user access to Helvety-branded
+          products. They do not reduce or override rights or obligations under
+          the applicable open-source license for repository source code.
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Use software and services only for lawful purposes.</li>
@@ -469,6 +472,18 @@ export default function TermsPage() {
           </li>
           <li>
             <strong className="text-foreground">
+              Distribution channels and repositories:
+            </strong>{" "}
+            Some Helvety products are installed or distributed through third
+            parties such as the Chrome Web Store, GitHub Releases, or Microsoft
+            365 tenant tooling. Those channels have their own terms, review
+            processes, security prompts, runtime behavior, and data practices.
+            Public source-code rights are governed by the LICENSE file in the
+            relevant repository, not by a single blanket license across every
+            Helvety product repository.
+          </li>
+          <li>
+            <strong className="text-foreground">
               Local-data responsibility:
             </strong>{" "}
             For local-processing products (for example Screen Tools), you are
@@ -482,16 +497,20 @@ export default function TermsPage() {
           4.6 AI-assisted tools (including Helvety Image Upscaler)
         </h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          Certain Services use AI-assisted processing. For Helvety Image
-          Upscaler, image transformation runs in your browser under the current
-          architecture. We do not guarantee that outputs will be accurate,
-          visually improved, fit for a specific purpose, or free from artifacts
-          in every case.
+          Certain Services use AI-assisted or model-assisted processing. For
+          Helvety Image Upscaler, image transformation runs in your browser
+          under the current architecture. For Helvety Maguna, model inference
+          runs locally on your device, while model weights may be downloaded
+          from third-party hosts such as Hugging Face. We do not guarantee that
+          outputs will be accurate, visually improved, fit for a specific
+          purpose, or free from artifacts, hallucinations, unsafe output, or
+          licensing restrictions in every case.
         </p>
         <p className="text-muted-foreground text-sm">
           You are responsible for reviewing outputs before relying on them in
-          production, professional, legal, safety-critical, or compliance
-          contexts.
+          production, professional, legal, medical, financial, safety-critical,
+          or compliance contexts, and for reviewing any third-party model
+          license terms that apply to downloaded model weights.
         </p>
       </section>
 
@@ -1083,8 +1102,10 @@ export default function TermsPage() {
           compilations) is owned by Helvety by Rubin or its licensors and is
           protected by Swiss and international copyright, trademark, and other
           intellectual property laws. Source code published in our official
-          public repositories for Helvety products is licensed under the GNU
-          Affero General Public License version 3 (AGPL-3.0) or later.
+          public repositories is licensed under the terms stated in the relevant
+          repository LICENSE file. The `helvety.com` monorepo uses the GNU
+          Affero General Public License version 3 (AGPL-3.0) or later; other
+          Helvety repositories may use different open-source licenses.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           The Helvety name, logo, and all related names, logos, product and
@@ -1094,9 +1115,9 @@ export default function TermsPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Nothing in these Terms limits rights expressly granted by applicable
-          open-source licenses (including AGPL-3.0) for repository source code.
-          Trademark and brand usage rights remain separate and are not granted
-          unless expressly stated.
+          open-source licenses for repository source code. Trademark and brand
+          usage rights remain separate and are not granted unless expressly
+          stated.
         </p>
       </section>
 

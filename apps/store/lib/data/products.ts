@@ -3,8 +3,8 @@
  */
 
 import {
-  HELVETY_FREE_AGPL_FEATURE,
-  HELVETY_FREE_AGPL_INLINE,
+  HELVETY_FREE_SOURCE_FEATURE,
+  HELVETY_FREE_SOURCE_INLINE,
 } from "@helvety/shared/licensing";
 import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import {
@@ -88,7 +88,7 @@ const helvetyExplorer: SoftwareProduct = {
       {
         heading: "Who installs it, who uses it",
         kind: "paragraph",
-        body: `The solution is ${HELVETY_FREE_AGPL_INLINE}, and tenant-deployed from the SharePoint App Catalog. End users need normal Microsoft 365 permissions for the sites they expect to see; no separate Helvety account exists for this product.`,
+        body: `The solution is ${HELVETY_FREE_SOURCE_INLINE}; see the repository LICENSE for the exact open-source terms. It is tenant-deployed from the SharePoint App Catalog. End users need normal Microsoft 365 permissions for the sites they expect to see; no separate Helvety account exists for this product.`,
       },
       {
         heading: "What you get in day-to-day use",
@@ -276,7 +276,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
       {
         heading: "Getting it",
         kind: "paragraph",
-        body: `${HELVETY_FREE_AGPL_FEATURE}. Install from the Chrome Web Store using the button on this page, then track issues on GitHub. No Helvety account is involved.`,
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. Install from the Chrome Web Store using the button on this page, then track issues on GitHub. No Helvety account is involved.`,
       },
       {
         heading: "Scope",
@@ -302,7 +302,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
     "Popup appearance preference stored locally on your device",
     "For Microsoft Edge and Google Chrome",
     "No account required to install",
-    HELVETY_FREE_AGPL_FEATURE,
+    HELVETY_FREE_SOURCE_FEATURE,
   ],
   pricing: {
     hasFreeTier: true,
@@ -395,7 +395,7 @@ const helvetyScreenTools: SoftwareProduct = {
       {
         heading: "Distribution",
         kind: "paragraph",
-        body: `${HELVETY_FREE_AGPL_FEATURE}; releases live on GitHub. Use the Go to App button on this page to open GitHub Releases, choose the architecture that matches your machine, and download the ZIP.`,
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. Releases live on GitHub. Use the Go to App button on this page to open GitHub Releases, choose the architecture that matches your machine, and download the ZIP.`,
       },
       {
         heading: "Workflow highlights",
@@ -421,7 +421,7 @@ const helvetyScreenTools: SoftwareProduct = {
     "Shape tools: arrows, lines, rectangles, circles, ellipses, and free draw",
     "Configurable hotkeys and shortcut modifiers",
     "System tray support with settings-driven behavior",
-    HELVETY_FREE_AGPL_FEATURE,
+    HELVETY_FREE_SOURCE_FEATURE,
   ],
   pricing: {
     hasFreeTier: true,
@@ -1202,7 +1202,7 @@ const helvetyBrowserExtension: SoftwareProduct = {
       {
         heading: "Open beta and how you get it",
         kind: "paragraph",
-        body: `${HELVETY_FREE_AGPL_FEATURE}. The extension is in open beta and not yet published to the Chrome Web Store, so installation is manual: use the Go to App button on this page to open GitHub Releases, download the packaged build, and load it unpacked in your browser. Expect rough edges while the beta matures.`,
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. The extension is in open beta and not yet published to the Chrome Web Store, so installation is manual: use the Go to App button on this page to open GitHub Releases, download the packaged build, and load it unpacked in your browser. Expect rough edges while the beta matures.`,
       },
       {
         heading: "What you can do after unlock",
@@ -1235,7 +1235,7 @@ const helvetyBrowserExtension: SoftwareProduct = {
     "Open any record in the matching helvety.com app",
     "Master keys stay in the extension behind a passkey unlock",
     "For Microsoft Edge and Google Chrome (Chrome 114+ side panel)",
-    HELVETY_FREE_AGPL_FEATURE,
+    HELVETY_FREE_SOURCE_FEATURE,
   ],
   pricing: {
     hasFreeTier: true,

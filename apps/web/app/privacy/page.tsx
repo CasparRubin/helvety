@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="June 19, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="July 7, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -59,6 +59,13 @@ export default function PrivacyPage() {
           Privacy Policy is primarily based on the Swiss Federal Act on Data
           Protection (nDSG). Where mandatory law in another jurisdiction applies
           in a specific case, we comply with applicable legal obligations.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          This Privacy Policy is an umbrella notice for Helvety services that
+          link to or reference it. If a more specific privacy notice or
+          product-specific disclosure applies to a particular service,
+          distribution channel, marketplace listing, or support interaction,
+          that more specific notice governs to the extent of the overlap.
         </p>
       </section>
 
@@ -368,6 +375,15 @@ export default function PrivacyPage() {
           does not operate a server-side screenshot conversion pipeline for
           Screen Tools in normal operation.
         </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Helvety Maguna (desktop AI app) is distributed outside this monorepo
+          and primarily processes prompts, outputs, settings, archives, and
+          model selections on your local device. Model inference is designed to
+          run on-device. Model files may be downloaded from third-party hosts
+          such as Hugging Face, which process connection and delivery metadata
+          under their own terms and privacy notices. Helvety does not operate a
+          hosted chat inference API for Maguna in normal operation.
+        </p>
 
         <h3 className="mb-3 text-lg font-medium">
           2.6 Data Provision Requirements
@@ -449,7 +465,8 @@ export default function PrivacyPage() {
             </strong>{" "}
             Public marketing and legal pages rely on essential cookies and
             browser storage for core functionality. We do not use third-party
-            analytics, advertising trackers, or cross-site profiling.
+            analytics, advertising trackers, or cross-site profiling on
+            helvety.com marketing and legal pages.
           </li>
           <li>
             <strong className="text-foreground">
@@ -837,6 +854,15 @@ export default function PrivacyPage() {
           transactional email content (such as verification codes) transit
           through Resend&apos;s infrastructure.
         </p>
+        <p className="text-muted-foreground mt-4 text-sm">
+          Some Helvety products are also distributed or operated in third-party
+          environments that are not processors acting on our behalf. These can
+          include the Chrome Web Store, GitHub Releases, Microsoft 365 /
+          SharePoint / Power Platform runtimes, browser vendors, Windows or
+          other operating-system providers, and third-party model hosts such as
+          Hugging Face. Those parties may process technical, distribution, or
+          runtime data under their own terms and privacy notices.
+        </p>
       </section>
 
       {/* Section 6 */}
@@ -877,9 +903,12 @@ export default function PrivacyPage() {
         </ul>
         <p className="text-muted-foreground text-sm">
           By using the Services, you acknowledge that your data may be
-          transferred internationally as described above. You can obtain further
-          information about the specific safeguards in place for each provider
-          by contacting us at{" "}
+          transferred internationally as described above. Transfer safeguards
+          can vary by provider and legal context. We may rely on adequacy
+          decisions, recognized data-transfer frameworks, standard contractual
+          clauses or equivalent contractual protections, or other safeguards
+          permitted by applicable law. You can obtain further information about
+          the specific safeguards in place for each provider by contacting us at{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="hover:text-foreground underline transition-colors"
@@ -1292,7 +1321,11 @@ export default function PrivacyPage() {
 
         <p className="text-muted-foreground mb-4 text-sm">
           We do not operate third-party analytics, advertising trackers, or
-          cross-site profiling technologies on our web Services.
+          cross-site profiling technologies on our web Services. This does not
+          exclude operational security processing by service providers, such as
+          rate limiting, abuse prevention, log handling, or CSP/security event
+          reporting, where those functions are required to operate and protect
+          the Services.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           Essential cookies do not require consent under Swiss law as they are

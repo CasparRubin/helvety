@@ -6,39 +6,40 @@ import { describe, expect, it } from "vitest";
 
 import {
   HELVETY_COMPANY_VALUES_TAGLINE,
-  HELVETY_FREE_AGPL_FEATURE,
-  HELVETY_FREE_AGPL_INLINE,
+  HELVETY_FREE_SOURCE_FEATURE,
+  HELVETY_FREE_SOURCE_INLINE,
   HELVETY_LLMS_LICENSING_NOTE,
   HELVETY_SWISS_ORIGIN_COUNTRY,
   HELVETY_SWISS_ORIGIN_SEO,
   HELVETY_MONOREPO_LLMS_GITHUB_LINE,
-  HELVETY_SOURCE_LICENSE_LABEL,
-  HELVETY_SOURCE_LICENSE_LEGAL_NAME,
-  HELVETY_SOURCE_LICENSE_MARKETING,
-  HELVETY_SOURCE_LICENSE_SPDX,
+  HELVETY_MONOREPO_SOURCE_LICENSE_LABEL,
+  HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME,
+  HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING,
+  HELVETY_MONOREPO_SOURCE_LICENSE_SPDX,
   HELVETY_WEB_DEFAULT_TITLE,
 } from "./licensing";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("licensing constants", () => {
-  it("declares AGPL-3.0-or-later as the SPDX identifier", () => {
-    expect(HELVETY_SOURCE_LICENSE_SPDX).toBe("AGPL-3.0-or-later");
-    expect(HELVETY_SOURCE_LICENSE_LABEL).toBe("AGPL-3.0");
-    expect(HELVETY_SOURCE_LICENSE_MARKETING).toContain("AGPL-3.0");
-    expect(HELVETY_SOURCE_LICENSE_MARKETING).toContain("open source");
+  it("declares AGPL-3.0-or-later for the helvety.com monorepo", () => {
+    expect(HELVETY_MONOREPO_SOURCE_LICENSE_SPDX).toBe("AGPL-3.0-or-later");
+    expect(HELVETY_MONOREPO_SOURCE_LICENSE_LABEL).toBe("AGPL-3.0");
+    expect(HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING).toContain("AGPL-3.0");
+    expect(HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING).toContain("open source");
   });
 
-  it("uses AGPL wording for store feature bullets", () => {
-    expect(HELVETY_FREE_AGPL_FEATURE).toBe(
-      "Free and AGPL-3.0-licensed open source"
+  it("uses repository-agnostic source wording for shared store bullets", () => {
+    expect(HELVETY_FREE_SOURCE_FEATURE).toBe(
+      "Free with published source on GitHub"
     );
-    expect(HELVETY_FREE_AGPL_INLINE).toContain("AGPL-3.0-licensed open source");
+    expect(HELVETY_FREE_SOURCE_INLINE).toContain("published source on GitHub");
   });
 
-  it("documents AGPL in llms and legal naming helpers", () => {
-    expect(HELVETY_SOURCE_LICENSE_LEGAL_NAME).toContain("AGPL-3.0");
+  it("documents mixed Helvety licensing accurately in llms and legal helpers", () => {
+    expect(HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME).toContain("AGPL-3.0");
     expect(HELVETY_LLMS_LICENSING_NOTE).toContain("AGPL-3.0");
+    expect(HELVETY_LLMS_LICENSING_NOTE).toContain("MIT");
     expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).toContain("AGPL-3.0");
     expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).not.toContain("\u2014");
   });

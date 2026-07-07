@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -34,7 +36,10 @@ import { ProductDetailClient } from "./product-detail-client";
 describe("ProductDetailClient", () => {
   it("uses a click-only download button without a prefetchable package href", () => {
     const assign = vi.fn();
-    vi.stubGlobal("location", { assign });
+    vi.stubGlobal("location", {
+      ...window.location,
+      assign,
+    });
 
     render(<ProductDetailClient slug="helvety-spo-explorer" />);
 

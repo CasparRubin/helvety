@@ -1,7 +1,7 @@
 import { expect } from "vitest";
 
 import { CUSTOMER_COPY_EM_DASH } from "../customer-copy-guardrails";
-import { HELVETY_SOURCE_LICENSE_MARKETING } from "../licensing";
+import { HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING } from "../licensing";
 
 /** Vitest helper: user-facing copy must not contain U+2014 em-dashes. */
 export function assertNoEmDashInCustomerCopy(
@@ -19,7 +19,7 @@ export function assertLicenseFreeSeoCopy(label: string, text: string): void {
     /All published Helvety source/i
   );
   expect(text, `${label} license marketing`).not.toContain(
-    HELVETY_SOURCE_LICENSE_MARKETING
+    HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING
   );
 }
 

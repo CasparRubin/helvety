@@ -4,8 +4,8 @@ import {
 } from "@helvety/shared/customer-copy-guardrails";
 import { ecosystemCategoryForStoreSlug } from "@helvety/shared/helvety-ecosystem-sections";
 import {
-  HELVETY_FREE_AGPL_FEATURE,
-  HELVETY_FREE_AGPL_INLINE,
+  HELVETY_FREE_SOURCE_FEATURE,
+  HELVETY_FREE_SOURCE_INLINE,
 } from "@helvety/shared/licensing";
 import {
   POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
@@ -408,7 +408,7 @@ describe("store product catalog", () => {
     );
   });
 
-  it("open-source software listings use shared AGPL feature constants (Store About copy)", () => {
+  it("open-source software listings use shared published-source wording (Store About copy)", () => {
     for (const slug of [
       "helvety-spo-explorer",
       "helvety-power-platform-configurator",
@@ -426,7 +426,8 @@ describe("store product catalog", () => {
         ),
       ].join("\n");
 
-      expect(blob, slug).toContain("AGPL-3.0");
+      expect(blob, slug).toContain("published source on GitHub");
+      expect(blob, slug).toMatch(/LICENSE/i);
     }
 
     const spoSectionBodies = (
@@ -434,12 +435,12 @@ describe("store product catalog", () => {
     )
       .filter((s) => s.kind === "paragraph")
       .map((s) => s.body);
-    expect(spoSectionBodies.join("\n")).toContain(HELVETY_FREE_AGPL_INLINE);
+    expect(spoSectionBodies.join("\n")).toContain(HELVETY_FREE_SOURCE_INLINE);
     expect(
       getProductBySlug("helvety-power-platform-configurator")?.features
-    ).toContain(HELVETY_FREE_AGPL_FEATURE);
+    ).toContain(HELVETY_FREE_SOURCE_FEATURE);
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
-      HELVETY_FREE_AGPL_FEATURE
+      HELVETY_FREE_SOURCE_FEATURE
     );
   });
 

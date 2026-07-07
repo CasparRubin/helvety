@@ -12,7 +12,7 @@ import {
 } from "./customer-copy-guardrails";
 import {
   HELVETY_LLMS_LICENSING_NOTE,
-  HELVETY_SOURCE_LICENSE_MARKETING,
+  HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING,
 } from "./licensing";
 import {
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
@@ -72,7 +72,7 @@ describe("store copy guardrails", () => {
     }
   });
 
-  it("every llms.txt documents AGPL licensing for products with published source", () => {
+  it("every llms.txt documents monorepo AGPL plus repo-specific licensing guidance", () => {
     for (const rel of CUSTOMER_COPY_LLMS_RELATIVE_PATHS) {
       const text = readFileSync(join(repoRoot, rel), "utf8");
       expect(text, rel).toContain("## Licensing");
@@ -110,7 +110,9 @@ describe("store copy guardrails", () => {
     for (const rel of appReadmes) {
       const text = readFileSync(join(repoRoot, rel), "utf8");
       const intro = text.split(/^## License\b/m)[0] ?? text;
-      expect(intro, rel).not.toContain(HELVETY_SOURCE_LICENSE_MARKETING);
+      expect(intro, rel).not.toContain(
+        HELVETY_MONOREPO_SOURCE_LICENSE_MARKETING
+      );
       expect(intro, rel).not.toMatch(/All published Helvety source/i);
     }
   });

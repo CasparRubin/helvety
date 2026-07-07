@@ -14,6 +14,10 @@ vi.mock("next/headers", () => ({
   headers: vi.fn(async () => new Headers([["x-nonce", "test-nonce"]])),
 }));
 
+vi.mock("@helvety/shared/csp-nonce", () => ({
+  getRequestCspNonce: vi.fn(async () => "test-nonce"),
+}));
+
 vi.mock("./product-detail-client", () => ({
   ProductDetailClient: ({ slug }: { slug: string }) => (
     <div data-testid="product-detail-client">{slug}</div>

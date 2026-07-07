@@ -4,8 +4,8 @@
  * `description` (verbatim {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}).
  *
  * Public install is via the Chrome Web Store ({@link POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL}).
- * Store About copy uses {@link HELVETY_FREE_AGPL_FEATURE} in `apps/store/lib/data/products.ts`
- * per Helvety product-line policy. Source and license follow the extension repository `LICENSE`
+ * Store About copy uses shared published-source wording in
+ * `apps/store/lib/data/products.ts`. Source and license follow the extension repository `LICENSE`
  * file (see GitHub link on the Store listing). Extension toolbar and popup branding use
  * `ppconfigurator_*` PNGs in the extension repo (`public/icons/`, popup header via `PopupHeader` /
  * `@helvety/extension-chrome`); the Helvety identifier appears only in the popup About

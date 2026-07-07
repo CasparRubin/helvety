@@ -1,5 +1,6 @@
 /**
- * Ensures the monorepo uses AGPL-3.0 and no longer references MIT as Helvety's license.
+ * Ensures the monorepo keeps its own AGPL licensing while avoiding stale
+ * blanket claims that every Helvety product repo uses the same license.
  *
  * Run: `bun run consistency:license`
  */
@@ -10,20 +11,21 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const FORBIDDEN = [
-  { label: "MIT License", re: /\bMIT License\b/ },
-  { label: "MIT-licensed", re: /\bMIT-licensed\b/i },
-  { label: '"license": "MIT"', re: /"license":\s*"MIT"/ },
-  { label: "under the MIT", re: /\bunder the MIT\b/i },
-  { label: "where the repo ships", re: /where the repo ships/i },
   {
-    label: "unless the repository LICENSE",
-    re: /unless the repository LICENSE/i,
+    label: "blanket AGPL claim for all Helvety products",
+    re: /All Helvety products with published source are released under AGPL-3\.0 or later/i,
   },
-  { label: "Free and open source", re: /Free and open source/ },
-  { label: ">Open Source<", re: />Open Source</ },
   {
-    label: "Open-source monorepo for helvety",
-    re: /Open-source monorepo for helvety/i,
+    label: "old separate repo AGPL claim",
+    re: /where source is published for those products,\s+it is\s+\*\*AGPL-3\.0-licensed\*\*/i,
+  },
+  {
+    label: "AGPL for browser extensions desktop tools etc",
+    re: /browser extensions,\s*SharePoint solutions,\s*and desktop tools distributed outside this repository\).*AGPL-3\.0/i,
+  },
+  {
+    label: "shared AGPL feature constant name",
+    re: /\bHELVETY_FREE_AGPL_(FEATURE|INLINE)\b/,
   },
 ];
 
@@ -133,6 +135,41 @@ function checkForbiddenReferences() {
   return true;
 }
 
+function checkRequiredMixedLicenseDisclosure() {
+  const requiredFiles = [
+    "packages/shared/src/licensing.ts",
+    "apps/web/public/llms.txt",
+    "apps/store/public/llms.txt",
+    "apps/web/app/terms/page.tsx",
+    "apps/web/app/impressum/page.tsx",
+  ];
+
+  const requiredPhrases = [
+    /repository LICENSE file|release source link/i,
+    /including MIT/i,
+  ];
+
+  const missing = [];
+  for (const rel of requiredFiles) {
+    const abs = path.join(root, rel);
+    const content = readFileSync(abs, "utf8");
+    for (const re of requiredPhrases) {
+      if (!re.test(content)) {
+        missing.push(`${rel} (missing ${re})`);
+      }
+    }
+  }
+
+  if (missing.length > 0) {
+    console.error("Required mixed-license disclosures are missing:");
+    for (const item of missing) {
+      console.error(`  ${item}`);
+    }
+    return false;
+  }
+  return true;
+}
+
 function checkNoPerAppLicenseDuplicates() {
   const appsDir = path.join(root, "apps");
   const duplicates = [];
@@ -162,11 +199,14 @@ function main() {
   const ok =
     checkLicenseFile() &&
     checkForbiddenReferences() &&
+    checkRequiredMixedLicenseDisclosure() &&
     checkNoPerAppLicenseDuplicates();
   if (!ok) {
     process.exit(1);
   }
-  console.log("license consistency OK (AGPL-3.0, no MIT references)");
+  console.log(
+    "license consistency OK (monorepo AGPL, no stale blanket cross-repo claims)"
+  );
 }
 
 main();

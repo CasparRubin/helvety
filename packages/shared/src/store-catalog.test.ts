@@ -58,7 +58,7 @@ describe("store-catalog", () => {
     }
   });
 
-  it("declares free and AGPL open-source flags on every current card", () => {
+  it("declares free and open-source flags on every current card", () => {
     for (const card of STORE_PRODUCT_CARDS) {
       expect(card.isFree).toBe(true);
       expect(card.isOpenSource).toBe(true);
