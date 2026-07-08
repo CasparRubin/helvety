@@ -6,29 +6,20 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-/** Parses REQUIRED_VERSION_BY_DEP from the drift guardrail script. */
+/** Reads the shared dependency drift config consumed by the guardrail script. */
 function parseDriftRequiredVersions(): Map<string, string> {
-  const source = readFileSync(
-    join(repoRoot, "scripts/check-workspace-version-drift.mjs"),
-    "utf8"
+  const config = JSON.parse(
+    readFileSync(
+      join(repoRoot, "scripts/workspace-version-drift.config.json"),
+      "utf8"
+    )
   );
-  const block = source.match(
-    /REQUIRED_VERSION_BY_DEP = new Map\(\[([\s\S]*?)\]\);/
-  );
-  if (!block?.[1]) {
-    throw new Error(
-      "Could not parse REQUIRED_VERSION_BY_DEP from drift script"
-    );
+  const requiredVersionByDep = config.requiredVersionByDep as
+    Record<string, string> | undefined;
+  if (!requiredVersionByDep) {
+    throw new Error("Could not parse requiredVersionByDep from drift config");
   }
-  const map = new Map<string, string>();
-  for (const match of block[1].matchAll(/\["([^"]+)",\s*"([^"]+)"\]/g)) {
-    const dep = match[1];
-    const version = match[2];
-    if (dep && version) {
-      map.set(dep, version);
-    }
-  }
-  return map;
+  return new Map(Object.entries(requiredVersionByDep));
 }
 
 /** Minimal package.json shape for drift parity checks. */
@@ -72,7 +63,7 @@ function listWorkspacePackageJsonPaths(): string[] {
   return paths;
 }
 
-describe("workspace drift parity (package.json vs REQUIRED_VERSION_BY_DEP)", () => {
+describe("workspace drift parity (package.json vs shared drift config)", () => {
   const required = parseDriftRequiredVersions();
 
   it("drift map includes expanded multi-workspace deps from 2026-07-04 sweep", () => {

@@ -17,6 +17,18 @@ function readWorkspacePackage(relativePath: string): {
   };
 }
 
+/** Reads the canonical workspace version drift pin config. */
+function readDriftConfig(): {
+  requiredVersionByDep: Record<string, string>;
+} {
+  return JSON.parse(
+    readFileSync(
+      join(repoRoot, "scripts/workspace-version-drift.config.json"),
+      "utf8"
+    )
+  ) as { requiredVersionByDep: Record<string, string> };
+}
+
 describe("extended dependency inventory pin parity", () => {
   const inventory = readFileSync(
     join(repoRoot, "docs/dependency-inventory.md"),
@@ -46,28 +58,22 @@ describe("extended dependency inventory pin parity", () => {
   });
 
   it("drift map lucide-react pin matches packages/ui package.json", () => {
-    const drift = readFileSync(
-      join(repoRoot, "scripts/check-workspace-version-drift.mjs"),
-      "utf8"
-    );
+    const driftConfig = readDriftConfig();
     const uiPkg = readWorkspacePackage("packages/ui/package.json");
     const lucide = uiPkg.dependencies?.["lucide-react"];
     expect(lucide).toBeTruthy();
-    expect(drift).toContain(`["lucide-react", "${lucide}"]`);
+    expect(driftConfig.requiredVersionByDep["lucide-react"]).toBe(lucide);
   });
 
   it("drift map tiptap pins match packages/ui package.json", () => {
-    const drift = readFileSync(
-      join(repoRoot, "scripts/check-workspace-version-drift.mjs"),
-      "utf8"
-    );
+    const driftConfig = readDriftConfig();
     const uiPkg = readWorkspacePackage("packages/ui/package.json");
     const tiptapPm = uiPkg.dependencies?.["@tiptap/pm"];
     const tiptapReact = uiPkg.dependencies?.["@tiptap/react"];
     expect(tiptapPm).toBeTruthy();
     expect(tiptapReact).toBeTruthy();
-    expect(drift).toContain(`["@tiptap/pm", "${tiptapPm}"]`);
-    expect(drift).toContain(`["@tiptap/react", "${tiptapReact}"]`);
+    expect(driftConfig.requiredVersionByDep["@tiptap/pm"]).toBe(tiptapPm);
+    expect(driftConfig.requiredVersionByDep["@tiptap/react"]).toBe(tiptapReact);
   });
 
   it("security audit subsequent-updates section reflects current extended pins", () => {

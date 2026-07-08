@@ -47,10 +47,12 @@ describe("privacy policy cookies disclosure", () => {
 
   it("§2.3 describes security and infrastructure logging, not product analytics", async () => {
     const source = await readFile(PRIVACY_PAGE_PATH, "utf8");
-    const technicalSection = source.slice(
-      source.indexOf("2.3 Technical and Usage Data"),
-      source.indexOf("2.4 Communication Data")
-    );
+    const technicalSection = source
+      .slice(
+        source.indexOf("2.3 Technical and Usage Data"),
+        source.indexOf("2.4 Communication Data")
+      )
+      .replace(/\s+/g, " ");
 
     expect(technicalSection).toContain("IP address and request timestamps");
     expect(technicalSection).toContain("passkey credential metadata");
@@ -61,7 +63,9 @@ describe("privacy policy cookies disclosure", () => {
     expect(technicalSection).toContain(
       "not build navigation or usage profiles of visitors"
     );
-    expect(technicalSection).not.toContain("Pages visited and navigation patterns");
+    expect(technicalSection).not.toContain(
+      "Pages visited and navigation patterns"
+    );
     expect(technicalSection).not.toContain("Referring website");
     expect(technicalSection).not.toContain("Browser type and version");
   });

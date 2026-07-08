@@ -846,9 +846,7 @@ export default function TermsPage() {
             Technical account activity metadata retained for security and abuse
             prevention
           </li>
-          <li>
-            Product access and download metadata from operational logs
-          </li>
+          <li>Product access and download metadata from operational logs</li>
           <li>
             Non-encrypted structural metadata from Helvety Tasks, Helvety
             Contacts, Helvety Notes, and Helvety Links. Depending on the app,

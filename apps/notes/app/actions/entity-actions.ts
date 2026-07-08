@@ -8,13 +8,9 @@ import { ENCRYPTED_PREFETCH_COLUMNS } from "@helvety/shared/encrypted-prefetch-a
 import {
   fetchOwnedEncryptedExport,
   logEncryptedExportRequested,
-  mapReorderOwnedEntitiesFailure,
-  reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
-import {
-  parseActionInput,
-  unexpectedActionError,
-} from "@helvety/shared/server-action-primitives";
+import { runOwnedReorderAction } from "@helvety/shared/reorder-action-helper";
+import { unexpectedActionError } from "@helvety/shared/server-action-primitives";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -71,38 +67,20 @@ export async function reorderEntities(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    const auth = await authenticateAndRateLimit({
-      csrfToken,
-      rateLimitPrefix: "notes",
-    });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
     const typeResult = EntityTypeSchema.safeParse(entityType);
     if (!typeResult.success) {
       return { success: false, error: "Invalid entity type" };
     }
 
-    const validationResult = parseActionInput({
+    return await runOwnedReorderAction({
+      csrfToken,
+      rateLimitPrefix: "notes",
       schema: ReorderSchema,
-      data: updates,
+      updates,
       warnMessage: "Invalid reorder data",
       invalidDataMessage: "Invalid reorder data",
-    });
-    if (!validationResult.success) {
-      return validationResult;
-    }
-    const validatedUpdates = validationResult.data;
-
-    if (validatedUpdates.length === 0) {
-      return { success: true };
-    }
-
-    const reorderResult = await reorderOwnedEntities({
-      supabase,
-      userId: user.id,
       tableName: NOTES_ITEMS_TABLE,
-      updates: validatedUpdates,
+      entityType,
       scope: "Error validating item reorder scope",
       failureMessage: "Failed to reorder items",
       invalidScopeMessage: "Invalid item reorder scope",
@@ -116,18 +94,8 @@ export async function reorderEntities(
         }
         return updateObj;
       },
+      onSuccess: revalidateItemRoutes,
     });
-    const reorderFailure = mapReorderOwnedEntitiesFailure(
-      entityType,
-      reorderResult,
-      `Error reordering ${entityType}`
-    );
-    if (reorderFailure) {
-      return reorderFailure;
-    }
-
-    revalidateItemRoutes();
-    return { success: true };
   } catch (error) {
     return unexpectedActionError("Unexpected error in reorderEntities", error);
   }

@@ -42,6 +42,7 @@ This package centralizes:
 - `authenticateAndRateLimit` is the default guard for authenticated app actions.
 - Action modules can compose:
   - `server-action-primitives` (`parseActionInput`, `unexpectedActionError` for consistent validation and catch-all responses)
+  - `reorder-action-helper` (`runOwnedReorderAction(...)` for the common auth + validation + scoped reorder flow used by Tasks, Notes, and Contacts)
   - `entity-action-primitives`
     - includes `reorderOwnedEntities(...)` and `mapReorderOwnedEntitiesFailure(...)` for scoped reorder mutations
     - includes `fetchOwnedEncryptedExport(...)`, `isExportWithinCap` / `areExportTablesWithinCap`, and `logEncryptedExportRequested(...)` for capped encrypted exports (used by Tasks, Notes, Contacts, and Links entity actions)

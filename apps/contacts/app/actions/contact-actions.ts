@@ -9,11 +9,10 @@ import {
   assignDefinedField,
   fetchOwnedEncryptedExport,
   logEncryptedExportRequested,
-  mapReorderOwnedEntitiesFailure,
   ownedUpdateMissingRow,
-  reorderOwnedEntities,
 } from "@helvety/shared/entity-action-primitives";
 import { logger } from "@helvety/shared/logger";
+import { runOwnedReorderAction } from "@helvety/shared/reorder-action-helper";
 import {
   parseActionInput,
   unexpectedActionError,
@@ -315,33 +314,15 @@ export async function reorderContacts(
   csrfToken: string
 ): Promise<ActionResponse> {
   try {
-    const auth = await authenticateAndRateLimit({
+    return await runOwnedReorderAction({
       csrfToken,
       rateLimitPrefix: "contacts",
-    });
-    if (!auth.ok) return auth.response;
-    const { user, supabase } = auth.ctx;
-
-    const validationResult = parseActionInput({
       schema: ReorderSchema,
-      data: updates,
+      updates,
       warnMessage: "Invalid reorder data",
       invalidDataMessage: "Invalid reorder data",
-    });
-    if (!validationResult.success) {
-      return validationResult;
-    }
-    const validatedUpdates = validationResult.data;
-
-    if (validatedUpdates.length === 0) {
-      return { success: true };
-    }
-
-    const reorderResult = await reorderOwnedEntities({
-      supabase,
-      userId: user.id,
       tableName: CONTACTS_TABLE,
-      updates: validatedUpdates,
+      entityType: "contact",
       scope: "Error validating contact reorder scope",
       failureMessage: "Failed to reorder contacts",
       invalidScopeMessage: "Invalid contact reorder scope",
@@ -355,18 +336,8 @@ export async function reorderContacts(
         }
         return updateObj;
       },
+      onSuccess: revalidateContactRoutes,
     });
-    const reorderFailure = mapReorderOwnedEntitiesFailure(
-      "contact",
-      reorderResult,
-      "Error reordering contact"
-    );
-    if (reorderFailure) {
-      return reorderFailure;
-    }
-
-    revalidateContactRoutes();
-    return { success: true };
   } catch (error) {
     return unexpectedActionError("Unexpected error in reorderContacts", error);
   }

@@ -159,7 +159,7 @@ Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; d
 - **Dependencies**: `@helvety/brand`, `@helvety/shared`, `@helvety/ui` as `workspace:*` (UI carries production `tailwindcss` / `@tailwindcss/postcss` for Turbopack CSS; `@helvety/config/postcss` loads the plugin from `@helvety/dev-deps`)
 - **DevDependencies**: `@helvety/config`, `@helvety/dev-deps` as `workspace:*`
 - **Scripts**: `dev`, `build`, `start`, `lint`, `lint:fix`, `type-check`, `format`, `format:check`, `test`, `test:watch`, `test:coverage`
-- **Version**: align with sibling product apps (currently `3.7.0`) unless the zone is intentionally versioned separately
+- **Version**: align with sibling product apps (currently `3.8.0`) unless the zone is intentionally versioned separately
 - **Do not** duplicate toolchain packages pinned in `@helvety/dev-deps` (`bun run deps:drift`, in `ci:check`)
 
 ## Proxy profile selection

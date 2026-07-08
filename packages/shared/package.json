@@ -79,6 +79,7 @@
     "./env-validation": "./src/env-validation.ts",
     "./entity-delete-message": "./src/entity-delete-message.ts",
     "./entity-action-primitives": "./src/entity-action-primitives.ts",
+    "./reorder-action-helper": "./src/reorder-action-helper.ts",
     "./entity-list-reorder": "./src/entity-list-reorder.ts",
     "./entity-link-action-primitives": "./src/entity-link-action-primitives.ts",
     "./entity-links": "./src/entity-links.ts",

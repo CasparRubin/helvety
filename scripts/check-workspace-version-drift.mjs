@@ -5,6 +5,8 @@ import { validateUiTailwindBuildDependencies } from "./postcss-app-expectations.
 const ROOT_DIR = process.cwd();
 const WORKSPACE_DIRS = ["apps", "packages"];
 const DEV_DEPS_PACKAGE = "packages/dev-deps/package.json";
+const WORKSPACE_VERSION_DRIFT_CONFIG =
+  "scripts/workspace-version-drift.config.json";
 
 /** Toolchain packages owned by @helvety/dev-deps — not duplicated in other workspaces. */
 const DEV_DEPS_MANAGED = new Set([
@@ -27,46 +29,12 @@ const DEV_DEPS_MANAGED = new Set([
   "babel-plugin-react-compiler",
 ]);
 
-const REQUIRED_VERSION_BY_DEP = new Map([
-  ["next", "^16.2.10"],
-  ["eslint-config-next", "^16.2.10"],
-  ["react", "^19.2.7"],
-  ["react-dom", "^19.2.7"],
-  ["typescript", "^6"],
-  ["eslint", "^10.6.0"],
-  ["vitest", "^4.1.10"],
-  ["@vitest/coverage-v8", "^4.1.10"],
-  ["@testing-library/jest-dom", "^6.9.1"],
-  ["@testing-library/react", "^16.3.2"],
-  ["jsdom", "29.1.1"],
-  ["fake-indexeddb", "^6.2.5"],
-  ["@supabase/supabase-js", "^2.110.0"],
-  ["date-fns", "^4.4.0"],
-  ["@supabase/ssr", "^0.12.0"],
-  ["@simplewebauthn/server", "^13.3.2"],
-  ["@simplewebauthn/browser", "^13.3.0"],
-  ["zod", "^4.4.3"],
-  ["prettier", "^3.9.4"],
-  ["prettier-plugin-tailwindcss", "^0.8.0"],
-  ["tailwindcss", "^4.3.2"],
-  ["@tailwindcss/postcss", "^4.3.2"],
-  ["shadcn", "^4.13.0"],
-  ["babel-plugin-react-compiler", "^1.0.0"],
-  ["@types/node", "^24.13.2"],
-  ["lucide-react", "^1.23.0"],
-  ["sonner", "^2.0.7"],
-  ["@tiptap/pm", "^3.27.2"],
-  ["@tiptap/react", "^3.27.2"],
-  ["@tiptap/starter-kit", "^3.27.2"],
-  ["@tiptap/extension-link", "^3.27.2"],
-  ["@tiptap/extension-placeholder", "^3.27.2"],
-  ["@tiptap/extension-underline", "^3.27.2"],
-  ["@dnd-kit/core", "^6.3.1"],
-  ["@dnd-kit/sortable", "^10.0.0"],
-  ["@dnd-kit/utilities", "^3.2.2"],
-  ["@base-ui/react", "^1.6.0"],
-  ["react-day-picker", "^10.0.1"],
-]);
+const workspaceVersionDriftConfig = JSON.parse(
+  await readFile(path.join(ROOT_DIR, WORKSPACE_VERSION_DRIFT_CONFIG), "utf8")
+);
+const REQUIRED_VERSION_BY_DEP = new Map(
+  Object.entries(workspaceVersionDriftConfig.requiredVersionByDep)
+);
 
 /**
  * Collect package.json files from apps/* and packages/*.

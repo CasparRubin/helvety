@@ -1,6 +1,6 @@
 {
   "name": "@helvety/pdf",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "description": "In-browser PDF merge, reorder, rotate, extract, and add images; supported work stays local. Swiss-built toolkit.",
   "author": "Helvety",
   "homepage": "https://helvety.com/pdf",
