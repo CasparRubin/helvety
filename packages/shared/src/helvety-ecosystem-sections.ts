@@ -84,6 +84,11 @@ export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
         storeProductSlug: "helvety-image-editor",
         webAppUrlKey: "imageEditor",
       },
+      {
+        displayName: "OCR",
+        storeProductSlug: "helvety-ocr",
+        webAppUrlKey: "ocr",
+      },
     ],
   },
   {

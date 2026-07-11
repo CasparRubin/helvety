@@ -235,6 +235,7 @@ async function main() {
     "apps/image-editor/app/page.tsx",
     "apps/links/app/page.tsx",
     "apps/notes/app/page.tsx",
+    "apps/ocr/app/page.tsx",
     "apps/pdf/app/page.tsx",
     "apps/store/app/page.tsx",
     "apps/tasks/app/page.tsx",
@@ -261,6 +262,7 @@ async function main() {
     "apps/image-editor/proxy.ts",
     "apps/links/proxy.ts",
     "apps/notes/proxy.ts",
+    "apps/ocr/proxy.ts",
     "apps/pdf/proxy.ts",
     "apps/store/proxy.ts",
     "apps/tasks/proxy.ts",
@@ -355,6 +357,7 @@ async function main() {
     "apps/pdf/lib/env.ts",
     "apps/image-upscaler/lib/env.ts",
     "apps/image-editor/lib/env.ts",
+    "apps/ocr/lib/env.ts",
   ];
 
   const adminServerUpstashEnvContents = await Promise.all(
@@ -439,6 +442,7 @@ async function main() {
     "pdf",
     "image-upscaler",
     "image-editor",
+    "ocr",
   ];
   for (const app of csrfEnvTemplateApps) {
     const templatePath = `apps/${app}/env.template`;
@@ -691,7 +695,7 @@ async function main() {
     }
   }
 
-  const publicToolApps = ["pdf", "image-upscaler", "image-editor"];
+  const publicToolApps = ["pdf", "image-upscaler", "image-editor", "ocr"];
   for (const appName of publicToolApps) {
     const layoutShellTestPath = resolve(
       rootDir,
@@ -723,6 +727,7 @@ async function main() {
     "pdf",
     "image-upscaler",
     "image-editor",
+    "ocr",
   ]) {
     const envPath = resolve(rootDir, "apps", appName, "lib/env.ts");
     const envSource = await readFile(envPath, "utf8");
@@ -761,7 +766,7 @@ async function main() {
   );
   const qualityBaseline = await readFile(qualityBaselinePath, "utf8");
   if (
-    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-upscaler, image-editor\b/.test(
+    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-upscaler, image-editor, ocr\b/.test(
       qualityBaseline
     )
   ) {

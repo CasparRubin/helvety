@@ -50,6 +50,7 @@ export const PROJECT_TO_APP = {
   "helvety-pdf": "pdf",
   "helvety-image-upscaler": "image-upscaler",
   "helvety-image-editor": "image-editor",
+  "helvety-ocr": "ocr",
   "helvety-tasks": "tasks",
   "helvety-contacts": "contacts",
   "helvety-notes": "notes",

@@ -5,7 +5,9 @@
 import { spawn } from "node:child_process";
 
 /** Direct zone ports (see packages/shared/src/config.ts DEV_PORTS). */
-const ZONE_PORTS = [3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
+const ZONE_PORTS = [
+  3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 3011,
+];
 
 const WARMUP_DELAY_MS = 4000;
 const POLL_INTERVAL_MS = 500;
@@ -53,7 +55,7 @@ async function warmZones() {
   );
 }
 
-const child = spawn("bun", ["run", "turbo", "run", "dev", "--concurrency=10"], {
+const child = spawn("bun", ["run", "turbo", "run", "dev", "--concurrency=11"], {
   stdio: "inherit",
 });
 

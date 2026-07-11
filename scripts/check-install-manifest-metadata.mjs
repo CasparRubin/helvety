@@ -19,6 +19,7 @@ import {
 } from "../packages/shared/src/app-product-descriptions.ts";
 import { IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION } from "../apps/image-upscaler/lib/product-copy.ts";
 import { IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION } from "../apps/image-editor/lib/product-copy.ts";
+import { OCR_PWA_MANIFEST_DESCRIPTION } from "../apps/ocr/lib/product-copy.ts";
 import { PDF_PWA_MANIFEST_DESCRIPTION } from "../apps/pdf/lib/product-copy.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -44,6 +45,10 @@ const manifestChecks = [
   {
     app: "image-editor",
     expected: () => IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION,
+  },
+  {
+    app: "ocr",
+    expected: () => OCR_PWA_MANIFEST_DESCRIPTION,
   },
 ];
 

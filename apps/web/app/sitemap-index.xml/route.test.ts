@@ -27,6 +27,7 @@ describe("GET /sitemap-index.xml", () => {
       "/pdf/sitemap.xml",
       "/image-upscaler/sitemap.xml",
       "/image-editor/sitemap.xml",
+      "/ocr/sitemap.xml",
     ];
 
     for (const path of expectedSitemaps) {

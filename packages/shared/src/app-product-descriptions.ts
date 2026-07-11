@@ -9,7 +9,7 @@ import {
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
-  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF, image upscaler, and image editor tools, extensions, and desktop tools.";
+  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Encrypted task, contact, note, and link apps, browser utilities for PDF, image upscaler, image editor, and OCR tools, extensions, and desktop tools.";
 
 /** Shared auth SEO / social copy. */
 export const AUTH_DESCRIPTION = `Passwordless entry for Helvety apps: email verification and passkeys; returning browsers may skip re-entering email after device verification. ${HELVETY_SWISS_ORIGIN_SEO}`;
@@ -55,3 +55,9 @@ export const IMAGE_EDITOR_APP_DESCRIPTION = `Annotate PNG, JPEG, and WebP in you
 
 /** PWA `public/manifest.json` summary for image editor. */
 export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable corners. Layers panel and zoom; PNG and JPEG export. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;
+
+/** Shared OCR SEO / social copy. */
+export const OCR_APP_DESCRIPTION = `Extract text from PDFs and images in your browser: scanned or photographed pages run through on-device OCR, and born-digital PDFs reuse their existing text layer (${PDF_FILE_SIZE_LIMIT_COPY}). Read, copy, or download plain text with no server-side processing and no sign-in. Switzerland-first service posture (not actively targeted to EU/EEA markets). ${HELVETY_SWISS_ORIGIN_SEO}`;
+
+/** PWA `public/manifest.json` summary for OCR. */
+export const OCR_PWA_MANIFEST_DESCRIPTION = `Extract text from PDFs and images in your browser with on-device OCR. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;

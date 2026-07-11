@@ -60,7 +60,7 @@ export type CreatePublicShellNavbarConfig = Readonly<{
   loginReturnUrl?: "current";
 }>;
 
-/** Creates a public-shell navbar (store, pdf, web, image-upscaler). */
+/** Creates a public-shell navbar (web, auth, store, pdf, image-upscaler, image-editor, ocr). */
 export function createPublicShellNavbar(
   config: CreatePublicShellNavbarConfig
 ): ComponentType<{ initialUser?: User | null }> {

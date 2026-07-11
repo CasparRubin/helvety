@@ -21,6 +21,7 @@ const PUBLIC_ZONE_APP_IDS = [
   "pdf",
   "image-upscaler",
   "image-editor",
+  "ocr",
 ] as const;
 
 const testDir =
@@ -78,6 +79,10 @@ describe("SEO zone consistency", () => {
       },
       {
         appId: "image-editor",
+        pattern: /app root URL only/i,
+      },
+      {
+        appId: "ocr",
         pattern: /app root URL only/i,
       },
       {

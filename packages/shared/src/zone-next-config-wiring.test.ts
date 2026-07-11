@@ -27,7 +27,7 @@ describe("zone next.config presets", () => {
     expect(src).toContain("createAuthGatewayNextConfig");
   });
 
-  it.each(["pdf", "image-upscaler", "image-editor"] as const)(
+  it.each(["pdf", "image-upscaler", "image-editor", "ocr"] as const)(
     "apps/%s uses createPublicToolNextConfig",
     (app) => {
       const src = readFileSync(

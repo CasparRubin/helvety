@@ -30,6 +30,7 @@ const ZONE_READMES = [
   "apps/pdf/README.md",
   "apps/image-upscaler/README.md",
   "apps/image-editor/README.md",
+  "apps/ocr/README.md",
 ] as const;
 
 const CORE_DOC_PATHS = [
@@ -117,8 +118,9 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
   it("ui-action-button contract documents canvas tool command bars", () => {
     const contract = readRepoFile("docs/ui-action-button-contract.md");
     expect(contract).toContain(
-      "## Canvas tools (PDF, image upscaler, image editor)"
+      "## Canvas tools (PDF, image upscaler, image editor, OCR)"
     );
+    expect(contract).toContain("Add File");
     expect(contract).toContain("Add Image");
     expect(contract).toContain("Add Images");
     expect(contract).toContain("Clear Annotations");

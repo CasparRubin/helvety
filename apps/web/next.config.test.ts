@@ -223,6 +223,25 @@ describe("web gateway rewrites", () => {
     );
   });
 
+  it("forwards ocr routes to the ocr zone", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult);
+    const ocrOrigin = `http://localhost:${DEV_PORTS.ocr}`;
+
+    expect(beforeFiles).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/ocr",
+          destination: `${ocrOrigin}/ocr`,
+        },
+        {
+          source: "/ocr/:path*",
+          destination: `${ocrOrigin}/ocr/:path*`,
+        },
+      ])
+    );
+  });
+
   it("uses localhost rewrite targets in production when gateway env vars are unset and not on Vercel", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "");
@@ -235,6 +254,7 @@ describe("web gateway rewrites", () => {
     vi.stubEnv("PDF_URL", "");
     vi.stubEnv("IMAGE_UPSCALER_URL", "");
     vi.stubEnv("IMAGE_EDITOR_URL", "");
+    vi.stubEnv("OCR_URL", "");
 
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);
@@ -278,6 +298,28 @@ describe("web gateway rewrites", () => {
 
     await expect(nextConfig.rewrites?.()).rejects.toThrow(
       "IMAGE_EDITOR_URL is required on Vercel in production."
+    );
+  });
+
+  it("requires OCR_URL on Vercel production when unset", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
+    vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
+    vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
+    vi.stubEnv(
+      "IMAGE_UPSCALER_URL",
+      "https://helvety-image-upscaler.vercel.app"
+    );
+    vi.stubEnv("IMAGE_EDITOR_URL", "https://helvety-image-editor.vercel.app");
+    vi.stubEnv("OCR_URL", "");
+    vi.stubEnv("TASKS_URL", "https://helvety-tasks.vercel.app");
+    vi.stubEnv("CONTACTS_URL", "https://helvety-contacts.vercel.app");
+    vi.stubEnv("NOTES_URL", "https://helvety-notes.vercel.app");
+    vi.stubEnv("LINKS_URL", "https://helvety-links.vercel.app");
+
+    await expect(nextConfig.rewrites?.()).rejects.toThrow(
+      "OCR_URL is required on Vercel in production."
     );
   });
 });

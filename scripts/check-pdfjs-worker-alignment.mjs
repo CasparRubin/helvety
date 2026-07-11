@@ -1,6 +1,7 @@
 /**
- * Ensures the PDF zone worker matches react-pdf's resolved pdfjs-dist version.
- * Prevents API/worker version skew after dependency updates.
+ * Ensures each pdf.js consumer zone's worker matches react-pdf's resolved
+ * pdfjs-dist version. Prevents API/worker version skew after dependency updates.
+ * Both apps/pdf and apps/ocr render PDFs via react-pdf and must stay aligned.
  */
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -9,17 +10,9 @@ import { pathToFileURL } from "node:url";
 import process from "node:process";
 
 const ROOT = process.cwd();
-const PDF_APP_DIR = path.join(ROOT, "apps", "pdf");
-const WORKER_PUBLIC_PATH = path.join(
-  PDF_APP_DIR,
-  "public",
-  "pdf.worker.min.mjs"
-);
-const META_PUBLIC_PATH = path.join(
-  PDF_APP_DIR,
-  "public",
-  "pdf.worker.meta.json"
-);
+
+/** Zones that vendor react-pdf's pdfjs-dist worker into `public/`. */
+const PDFJS_ZONES = ["pdf", "ocr"];
 
 /**
  * @param {string} specifier
@@ -31,33 +24,45 @@ function normalizeVersionSpec(specifier) {
   return match?.[1] ?? null;
 }
 
-async function loadPdfJsResolver() {
+/**
+ * @param {string} appDir
+ */
+async function loadPdfJsResolver(appDir) {
   const modulePath = path.join(
-    PDF_APP_DIR,
+    appDir,
     "scripts",
     "resolve-pdfjs-for-react-pdf.mjs"
   );
   return import(pathToFileURL(modulePath).href);
 }
 
-async function main() {
+/**
+ * Validates one zone's worker/meta against react-pdf's resolved pdfjs-dist.
+ *
+ * @param {string} appName
+ * @param {Record<string, unknown>} rootPkg
+ * @returns {Promise<string[]>}
+ */
+async function validateZone(appName, rootPkg) {
+  const appDir = path.join(ROOT, "apps", appName);
+  const workerPublicPath = path.join(appDir, "public", "pdf.worker.min.mjs");
+  const metaPublicPath = path.join(appDir, "public", "pdf.worker.meta.json");
   const violations = [];
+
   const { resolvePdfJsForReactPdf, PDFJS_SOURCE_LABEL } =
-    await loadPdfJsResolver();
+    await loadPdfJsResolver(appDir);
 
   let resolved;
   try {
-    resolved = resolvePdfJsForReactPdf(PDF_APP_DIR);
+    resolved = resolvePdfJsForReactPdf(appDir);
   } catch (error) {
-    console.error("Failed to resolve pdfjs-dist from react-pdf:", error);
-    process.exit(1);
+    return [
+      `apps/${appName}: failed to resolve pdfjs-dist from react-pdf: ${error instanceof Error ? error.message : error}`,
+    ];
   }
 
-  const rootPkg = JSON.parse(
-    await readFile(path.join(ROOT, "package.json"), "utf8")
-  );
-  const pdfAppPkg = JSON.parse(
-    await readFile(path.join(PDF_APP_DIR, "package.json"), "utf8")
+  const appPkg = JSON.parse(
+    await readFile(path.join(appDir, "package.json"), "utf8")
   );
 
   const rootOverrides = rootPkg.overrides ?? {};
@@ -67,53 +72,65 @@ async function main() {
     const overrideVersion = normalizeVersionSpec(String(overrideSpec));
     if (overrideVersion && overrideVersion !== resolved.version) {
       violations.push(
-        `Root override "${key}" (${overrideSpec}) does not match react-pdf's resolved pdfjs-dist@${resolved.version}. Remove the override or align it with react-pdf's dependency.`
+        `Root override "${key}" (${overrideSpec}) does not match react-pdf's resolved pdfjs-dist@${resolved.version} in apps/${appName}. Remove the override or align it with react-pdf's dependency.`
       );
     }
   }
 
   const directPdfjsSpec =
-    pdfAppPkg.dependencies?.["pdfjs-dist"] ??
-    pdfAppPkg.overrides?.["pdfjs-dist"];
+    appPkg.dependencies?.["pdfjs-dist"] ?? appPkg.overrides?.["pdfjs-dist"];
   if (directPdfjsSpec !== undefined) {
     const directVersion = normalizeVersionSpec(String(directPdfjsSpec));
     if (!directVersion || directVersion !== resolved.version) {
       violations.push(
-        `apps/pdf declares pdfjs-dist (${directPdfjsSpec}) but react-pdf resolves pdfjs-dist@${resolved.version}. Remove the direct pin; react-pdf owns pdfjs-dist.`
+        `apps/${appName} declares pdfjs-dist (${directPdfjsSpec}) but react-pdf resolves pdfjs-dist@${resolved.version}. Remove the direct pin; react-pdf owns pdfjs-dist.`
       );
     }
   }
 
-  if (!existsSync(WORKER_PUBLIC_PATH)) {
+  if (!existsSync(workerPublicPath)) {
     violations.push(
-      `Missing ${path.relative(ROOT, WORKER_PUBLIC_PATH)}. Run: cd apps/pdf && bun run sync:pdf-worker`
+      `Missing ${path.relative(ROOT, workerPublicPath)}. Run: cd apps/${appName} && bun run sync:pdf-worker`
     );
   } else {
     const sourceWorker = await readFile(resolved.workerSourcePath);
-    const publicWorker = await readFile(WORKER_PUBLIC_PATH);
+    const publicWorker = await readFile(workerPublicPath);
     if (!sourceWorker.equals(publicWorker)) {
       violations.push(
-        `Stale ${path.relative(ROOT, WORKER_PUBLIC_PATH)} (expected pdfjs-dist@${resolved.version} via ${PDFJS_SOURCE_LABEL}). Run: cd apps/pdf && bun run sync:pdf-worker`
+        `Stale ${path.relative(ROOT, workerPublicPath)} (expected pdfjs-dist@${resolved.version} via ${PDFJS_SOURCE_LABEL}). Run: cd apps/${appName} && bun run sync:pdf-worker`
       );
     }
   }
 
-  if (!existsSync(META_PUBLIC_PATH)) {
+  if (!existsSync(metaPublicPath)) {
     violations.push(
-      `Missing ${path.relative(ROOT, META_PUBLIC_PATH)}. Run: cd apps/pdf && bun run sync:pdf-worker`
+      `Missing ${path.relative(ROOT, metaPublicPath)}. Run: cd apps/${appName} && bun run sync:pdf-worker`
     );
   } else {
-    const meta = JSON.parse(await readFile(META_PUBLIC_PATH, "utf8"));
+    const meta = JSON.parse(await readFile(metaPublicPath, "utf8"));
     if (meta.version !== resolved.version) {
       violations.push(
-        `pdf.worker.meta.json version (${meta.version}) does not match resolved pdfjs-dist@${resolved.version}. Run: cd apps/pdf && bun run sync:pdf-worker`
+        `apps/${appName} pdf.worker.meta.json version (${meta.version}) does not match resolved pdfjs-dist@${resolved.version}. Run: cd apps/${appName} && bun run sync:pdf-worker`
       );
     }
     if (meta.source !== PDFJS_SOURCE_LABEL) {
       violations.push(
-        `pdf.worker.meta.json source (${meta.source ?? "unset"}) must be "${PDFJS_SOURCE_LABEL}". Run: cd apps/pdf && bun run sync:pdf-worker`
+        `apps/${appName} pdf.worker.meta.json source (${meta.source ?? "unset"}) must be "${PDFJS_SOURCE_LABEL}". Run: cd apps/${appName} && bun run sync:pdf-worker`
       );
     }
+  }
+
+  return violations;
+}
+
+async function main() {
+  const rootPkg = JSON.parse(
+    await readFile(path.join(ROOT, "package.json"), "utf8")
+  );
+
+  const violations = [];
+  for (const appName of PDFJS_ZONES) {
+    violations.push(...(await validateZone(appName, rootPkg)));
   }
 
   if (violations.length > 0) {
@@ -125,7 +142,7 @@ async function main() {
   }
 
   console.log(
-    `PDF.js worker alignment passed (pdfjs-dist@${resolved.version} via ${PDFJS_SOURCE_LABEL}).`
+    `PDF.js worker alignment passed for zones: ${PDFJS_ZONES.join(", ")}.`
   );
 }
 

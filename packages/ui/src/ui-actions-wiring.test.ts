@@ -75,6 +75,9 @@ describe("ui action app wiring", () => {
     );
     expect(upscalerWorkspace).toContain("@helvety/ui/public-tool-workspace");
     expect(upscalerWorkspace).toContain("PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS");
+    const ocrWorkspace = readAppFile("ocr", "components/helvety-ocr.tsx");
+    expect(ocrWorkspace).toContain("@helvety/ui/public-tool-workspace");
+    expect(ocrWorkspace).toContain("PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS");
     expect(readAppFile("pdf", "components/pdf/pdf-toolkit.tsx")).toContain(
       "PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS"
     );

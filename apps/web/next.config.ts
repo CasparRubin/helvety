@@ -97,6 +97,7 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         "IMAGE_EDITOR_URL",
         DEV_PORTS.imageEditor
       );
+      const ocrUrl = getAppUrl("OCR_URL", DEV_PORTS.ocr);
 
       return {
         beforeFiles: [
@@ -196,6 +197,14 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/image-editor/:path*",
             destination: `${imageEditorUrl}/image-editor/:path*`,
+          },
+          {
+            source: "/ocr",
+            destination: `${ocrUrl}/ocr`,
+          },
+          {
+            source: "/ocr/:path*",
+            destination: `${ocrUrl}/ocr/:path*`,
           },
         ],
       };

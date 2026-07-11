@@ -60,6 +60,7 @@ describe("helvety-ecosystem-sections", () => {
       "helvety-pdf": "file-tools",
       "helvety-image-upscaler": "file-tools",
       "helvety-image-editor": "file-tools",
+      "helvety-ocr": "file-tools",
       "helvety-browser-extension": "browser-extensions",
       "helvety-power-platform-configurator": "browser-extensions",
       "helvety-spo-explorer": "sharepoint-apps",
@@ -86,7 +87,7 @@ describe("helvety-ecosystem-sections", () => {
 
     expect(counts).toEqual({
       "encryption-apps": 4,
-      "file-tools": 3,
+      "file-tools": 4,
       "browser-extensions": 2,
       "sharepoint-apps": 1,
       "desktop-apps": 1,

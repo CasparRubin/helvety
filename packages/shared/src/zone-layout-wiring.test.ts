@@ -13,6 +13,7 @@ const PUBLIC_SHELL_APPS = [
   "pdf",
   "image-upscaler",
   "image-editor",
+  "ocr",
 ] as const;
 
 const E2EE_SHELL_APPS = ["tasks", "contacts", "notes", "links"] as const;

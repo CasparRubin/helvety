@@ -36,4 +36,14 @@ describe("zone product copy re-exports", () => {
     expect(src).toContain("IMAGE_EDITOR_APP_DESCRIPTION");
     expect(src).toContain("IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION");
   });
+
+  it("ocr product-copy re-exports shared SEO strings", () => {
+    const src = readFileSync(
+      join(repoRoot, "apps/ocr/lib/product-copy.ts"),
+      "utf8"
+    );
+    expect(src).toContain("@helvety/shared/app-product-descriptions");
+    expect(src).toContain("OCR_APP_DESCRIPTION");
+    expect(src).toContain("OCR_PWA_MANIFEST_DESCRIPTION");
+  });
 });

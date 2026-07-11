@@ -22,6 +22,7 @@
 - [Helvety PDF](https://helvety.com/pdf)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler)
 - [Helvety Image Editor](https://helvety.com/image-editor)
+- [Helvety OCR](https://helvety.com/ocr)
 - [Helvety Auth](https://helvety.com/auth)
 - [Helvety Tasks](https://helvety.com/tasks)
 - [Helvety Notes](https://helvety.com/notes)

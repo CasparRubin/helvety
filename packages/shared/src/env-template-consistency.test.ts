@@ -181,14 +181,20 @@ describe("env.template consistency", () => {
     );
     expect(auditChecklist).toContain("helvety-com");
     expect(auditChecklist).toContain("helvety-image-editor");
-    expect(auditChecklist).toMatch(/\*\*ten\*\* zone projects/);
+    expect(auditChecklist).toContain("helvety-ocr");
+    expect(auditChecklist).toMatch(/\*\*eleven\*\* zone projects/);
     expect(auditChecklist).toContain("IMAGE_EDITOR_URL");
+    expect(auditChecklist).toContain("OCR_URL");
     expect(auditChecklist).toContain("consistency:vercel-preview-env");
     expect(auditChecklist).not.toContain("helvety-web");
 
     expect(turboTiers).toContain("IMAGE_EDITOR_URL");
-    expect(turboTiers).toMatch(/`pdf`, `image-upscaler`, `image-editor`/);
+    expect(turboTiers).toContain("OCR_URL");
+    expect(turboTiers).toMatch(
+      /`pdf`, `image-upscaler`, `image-editor`, `ocr`/
+    );
     expect(vercelApps).toContain("helvety-image-editor");
+    expect(vercelApps).toContain("helvety-ocr");
     expect(turboTiers).not.toContain("DOCS_URL");
     expect(vercelApps).not.toContain("helvety-docs");
     expect(vercelApps).toContain("IMAGE_EDITOR_URL");
@@ -198,6 +204,8 @@ describe("env.template consistency", () => {
       "utf8"
     );
     expect(securityRunbook).toContain("consistency:vercel-preview-env");
+    expect(securityRunbook).toMatch(/eleven zone projects/i);
+    expect(securityRunbook).toContain("helvety-ocr");
     expect(securityRunbook).not.toMatch(
       /node scripts\/audit-vercel-production-env\.mjs --preview/
     );
@@ -206,11 +214,13 @@ describe("env.template consistency", () => {
       resolve(repoRoot, "docs/cookies-telemetry-and-footer.md"),
       "utf8"
     );
-    expect(cookiesDoc).toMatch(/\*\*Ten zones:\*\*/);
+    expect(cookiesDoc).toMatch(/\*\*Eleven zones:\*\*/);
     expect(cookiesDoc).toContain("image-editor");
+    expect(cookiesDoc).toContain("ocr");
 
     const rootReadme = await readFile(resolve(repoRoot, "README.md"), "utf8");
-    expect(rootReadme).toMatch(/All ten Next\.js zones/);
+    expect(rootReadme).toMatch(/All eleven Next\.js zones/);
+    expect(rootReadme).toContain("OCR_URL");
   });
 
   it("env.template files do not document legacy Supabase key names", async () => {
@@ -291,6 +301,7 @@ describe("env.template consistency", () => {
         "image-editor",
         "links",
         "notes",
+        "ocr",
         "pdf",
         "store",
         "tasks",

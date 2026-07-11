@@ -97,6 +97,7 @@ describe("form control touch-safe wiring", () => {
     "apps/pdf/app/globals.css",
     "apps/image-upscaler/app/globals.css",
     "apps/image-editor/app/globals.css",
+    "apps/ocr/app/globals.css",
   ] as const)("zone %s imports shared ui globals (touch CSS chain)", (path) => {
     expect(readRepoFile(path)).toContain('@import "@helvety/ui/globals.css"');
   });

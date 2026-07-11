@@ -95,7 +95,7 @@ This package centralizes:
 - `createAdminClient()` is for system flows only; approved call sites are listed in `packages/shared/src/supabase/admin.ts`. Prefer `createScopedAdminQuery(userId)` for user-owned tables.
 - `@helvety/shared/cached-server` exposes per-request cached helpers such as `getCachedUser` and `getCachedCSRFToken` (built with React `cache`) so root layouts and navbars can share one Supabase `getUser` / CSRF read per request without duplicate round-trips.
 - `@helvety/shared/layout-session-bootstrap`:
-  - `bootstrapPublicLayoutUser()` — user only (`apps/web`, `apps/pdf`, `apps/image-upscaler`, `apps/image-editor`).
+  - `bootstrapPublicLayoutUser()` — user only (`apps/web`, `apps/pdf`, `apps/image-upscaler`, `apps/image-editor`, `apps/ocr`).
   - `bootstrapE2eeLayoutSession()` — CSRF + user in parallel (`apps/store` layout, `@helvety/ui/e2ee-app-root-layout` for tasks/contacts/notes/links).
   - `bootstrapAuthLayoutSession()` — same CSRF + user contract as `bootstrapE2eeLayoutSession()` (`apps/auth` root layout).
   - All helpers log and return safe fallbacks on failure.

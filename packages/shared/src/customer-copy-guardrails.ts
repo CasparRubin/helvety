@@ -22,6 +22,7 @@ export const CUSTOMER_COPY_README_RELATIVE_PATHS = [
   "apps/web/README.md",
   "apps/image-upscaler/README.md",
   "apps/image-editor/README.md",
+  "apps/ocr/README.md",
 ] as const;
 
 /** Repo-relative paths to hand-maintained `public/llms.txt` summaries. */
@@ -36,6 +37,7 @@ export const CUSTOMER_COPY_LLMS_RELATIVE_PATHS = [
   "apps/auth/public/llms.txt",
   "apps/image-upscaler/public/llms.txt",
   "apps/image-editor/public/llms.txt",
+  "apps/ocr/public/llms.txt",
 ] as const;
 
 /** PWA install prompts and similar public JSON copy. */
@@ -50,6 +52,7 @@ export const CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS = [
   "apps/auth/public/manifest.json",
   "apps/image-upscaler/public/manifest.json",
   "apps/image-editor/public/manifest.json",
+  "apps/ocr/public/manifest.json",
 ] as const;
 
 /**
@@ -70,6 +73,7 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
   "apps/pdf/lib/product-copy.ts",
   "apps/image-upscaler/lib/product-copy.ts",
   "apps/image-editor/lib/product-copy.ts",
+  "apps/ocr/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/impressum/page.tsx",
@@ -86,6 +90,7 @@ export const CUSTOMER_COPY_USER_FACING_APP_IDS = [
   "image-editor",
   "links",
   "notes",
+  "ocr",
   "pdf",
   "store",
   "tasks",

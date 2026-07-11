@@ -25,6 +25,7 @@ const DIRECT_APP_REDIRECT_HOSTS = new Set([
   "helvety-pdf.vercel.app",
   "helvety-image-upscaler.vercel.app",
   "helvety-image-editor.vercel.app",
+  "helvety-ocr.vercel.app",
   "helvety-tasks.vercel.app",
   "helvety-contacts.vercel.app",
   "helvety-notes.vercel.app",

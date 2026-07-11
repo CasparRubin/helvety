@@ -19,7 +19,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
   - server env validation and Supabase client factories; tiered env factories (`createAppServerUpstashEnv`, `createAppUserScopedE2eeEnv`, `createAppUpstashCookieEnv`, `getValidatedGatewayEnv`); per-app `env.template` parity (`consistency:env-templates`); local/Vercel env ops (`consistency:local-env`, [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))
   - `auth-session-policy.ts`: shared TTL constants — vault (IndexedDB) uses **24h sliding idle / 7d max**; device-trust cookie and PRF salt cache use the **7d max** only (trust slides on passkey sign-in when already trusted)
   - `defineEntityDeleteRegistry` (`entity-delete-message`) for E2EE delete copy
-  - `app-product-descriptions` for shared SEO/PWA strings (pdf/image-upscaler re-export via thin `lib/product-copy.ts`)
+  - `app-product-descriptions` for shared SEO/PWA strings (pdf, image-upscaler, image-editor, and ocr re-export via thin `lib/product-copy.ts`)
 - `@helvety/ui`
   - auth/encryption gate flow (`EncryptionGate`, `AuthTokenHandler`, `SessionRecovery`)
   - shared navigation/session UX behavior (`create-app-navbar` factories; `E2eeShellRouteLoading` / `HelvetyShellRouteLoading` loading matrix)
@@ -29,7 +29,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 ## Multi-zone static assets (`assetPrefix`)
 
 - **Use `assetPrefix` + gateway `*-static` rewrites** when a zone ships a large client bundle under a dedicated path prefix (auth, tasks, contacts, notes, links). The web gateway forwards `/auth-static`, `/tasks-static`, etc. to each deployment.
-- **Omit `assetPrefix`** for lighter zones (store, pdf, image-upscaler, image-editor) that rely on default `/_next/static` under their `basePath`. Add `assetPrefix` only after measuring broken static assets or cache issues in production—not preemptively.
+- **Omit `assetPrefix`** for lighter zones (store, pdf, image-upscaler, image-editor, ocr) that rely on default `/_next/static` under their `basePath`. Add `assetPrefix` only after measuring broken static assets or cache issues in production—not preemptively.
 
 ## Completed modernization (2026-05)
 
@@ -59,7 +59,7 @@ Living contracts and guardrails for the Helvety monorepo. Historical modernizati
 - **Dead code:** schedule `bun run deps:unused` quarterly (Knip in `ci:check`; config in [`knip.json`](../knip.json)); optional local triage via `bun run fallow:*` (`.fallowrc.json` may use broader ignores; not a CI gate); `ci:release` starts with `bun run clean:artifacts` (`.next/`, `coverage/`, `.turbo/`, and other gitignored build artifacts)
 - **E2EE nested boundaries:** when adding nested entity routes, copy store’s `error.tsx` / `loading.tsx` pattern per segment
 - Encrypted prefetch APIs: shared `encrypted-prefetch-api`, `encrypted-prefetch-queries`, `dashboard-prefetch` overflow copy, `RATE_LIMITS.PREFETCH`, route + batch-action tests; auth layout uses `bootstrapAuthLayoutSession()`; fail-closed proxy wiring test; hosted Supabase schema + `consistency:supabase-schema` (types guardrail)
-- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories; Next config presets (`createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig`); navbar factories (`create-app-navbar`); centralized pdf/upscaler product copy; `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e` or optional `bun run ci:check:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps
+- **Zone modernization (2026-05):** JSX root layouts; `E2eeShellRouteLoading` matrix; tiered env factories; Next config presets (`createE2eeZoneNextConfig`, `createPublicToolNextConfig`, `createAuthGatewayNextConfig`); navbar factories (`create-app-navbar`); centralized public-tool product copy (pdf, image-upscaler, image-editor, ocr); `consistency:zone-modernization` + `zone-*-wiring` Vitest guards; Playwright gateway smoke (`bun run test:e2e` or optional `bun run ci:check:e2e`); `bun run scaffold:e2ee-zone` checklist for new E2EE apps
 
 ## Verification and guardrails (ongoing)
 

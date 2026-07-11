@@ -19,7 +19,7 @@ describe("web gateway proxy matcher", () => {
     const pattern = config.matcher[0]!;
     expect(pattern).toContain("auth|store|pdf");
     expect(pattern).toContain(
-      "image-upscaler|image-editor|tasks|contacts|notes|links"
+      "image-upscaler|image-editor|ocr|tasks|contacts|notes|links"
     );
   });
 

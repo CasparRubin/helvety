@@ -18,6 +18,7 @@ Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - [Helvety PDF](https://helvety.com/pdf/llms.txt)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler/llms.txt)
 - [Helvety Image Editor](https://helvety.com/image-editor/llms.txt)
+- [Helvety OCR](https://helvety.com/ocr/llms.txt)
 - [Helvety Auth](https://helvety.com/auth/llms.txt)
 - [Helvety Contacts](https://helvety.com/contacts/llms.txt)
 - [Helvety Notes](https://helvety.com/notes/llms.txt)
@@ -36,6 +37,7 @@ Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Upscale images in the browser on your device
 - [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser on your device with text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable stroke, blur, and corner radius; layers panel and zoom; no image upload to Helvety servers in the normal flow
+- [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR and born-digital PDFs reuse their text layer; read, copy, or download plain text with no file upload to Helvety servers
 - [Helvety Contacts](https://helvety.com/contacts): Encrypted address book with export tooling
 - [Helvety Notes](https://helvety.com/notes): Encrypted notes in Personal, Work, and Other groups
 - [Helvety Links](https://helvety.com/links): Encrypted bookmarks in nested folders

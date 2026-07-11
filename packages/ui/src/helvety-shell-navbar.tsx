@@ -189,7 +189,7 @@ function AccountMobileLink({
  * Does not call `useEncryptionContext`; callers may pass `encryption` as a
  * function of navbar auth state (Auth and `E2eeAppNavbar`), as a static object
  * (tests or rare one-offs), pass vault-only badge/tooltips, or omit it
- * (`web`, `store`, `pdf`, `image-upscaler`).
+ * (`web`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`).
  */
 export function HelvetyShellNavbar({
   initialUser = null,

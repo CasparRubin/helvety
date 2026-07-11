@@ -121,6 +121,19 @@ if (existsSync(upscaler)) {
   }
 }
 
+const ocrShell = resolve(appsDir, "ocr", "components", "helvety-ocr.tsx");
+if (existsSync(ocrShell)) {
+  const ocrSrc = read(ocrShell);
+  if (!ocrSrc.includes("@helvety/ui/public-tool-workspace")) {
+    failures.push(`${ocrShell}: import public-tool-workspace constants`);
+  }
+  if (!ocrSrc.includes("PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS")) {
+    failures.push(
+      `${ocrShell}: use PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS from public-tool-workspace`
+    );
+  }
+}
+
 const pdfToolkit = resolve(
   appsDir,
   "pdf",

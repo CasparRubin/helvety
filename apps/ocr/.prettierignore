@@ -1,0 +1,5 @@
+.next
+node_modules
+coverage
+lib/config/version.ts
+public/pdf.worker.min.mjs

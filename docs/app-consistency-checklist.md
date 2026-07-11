@@ -20,7 +20,7 @@ Use this when adding a new zone under `apps/*` or auditing an existing app for m
 | `app/apple-icon.png` | Optional iOS home-screen PNG (recommended on public/indexable zones; `links`, `image-upscaler`, and `image-editor` ship one today)                                                                                                          |
 | `vercel.json`        | Root Directory + headers; synced by `consistency:vercel-apps`                                                                                                                                                                               |
 | `app/robots.ts`      | Zone crawl policy via `@helvety/shared/seo` (`createOpenRobots`, `createAppRobots`, or `createPrivateAppRobots`)                                                                                                                            |
-| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `image-upscaler`, `image-editor`); private non-indexable zones omit this file (404 avoids invalid urlset XML in Search Console)                                                     |
+| `app/sitemap.ts`     | **Public/indexable zones only** (`web`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`); private non-indexable zones omit this file (404 avoids invalid urlset XML in Search Console)                                              |
 
 ## Required tests (minimum floor)
 
@@ -35,13 +35,13 @@ Enforced by `bun run test:hygiene` (proxy test), `consistency:guardrails` (layou
 
 ### `layout-shell-providers.test.ts` families
 
-| Family            | Apps                                    | Also assert                                                                                                                                                                                                                                               |
-| ----------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| E2EE              | `tasks`, `contacts`, `notes`, `links`   | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                                                                                                                                                            |
-| Public tool       | `pdf`, `image-upscaler`, `image-editor` | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
-| Gateway marketing | `web`                                   | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
-| Auth gateway      | `auth`                                  | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order; OTP verify returns rotated `csrfToken` for `useSetCSRFToken` before passkey; client syncs `?step=` via `syncLoginUrlStep` (no post-OTP server redirect when session exists) |
-| Store gateway     | `store`                                 | CSRF wraps `{shell}`                                                                                                                                                                                                                                      |
+| Family            | Apps                                           | Also assert                                                                                                                                                                                                                                               |
+| ----------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E2EE              | `tasks`, `contacts`, `notes`, `links`          | `E2eeAppRootLayout`, `encryptionProvider={EncryptionProvider}`                                                                                                                                                                                            |
+| Public tool       | `pdf`, `image-upscaler`, `image-editor`, `ocr` | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
+| Gateway marketing | `web`                                          | `HelvetyPublicShellRootLayout`, `bootstrapPublicLayoutUser`                                                                                                                                                                                               |
+| Auth gateway      | `auth`                                         | `bootstrapAuthLayoutSession`; CSRF wraps `EncryptionProvider`; nesting order; OTP verify returns rotated `csrfToken` for `useSetCSRFToken` before passkey; client syncs `?step=` via `syncLoginUrlStep` (no post-OTP server redirect when session exists) |
+| Store gateway     | `store`                                        | CSRF wraps `{shell}`                                                                                                                                                                                                                                      |
 
 Copy an existing test from the same family when adding a zone.
 
@@ -123,7 +123,7 @@ Links library state uses `use-link-library` (not the shared sortable/single-item
 | Cross-app links panels | `apps/notes/components/contact-links-panel.test.ts`   | `buildE2eeDeepLink` contract only                                              |
 | Contact picker columns | `apps/tasks/app/actions/contact-link-actions.test.ts` | `CONTACT_LINK_PICKER_COLUMNS` on `getContacts`                                 |
 
-Public canvas tools (PDF, image upscaler, image editor): pinned `CommandBar` labels, placement, and empty-state copy follow [`ui-action-button-contract.md`](./ui-action-button-contract.md) (Canvas tools section). Command bar RTL + `getByRole` tests: `apps/pdf/components/pdf/pdf-command-bar.test.tsx`, `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`, `apps/image-editor/components/image-editor-command-bar.test.tsx`.
+Public canvas tools (PDF, image upscaler, image editor, OCR): pinned `CommandBar` labels, placement, and empty-state copy follow [`ui-action-button-contract.md`](./ui-action-button-contract.md) (Canvas tools section). Command bar RTL + `getByRole` tests: `apps/pdf/components/pdf/pdf-command-bar.test.tsx`, `apps/image-upscaler/components/image-upscaler-command-bar.test.tsx`, `apps/image-editor/components/image-editor-command-bar.test.tsx`, `apps/ocr/components/ocr-command-bar.test.tsx`.
 
 ### Scrollable sheets and detail panels
 
@@ -141,7 +141,7 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 | Row icon actions (web lists)            | `@helvety/ui/row-action-button` (`aria-label`; optional local wrapper) | [`ui-action-button-contract.md`](./ui-action-button-contract.md), `consistency:ui-actions` |
 | Row delete icon                         | `Trash2Icon` + `ICON_SIZE_CLASS`                                       | `consistency:ui-actions`, `ui-actions-wiring.test.ts`                                      |
 | Editor form fields (extension + shared) | `@helvety/ui/form-field`, `@helvety/ui/e2ee-form-layout`               | Extension `src/popup/views/entity-form-view.test.ts`                                       |
-| Public-tool sidebars                    | `@helvety/ui/public-tool-workspace`                                    | PDF toolkit, image-upscaler, image-editor layers panel                                     |
+| Public-tool sidebars                    | `@helvety/ui/public-tool-workspace`                                    | PDF toolkit, image-upscaler, image-editor layers panel, OCR workspace                      |
 | Toasts in apps                          | `import { toast } from "@helvety/ui/sonner"`                           | Knip (`deps:unused`), `consistency:ui-actions`                                             |
 
 Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; delete in edit mode is in the **header** (`DataTabsView`), not `EntityFormView` footer.
@@ -149,7 +149,7 @@ Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; d
 ### Lib / copy / crypto
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`. Do not duplicate in app tests.
-- `lib/product-copy.test.ts`: `pdf` / `image-upscaler` / `image-editor` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
+- `lib/product-copy.test.ts`: `pdf` / `image-upscaler` / `image-editor` / `ocr` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
 - `lib/llms-copy.test.ts`: only where llms content has unique product behavior (`links`).
 - Store catalog SSOT: `@helvety/shared/helvety-ecosystem-sections` (categories + app-switcher grouping) → `@helvety/shared/store-catalog` (card fields, `StoreProductType`; `category` derived) → `apps/store/lib/types/products.ts` (`Product.type` imports `StoreProductType`) → `apps/store/lib/data/products.ts` (full rows). Wiring: `helvety-ecosystem-sections.test.ts`, `store-catalog.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`, `apps/store/components/products/product-ui-wiring.test.ts`.
 - Crypto: field-bound AAD (`buildFieldAAD`) allowlist per zone in `lib/crypto/*encryption*.test.ts` (contacts: `contact-encryption.test.ts`); entity encryption modules use `encryptEntityField` / `decryptEntityField` only (`consistency:e2ee-aad`; no raw `await encrypt(` / `await decrypt(`). Ciphertext wire format is `ENCRYPTION_VERSION = 2` only. Shared E2EE SSOT: `@helvety/shared/e2ee-entity-columns`, `@helvety/shared/e2ee-write-guard`, `@helvety/shared/e2ee-entity-defaults`, `@helvety/shared/e2ee-entity-catalogs`, `@helvety/shared/e2ee-url-normalize`, `@helvety/shared/crypto/e2ee-entity-crypto`, `@helvety/shared/e2ee-domain-types`, `@helvety/shared/e2ee-record-to-input`, `@helvety/shared/validate-e2ee-draft`, `@helvety/shared/entity-list-grouping`, `@helvety/shared/link-tree-ops` (`consistency:e2ee-catalogs`; wiring tests in `packages/shared/src/e2ee-*-wiring.test.ts`, `entity-list-grouping.test.ts`, `link-tree-ops.test.ts`, `crypto/e2ee-entity-crypto.test.ts`).
@@ -166,15 +166,15 @@ Chromium extension: `IconTooltipButton` enables tooltips on `RowActionButton`; d
 
 Pick one profile from `@helvety/shared/proxy` (`SECURITY_PROXY_PROFILE_OPTIONS`):
 
-| Profile            | Typical apps                                 |
-| ------------------ | -------------------------------------------- |
-| `public-marketing` | `web` (custom matcher excluding other zones) |
-| `auth-gateway`     | `auth`                                       |
-| `store-gateway`    | `store`                                      |
-| `e2ee-app`         | `tasks`, `contacts`, `notes`, `links`        |
-| `public-tool`      | `pdf`, `image-upscaler`, `image-editor`      |
+| Profile            | Typical apps                                   |
+| ------------------ | ---------------------------------------------- |
+| `public-marketing` | `web` (custom matcher excluding other zones)   |
+| `auth-gateway`     | `auth`                                         |
+| `store-gateway`    | `store`                                        |
+| `e2ee-app`         | `tasks`, `contacts`, `notes`, `links`          |
+| `public-tool`      | `pdf`, `image-upscaler`, `image-editor`, `ocr` |
 
-**PDF worker sync:** `apps/pdf` runs `bun run sync:pdf-worker` before dev/build to copy the worker from react-pdf's resolved `pdfjs-dist` into `public/` (must match the runtime API). Root `bun run consistency:pdfjs-worker` (in `ci:check`) **syncs then validates** alignment and rejects independent `pdfjs-dist` pins/overrides. See [`apps/pdf/README.md`](../apps/pdf/README.md) › PDF.js stack.
+**PDF worker sync:** `apps/pdf` and `apps/ocr` run `bun run sync:pdf-worker` before dev/build to copy the worker from react-pdf's resolved `pdfjs-dist` into `public/` (must match the runtime API). Root `bun run consistency:pdfjs-worker` (in `ci:check`) **syncs then validates** alignment for both zones and rejects independent `pdfjs-dist` pins/overrides. See [`apps/pdf/README.md`](../apps/pdf/README.md) and [`apps/ocr/README.md`](../apps/ocr/README.md) › PDF.js stack.
 
 Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config = { matcher: [...] }` (Next.js requirement). `scripts/check-consistency-guardrails.mjs` enforces parity with `packages/shared/src/proxy.ts`.
 
@@ -186,10 +186,10 @@ Copy `SECURITY_PROXY_MATCHER` as a **static literal** into `export const config 
 
 ## Root layout shell
 
-| Shell                          | Apps                                                            |
-| ------------------------------ | --------------------------------------------------------------- |
-| `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler`, `image-editor` |
-| `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`                           |
+| Shell                          | Apps                                                                   |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `HelvetyPublicShellRootLayout` | `web`, `auth`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr` |
+| `E2eeAppRootLayout`            | `tasks`, `contacts`, `notes`, `links`                                  |
 
 **ScrollArea viewport selectors:** Public shells and `CommandBarPageLayout` target child viewports with `[data-slot=scroll-area-viewport]` (shadcn Base UI `data-slot`, not legacy `data-radix-scroll-area-viewport`). Guardrail: `packages/ui/src/helvety-layout-wiring.test.ts`, `command-bar-page-layout.test.tsx`.
 
@@ -197,11 +197,11 @@ Use JSX for root layouts: `<HelvetyPublicShellRootLayout>` or `<E2eeAppRootLayou
 
 ## Root `app/loading.tsx` matrix
 
-| Shell family                 | Apps                                    | Export                     |
-| ---------------------------- | --------------------------------------- | -------------------------- |
-| Gateway / scroll-area public | `web`, `auth`, `store`                  | `HelvetyShellRouteLoading` |
-| Public tools                 | `pdf`, `image-upscaler`, `image-editor` | `LoadingSpinner`           |
-| E2EE                         | `tasks`, `contacts`, `notes`, `links`   | `E2eeShellRouteLoading`    |
+| Shell family                 | Apps                                           | Export                     |
+| ---------------------------- | ---------------------------------------------- | -------------------------- |
+| Gateway / scroll-area public | `web`, `auth`, `store`                         | `HelvetyShellRouteLoading` |
+| Public tools                 | `pdf`, `image-upscaler`, `image-editor`, `ocr` | `LoadingSpinner`           |
+| E2EE                         | `tasks`, `contacts`, `notes`, `links`          | `E2eeShellRouteLoading`    |
 
 Nested routes (e.g. store products) use `LoadingSpinner`. Enforced by `consistency:zone-modernization`.
 
@@ -216,7 +216,7 @@ E2EE zones and vault-aware zones (`auth`) re-export the client provider from `@/
 | Admin + rate limit            | `createAppServerUpstashEnv` + `serverUpstashMergedSchema`      | `store`                                                                   |
 | Admin + rate limit (extended) | `createAppServerUpstashEnv` + custom schema                    | `auth` (`DEVICE_TRUST_COOKIE_SECRET`, `HELVETY_CHROME_EXTENSION_ORIGINS`) |
 | User-scoped E2EE              | `createAppUserScopedE2eeEnv` + `userScopedE2eeServerEnvSchema` | E2EE apps (`DEVICE_TRUST_COOKIE_SECRET` for weekly device-trust gate)     |
-| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`, `image-editor`                                   |
+| Public tool + rate limit      | `createAppUpstashCookieEnv` + `upstashCookieSigningEnvSchema`  | `pdf`, `image-upscaler`, `image-editor`, `ocr`                            |
 | Gateway                       | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                                                                     |
 
 Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
@@ -226,7 +226,7 @@ Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:
 | Preset                         | Apps                                            |
 | ------------------------------ | ----------------------------------------------- |
 | `createE2eeZoneNextConfig`     | `tasks`, `contacts`, `notes`, `links`           |
-| `createPublicToolNextConfig`   | `pdf`, `image-upscaler`, `image-editor`         |
+| `createPublicToolNextConfig`   | `pdf`, `image-upscaler`, `image-editor`, `ocr`  |
 | `createAuthGatewayNextConfig`  | `auth`                                          |
 | `createHelvetyNextConfig` only | `web`, `store` (bespoke `overrides` / rewrites) |
 
@@ -243,12 +243,12 @@ Wired by `packages/shared/src/app-navbar-wiring.test.ts` and `packages/ui/src/e2
 
 ## Centralized zone wiring tests
 
-In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all ten zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `e2ee-catalog-wiring`, `e2ee-crypto-wiring`, `e2ee-extension-wiring` (when the extension sibling repo is present), `entity-list-grouping`, `link-tree-ops`, `validate-e2ee-draft`, `e2ee-record-to-input`, `crypto/e2ee-entity-crypto`, `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
+In addition to per-zone `app/layout-shell-providers.test.ts` and `test:hygiene` floors, `@helvety/shared` ships Vitest guards for all eleven zones: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, plus cross-cutting `encrypted-data-wiring` (E2EE mutation actions import `EncryptedDataSchema`), `e2ee-catalog-wiring`, `e2ee-crypto-wiring`, `e2ee-extension-wiring` (when the extension sibling repo is present), `entity-list-grouping`, `link-tree-ops`, `validate-e2ee-draft`, `e2ee-record-to-input`, `crypto/e2ee-entity-crypto`, `csrf-wiring`, `supabase-rls-export` (pairs with `bun run consistency:supabase-rls`), `auth-server-action-guards.test.ts` (unit tests for `verifyAuthActionGuards`), and `workspace-script-parity.test.ts`. Exec smoke tests for auth-action and workspace-script guardrail scripts live in `deps-guardrail-scripts.test.ts`. Prefer extending those when auditing monorepo-wide patterns instead of duplicating per-app `loading.test.ts` files.
 
 ## Multi-zone static assets (`assetPrefix`)
 
 - **Use** `assetPrefix` + gateway `*-static` rewrites for heavy client bundles: `auth`, `tasks`, `contacts`, `notes`, `links`.
-- **Omit** for lighter zones until production shows static asset conflicts: `store`, `pdf`, `image-upscaler`, `image-editor`.
+- **Omit** for lighter zones until production shows static asset conflicts: `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`.
 
 See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
@@ -256,24 +256,24 @@ See [`quality-modernization-baseline.md`](./quality-modernization-baseline.md).
 
 Turbo lists a **superset** of env vars on `build` in [`turbo.json`](../turbo.json) so cached builds invalidate when any zone secret changes. See [`turbo-env-tiers.md`](./turbo-env-tiers.md) and [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md). **Required keys at runtime** still follow each app's `env.template` (`bun run consistency:env-templates`; local `.env.local`: `bun run consistency:local-env`):
 
-| Tier                         | Apps                                    | Required secrets (typical)                                                                                 |
-| ---------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **Admin + rate limit**       | `auth`, `store`                         | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                          |
-| **User-scoped + rate limit** | E2EE apps                               | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, `DEVICE_TRUST_COOKIE_SECRET` (no admin client) |
-| **Public tool + rate limit** | `pdf`, `image-upscaler`, `image-editor` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                 |
-| **Auth extra**               | `auth`                                  | `DEVICE_TRUST_COOKIE_SECRET` (mint), `HELVETY_CHROME_EXTENSION_ORIGINS`                                    |
-| **Gateway**                  | `web`                                   | Public Supabase + zone rewrite URLs when `VERCEL=1`                                                        |
+| Tier                         | Apps                                           | Required secrets (typical)                                                                                 |
+| ---------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Admin + rate limit**       | `auth`, `store`                                | Supabase public + `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                          |
+| **User-scoped + rate limit** | E2EE apps                                      | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, `DEVICE_TRUST_COOKIE_SECRET` (no admin client) |
+| **Public tool + rate limit** | `pdf`, `image-upscaler`, `image-editor`, `ocr` | Supabase public + Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                 |
+| **Auth extra**               | `auth`                                         | `DEVICE_TRUST_COOKIE_SECRET` (mint), `HELVETY_CHROME_EXTENSION_ORIGINS`                                    |
+| **Gateway**                  | `web`                                          | Public Supabase + zone rewrite URLs when `VERCEL=1`                                                        |
 
 See root [`README.md`](../README.md) § Environment Model.
 
 ## `lib/env.ts` JSDoc
 
-| Tier                     | Apps                                    | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION` |
-| ------------------------ | --------------------------------------- | ------------------------------------------------------- |
-| Admin + rate limit       | `auth`, `store`                         | Yes (`createAppServerUpstashEnv`)                       |
-| User-scoped E2EE         | E2EE apps                               | Yes (`createAppUserScopedE2eeEnv`)                      |
-| Public tool + rate limit | `pdf`, `image-upscaler`, `image-editor` | Yes (`createAppUpstashCookieEnv`)                       |
-| Gateway                  | `web`                                   | Yes (`getValidatedWebEnv`)                              |
+| Tier                     | Apps                                           | JSDoc must mention `ci:release` / `SKIP_ENV_VALIDATION` |
+| ------------------------ | ---------------------------------------------- | ------------------------------------------------------- |
+| Admin + rate limit       | `auth`, `store`                                | Yes (`createAppServerUpstashEnv`)                       |
+| User-scoped E2EE         | E2EE apps                                      | Yes (`createAppUserScopedE2eeEnv`)                      |
+| Public tool + rate limit | `pdf`, `image-upscaler`, `image-editor`, `ocr` | Yes (`createAppUpstashCookieEnv`)                       |
+| Gateway                  | `web`                                          | Yes (`getValidatedWebEnv`)                              |
 
 ## E2EE UX patterns
 

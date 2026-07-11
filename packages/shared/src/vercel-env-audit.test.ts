@@ -103,6 +103,7 @@ describe("auditProjectEnv", () => {
     );
     expect(WEB_GATEWAY_KEYS).toContain("LINKS_URL");
     expect(WEB_GATEWAY_KEYS).toContain("IMAGE_EDITOR_URL");
+    expect(WEB_GATEWAY_KEYS).toContain("OCR_URL");
   });
 
   it("flags missing IMAGE_EDITOR_URL on helvety-com", () => {
@@ -115,6 +116,19 @@ describe("auditProjectEnv", () => {
 
     expect(errors).toContain(
       "helvety-com: missing gateway rewrite URLs: IMAGE_EDITOR_URL"
+    );
+  });
+
+  it("flags missing OCR_URL on helvety-com", () => {
+    const webKeys = requireAppKeys(EXPECTED_KEYS_BY_APP.web, "web");
+    const { errors } = auditProjectEnv({
+      project: "helvety-com",
+      app: "web",
+      keys: webKeys.filter((key) => key !== "OCR_URL"),
+    });
+
+    expect(errors).toContain(
+      "helvety-com: missing gateway rewrite URLs: OCR_URL"
     );
   });
 

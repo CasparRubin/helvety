@@ -62,7 +62,7 @@ describe("store product catalog", () => {
 
     expect(counts).toEqual({
       "encryption-apps": 4,
-      "file-tools": 3,
+      "file-tools": 4,
       "browser-extensions": 2,
       "sharepoint-apps": 1,
       "desktop-apps": 1,
@@ -75,9 +75,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Image Editor newest; PDF oldest)", () => {
+  it("default sort is newest release first (OCR newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-image-editor");
+    expect(ids[0]).toBe("helvety-ocr");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -189,6 +189,10 @@ describe("store product catalog", () => {
       "helvety-image-editor": {
         artwork: "artwork11",
         artist: "Clara von Rappard",
+      },
+      "helvety-ocr": {
+        artwork: "artwork13",
+        artist: "Anny Meisser Vonzun",
       },
       "helvety-browser-extension": {
         artwork: "artwork12",
@@ -355,6 +359,17 @@ describe("store product catalog", () => {
         expect(step.description).not.toContain(stalePhrase);
       }
     }
+  });
+
+  it("Helvety OCR uses Anny Meisser Vonzun artwork", () => {
+    const product = getProductBySlug("helvety-ocr");
+    expect(product).toBeDefined();
+    if (!product) {
+      return;
+    }
+
+    expect(product.image).toBe(productArtwork.artwork13);
+    expect(product.artist).toBe("Anny Meisser Vonzun");
   });
 
   it("Helvety Browser Extension uses Clara von Rappard artwork and save-first copy", () => {

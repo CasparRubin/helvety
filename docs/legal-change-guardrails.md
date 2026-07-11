@@ -14,7 +14,7 @@ Before release, perform legal/content review if any change introduces one of
 the following:
 
 - server-side processing of files or content that previously stayed local-only
-  (for example Image Upscaler or PDF payload handling)
+  (for example Helvety PDF, Image Upscaler, Image Editor, or OCR payload handling)
 - AI training, fine-tuning, or dataset retention using user-provided content
 - material changes to tracking or profiling scope (including new cookies/localStorage keys, or shared footer disclosure text)
 - changes to account/login requirements for public tools

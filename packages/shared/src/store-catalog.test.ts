@@ -41,7 +41,7 @@ describe("store-catalog", () => {
 
   it("sorts newest release first with expected endpoints", () => {
     const sorted = getStoreCatalogNewestFirst();
-    expect(sorted[0]?.id).toBe("helvety-image-editor");
+    expect(sorted[0]?.id).toBe("helvety-ocr");
     expect(sorted[sorted.length - 1]?.id).toBe("helvety-pdf");
   });
 

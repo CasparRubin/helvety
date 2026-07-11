@@ -21,6 +21,7 @@ const LOADING_MATRIX = {
   pdf: { rootLoading: "LoadingSpinner" },
   "image-upscaler": { rootLoading: "LoadingSpinner" },
   "image-editor": { rootLoading: "LoadingSpinner" },
+  ocr: { rootLoading: "LoadingSpinner" },
   tasks: { rootLoading: "E2eeShellRouteLoading" },
   contacts: { rootLoading: "E2eeShellRouteLoading" },
   notes: { rootLoading: "E2eeShellRouteLoading" },

@@ -13,6 +13,7 @@ const ZONE_APPS_WITH_AUTH_CALLBACK = [
   "image-editor",
   "links",
   "notes",
+  "ocr",
   "pdf",
   "store",
   "tasks",

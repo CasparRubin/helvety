@@ -797,6 +797,109 @@ const helvetyImageEditor: SaaSProduct = {
 };
 
 // =============================================================================
+// HELVETY OCR
+// =============================================================================
+
+/** Helvety OCR - in-browser text extraction from PDFs and images. */
+const cHelvetyOcr = cardCore("helvety-ocr", "saas");
+const helvetyOcr: SaaSProduct = {
+  id: cHelvetyOcr.id,
+  slug: cHelvetyOcr.slug,
+  name: cHelvetyOcr.name,
+  shortDescription: cHelvetyOcr.shortDescription,
+  type: cHelvetyOcr.type,
+  category: cHelvetyOcr.category,
+  description: {
+    intro:
+      "Helvety OCR reads text out of PDFs and images without uploading your files. Drop a scan or photo and on-device optical character recognition transcribes it; drop a born-digital PDF and the app reuses the existing text layer instead of re-recognizing it. When extraction finishes you can read the text on screen, copy it, or download a plain .txt file. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
+    sections: [
+      {
+        heading: "Access model",
+        kind: "paragraph",
+        body: "Open the tool without signing in. Usage stays free; automated safeguards keep abusive floods from degrading shared infrastructure.",
+      },
+      {
+        heading: "What it handles",
+        kind: "bullets",
+        items: [
+          "Images in PNG, JPEG, and WebP formats.",
+          "Scanned or image-only PDFs, transcribed page by page with on-device OCR.",
+          "Born-digital PDFs, where the existing text layer is extracted directly for speed and accuracy.",
+          "English and German text recognition, selectable in the sidebar.",
+          "Per-file ceiling of 100 MB and up to 50 pages per PDF; actual throughput depends on your device.",
+        ],
+      },
+      {
+        heading: "Privacy posture",
+        kind: "paragraph",
+        body: "Because the file bytes never leave your browser tab, you can extract text from sensitive documents the same way you would with an offline tool, minus the install step.",
+      },
+    ],
+  },
+  image: productArtwork.artwork13,
+  artist: "Anny Meisser Vonzun",
+  features: [
+    "Client-side OCR for scanned pages and images",
+    "Born-digital PDFs reuse their existing text layer",
+    "PNG, JPEG, and WebP image support",
+    "English and German recognition",
+    "Read, copy, or download extracted text as .txt",
+    "Up to 100MB per file; up to 50 pages per PDF",
+    "No login or account required",
+    "Dark & light mode support",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    tiers: [
+      {
+        id: "helvety-ocr-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "All OCR features included",
+          "Up to 100MB per file",
+          "No account required",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.com/ocr",
+    github: "https://github.com/CasparRubin/helvety/tree/main/apps/ocr",
+  },
+  saas: {
+    appUrl: "https://helvety.com/ocr",
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Anyone extracting text from scans or PDFs",
+      "Privacy-conscious users",
+      "People digitizing documents or receipts",
+    ],
+    platforms: platformsFromRunsOn(cHelvetyOcr.runsOn),
+    keywords: [
+      "ocr",
+      "optical character recognition",
+      "pdf to text",
+      "image to text",
+      "scanned document",
+      "text extraction",
+      "browser",
+      "client-side",
+      "privacy",
+      "free",
+    ],
+    featured: true,
+    releaseDate: cHelvetyOcr.releaseDate,
+  },
+};
+
+// =============================================================================
 // HELVETY TASKS
 // =============================================================================
 
@@ -1335,6 +1438,7 @@ const products: Product[] = [
   helvetyScreenTools,
   helvetyImageUpscaler,
   helvetyImageEditor,
+  helvetyOcr,
   helvetyBrowserExtension,
 ];
 

@@ -1,0 +1,53 @@
+{
+  "name": "@helvety/ocr",
+  "version": "3.8.0",
+  "description": "In-browser OCR for PDFs and images: extract text from scans and born-digital PDFs locally, then copy or download plain text. No server upload, no account required. Swiss-built.",
+  "author": "Helvety",
+  "homepage": "https://helvety.com/ocr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CasparRubin/helvety.git",
+    "directory": "apps/ocr"
+  },
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "bun run sync:assets && node ../../scripts/generate-version.mjs && next dev -p 3011",
+    "build": "bun run sync:assets && node ../../scripts/generate-version.mjs && next build",
+    "start": "next start -p 3011",
+    "lint": "node ../../scripts/generate-version.mjs && eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "type-check": "node ../../scripts/generate-version.mjs && bunx next typegen && tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "sync:assets": "bun run sync:pdf-worker && bun run sync:tesseract",
+    "sync:pdf-worker": "node ./scripts/sync-pdf-worker.mjs",
+    "sync:tesseract": "node ./scripts/sync-tesseract-assets.mjs",
+    "download:tessdata": "node ./scripts/download-tessdata.mjs"
+  },
+  "dependencies": {
+    "@helvety/brand": "workspace:*",
+    "@helvety/shared": "workspace:*",
+    "@helvety/ui": "workspace:*",
+    "lucide-react": "^1.24.0",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-pdf": "^10.4.1",
+    "server-only": "^0.0.1",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@helvety/config": "workspace:*",
+    "@helvety/dev-deps": "workspace:*"
+  },
+  "overrides": {
+    "node-domexception": "^2.0.2"
+  }
+}

@@ -11,7 +11,7 @@ The footer states that the site uses essential cookies and similar storage for s
 - Gateway (`apps/web`): relative `/privacy` link (`footerExternal: false`).
 - Sub-zones: absolute `https://helvety.com/privacy` with `target="_blank"`.
 
-**Ten zones:** `web`, `auth`, `store`, `pdf`, `image-upscaler`, `image-editor`, `tasks`, `contacts`, `notes`, `links`.
+**Eleven zones:** `web`, `auth`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`, `tasks`, `contacts`, `notes`, `links`.
 
 We do not mount third-party analytics or advertising trackers in shared root layouts.
 

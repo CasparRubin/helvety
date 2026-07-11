@@ -25,6 +25,7 @@ const README_RELATIVE_PATHS = [
   "apps/web/README.md",
   "apps/image-upscaler/README.md",
   "apps/image-editor/README.md",
+  "apps/ocr/README.md",
 ];
 
 /** Keep in sync with `customer-copy-guardrails.ts`. */
@@ -39,6 +40,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/auth/public/llms.txt",
   "apps/image-upscaler/public/llms.txt",
   "apps/image-editor/public/llms.txt",
+  "apps/ocr/public/llms.txt",
   "apps/web/public/manifest.json",
   "apps/store/public/manifest.json",
   "apps/pdf/public/manifest.json",
@@ -49,6 +51,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/auth/public/manifest.json",
   "apps/image-upscaler/public/manifest.json",
   "apps/image-editor/public/manifest.json",
+  "apps/ocr/public/manifest.json",
   "packages/shared/src/store-catalog.ts",
   "packages/shared/src/helvety-ecosystem-sections.ts",
   "packages/shared/src/app-product-descriptions.ts",
@@ -60,6 +63,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/pdf/lib/product-copy.ts",
   "apps/image-upscaler/lib/product-copy.ts",
   "apps/image-editor/lib/product-copy.ts",
+  "apps/ocr/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/impressum/page.tsx",
@@ -72,6 +76,7 @@ const USER_FACING_APP_IDS = [
   "image-editor",
   "links",
   "notes",
+  "ocr",
   "pdf",
   "store",
   "tasks",

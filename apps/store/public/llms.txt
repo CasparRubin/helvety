@@ -12,6 +12,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
 - [Helvety Image Upscaler](https://helvety.com/store/products/helvety-image-upscaler)
 - [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor)
+- [Helvety OCR](https://helvety.com/store/products/helvety-ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR and born-digital PDFs reuse their text layer; read, copy, or download plain text with no file upload to Helvety servers
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools)
 - [Helvety Tasks](https://helvety.com/store/products/helvety-tasks)
 - [Helvety Contacts](https://helvety.com/store/products/helvety-contacts)

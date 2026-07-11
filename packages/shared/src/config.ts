@@ -35,6 +35,7 @@ export const urls = {
   imageEditor: isDev
     ? `${DEV_GATEWAY}/image-editor`
     : `https://${DOMAIN}/image-editor`,
+  ocr: isDev ? `${DEV_GATEWAY}/ocr` : `https://${DOMAIN}/ocr`,
   tasks: isDev ? `${DEV_GATEWAY}/tasks` : `https://${DOMAIN}/tasks`,
   contacts: isDev ? `${DEV_GATEWAY}/contacts` : `https://${DOMAIN}/contacts`,
   notes: isDev ? `${DEV_GATEWAY}/notes` : `https://${DOMAIN}/notes`,
@@ -105,6 +106,7 @@ export const DEV_PORTS = {
   imageUpscaler: 3008,
   imageEditor: 3010,
   links: 3009,
+  ocr: 3011,
 } as const;
 
 /** Shared viewport config reused by each web app layout in this monorepo */

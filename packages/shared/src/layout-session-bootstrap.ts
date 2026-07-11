@@ -9,7 +9,7 @@ import type { User } from "@supabase/supabase-js";
 
 /**
  * Loads `getCachedUser` for public-shell layouts that only need a navbar user snapshot
- * (no CSRF). Used by `apps/web`, `apps/pdf`, and `apps/image-upscaler`.
+ * (no CSRF). Used by `apps/web`, `apps/pdf`, `apps/image-upscaler`, `apps/image-editor`, and `apps/ocr`.
  */
 export async function bootstrapPublicLayoutUser(): Promise<User | null> {
   try {

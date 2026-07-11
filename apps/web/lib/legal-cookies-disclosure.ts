@@ -1,4 +1,4 @@
-/** App folder names for all ten Next.js zones on helvety.com. */
+/** App folder names for all eleven Next.js zones on helvety.com. */
 export const HELVETY_WEB_ZONE_APP_SLUGS = [
   "web",
   "auth",
@@ -6,6 +6,7 @@ export const HELVETY_WEB_ZONE_APP_SLUGS = [
   "pdf",
   "image-upscaler",
   "image-editor",
+  "ocr",
   "tasks",
   "contacts",
   "notes",

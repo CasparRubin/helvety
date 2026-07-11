@@ -18,6 +18,7 @@ const ZONE_APPS = [
   "pdf",
   "image-upscaler",
   "image-editor",
+  "ocr",
 ] as const;
 
 const COLLAPSIBLE_LINK_PANELS = [

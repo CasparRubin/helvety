@@ -48,6 +48,10 @@ const NAVBAR_WIRING = [
     rel: "apps/image-editor/components/navbar.tsx",
     symbol: "imageEditorNavbarAbout",
   },
+  {
+    rel: "apps/ocr/components/navbar.tsx",
+    symbol: "ocrNavbarAbout",
+  },
 ] as const;
 
 describe("app navbar wiring", () => {
@@ -85,6 +89,7 @@ describe("app navbar wiring", () => {
     "apps/pdf/components/navbar.tsx",
     "apps/image-upscaler/components/navbar.tsx",
     "apps/image-editor/components/navbar.tsx",
+    "apps/ocr/components/navbar.tsx",
   ] as const)("public-shell %s uses createPublicShellNavbar", (rel) => {
     const source = readFileSync(join(repoRoot, rel), "utf8");
     expect(source).toContain("createPublicShellNavbar");

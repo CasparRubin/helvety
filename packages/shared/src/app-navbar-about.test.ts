@@ -11,6 +11,7 @@ import {
   WEB_NAVBAR_ABOUT,
   imageUpscalerNavbarAbout,
   imageEditorNavbarAbout,
+  ocrNavbarAbout,
   pdfNavbarAbout,
 } from "./app-navbar-about";
 import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
@@ -28,6 +29,7 @@ describe("app-navbar-about", () => {
     ["pdf", pdfNavbarAbout()],
     ["image-upscaler", imageUpscalerNavbarAbout()],
     ["image-editor", imageEditorNavbarAbout()],
+    ["ocr", ocrNavbarAbout()],
     ["encryption-tooltip", E2EE_NAVBAR_ENCRYPTION_TOOLTIP],
   ] as const;
 

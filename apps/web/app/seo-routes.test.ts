@@ -40,6 +40,7 @@ describe("web SEO routes", () => {
       urls.pdf,
       urls.imageUpscaler,
       urls.imageEditor,
+      urls.ocr,
       urls.auth,
       urls.contacts,
       urls.notes,

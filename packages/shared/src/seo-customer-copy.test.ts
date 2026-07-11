@@ -118,4 +118,30 @@ describe("seo customer copy guardrails", () => {
       expect(source, rel).toContain("helvety.com/image-editor");
     }
   });
+
+  it("store llms.txt lists the Helvety OCR product page", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/store/public/llms.txt"),
+      "utf8"
+    );
+    expect(source).toContain("helvety-ocr");
+    expect(source).toContain("helvety.com/store/products/helvety-ocr");
+  });
+
+  it("zone llms Related Helvety Apps sections link to Helvety OCR", () => {
+    const zoneLlmsWithRelated = CUSTOMER_COPY_LLMS_RELATIVE_PATHS.filter(
+      (rel) =>
+        rel !== "apps/web/public/llms.txt" &&
+        rel !== "apps/store/public/llms.txt" &&
+        rel !== "apps/ocr/public/llms.txt"
+    );
+    for (const rel of zoneLlmsWithRelated) {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      if (!source.includes("## Related Helvety Apps")) {
+        continue;
+      }
+      expect(source, rel).toContain("Helvety OCR");
+      expect(source, rel).toContain("helvety.com/ocr");
+    }
+  });
 });

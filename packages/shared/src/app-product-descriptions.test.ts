@@ -8,6 +8,8 @@ import {
   IMAGE_UPSCALER_PWA_MANIFEST_DESCRIPTION,
   IMAGE_EDITOR_APP_DESCRIPTION,
   IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION,
+  OCR_APP_DESCRIPTION,
+  OCR_PWA_MANIFEST_DESCRIPTION,
   LINKS_APP_DESCRIPTION,
   NOTES_APP_DESCRIPTION,
   PDF_APP_DESCRIPTION,
@@ -46,6 +48,8 @@ const DESCRIPTIONS = [
     "IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION",
     IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION,
   ],
+  ["OCR_APP_DESCRIPTION", OCR_APP_DESCRIPTION],
+  ["OCR_PWA_MANIFEST_DESCRIPTION", OCR_PWA_MANIFEST_DESCRIPTION],
 ] as const;
 
 describe("app-product-descriptions", () => {
@@ -59,6 +63,7 @@ describe("app-product-descriptions", () => {
     expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
     assertSwissOriginInSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
     expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
+    expect(WEB_SITE_DESCRIPTION).toMatch(/OCR/i);
   });
 
   it("signals Swiss origin in store and encrypted-app SEO copy", () => {

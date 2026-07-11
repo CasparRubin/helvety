@@ -60,6 +60,7 @@ function withDerivedCategory(card: StoreProductCardBase): StoreProductCard {
  */
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
   "helvety-browser-extension": 9,
+  "helvety-ocr": 8,
   "helvety-image-upscaler": 8,
   "helvety-image-editor": 8,
   "helvety-screen-tools": 7,
@@ -188,6 +189,18 @@ const STORE_PRODUCT_CARDS_BASE = [
     shortDescription:
       "Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, spotlight highlights, blur regions, and crop. Adjustable stroke, blur, and corners; layers panel and zoom; edits stay on your device.",
     releaseDate: "2026-07-04",
+    type: "saas",
+    runsOn: "Browser",
+    isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-ocr",
+    slug: "helvety-ocr",
+    name: "Helvety OCR",
+    shortDescription:
+      "Extract text from PDFs and images in the browser. Scanned pages run on-device OCR; born-digital PDFs reuse their text layer. Read, copy, or download plain text; files stay on your device.",
+    releaseDate: "2026-07-11",
     type: "saas",
     runsOn: "Browser",
     isFree: true,

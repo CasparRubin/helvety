@@ -33,7 +33,7 @@ See [reference.md](./reference.md) for command cheat sheet.
 ## Phase 2 — Extended inventory
 
 1. `bun run deps:inventory` — print current extended pins.
-2. Walk every table in [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) by zone: `image-upscaler`, `pdf`, `web`, monorepo-wide, external repos.
+2. Walk every table in [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) by zone: `image-upscaler`, `pdf`, `ocr`, `web`, monorepo-wide, external repos.
 3. For each row with a **Check URL**, research upstream (WebSearch / WebFetch / GitHub releases / HuggingFace model cards). Record: latest version, release date, breaking changes, license, size impact.
 
 ## Phase 3 — Apply extended updates (when requested)
@@ -42,6 +42,7 @@ See [reference.md](./reference.md) for command cheat sheet.
 | ------------------ | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | **image-upscaler** | ORT: `copy-ort-runtime.mjs`; model: runbook in `apps/image-upscaler/public/models/README.md`                       | Update SHA-256 in `lib/models.ts`; upload Supabase; smoke AI upscale   |
 | **pdf**            | Bump `react-pdf` only (not `pdfjs-dist` at root/apps/pdf); `bun install`; `cd apps/pdf && bun run sync:pdf-worker` | Viewer + merge tests; worker test suite; `consistency:pdfjs-worker`    |
+| **ocr**            | Bump `react-pdf` only (not `pdfjs-dist` at root/apps/ocr); `bun install`; `cd apps/ocr && bun run sync:pdf-worker` | Render + extract tests; worker test suite; `consistency:pdfjs-worker`  |
 | **web**            | React Bits via shadcn from `apps/web`                                                                              | Reconcile `components/vendor/`; `docs/ui-shadcn-integration-policy.md` |
 
 Update [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) if pins or procedures changed.

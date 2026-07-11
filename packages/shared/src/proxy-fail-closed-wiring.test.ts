@@ -16,6 +16,7 @@ const FAIL_CLOSED_PROXY_APPS = [
   "pdf",
   "image-upscaler",
   "image-editor",
+  "ocr",
 ] as const;
 
 const OPEN_REFRESH_PROXY_APPS = ["web"] as const;

@@ -16,6 +16,7 @@ const LOCKFILE_PACKAGES = [
   "pdfjs-dist",
   "pdf-lib",
   "react-pdf",
+  "tesseract.js",
 ];
 
 const PACKAGE_JSON_PATHS = [
@@ -23,6 +24,7 @@ const PACKAGE_JSON_PATHS = [
   ["@helvety/dev-deps", "packages/dev-deps/package.json"],
   ["@helvety/pdf", "apps/pdf/package.json"],
   ["@helvety/image-upscaler", "apps/image-upscaler/package.json"],
+  ["@helvety/ocr", "apps/ocr/package.json"],
   ["@helvety/web", "apps/web/package.json"],
 ];
 
@@ -194,6 +196,15 @@ async function main() {
   );
   console.log(
     `- ${await describePath("PDF.js worker meta", "apps/pdf/public/pdf.worker.meta.json")}`
+  );
+  console.log(
+    `- ${await describePath("OCR PDF.js worker", "apps/ocr/public/pdf.worker.min.mjs")}`
+  );
+  console.log(
+    `- ${await describePath("OCR PDF.js worker meta", "apps/ocr/public/pdf.worker.meta.json")}`
+  );
+  console.log(
+    `- ${await describePath("OCR tessdata dir", "apps/ocr/public/tessdata")}`
   );
   console.log(
     `- ${await describePath("ORT runtime dir", "apps/image-upscaler/public/ort")}`

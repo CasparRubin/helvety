@@ -1,6 +1,6 @@
 # Helvety dependency inventory (extended)
 
-Canonical list of **non-npm-only** dependencies and high-impact pins for public-tool zones (`pdf`, `image-upscaler`, `image-editor`, `web`) plus monorepo-wide toolchain. Used by the Cursor **`dependency-update`** skill (`.cursor/skills/dependency-update/SKILL.md`).
+Canonical list of **non-npm-only** dependencies and high-impact pins for public-tool zones (`pdf`, `image-upscaler`, `image-editor`, `ocr`, `web`) plus monorepo-wide toolchain. Used by the Cursor **`dependency-update`** skill (`.cursor/skills/dependency-update/SKILL.md`).
 
 **Maintain this file** whenever you change a pin (SHA-256, vendored worker, git override, hosted model upload, or major vendor bump). Run `bun run deps:inventory` for a machine-readable snapshot of current pins.
 
@@ -67,6 +67,18 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public-
 
 ---
 
+## ocr
+
+| Name                             | Current pin                                                       | Upstream                      | Check URL                                       | Update procedure                                                                                                                                         | Risk                |
+| -------------------------------- | ----------------------------------------------------------------- | ----------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| `tesseract.js`                   | `^7.0.0` — `apps/ocr/package.json`                                | naptha/tesseract.js           | https://github.com/naptha/tesseract.js/releases | npm bump; worker + WASM smoke; re-verify `wasm-unsafe-eval` CSP and bundled worker path                                                                  | OCR worker / WASM   |
+| Tesseract traineddata (eng, deu) | `apps/ocr/public/tessdata/*.traineddata.gz`                       | tesseract-ocr/tessdata_fast   | https://github.com/tesseract-ocr/tessdata_fast  | Re-download matching `tesseract.js` core; keep `eng` + `deu` only; served locally (no CDN fetch)                                                         | Language accuracy   |
+| `pdfjs-dist`                     | `5.4.296` via `react-pdf@^10.4.1` (transitive; lockfile-resolved) | Mozilla pdf.js                | https://github.com/mozilla/pdf.js/releases      | Owned by `react-pdf` — bump `react-pdf` first, then `sync:pdf-worker`; `consistency:pdfjs-worker`. **Never** pin at root or in `apps/ocr` independently. | Worker API mismatch |
+| PDF.js worker (vendored)         | `apps/ocr/public/pdf.worker.min.mjs`                              | `react-pdf>pdfjs-dist/build/` | Same as pdf.js                                  | `apps/ocr/scripts/sync-pdf-worker.mjs` on dev/build; writes `pdf.worker.meta.json`                                                                       | Stale worker vs lib |
+| `react-pdf`                      | `^10.4.1`                                                         | wojtekmaj/react-pdf           | https://github.com/wojtekmaj/react-pdf/releases | npm bump; `bun install`; `sync:pdf-worker`; `consistency:pdfjs-worker`; smoke render + extract tests                                                     | pdfjs API mismatch  |
+
+---
+
 ## web (gateway)
 
 | Name                            | Current pin                             | Upstream      | Check URL                                         | Update procedure                                                                                  | Risk             |
@@ -110,6 +122,6 @@ bun run deps:inventory    # snapshot pins (extended)
 bun run deps:outdated     # npm outdated
 bun run deps:drift        # workspace specifier alignment
 bun run deps:security     # floors + audit
-bun run consistency:pdfjs-worker  # pdf zone: sync worker + validate react-pdf alignment
+bun run consistency:pdfjs-worker  # pdf + ocr zones: sync worker + validate react-pdf alignment
 bun run ci:check          # full gate including deps:drift
 ```

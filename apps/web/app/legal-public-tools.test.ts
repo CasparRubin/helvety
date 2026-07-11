@@ -11,6 +11,7 @@ const PUBLIC_LOCAL_TOOL_NAMES = [
   "Helvety PDF",
   "Helvety Image Upscaler",
   "Helvety Image Editor",
+  "Helvety OCR",
 ] as const;
 
 describe("legal pages enumerate public local-processing tools", () => {
@@ -36,7 +37,16 @@ describe("legal pages enumerate public local-processing tools", () => {
     expect(source).toContain("Annotation and export workflows run locally");
   });
 
-  it("privacy and terms list Image Editor among non-E2EE services", () => {
+  it("privacy documents OCR local processing", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    expect(source).toContain("Helvety OCR (helvety.com/ocr):");
+    expect(source).toContain("Text extraction runs locally");
+  });
+
+  it("privacy and terms list Image Editor and OCR among non-E2EE services", () => {
     for (const rel of [
       "apps/web/app/privacy/page.tsx",
       "apps/web/app/terms/page.tsx",
@@ -44,16 +54,20 @@ describe("legal pages enumerate public local-processing tools", () => {
       const source = readFileSync(join(repoRoot, rel), "utf8");
       expect(source).toContain("Helvety Image Editor");
       expect(source).toContain("Helvety Image Upscaler");
-      expect(source).toMatch(/Helvety Image Editor,\s*Helvety Store/);
+      expect(source).toContain("Helvety OCR");
+      expect(source).toMatch(
+        /Helvety Image Editor,\s*Helvety OCR,\s*Helvety Store/
+      );
     }
   });
 
-  it("terms section 9.1 documents no-account Image Editor access", () => {
+  it("terms section 9.1 documents no-account Image Editor and OCR access", () => {
     const source = readFileSync(
       join(repoRoot, "apps/web/app/terms/page.tsx"),
       "utf8"
     );
     expect(source).toContain("Helvety Image Editor");
     expect(source).toContain("standard annotation flow");
+    expect(source).toContain("standard text-extraction flow");
   });
 });

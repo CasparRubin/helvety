@@ -56,3 +56,10 @@ export function imageEditorNavbarAbout(
 ): string {
   return `Annotate PNG, JPEG, and WebP in your browser with text, arrows, borders, spotlight highlights, blur regions, and crop. Adjust stroke, blur, dim, and corner radius in the tool properties bar; layers panel and zoom for detail work. Work stays on your device (${fileSizeLimitCopy} per file). No server upload. Switzerland-first service; not actively marketed to EU/EEA users.`;
 }
+
+/** Navbar About copy for Helvety OCR (optional limit line override). */
+export function ocrNavbarAbout(
+  fileSizeLimitCopy: string = PDF_FILE_SIZE_LIMIT_COPY
+): string {
+  return `Extract text from PDFs and images in your browser. Scanned or photographed pages run through on-device OCR; born-digital PDFs reuse their existing text layer. Read, copy, or download the plain text. Files stay on your device (${fileSizeLimitCopy}). No server upload. Switzerland-first service; not actively marketed to EU/EEA users.`;
+}

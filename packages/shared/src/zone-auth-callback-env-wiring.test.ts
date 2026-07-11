@@ -13,6 +13,7 @@ const AUTH_CALLBACK_APPS = [
   "image-editor",
   "links",
   "notes",
+  "ocr",
   "pdf",
   "store",
   "tasks",

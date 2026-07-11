@@ -15,8 +15,8 @@ describe("Vercel zone project wiring", () => {
     expect(PROJECT_TO_APP).toEqual(expectedProjects);
   });
 
-  it("covers ten Helvety zone apps", () => {
-    expect(Object.keys(VERCEL_APP_EXPECTATIONS)).toHaveLength(10);
-    expect(Object.keys(PROJECT_TO_APP)).toHaveLength(10);
+  it("covers eleven Helvety zone apps", () => {
+    expect(Object.keys(VERCEL_APP_EXPECTATIONS)).toHaveLength(11);
+    expect(Object.keys(PROJECT_TO_APP)).toHaveLength(11);
   });
 });

@@ -1,0 +1,10 @@
+.next
+node_modules
+coverage
+lib/config/version.ts
+public/pdf.worker.min.mjs
+public/pdf.worker.meta.json
+# Tesseract.js engine (worker + core WASM) is regenerated from node_modules by
+# scripts/sync-tesseract-assets.mjs on dev/build; the language data in
+# public/tessdata/ is vendored (committed) so production needs no network fetch.
+public/tesseract/

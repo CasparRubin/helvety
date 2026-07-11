@@ -35,6 +35,11 @@ export const VERCEL_APP_EXPECTATIONS = {
     rootDirectory: "apps/image-editor",
     displayName: "Image Editor",
   },
+  ocr: {
+    vercelProject: "helvety-ocr",
+    rootDirectory: "apps/ocr",
+    displayName: "OCR",
+  },
   tasks: {
     vercelProject: "helvety-tasks",
     rootDirectory: "apps/tasks",

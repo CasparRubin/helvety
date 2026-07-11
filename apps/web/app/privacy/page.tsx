@@ -536,6 +536,19 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">
+              Helvety OCR (helvety.com/ocr):
+            </strong>{" "}
+            Text extraction runs locally in your browser under the current
+            architecture: PDF and image files are processed on your device with
+            on-device optical character recognition and are not uploaded to our
+            servers for processing. No login or account is required. The service
+            still uses minimal server-side endpoints for platform and security
+            functions (for example CSP reporting and session/security proxy
+            logic). The service is provided free of charge; technical safeguards
+            may still apply for security and operational stability.
+          </li>
+          <li>
+            <strong className="text-foreground">
               Helvety Store (helvety.com/store):
             </strong>{" "}
             Catalog browsing and public package downloads work without creating
@@ -1456,9 +1469,9 @@ export default function PrivacyPage() {
           Helvety Tasks, Helvety Contacts, Helvety Notes, and Helvety Links
           implement end-to-end encryption to protect your content. Other Helvety
           services (helvety.com, Helvety Auth, Helvety PDF, Helvety Image
-          Upscaler, Helvety Image Editor, Helvety Store) do not use full-app
-          end-to-end encryption. For Helvety Tasks, Helvety Contacts, Helvety
-          Notes, and Helvety Links:
+          Upscaler, Helvety Image Editor, Helvety OCR, Helvety Store) do not use
+          full-app end-to-end encryption. For Helvety Tasks, Helvety Contacts,
+          Helvety Notes, and Helvety Links:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

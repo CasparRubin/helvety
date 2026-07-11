@@ -176,6 +176,11 @@ export default function ImpressumPage() {
             browser-based image annotation with on-device processing.
           </li>
           <li>
+            <strong className="text-foreground">Helvety OCR</strong>:
+            browser-based text extraction from PDFs and images with on-device
+            optical character recognition.
+          </li>
+          <li>
             <strong className="text-foreground">Helvety Tasks</strong>:
             encrypted task boards with staged workflows.
           </li>

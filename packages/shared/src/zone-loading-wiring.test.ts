@@ -14,6 +14,7 @@ const LOADING_MATRIX: Record<string, string> = {
   pdf: "LoadingSpinner",
   "image-upscaler": "LoadingSpinner",
   "image-editor": "LoadingSpinner",
+  ocr: "LoadingSpinner",
   tasks: "E2eeShellRouteLoading",
   contacts: "E2eeShellRouteLoading",
   notes: "E2eeShellRouteLoading",

@@ -23,6 +23,7 @@ import {
   NotebookPen,
   PanelRight,
   Puzzle,
+  ScanText,
   Store,
   Users,
 } from "lucide-react";
@@ -54,6 +55,7 @@ const ecosystemItemIcons: Record<
   "helvety-pdf": FileText,
   "helvety-image-upscaler": ImageUp,
   "helvety-image-editor": ImagePlus,
+  "helvety-ocr": ScanText,
   "helvety-browser-extension": PanelRight,
   "helvety-power-platform-configurator": Puzzle,
   "helvety-spo-explorer": Building2,

@@ -53,7 +53,7 @@ System radius is `--radius: 0`. Allowed exceptions: auth/legal callouts (`rounde
 
 The side panel omits DnD, search, and full command bars by design. Align **icons, variants, labels, and form spacing** (`@helvety/ui/e2ee-form-layout`, `@helvety/ui/form-field`) with web E2EE editors where viewport allows.
 
-## Canvas tools (PDF, image upscaler, image editor)
+## Canvas tools (PDF, image upscaler, image editor, OCR)
 
 Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*` classes in `@helvety/ui/public-tool-workspace`). Store section nav is **not** a canvas tool.
 
@@ -61,7 +61,7 @@ Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*
 
 | Zone      | Buttons                                                                                                                        |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Left**  | Add {Files\|Images\|Image} / **Add More**, app process action (e.g. Upscale all), **Clear All** (multi-file apps)              |
+| **Left**  | Add {Files\|Images\|Image\|File} / **Add More**, app process action (e.g. Upscale all), **Clear All** (multi-file apps)        |
 | **Right** | Download / Export, mobile settings popover, **More actions** overflow; image editor **Clear Annotations** (partial reset only) |
 
 | Variant       | Use                                                                                      |
@@ -72,18 +72,18 @@ Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*
 
 **Labels**
 
-| State         | Multi-file (PDF, upscaler)  | Single-file (image editor) |
-| ------------- | --------------------------- | -------------------------- |
-| Empty import  | Add Files / Add Images      | Add Image                  |
-| Loaded import | Add More                    | Add More                   |
-| Processing    | Processing...               | Processing...              |
-| Output        | Download PDF / Download All | Export (+ format menu)     |
-| Full reset    | Clear All                   | —                          |
-| Partial reset | —                           | Clear Annotations          |
+| State         | Multi-file (PDF, upscaler)  | Single-file (image editor, OCR)        |
+| ------------- | --------------------------- | -------------------------------------- |
+| Empty import  | Add Files / Add Images      | Add Image / Add File                   |
+| Loaded import | Add More                    | Add More                               |
+| Processing    | Processing...               | Processing...                          |
+| Output        | Download PDF / Download All | Export (+ format menu) / Download Text |
+| Full reset    | Clear All                   | Clear All                              |
+| Partial reset | —                           | Clear Annotations                      |
 
 **Responsive:** icon-only bar labels below `min-[400px]`; desktop inline clear `hidden md:inline-flex`; mobile overflow `md:hidden`; sidebars `hidden lg:block`.
 
-**Dialog titles (title case):** Clear All Files?, Clear All Images?, Clear Annotations?
+**Dialog titles (title case):** Clear All Files?, Clear All Images?, Clear File?, Clear Annotations?
 
 ### Sidebar and card patterns
 
@@ -103,14 +103,14 @@ Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*
 
 ### Icon map (canvas)
 
-| Action            | Icon                          | Label                                                    |
-| ----------------- | ----------------------------- | -------------------------------------------------------- |
-| Import            | `UploadIcon`                  | Add Files / Add Images / Add Image / Add More            |
-| Process           | `WandSparklesIcon` (upscaler) | Upscale all                                              |
-| Download          | `DownloadIcon`                | Download PDF / Download All / Export / per-card Download |
-| Clear workspace   | `Trash2Icon`                  | Clear All                                                |
-| Clear annotations | `Trash2Icon`                  | Clear Annotations                                        |
-| Remove file       | `X`                           | `aria-label` only: Remove {name}                         |
+| Action            | Icon                          | Label                                                                    |
+| ----------------- | ----------------------------- | ------------------------------------------------------------------------ |
+| Import            | `UploadIcon`                  | Add Files / Add Images / Add Image / Add File / Add More                 |
+| Process           | `WandSparklesIcon` (upscaler) | Upscale all                                                              |
+| Download          | `DownloadIcon`                | Download PDF / Download All / Export / Download Text / per-card Download |
+| Clear workspace   | `Trash2Icon`                  | Clear All                                                                |
+| Clear annotations | `Trash2Icon`                  | Clear Annotations                                                        |
+| Remove file       | `X`                           | `aria-label` only: Remove {name}                                         |
 
 ## Responsive smoke matrix
 
