@@ -187,4 +187,13 @@ describe("extended dependency inventory pin parity", () => {
       /Subsequent updates \(2026-07-11\)|dependency-inventory\.md.*current pins/i
     );
   });
+
+  it("dependency inventory documents Chromium extension external repo toolchain", () => {
+    expect(inventory).toContain("helvety-browser-extension-chromium");
+    expect(inventory).toContain("@helvety/config/tsconfig.extension.json");
+    expect(inventory).toContain("createExtensionVitestConfig");
+    expect(inventory).toContain("env.example");
+    expect(inventory).toContain("VITE_HELVETY_AUTH_ORIGIN");
+    expect(inventory).toContain("tests/dependency-pins.test.ts");
+  });
 });

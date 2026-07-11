@@ -6,6 +6,7 @@
   "include": [
     "vitest.server-only-mock.ts",
     "vitest.setup.ts",
-    "vitest.fonts-mock.ts"
+    "vitest.fonts-mock.ts",
+    "vitest-extension.d.ts"
   ]
 }

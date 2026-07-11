@@ -26,8 +26,13 @@
   },
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.extension.json": "./tsconfig.extension.json",
     "./eslint": "./eslint.mjs",
     "./vitest": "./vitest.mjs",
+    "./vitest-extension": {
+      "types": "./vitest-extension.d.ts",
+      "default": "./vitest-extension.mjs"
+    },
     "./vitest.setup": "./vitest.setup.shared.ts",
     "./postcss": "./postcss.mjs",
     "./next-headers": "./next-headers.mjs",

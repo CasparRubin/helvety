@@ -103,6 +103,15 @@ const filesToCheck = [
 ];
 
 async function main() {
+  const forbiddenAppDirs = ["apps/qr", "apps/compress"];
+  for (const relativePath of forbiddenAppDirs) {
+    if (existsSync(resolve(rootDir, relativePath))) {
+      throw new Error(
+        `${relativePath} must not exist; remove abandoned QR/Compress zone scaffolds before commit.`
+      );
+    }
+  }
+
   const contents = await Promise.all(
     filesToCheck.map(async (relativePath) => ({
       relativePath,
@@ -649,6 +658,43 @@ async function main() {
     if (extensionGlobals.includes("./popup/extension-tokens.css")) {
       throw new Error(
         "helvety-browser-extension-chromium must not use a local extension-tokens.css fork; use @helvety/extension-chrome/extension-tokens.css."
+      );
+    }
+    const extensionTsconfig = JSON.parse(
+      await readFile(resolve(extensionRoot, "tsconfig.json"), "utf8")
+    );
+    if (
+      extensionTsconfig.extends !== "@helvety/config/tsconfig.extension.json"
+    ) {
+      throw new Error(
+        "helvety-browser-extension-chromium/tsconfig.json must extend @helvety/config/tsconfig.extension.json."
+      );
+    }
+    const extensionVitestConfig = await readFile(
+      resolve(extensionRoot, "vitest.config.ts"),
+      "utf8"
+    );
+    if (
+      !extensionVitestConfig.includes("createExtensionVitestConfig") ||
+      !extensionVitestConfig.includes("@helvety/config/vitest-extension")
+    ) {
+      throw new Error(
+        "helvety-browser-extension-chromium/vitest.config.ts must use createExtensionVitestConfig from @helvety/config/vitest-extension."
+      );
+    }
+    try {
+      await access(resolve(extensionRoot, "env.example"), constants.F_OK);
+    } catch {
+      throw new Error(
+        "helvety-browser-extension-chromium/env.example must document optional VITE_HELVETY_AUTH_ORIGIN."
+      );
+    }
+    const extensionPackage = JSON.parse(
+      await readFile(resolve(extensionRoot, "package.json"), "utf8")
+    );
+    if (!extensionPackage.scripts?.["test:coverage"]) {
+      throw new Error(
+        "helvety-browser-extension-chromium/package.json must expose test:coverage."
       );
     }
     await assertNoAsChildProp(resolve(extensionRoot, "src/popup"));
