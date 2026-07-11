@@ -6,8 +6,10 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
 
+import { DEV_ALL_ZONES_READY_SENTINEL } from "./dev-zone-ports.mjs";
+
 const DEFAULT_BASE_URL = "http://localhost:3001";
-const READY_SENTINEL = "[dev] All 9 zones ready.";
+const READY_SENTINEL = DEV_ALL_ZONES_READY_SENTINEL;
 const STARTUP_TIMEOUT_MS = 5 * 60 * 1000;
 const EXISTING_SERVER_TIMEOUT_MS = 45 * 1000;
 

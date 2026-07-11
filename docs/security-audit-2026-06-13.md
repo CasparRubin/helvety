@@ -35,7 +35,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ---
 
-## Vercel (team Helvety, 9 zone projects — historical; **10 zones** as of Image Editor launch, see [Subsequent updates](#subsequent-updates-2026-06-17))
+## Vercel (team Helvety, 9 zone projects — historical; **10 zones** as of Image Editor launch; **11 zones** as of Helvety OCR launch — see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11))
 
 | Check          | Result                                                                                                                                                                                                           |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -47,7 +47,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 ### Manual dashboard actions
 
 1. Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to **Preview** env on `helvety-pdf` and `helvety-image-upscaler` (Production already has them on other tiers; these two zones are missing Preview Upstash).
-2. Confirm **Web Analytics** and **Speed Insights** disabled on all ten projects (nine at time of audit; `helvety-image-editor` added later).
+2. Confirm **Web Analytics** and **Speed Insights** disabled on all zone projects (nine at time of audit; `helvety-image-editor` and `helvety-ocr` added later — **eleven** total as of 2026-07-11).
 3. After any `*_URL` gateway change, redeploy `helvety-com`.
 
 ---
@@ -136,7 +136,7 @@ Manual smoke recommended: sign-in/logout, passkey unlock on one E2EE zone, exten
 
 1. Complete Supabase Auth dashboard items above (~~leaked password protection~~ session JWT/time-box alignment if on Pro, disable unused OAuth).
 2. ~~Add Preview Upstash env vars on `helvety-pdf` and `helvety-image-upscaler`~~ — **done** (2026-06); re-run `bun run consistency:vercel-preview-env` after any new zone.
-3. Confirm Vercel Analytics disabled on all ten projects (nine at time of audit; `helvety-image-editor` added later).
+3. Confirm Vercel Analytics disabled on all **eleven** zone projects (`helvety-image-editor` and `helvety-ocr` added after the June 2026 audit).
 4. Align `helvety-com` Node.js to 24.x.
 5. Confirm `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth` includes every supported extension id (see [`docs/env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)); redeploy auth after changes.
 6. Run `supabase login` locally if you want `bun run db:gen-types` without MCP.
@@ -270,7 +270,7 @@ All entity ciphertext uses field-bound AAD (`table:recordId:column`, `ENCRYPTION
 - **Crypto:** AES-256-GCM field-bound AAD via `encryptEntityField` in all vault apps (`ENCRYPTION_VERSION = 2` wire format only; legacy record-level ciphertext was cleared); PRF → HKDF with info label `helvety-e2ee-v1` (HKDF domain separation, not ciphertext wire version); KCV wrong-key detection; master key in IndexedDB with 24h idle / 7d max vault policy.
 - **Auth:** `getUser()`-first in server guards and extension session (`extension-session.ts` uses `getSession()` only after JWT validation). Extension passkey verify omits PRF from JSON body.
 - **Admin client:** `createAdminClient()` limited to approved call sites (OTP send, passkey lookup, user lookup, store package downloads); user-owned mutations use scoped client or RLS-scoped user client.
-- **Public tools:** PDF, image-editor, image-upscaler — no user file upload to Supabase in normal flow (client-local processing only).
+- **Public tools:** PDF, image-upscaler, image-editor, and OCR — no user file upload to Supabase in normal flow (client-local processing only).
 - **Store:** `isAllowedDownloadUrl` rejects traversal and non-Supabase origins; tests pass.
 
 ### Production spot-checks (curl)
@@ -282,49 +282,49 @@ All entity ciphertext uses field-bound AAD (`table:recordId:column`, `ENCRYPTION
 | `POST /auth/api/extension/otp/send` (no origin)                  | 400 JSON | **400** `Invalid request body` |
 | `GET /store/api/packages/INVALID_ID/download`                    | 400      | **400**                        |
 | `GET /store/api/packages/spfx%2F..%2F..%2Fetc%2Fpasswd/download` | 400      | **400**                        |
-| `GET /tasks`, `/auth/login`, `/pdf`, `/image-editor`             | 200      | **200**                        |
+| `GET /tasks`, `/auth/login`, `/pdf`, `/image-editor`, `/ocr`     | 200      | **200**                        |
 
 ### Findings by severity
 
-| Severity     | Finding                                                                       | Action                                                                                     |
-| ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| **Critical** | —                                                                             | None                                                                                       |
-| **High**     | —                                                                             | None                                                                                       |
-| **Medium**   | Supabase Free: hosted session time-box / inactivity settings not configurable | App-layer vault + device trust compensate; align Dashboard on Pro upgrade                  |
-| **Medium**   | Structural metadata (category/stage/folder ids) stored plaintext              | By design — privacy policy aligned                                                         |
-| **Low**      | `apps/web/.env.local` missing `IMAGE_EDITOR_URL`                              | Add from [`apps/web/env.template`](apps/web/env.template) for local gateway rewrites       |
-| **Low**      | `helvety-com` Node.js 22.x vs zone apps 24.x                                  | Align when convenient                                                                      |
-| **Low**      | Vercel Analytics / Speed Insights                                             | Confirm disabled on all 10 projects (manual Dashboard; CSP blocks `va.vercel-scripts.com`) |
-| **N/A**      | `auth_leaked_password_protection` advisor WARN                                | No password auth; Free tier                                                                |
+| Severity     | Finding                                                                       | Action                                                                                                  |
+| ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Critical** | —                                                                             | None                                                                                                    |
+| **High**     | —                                                                             | None                                                                                                    |
+| **Medium**   | Supabase Free: hosted session time-box / inactivity settings not configurable | App-layer vault + device trust compensate; align Dashboard on Pro upgrade                               |
+| **Medium**   | Structural metadata (category/stage/folder ids) stored plaintext              | By design — privacy policy aligned                                                                      |
+| **Low**      | `apps/web/.env.local` missing `IMAGE_EDITOR_URL`                              | Add from [`apps/web/env.template`](apps/web/env.template) for local gateway rewrites                    |
+| **Low**      | `helvety-com` Node.js 22.x vs zone apps 24.x                                  | Align when convenient                                                                                   |
+| **Low**      | Vercel Analytics / Speed Insights                                             | Confirm disabled on all **eleven** zone projects (manual Dashboard; CSP blocks `va.vercel-scripts.com`) |
+| **N/A**      | `auth_leaked_password_protection` advisor WARN                                | No password auth; Free tier                                                                             |
 
 ### Customer-facing copy audit (same pass)
 
 Automated copy guardrails and targeted legal/SEO/store tests were re-run; **no false or misleading customer-facing claims found.**
 
-| Check                                                                                      | Result                                        |
-| ------------------------------------------------------------------------------------------ | --------------------------------------------- |
-| `consistency:customer-copy` (no em-dashes)                                                 | **OK**                                        |
-| `consistency:install-manifest-metadata`                                                    | **OK**                                        |
-| `consistency:license`                                                                      | **OK**                                        |
-| Legal E2EE product tests (`legal-e2ee-products`, `legal-public-tools`, cookies disclosure) | **OK** (39+ tests)                            |
-| Store catalog + product copy guardrails                                                    | **OK**                                        |
-| SEO / PWA manifest license-free copy                                                       | **OK**                                        |
-| Extension `copy-accuracy` + `security-e2ee-docs` tests                                     | **OK**                                        |
-| `auth-extension-copy-guardrails` (maintainer + llms.txt stale-auth scan)                   | **OK** (now includes `image-editor/llms.txt`) |
+| Check                                                                                      | Result                                                                                      |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| `consistency:customer-copy` (no em-dashes)                                                 | **OK**                                                                                      |
+| `consistency:install-manifest-metadata`                                                    | **OK**                                                                                      |
+| `consistency:license`                                                                      | **OK**                                                                                      |
+| Legal E2EE product tests (`legal-e2ee-products`, `legal-public-tools`, cookies disclosure) | **OK** (39+ tests)                                                                          |
+| Store catalog + product copy guardrails                                                    | **OK**                                                                                      |
+| SEO / PWA manifest license-free copy                                                       | **OK**                                                                                      |
+| Extension `copy-accuracy` + `security-e2ee-docs` tests                                     | **OK**                                                                                      |
+| `auth-extension-copy-guardrails` (maintainer + llms.txt stale-auth scan)                   | **OK** (all zone `llms.txt` paths via `CUSTOMER_COPY_LLMS_RELATIVE_PATHS`, including `ocr`) |
 
 **Accurate qualifiers in place:** Privacy and Terms use **zero-knowledge-oriented** (not absolute zero-knowledge); E2EE apps disclose plaintext structural metadata and cross-app linking; public tools state client-local processing; Store browser-extension copy states open beta, manual GitHub install, and passkey unlock; navbar tooltips match encryption reality.
 
-**Not outdated:** `lastReviewed="June 19, 2026"` on privacy/terms/impressum remains correct (no legal body changes this pass). Historical security-audit tables that say "9 zone projects" are **June 2026 snapshots**; current count is **10** (see Vercel section above).
+**Not outdated:** `lastReviewed="June 19, 2026"` on privacy/terms/impressum remains correct (no legal body changes this pass). Historical security-audit tables that say "9 zone projects" are **June 2026 snapshots**; **current count is eleven** (see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) and [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)).
 
 ### Critical/High fixes applied
 
-**None required** for security vulnerabilities. **Copy guardrail gap closed:** `apps/image-editor/public/llms.txt` added to `auth-extension-copy-guardrails` llms.txt stale-auth scan (parity with other zones).
+**None required** for security vulnerabilities. **Copy guardrail coverage:** all zone `public/llms.txt` files (including `apps/ocr/public/llms.txt`) are scanned via `CUSTOMER_COPY_LLMS_RELATIVE_PATHS` in `auth-extension-copy-guardrails`.
 
 ### Residual manual follow-ups (quarterly)
 
 1. Interactive smoke: web sign-in → passkey unlock → mutate E2EE entity → logout clears IndexedDB key (requires user passkey).
 2. Interactive smoke: extension OTP → weekly proof → passkey unlock → PostgREST write (verify ciphertext in Network tab).
-3. Confirm Vercel Web Analytics disabled on all ten zone projects.
+3. Confirm Vercel Web Analytics disabled on all eleven zone projects.
 4. On Supabase Pro upgrade: set JWT **3600s**, time-box **7d**, inactivity **24h** per [`auth-session-policy.ts`](../packages/shared/src/auth-session-policy.ts).
 5. After any new extension build id: verify id in `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth`.
 
@@ -340,6 +340,8 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 ```
 
 ## Full auth / E2EE / session re-audit (2026-07-04, plan execution)
+
+> **Zone-count snapshot:** This pass predates `helvety-ocr`; tables below that say **10** zone projects are accurate for July 2026. **Current** count is **eleven** — see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11).
 
 **Scope:** Both repos (`helvety` monorepo + `helvety-browser-extension-chromium`), automated guardrails, production curl spot-checks, targeted auth/E2EE/session code review. Live Supabase MCP not used (no local `supabase/supabase.json` export).
 
@@ -408,22 +410,22 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 | Logout CSRF + device trust clear                       | `logout-actions.test.ts`                                                                                                              |
 | E2EE page device trust                                 | `auth-guard.test.ts`, `e2ee-page-auth.test.ts`                                                                                        |
 
-**Quarterly manual checklist** (unchanged): web sign-in → passkey unlock → mutate → logout; extension OTP → weekly proof → passkey → PostgREST write; confirm Vercel Analytics disabled on all 10 projects.
+**Quarterly manual checklist** (unchanged): web sign-in → passkey unlock → mutate → logout; extension OTP → weekly proof → passkey → PostgREST write; confirm Vercel Analytics disabled on all **eleven** zone projects.
 
 ### Findings by severity
 
-| Severity     | Finding                                                                           | Action                                                           |
-| ------------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Critical** | —                                                                                 | None                                                             |
-| **High**     | —                                                                                 | None                                                             |
-| **Medium**   | Supabase Free: hosted session time-box / inactivity not configurable in Dashboard | App-layer vault + device trust compensate; align on Pro upgrade  |
-| **Medium**   | Structural metadata plaintext                                                     | By design                                                        |
-| **Low**      | `consistency:supabase-rls` skipped (no local export)                              | Regenerate `supabase/supabase.json` locally after schema changes |
-| **Low**      | No local `.env.local` files (10 zones)                                            | Copy from `env.template` only if developing zones locally        |
-| **Low**      | Interactive passkey/OTP smoke not run                                             | Operator quarterly checklist above                               |
-| **Low**      | `helvety-com` Node 22.x vs zone apps 24.x                                         | Align when convenient                                            |
-| **Low**      | Vercel Analytics / Speed Insights                                                 | Confirm disabled on all 10 projects (manual Dashboard)           |
-| **N/A**      | `auth_leaked_password_protection` advisor WARN                                    | No password auth; Free tier                                      |
+| Severity     | Finding                                                                           | Action                                                              |
+| ------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Critical** | —                                                                                 | None                                                                |
+| **High**     | —                                                                                 | None                                                                |
+| **Medium**   | Supabase Free: hosted session time-box / inactivity not configurable in Dashboard | App-layer vault + device trust compensate; align on Pro upgrade     |
+| **Medium**   | Structural metadata plaintext                                                     | By design                                                           |
+| **Low**      | `consistency:supabase-rls` skipped (no local export)                              | Regenerate `supabase/supabase.json` locally after schema changes    |
+| **Low**      | No local `.env.local` files (10 zones at July 2026 pass; **11** today)            | Copy from `env.template` only if developing zones locally           |
+| **Low**      | Interactive passkey/OTP smoke not run                                             | Operator quarterly checklist above                                  |
+| **Low**      | `helvety-com` Node 22.x vs zone apps 24.x                                         | Align when convenient                                               |
+| **Low**      | Vercel Analytics / Speed Insights                                                 | Confirm disabled on all **eleven** zone projects (manual Dashboard) |
+| **N/A**      | `auth_leaked_password_protection` advisor WARN                                    | No password auth; Free tier                                         |
 
 ### Deltas vs earlier 2026-07-04 pass (same document)
 
@@ -507,3 +509,17 @@ Patch/minor dependency sweep across monorepo + extension (canonical pins: [`depe
 | Extension repo                             | vite `^8.1.3`, supabase `2.110.0`                             | vite `^8.1.4`, supabase `2.110.2`, mirrors drift map                            |
 
 Verification: `bun run deps:drift`, `bun run deps:security`, `bun run consistency:pdfjs-worker`, `bun run ci:check` (monorepo) and `pnpm run ci:check` + `pnpm run build` (extension) all pass. Removed orphan `packages/light-pillar/` artifacts; drift script skips workspace dirs without `package.json`. TypeScript 7 and `@types/node` 26 deferred.
+
+### Helvety OCR zone launch (same date)
+
+New public-tool zone **`helvety-ocr`** (`apps/ocr`):
+
+| Area                | Change                                                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Vercel / gateway    | Eleventh zone project; gateway rewrite `/ocr` + `OCR_URL`; Playwright gateway smoke covers `/ocr`                            |
+| Env tiers           | Public-tool + rate limit (Upstash + `HELVETY_COOKIE_SIGNING_SECRET`); `wasm-unsafe-eval` CSP for Tesseract WASM              |
+| Store / SEO / legal | Catalog product `helvety-ocr`; `OCR_*` in `app-product-descriptions`; Privacy/Terms/Impressum public-tools list includes OCR |
+| Customer copy       | Zone `public/llms.txt`, PWA `manifest.json`, README UI contract; `consistency:customer-copy` + `seo-customer-copy` guards    |
+| Extended assets     | `tesseract.js` + local `tessdata` (eng/deu); PDF.js worker via `react-pdf` (`sync:pdf-worker`, `consistency:pdfjs-worker`)   |
+
+Re-run `bun run consistency:vercel-prod-env` and `consistency:vercel-preview-env` after provisioning `helvety-ocr` on Vercel. Confirm Web Analytics disabled on the new project (eleven zone projects total).

@@ -1,5 +1,5 @@
 /**
- * Shared layout class strings for PDF, image-editor, and image-upscaler workspaces.
+ * Shared layout class strings for PDF, image-upscaler, image-editor, and OCR workspaces.
  * Pin the command bar outside scroll; use these on the flex workspace row below it.
  */
 

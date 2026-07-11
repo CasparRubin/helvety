@@ -23,6 +23,26 @@ test.describe("gateway smoke", () => {
     expect(response?.ok()).toBeTruthy();
   });
 
+  test("pdf public tool rewrite responds", async ({ page }) => {
+    const response = await page.goto("/pdf");
+    expect(response?.ok()).toBeTruthy();
+  });
+
+  test("image-upscaler public tool rewrite responds", async ({ page }) => {
+    const response = await page.goto("/image-upscaler");
+    expect(response?.ok()).toBeTruthy();
+  });
+
+  test("image-editor public tool rewrite responds", async ({ page }) => {
+    const response = await page.goto("/image-editor");
+    expect(response?.ok()).toBeTruthy();
+  });
+
+  test("ocr public tool rewrite responds", async ({ page }) => {
+    const response = await page.goto("/ocr");
+    expect(response?.ok()).toBeTruthy();
+  });
+
   test("store public download rejects invalid package id", async ({
     request,
   }) => {

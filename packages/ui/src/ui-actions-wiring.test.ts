@@ -92,6 +92,8 @@ describe("ui action app wiring", () => {
       ["links", "hooks/use-link-library.ts"],
       ["pdf", "hooks/use-error-handler.ts"],
       ["image-upscaler", "components/helvety-image-upscaler.tsx"],
+      ["image-editor", "components/helvety-image-editor.tsx"],
+      ["ocr", "components/helvety-ocr.tsx"],
     ] as const;
 
     for (const [app, file] of toastApps) {

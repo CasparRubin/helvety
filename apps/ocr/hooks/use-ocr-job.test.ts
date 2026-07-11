@@ -84,4 +84,29 @@ describe("useOcrJob", () => {
     expect(result.current.text).toBe("");
     expect(result.current.hasFile).toBe(false);
   });
+
+  it("re-runs extraction when the language changes after a file is loaded", async () => {
+    mocks.recognize.mockResolvedValue("hello text");
+    const { result } = renderHook(() => useOcrJob());
+
+    act(() => {
+      result.current.loadFile(imageFile());
+    });
+    await waitFor(() => expect(result.current.status).toBe("done"));
+    expect(mocks.recognize).toHaveBeenCalledTimes(1);
+
+    vi.useFakeTimers();
+    act(() => {
+      result.current.setLanguage("deu");
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
+      await Promise.resolve();
+    });
+    expect(mocks.recognize).toHaveBeenCalledTimes(2);
+    expect(mocks.recognize.mock.calls[1]?.[1]).toEqual(
+      expect.objectContaining({ language: "deu" })
+    );
+    vi.useRealTimers();
+  });
 });

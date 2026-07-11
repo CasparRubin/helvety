@@ -221,6 +221,14 @@ describe("env.template consistency", () => {
     const rootReadme = await readFile(resolve(repoRoot, "README.md"), "utf8");
     expect(rootReadme).toMatch(/All eleven Next\.js zones/);
     expect(rootReadme).toContain("OCR_URL");
+
+    const securityAudit = await readFile(
+      resolve(repoRoot, "docs/security-audit-2026-06-13.md"),
+      "utf8"
+    );
+    expect(securityAudit).toContain("helvety-ocr");
+    expect(securityAudit).toMatch(/current count is eleven/i);
+    expect(securityAudit).toContain("Helvety OCR zone launch");
   });
 
   it("env.template files do not document legacy Supabase key names", async () => {

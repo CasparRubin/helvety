@@ -7,6 +7,17 @@ describe("urls and DEV_PORTS", () => {
     expect(urls.links).toMatch(/\/links$/);
     expect(DEV_PORTS.links).toBe(3009);
   });
+
+  it("exposes the OCR zone on dev port 3011", () => {
+    expect(urls.ocr).toMatch(/\/ocr$/);
+    expect(DEV_PORTS.ocr).toBe(3011);
+  });
+
+  it("defines eleven unique dev ports across all zones", () => {
+    const ports = Object.values(DEV_PORTS);
+    expect(ports).toHaveLength(11);
+    expect(new Set(ports).size).toBe(11);
+  });
 });
 
 describe("getLocalAppHref (gateway path helper: not for cross-zone Link inside basePath apps)", () => {

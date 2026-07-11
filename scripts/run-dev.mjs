@@ -4,10 +4,7 @@
  */
 import { spawn } from "node:child_process";
 
-/** Direct zone ports (see packages/shared/src/config.ts DEV_PORTS). */
-const ZONE_PORTS = [
-  3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 3011,
-];
+import { DEV_ALL_ZONES_READY_SENTINEL, ZONE_PORTS } from "./dev-zone-ports.mjs";
 
 const WARMUP_DELAY_MS = 4000;
 const POLL_INTERVAL_MS = 500;
@@ -46,7 +43,7 @@ async function warmZones() {
   const missing = results.filter((result) => !result.ready);
   if (missing.length === 0) {
     console.log(
-      `[dev] All ${ZONE_PORTS.length} zones ready. Gateway: http://localhost:3001\n`
+      `${DEV_ALL_ZONES_READY_SENTINEL} Gateway: http://localhost:3001\n`
     );
     return;
   }

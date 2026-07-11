@@ -21,6 +21,8 @@ const FAIL_CLOSED_PROXY_APPS = [
 
 const OPEN_REFRESH_PROXY_APPS = ["web"] as const;
 
+const WASM_PROXY_APPS = ["image-upscaler", "ocr"] as const;
+
 /** Reads `apps/<app>/proxy.ts` for static wiring assertions. */
 function readProxySource(app: string): string {
   return readFileSync(join(repoRoot, "apps", app, "proxy.ts"), "utf8");
@@ -39,6 +41,13 @@ describe("zone proxy fail-closed auth refresh wiring", () => {
     (app) => {
       const src = readProxySource(app);
       expect(src).not.toContain("failClosedOnAuthRefresh: true");
+    }
+  );
+
+  it.each(WASM_PROXY_APPS)(
+    "apps/%s enables wasmUnsafeEval for WebAssembly CSP",
+    (app) => {
+      expect(readProxySource(app)).toContain("wasmUnsafeEval: true");
     }
   );
 });
