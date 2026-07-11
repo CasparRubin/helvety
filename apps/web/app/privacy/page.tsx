@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="July 7, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="July 11, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -666,12 +666,20 @@ export default function PrivacyPage() {
           For Helvety Image Upscaler, we do not use your image pixels to train
           or fine-tune machine-learning models under the current architecture.
           For Helvety Image Editor, image pixels are not uploaded for
-          server-side annotation processing under the current architecture.
-          Model files used by the upscaler are downloaded to your browser and
-          may be cached locally by your browser. In normal operation, the
-          minimal server-side endpoints referenced above process
-          technical/security context and are not intended to receive full image
-          payloads for upscaling or annotation.
+          server-side annotation processing under the current architecture. For
+          Helvety PDF, file contents are processed in your browser and are not
+          uploaded to our servers for conversion or used to train or fine-tune
+          machine-learning models under the current architecture. For Helvety
+          OCR, PDF and image files are processed in your browser with on-device
+          optical character recognition, and file contents and extracted text
+          are not uploaded to our servers for text extraction or used to train
+          or fine-tune machine-learning models under the current architecture.
+          Model files used by the upscaler, and the OCR engine and language
+          files used by Helvety OCR, are downloaded to your browser and may be
+          cached locally by your browser. In normal operation, the minimal
+          server-side endpoints referenced above process technical/security
+          context and are not intended to receive full file payloads for
+          upscaling, annotation, PDF processing, or text extraction.
         </p>
       </section>
 
@@ -730,9 +738,9 @@ export default function PrivacyPage() {
           <li>To comply with legal obligations</li>
           <li>To improve and optimize the Services</li>
           <li>
-            To run local-only AI-assisted tooling (for example Helvety Image
-            Upscaler) without using user image pixels for model training under
-            the current architecture
+            To run local-only browser file tools (Helvety PDF, Helvety Image
+            Upscaler, Helvety Image Editor, and Helvety OCR) without using your
+            file contents for model training under the current architecture
           </li>
           <li>To enforce our Terms of Service</li>
           <li>

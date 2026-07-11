@@ -188,6 +188,17 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(legal).toContain("helvety-ecosystem-sections.ts");
     expect(naming).toContain("helvety-ecosystem-sections.ts");
     expect(naming).toMatch(/Ecosystem category/i);
+    expect(naming).toMatch(
+      /never imply full-app E2EE for PDF, Image Upscaler, Image Editor, OCR/
+    );
+    expect(legal).toMatch(/Image Editor, or OCR payload handling/);
+  });
+
+  it("cursorrules documents pdfjs worker rule for PDF and OCR zones", () => {
+    const cursorrules = readRepoFile(".cursorrules");
+    expect(cursorrules).toMatch(/PDF and OCR zones/);
+    expect(cursorrules).toContain("consistency:pdfjs-worker");
+    expect(cursorrules).toMatch(/validates both zones/);
   });
 
   it("packages/ui README documents save-first create and selected-entity hook", () => {

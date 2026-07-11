@@ -38,6 +38,12 @@ cd apps/pdf && bun run sync:pdf-worker   # dev/build also run this automatically
 # Root command syncs first, then validates (same as ci:check pdf gate)
 bun run consistency:pdfjs-worker
 
+# ocr — Tesseract worker/WASM + PDF.js worker
+cd apps/ocr && bun run sync:assets       # sync:tesseract + sync:pdf-worker (dev/build run this)
+bun run download:tessdata                # only when adding/refreshing eng/deu language data
+# Root command validates both pdf and ocr zones (same as ci:check)
+bun run consistency:pdfjs-worker
+
 # web — React Bits (from apps/web)
 # shadcn add @react-bits/<name>.json — then reconcile apps/web/components/vendor/
 ```

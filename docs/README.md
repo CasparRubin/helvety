@@ -42,3 +42,4 @@ Index of policy, ops, and architecture docs under this folder.
 - Package READMEs: [`packages/*/README.md`](../packages/) (including [`packages/brand`](../packages/brand/README.md) and [`packages/config`](../packages/config/README.md))
 - Extension auth API production setup (OTP + passkey): [`apps/auth/docs/extension-passkey-production.md`](../apps/auth/docs/extension-passkey-production.md)
 - Image upscaler model hosting: [`apps/image-upscaler/public/models/README.md`](../apps/image-upscaler/public/models/README.md)
+- OCR Tesseract assets and language data: [`apps/ocr/README.md`](../apps/ocr/README.md) (Tesseract assets and language data section)

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="July 7, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="July 11, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -695,12 +695,14 @@ export default function TermsPage() {
           content delivery).
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
-          For local-processing tools such as Helvety Image Upscaler and Helvety
-          Image Editor, this license does not grant us rights to train
-          machine-learning models on your image pixels. Under the current
-          architecture, image upscaling is designed to run on your device and
-          not as a server-side model-training pipeline; image annotation in
-          Helvety Image Editor is designed to stay on your device as well.
+          For local-processing tools such as Helvety PDF, Helvety Image
+          Upscaler, Helvety Image Editor, and Helvety OCR, this license does not
+          grant us rights to train machine-learning models on your image pixels,
+          PDF contents, or extracted text. Under the current architecture, image
+          upscaling is designed to run on your device and not as a server-side
+          model-training pipeline; image annotation in Helvety Image Editor, PDF
+          processing in Helvety PDF, and on-device optical character recognition
+          in Helvety OCR are designed to stay on your device as well.
         </p>
         <p className="text-muted-foreground mb-4 text-sm">
           For end-to-end encrypted content in Helvety Tasks, Helvety Contacts,
@@ -720,9 +722,10 @@ export default function TermsPage() {
             your User Content
           </li>
           <li>
-            For local image files processed through Helvety Image Upscaler or
-            Helvety Image Editor, you have the rights or permissions needed for
-            the source image and any generated output you use or distribute
+            For local files processed through Helvety PDF, Helvety Image
+            Upscaler, Helvety Image Editor, or Helvety OCR, you have the rights
+            or permissions needed for the source files (PDFs and images) and any
+            generated output or extracted text you use or distribute
           </li>
           <li>
             Your User Content does not violate any applicable law, regulation,

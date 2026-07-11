@@ -37,6 +37,16 @@ describe("extended dependency inventory pin parity", () => {
     "utf8"
   );
 
+  it("dependency inventory documents OCR tessdata as uncompressed traineddata", () => {
+    const ocrPkg = readWorkspacePackage("apps/ocr/package.json");
+    const tesseract = ocrPkg.dependencies?.["tesseract.js"];
+    expect(tesseract).toBeTruthy();
+    expect(inventory).toContain("tesseract.js");
+    expect(inventory).toContain("*.traineddata");
+    expect(inventory).toContain("download:tessdata");
+    expect(inventory).not.toContain("*.traineddata.gz");
+  });
+
   it("image-upscaler ORT pin matches apps/image-upscaler/package.json and inventory table", () => {
     const upscalerPkg = readWorkspacePackage(
       "apps/image-upscaler/package.json"

@@ -38,12 +38,12 @@ See [reference.md](./reference.md) for command cheat sheet.
 
 ## Phase 3 — Apply extended updates (when requested)
 
-| Zone               | After bump                                                                                                         | Verification                                                           |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| **image-upscaler** | ORT: `copy-ort-runtime.mjs`; model: runbook in `apps/image-upscaler/public/models/README.md`                       | Update SHA-256 in `lib/models.ts`; upload Supabase; smoke AI upscale   |
-| **pdf**            | Bump `react-pdf` only (not `pdfjs-dist` at root/apps/pdf); `bun install`; `cd apps/pdf && bun run sync:pdf-worker` | Viewer + merge tests; worker test suite; `consistency:pdfjs-worker`    |
-| **ocr**            | Bump `react-pdf` only (not `pdfjs-dist` at root/apps/ocr); `bun install`; `cd apps/ocr && bun run sync:pdf-worker` | Render + extract tests; worker test suite; `consistency:pdfjs-worker`  |
-| **web**            | React Bits via shadcn from `apps/web`                                                                              | Reconcile `components/vendor/`; `docs/ui-shadcn-integration-policy.md` |
+| Zone               | After bump                                                                                                                                                                                                                          | Verification                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **image-upscaler** | ORT: `copy-ort-runtime.mjs`; model: runbook in `apps/image-upscaler/public/models/README.md`                                                                                                                                        | Update SHA-256 in `lib/models.ts`; upload Supabase; smoke AI upscale   |
+| **pdf**            | Bump `react-pdf` only (not `pdfjs-dist` at root/apps/pdf); `bun install`; `cd apps/pdf && bun run sync:pdf-worker`                                                                                                                  | Viewer + merge tests; worker test suite; `consistency:pdfjs-worker`    |
+| **ocr**            | `react-pdf` (not `pdfjs-dist` at root/apps/ocr) + `tesseract.js`/`tesseract.js-core`; `bun install`; `cd apps/ocr && bun run sync:assets` (tesseract worker/WASM + pdf worker); `bun run download:tessdata` only to refresh eng/deu | Render + extract tests; worker test suite; `consistency:pdfjs-worker`  |
+| **web**            | React Bits via shadcn from `apps/web`                                                                                                                                                                                               | Reconcile `components/vendor/`; `docs/ui-shadcn-integration-policy.md` |
 
 Update [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) if pins or procedures changed.
 

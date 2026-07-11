@@ -14,6 +14,47 @@ const PUBLIC_LOCAL_TOOL_NAMES = [
   "Helvety OCR",
 ] as const;
 
+/** Per-product §2 bullets: name, URL slug, and a local-processing phrase. */
+const PUBLIC_LOCAL_TOOL_SECTION2 = [
+  {
+    name: "Helvety PDF",
+    url: "helvety.com/pdf",
+    localPhrase: "keep file contents inside your browser",
+  },
+  {
+    name: "Helvety Image Upscaler",
+    url: "helvety.com/image-upscaler",
+    localPhrase: "processed in your browser",
+  },
+  {
+    name: "Helvety Image Editor",
+    url: "helvety.com/image-editor",
+    localPhrase: "run locally",
+  },
+  {
+    name: "Helvety OCR",
+    url: "helvety.com/ocr",
+    localPhrase: "Text extraction runs locally",
+  },
+] as const;
+
+/** Collapses JSX whitespace so multi-line legal copy assertions stay stable. */
+function normalizeLegalSource(source: string): string {
+  return source.replace(/\s+/g, " ");
+}
+
+/**
+ * Returns the text between two anchors (exclusive of the closing anchor),
+ * with whitespace collapsed so product names match across prettier wraps.
+ */
+function sliceBetween(source: string, start: string, end: string): string {
+  const from = source.indexOf(start);
+  expect(from, `missing anchor: ${start}`).toBeGreaterThanOrEqual(0);
+  const to = source.indexOf(end, from);
+  expect(to, `missing anchor: ${end}`).toBeGreaterThan(from);
+  return normalizeLegalSource(source.slice(from, to));
+}
+
 describe("legal pages enumerate public local-processing tools", () => {
   it.each([
     ["privacy", "apps/web/app/privacy/page.tsx"],
@@ -26,48 +67,131 @@ describe("legal pages enumerate public local-processing tools", () => {
     }
   });
 
-  it("privacy section 2.8 documents Image Editor local processing", () => {
-    const source = readFileSync(
-      join(repoRoot, "apps/web/app/privacy/page.tsx"),
-      "utf8"
-    );
-    expect(source).toContain(
-      "Helvety Image Editor (helvety.com/image-editor):"
-    );
-    expect(source).toContain("Annotation and export workflows run locally");
-  });
+  it.each(PUBLIC_LOCAL_TOOL_SECTION2)(
+    "privacy §2 documents $name local processing",
+    ({ name, url, localPhrase }) => {
+      const source = readFileSync(
+        join(repoRoot, "apps/web/app/privacy/page.tsx"),
+        "utf8"
+      );
+      expect(source).toContain(`${name} (${url}):`);
+      expect(normalizeLegalSource(source)).toContain(localPhrase);
+    }
+  );
 
-  it("privacy documents OCR local processing", () => {
-    const source = readFileSync(
-      join(repoRoot, "apps/web/app/privacy/page.tsx"),
-      "utf8"
-    );
-    expect(source).toContain("Helvety OCR (helvety.com/ocr):");
-    expect(source).toContain("Text extraction runs locally");
-  });
+  it("privacy and terms enumerate all public local tools among non-E2EE services", () => {
+    const nonE2eeEnumeration =
+      /Helvety PDF, Helvety Image Upscaler, Helvety Image Editor, Helvety OCR, Helvety Store/;
 
-  it("privacy and terms list Image Editor and OCR among non-E2EE services", () => {
     for (const rel of [
       "apps/web/app/privacy/page.tsx",
       "apps/web/app/terms/page.tsx",
     ] as const) {
-      const source = readFileSync(join(repoRoot, rel), "utf8");
-      expect(source).toContain("Helvety Image Editor");
-      expect(source).toContain("Helvety Image Upscaler");
-      expect(source).toContain("Helvety OCR");
-      expect(source).toMatch(
-        /Helvety Image Editor,\s*Helvety OCR,\s*Helvety Store/
+      const source = normalizeLegalSource(
+        readFileSync(join(repoRoot, rel), "utf8")
       );
+      for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
+        expect(source, `${rel} must mention ${name}`).toContain(name);
+      }
+      expect(source, `${rel} non-E2EE enumeration`).toMatch(nonE2eeEnumeration);
     }
   });
 
-  it("terms section 9.1 documents no-account Image Editor and OCR access", () => {
+  it("terms section 9.1 documents no-account access for every public local tool", () => {
+    const source = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/terms/page.tsx"), "utf8")
+    );
+    const section = sliceBetween(
+      source,
+      "9.1 Product Access Characteristics",
+      "10. Product Access and Availability"
+    );
+
+    for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
+      expect(section, `terms 9.1 must mention ${name}`).toContain(name);
+    }
+    expect(section).toContain("never asks you to log in for routine PDF edits");
+    expect(section).toContain("standard upscaling flow");
+    expect(section).toContain("standard annotation flow");
+    expect(section).toContain("standard text-extraction flow");
+  });
+});
+
+/**
+ * Substantive parity: local-processing and no-training statements must cover
+ * every public local tool, not only Image Upscaler / Image Editor.
+ */
+describe("legal local-processing statements cover every public local tool", () => {
+  it("privacy AI training statement names every public local tool", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    const statement = sliceBetween(
+      source,
+      "AI model training and retention statement:",
+      "PDF processing, or text extraction."
+    );
+    for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
+      expect(
+        statement,
+        `privacy training statement must mention ${name}`
+      ).toContain(name);
+    }
+    expect(statement).toContain("the current architecture");
+    expect(statement).toContain("minimal server-side endpoints");
+    expect(statement).toContain("not intended to receive full file payloads");
+  });
+
+  it("privacy section 4 purposes lists every public local tool", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    const purposes = sliceBetween(
+      source,
+      "4. How We Use Your Data",
+      "4.1 Marketing Communications"
+    );
+    for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
+      expect(purposes, `privacy §4 must mention ${name}`).toContain(name);
+    }
+    expect(purposes).toContain("local-only browser file tools");
+    expect(purposes).toContain("the current architecture");
+    expect(purposes).not.toContain("local-only AI-assisted tooling");
+  });
+
+  it("terms 7.2 license carve-out names every public local tool", () => {
     const source = readFileSync(
       join(repoRoot, "apps/web/app/terms/page.tsx"),
       "utf8"
     );
-    expect(source).toContain("Helvety Image Editor");
-    expect(source).toContain("standard annotation flow");
-    expect(source).toContain("standard text-extraction flow");
+    const section = sliceBetween(
+      source,
+      "7.2 License to Us",
+      "7.3 Your Responsibilities"
+    );
+    for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
+      expect(section, `terms 7.2 must mention ${name}`).toContain(name);
+    }
+    expect(section).toContain("the current architecture");
+    expect(section).toContain("PDF contents, or extracted text");
+  });
+
+  it("terms 7.3 responsibilities name every public local tool", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/web/app/terms/page.tsx"),
+      "utf8"
+    );
+    const section = sliceBetween(
+      source,
+      "7.3 Your Responsibilities",
+      "7.4 Our Rights"
+    );
+    for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
+      expect(section, `terms 7.3 must mention ${name}`).toContain(name);
+    }
+    expect(section).toContain("extracted text");
+    expect(section).toContain("PDFs and images");
   });
 });
