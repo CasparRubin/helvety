@@ -11,13 +11,23 @@ const uiPackagePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../package.json"
 );
+const driftConfigPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../../scripts/workspace-version-drift.config.json"
+);
 
 describe("icon-renderer", () => {
-  it("package.json pins lucide-react ^1.23 for drift alignment", () => {
+  it("package.json keeps lucide-react aligned with the drift config", () => {
     const pkg = JSON.parse(readFileSync(uiPackagePath, "utf8")) as {
       dependencies?: Record<string, string>;
     };
-    expect(pkg.dependencies?.["lucide-react"]).toBe("^1.23.0");
+    const driftConfig = JSON.parse(readFileSync(driftConfigPath, "utf8")) as {
+      requiredVersionByDep?: Record<string, string>;
+    };
+
+    expect(pkg.dependencies?.["lucide-react"]).toBe(
+      driftConfig.requiredVersionByDep?.["lucide-react"]
+    );
   });
 
   it("resolves known lucide v1 icons", () => {

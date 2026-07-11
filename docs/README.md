@@ -22,11 +22,11 @@ Index of policy, ops, and architecture docs under this folder.
 
 ## Release and security review
 
-| Document                                                         | Purpose                                                                                   |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [`security-review-runbook.md`](./security-review-runbook.md)     | Periodic security review cadence (`ci:check`, Vercel env, Supabase)                       |
-| [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) | Point-in-time audit snapshot (2026-06-13); see `dependency-inventory.md` for current pins |
-| [`dependency-inventory.md`](./dependency-inventory.md)           | Extended pins (ONNX, workers, vendors, toolchain) for dependency sweeps                   |
+| Document                                                         | Purpose                                                                                                              |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [`security-review-runbook.md`](./security-review-runbook.md)     | Periodic security review cadence (`ci:check`, Vercel env, Supabase)                                                  |
+| [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) | Point-in-time audit snapshot (2026-06-13) with subsequent update log; see `dependency-inventory.md` for current pins |
+| [`dependency-inventory.md`](./dependency-inventory.md)           | Extended pins (ONNX, workers, vendors, toolchain) for dependency sweeps                                              |
 
 ## Legal, cookies, and footer
 

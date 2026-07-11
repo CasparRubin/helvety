@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { validateUiTailwindBuildDependencies } from "./postcss-app-expectations.mjs";
 
@@ -47,7 +47,17 @@ async function collectWorkspacePackageJsonPaths() {
     const entries = await readdir(absoluteBaseDir, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      paths.push(path.join(absoluteBaseDir, entry.name, "package.json"));
+      const manifestPath = path.join(
+        absoluteBaseDir,
+        entry.name,
+        "package.json"
+      );
+      try {
+        await access(manifestPath);
+        paths.push(manifestPath);
+      } catch {
+        // Skip workspace directories without a package.json (orphan artifacts).
+      }
     }
   }
 

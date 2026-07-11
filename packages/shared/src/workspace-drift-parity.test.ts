@@ -26,6 +26,7 @@ function parseDriftRequiredVersions(): Map<string, string> {
 type PackageManifest = {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  overrides?: Record<string, string>;
   peerDependencies?: Record<string, string>;
 };
 
@@ -55,8 +56,13 @@ function listWorkspacePackageJsonPaths(): string[] {
     for (const entry of readdirSync(join(repoRoot, base), {
       withFileTypes: true,
     })) {
-      if (entry.isDirectory()) {
-        paths.push(`${base}/${entry.name}/package.json`);
+      if (!entry.isDirectory()) continue;
+      const manifestPath = `${base}/${entry.name}/package.json`;
+      try {
+        readFileSync(join(repoRoot, manifestPath));
+        paths.push(manifestPath);
+      } catch {
+        // Skip workspace directories without a package.json.
       }
     }
   }
@@ -66,22 +72,24 @@ function listWorkspacePackageJsonPaths(): string[] {
 describe("workspace drift parity (package.json vs shared drift config)", () => {
   const required = parseDriftRequiredVersions();
 
-  it("drift map includes expanded multi-workspace deps from 2026-07-04 sweep", () => {
+  it("drift map includes required multi-workspace dependencies", () => {
     for (const dep of [
       "@dnd-kit/core",
       "@dnd-kit/sortable",
       "@dnd-kit/utilities",
+      "@supabase/supabase-js",
       "@tiptap/starter-kit",
       "@tiptap/extension-link",
       "@tiptap/extension-placeholder",
       "@tiptap/extension-underline",
       "@base-ui/react",
+      "lucide-react",
+      "next",
+      "react",
+      "react-dom",
     ]) {
       expect(required.has(dep), `missing drift entry for ${dep}`).toBe(true);
     }
-    expect(required.get("next")).toBe("^16.2.10");
-    expect(required.get("@supabase/supabase-js")).toBe("^2.110.0");
-    expect(required.get("lucide-react")).toBe("^1.23.0");
   });
 
   it("every declared shared dependency matches the drift map", () => {
@@ -160,14 +168,26 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
 });
 
 describe("security dependency floors script", () => {
-  it("documents current minimums for next, supabase, and react", () => {
+  it("tracks canonical next, supabase, and react minimums", () => {
     const source = readFileSync(
       join(repoRoot, "scripts/check-security-dependency-floors.mjs"),
       "utf8"
     );
-    expect(source).toContain('next: "16.2.10"');
-    expect(source).toContain('"@supabase/supabase-js": "2.110.0"');
-    expect(source).toContain('react: "19.2.7"');
+    const required = parseDriftRequiredVersions();
+    const root = readManifest("package.json");
+    const minimum = (dependencyName: string): string => {
+      const specifier = required.get(dependencyName);
+      if (!specifier) {
+        throw new Error(`Missing drift version for ${dependencyName}`);
+      }
+      return specifier.replace(/^[~^]/, "");
+    };
+
+    expect(source).toContain(`next: "${minimum("next")}"`);
+    expect(source).toContain(`react: "${minimum("react")}"`);
+    expect(source).toContain(
+      `"@supabase/supabase-js": "${root.overrides?.["@supabase/supabase-js"]}"`
+    );
   });
 });
 
@@ -178,9 +198,12 @@ describe("dependency inventory doc pins", () => {
   );
 
   it("lists current supabase, next, and override pins", () => {
-    expect(inventory).toContain("^2.110.0");
-    expect(inventory).toContain("^16.2.10");
-    expect(inventory).toContain("vite@8.1.3");
-    expect(inventory).toContain("postcss@8.5.16");
+    const required = parseDriftRequiredVersions();
+    const root = readManifest("package.json");
+
+    expect(inventory).toContain(required.get("@supabase/supabase-js"));
+    expect(inventory).toContain(required.get("next"));
+    expect(inventory).toContain(`vite@${root.overrides?.vite}`);
+    expect(inventory).toContain(`postcss@${root.overrides?.postcss}`);
   });
 });

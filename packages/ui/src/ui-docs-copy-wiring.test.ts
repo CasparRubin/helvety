@@ -135,7 +135,14 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
 
   it("dependency inventory documents @base-ui/react and base-vega", () => {
     const inventory = readRepoFile("docs/dependency-inventory.md");
+    const driftConfig = JSON.parse(
+      readRepoFile("scripts/workspace-version-drift.config.json")
+    ) as { requiredVersionByDep?: Record<string, string> };
+
     expect(inventory).toContain("@base-ui/react");
+    expect(inventory).toContain(
+      driftConfig.requiredVersionByDep?.["@base-ui/react"]
+    );
     expect(inventory).toContain("base-vega");
     expect(inventory).not.toContain("radix-vega");
   });

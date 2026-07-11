@@ -68,7 +68,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Extended assets
 
-> Pins below are **as of 2026-06-13**. For current pins, use [`dependency-inventory.md`](./dependency-inventory.md) and the [2026-07-04 sweep](#dependency-sweep-2026-07-04).
+> Pins below are **as of 2026-06-13**. For **current** pins, use [`dependency-inventory.md`](./dependency-inventory.md). Dependency changelog: [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) (latest).
 
 | Asset                              | Pin at audit (2026-06-13)                                            | Upstream latest (at audit)                               | Recommendation                                                                                   |
 | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -448,9 +448,9 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 No misleading E2EE or extension weekly-re-auth claims detected by automated guardrails.
 
-### Stack / best-practices alignment (this pass)
+### Stack / best-practices alignment (July 2026 re-audit pass)
 
-Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins and current guardrails — no drift, no auth-pattern regressions.
+Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins **at that time** and guardrails then in force — no drift, no auth-pattern regressions. Pins in this table are a snapshot; see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) and **dependency-inventory.md** for current pins.
 
 | Area                  | Pin / pattern                                                                                | Status                                                                |
 | --------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
@@ -490,3 +490,20 @@ Patch/minor dependency sweep across monorepo + extension (canonical pins: [`depe
 | `bun audit` / `deps:security:floors`    | **0 CVEs**           | **0 CVEs** at sweep time                                                                                                   |
 
 Verification: `bun run deps:drift`, `bun run deps:security`, `bun run consistency:pdfjs-worker`, `bun run deps:unused`, `bun run ci:check` (monorepo) and `pnpm run ci:check` (extension) all pass. `@types/node` deliberately held at `24.13.2` (matches `engines.node: 24.x`). Historical tables above remain audit snapshots; use **dependency-inventory.md** for current pins.
+
+## Subsequent updates (2026-07-11)
+
+Patch/minor dependency sweep across monorepo + extension (canonical pins: [`dependency-inventory.md`](./dependency-inventory.md); drift map in `scripts/workspace-version-drift.config.json`). Core stack (Next `^16.2.10`, React `^19.2.7`, `onnxruntime-web` `^1.27.0`, `react-pdf` `^10.4.1`) already at latest stable.
+
+| Item                                       | As of 2026-07-07                                              | As of 2026-07-11                                                                |
+| ------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `@supabase/supabase-js` (override + floor) | `2.110.0`                                                     | `2.110.2`                                                                       |
+| `lucide-react` (drift + zone apps)         | `^1.23.0`                                                     | `^1.24.0`                                                                       |
+| `@tiptap/*` (`packages/ui` + drift)        | `^3.27.2`                                                     | `^3.27.3`                                                                       |
+| Toolchain (`@helvety/dev-deps` + drift)    | eslint `^10.6.0`, prettier `^3.9.4`, `@types/node` `^24.13.2` | eslint `^10.7.0`, prettier `^3.9.5`, `@types/node` `^24.13.3`, `knip` `^6.26.0` |
+| Root security overrides                    | `hono` `4.12.28`, `vite` `8.1.3`                              | `hono` `4.12.29`, `vite` `8.1.4`                                                |
+| `konva` (`apps/image-editor`)              | `^10.3.0`                                                     | `^10.3.0` (unchanged)                                                           |
+| `vitest` (`@helvety/dev-deps`)             | `^4.1.10`                                                     | `^4.1.10` (unchanged)                                                           |
+| Extension repo                             | vite `^8.1.3`, supabase `2.110.0`                             | vite `^8.1.4`, supabase `2.110.2`, mirrors drift map                            |
+
+Verification: `bun run deps:drift`, `bun run deps:security`, `bun run consistency:pdfjs-worker`, `bun run ci:check` (monorepo) and `pnpm run ci:check` + `pnpm run build` (extension) all pass. Removed orphan `packages/light-pillar/` artifacts; drift script skips workspace dirs without `package.json`. TypeScript 7 and `@types/node` 26 deferred.

@@ -10,10 +10,12 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 function readWorkspacePackage(relativePath: string): {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  overrides?: Record<string, string>;
 } {
   return JSON.parse(readFileSync(join(repoRoot, relativePath), "utf8")) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
+    overrides?: Record<string, string>;
   };
 }
 
@@ -76,7 +78,7 @@ describe("extended dependency inventory pin parity", () => {
     expect(driftConfig.requiredVersionByDep["@tiptap/react"]).toBe(tiptapReact);
   });
 
-  it("security audit subsequent-updates section reflects current extended pins", () => {
+  it("security audit references canonical inventory and current extended pins", () => {
     const audit = readFileSync(
       join(repoRoot, "docs/security-audit-2026-06-13.md"),
       "utf8"
@@ -93,8 +95,6 @@ describe("extended dependency inventory pin parity", () => {
     const vitest = devDepsPkg.dependencies?.vitest;
     const konva = editorPkg.dependencies?.konva;
 
-    expect(audit).toMatch(/### Dependency sweep \(2026-07-04\)/);
-    expect(audit).toMatch(/## Subsequent updates \(2026-07-07\)/);
     expect(ort).toBeTruthy();
     expect(lucide).toBeTruthy();
     expect(vitest).toBeTruthy();
@@ -128,5 +128,53 @@ describe("extended dependency inventory pin parity", () => {
     expect(typesChrome).toBeTruthy();
     expect(devDepsReadme).toContain("@types/chrome");
     expect(devDepsReadme).toContain(typesChrome);
+  });
+
+  it("dependency inventory documents live supabase drift and vite override pins", () => {
+    const driftConfig = readDriftConfig();
+    const root = readWorkspacePackage("package.json");
+    const supabaseDrift =
+      driftConfig.requiredVersionByDep["@supabase/supabase-js"];
+    const viteOverride = root.overrides?.vite;
+
+    expect(supabaseDrift).toBeTruthy();
+    expect(viteOverride).toBeTruthy();
+    expect(inventory).toContain(supabaseDrift);
+    expect(inventory).toContain(`vite@${viteOverride}`);
+    expect(inventory).toContain(
+      `@types/node@${root.overrides?.["@types/node"]}`
+    );
+  });
+
+  it("security audit points readers to dependency inventory for current pins", () => {
+    const audit = readFileSync(
+      join(repoRoot, "docs/security-audit-2026-06-13.md"),
+      "utf8"
+    );
+    const driftConfig = readDriftConfig();
+    const root = readWorkspacePackage("package.json");
+    const supabaseOverride = root.overrides?.["@supabase/supabase-js"];
+
+    expect(audit).toMatch(/## Subsequent updates \(2026-07-11\)/);
+    expect(audit).toMatch(/dependency-inventory\.md.*current pins/i);
+    expect(supabaseOverride).toBeTruthy();
+    expect(audit).toContain(supabaseOverride);
+    expect(audit).toContain(driftConfig.requiredVersionByDep["lucide-react"]);
+  });
+
+  it("security audit July stack table is labeled as a historical pass", () => {
+    const audit = readFileSync(
+      join(repoRoot, "docs/security-audit-2026-06-13.md"),
+      "utf8"
+    );
+    const stackSection = audit.slice(
+      audit.indexOf("### Stack / best-practices alignment")
+    );
+
+    expect(stackSection).toMatch(/July 2026 re-audit pass/i);
+    expect(stackSection).toMatch(/at that time|snapshot/i);
+    expect(stackSection).toMatch(
+      /Subsequent updates \(2026-07-11\)|dependency-inventory\.md.*current pins/i
+    );
   });
 });
