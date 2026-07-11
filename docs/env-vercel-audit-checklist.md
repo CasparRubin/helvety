@@ -75,7 +75,34 @@ Expect **`401`** with a JSON body (not `404` or HTML).
 | Supabase session JWT / 7d / 24h inactivity                                              | **Manual**                                                                                                                   |
 | Vercel Analytics + Speed Insights disabled (all 11 projects)                            | **Manual**                                                                                                                   |
 
-## Gateway (`helvety-com`) rewrite URLs
+### Full env audit (2026-07-11)
+
+| Check                                                                                    | Status                                                                                                                                    |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run consistency:env-templates` / `consistency:vercel-apps`                          | **Passed**                                                                                                                                |
+| `bun run consistency:local-env` (all 11 apps)                                            | **Passed** (after syncing templates, bootstrapping `apps/ocr/.env.local`, adding `IMAGE_EDITOR_URL` / `OCR_URL` to `apps/web/.env.local`) |
+| `bun run consistency:vercel-prod-env` / `consistency:vercel-preview-env` (all 11 zones)  | **Passed**                                                                                                                                |
+| `DEVICE_TRUST_COOKIE_SECRET` parity (auth + 4 E2EE zones)                                | **Passed** (`updatedAt` spread consistent; values sensitive)                                                                              |
+| Supabase MCP: project URL `https://bkdzeihxzvrkndjvyzye.supabase.co`                     | **Confirmed** (matches all zones)                                                                                                         |
+| Supabase MCP: enabled `sb_publishable_*` keys exist (`vercel_prod`, `local_dev`)         | **Confirmed**                                                                                                                             |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` on Vercel Production                              | **Review** — currently `local_dev` key on all zones; Supabase also has dedicated `vercel_prod` key (optional rotation)                    |
+| Missing `OCR_URL` on `helvety-com`                                                       | **Fixed** — added Production + Preview; gateway redeployed (`dpl_74kbDwM7KsidYqK8wCZbAeFbLkbL`, aliased to `helvety.com`)                 |
+| Obsolete `DOCS_URL` on `helvety-com`                                                     | **Absent** (no longer flagged by audit)                                                                                                   |
+| `helvety-com` production deployment                                                      | **READY** (was ERROR before `OCR_URL` fix; redeploy succeeded)                                                                            |
+| Gateway rewrite smoke (`helvety.com/*` → 200 for all zones incl. `/ocr`)                 | **Passed**                                                                                                                                |
+| Extension passkey route smoke (`POST …/auth/api/extension/passkey/options`)              | **401** (expected)                                                                                                                        |
+| Runtime errors (env-related) on `helvety-com`, `helvety-auth`, `helvety-ocr`             | **None env-related** (gateway shows stale refresh-token and bot `%5C` path noise only)                                                    |
+| Supabase session JWT / 7d / 24h inactivity                                               | **Manual**                                                                                                                                |
+| Vercel Analytics + Speed Insights disabled (all 11 projects)                             | **Manual**                                                                                                                                |
+| Accidental `helvety/web` Vercel project (CLI deploy from `apps/web` without `--project`) | **Manual** — delete in Vercel dashboard if unused                                                                                         |
+
+**Auto-fixes applied during this audit:**
+
+- Synced 9 local `.env.local` files from templates (`node scripts/sync-local-env-from-template.mjs`)
+- Created [`apps/ocr/.env.local`](../apps/ocr/.env.local) with shared secrets from auth reference
+- Added `IMAGE_EDITOR_URL` and `OCR_URL` to [`apps/web/.env.local`](../apps/web/.env.local)
+- Added `OCR_URL=https://helvety-ocr.vercel.app` to `helvety-com` (Production + Preview) via Vercel CLI
+- Redeployed `helvety-com` production after `OCR_URL` was set
 
 Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-pdf.vercel.app`), not the public `helvety.com` path.
 
