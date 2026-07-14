@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
+import { urls } from "./config";
 import {
   allEcosystemStoreProductSlugs,
   ecosystemCategoryForStoreSlug,
@@ -9,7 +14,31 @@ import {
 } from "./helvety-ecosystem-sections";
 import { STORE_PRODUCT_CARDS } from "./store-catalog";
 
+const ecosystemSourcePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "helvety-ecosystem-sections.ts"
+);
+
 describe("helvety-ecosystem-sections", () => {
+  it("excludes storeProducts from HelvetyWebAppUrlKey", () => {
+    const source = readFileSync(ecosystemSourcePath, "utf8");
+    expect(source).toMatch(
+      /Exclude<\s*keyof typeof urls,\s*[\s\S]*"storeProducts"/
+    );
+
+    for (const section of HELVETY_ECOSYSTEM_PRODUCT_SECTIONS) {
+      for (const item of section.items) {
+        if (!("webAppUrlKey" in item) || item.webAppUrlKey === undefined) {
+          continue;
+        }
+        const webAppUrlKey = item.webAppUrlKey;
+        expect(webAppUrlKey).not.toBe("store");
+        expect(webAppUrlKey).not.toBe("storeProducts");
+        expect(Object.hasOwn(urls, webAppUrlKey)).toBe(true);
+      }
+    }
+  });
+
   it("derives a display title for every category slug", () => {
     for (const section of HELVETY_ECOSYSTEM_PRODUCT_SECTIONS) {
       expect(ecosystemCategoryTitle(section.slug)).toBe(section.title);

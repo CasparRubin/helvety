@@ -99,6 +99,27 @@ describe("store copy guardrails", () => {
     expect(tagline).not.toMatch(/installers and deep links only/i);
   });
 
+  it("llms.txt Store catalog links prefer /store/products over bare /store", () => {
+    const storeCatalogHref = "https://helvety.com/store/products";
+    const bareStoreHref = "[Helvety Store](https://helvety.com/store)";
+
+    for (const rel of CUSTOMER_COPY_LLMS_RELATIVE_PATHS) {
+      const text = readFileSync(join(repoRoot, rel), "utf8");
+      expect(text, rel).not.toContain(bareStoreHref);
+      expect(text, rel).not.toContain("Main store entry");
+
+      if (rel === "apps/store/public/llms.txt") {
+        expect(text).toContain(`[Products catalog](${storeCatalogHref})`);
+        expect(text).toMatch(/Redirects to the products catalog/i);
+        continue;
+      }
+
+      if (text.includes("Helvety Store")) {
+        expect(text, rel).toContain(`[Helvety Store](${storeCatalogHref})`);
+      }
+    }
+  });
+
   it("store SEO description mentions install links", () => {
     expect(STORE_DESCRIPTION).toMatch(/install links/i);
   });

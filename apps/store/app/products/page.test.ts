@@ -11,7 +11,7 @@ const catalogPath = join(
 );
 
 describe("products page", () => {
-  it("server-renders catalog cards and hydrates the interactive catalog", () => {
+  it("server-renders catalog cards and dynamic-imports artwork after mount", () => {
     const pageSrc = readFileSync(pagePath, "utf8");
     const catalogSrc = readFileSync(catalogPath, "utf8");
 
@@ -21,5 +21,9 @@ describe("products page", () => {
     expect(pageSrc).not.toContain("ssr: false");
     expect(catalogSrc).toContain("initialCards");
     expect(catalogSrc).toContain("ProductCatalogTextCard");
+    expect(catalogSrc).toContain('import("@/lib/data/products")');
+    expect(catalogSrc).not.toMatch(
+      /import\s*\{[^}]*getAllProducts[^}]*\}\s*from\s*["']@\/lib\/data\/products["']/
+    );
   });
 });

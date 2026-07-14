@@ -23,11 +23,18 @@ const DEV_GATEWAY = "http://localhost:3001";
  *
  * Dev:  http://localhost:3001/{app}
  * Prod: https://helvety.com/{app}
+ *
+ * Prefer {@link urls.storeProducts} for Store catalog CTAs (skips the store-root
+ * redirect). Keep {@link urls.store} for the zone base, metadata, account, and SEO.
  */
 export const urls = {
   home: isDev ? DEV_GATEWAY : `https://${DOMAIN}`,
   auth: isDev ? `${DEV_GATEWAY}/auth` : `https://${DOMAIN}/auth`,
   store: isDev ? `${DEV_GATEWAY}/store` : `https://${DOMAIN}/store`,
+  /** Store catalog landing (avoids `/store` → `/store/products` redirect). */
+  storeProducts: isDev
+    ? `${DEV_GATEWAY}/store/products`
+    : `https://${DOMAIN}/store/products`,
   pdf: isDev ? `${DEV_GATEWAY}/pdf` : `https://${DOMAIN}/pdf`,
   imageUpscaler: isDev
     ? `${DEV_GATEWAY}/image-upscaler`
@@ -45,10 +52,10 @@ export const urls = {
 /**
  * Convert an app URL to a Next.js-friendly root-relative href when possible.
  *
- * Returns a path-based href (`/store`, `/tasks`, etc.) for absolute Helvety
- * URLs on `helvety.com`, `*.helvety.com`, `localhost`, or `127.0.0.1` when you
- * want **`next/link`** without a **`basePath`** (for example **`apps/web`**, the
- * gateway) so same-origin navigation stays path-shaped.
+ * Returns a path-based href (`/store/products`, `/tasks`, etc.) for absolute
+ * Helvety URLs on `helvety.com`, `*.helvety.com`, `localhost`, or `127.0.0.1`
+ * when you want **`next/link`** without a **`basePath`** (for example
+ * **`apps/web`**, the gateway) so same-origin navigation stays path-shaped.
  *
  * Do **not** use this for cross-app **`Link`** targets rendered inside apps with
  * a Next **`basePath`** (`/auth`, `/store`, …): Next prepends that prefix to

@@ -1,7 +1,8 @@
 /**
  * Single source of truth for Helvety ecosystem product sections.
  * Drives app-switcher grouping, store category pills, and catalog filters.
- * `Core Apps` (Home, Store) stays in the UI layer only.
+ * `Core Apps` (Home, Store) stays in the UI layer only; the Store switcher href
+ * is `urls.storeProducts` in `@helvety/ui` (not this module).
  */
 
 import { urls } from "./config";
@@ -9,7 +10,7 @@ import { urls } from "./config";
 /** Keys on {@link urls} used for web-zone navigation from the app switcher. */
 export type HelvetyWebAppUrlKey = Exclude<
   keyof typeof urls,
-  "home" | "auth" | "store"
+  "home" | "auth" | "store" | "storeProducts"
 >;
 
 /** Slug union for ecosystem product categories. */

@@ -15,7 +15,7 @@
 
 ## Related Helvety Apps
 - [Helvety](https://helvety.com)
-- [Helvety Store](https://helvety.com/store)
+- [Helvety Store](https://helvety.com/store/products)
 - [Helvety PDF](https://helvety.com/pdf)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler)
 - [Helvety Image Editor](https://helvety.com/image-editor)

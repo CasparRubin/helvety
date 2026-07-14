@@ -81,6 +81,7 @@ This package centralizes:
 ### Cross-app URLs (`config.ts`)
 
 - **`urls`**: canonical absolute base URLs for each helvety.com zone (and the dev gateway host).
+- **`urls.storeProducts`**: catalog landing (`…/store/products`) for nav CTAs; prefer over **`urls.store`** when the goal is to open the product list without the store-root redirect.
 - **`getLocalAppHref`**: strips Helvety / localhost origins to **root-relative** paths for **`next/link`** in the **gateway** (`apps/web`, no Next **`basePath`**). Do **not** use it for cross-zone **`Link`** targets rendered inside **`basePath`** apps; use absolute **`urls.*`** (see **`AppSwitcher`** / `packages/ui` README).
 - **Inside a `basePath` zone** (`apps/tasks`, `apps/notes`, …): App Router navigation (`router.replace`, `<Link href>`) uses **zone-relative** paths (`/`, `/?item=…` on Tasks, etc.). Browser **`fetch`**, **`getLoginUrl`** return paths, and **`revalidatePath`** use **gateway-visible** paths (`/tasks/api/…`, `/tasks`, …). Passing `/tasks` to `router.replace` inside Tasks yields `/tasks/tasks` (404).
 

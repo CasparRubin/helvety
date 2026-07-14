@@ -47,7 +47,7 @@ export function HeroMarketingShell() {
         <Button
           size="lg"
           className="pointer-events-auto"
-          render={<Link href={getLocalAppHref(urls.store)} />}
+          render={<Link href={getLocalAppHref(urls.storeProducts)} />}
           nativeButton={false}
         >
           <PackageOpen className="size-5" aria-hidden="true" />

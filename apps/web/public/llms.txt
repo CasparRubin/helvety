@@ -29,7 +29,7 @@ Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
 - Helvety web zones use essential and authentication cookies and browser storage for preferences and encrypted vault sessions. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies).
 
 ## Related apps and tools
-- [Helvety Store](https://helvety.com/store): Product specs, SPFx and other Store-hosted downloads, and install links (for example Chrome Web Store) from the catalog
+- [Helvety Store](https://helvety.com/store/products): Product specs, SPFx and other Store-hosted downloads, and install links (for example Chrome Web Store) from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Configure Power Automate cloud flows: Classic or New Designer. Hide the survey prompt by default. Pause anytime. Survey tab: optional v3survey control. Hide (default) sets false on rewrites; Show only normalizes when already present. Paused: no URL rewrites while the extension stays installed. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots and on-screen drawing

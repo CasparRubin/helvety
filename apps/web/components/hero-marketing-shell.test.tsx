@@ -60,6 +60,9 @@ describe("HeroMarketingShell", () => {
   it("server-renders hero copy and store CTA", () => {
     const html = renderToStaticMarkup(<HeroMarketingShell />);
     const eyebrowHtml = html.match(/<p[^>]*>Software products<\/p>/)?.[0] ?? "";
+    const hrefs = [...html.matchAll(/\bhref="([^"]*)"/g)].map(
+      (match) => match[1]
+    );
 
     expect(eyebrowHtml).toContain("text-base");
     expect(eyebrowHtml).not.toMatch(/\btext-sm\b/);
@@ -76,7 +79,14 @@ describe("HeroMarketingShell", () => {
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
     expect(html).toContain("Browse Helvety products");
-    expect(html).toContain("/store");
+    expect(hrefs).toContain("/store/products");
+    expect(hrefs).not.toContain("/store");
     expect(html).not.toMatch(EMOJI_PATTERN);
+  });
+
+  it("deep-links the store CTA via urls.storeProducts", () => {
+    const src = readFileSync(shellPath, "utf8");
+    expect(src).toContain("urls.storeProducts");
+    expect(src).not.toContain("getLocalAppHref(urls.store)");
   });
 });

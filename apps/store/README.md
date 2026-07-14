@@ -2,7 +2,7 @@
 
 Product catalog app for Helvety products: specs, Store-hosted downloads (for example SPFx), and install links (for example the Chrome Web Store for browser extensions) for helvety.com web apps **and** separately distributed software, including items whose primary source lives outside this monorepo.
 
-**App URL:** <https://helvety.com/store>  
+**App URL:** <https://helvety.com/store> (catalog landing: <https://helvety.com/store/products>)  
 **Monorepo path:** `apps/store`
 
 ## Key Features
@@ -12,7 +12,7 @@ Product catalog app for Helvety products: specs, Store-hosted downloads (for exa
 - Public SPFx package download endpoints (no login required); browser extensions link to vendor stores (for example Chrome Web Store) from product pages
 - Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
-- Product listing server-renders a text-only grid from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag); the client hydrates full artwork cards after mount. Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only (no server import of `products.ts` artwork bundle); sitemap uses `lib/data/product-catalog-cache.ts`
+- Product listing server-renders a text-only grid from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag); the client keeps text cards until a dynamic `import()` of `lib/data/products` resolves, then swaps in artwork cards (keeps the heavy artwork chunk out of the initial client graph). Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`) so visitors skip the root `/store` redirect. Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only (no server import of `products.ts` artwork bundle); sitemap uses `lib/data/product-catalog-cache.ts`
 
 ## Package Download Behavior
 
@@ -120,7 +120,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + client hydration (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), ecosystem category wiring (`packages/shared/src/helvety-ecosystem-sections.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`, `components/products/product-ui-wiring.test.ts`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), opaque product-detail panels, artwork registry parity (`lib/data/product-artwork.test.ts`), and canonical per-product artwork/artist assignments (`lib/data/products.test.ts`).
+Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + dynamic artwork import (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), ecosystem category wiring (`packages/shared/src/helvety-ecosystem-sections.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`, `components/products/product-ui-wiring.test.ts`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), opaque product-detail panels, artwork registry parity (`lib/data/product-artwork.test.ts`), and canonical per-product artwork/artist assignments (`lib/data/products.test.ts`).
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 

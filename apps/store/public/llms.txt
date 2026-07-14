@@ -3,8 +3,8 @@
 > Catalog pages with product specs, Store-hosted downloads (for example SPFx packages), and install links (for example the Chrome Web Store). Product prose is aligned with each app’s documentation. Hosted from Switzerland.
 
 ## Canonical URLs
-- [Store Home](https://helvety.com/store): Main store entry
-- [Products](https://helvety.com/store/products): Product listing
+- [Products catalog](https://helvety.com/store/products): Authoritative product listing (primary landing; nav CTAs use this path)
+- [Store zone root](https://helvety.com/store): Redirects to the products catalog
 
 ## Product pages
 The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:

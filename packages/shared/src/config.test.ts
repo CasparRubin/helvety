@@ -13,6 +13,15 @@ describe("urls and DEV_PORTS", () => {
     expect(DEV_PORTS.ocr).toBe(3011);
   });
 
+  it("deep-links store catalog landing under the store zone", () => {
+    expect(urls.storeProducts).toBe(`${urls.store}/products`);
+    expect(urls.storeProducts).toMatch(/\/store\/products$/);
+    expect(getLocalAppHref(urls.storeProducts)).toBe("/store/products");
+    expect(getLocalAppHref("https://helvety.com/store/products")).toBe(
+      "/store/products"
+    );
+  });
+
   it("defines eleven unique dev ports across all zones", () => {
     const ports = Object.values(DEV_PORTS);
     expect(ports).toHaveLength(11);

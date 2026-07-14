@@ -55,7 +55,12 @@ describe("store product UI wiring", () => {
 
     const catalog = readStoreSource("components/products/products-catalog.tsx");
     expect(catalog).toContain("card.category");
-    expect(catalog).toContain("getFilteredProducts({ category:");
+    expect(catalog).toContain('import("@/lib/data/products")');
+    expect(catalog).toContain("product.category === filter");
+    expect(catalog).not.toMatch(
+      /import\s*\{[^}]*getAllProducts[^}]*\}\s*from\s*["']@\/lib\/data\/products["']/
+    );
+    expect(catalog).not.toContain("getFilteredProducts");
     expect(catalog).not.toContain("card.type === filter");
     expect(catalog).not.toContain("type: filter");
 

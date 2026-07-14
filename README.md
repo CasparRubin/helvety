@@ -6,7 +6,7 @@ Monorepo for Helvety **web applications** served from **helvety.com** (Next.js p
 
 Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 
-- Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately** from their own repositories; where source is published for those products, the applicable repository `LICENSE` file governs it. The [Helvety Store](https://helvety.com/store) lists product pages with Store-hosted downloads (for example SPFx), Chrome Web Store install links (for example Power Platform Configurator), and other install or source links across the full product line.
+- Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately** from their own repositories; where source is published for those products, the applicable repository `LICENSE` file governs it. The [Helvety Store catalog](https://helvety.com/store/products) lists product pages with Store-hosted downloads (for example SPFx), Chrome Web Store install links (for example Power Platform Configurator), and other install or source links across the full product line (zone root `/store` redirects to that catalog).
 - Public gateway and tools: `web`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`
 - Centralized account: `auth` (not an E2EE vault app; hosts shared sign-in)
 - Client-encrypted apps (E2EE): `tasks`, `contacts`, `notes`, `links`
@@ -20,7 +20,7 @@ Root layouts follow two shared shells. Public apps (`web`, `auth`, `store`, `pdf
 | --------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | [`apps/web`](apps/web/)                       | <https://helvety.com>                | Gateway app, marketing homepage (static SSR hero on plain theme background), legal pages, sitemap index, cross-zone navigation |
 | [`apps/auth`](apps/auth/)                     | <https://helvety.com/auth>           | Centralized passwordless auth (email OTP + passkey)                                                                            |
-| [`apps/store`](apps/store/)                   | <https://helvety.com/store>          | Product catalog, SPFx package downloads, and external install links (for example Chrome Web Store)                             |
+| [`apps/store`](apps/store/)                   | <https://helvety.com/store>          | Product catalog (landing `/store/products`), SPFx package downloads, and external install links (for example Chrome Web Store) |
 | [`apps/pdf`](apps/pdf/)                       | <https://helvety.com/pdf>            | Browser-based PDF tools                                                                                                        |
 | [`apps/image-upscaler`](apps/image-upscaler/) | <https://helvety.com/image-upscaler> | Browser-based image upscaling                                                                                                  |
 | [`apps/image-editor`](apps/image-editor/)     | <https://helvety.com/image-editor>   | Browser-based image annotation                                                                                                 |

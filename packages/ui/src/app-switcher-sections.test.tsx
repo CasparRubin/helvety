@@ -1,3 +1,4 @@
+import { urls } from "@helvety/shared/config";
 import {
   allEcosystemStoreProductSlugs,
   ecosystemItemHref,
@@ -11,6 +12,14 @@ import {
 } from "./app-switcher-sections";
 
 describe("app-switcher-sections", () => {
+  it("deep-links Core Apps Store to the catalog landing page", () => {
+    const coreApps = appSwitcherSections.find(
+      (section) => section.title === "Core Apps"
+    );
+    const storeLink = coreApps?.links.find((link) => link.name === "Store");
+    expect(storeLink?.href).toBe(urls.storeProducts);
+  });
+
   it("covers every ecosystem store product slug with an icon", () => {
     expect(new Set(ECOSYSTEM_SWITCHER_STORE_PRODUCT_SLUGS)).toEqual(
       new Set(allEcosystemStoreProductSlugs())

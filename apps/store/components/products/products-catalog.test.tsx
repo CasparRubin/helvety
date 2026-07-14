@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ProductsCatalog } from "./products-catalog";
@@ -73,20 +73,27 @@ vi.mock("@/lib/data/products", async (importOriginal) => {
 });
 
 describe("ProductsCatalog", () => {
-  it("renders all products from getAllProducts", () => {
+  it("renders all products from dynamically imported getAllProducts", async () => {
     render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
     expect(screen.getByText("Helvety PDF")).toBeInTheDocument();
     expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText("Helvety PDF")).toBeInTheDocument();
+      expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
+    });
   });
 
-  it("filters products by category using getFilteredProducts", () => {
+  it("filters products by category after artwork module loads", async () => {
     render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
     fireEvent.click(screen.getByRole("button", { name: /SharePoint Apps/i }));
 
-    expect(screen.queryByText("Helvety PDF")).not.toBeInTheDocument();
-    expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("Helvety PDF")).not.toBeInTheDocument();
+      expect(screen.getByText("Helvety SPO Explorer")).toBeInTheDocument();
+    });
   });
 
   it("lists all five ecosystem category filters", () => {

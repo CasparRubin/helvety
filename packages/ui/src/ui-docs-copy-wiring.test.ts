@@ -163,6 +163,8 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toContain("helvety-ecosystem-sections");
     expect(readme).toContain("STORE_PRODUCT_CARDS_BASE");
     expect(readme).toContain("ecosystemItemIcons");
+    expect(readme).toContain("urls.storeProducts");
+    expect(readme).toMatch(/dynamic `import\(\)`|dynamic import/i);
     expect(readme).toMatch(/Encryption Apps|File Tools|Browser Extensions/);
     expect(readme).not.toMatch(/tinted type labels/i);
     expect(readme).not.toMatch(/per-type tinted labels/i);
@@ -175,7 +177,16 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     const readme = readRepoFile("packages/shared/README.md");
     expect(readme).toContain("helvety-ecosystem-sections");
     expect(readme).toContain("HELVETY_ECOSYSTEM_PRODUCT_SECTIONS");
+    expect(readme).toContain("urls.storeProducts");
     expect(readme).toMatch(/app switcher|store filter/i);
+  });
+
+  it("web and ui READMEs document storeProducts deep-linking", () => {
+    const webReadme = readRepoFile("apps/web/README.md");
+    const uiReadme = readRepoFile("packages/ui/README.md");
+    expect(webReadme).toContain("urls.storeProducts");
+    expect(webReadme).toContain("StoreProductsSpeculation");
+    expect(uiReadme).toContain("urls.storeProducts");
   });
 
   it("navbar-brand JSDoc references ecosystem registry for AppSwitcher", () => {

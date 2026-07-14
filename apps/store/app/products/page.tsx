@@ -16,8 +16,9 @@ export const metadata: Metadata = {
 
 /**
  * Products catalog page.
- * Server-renders card metadata from `@helvety/shared/store-catalog`; the client
- * catalog hydrates artwork and filters after mount.
+ * Server-renders text card metadata from `@helvety/shared/store-catalog` via
+ * `getCachedStoreCatalogCards()`; the client keeps those cards until a dynamic
+ * `import()` of `@/lib/data/products` resolves, then swaps in artwork rows.
  */
 export default async function ProductsPage() {
   const initialCards = await getCachedStoreCatalogCards();

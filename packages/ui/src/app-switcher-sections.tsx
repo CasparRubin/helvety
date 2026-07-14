@@ -87,13 +87,15 @@ function ecosystemSectionToSwitcherSection(
 /**
  * Canonical navigation data for {@link AppSwitcher}. Product sections derive from
  * `@helvety/shared/helvety-ecosystem-sections`; Core Apps stay UI-local.
+ * Core Apps **Store** uses {@link urls.storeProducts} so navigation skips the
+ * store-root redirect to `/store/products`.
  */
 export const appSwitcherSections: AppSwitcherSection[] = [
   {
     title: "Core Apps",
     links: [
       { name: "Home", href: urls.home, icon: House },
-      { name: "Store", href: urls.store, icon: Store },
+      { name: "Store", href: urls.storeProducts, icon: Store },
     ],
   },
   ...HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map(ecosystemSectionToSwitcherSection),
