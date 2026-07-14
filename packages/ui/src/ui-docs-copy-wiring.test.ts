@@ -106,6 +106,8 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(policy).toContain("ui-action-button-contract");
     expect(policy).toContain("@helvety/ui/sonner");
     expect(policy).toContain("consistency:ui-actions");
+    expect(policy).toContain("@helvety/ui/date-picker");
+    expect(policy).toContain("@helvety/ui/date-time-picker");
   });
 
   it("ui-action-button contract documents Trash2 and toast import path", () => {
@@ -211,6 +213,26 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(readme).toContain("pickDefinedStructuralFields");
     expect(readme).not.toContain("open-first");
     expect(readme).not.toContain("seedDraft");
+  });
+
+  it("app consistency checklist documents FormField + DateTimePicker id parity", () => {
+    const checklist = readRepoFile("docs/app-consistency-checklist.md");
+    expect(checklist).toContain("item-action-panel");
+    expect(checklist).toContain("@helvety/ui/form-field");
+    expect(checklist).toContain("DateTimePicker");
+    expect(checklist).toMatch(/forward `id`|forward.*`id`/i);
+    expect(checklist).toMatch(
+      /links\/contacts\/tasks|item-action-panel.*e2ee-dashboard-wiring/i
+    );
+  });
+
+  it("security audit U1 documents full FormField scope including DateTimePicker id", () => {
+    const audit = readRepoFile("docs/security-audit-2026-06-13.md");
+    expect(audit).toMatch(/\| U1\s*\|/);
+    expect(audit).toContain("item-action-panel");
+    expect(audit).toContain("folder-editor");
+    expect(audit).toContain("DateTimePicker");
+    expect(audit).toContain("@helvety/ui/form-field");
   });
 
   it("gateway hero docs describe the current plain-background stack", () => {

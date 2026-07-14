@@ -63,7 +63,7 @@ This package provides:
 - `@helvety/ui/use-e2ee-entity-list-dnd-sensors` -> shared dnd sensor setup
 - `@helvety/ui/entity-command-bar` -> `EntityCommandBar`: Shared responsive list toolbar pattern for create/refresh/export/settings/edit/delete actions (compose inside `CommandBar`; pair with `CommandBarPageLayout` on E2EE dashboards).
 - `@helvety/ui/row-action-button` -> `RowActionButton`: Icon-only list row actions (web: `aria-label`; extension: `showTooltip` via `IconTooltipButton`). See [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md).
-- `@helvety/ui/form-field` -> `FormField`: Label + control with `E2EE_FORM_FIELD_CLASS` spacing; clones `id` onto the child control. Used by the Chromium extension side panel, Links (`link-form-fields`, `folder-editor`), and Contacts (`contact-editor`). Tasks/notes editors use `E2eeRichTextItemEditorShell` / structured shells instead of this wrapper for their primary fields.
+- `@helvety/ui/form-field` -> `FormField`: Label + control with `E2EE_FORM_FIELD_CLASS` spacing; clones `id` onto the child control. Used by the Chromium extension side panel, Links (`link-form-fields`, `folder-editor`), Contacts (`contact-editor`), and Tasks `item-action-panel` date fields (`DateTimePicker` forwards `id`). Tasks/notes primary rich-text editors still use `E2eeRichTextItemEditorShell` / structured shells for title/body.
 - `@helvety/ui/icon-size` -> `ICON_SIZE_CLASS`: Default Lucide size (`size-4`) for row/toolbar icons.
 - `@helvety/ui/public-tool-workspace` -> `PUBLIC_TOOL_*` layout class strings for PDF, image-upscaler, image-editor, and OCR sidebars/canvas shells.
 - `@helvety/ui/sonner` -> `Toaster`, `toast`: Re-export of Sonner; zone apps import here (do not depend on `sonner` directly).

@@ -47,7 +47,7 @@ Applies to every Vercel project in [`vercel-monorepo-apps.md`](./vercel-monorepo
 
 ### Ops note (2026-07-14)
 
-Cross-repo remediation completed in code (extension host permission narrowing, FormField consolidation, shared `processing-shine`). Analytics remain blocked by guardrails + CSP. Supabase hosted session toggles stay Pro-only on Free; app-layer policy in `auth-session-policy.ts` is unchanged. No new environment variables.
+Cross-repo remediation completed in code (extension host permission narrowing to the project Supabase origin + `*.helvety.com`, FormField consolidation across extension/links/contacts/tasks date fields with `DatePicker`/`DateTimePicker` `id` forwarding, shared `processing-shine`). Analytics remain blocked by guardrails + CSP. Supabase hosted session toggles stay Pro-only on Free; app-layer policy in `auth-session-policy.ts` is unchanged. No new environment variables.
 
 ## Supabase database (local only)
 

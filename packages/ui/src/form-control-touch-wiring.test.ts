@@ -136,6 +136,8 @@ describe("form control touch-safe wiring", () => {
     expect(uiReadme).toContain(".processing-shine");
     expect(uiReadme).toMatch(/do \*\*not\*\* re-declare it in zone/);
     expect(uiReadme).toMatch(/Links.*folder-editor|Contacts.*contact-editor/i);
+    expect(uiReadme).toMatch(/item-action-panel/i);
+    expect(uiReadme).toMatch(/DateTimePicker.*forwards `id`|forwards `id`/i);
   });
 
   it("consistency guardrails enforce shared form controls", () => {
@@ -152,6 +154,9 @@ describe("form control touch-safe wiring", () => {
     expect(policy).toContain("## Mobile form controls");
     expect(policy).toContain("@helvety/ui/form-control-touch.css");
     expect(policy).toContain("@helvety/ui/textarea");
+    expect(policy).toContain("@helvety/ui/date-picker");
+    expect(policy).toContain("@helvety/ui/date-time-picker");
+    expect(policy).toMatch(/optional `id`|pass optional `id`/i);
   });
 
   it("entity-links-panel search picker uses shared Input (not cmdk Command)", () => {

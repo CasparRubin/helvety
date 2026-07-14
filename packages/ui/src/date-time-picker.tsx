@@ -20,6 +20,8 @@ export type DateTimePickerProps = Readonly<{
   placeholder?: string;
   /** Whether the picker is disabled */
   disabled?: boolean;
+  /** Optional id for label association (`FormField` / `htmlFor`) */
+  id?: string;
 }>;
 
 /**
@@ -31,6 +33,7 @@ export function DateTimePicker({
   onChange,
   placeholder = "Pick date & time",
   disabled,
+  id,
 }: DateTimePickerProps) {
   const selectedDate = value ? new Date(value) : undefined;
   const isValidDate = selectedDate && isValid(selectedDate);
@@ -68,6 +71,7 @@ export function DateTimePicker({
         render={
           <Button
             type="button"
+            id={id}
             variant="outline"
             disabled={disabled}
             className={cn(

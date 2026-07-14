@@ -530,11 +530,11 @@ Minimal remediations from the cross-repo UI/UX & auth/privacy/security audit (no
 
 ### Code
 
-| ID  | Change                                                                                                                                                                                            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| S1  | Extension `host_permissions` narrowed to `https://bkdzeihxzvrkndjvyzye.supabase.co/*` (matches hardcoded `HELVETY_SUPABASE_URL`); docs/error copy + manifest test updated                         |
-| U1  | Links + Contacts editors use shared `@helvety/ui/form-field` (removed local `LinksFormField` / inline `E2EE_FORM_FIELD_CLASS` wrappers); `DatePicker` accepts optional `id` for label association |
-| U2  | `processing-shine` CSS moved once into `packages/ui/globals.css`; removed from `apps/ocr`, `image-upscaler`, `image-editor`                                                                       |
+| ID  | Change                                                                                                                                                                                                                                                                                                                               |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| S1  | Extension `host_permissions` narrowed to `https://bkdzeihxzvrkndjvyzye.supabase.co/*` (matches hardcoded `HELVETY_SUPABASE_URL`); docs/error copy + manifest test updated                                                                                                                                                            |
+| U1  | Extension side panel, Links (`link-form-fields`, `folder-editor`), Contacts (`contact-editor`), and Tasks `item-action-panel` date fields use shared `@helvety/ui/form-field` (removed local `LinksFormField` / inline `E2EE_FORM_FIELD_CLASS` wrappers); `DatePicker` / `DateTimePicker` accept optional `id` for label association |
+| U2  | `processing-shine` CSS moved once into `packages/ui/globals.css`; removed from `apps/ocr`, `image-upscaler`, `image-editor`                                                                                                                                                                                                          |
 
 ### Ops verify-only (repo SSOT; no new secrets)
 

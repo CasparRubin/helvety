@@ -39,12 +39,22 @@ const STALE_AUTOMATION_PHRASES = [
 
 /** Lists `apps/<slug>/README.md` paths for zone app documentation checks. */
 async function listAppReadmePaths(): Promise<string[]> {
-  const entries = await readdir(resolve(repoRoot, "apps"), {
-    withFileTypes: true,
-  });
-  return entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => `apps/${entry.name}/README.md`);
+  const appsDir = resolve(repoRoot, "apps");
+  const entries = await readdir(appsDir, { withFileTypes: true });
+  const paths: string[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const relativePath = `apps/${entry.name}/README.md`;
+    try {
+      await access(resolve(repoRoot, relativePath), constants.F_OK);
+      paths.push(relativePath);
+    } catch {
+      // Skip dirs without a README (e.g. ephemeral retired-zone probe leftovers).
+    }
+  }
+
+  return paths;
 }
 
 describe("automation policy consistency", () => {
@@ -99,7 +109,25 @@ describe("automation policy consistency", () => {
   );
 
   it("zone app READMEs avoid stale remote-CI env wording", async () => {
-    for (const relativePath of await listAppReadmePaths()) {
+    const readmePaths = await listAppReadmePaths();
+    expect(readmePaths.length).toBeGreaterThanOrEqual(11);
+    expect(readmePaths).toEqual(
+      expect.arrayContaining([
+        "apps/web/README.md",
+        "apps/auth/README.md",
+        "apps/store/README.md",
+        "apps/tasks/README.md",
+        "apps/contacts/README.md",
+        "apps/notes/README.md",
+        "apps/links/README.md",
+        "apps/pdf/README.md",
+        "apps/image-upscaler/README.md",
+        "apps/image-editor/README.md",
+        "apps/ocr/README.md",
+      ])
+    );
+
+    for (const relativePath of readmePaths) {
       const source = await readFile(resolve(repoRoot, relativePath), "utf8");
       for (const phrase of [
         "Optional CI/monorepo",

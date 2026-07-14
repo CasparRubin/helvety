@@ -23,7 +23,7 @@
     "build": "turbo run build --concurrency=2",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "test": "turbo run test --concurrency=4",
+    "test": "turbo run test --concurrency=2",
     "format": "node scripts/run-prettier.mjs --write",
     "format:check": "node scripts/run-prettier.mjs --check",
     "consistency:env-templates": "node scripts/check-env-template-consistency.mjs",

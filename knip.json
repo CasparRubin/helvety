@@ -82,7 +82,6 @@
   "ignore": [
     "apps/pdf/public/pdf.worker.min.mjs",
     "apps/pdf/lib/empty-canvas-stub.mjs",
-    "apps/ocr/public/pdf.worker.min.mjs",
     "apps/ocr/lib/empty-canvas-stub.mjs",
     "apps/image-editor/vitest.browser-mocks.ts",
     "apps/*/lib/utils.ts"

@@ -212,6 +212,11 @@ describe("E2EE editor dynamic import SSR", () => {
   it("tasks item-editor composes the shared shell and client-only link panels", () => {
     const panelSrc = readAppFile("tasks", "components/item-action-panel.tsx");
     expect(panelSrc).toContain("@helvety/ui/date-time-picker");
+    expect(panelSrc).toContain("@helvety/ui/form-field");
+    expect(panelSrc).toContain("<FormField");
+    expect(panelSrc).toContain('id="start-date"');
+    expect(panelSrc).toContain('id="end-date"');
+    expect(panelSrc).not.toContain('from "@helvety/ui/label"');
 
     const editorSrc = readAppFile("tasks", "components/item-editor.tsx");
     expect(editorSrc).toContain("E2eeRichTextItemEditorShell");
@@ -473,6 +478,10 @@ describe("E2EE save-first create wiring", () => {
     const folderEditor = readAppFile("links", "components/folder-editor.tsx");
     expect(folderEditor).toContain("@helvety/ui/form-field");
     expect(folderEditor).toContain("<FormField");
+    expect(folderEditor).toContain('id="folder-name"');
+    expect(folderEditor).toContain('id="folder-parent"');
+    expect(folderEditor).not.toContain("edit-folder-name");
+    expect(folderEditor).not.toContain("edit-folder-parent");
     expect(folderEditor).not.toContain("LinksFormField");
     expect(folderEditor).not.toContain("@/components/link-form-fields");
   });

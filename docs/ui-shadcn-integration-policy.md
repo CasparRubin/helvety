@@ -46,7 +46,7 @@ iOS Safari zooms the page when a focused text field is below **16px**. Helvety u
 
 1. **CSS safety net:** `@helvety/ui/form-control-touch.css` (imported by `@helvety/ui/globals.css` for zone apps and by the extension’s `globals.css`). Sets `font-size: 1rem` on touch/coarse-pointer devices for `input`, `select`, `textarea`, and `[contenteditable="true"]`.
 2. **Tailwind constant:** `@helvety/ui/form-control-text-size` exports `FORM_CONTROL_TEXT_SIZE_CLASS` and `FORM_CONTROL_PROSE_SIZE_CLASS` (16px on touch, 14px on mouse desktop). Use only when authoring new shared primitives — not in app code.
-3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/tiptap-editor` (rich text). Entity link pickers use `@helvety/ui/input` inside `@helvety/ui/entity-links-panel`. Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components` or extension popup code.
+3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/tiptap-editor` (rich text), `@helvety/ui/date-picker`, `@helvety/ui/date-time-picker` (pass optional `id` for `FormField` / `htmlFor`). Entity link pickers use `@helvety/ui/input` inside `@helvety/ui/entity-links-panel`. Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components` or extension popup code.
 
 Do **not** disable pinch zoom via viewport `maximum-scale=1` / `user-scalable=no`.
 

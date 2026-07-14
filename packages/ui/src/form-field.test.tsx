@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { DatePicker } from "./date-picker";
+import { DateTimePicker } from "./date-time-picker";
 import { E2EE_FORM_FIELD_CLASS } from "./e2ee-form-layout";
 import { FormField } from "./form-field";
 import { Input } from "./input";
@@ -60,5 +61,16 @@ describe("FormField", () => {
 
     const trigger = screen.getByLabelText("Birthday");
     expect(trigger).toHaveAttribute("id", "birthday");
+  });
+
+  it("forwards id onto DateTimePicker for label association", () => {
+    render(
+      <FormField label="Start" id="start-date">
+        <DateTimePicker value={null} onChange={() => undefined} />
+      </FormField>
+    );
+
+    const trigger = screen.getByLabelText("Start");
+    expect(trigger).toHaveAttribute("id", "start-date");
   });
 });

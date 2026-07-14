@@ -18,8 +18,8 @@ import {
   CollapsibleTrigger,
 } from "@helvety/ui/collapsible";
 import { DateTimePicker } from "@helvety/ui/date-time-picker";
+import { FormField } from "@helvety/ui/form-field";
 import { renderIcon as renderStageIcon } from "@helvety/ui/icon-renderer";
-import { Label as FormLabel } from "@helvety/ui/label";
 import { Separator } from "@helvety/ui/separator";
 import { useIsMobile } from "@helvety/ui/use-is-mobile";
 import {
@@ -192,29 +192,25 @@ export function ItemActionPanel({
               </div>
 
               {/* Start Date/Time picker */}
-              <div className="mt-3 grid gap-1.5">
-                <FormLabel className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                  Start
-                </FormLabel>
+              <FormField label="Start" id="start-date" className="mt-3">
                 <DateTimePicker
                   value={item.start_date}
                   onChange={onStartDateChange}
                   placeholder="Set start date & time"
                   disabled={isSavingDates}
                 />
-              </div>
+              </FormField>
 
               {/* End Date/Time picker */}
-              <div className="mt-3 grid gap-1.5">
-                <FormLabel className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                  End
-                </FormLabel>
-                <DateTimePicker
-                  value={item.end_date}
-                  onChange={onEndDateChange}
-                  placeholder="Set end date & time"
-                  disabled={isSavingDates}
-                />
+              <div className="mt-3 grid gap-2">
+                <FormField label="End" id="end-date">
+                  <DateTimePicker
+                    value={item.end_date}
+                    onChange={onEndDateChange}
+                    placeholder="Set end date & time"
+                    disabled={isSavingDates}
+                  />
+                </FormField>
                 {item.end_date &&
                   hydratedNowMs !== null &&
                   new Date(item.end_date).getTime() < hydratedNowMs && (

@@ -189,7 +189,7 @@ function EditorToolbar({
   }
 
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delay={300}>
       <div className="border-border/40 bg-muted/20 flex flex-wrap items-center gap-0.5 rounded-t-md border-b px-1.5 py-0.5 opacity-30 transition-opacity duration-200 focus-within:opacity-100 hover:opacity-100">
         {/* Undo / Redo */}
         <ToolbarButton

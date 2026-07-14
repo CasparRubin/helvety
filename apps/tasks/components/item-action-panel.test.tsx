@@ -11,13 +11,19 @@ vi.mock("@helvety/ui/date-time-picker", () => ({
   DateTimePicker: ({
     value,
     placeholder,
+    id,
   }: {
     value: string | null;
     placeholder: string;
+    id?: string;
   }) => (
-    <div data-testid={`date-time-picker-${placeholder}`}>
+    <button
+      type="button"
+      id={id}
+      data-testid={`date-time-picker-${placeholder}`}
+    >
       {value ?? "empty"}
-    </div>
+    </button>
   ),
 }));
 
@@ -46,9 +52,32 @@ function buildItem(overrides: Partial<Item> = {}): Item {
   };
 }
 
-describe("ItemActionPanel overdue badge", () => {
+/** Shared props for ItemActionPanel date-field tests. */
+function panelProps(item: Item) {
+  return {
+    item,
+    stages: [],
+    isLoadingStages: false,
+    onStageChange: () => {},
+    labels: [],
+    isLoadingLabels: false,
+    onLabelChange: () => {},
+    onPriorityChange: () => {},
+    onStartDateChange: () => {},
+    onEndDateChange: () => {},
+  };
+}
+
+describe("ItemActionPanel date fields", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("associates Start and End labels with FormField ids", () => {
+    render(<ItemActionPanel {...panelProps(buildItem())} />);
+
+    expect(screen.getByLabelText("Start")).toHaveAttribute("id", "start-date");
+    expect(screen.getByLabelText("End")).toHaveAttribute("id", "end-date");
   });
 
   it("shows overdue badge for end dates before hydrated current time", async () => {
@@ -56,20 +85,12 @@ describe("ItemActionPanel overdue badge", () => {
 
     render(
       <ItemActionPanel
-        item={buildItem({ end_date: "2026-04-20T12:00:00.000Z" })}
-        stages={[]}
-        isLoadingStages={false}
-        onStageChange={() => {}}
-        labels={[]}
-        isLoadingLabels={false}
-        onLabelChange={() => {}}
-        onPriorityChange={() => {}}
-        onStartDateChange={() => {}}
-        onEndDateChange={() => {}}
+        {...panelProps(buildItem({ end_date: "2026-04-20T12:00:00.000Z" }))}
       />
     );
 
     expect(await screen.findByText("Overdue")).toBeInTheDocument();
+    expect(screen.getByLabelText("End")).toBeInTheDocument();
   });
 
   it("does not show overdue badge for future end dates", () => {
@@ -77,16 +98,7 @@ describe("ItemActionPanel overdue badge", () => {
 
     render(
       <ItemActionPanel
-        item={buildItem({ end_date: "2026-05-20T12:00:00.000Z" })}
-        stages={[]}
-        isLoadingStages={false}
-        onStageChange={() => {}}
-        labels={[]}
-        isLoadingLabels={false}
-        onLabelChange={() => {}}
-        onPriorityChange={() => {}}
-        onStartDateChange={() => {}}
-        onEndDateChange={() => {}}
+        {...panelProps(buildItem({ end_date: "2026-05-20T12:00:00.000Z" }))}
       />
     );
 

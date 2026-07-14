@@ -276,7 +276,7 @@ export function FolderEditor(props: FolderEditorProps): React.JSX.Element {
         }
       >
         <div className={E2EE_EDITOR_FORM_BODY_STACK_CLASS}>
-          <FormField label="Name" id="edit-folder-name">
+          <FormField label="Name" id="folder-name">
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -284,7 +284,7 @@ export function FolderEditor(props: FolderEditorProps): React.JSX.Element {
               autoFocus
             />
           </FormField>
-          <FormField label="Parent folder" id="edit-folder-parent">
+          <FormField label="Parent folder" id="folder-parent">
             <NativeSelect
               value={parentFolderId}
               onChange={(e) => setParentFolderId(e.target.value)}
