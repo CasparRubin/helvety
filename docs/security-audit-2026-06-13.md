@@ -37,12 +37,12 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Vercel (team Helvety, 9 zone projects — historical; **10 zones** as of Image Editor launch; **11 zones** as of Helvety OCR launch — see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11))
 
-| Check          | Result                                                                                                                                                                                                           |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Projects       | All 9 present; latest Production deploys **READY**                                                                                                                                                               |
-| Production env | `bun run consistency:vercel-prod-env` **passed**                                                                                                                                                                 |
-| Preview env    | `bun run consistency:vercel-preview-env` **failed** — missing Upstash on `helvety-pdf` and `helvety-image-upscaler` (remediated 2026-06; see [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)) |
-| Node version   | `helvety-com` on 22.x; zone apps on 24.x — align when convenient                                                                                                                                                 |
+| Check          | Result                                                                                                                                                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Projects       | All 9 present; latest Production deploys **READY**                                                                                                                                                                                                                                                      |
+| Production env | `bun run consistency:vercel-prod-env` **passed**                                                                                                                                                                                                                                                        |
+| Preview env    | `bun run consistency:vercel-preview-env` **failed** — missing Upstash on `helvety-pdf` and `helvety-image-upscaler` (remediated 2026-06; see [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md))                                                                                        |
+| Node version   | **Snapshot 2026-06-13:** `helvety-com` Project Setting was 22.x; zone apps 24.x. **Current repo SSOT:** all eleven apps + root `engines.node: "24.x"` (`.nvmrc` `24`). Residual: confirm Vercel `helvety-com` UI is 24.x (see [U5](#subsequent-updates-2026-07-14--cross-repo-uxsecurity-remediation)). |
 
 ### Manual dashboard actions
 
@@ -68,7 +68,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Extended assets
 
-> Pins below are **as of 2026-06-13**. For **current** pins, use [`dependency-inventory.md`](./dependency-inventory.md). Dependency changelog: [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) (latest).
+> Pins below are **as of 2026-06-13**. For **current** pins, use [`dependency-inventory.md`](./dependency-inventory.md). Dependency changelog: [Subsequent updates (2026-07-14)](#subsequent-updates-2026-07-14--cross-repo-uxsecurity-remediation) (latest code remediations); also [2026-07-11](#subsequent-updates-2026-07-11).
 
 | Asset                              | Pin at audit (2026-06-13)                                            | Upstream latest (at audit)                               | Recommendation                                                                                   |
 | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -286,16 +286,16 @@ All entity ciphertext uses field-bound AAD (`table:recordId:column`, `ENCRYPTION
 
 ### Findings by severity
 
-| Severity     | Finding                                                                       | Action                                                                                                  |
-| ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Critical** | —                                                                             | None                                                                                                    |
-| **High**     | —                                                                             | None                                                                                                    |
-| **Medium**   | Supabase Free: hosted session time-box / inactivity settings not configurable | App-layer vault + device trust compensate; align Dashboard on Pro upgrade                               |
-| **Medium**   | Structural metadata (category/stage/folder ids) stored plaintext              | By design — privacy policy aligned                                                                      |
-| **Low**      | `apps/web/.env.local` missing `IMAGE_EDITOR_URL`                              | Add from [`apps/web/env.template`](apps/web/env.template) for local gateway rewrites                    |
-| **Low**      | `helvety-com` Node.js 22.x vs zone apps 24.x                                  | Align when convenient                                                                                   |
-| **Low**      | Vercel Analytics / Speed Insights                                             | Confirm disabled on all **eleven** zone projects (manual Dashboard; CSP blocks `va.vercel-scripts.com`) |
-| **N/A**      | `auth_leaked_password_protection` advisor WARN                                | No password auth; Free tier                                                                             |
+| Severity     | Finding                                                                       | Action                                                                                                              |
+| ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Critical** | —                                                                             | None                                                                                                                |
+| **High**     | —                                                                             | None                                                                                                                |
+| **Medium**   | Supabase Free: hosted session time-box / inactivity settings not configurable | App-layer vault + device trust compensate; align Dashboard on Pro upgrade                                           |
+| **Medium**   | Structural metadata (category/stage/folder ids) stored plaintext              | By design — privacy policy aligned                                                                                  |
+| **Low**      | `apps/web/.env.local` missing `IMAGE_EDITOR_URL`                              | Add from [`apps/web/env.template`](apps/web/env.template) for local gateway rewrites                                |
+| **Low**      | `helvety-com` Node.js Project Setting may still show 22.x (June snapshot)     | **Repo resolved:** all apps `engines.node: "24.x"`. Ops-only: set Vercel `helvety-com` to 24.x if UI still shows 22 |
+| **Low**      | Vercel Analytics / Speed Insights                                             | Confirm disabled on all **eleven** zone projects (manual Dashboard; CSP blocks `va.vercel-scripts.com`)             |
+| **N/A**      | `auth_leaked_password_protection` advisor WARN                                | No password auth; Free tier                                                                                         |
 
 ### Customer-facing copy audit (same pass)
 
@@ -414,18 +414,18 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 ### Findings by severity
 
-| Severity     | Finding                                                                           | Action                                                              |
-| ------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **Critical** | —                                                                                 | None                                                                |
-| **High**     | —                                                                                 | None                                                                |
-| **Medium**   | Supabase Free: hosted session time-box / inactivity not configurable in Dashboard | App-layer vault + device trust compensate; align on Pro upgrade     |
-| **Medium**   | Structural metadata plaintext                                                     | By design                                                           |
-| **Low**      | `consistency:supabase-rls` skipped (no local export)                              | Regenerate `supabase/supabase.json` locally after schema changes    |
-| **Low**      | No local `.env.local` files (10 zones at July 2026 pass; **11** today)            | Copy from `env.template` only if developing zones locally           |
-| **Low**      | Interactive passkey/OTP smoke not run                                             | Operator quarterly checklist above                                  |
-| **Low**      | `helvety-com` Node 22.x vs zone apps 24.x                                         | Align when convenient                                               |
-| **Low**      | Vercel Analytics / Speed Insights                                                 | Confirm disabled on all **eleven** zone projects (manual Dashboard) |
-| **N/A**      | `auth_leaked_password_protection` advisor WARN                                    | No password auth; Free tier                                         |
+| Severity     | Finding                                                                           | Action                                                                                  |
+| ------------ | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Critical** | —                                                                                 | None                                                                                    |
+| **High**     | —                                                                                 | None                                                                                    |
+| **Medium**   | Supabase Free: hosted session time-box / inactivity not configurable in Dashboard | App-layer vault + device trust compensate; align on Pro upgrade                         |
+| **Medium**   | Structural metadata plaintext                                                     | By design                                                                               |
+| **Low**      | `consistency:supabase-rls` skipped (no local export)                              | Regenerate `supabase/supabase.json` locally after schema changes                        |
+| **Low**      | No local `.env.local` files (10 zones at July 2026 pass; **11** today)            | Copy from `env.template` only if developing zones locally                               |
+| **Low**      | Interactive passkey/OTP smoke not run                                             | Operator quarterly checklist above                                                      |
+| **Low**      | `helvety-com` Node Project Setting may still show 22.x (June snapshot)            | **Repo resolved:** all apps `engines.node: "24.x"`. Ops-only: confirm Vercel UI is 24.x |
+| **Low**      | Vercel Analytics / Speed Insights                                                 | Confirm disabled on all **eleven** zone projects (manual Dashboard)                     |
+| **N/A**      | `auth_leaked_password_protection` advisor WARN                                    | No password auth; Free tier                                                             |
 
 ### Deltas vs earlier 2026-07-04 pass (same document)
 
@@ -523,3 +523,25 @@ New public-tool zone **`helvety-ocr`** (`apps/ocr`):
 | Extended assets     | `tesseract.js` + local `tessdata` (eng/deu); PDF.js worker via `react-pdf` (`sync:pdf-worker`, `consistency:pdfjs-worker`)   |
 
 Re-run `bun run consistency:vercel-prod-env` and `consistency:vercel-preview-env` after provisioning `helvety-ocr` on Vercel. Confirm Web Analytics disabled on the new project (eleven zone projects total).
+
+## Subsequent updates (2026-07-14) — cross-repo UX/security remediation
+
+Minimal remediations from the cross-repo UI/UX & auth/privacy/security audit (no new CI, tools, or env vars).
+
+### Code
+
+| ID  | Change                                                                                                                                                                                            |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S1  | Extension `host_permissions` narrowed to `https://bkdzeihxzvrkndjvyzye.supabase.co/*` (matches hardcoded `HELVETY_SUPABASE_URL`); docs/error copy + manifest test updated                         |
+| U1  | Links + Contacts editors use shared `@helvety/ui/form-field` (removed local `LinksFormField` / inline `E2EE_FORM_FIELD_CLASS` wrappers); `DatePicker` accepts optional `id` for label association |
+| U2  | `processing-shine` CSS moved once into `packages/ui/globals.css`; removed from `apps/ocr`, `image-upscaler`, `image-editor`                                                                       |
+
+### Ops verify-only (repo SSOT; no new secrets)
+
+| Check                                                     | Result                                                                                                                                                                                                                                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **S2** Supabase Auth sessions vs `auth-session-policy.ts` | Policy SSOT unchanged: JWT **3600s**, time-box **7d**, inactivity **24h**. Hosted Dashboard session controls remain Pro-only on Free — app-layer vault + device trust / weekly proof continue to enforce the policy. No Dashboard change in this pass.                                                             |
+| **S3** Vercel Web Analytics / Speed Insights              | Still forbidden in code (`analytics-guardrails` + CSP blocks `va.vercel-scripts.com`). No analytics packages or env keys added. Confirm each of the **eleven** zone projects still has Analytics/Speed Insights **disabled** in the Vercel UI when next in the Dashboard (CLI auth not available in this session). |
+| **U5** Gateway Node 24                                    | All eleven apps + root declare `engines.node: "24.x"`; `.nvmrc` is `24`. If `helvety-com` Project Settings still show Node **22.x**, set to **24.x** there (existing setting only — no new env).                                                                                                                   |
+
+**Out of scope (confirmed):** GitHub Actions, Playwright/axe, extension token palette rewrite, new env vars.

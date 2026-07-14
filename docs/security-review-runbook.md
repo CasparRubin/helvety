@@ -43,7 +43,11 @@ Applies to every Vercel project in [`vercel-monorepo-apps.md`](./vercel-monorepo
 
 - **Analytics → Web Analytics** and **Speed Insights** must stay **disabled** (Helvety CSP does not allow `va.vercel-scripts.com`).
 - Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview.
-- Align `helvety-com` Node.js version with zone apps (24.x per `.nvmrc`) when convenient.
+- Align `helvety-com` Node.js version with zone apps (24.x per `.nvmrc`) when convenient. Repo SSOT is already `engines.node: "24.x"` on all eleven apps; if the Vercel project still shows 22.x, change that single Project Setting only (no new env).
+
+### Ops note (2026-07-14)
+
+Cross-repo remediation completed in code (extension host permission narrowing, FormField consolidation, shared `processing-shine`). Analytics remain blocked by guardrails + CSP. Supabase hosted session toggles stay Pro-only on Free; app-layer policy in `auth-session-policy.ts` is unchanged. No new environment variables.
 
 ## Supabase database (local only)
 

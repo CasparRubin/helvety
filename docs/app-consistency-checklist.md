@@ -140,7 +140,7 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 | --------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Row icon actions (web lists)            | `@helvety/ui/row-action-button` (`aria-label`; optional local wrapper) | [`ui-action-button-contract.md`](./ui-action-button-contract.md), `consistency:ui-actions` |
 | Row delete icon                         | `Trash2Icon` + `ICON_SIZE_CLASS`                                       | `consistency:ui-actions`, `ui-actions-wiring.test.ts`                                      |
-| Editor form fields (extension + shared) | `@helvety/ui/form-field`, `@helvety/ui/e2ee-form-layout`               | Extension `src/popup/views/entity-form-view.test.ts`                                       |
+| Editor form fields (extension + shared) | `@helvety/ui/form-field`, `@helvety/ui/e2ee-form-layout`               | Extension `entity-form-view.test.ts`; links/contacts via `e2ee-dashboard-wiring.test.ts`   |
 | Public-tool sidebars                    | `@helvety/ui/public-tool-workspace`                                    | PDF toolkit, image-upscaler, image-editor layers panel, OCR workspace                      |
 | Toasts in apps                          | `import { toast } from "@helvety/ui/sonner"`                           | Knip (`deps:unused`), `consistency:ui-actions`                                             |
 

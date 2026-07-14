@@ -19,6 +19,8 @@ export type DatePickerProps = Readonly<{
   placeholder?: string;
   /** Whether the picker is disabled */
   disabled?: boolean;
+  /** Optional id for label association (`FormField` / `htmlFor`) */
+  id?: string;
 }>;
 
 /**
@@ -30,6 +32,7 @@ export function DatePicker({
   onChange,
   placeholder = "Pick a date",
   disabled,
+  id,
 }: DatePickerProps) {
   const selectedDate = value
     ? parse(value, "yyyy-MM-dd", new Date())
@@ -54,6 +57,7 @@ export function DatePicker({
         render={
           <Button
             type="button"
+            id={id}
             variant="outline"
             disabled={disabled}
             className={cn(

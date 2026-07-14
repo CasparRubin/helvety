@@ -2,10 +2,9 @@
 
 import { emptyContactInput } from "@helvety/shared/e2ee-create-inputs";
 import { DatePicker } from "@helvety/ui/date-picker";
-import { E2EE_FORM_FIELD_CLASS } from "@helvety/ui/e2ee-form-layout";
 import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
+import { FormField } from "@helvety/ui/form-field";
 import { Input } from "@helvety/ui/input";
-import { Label } from "@helvety/ui/label";
 import {
   serializeRichTextContent,
   type JSONContent,
@@ -387,67 +386,56 @@ export function ContactEditor(props: ContactEditorProps) {
         hasInitialized ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className={E2EE_FORM_FIELD_CLASS}>
-                <Label htmlFor="first-name">First Name(s)</Label>
+              <FormField label="First Name(s)" id="first-name">
                 <Input
-                  id="first-name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="First name(s)"
                 />
-              </div>
-              <div className={E2EE_FORM_FIELD_CLASS}>
-                <Label htmlFor="last-name">Last Name(s)</Label>
+              </FormField>
+              <FormField label="Last Name(s)" id="last-name">
                 <Input
-                  id="last-name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Last name(s)"
                 />
-              </div>
+              </FormField>
             </div>
 
-            <div className={E2EE_FORM_FIELD_CLASS}>
-              <Label htmlFor="description">Description</Label>
+            <FormField label="Description" id="description">
               <Input
-                id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="e.g., Cousin, Product Manager"
               />
-            </div>
+            </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className={E2EE_FORM_FIELD_CLASS}>
-                <Label htmlFor="email">Email</Label>
+              <FormField label="Email" id="email">
                 <Input
-                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@example.com"
                 />
-              </div>
-              <div className={E2EE_FORM_FIELD_CLASS}>
-                <Label htmlFor="phone">Phone</Label>
+              </FormField>
+              <FormField label="Phone" id="phone">
                 <Input
-                  id="phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+41 79 123 45 67"
                 />
-              </div>
+              </FormField>
             </div>
 
-            <div className={E2EE_FORM_FIELD_CLASS}>
-              <Label>Birthday</Label>
+            <FormField label="Birthday" id="birthday">
               <DatePicker
                 value={birthday}
                 onChange={setBirthday}
                 placeholder="Pick a birthday"
               />
-            </div>
+            </FormField>
           </>
         ) : null
       }

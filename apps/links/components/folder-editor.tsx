@@ -16,11 +16,11 @@ import {
   E2EE_EDITOR_FORM_BODY_STACK_CLASS,
   E2EE_UNSAVED_CHANGES_DIALOG,
 } from "@helvety/ui/e2ee-form-layout";
+import { FormField } from "@helvety/ui/form-field";
 import { Input } from "@helvety/ui/input";
 import { NativeSelect } from "@helvety/ui/native-select";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { LinksFormField } from "@/components/link-form-fields";
 import { LinksEditorCommandBar } from "@/components/links-editor-command-bar";
 import {
   ALL_FOLDER_ID,
@@ -276,18 +276,16 @@ export function FolderEditor(props: FolderEditorProps): React.JSX.Element {
         }
       >
         <div className={E2EE_EDITOR_FORM_BODY_STACK_CLASS}>
-          <LinksFormField label="Name" htmlFor="edit-folder-name">
+          <FormField label="Name" id="edit-folder-name">
             <Input
-              id="edit-folder-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="off"
               autoFocus
             />
-          </LinksFormField>
-          <LinksFormField label="Parent folder" htmlFor="edit-folder-parent">
+          </FormField>
+          <FormField label="Parent folder" id="edit-folder-parent">
             <NativeSelect
-              id="edit-folder-parent"
               value={parentFolderId}
               onChange={(e) => setParentFolderId(e.target.value)}
             >
@@ -298,12 +296,12 @@ export function FolderEditor(props: FolderEditorProps): React.JSX.Element {
                 </option>
               ))}
             </NativeSelect>
-            {!parentMoveAllowed ? (
-              <p className="text-destructive text-sm">
-                Cannot move a folder into itself or a subfolder.
-              </p>
-            ) : null}
-          </LinksFormField>
+          </FormField>
+          {!parentMoveAllowed ? (
+            <p className="text-destructive text-sm">
+              Cannot move a folder into itself or a subfolder.
+            </p>
+          ) : null}
         </div>
       </CommandBarPageLayout>
 

@@ -1,36 +1,13 @@
 "use client";
 
-import {
-  E2EE_EDITOR_FORM_FIELDS_STACK_CLASS,
-  E2EE_FORM_FIELD_CLASS,
-} from "@helvety/ui/e2ee-form-layout";
+import { E2EE_EDITOR_FORM_FIELDS_STACK_CLASS } from "@helvety/ui/e2ee-form-layout";
+import { FormField } from "@helvety/ui/form-field";
 import { Input } from "@helvety/ui/input";
-import { Label } from "@helvety/ui/label";
 import { NativeSelect } from "@helvety/ui/native-select";
 
 import { ALL_FOLDER_ID, isAllFolderId } from "@/lib/all-folder";
 
 import type { LinkFolder } from "@/lib/types";
-
-/**
- * Single label + control group (`grid gap-2`).
- */
-export function LinksFormField({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  children: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <div className={E2EE_FORM_FIELD_CLASS}>
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
-    </div>
-  );
-}
 
 /** URL, name, and folder fields for the link detail sheet editor (folder select includes All). */
 export function LinkFormFields({
@@ -63,9 +40,8 @@ export function LinkFormFields({
 }): React.JSX.Element {
   return (
     <div className={fieldsStackClassName}>
-      <LinksFormField label="URL" htmlFor={urlInputId}>
+      <FormField label="URL" id={urlInputId}>
         <Input
-          id={urlInputId}
           value={url}
           onChange={(e) => onUrlChange(e.target.value)}
           autoComplete="off"
@@ -73,19 +49,17 @@ export function LinkFormFields({
           placeholder="https://example.com"
           autoFocus={autoFocusUrl}
         />
-      </LinksFormField>
-      <LinksFormField label="Name (optional)" htmlFor={nameInputId}>
+      </FormField>
+      <FormField label="Name (optional)" id={nameInputId}>
         <Input
-          id={nameInputId}
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
           autoComplete="off"
           placeholder="Defaults to the site name"
         />
-      </LinksFormField>
-      <LinksFormField label="Folder" htmlFor={folderSelectId}>
+      </FormField>
+      <FormField label="Folder" id={folderSelectId}>
         <NativeSelect
-          id={folderSelectId}
           value={folderId}
           onChange={(e) => onFolderIdChange(e.target.value)}
         >
@@ -98,7 +72,7 @@ export function LinkFormFields({
               </option>
             ))}
         </NativeSelect>
-      </LinksFormField>
+      </FormField>
     </div>
   );
 }

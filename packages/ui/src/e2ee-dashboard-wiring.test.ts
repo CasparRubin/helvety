@@ -241,6 +241,10 @@ describe("E2EE editor dynamic import SSR", () => {
   it("contacts contact-editor uses dynamic link panels (Tiptap via shared shell)", () => {
     const src = readAppFile("contacts", "components/contact-editor.tsx");
     expect(src).toContain("@helvety/ui/date-picker");
+    expect(src).toContain("@helvety/ui/form-field");
+    expect(src).toContain("<FormField");
+    expect(src).not.toContain("E2EE_FORM_FIELD_CLASS");
+    expect(src).not.toContain('from "@helvety/ui/label"');
     expect(countSsrFalse(src)).toBeGreaterThanOrEqual(3);
     expect(src).toContain("NoteLinksPanel");
     expect(src).toContain("TaskLinksPanel");
@@ -453,6 +457,24 @@ describe("E2EE save-first create wiring", () => {
     );
     expect(folderEditorSrc).toContain("emptyLinkFolderInput");
     expect(folderEditorSrc).toContain('formMode: "create"');
+  });
+
+  it("links editors use shared FormField (no local LinksFormField wrapper)", () => {
+    const linkFormFields = readAppFile(
+      "links",
+      "components/link-form-fields.tsx"
+    );
+    expect(linkFormFields).toContain("@helvety/ui/form-field");
+    expect(linkFormFields).toContain("<FormField");
+    expect(linkFormFields).not.toContain("LinksFormField");
+    expect(linkFormFields).not.toContain("E2EE_FORM_FIELD_CLASS");
+    expect(linkFormFields).not.toContain('from "@helvety/ui/label"');
+
+    const folderEditor = readAppFile("links", "components/folder-editor.tsx");
+    expect(folderEditor).toContain("@helvety/ui/form-field");
+    expect(folderEditor).toContain("<FormField");
+    expect(folderEditor).not.toContain("LinksFormField");
+    expect(folderEditor).not.toContain("@/components/link-form-fields");
   });
 
   it.each([

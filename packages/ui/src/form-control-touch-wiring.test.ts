@@ -115,6 +115,29 @@ describe("form control touch-safe wiring", () => {
     expect(source).not.toMatch(/<select[\s/>]/);
   });
 
+  it("processing-shine lives in shared ui globals (not per-tool app CSS)", () => {
+    const sharedGlobals = readUiFile("globals.css");
+    expect(sharedGlobals).toContain("@keyframes processing-shine");
+    expect(sharedGlobals).toContain(".processing-shine");
+    expect(sharedGlobals).toContain("prefers-reduced-motion: reduce");
+
+    for (const path of [
+      "apps/ocr/app/globals.css",
+      "apps/image-upscaler/app/globals.css",
+      "apps/image-editor/app/globals.css",
+    ] as const) {
+      const zoneGlobals = readRepoFile(path);
+      expect(zoneGlobals).toContain('@import "@helvety/ui/globals.css"');
+      expect(zoneGlobals).not.toContain("@keyframes processing-shine");
+      expect(zoneGlobals).not.toContain(".processing-shine");
+    }
+
+    const uiReadme = readRepoFile("packages/ui/README.md");
+    expect(uiReadme).toContain(".processing-shine");
+    expect(uiReadme).toMatch(/do \*\*not\*\* re-declare it in zone/);
+    expect(uiReadme).toMatch(/Links.*folder-editor|Contacts.*contact-editor/i);
+  });
+
   it("consistency guardrails enforce shared form controls", () => {
     const guardrails = readRepoFile("scripts/check-consistency-guardrails.mjs");
     expect(guardrails).toContain("uses raw <select>");

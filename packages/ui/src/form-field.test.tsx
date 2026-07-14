@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { DatePicker } from "./date-picker";
 import { E2EE_FORM_FIELD_CLASS } from "./e2ee-form-layout";
 import { FormField } from "./form-field";
 import { Input } from "./input";
@@ -48,5 +49,16 @@ describe("FormField", () => {
     const input = screen.getByLabelText("Notes");
     expect(input).toHaveAttribute("id");
     expect(input.getAttribute("id")).not.toBe("");
+  });
+
+  it("forwards id onto DatePicker for label association", () => {
+    render(
+      <FormField label="Birthday" id="birthday">
+        <DatePicker value={null} onChange={() => undefined} />
+      </FormField>
+    );
+
+    const trigger = screen.getByLabelText("Birthday");
+    expect(trigger).toHaveAttribute("id", "birthday");
   });
 });

@@ -42,13 +42,21 @@ function collectSourceFiles(dir: string, base = dir): string[] {
       entry === "node_modules" ||
       entry === ".next" ||
       entry === "dist" ||
-      entry === "coverage"
+      entry === "coverage" ||
+      // Generated/synced runtime assets (onnxruntime, tessdata, pdf workers)
+      entry === "ort" ||
+      entry === "tessdata" ||
+      entry === "tesseract"
     ) {
       continue;
     }
     const stat = statSync(fullPath);
     if (stat.isDirectory()) {
       files.push(...collectSourceFiles(fullPath, base));
+      continue;
+    }
+    // Skip minified/vendored public workers (often binary or non-UTF8).
+    if (entry.endsWith(".min.mjs") || entry.endsWith(".wasm")) {
       continue;
     }
     if (/\.(ts|tsx|mjs|json|env\.template)$/.test(entry)) {
@@ -78,7 +86,13 @@ describe("retired Helvety Docs zone", () => {
         if (RETIRED_DOCS_ZONE_MENTION_ALLOWLIST.has(normalizedRel)) {
           continue;
         }
-        const source = readFileSync(join(repoRoot, rel), "utf8");
+        let source: string;
+        try {
+          source = readFileSync(join(repoRoot, rel), "utf8");
+        } catch {
+          // Skip missing or non-UTF8 vendored assets that slipped past filters.
+          continue;
+        }
         for (const marker of RETIRED_DOCS_ZONE_MARKERS) {
           if (source.includes(marker)) {
             offenders.push(`${normalizedRel}: ${marker}`);

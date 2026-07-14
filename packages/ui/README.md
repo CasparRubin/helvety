@@ -63,7 +63,7 @@ This package provides:
 - `@helvety/ui/use-e2ee-entity-list-dnd-sensors` -> shared dnd sensor setup
 - `@helvety/ui/entity-command-bar` -> `EntityCommandBar`: Shared responsive list toolbar pattern for create/refresh/export/settings/edit/delete actions (compose inside `CommandBar`; pair with `CommandBarPageLayout` on E2EE dashboards).
 - `@helvety/ui/row-action-button` -> `RowActionButton`: Icon-only list row actions (web: `aria-label`; extension: `showTooltip` via `IconTooltipButton`). See [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md).
-- `@helvety/ui/form-field` -> `FormField`: Label + control with `E2EE_FORM_FIELD_CLASS` spacing; clones `id` onto the child control.
+- `@helvety/ui/form-field` -> `FormField`: Label + control with `E2EE_FORM_FIELD_CLASS` spacing; clones `id` onto the child control. Used by the Chromium extension side panel, Links (`link-form-fields`, `folder-editor`), and Contacts (`contact-editor`). Tasks/notes editors use `E2eeRichTextItemEditorShell` / structured shells instead of this wrapper for their primary fields.
 - `@helvety/ui/icon-size` -> `ICON_SIZE_CLASS`: Default Lucide size (`size-4`) for row/toolbar icons.
 - `@helvety/ui/public-tool-workspace` -> `PUBLIC_TOOL_*` layout class strings for PDF, image-upscaler, image-editor, and OCR sidebars/canvas shells.
 - `@helvety/ui/sonner` -> `Toaster`, `toast`: Re-export of Sonner; zone apps import here (do not depend on `sonner` directly).
@@ -79,7 +79,7 @@ Also includes reusable UI building blocks used across zones (for example `@base-
 
 ## Styling / Tailwind
 
-- **`globals.css`** (`@helvety/ui/globals.css`): semantic design tokens and Tailwind v4 imports for every zone app (`@import` from each app’s `app/globals.css`). Imports **`form-control-touch.css`** so focused form fields stay ≥16px on touch devices (prevents iOS Safari input zoom). Marketing accents include **`--brand-swiss-red`** (`text-brand-swiss-red` on the gateway hero).
+- **`globals.css`** (`@helvety/ui/globals.css`): semantic design tokens and Tailwind v4 imports for every zone app (`@import` from each app’s `app/globals.css`). Imports **`form-control-touch.css`** so focused form fields stay ≥16px on touch devices (prevents iOS Safari input zoom). Also defines shared **`.processing-shine`** (and `@keyframes processing-shine`) for public-tool processing labels — OCR, image-upscaler, and image-editor apply the class in components; do **not** re-declare it in zone `app/globals.css`. Marketing accents include **`--brand-swiss-red`** (`text-brand-swiss-red` on the gateway hero).
 - **PostCSS at build time:** zone apps re-export [`@helvety/config/postcss`](../config/postcss.mjs), which loads `@tailwindcss/postcss` from [`@helvety/dev-deps`](../dev-deps/). This package also declares **`tailwindcss`** and **`@tailwindcss/postcss`** in **`dependencies`** so Tailwind packages sit on zone apps’ production dependency graph for Turbopack CSS processing. Do not add those packages to individual app manifests. See [`docs/vercel-monorepo-apps.md`](../../docs/vercel-monorepo-apps.md) and [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
 
 ## Testing
