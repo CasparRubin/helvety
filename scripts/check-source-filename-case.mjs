@@ -69,7 +69,11 @@ function toRelative(filePath) {
 }
 
 function fileStem(fileName) {
-  const withoutExt = fileName.replace(/\.(tsx?|mts?|mjs)$/, "");
+  // Ambient declaration files use `name.d.ts`; strip that compound suffix first
+  // so the stem is `name` (not `name.d`, which fails kebab-case).
+  const withoutExt = fileName
+    .replace(/\.d\.(ts|mts)$/, "")
+    .replace(/\.(tsx?|mts?|mjs)$/, "");
   if (withoutExt.endsWith(".test") || withoutExt.endsWith(".spec")) {
     return withoutExt.replace(/\.(test|spec)$/, "");
   }

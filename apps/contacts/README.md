@@ -15,8 +15,7 @@ End-to-end encrypted contact management app.
 - Shareable deep links open a contact in the detail sheet via `?contact=<uuid>` (for example from Tasks, Notes, or Links cross-links). URL↔sheet sync uses `useE2eeEntityPanelWithUrl` + `useSyncE2eeEntityPanelFromUrl` from `@helvety/ui`; `app/page.tsx` wraps the dashboard in `<Suspense>` (required for `useSearchParams`).
 - Rich contact editor with cross-app links to tasks, notes, and bookmarks via `EntityLinksPanel` and thin hooks from `createE2eeEntityLinksHook` (`useTaskLinks`, `useNoteLinks`, `useLinkEntityLinks`; lazy catalog load until a panel expands or the Add picker opens)
 - List CRUD/reorder: `hooks/use-contacts.ts` wraps `@helvety/ui/hooks/use-encrypted-sortable-items` with contact crypto and server actions; hook errors use `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
-- Detail sheet CRUD: dashboard passes list-hook `update` / `remove` / `refresh` into `ContactEditor` (Links pattern: single list state, optimistic updates)
-- Optional `useContact` (wraps `useEncryptedSingleItem`) for non-dashboard fetch paths; the dashboard sheet editor does not use it
+- Detail sheet CRUD: dashboard passes list-hook `update` / `remove` / `refresh` into `ContactEditor` (Links pattern: single list state, optimistic updates); the dashboard sheet editor does not use it
 - Client-side decrypted export via `@helvety/ui/hooks/use-e2ee-data-export` and `lib/data-export.ts` (JSON download plumbing in `@helvety/shared/e2ee-json-export`; server fetch stays encrypted via `fetchOwnedEncryptedExport`)
 
 ## E2EE Data Model

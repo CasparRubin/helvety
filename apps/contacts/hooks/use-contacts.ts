@@ -1,9 +1,7 @@
 "use client";
 
 import { pickDefinedStructuralFields } from "@helvety/shared/e2ee-structural-payload";
-import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
-import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 
 import {
@@ -18,7 +16,6 @@ import {
   encryptContactInput,
   encryptContactUpdate,
   decryptContactRows,
-  decryptContactRow,
 } from "@/lib/crypto";
 
 import type {
@@ -96,7 +93,7 @@ export async function fetchContactById(
  * newer optimistic UI state.
  *
  * Dashboard sheet editors receive this hook's `update` / `remove` / `refresh`
- * as props (Links pattern); they do not call {@link useContact}.
+ * as props (Links pattern).
  */
 export function useContacts(options?: UseContactsOptions): UseContactsReturn {
   const { masterKey, isUnlocked } = useEncryptionContext();
@@ -196,80 +193,5 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     remove,
     reorder,
     patchLocal,
-  };
-}
-
-/** Options for useContact hook */
-interface UseContactOptions {
-  /** Server-prefetched encrypted row. Skips the initial fetch when provided. */
-  initialEncryptedData?: ContactRow;
-  /** Already decrypted row. Skips fetch/decrypt when provided. */
-  initialData?: Contact;
-}
-
-/** Return type of the useContact hook for a single contact. */
-interface UseContactReturn {
-  /** The decrypted contact */
-  contact: Contact | null;
-  /** Whether the contact is being loaded */
-  isLoading: boolean;
-  /** User-visible error when the last contacts operation failed */
-  error: string | null;
-  /** Refresh the contact from server */
-  refresh: () => Promise<void>;
-  /** Update the contact */
-  update: (input: Partial<ContactInput>) => Promise<boolean>;
-  /** Delete the contact */
-  remove: () => Promise<boolean>;
-}
-
-/**
- * Hook to fetch/update one contact by id (optional; not used by the dashboard sheet editor).
- */
-export function useContact(
-  id: string,
-  options?: UseContactOptions
-): UseContactReturn {
-  const { masterKey, isUnlocked } = useEncryptionContext();
-
-  const { item, isLoading, error, refresh, update, remove } =
-    useEncryptedSingleItem<
-      Contact,
-      ContactRow,
-      ContactInput,
-      Parameters<typeof updateContact>[0]
-    >({
-      id,
-      navigationSource: "contacts-use-contacts",
-      masterKey,
-      isUnlocked,
-      loadFailureMessage: "Failed to load contact",
-      updateFailureMessage: "Failed to update contact",
-      deleteFailureMessage: "Failed to delete contact",
-      decryptFailureMessage: "Failed to decrypt contact",
-      deleteMissingIdMessage:
-        "We couldn't identify this contact. Please refresh and try again.",
-      initialEncryptedData: options?.initialEncryptedData,
-      initialData: options?.initialData,
-      fetchById: fetchContactById,
-      decryptRow: decryptContactRow,
-      encryptUpdate: encryptContactUpdate,
-      buildUpdatePayload: (entityId, encrypted, input) => ({
-        id: entityId,
-        ...encrypted,
-        ...pickDefinedStructuralFields(input, CONTACT_STRUCTURAL_KEYS),
-      }),
-      updateEntity: updateContact,
-      deleteEntity: deleteContact,
-      patchEntity: patchSingleEntity,
-    });
-
-  return {
-    contact: item,
-    isLoading,
-    error,
-    refresh,
-    update,
-    remove,
   };
 }

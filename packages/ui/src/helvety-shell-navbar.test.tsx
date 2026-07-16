@@ -210,6 +210,33 @@ describe("HelvetyShellNavbar", () => {
     expect(account).toHaveAttribute("href", "/account");
   });
 
+  it("renders external-store Account link to the Store account page", () => {
+    vi.mocked(useNavbarAuthState).mockReturnValue({
+      user: { id: "u1", email: "dev@example.com" },
+      isLoading: false,
+    });
+    renderShell({ account: { variant: "external-store" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open profile menu" }));
+    const account = screen.getByRole("button", { name: /Account/i });
+    expect(account).toHaveAttribute("href", `${urls.store}/account`);
+    expect(account).toHaveAttribute("target", "_blank");
+  });
+
+  it("calls redirectToLogout with the current URL when Sign out is clicked", () => {
+    const href = "https://unit.test/pdf";
+    vi.stubGlobal("location", { ...window.location, href });
+    vi.mocked(useNavbarAuthState).mockReturnValue({
+      user: { id: "u1", email: "dev@example.com" },
+      isLoading: false,
+    });
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: "Open profile menu" }));
+    fireEvent.click(screen.getByRole("button", { name: /Sign out/i }));
+    expect(redirectToLogout).toHaveBeenCalledTimes(1);
+    expect(redirectToLogout).toHaveBeenCalledWith(href);
+    vi.unstubAllGlobals();
+  });
+
   it("mobile menu sheet uses scrollable shell layout", () => {
     renderShell();
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));

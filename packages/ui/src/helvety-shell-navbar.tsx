@@ -98,20 +98,22 @@ export type HelvetyShellNavbarProps = {
       ) => HelvetyShellNavbarEncryption | null);
 };
 
-/** Account link in the desktop profile popover. */
-function AccountMenuLink({
+/** Account link for desktop popover (`outline`) or mobile sheet (`ghost`). */
+function AccountLink({
   account,
   onNavigate,
   className,
+  variant,
 }: {
   account: HelvetyShellNavbarAccount;
   onNavigate: () => void;
   className: string;
+  variant: "outline" | "ghost";
 }) {
   if (account.variant === "same-origin") {
     return (
       <Button
-        variant="outline"
+        variant={variant}
         className={className}
         render={<Link href={account.href} onClick={onNavigate} />}
         nativeButton={false}
@@ -123,50 +125,7 @@ function AccountMenuLink({
   }
   return (
     <Button
-      variant="outline"
-      className={className}
-      render={
-        <a
-          href={`${urls.store}/account`}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onNavigate}
-        />
-      }
-      nativeButton={false}
-    >
-      <Settings className="size-4" />
-      Account
-    </Button>
-  );
-}
-
-/** Account link in the mobile sheet menu. */
-function AccountMobileLink({
-  account,
-  onNavigate,
-  className,
-}: {
-  account: HelvetyShellNavbarAccount;
-  onNavigate: () => void;
-  className: string;
-}) {
-  if (account.variant === "same-origin") {
-    return (
-      <Button
-        variant="ghost"
-        className={className}
-        render={<Link href={account.href} onClick={onNavigate} />}
-        nativeButton={false}
-      >
-        <Settings className="size-4" />
-        Account
-      </Button>
-    );
-  }
-  return (
-    <Button
-      variant="ghost"
+      variant={variant}
       className={className}
       render={
         <a
@@ -303,10 +262,11 @@ export function HelvetyShellNavbar({
                   </PopoverHeader>
                   <Separator />
                   <div className="flex flex-col gap-2">
-                    <AccountMenuLink
+                    <AccountLink
                       account={account}
                       onNavigate={() => setProfileOpen(false)}
                       className="w-full justify-start"
+                      variant="outline"
                     />
                   </div>
                   <Separator />
@@ -327,51 +287,24 @@ export function HelvetyShellNavbar({
               </Popover>
             )}
 
-            <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-9"
-                      aria-label="Open about dialog"
-                      onClick={() => setAboutOpen(true)}
-                    />
-                  }
-                >
-                  <Info className="size-4" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>About</p>
-                </TooltipContent>
-              </Tooltip>
-              <DialogContent>
-                <DialogHeader className="pr-8">
-                  <DialogTitle>About</DialogTitle>
-                  <DialogDescription className="pt-2">
-                    {aboutDescription} Helvety software by{" "}
-                    <a
-                      href="https://casparrubin.ch"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-2"
-                    >
-                      Caspar Rubin
-                    </a>
-                    , engineered, designed, and made in Switzerland.{" "}
-                    {buildInfo
-                      ? `This version was built on ${buildInfo}.`
-                      : "This is a development build."}
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogClose
-                  render={<Button variant="outline" className="w-full" />}
-                >
-                  Close
-                </DialogClose>
-              </DialogContent>
-            </Dialog>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-9"
+                    aria-label="Open about dialog"
+                    onClick={() => setAboutOpen(true)}
+                  />
+                }
+              >
+                <Info className="size-4" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>About</p>
+              </TooltipContent>
+            </Tooltip>
 
             <Tooltip>
               <TooltipTrigger
@@ -451,10 +384,11 @@ export function HelvetyShellNavbar({
                           {user?.email ?? "Account"}
                         </span>
                       </div>
-                      <AccountMobileLink
+                      <AccountLink
                         account={account}
                         onNavigate={() => setMobileMenuOpen(false)}
                         className="w-full justify-start"
+                        variant="ghost"
                       />
                       <Separator />
                       <Button
@@ -519,6 +453,31 @@ export function HelvetyShellNavbar({
           </Sheet>
         </div>
       </div>
+      <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+        <DialogContent>
+          <DialogHeader className="pr-8">
+            <DialogTitle>About</DialogTitle>
+            <DialogDescription className="pt-2">
+              {aboutDescription} Helvety software by{" "}
+              <a
+                href="https://casparrubin.ch"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
+                Caspar Rubin
+              </a>
+              , engineered, designed, and made in Switzerland.{" "}
+              {buildInfo
+                ? `This version was built on ${buildInfo}.`
+                : "This is a development build."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogClose render={<Button variant="outline" className="w-full" />}>
+            Close
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </nav>
   );
 }

@@ -15,6 +15,32 @@ const PDF_WORKER_PUBLIC_PATH = `${PDF_BASE_PATH}/pdf.worker.min.mjs`;
 let workerInitPromise: Promise<void> | null = null;
 
 /**
+ * Confirms the zone-public worker script is reachable before marking ready.
+ * Uses GET (not HEAD) so static hosts without HEAD still succeed.
+ *
+ * @param workerUrl - Absolute or root-relative path to `pdf.worker.min.mjs`
+ */
+async function probePdfWorkerUrl(workerUrl: string): Promise<void> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => {
+    controller.abort();
+  }, PDF_RENDER.WORKER_PROBE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(workerUrl, {
+      method: "GET",
+      cache: "force-cache",
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`PDF worker probe failed with status ${response.status}`);
+    }
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Return type for usePdfWorker hook.
  */
 interface UsePdfWorkerReturn {
@@ -61,16 +87,12 @@ export function usePdfWorker(fileType: "pdf" | "image"): UsePdfWorkerReturn {
 
     // Import react-pdf for pdfjs.GlobalWorkerOptions only; worker bytes match
     // react-pdf's resolved pdfjs-dist (synced to public/ by shared
-    // scripts/sync-pdf-worker.mjs via the zone wrapper).
+    // scripts/sync-pdf-worker.mjs via the zone wrapper). Ready only after the
+    // public worker URL responds successfully (not a fixed settle delay).
     workerInitPromise = import("react-pdf")
-      .then((mod) => {
+      .then(async (mod) => {
+        await probePdfWorkerUrl(PDF_WORKER_PUBLIC_PATH);
         mod.pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_PUBLIC_PATH;
-        // Wait a bit to ensure worker is fully initialized
-        return new Promise<void>((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, PDF_RENDER.WORKER_INIT_DELAY);
-        });
       })
       .catch((err) => {
         // Reset promise on error so it can be retried

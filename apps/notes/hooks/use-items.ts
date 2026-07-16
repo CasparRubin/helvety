@@ -1,16 +1,13 @@
 "use client";
 
 import { pickDefinedStructuralFields } from "@helvety/shared/e2ee-structural-payload";
-import { patchSingleEntity } from "@helvety/shared/optimistic-entity";
 import { parseActionResponse } from "@helvety/shared/parse-action-response";
-import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 
 import { reorderEntities } from "@/app/actions/entity-actions";
 import { createItem, deleteItem, updateItem } from "@/app/actions/item-actions";
 import { DEFAULT_NOTE_CATEGORY_ID } from "@/lib/config/default-note-categories";
 import {
-  decryptItemRow,
   decryptItemRows,
   encryptItemInput,
   encryptItemUpdate,
@@ -138,57 +135,5 @@ export function useItems(options?: UseItemsOptions): UseItemsReturn {
       });
       return updated.toSorted((a, b) => a.sort_order - b.sort_order);
     },
-  });
-}
-
-/** Return type of the useItem hook for a single note. */
-interface UseItemReturn {
-  item: Item | null;
-  isLoading: boolean;
-  error: string | null;
-  refresh: () => Promise<void>;
-  update: (input: Partial<ItemInput>) => Promise<boolean>;
-  remove: () => Promise<boolean>;
-}
-
-/** Options for useItem hook. */
-interface UseItemOptions {
-  initialEncryptedData?: ItemRow;
-  initialData?: Item;
-}
-
-/** Hook to fetch/update one note by id (optional; not used by the dashboard sheet editor). */
-export function useItem(id: string, options?: UseItemOptions): UseItemReturn {
-  const { masterKey, isUnlocked } = useEncryptionContext();
-
-  return useEncryptedSingleItem<
-    Item,
-    ItemRow,
-    ItemInput,
-    Parameters<typeof updateItem>[0]
-  >({
-    id,
-    navigationSource: "notes-use-items",
-    masterKey,
-    isUnlocked,
-    loadFailureMessage: "Failed to load note",
-    updateFailureMessage: "Failed to update note",
-    deleteFailureMessage: "Failed to delete note",
-    decryptFailureMessage: "Failed to decrypt note",
-    deleteMissingIdMessage:
-      "We couldn't identify this note. Please refresh and try again.",
-    initialEncryptedData: options?.initialEncryptedData,
-    initialData: options?.initialData,
-    fetchById: fetchNoteById,
-    decryptRow: decryptItemRow,
-    encryptUpdate: encryptItemUpdate,
-    buildUpdatePayload: (entityId, encrypted, input) => ({
-      id: entityId,
-      ...encrypted,
-      ...pickDefinedStructuralFields(input, NOTE_STRUCTURAL_KEYS),
-    }),
-    updateEntity: updateItem,
-    deleteEntity: deleteItem,
-    patchEntity: patchSingleEntity,
   });
 }

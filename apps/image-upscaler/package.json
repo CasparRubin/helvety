@@ -1,7 +1,7 @@
 {
   "name": "@helvety/image-upscaler",
   "version": "3.8.0",
-  "description": "In-browser image upscaler with on-device AI when supported and a quality resize fallback. 2×/4× or target dimensions, batches up to five files, no server upload, no account required. Swiss-built.",
+  "description": "In-browser image upscaler with on-device AI when supported and a quality resize fallback. 2\u00d7/4\u00d7 or target dimensions, batches up to five files, no server upload, no account required. Swiss-built.",
   "author": "Helvety",
   "homepage": "https://helvety.com/image-upscaler",
   "repository": {
@@ -33,7 +33,6 @@
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
-    "canvas-size": "^2.0.0",
     "lucide-react": "^1.24.0",
     "next": "^16.2.10",
     "onnxruntime-web": "^1.27.0",

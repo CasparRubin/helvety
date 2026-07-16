@@ -113,8 +113,8 @@ export const SCREEN_BREAKPOINTS = {
  * PDF rendering delays and configuration
  */
 export const PDF_RENDER = {
-  /** Delay after worker initialization before allowing document load (ms) */
-  WORKER_INIT_DELAY: 100,
+  /** Max wait for the public worker script probe before failing init (ms) */
+  WORKER_PROBE_TIMEOUT_MS: 10_000,
   /** Delay after document load before allowing page render (ms) */
   DOCUMENT_READY_DELAY: 500,
   /** Delay between render retry attempts (ms) */

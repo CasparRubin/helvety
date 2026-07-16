@@ -1,12 +1,8 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
-import { useEncryptedSingleItem } from "@helvety/ui/hooks/use-encrypted-single-item";
 import { useEncryptedSortableItems } from "@helvety/ui/hooks/use-encrypted-sortable-items";
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { getTasksApiPath, useItem, useItems } from "./use-items";
+import { getTasksApiPath, useItems } from "./use-items";
 
 vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
   useEncryptedSortableItems: vi.fn(() => ({
@@ -23,24 +19,12 @@ vi.mock("@helvety/ui/hooks/use-encrypted-sortable-items", () => ({
   })),
 }));
 
-vi.mock("@helvety/ui/hooks/use-encrypted-single-item", () => ({
-  useEncryptedSingleItem: vi.fn(() => ({
-    item: null,
-    isLoading: false,
-    error: null,
-    refresh: vi.fn(),
-    update: vi.fn(),
-    remove: vi.fn(),
-  })),
-}));
-
 vi.mock("@/lib/crypto", () => ({
   useEncryptionContext: () => ({
     masterKey: {} as CryptoKey,
     isUnlocked: true,
   }),
   decryptItemRows: vi.fn(),
-  decryptItemRow: vi.fn(),
   encryptItemInput: vi.fn(),
   encryptItemUpdate: vi.fn(),
 }));
@@ -128,35 +112,5 @@ describe("useItems", () => {
       ...encrypted,
       priority: 3,
     });
-  });
-});
-
-describe("useItem", () => {
-  it("delegates single-item behavior to the shared encrypted single-item hook", () => {
-    renderHook(() => useItem("item-1"));
-
-    expect(vi.mocked(useEncryptedSingleItem)).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "item-1",
-        navigationSource: "tasks-use-items",
-        loadFailureMessage: "Failed to load task",
-        deleteMissingIdMessage: "Task ID is missing",
-        updateEntity: expect.any(Function),
-        deleteEntity: expect.any(Function),
-      })
-    );
-  });
-
-  it("is not used by the tasks dashboard sheet editor (list hook owns saves)", () => {
-    const dashboardSrc = readFileSync(
-      join(import.meta.dirname, "../components/flat-tasks-dashboard.tsx"),
-      "utf8"
-    );
-    const editorSrc = readFileSync(
-      join(import.meta.dirname, "../components/item-editor.tsx"),
-      "utf8"
-    );
-    expect(dashboardSrc).not.toMatch(/useItem\s*\(/);
-    expect(editorSrc).not.toMatch(/useItem\s*\(/);
   });
 });

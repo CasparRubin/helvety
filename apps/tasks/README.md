@@ -16,8 +16,7 @@ End-to-end encrypted, stage-based task management app.
 - Rich task editor with metadata panel (FormField-wired Start/End date pickers)
 - Cross-app links to contacts, notes, and bookmarks via `EntityLinksPanel` + `createE2eeEntityLinksHook` (`useContactLinks`, `useNoteLinks`, `useLinkEntityLinks`)
 - List CRUD/reorder: `hooks/use-items.ts` wraps `@helvety/ui/hooks/use-encrypted-sortable-items` with task crypto and server actions; hook errors use `reportE2eeHookError` / `reportE2eeActionFailure` from `@helvety/ui/auth-navigation`
-- Detail sheet CRUD: dashboard passes list-hook `update` / `remove` / `refresh` into `ItemEditor` (Links pattern: single list state, optimistic updates)
-- Optional `useItem` (wraps `useEncryptedSingleItem`) for non-dashboard fetch paths; the dashboard sheet editor does not use it
+- Detail sheet CRUD: dashboard passes list-hook `update` / `remove` / `refresh` into `ItemEditor` (Links pattern: single list state, optimistic updates); the dashboard sheet editor does not use it
 - Client-side decrypted export via `@helvety/ui/hooks/use-e2ee-data-export` and `lib/data-export.ts` (JSON download plumbing in `@helvety/shared/e2ee-json-export`; server fetch stays encrypted via `fetchOwnedEncryptedExport`)
 
 ## E2EE Data Model

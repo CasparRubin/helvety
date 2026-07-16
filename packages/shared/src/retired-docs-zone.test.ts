@@ -50,7 +50,21 @@ function collectSourceFiles(dir: string, base = dir): string[] {
     ) {
       continue;
     }
-    const stat = statSync(fullPath);
+    let stat;
+    try {
+      stat = statSync(fullPath);
+    } catch (error) {
+      // Parallel Vitest/turbo suites may briefly create then remove abandoned
+      // zone dirs (e.g. apps/qr) while this scan runs; skip vanished paths.
+      if (
+        error instanceof Error &&
+        "code" in error &&
+        (error as NodeJS.ErrnoException).code === "ENOENT"
+      ) {
+        continue;
+      }
+      throw error;
+    }
     if (stat.isDirectory()) {
       files.push(...collectSourceFiles(fullPath, base));
       continue;

@@ -57,21 +57,26 @@ async function renderUsePdfWorkerHook(fileType: "pdf" | "image"): Promise<{
 describe("usePdfWorker", () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.useFakeTimers();
     pdfjsMock.GlobalWorkerOptions.workerSrc = "";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
   });
 
   afterEach(() => {
-    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  it("sets pdfjs workerSrc to the zone public worker path", async () => {
+  it("sets pdfjs workerSrc after a successful worker URL probe", async () => {
     const hook = await renderUsePdfWorkerHook("pdf");
 
     await React.act(async () => {
-      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
     });
 
+    expect(fetch).toHaveBeenCalledWith(
+      "/pdf/pdf.worker.min.mjs",
+      expect.objectContaining({ method: "GET" })
+    );
     expect(pdfjsMock.GlobalWorkerOptions.workerSrc).toBe(
       "/pdf/pdf.worker.min.mjs"
     );
@@ -84,11 +89,33 @@ describe("usePdfWorker", () => {
     const hook = await renderUsePdfWorkerHook("image");
 
     await React.act(async () => {
-      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
     });
 
+    expect(fetch).not.toHaveBeenCalled();
     expect(pdfjsMock.GlobalWorkerOptions.workerSrc).toBe("");
     expect(hook.getCurrent().workerReady).toBe(true);
+    hook.unmount();
+  });
+
+  it("surfaces an error when the worker URL probe fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 404 })
+    );
+
+    const hook = await renderUsePdfWorkerHook("pdf");
+
+    await React.act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(hook.getCurrent().workerReady).toBe(false);
+    expect(hook.getCurrent().error).toBe(
+      "Unable to load PDF viewer. Please refresh the page and try again."
+    );
+    expect(pdfjsMock.GlobalWorkerOptions.workerSrc).toBe("");
     hook.unmount();
   });
 
@@ -103,7 +130,8 @@ describe("usePdfWorker", () => {
     const hook = await renderUsePdfWorkerHook("pdf");
 
     await React.act(async () => {
-      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
     });
 
     expect(hook.getCurrent().workerReady).toBe(false);

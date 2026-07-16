@@ -392,7 +392,7 @@ cd ../helvety-browser-extension-chromium && pnpm run ci:check
 
 **Extension session wipe**
 
-- **Vault lock:** `deleteMasterKey` + `clearAllKeys` in `use-extension-vault.ts`; `clearDecryptedEntityState` + form wipe in `use-extension-entities.ts` / `use-extension-entity-form.ts` (wired from `App.tsx` `onLocked`); PRF salt cache kept for faster re-unlock.
+- **Vault lock:** `deleteMasterKey` + `clearAllKeys` in `use-extension-vault.ts`; `clearDecryptedEntityState` + form wipe in `use-extension-entities.ts` / `use-extension-entity-form.ts` (wired from `App.tsx` `onVaultUiReset`); PRF salt cache kept for faster re-unlock.
 - **Sign-out / `user_id` change:** `clearAllKeys` + `clearCachedPRFSalt` + weekly proof clear in `use-extension-auth.ts` / `use-extension-vault.ts`; decrypted list/form state via `clearDecryptedEntityState` in `use-extension-entities.ts`.
 
 ### Interactive smoke (manual)

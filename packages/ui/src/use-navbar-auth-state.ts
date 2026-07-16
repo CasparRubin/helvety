@@ -17,27 +17,20 @@ type NavbarUser = {
 /**
  * Returns navbar auth user/loading state with live Supabase session updates.
  *
- * @param options.skipInitialProbe - When true, skips the initial `getUser()` probe and
- *   trusts `initialUser` until `onAuthStateChange` fires. Prefer the default (`false`)
- *   when the navbar must match the browser session immediately (e.g. Helvety Auth).
+ * @param initialUser - Optional server-provided user to seed state before probe
  */
 export function useNavbarAuthState<UserType extends NavbarUser>(
-  initialUser: UserType | null = null,
-  options?: { skipInitialProbe?: boolean }
+  initialUser: UserType | null = null
 ): {
   user: UserType | null;
   isLoading: boolean;
 } {
-  const skipInitialProbe = options?.skipInitialProbe === true;
   const [user, setUser] = useState<UserType | null>(initialUser);
-  const [isLoading, setIsLoading] = useState(!initialUser && !skipInitialProbe);
+  const [isLoading, setIsLoading] = useState(!initialUser);
   const supabase = useMemo(() => createBrowserClient(), []);
 
   useEffect(() => {
-    if (initialUser || skipInitialProbe) {
-      if (skipInitialProbe) {
-        setIsLoading(false);
-      }
+    if (initialUser) {
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -64,7 +57,7 @@ export function useNavbarAuthState<UserType extends NavbarUser>(
       setIsLoading(false);
     });
     return () => subscription.unsubscribe();
-  }, [initialUser, skipInitialProbe, supabase]);
+  }, [initialUser, supabase]);
 
   return { user, isLoading };
 }
