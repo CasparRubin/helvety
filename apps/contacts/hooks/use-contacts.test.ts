@@ -88,7 +88,7 @@ describe("useContacts", () => {
     expect(result.current.create).toBe(create);
   });
 
-  it("passes encrypted create payload through and merges category_id on update", () => {
+  it("merges contact category_id in create and update payloads", () => {
     renderHook(() => useContacts());
 
     const options = vi.mocked(useEncryptedSortableItems).mock.calls.at(-1)?.[0];
@@ -110,7 +110,17 @@ describe("useContacts", () => {
       options!.buildCreatePayload(encrypted, {
         first_name: "",
         last_name: "",
-        category_id: "personal",
+        category_id: "work",
+      })
+    ).toEqual({
+      ...encrypted,
+      category_id: "work",
+    });
+
+    expect(
+      options!.buildCreatePayload(encrypted, {
+        first_name: "Ada",
+        last_name: "Lovelace",
       })
     ).toEqual(encrypted);
 

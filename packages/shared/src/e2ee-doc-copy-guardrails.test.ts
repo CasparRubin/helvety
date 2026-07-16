@@ -88,6 +88,26 @@ describe("E2EE maintainer doc copy guardrails", () => {
     expect(text).toContain("pickDefinedStructuralFields");
   });
 
+  it("shared README and quality baseline list contacts web for validate-e2ee-draft", () => {
+    const sharedReadme = readRepoFile("packages/shared/README.md");
+    expect(sharedReadme).toContain("validate-e2ee-draft");
+    expect(sharedReadme).toMatch(
+      /contacts web.*ContactEditor|ContactEditor.*contacts/i
+    );
+
+    const baseline = readRepoFile("docs/quality-modernization-baseline.md");
+    expect(baseline).toContain("validate-e2ee-draft");
+    expect(baseline).toMatch(/Contacts web `ContactEditor`/);
+  });
+
+  it("app-consistency checklist documents create placeholder ISO timestamps and draft validation", () => {
+    const text = readRepoFile("docs/app-consistency-checklist.md");
+    expect(text).toContain("formatDateTime");
+    expect(text).toMatch(/ISO timestamps/i);
+    expect(text).toContain("validate-e2ee-draft");
+    expect(text).toContain("pickDefinedStructuralFields");
+  });
+
   it("e2ee-draft no longer exports open-first snapshot helpers", () => {
     const text = readRepoFile("packages/shared/src/e2ee-draft.ts");
     expect(text).toContain("getE2eeListTitle");

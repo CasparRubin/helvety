@@ -363,6 +363,36 @@ describe("E2EE dashboard editor wiring (Links pattern)", () => {
     expect(src).not.toMatch(/useContact\s*\(/);
   });
 
+  it("apps/contacts create init is sync and validates via shared draft helper", () => {
+    const src = readAppFile("contacts", "components/contact-editor.tsx");
+    expect(src).toContain("validateE2eeDraft");
+    expect(src).toContain('kind: "contacts"');
+    expect(src).toContain("toast.error");
+    expect(src).toContain(
+      'FormField label="First Name(s)" id="first-name" required'
+    );
+    expect(src).toContain('formMode === "create"');
+    expect(src).toMatch(/useState\(\s*\(\)\s*=>\s*\n?\s*formMode === "create"/);
+    expect(src).toContain("new Date().toISOString()");
+    expect(src).not.toMatch(/created_at:\s*""/);
+    expect(src).not.toMatch(/updated_at:\s*""/);
+    expect(src).not.toMatch(/if\s*\(\s*!firstName\.trim\(\)\s*\)/);
+  });
+
+  it.each([
+    ["tasks", "components/item-editor.tsx"],
+    ["notes", "components/item-editor.tsx"],
+    ["contacts", "components/contact-editor.tsx"],
+  ] as const)(
+    "apps/%s create placeholder metadata uses ISO timestamps not empty strings",
+    (app, editorPath) => {
+      const src = readAppFile(app, editorPath);
+      expect(src).toContain("new Date().toISOString()");
+      expect(src).not.toMatch(/created_at:\s*""/);
+      expect(src).not.toMatch(/updated_at:\s*""/);
+    }
+  );
+
   it("apps/contacts gates metadata fields until initialized", () => {
     const src = readAppFile("contacts", "components/contact-editor.tsx");
     expect(src).toContain("renderBeforeEditor={");
@@ -566,6 +596,12 @@ describe("E2EE save-first create wiring", () => {
       expect(src).toContain(helper);
       expect(src).toContain("buildCreatePayload");
       expect(src).toContain("buildUpdatePayload");
+      expect(src).toMatch(
+        /buildCreatePayload:\s*\(encrypted,\s*input\)\s*=>\s*\(\{[\s\S]*pickDefinedStructuralFields/
+      );
+      expect(src).not.toMatch(
+        /buildCreatePayload:\s*\(encrypted\)\s*=>\s*encrypted/
+      );
     }
   );
 

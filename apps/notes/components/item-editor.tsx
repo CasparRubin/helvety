@@ -240,8 +240,8 @@ export function ItemEditor(props: ItemEditorProps) {
             description: null,
             category_id: categoryId,
             sort_order: 0,
-            created_at: "",
-            updated_at: "",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           } satisfies Item)
         : null;
 

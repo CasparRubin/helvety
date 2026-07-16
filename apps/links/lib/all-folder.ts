@@ -31,7 +31,11 @@ export function toDisplayFolderId(
   return folderId;
 }
 
-/** Synthetic All folder shown as the only top-level tree row. */
+/** Synthetic All folder shown as the only top-level tree row.
+ * `created_at` / `updated_at` are empty placeholders (never persisted or
+ * formatted with `formatDateTime` in the Links UI); prefer ISO strings for
+ * any create-mode entity that does render Created/Modified via `formatDateTime`.
+ */
 export function createAllFolder(userId: string): LinkFolder {
   return {
     id: ALL_FOLDER_ID,

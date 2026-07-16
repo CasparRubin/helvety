@@ -22,4 +22,11 @@ describe("formatDateTime", () => {
       /^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/
     );
   });
+
+  it("returns an em dash for empty or invalid input without throwing", () => {
+    expect(() => formatDateTime("")).not.toThrow();
+    expect(formatDateTime("")).toBe("—");
+    expect(formatDateTime("not-a-date")).toBe("—");
+    expect(formatDateTime("2026-13-99")).toBe("—");
+  });
 });

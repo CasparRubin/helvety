@@ -140,7 +140,10 @@ export function useContacts(options?: UseContactsOptions): UseContactsReturn {
     encryptInput: encryptContactInput,
     encryptUpdate: encryptContactUpdate,
     decryptRows: decryptContactRows,
-    buildCreatePayload: (encrypted) => encrypted,
+    buildCreatePayload: (encrypted, input) => ({
+      ...(encrypted as object),
+      ...pickDefinedStructuralFields(input, CONTACT_STRUCTURAL_KEYS),
+    }),
     buildUpdatePayload: (id, encrypted, input) => ({
       id,
       ...(encrypted as object),

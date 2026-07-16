@@ -67,7 +67,7 @@ This package centralizes:
 - `@helvety/shared/crypto/e2ee-entity-crypto` — field-bound entity encrypt/decrypt (`encryptEntityField`, `decryptEntityField`, create/update helpers); zone `*-encryption.ts` and extension `encrypt-entities.ts` / `decrypt-entities.ts` are thin re-exports (`e2ee-crypto-wiring.test.ts`).
 - `@helvety/shared/e2ee-domain-types` — shared E2EE record/input TypeScript types (extension `entity-types.ts` re-export; web zones migrating).
 - `@helvety/shared/e2ee-record-to-input` — map decrypted records to editor inputs (extension `entity-drafts.ts`).
-- `@helvety/shared/validate-e2ee-draft` — shared draft validation before save (extension `use-extension-entity-form.ts`).
+- `@helvety/shared/validate-e2ee-draft` — shared draft validation before save (contacts web `ContactEditor`; Chromium extension `use-extension-entity-form.ts`).
 - `@helvety/shared/entity-list-grouping` — list group/reorder helpers (`apps/links`, extension `list-group-utils.ts` re-export).
 - `@helvety/shared/link-tree-ops` — link folder tree sort/children (`apps/links/lib/link-tree.ts`, extension `link-tree.ts` re-export).
 - `@helvety/shared/user-passkey-params-client` — `PASSKEY_PARAMS_SELECT`, `fetchPasskeyParamsForUser` for browser/PostgREST passkey param reads.

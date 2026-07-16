@@ -1,10 +1,13 @@
 "use client";
 
+import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import { emptyContactInput } from "@helvety/shared/e2ee-create-inputs";
+import { validateE2eeDraft } from "@helvety/shared/validate-e2ee-draft";
 import { DatePicker } from "@helvety/ui/date-picker";
 import { E2eeRichTextItemEditorShell } from "@helvety/ui/e2ee-item-editor-shell";
 import { FormField } from "@helvety/ui/form-field";
 import { Input } from "@helvety/ui/input";
+import { toast } from "@helvety/ui/sonner";
 import {
   serializeRichTextContent,
   type JSONContent,
@@ -62,6 +65,8 @@ const LinkEntityLinksPanel = dynamic(
 
 const APP_HOME_PATH = "/contacts";
 
+const EMPTY_CONTACT_CREATE_DEFAULTS = emptyContactInput();
+
 /** Saved contact metadata snapshot for dirty tracking outside the rich-text shell. */
 interface ContactMetadataSnapshot {
   firstName: string;
@@ -70,6 +75,7 @@ interface ContactMetadataSnapshot {
   email: string;
   phone: string;
   birthday: string | null;
+  categoryId: string;
 }
 
 /** Shared props for contact editor create and edit modes. */
@@ -105,23 +111,103 @@ export function ContactEditor(props: ContactEditorProps) {
   const { formMode, onClose } = props;
   const router = useRouter();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [description, setDescription] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [birthday, setBirthday] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState(
-    () => emptyContactInput().category_id ?? "personal"
+  const [firstName, setFirstName] = useState(() =>
+    formMode === "create"
+      ? EMPTY_CONTACT_CREATE_DEFAULTS.first_name
+      : props.formMode === "edit"
+        ? (props.contact?.first_name ?? "")
+        : ""
   );
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [lastName, setLastName] = useState(() =>
+    formMode === "create"
+      ? EMPTY_CONTACT_CREATE_DEFAULTS.last_name
+      : props.formMode === "edit"
+        ? (props.contact?.last_name ?? "")
+        : ""
+  );
+  const [description, setDescription] = useState(() =>
+    formMode === "create"
+      ? ""
+      : props.formMode === "edit"
+        ? (props.contact?.description ?? "")
+        : ""
+  );
+  const [email, setEmail] = useState(() =>
+    formMode === "create"
+      ? ""
+      : props.formMode === "edit"
+        ? (props.contact?.email ?? "")
+        : ""
+  );
+  const [phone, setPhone] = useState(() =>
+    formMode === "create"
+      ? ""
+      : props.formMode === "edit"
+        ? (props.contact?.phone ?? "")
+        : ""
+  );
+  const [birthday, setBirthday] = useState<string | null>(() =>
+    formMode === "create"
+      ? null
+      : props.formMode === "edit"
+        ? (props.contact?.birthday ?? null)
+        : null
+  );
+  const [categoryId, setCategoryId] = useState(() =>
+    formMode === "create"
+      ? (EMPTY_CONTACT_CREATE_DEFAULTS.category_id ?? "personal")
+      : props.formMode === "edit"
+        ? (props.contact?.category_id ?? "personal")
+        : "personal"
+  );
+  const [hasInitialized, setHasInitialized] = useState(
+    () =>
+      formMode === "create" ||
+      (props.formMode === "edit" && props.contact != null)
+  );
   const savedMetadataRef = useRef<ContactMetadataSnapshot>({
-    firstName: "",
-    lastName: "",
-    description: "",
-    email: "",
-    phone: "",
-    birthday: null,
+    firstName:
+      formMode === "create"
+        ? EMPTY_CONTACT_CREATE_DEFAULTS.first_name
+        : props.formMode === "edit"
+          ? (props.contact?.first_name ?? "")
+          : "",
+    lastName:
+      formMode === "create"
+        ? EMPTY_CONTACT_CREATE_DEFAULTS.last_name
+        : props.formMode === "edit"
+          ? (props.contact?.last_name ?? "")
+          : "",
+    description:
+      formMode === "create"
+        ? ""
+        : props.formMode === "edit"
+          ? (props.contact?.description ?? "")
+          : "",
+    email:
+      formMode === "create"
+        ? ""
+        : props.formMode === "edit"
+          ? (props.contact?.email ?? "")
+          : "",
+    phone:
+      formMode === "create"
+        ? ""
+        : props.formMode === "edit"
+          ? (props.contact?.phone ?? "")
+          : "",
+    birthday:
+      formMode === "create"
+        ? null
+        : props.formMode === "edit"
+          ? (props.contact?.birthday ?? null)
+          : null,
+    categoryId:
+      formMode === "create"
+        ? (EMPTY_CONTACT_CREATE_DEFAULTS.category_id ?? "personal")
+        : props.formMode === "edit"
+          ? (props.contact?.category_id ?? "personal")
+          : "personal",
   });
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -132,28 +218,6 @@ export function ContactEditor(props: ContactEditorProps) {
   const contactId = formMode === "edit" ? props.contactId : "create";
   const isLoading = formMode === "edit" ? props.isLoading : false;
   const error = formMode === "edit" ? props.error : null;
-
-  useEffect(() => {
-    if (formMode === "create" && !hasInitialized) {
-      const defaults = emptyContactInput();
-      setFirstName(defaults.first_name);
-      setLastName(defaults.last_name);
-      setDescription("");
-      setEmail("");
-      setPhone("");
-      setBirthday(null);
-      setCategoryId(defaults.category_id ?? "personal");
-      savedMetadataRef.current = {
-        firstName: defaults.first_name,
-        lastName: defaults.last_name,
-        description: "",
-        email: "",
-        phone: "",
-        birthday: null,
-      };
-      setHasInitialized(true);
-    }
-  }, [formMode, hasInitialized]);
 
   useEffect(() => {
     if (formMode === "edit" && contact && !hasInitialized) {
@@ -171,6 +235,7 @@ export function ContactEditor(props: ContactEditorProps) {
         email: contact.email ?? "",
         phone: contact.phone ?? "",
         birthday: contact.birthday,
+        categoryId: contact.category_id,
       };
       setHasInitialized(true);
     }
@@ -186,7 +251,8 @@ export function ContactEditor(props: ContactEditorProps) {
       description !== saved.description ||
       email !== saved.email ||
       phone !== saved.phone ||
-      birthday !== saved.birthday
+      birthday !== saved.birthday ||
+      categoryId !== saved.categoryId
     );
   }, [
     hasInitialized,
@@ -196,6 +262,7 @@ export function ContactEditor(props: ContactEditorProps) {
     email,
     phone,
     birthday,
+    categoryId,
   ]);
 
   const buildContactInput = useCallback(
@@ -223,12 +290,18 @@ export function ContactEditor(props: ContactEditorProps) {
 
   const onSave = useCallback(
     async (_title: string, notesContent: JSONContent | null) => {
-      if (!firstName.trim()) {
+      const input = buildContactInput(notesContent);
+      const validationError = validateE2eeDraft({
+        kind: "contacts",
+        value: input,
+      });
+      if (validationError) {
+        toast.error(validationError, { duration: TOAST_DURATIONS.ERROR });
         return false;
       }
 
       if (formMode === "create") {
-        const created = await props.onCreate(buildContactInput(notesContent));
+        const created = await props.onCreate(input);
         if (created) {
           props.onCreated(created.id);
         }
@@ -239,7 +312,6 @@ export function ContactEditor(props: ContactEditorProps) {
         return false;
       }
 
-      const input = buildContactInput(notesContent);
       const success = await props.onUpdate(input);
 
       if (success) {
@@ -250,12 +322,13 @@ export function ContactEditor(props: ContactEditorProps) {
           email: input.email ?? "",
           phone: input.phone ?? "",
           birthday: input.birthday ?? null,
+          categoryId: input.category_id ?? categoryId,
         };
       }
 
       return success;
     },
-    [buildContactInput, contact, firstName, formMode, props]
+    [buildContactInput, categoryId, contact, formMode, props]
   );
 
   const doBack = useCallback(() => {
@@ -287,6 +360,10 @@ export function ContactEditor(props: ContactEditorProps) {
       try {
         await props.onUpdate({ category_id: nextCategoryId });
         setCategoryId(nextCategoryId);
+        savedMetadataRef.current = {
+          ...savedMetadataRef.current,
+          categoryId: nextCategoryId,
+        };
       } finally {
         setIsSavingCategory(false);
       }
@@ -330,8 +407,8 @@ export function ContactEditor(props: ContactEditorProps) {
             notes: null,
             category_id: categoryId,
             sort_order: 0,
-            created_at: "",
-            updated_at: "",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           } satisfies Contact)
         : null;
 
@@ -386,7 +463,7 @@ export function ContactEditor(props: ContactEditorProps) {
         hasInitialized ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="First Name(s)" id="first-name">
+              <FormField label="First Name(s)" id="first-name" required>
                 <Input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
