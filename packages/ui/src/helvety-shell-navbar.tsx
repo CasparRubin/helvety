@@ -258,7 +258,7 @@ export function HelvetyShellNavbar({
                     <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm" />
                   }
                 >
-                  <ShieldCheck className="text-primary size-4" />
+                  <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" />
                   <span className="hidden md:inline">Encryption enabled</span>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs space-y-2 p-3">
@@ -426,7 +426,7 @@ export function HelvetyShellNavbar({
                 <nav className="flex flex-col gap-2 px-4 pb-4">
                   {encryptionBadge && (
                     <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                      <ShieldCheck className="text-primary size-4 shrink-0" />
+                      <ShieldCheck className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                       <span>Encryption enabled</span>
                     </div>
                   )}

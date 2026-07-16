@@ -127,6 +127,13 @@ describe("HelvetyShellNavbar", () => {
       },
     });
     expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
+    const shields = document.querySelectorAll(
+      "svg.text-emerald-600.dark\\:text-emerald-400"
+    );
+    expect(shields.length).toBeGreaterThan(0);
+    for (const shield of shields) {
+      expect(shield).not.toHaveClass("text-primary");
+    }
   });
 
   it("hides encryption badge while encryption.loading is true", () => {
