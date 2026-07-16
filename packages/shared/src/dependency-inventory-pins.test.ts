@@ -165,7 +165,7 @@ describe("extended dependency inventory pin parity", () => {
     const root = readWorkspacePackage("package.json");
     const supabaseOverride = root.overrides?.["@supabase/supabase-js"];
 
-    expect(audit).toMatch(/## Subsequent updates \(2026-07-11\)/);
+    expect(audit).toMatch(/## Subsequent updates \(2026-07-16\)/);
     expect(audit).toMatch(/dependency-inventory\.md.*current pins/i);
     expect(supabaseOverride).toBeTruthy();
     expect(audit).toContain(supabaseOverride);
@@ -184,7 +184,7 @@ describe("extended dependency inventory pin parity", () => {
     expect(stackSection).toMatch(/July 2026 re-audit pass/i);
     expect(stackSection).toMatch(/at that time|snapshot/i);
     expect(stackSection).toMatch(
-      /Subsequent updates \(2026-07-11\)|dependency-inventory\.md.*current pins/i
+      /Subsequent updates \(2026-07-16\)|dependency-inventory\.md.*current pins/i
     );
   });
 

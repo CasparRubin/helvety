@@ -38,4 +38,14 @@ describe("resolvePdfJsForReactPdf", () => {
   it("exports the react-pdf pdfjs source label", () => {
     expect(PDFJS_SOURCE_LABEL).toBe("react-pdf>pdfjs-dist");
   });
+
+  it("re-exports the shared monorepo resolver", () => {
+    const wrapper = readFileSync(
+      join(pdfAppDir, "scripts", "resolve-pdfjs-for-react-pdf.mjs"),
+      "utf8"
+    );
+    expect(wrapper).toContain(
+      'from "../../../scripts/resolve-pdfjs-for-react-pdf.mjs"'
+    );
+  });
 });

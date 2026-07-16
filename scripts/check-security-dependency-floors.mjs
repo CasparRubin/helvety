@@ -6,8 +6,8 @@ const SECURITY_FLOORS = {
   next: "16.2.10",
   react: "19.2.7",
   "react-dom": "19.2.7",
-  "@supabase/supabase-js": "2.110.2",
-  "@simplewebauthn/server": "13.3.0",
+  "@supabase/supabase-js": "2.110.7",
+  "@simplewebauthn/server": "13.3.2",
 };
 
 const DEP_GROUPS = [

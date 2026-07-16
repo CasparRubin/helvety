@@ -78,6 +78,9 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
       "@dnd-kit/sortable",
       "@dnd-kit/utilities",
       "@supabase/supabase-js",
+      "@supabase/ssr",
+      "@simplewebauthn/server",
+      "@simplewebauthn/browser",
       "@tiptap/starter-kit",
       "@tiptap/extension-link",
       "@tiptap/extension-placeholder",
@@ -87,6 +90,12 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
       "next",
       "react",
       "react-dom",
+      "react-pdf",
+      "canvas-size",
+      "typescript",
+      "tailwindcss",
+      "@tailwindcss/postcss",
+      "prettier-plugin-tailwindcss",
     ]) {
       expect(required.has(dep), `missing drift entry for ${dep}`).toBe(true);
     }
@@ -168,7 +177,7 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
 });
 
 describe("security dependency floors script", () => {
-  it("tracks canonical next, supabase, and react minimums", () => {
+  it("tracks canonical next, supabase, react, and webauthn minimums", () => {
     const source = readFileSync(
       join(repoRoot, "scripts/check-security-dependency-floors.mjs"),
       "utf8"
@@ -188,6 +197,9 @@ describe("security dependency floors script", () => {
     expect(source).toContain(
       `"@supabase/supabase-js": "${root.overrides?.["@supabase/supabase-js"]}"`
     );
+    expect(source).toContain(
+      `"@simplewebauthn/server": "${minimum("@simplewebauthn/server")}"`
+    );
   });
 });
 
@@ -205,5 +217,47 @@ describe("dependency inventory doc pins", () => {
     expect(inventory).toContain(required.get("next"));
     expect(inventory).toContain(`vite@${root.overrides?.vite}`);
     expect(inventory).toContain(`postcss@${root.overrides?.postcss}`);
+    expect(inventory).toContain(`dompurify@${root.overrides?.dompurify}`);
+  });
+
+  it("documents drift config JSON as the workspace specifier SSOT", () => {
+    expect(inventory).toContain("workspace-version-drift.config.json");
+  });
+});
+
+describe("shared PDF.js worker sync architecture", () => {
+  it("zones re-export resolve and call shared syncPdfWorker", () => {
+    for (const zone of ["pdf", "ocr"] as const) {
+      const resolveWrapper = readFileSync(
+        join(repoRoot, `apps/${zone}/scripts/resolve-pdfjs-for-react-pdf.mjs`),
+        "utf8"
+      );
+      const syncWrapper = readFileSync(
+        join(repoRoot, `apps/${zone}/scripts/sync-pdf-worker.mjs`),
+        "utf8"
+      );
+
+      expect(resolveWrapper).toContain(
+        'from "../../../scripts/resolve-pdfjs-for-react-pdf.mjs"'
+      );
+      expect(resolveWrapper).toContain("resolvePdfJsForReactPdf");
+      expect(syncWrapper).toContain(
+        'from "../../../scripts/sync-pdf-worker.mjs"'
+      );
+      expect(syncWrapper).toContain("syncPdfWorker");
+    }
+  });
+
+  it("shared sync and resolve modules export the expected API", async () => {
+    const { resolvePdfJsForReactPdf, PDFJS_SOURCE_LABEL } = await import(
+      join(repoRoot, "scripts/resolve-pdfjs-for-react-pdf.mjs")
+    );
+    const { syncPdfWorker } = await import(
+      join(repoRoot, "scripts/sync-pdf-worker.mjs")
+    );
+
+    expect(PDFJS_SOURCE_LABEL).toBe("react-pdf>pdfjs-dist");
+    expect(typeof resolvePdfJsForReactPdf).toBe("function");
+    expect(typeof syncPdfWorker).toBe("function");
   });
 });

@@ -22,7 +22,7 @@ Full-stack dependency maintenance: **npm/workspace pins** plus **extended invent
 
 1. `bun run deps:outdated` (root).
 2. If toolchain packages move, update [`packages/dev-deps/package.json`](../../../packages/dev-deps/package.json) first, then consuming workspaces.
-3. Align [`scripts/check-workspace-version-drift.mjs`](../../../scripts/check-workspace-version-drift.mjs) `REQUIRED_VERSION_BY_DEP` when shared specifiers change.
+3. Update [`scripts/workspace-version-drift.config.json`](../../../scripts/workspace-version-drift.config.json) `requiredVersionByDep` when shared specifiers change (enforced by `check-workspace-version-drift.mjs` / `bun run deps:drift`).
 4. `bun install` → `bun run deps:drift` → `bun run deps:security`.
 5. After filtered `bun update <pkg...> --filter='@helvety/*'`, confirm root `package.json` has **no** `dependencies` block (drift enforces this). Never use bare `bun update -r` at the repo root — Bun may add packages to root `dependencies`.
 6. After substantive bumps: `bun run ci:check` or at minimum `lint`, `type-check`, `test` for touched workspaces.

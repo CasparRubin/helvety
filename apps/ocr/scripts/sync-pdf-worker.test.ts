@@ -68,4 +68,10 @@ describe.sequential("sync-pdf-worker script", () => {
     expect(pkg.overrides?.["pdfjs-dist"]).toBeUndefined();
     expect(pkg.dependencies?.["react-pdf"]).toBeTruthy();
   });
+
+  it("delegates to the shared monorepo syncPdfWorker implementation", () => {
+    const wrapper = readFileSync(scriptPath, "utf8");
+    expect(wrapper).toContain('from "../../../scripts/sync-pdf-worker.mjs"');
+    expect(wrapper).toContain("syncPdfWorker");
+  });
 });

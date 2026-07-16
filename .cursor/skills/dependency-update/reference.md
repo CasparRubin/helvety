@@ -14,7 +14,7 @@ bun run ci:check
 
 1. Edit `packages/dev-deps/package.json`
 2. `bun install`
-3. Update `scripts/check-workspace-version-drift.mjs` if shared specifiers changed
+3. Update `scripts/workspace-version-drift.config.json` if shared specifiers changed
 4. `bun run deps:drift`
 
 ## Bun update (monorepo)

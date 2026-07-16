@@ -60,7 +60,8 @@ export function usePdfWorker(fileType: "pdf" | "image"): UsePdfWorkerReturn {
     }
 
     // Import react-pdf for pdfjs.GlobalWorkerOptions only; worker bytes match
-    // react-pdf's resolved pdfjs-dist (synced to public/ by sync-pdf-worker.mjs).
+    // react-pdf's resolved pdfjs-dist (synced to public/ by shared
+    // scripts/sync-pdf-worker.mjs via the zone wrapper).
     workerInitPromise = import("react-pdf")
       .then((mod) => {
         mod.pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_PUBLIC_PATH;

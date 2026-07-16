@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +38,22 @@ describe("postcss and Tailwind build consistency", () => {
     expect(uiManifest.dependencies?.shadcn).toBe(
       UI_TAILWIND_BUILD_DEPENDENCIES.shadcn
     );
+  });
+
+  it("canonical Tailwind build pins match the workspace drift map", () => {
+    const driftConfig = JSON.parse(
+      readFileSync(
+        resolve(repoRoot, "scripts/workspace-version-drift.config.json"),
+        "utf8"
+      )
+    ) as { requiredVersionByDep?: Record<string, string> };
+    const drift = driftConfig.requiredVersionByDep ?? {};
+
+    expect(UI_TAILWIND_BUILD_DEPENDENCIES.tailwindcss).toBe(drift.tailwindcss);
+    expect(UI_TAILWIND_BUILD_DEPENDENCIES["@tailwindcss/postcss"]).toBe(
+      drift["@tailwindcss/postcss"]
+    );
+    expect(UI_TAILWIND_BUILD_DEPENDENCIES.shadcn).toBe(drift.shadcn);
   });
 
   it("canonical postcss.config.mjs is unchanged", () => {

@@ -80,7 +80,7 @@
     "clean:artifacts": "node scripts/clean-artifacts.mjs"
   },
   "overrides": {
-    "@supabase/supabase-js": "2.110.2",
+    "@supabase/supabase-js": "2.110.7",
     "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#f6ec87ddcc0f803881959eb690a72fa09c3b4c32",
     "rollup": "4.62.2",
     "minimatch": "10.2.5",
@@ -100,8 +100,9 @@
     "postcss": "8.5.16",
     "protobufjs": "7.6.4",
     "qs": "6.15.3",
-    "dompurify": "3.4.11",
+    "dompurify": "3.4.12",
     "js-yaml": "4.2.0",
+    "typescript-eslint": "8.64.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "@types/node": "24.13.3",
@@ -111,7 +112,7 @@
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
     "@playwright/test": "^1.61.1",
-    "knip": "^6.26.0",
-    "turbo": "^2.10.4"
+    "knip": "^6.27.0",
+    "turbo": "^2.10.5"
   }
 }

@@ -452,7 +452,7 @@ No misleading E2EE or extension weekly-re-auth claims detected by automated guar
 
 ### Stack / best-practices alignment (July 2026 re-audit pass)
 
-Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins **at that time** and guardrails then in force — no drift, no auth-pattern regressions. Pins in this table are a snapshot; see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) and **dependency-inventory.md** for current pins.
+Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins **at that time** and guardrails then in force — no drift, no auth-pattern regressions. Pins in this table are a snapshot; see [Subsequent updates (2026-07-16)](#subsequent-updates-2026-07-16) and **dependency-inventory.md** for current pins.
 
 | Area                  | Pin / pattern                                                                                | Status                                                                |
 | --------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
@@ -545,3 +545,24 @@ Minimal remediations from the cross-repo UI/UX & auth/privacy/security audit (no
 | **U5** Gateway Node 24                                    | All eleven apps + root declare `engines.node: "24.x"`; `.nvmrc` is `24`. If `helvety-com` Project Settings still show Node **22.x**, set to **24.x** there (existing setting only — no new env).                                                                                                                   |
 
 **Out of scope (confirmed):** GitHub Actions, Playwright/axe, extension token palette rewrite, new env vars.
+
+## Subsequent updates (2026-07-16)
+
+Patch/minor dependency sweep across monorepo + Helvety Chromium extension + PPC in-range catch-up (canonical pins: [`dependency-inventory.md`](./dependency-inventory.md); drift map in `scripts/workspace-version-drift.config.json`).
+
+| Item                                       | As of 2026-07-11                      | As of 2026-07-16                                                                                 |
+| ------------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `@supabase/supabase-js` (override + floor) | `2.110.2`                             | `2.110.7`                                                                                        |
+| `@supabase/ssr` (drift)                    | `^0.12.0`                             | `^0.12.3`                                                                                        |
+| `tailwindcss` / `@tailwindcss/postcss`     | `^4.3.2`                              | `^4.3.3`                                                                                         |
+| TipTap suite (`@helvety/ui` + drift)       | `^3.27.3`                             | `^3.28.0`                                                                                        |
+| `dompurify` (ui + override)                | `3.4.11`                              | `3.4.12`                                                                                         |
+| `typescript` (dev-deps + drift)            | `^6`                                  | `^6.0.3`                                                                                         |
+| `typescript-eslint` (config + override)    | `^8.63.0`                             | `8.64.0` (single nest)                                                                           |
+| `@simplewebauthn/server` security floor    | `13.3.0`                              | `13.3.2` (aligned with drift)                                                                    |
+| Drift map                                  | —                                     | added `react-pdf`, `canvas-size`                                                                 |
+| PDF.js worker sync                         | duplicated per zone                   | shared `scripts/sync-pdf-worker.mjs`                                                             |
+| Helvety Chromium extension                 | supabase `2.110.2`, tailwind `^4.3.2` | mirrors monorepo (`2.110.7`, `^4.3.3`, typescript `^6.0.3`)                                      |
+| PPC extension                              | intentional Tailwind 3 / Vite 7 lag   | in-range only: lucide `1.24.0`, vitest `4.1.10`, prettier `3.9.5`, vite `7.3.6`, eslint `9.39.5` |
+
+Verification: `bun run deps:drift`, `bun run deps:security`, `bun run consistency:pdfjs-worker`, `consistency:supabase-auth`, `consistency:extension-auth`, `consistency:extension-e2ee` (monorepo); `pnpm run ci:check` (Helvety extension). Historical tables above remain audit snapshots; use **dependency-inventory.md** for current pins.

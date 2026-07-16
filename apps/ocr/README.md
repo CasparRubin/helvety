@@ -28,7 +28,7 @@ All text extraction runs in the browser; no file data leaves the client in the n
 ## PDF.js stack (maintainers)
 
 - **Library:** `react-pdf` owns `pdfjs-dist` (transitive). Do not pin `pdfjs-dist` directly in `apps/ocr` or root overrides; that skews the worker away from the runtime API.
-- **Worker:** [`scripts/sync-pdf-worker.mjs`](./scripts/sync-pdf-worker.mjs) copies `pdfjs-dist/build/pdf.worker.min.mjs` from **react-pdf's resolved pdfjs-dist** into `public/pdf.worker.min.mjs` before dev/build (`bun run sync:pdf-worker`). Also writes `public/pdf.worker.meta.json` for CI alignment checks.
+- **Worker:** Zone [`scripts/sync-pdf-worker.mjs`](./scripts/sync-pdf-worker.mjs) is a thin wrapper around shared [`scripts/sync-pdf-worker.mjs`](../../scripts/sync-pdf-worker.mjs), which copies `pdfjs-dist/build/pdf.worker.min.mjs` from **react-pdf's resolved pdfjs-dist** into `public/pdf.worker.min.mjs` before dev/build (`bun run sync:pdf-worker`). Also writes `public/pdf.worker.meta.json` for CI alignment checks.
 - **CI:** Root `bun run consistency:pdfjs-worker` (in `ci:check`) syncs the worker then fails if the result disagrees with react-pdf's resolved pdfjs-dist or if independent `pdfjs-dist` pins/overrides are reintroduced.
 - **Tests:** [`scripts/resolve-pdfjs-for-react-pdf.test.ts`](./scripts/resolve-pdfjs-for-react-pdf.test.ts) and [`scripts/sync-pdf-worker.test.ts`](./scripts/sync-pdf-worker.test.ts).
 
