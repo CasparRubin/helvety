@@ -119,9 +119,9 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
   });
 
   it("all zone apps pin next and lucide-react identically", () => {
-    const apps = readdirSync(join(repoRoot, "apps"), { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => `apps/${e.name}/package.json`);
+    const apps = listWorkspacePackageJsonPaths().filter((relativePath) =>
+      relativePath.startsWith("apps/")
+    );
 
     const nextPins = new Set<string>();
     const lucidePins = new Set<string>();

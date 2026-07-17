@@ -107,6 +107,9 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     expect(uiReadme).toMatch(/app-specific introduction/i);
     expect(uiReadme).toMatch(/visually separated \*\*Helvety\*\* section/i);
     expect(uiReadme).toMatch(/single left-aligned column/i);
+    expect(uiReadme).toMatch(/desktop shield/i);
+    expect(uiReadme).toMatch(/mobile menu shows encryption status only/i);
+    expect(uiReadme).toMatch(/version-generation timestamp/i);
     expect(uiReadme).not.toMatch(
       /About dialog appends product copy.*then Helvety attribution/i
     );

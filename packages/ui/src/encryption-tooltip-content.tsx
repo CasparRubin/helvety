@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 
 /**
  * Standard three-block encryption tooltip content used by both `E2eeAppNavbar`
- * (E2EE product apps) and `apps/auth`. `HelvetyShellNavbar` renders these
- * blocks in one left-aligned column, while this component keeps the trailing
- * passkey / cloud-sync / lockout-risk disclaimer as the single source of truth.
+ * (E2EE product apps) and `apps/auth`. On desktop, `HelvetyShellNavbar` renders
+ * these blocks in one left-aligned column; the mobile menu shows encryption
+ * status only. This component keeps the trailing passkey / cloud-sync /
+ * lockout-risk disclaimer as the single source of truth.
  *
  * Callers supply the middle `body` block (typically one or more `<p>`
  * elements describing what is encrypted in their app); the heading and the

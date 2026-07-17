@@ -5,6 +5,7 @@ import {
   redirectToLogout,
 } from "@helvety/shared/auth-redirect";
 import { urls } from "@helvety/shared/config";
+import { HELVETY_SWISS_ORIGIN_SEO } from "@helvety/shared/licensing";
 import {
   CircleUser as UserIcon,
   Code2,
@@ -63,7 +64,7 @@ export type HelvetyShellNavbarBrand = {
 export type HelvetyShellNavbarAccount =
   { variant: "external-store" } | { variant: "same-origin"; href: string };
 
-/** Optional encryption badge (caller supplies tooltip body; no crypto hooks here). */
+/** Optional encryption badge (rich tooltip on desktop; status only on mobile). */
 export type HelvetyShellNavbarEncryption = {
   loading: boolean;
   showBadge: boolean;
@@ -177,7 +178,7 @@ export function HelvetyShellNavbar({
   };
 
   const isAuthenticated = !!user;
-  const buildInfo = versionLabel?.replace(/^Built on\s+/u, "");
+  const versionInfo = versionLabel?.replace(/^(?:Built|Generated) on\s+/u, "");
 
   const handleLogin = () => {
     if (loginReturnUrl === "current" && typeof window !== "undefined") {
@@ -466,10 +467,7 @@ export function HelvetyShellNavbar({
               className="space-y-2"
               aria-labelledby="about-helvety-heading"
             >
-              <h3
-                id="about-helvety-heading"
-                className="text-sm font-medium"
-              >
+              <h3 id="about-helvety-heading" className="text-sm font-medium">
                 Helvety
               </h3>
               <div className="text-muted-foreground space-y-2 text-sm">
@@ -483,12 +481,13 @@ export function HelvetyShellNavbar({
                   >
                     Caspar Rubin
                   </a>
-                  , engineered, designed, and made in Switzerland.
+                  .
                 </p>
+                <p>{HELVETY_SWISS_ORIGIN_SEO}</p>
                 <p>
-                  {buildInfo
-                    ? `This version was built on ${buildInfo}.`
-                    : "This is a development build."}
+                  {versionInfo
+                    ? `Version information generated on ${versionInfo}.`
+                    : "Build information is unavailable."}
                 </p>
               </div>
             </section>

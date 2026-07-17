@@ -23,7 +23,7 @@ This package centralizes:
 - E2EE delete copy: `defineEntityDeleteRegistry` in `@helvety/shared/entity-delete-message`
 - Monorepo-wide zone wiring guards: `zone-loading-wiring`, `zone-layout-wiring`, `zone-env-factory-wiring`, `zone-next-config-wiring`, `zone-entity-delete-wiring`, `zone-product-copy-wiring`, `encrypted-data-wiring`, `csrf-wiring`, `supabase-rls-export` (Vitest; RLS export script: `bun run consistency:supabase-rls`; see [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md))
 - PostCSS / Tailwind build wiring validated by `scripts/postcss-app-expectations.mjs` (`consistency:guardrails`, `deps:drift`; Vitest in `postcss-app-consistency.test.ts`). Drift and security-floor scripts are smoke-tested in `deps-guardrail-scripts.test.ts`.
-- Navbar About blurbs via `@helvety/shared/app-navbar-about` (app-specific product copy only; `HelvetyShellNavbar` renders company attribution, Swiss origin, and build information in a separate section)
+- Navbar About blurbs via `@helvety/shared/app-navbar-about` (app-specific product copy only; `HelvetyShellNavbar` renders developer attribution, Swiss origin, and generated version information in a separate section)
 
 ## Core Contracts
 

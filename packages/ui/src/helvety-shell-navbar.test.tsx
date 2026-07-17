@@ -202,8 +202,10 @@ describe("HelvetyShellNavbar", () => {
     expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
   });
 
-  it("separates app copy from Helvety and generated build information", async () => {
-    renderShell({ versionLabel: "Built on 16.07.2026 at 15:45:11" });
+  it("separates app copy from Helvety and generated version information", async () => {
+    renderShell({
+      versionLabel: "Generated on 16.07.2026 at 15:45:11 (Europe/Zurich)",
+    });
     fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
     const dialog = await screen.findByRole("dialog");
     const appDescription = dialog.querySelector(
@@ -218,10 +220,10 @@ describe("HelvetyShellNavbar", () => {
     );
     expect(appDescription).not.toHaveTextContent(/Helvety software by/i);
     expect(helvetySection).toHaveTextContent(
-      /engineered, designed, and made in Switzerland/i
+      "Engineered, designed and made in Switzerland."
     );
     expect(helvetySection).toHaveTextContent(
-      "This version was built on 16.07.2026 at 15:45:11."
+      "Version information generated on 16.07.2026 at 15:45:11 (Europe/Zurich)."
     );
     expect(screen.getByRole("link", { name: "Caspar Rubin" })).toHaveAttribute(
       "href",
@@ -229,7 +231,7 @@ describe("HelvetyShellNavbar", () => {
     );
   });
 
-  it("shows the development-build fallback in the Helvety section", async () => {
+  it("shows the unavailable-build-information fallback", async () => {
     renderShell();
     fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
     await screen.findByRole("dialog");
@@ -237,7 +239,9 @@ describe("HelvetyShellNavbar", () => {
     const helvetySection = screen
       .getByRole("heading", { name: "Helvety" })
       .closest("section");
-    expect(helvetySection).toHaveTextContent("This is a development build.");
+    expect(helvetySection).toHaveTextContent(
+      "Build information is unavailable."
+    );
   });
 
   it("calls redirectToLogin with no args by default when Sign in is clicked", () => {

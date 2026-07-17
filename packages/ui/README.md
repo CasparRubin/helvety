@@ -53,11 +53,11 @@ This package provides:
 
 **Top bar (all zones that render the shared chrome):**
 
-- `@helvety/ui/helvety-shell-navbar` -> `HelvetyShellNavbar`, `HelvetyShellNavbarEncryption`, `HelvetyShellNavbarAuthSnapshot`: `E2eeAppNavbar` and the Auth app pass `encryption` as a function of the navbar auth snapshot (E2EE: unlock badge tied to `user.id`; Auth: same gating plus app-specific tooltip body via `@helvety/ui/encryption-tooltip-content`). The About dialog renders `aboutDescription` as the app-specific introduction, followed by a visually separated **Helvety** section with developer attribution, Swiss origin, and generated build date/time (or the development-build fallback). It has no license paragraph; licensing belongs on legal pages and Store product About sections.
+- `@helvety/ui/helvety-shell-navbar` -> `HelvetyShellNavbar`, `HelvetyShellNavbarEncryption`, `HelvetyShellNavbarAuthSnapshot`: `E2eeAppNavbar` and the Auth app pass `encryption` as a function of the navbar auth snapshot (E2EE: unlock badge tied to `user.id`; Auth: same gating plus app-specific tooltip body via `@helvety/ui/encryption-tooltip-content`). The About dialog renders `aboutDescription` as the app-specific introduction, followed by a visually separated **Helvety** section with developer attribution, canonical Swiss-origin copy, and the version-generation timestamp (or an unavailable-information fallback). It has no license paragraph; licensing belongs on legal pages and Store product About sections.
 
 **Other shared primitives:**
 
-- `@helvety/ui/encryption-tooltip-content` -> `EncryptionTooltipContent`: Shared three-block encryption tooltip content (heading plus caller body plus passkey lockout disclaimer), rendered as a single left-aligned column by `HelvetyShellNavbar`; used by `E2eeAppNavbar` and `apps/auth`.
+- `@helvety/ui/encryption-tooltip-content` -> `EncryptionTooltipContent`: Shared three-block encryption tooltip content (heading plus caller body plus passkey lockout disclaimer), rendered in a single left-aligned column beside the desktop shield by `HelvetyShellNavbar`; the mobile menu shows encryption status only. Used by `E2eeAppNavbar` and `apps/auth`.
 - `@helvety/ui/app-error` -> `AppError`: Shared `error.tsx` UI. The default title uses **`GENERIC_USER_ERROR`** from `@helvety/shared/user-facing-errors` (same canonical line as server actions), with support text to retry or email support.
 - `@helvety/ui/root-global-error` -> `RootGlobalError`: Minimal root-layout error surface with the same title constant and retry/contact pattern as `AppError`.
 - `@helvety/ui/use-e2ee-entity-list-dnd-sensors` -> shared dnd sensor setup
