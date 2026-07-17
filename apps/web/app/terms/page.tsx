@@ -442,8 +442,9 @@ export default function TermsPage() {
           the Chrome Web Store), downloadable packages (for example Helvety SPO
           Explorer for SharePoint Online), or desktop installers (for example
           Helvety Screen Tools for Windows). Power Platform Configurator is
-          offered for supported Chromium-based browsers through the Chrome Web
-          Store. The following additional terms apply to these products:
+          offered through the Chrome Web Store for Chrome 111+ and current
+          Chromium-based Microsoft Edge where third-party extension stores are
+          allowed. The following additional terms apply to these products:
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

@@ -266,12 +266,12 @@ const powerPlatformConfigurator: SoftwareProduct = {
   artist: "Rudolf Koller",
   description: {
     intro:
-      "When Power Automate keeps opening the wrong flow designer or asking why you switched, this extension lets you pick classic or new and keep that choice. You can tame the follow-up survey, or use Paused to leave the add-on installed without changing links.",
+      "Choose how supported Power Automate flow and run URLs open, control the optional survey parameter, and apply visibility or enabled-state preferences to supported model-driven Power Apps record forms.",
     sections: [
       {
         heading: "How it works",
         kind: "paragraph",
-        body: "While enforcement is on, flow and run pages on Power Automate sites open with the designer you selected. The Survey tab controls Microsoft's optional prompt: Hide (default) keeps it off when links are adjusted; Show only tidies URLs that already include the survey parameter. Paused turns off all link changes until you turn enforcement back on.",
+        body: "In the Power Automate tab, choose Classic Designer, New Designer, or Paused and control the optional v3survey parameter. In the Power Apps tab, reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms. These Power Apps modes stop applying when you choose Keep hidden or Keep disabled; reload open forms to restore platform defaults.",
       },
       {
         heading: "Getting it",
@@ -282,25 +282,27 @@ const powerPlatformConfigurator: SoftwareProduct = {
         heading: "Scope",
         kind: "bullets",
         items: [
-          "Works on Power Automate web hosts (powerautomate.com and flow.microsoft.com).",
-          "Adjusts flow and run links when enforcement is active.",
-          "Paused mode disables rewrites but keeps the extension installed.",
-          "Built for current Edge and Chrome extension policies.",
+          "Adjusts flow and run URLs on supported Power Automate hosts while enforcement is active.",
+          "Paused mode disables Power Automate URL rewrites but keeps the extension installed.",
+          "Power Apps helpers run only on supported model-driven record forms and use the client-side Xrm API.",
+          "Canvas apps, list views, dashboards, and controls blocked by platform security are not supported.",
         ],
       },
       {
         heading: "Vendor reality check",
         kind: "paragraph",
-        body: "Microsoft can change URLs or the editor at any time. The Chrome Web Store delivers updates automatically; validate behavior against the vendor documentation you rely on.",
+        body: "Microsoft can change URLs or form behavior at any time. The Chrome Web Store normally delivers updates automatically, subject to browser and administrator policies; validate behavior against the vendor documentation you rely on.",
       },
     ],
   },
   features: [
     "Classic or new Power Automate designer, or paused (no link changes while installed)",
-    "Survey tab: Hide by default, or Show when the survey parameter is already present",
+    "Power Automate survey prompt: Hide by default, or Show when v3survey is already present",
     "Covers flow and run pages on supported Power Automate sites",
+    "Reveal hidden tabs, sections, and controls on supported model-driven Power Apps forms",
+    "Enable disabled controls exposed by the Power Apps Xrm Client API",
     "Popup appearance preference stored locally on your device",
-    "For Microsoft Edge and Google Chrome",
+    "Chrome 111+; current Chromium-based Microsoft Edge when third-party stores are allowed",
     "No account required to install",
     HELVETY_FREE_SOURCE_FEATURE,
   ],
@@ -329,8 +331,8 @@ const powerPlatformConfigurator: SoftwareProduct = {
   },
   software: {
     requirements: [
-      "Microsoft Edge or Google Chrome",
-      "Access to https://make.powerautomate.com/",
+      "Google Chrome 111+ or a current Chromium-based Microsoft Edge version",
+      "Access to a supported Power Automate flow/run page or model-driven Power Apps record form",
     ],
     licenseType: "free",
     installationSteps: [
@@ -342,19 +344,20 @@ const powerPlatformConfigurator: SoftwareProduct = {
       {
         title: "Install in Microsoft Edge",
         description:
-          'In Edge, go to edge://extensions and turn on "Allow extensions from other stores" in the sidebar. Open the same Chrome Web Store listing from this page and choose Get to install the extension.',
+          'If your user or administrator policy allows third-party extension stores, open edge://extensions, turn on "Allow extensions from other stores," then install from the same Chrome Web Store listing.',
       },
       {
-        title: "Verify in Power Automate",
+        title: "Verify the settings you use",
         description:
-          "Open https://make.powerautomate.com/ and open or edit a flow or run. In the extension popup, pick classic or new designer on the Editor tab and confirm pages open the way you expect. Switch to Paused to confirm links stop changing. On the Survey tab, try Hide vs Show to see how the follow-up prompt behaves.",
+          "On a supported Power Automate flow or run page, use the Power Automate tab to test Classic Designer, New Designer, Paused, and survey Hide/Show. On a supported model-driven record form, use the Power Apps tab to test revealing hidden elements or enabling disabled controls.",
       },
     ],
   },
   metadata: {
     targetAudience: [
       "Power Automate authors",
-      "Microsoft 365 admins and makers",
+      "Power Apps model-driven app makers",
+      "Microsoft 365 and Power Platform admins",
     ],
     platforms: platformsFromRunsOn(cPowerPlatformConfigurator.runsOn),
     keywords: [
@@ -367,6 +370,10 @@ const powerPlatformConfigurator: SoftwareProduct = {
       "pause",
       "survey",
       "v3survey",
+      "power apps",
+      "model-driven app",
+      "dataverse",
+      "xrm",
       "make.powerautomate.com",
       "microsoft 365",
     ],

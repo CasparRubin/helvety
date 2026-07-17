@@ -3,7 +3,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { urls } from "@helvety/shared/config";
-import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
+import {
+  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
+  POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION,
+} from "@helvety/shared/power-platform-configurator-copy";
 import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -70,6 +73,27 @@ describe("store product SEO", () => {
     expect(metadata.openGraph?.url).toBe(`${urls.store}/products/${card.slug}`);
     expect(metadata.title).toBe(card.name);
     expect(metadata.description).toBe(card.shortDescription);
+  });
+
+  it("uses concise current-product metadata for Power Platform Configurator", async () => {
+    const metadata = await generateMetadata({
+      params: Promise.resolve({
+        slug: "helvety-power-platform-configurator",
+      }),
+    });
+
+    expect(metadata.description).toBe(
+      POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION
+    );
+    expect(
+      POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION.length
+    ).toBeLessThanOrEqual(160);
+    expect(metadata.openGraph?.description).toBe(
+      POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION
+    );
+    expect(metadata.twitter?.description).toBe(
+      POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION
+    );
   });
 
   it("returns explicit noindex metadata for unknown products", async () => {

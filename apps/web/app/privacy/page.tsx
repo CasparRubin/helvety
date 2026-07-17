@@ -345,9 +345,13 @@ export default function PrivacyPage() {
               Power Platform Configurator:
             </strong>{" "}
             {POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}{" "}
-            {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX} Enforcement
-            preferences sync where the browser allows it; popup appearance
-            settings stay locally on the device.
+            {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX} The extension reads
+            supported flow/run URLs and accesses model-driven form UI objects
+            locally only to apply the selected behavior. Four enforcement
+            preferences use browser sync storage, while popup appearance stays
+            in local browser storage. The extension does not send tab URLs, form
+            content, or preferences to Helvety servers. Your browser and sync
+            provider may process stored preferences under their own terms.
           </li>
           <li>
             <strong className="text-foreground">

@@ -414,6 +414,20 @@ describe("store product catalog", () => {
     expect(product.description.intro).not.toContain(
       POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY
     );
+    const listingCopy = [
+      product.description.intro,
+      ...product.features,
+      ...(product.description.sections ?? []).flatMap((section) =>
+        section.kind === "paragraph" ? [section.body] : section.items
+      ),
+      ...(product.software.installationSteps ?? []).flatMap((step) => [
+        step.title,
+        step.description,
+      ]),
+    ].join("\n");
+    expect(listingCopy).toContain("Power Apps");
+    expect(listingCopy).toContain("model-driven record form");
+    expect(listingCopy).not.toMatch(/\b(Editor|Survey) tab\b/i);
   });
 
   it("Power Platform Configurator store listing points GitHub link at canonical extension repo", () => {

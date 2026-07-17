@@ -35,7 +35,7 @@ function expectImpressumUsesChromeWebStoreCopy(source: string) {
   expect(source).toContain("Chrome Web Store");
 }
 
-describe("Power Platform Configurator legal copy (extension Survey tab parity)", () => {
+describe("Power Platform Configurator legal copy parity", () => {
   const officialTitle = "Power Platform Configurator";
 
   it("privacy page renders canonical public summary and store card suffix", () => {
@@ -48,10 +48,11 @@ describe("Power Platform Configurator legal copy (extension Survey tab parity)",
         `marker "${marker}"`
       ).toContain(marker);
     }
-    expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain(
-      "Survey tab"
-    );
     expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain("v3survey");
+    expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain(
+      "Power Apps"
+    );
+    expect(privacy).toContain("does not send tab URLs");
   });
 
   it("impressum renders canonical public summary and store card suffix", () => {

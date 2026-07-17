@@ -95,15 +95,14 @@ describe("store-catalog", () => {
     expect(text).toContain("https://helvety.com/store/products/helvety-links");
   });
 
-  it("Power Platform Configurator card uses canonical short description and llms lists Chrome Web Store install", () => {
+  it("Power Platform Configurator card uses canonical current-product copy and llms lists Chrome Web Store install", () => {
     const card = requireStoreProductCard("helvety-power-platform-configurator");
     expect(card.name).toBe("Power Platform Configurator");
     expect(card.shortDescription).toBe(
       POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION
     );
-    expect(card.shortDescription).toContain(
-      "Install from the Chrome Web Store"
-    );
+    expect(card.shortDescription).toContain("Power Apps");
+    expect(card.shortDescription).not.toContain("Survey tab");
 
     for (const rel of [
       "apps/store/public/llms.txt",

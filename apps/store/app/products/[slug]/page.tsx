@@ -1,6 +1,9 @@
 import { urls } from "@helvety/shared/config";
 import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
-import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
+import {
+  POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
+  POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION,
+} from "@helvety/shared/power-platform-configurator-copy";
 import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { notFound } from "next/navigation";
@@ -45,21 +48,26 @@ export async function generateMetadata({
     };
   }
 
+  const description =
+    card.slug === "helvety-power-platform-configurator"
+      ? POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION
+      : card.shortDescription;
+
   return {
     title: card.name,
-    description: card.shortDescription,
+    description,
     alternates: {
       canonical: `${urls.store}/products/${card.slug}`,
     },
     openGraph: {
       title: `${card.name} | Helvety Store`,
-      description: card.shortDescription,
+      description,
       url: `${urls.store}/products/${card.slug}`,
     },
     twitter: {
       card: "summary",
       title: `${card.name} | Helvety Store`,
-      description: card.shortDescription,
+      description,
     },
   };
 }
