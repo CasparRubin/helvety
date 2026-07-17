@@ -136,6 +136,37 @@ describe("HelvetyShellNavbar", () => {
     }
   });
 
+  it("opens rich encryption content in a single-column tooltip", async () => {
+    renderShell({
+      encryption: {
+        loading: false,
+        showBadge: true,
+        tooltipContent: (
+          <>
+            <p className="font-semibold">Client-Side Encryption</p>
+            <p>Test tooltip body.</p>
+          </>
+        ),
+      },
+    });
+
+    const trigger = screen
+      .getAllByText("Encryption enabled")
+      .map((label) => label.closest('[data-slot="tooltip-trigger"]'))
+      .find((element) => element !== null);
+    expect(trigger).toBeDefined();
+    if (!trigger) {
+      throw new Error("Encryption tooltip trigger was not rendered");
+    }
+
+    fireEvent.focus(trigger);
+
+    const tooltipBody = await screen.findByText("Test tooltip body.");
+    const tooltip = tooltipBody.closest('[data-slot="tooltip-content"]');
+    expect(tooltip).toHaveClass("block", "text-left");
+    expect(tooltip).not.toHaveClass("inline-flex");
+  });
+
   it("hides encryption badge while encryption.loading is true", () => {
     renderShell({
       encryption: {
@@ -171,14 +202,42 @@ describe("HelvetyShellNavbar", () => {
     expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
   });
 
-  it("About dialog does not mention software licenses", async () => {
-    renderShell();
+  it("separates app copy from Helvety and generated build information", async () => {
+    renderShell({ versionLabel: "Built on 16.07.2026 at 15:45:11" });
     fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
     const dialog = await screen.findByRole("dialog");
+    const appDescription = dialog.querySelector(
+      '[data-slot="dialog-description"]'
+    );
+    const helvetyHeading = screen.getByRole("heading", { name: "Helvety" });
+    const helvetySection = helvetyHeading.closest("section");
+
     assertLicenseFreeSeoCopy("About dialog", dialog.textContent ?? "");
-    expect(dialog.textContent).toMatch(
+    expect(appDescription).toHaveTextContent(
+      "Test product copy for the About dialog."
+    );
+    expect(appDescription).not.toHaveTextContent(/Helvety software by/i);
+    expect(helvetySection).toHaveTextContent(
       /engineered, designed, and made in Switzerland/i
     );
+    expect(helvetySection).toHaveTextContent(
+      "This version was built on 16.07.2026 at 15:45:11."
+    );
+    expect(screen.getByRole("link", { name: "Caspar Rubin" })).toHaveAttribute(
+      "href",
+      "https://casparrubin.ch"
+    );
+  });
+
+  it("shows the development-build fallback in the Helvety section", async () => {
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
+    await screen.findByRole("dialog");
+
+    const helvetySection = screen
+      .getByRole("heading", { name: "Helvety" })
+      .closest("section");
+    expect(helvetySection).toHaveTextContent("This is a development build.");
   });
 
   it("calls redirectToLogin with no args by default when Sign in is clicked", () => {

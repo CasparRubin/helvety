@@ -1,11 +1,11 @@
 /**
  * Navbar About-dialog product blurbs shared across helvety.com apps. Keep aligned
- * with Store catalog cards and app SEO descriptions. Swiss closing uses
- * `HELVETY_SWISS_ORIGIN_SEO`. Licensing is not repeated here (see legal pages,
- * Store product About sections, and `llms.txt` ## Licensing).
+ * with Store catalog cards and app SEO descriptions. Company attribution and
+ * build information are rendered separately by the shared navbar. Licensing is
+ * not repeated here (see legal pages, Store product About sections, and
+ * `llms.txt` ## Licensing).
  */
 
-import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
@@ -28,13 +28,17 @@ export const AUTH_NAVBAR_ABOUT =
 export const AUTH_NAVBAR_ENCRYPTION_TOOLTIP =
   "Sensitive content is encrypted on your device before it leaves your browser. Helvety does not store your decryption keys. In our current architecture, encrypted content is designed to remain unreadable to Helvety during normal operation. Some structural metadata (such as timestamps and display preferences) is stored unencrypted to enable app functionality." as const;
 
-export const TASKS_NAVBAR_ABOUT = `Stage-based tasks with drag-and-drop flow. Titles, descriptions, and dates are encrypted on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const TASKS_NAVBAR_ABOUT =
+  "Stage-based tasks with drag-and-drop flow. Titles, descriptions, and dates are encrypted on your device before storage." as const;
 
-export const CONTACTS_NAVBAR_ABOUT = `Encrypted contacts with fast lookup and Personal, Work, and Other groups. Names, numbers, and notes are encrypted on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const CONTACTS_NAVBAR_ABOUT =
+  "Encrypted contacts with fast lookup and Personal, Work, and Other groups. Names, numbers, and notes are encrypted on your device before storage." as const;
 
-export const NOTES_NAVBAR_ABOUT = `Encrypted notes with titles and rich text in Personal, Work, and Other groups. Note content is encrypted on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const NOTES_NAVBAR_ABOUT =
+  "Encrypted notes with titles and rich text in Personal, Work, and Other groups. Note content is encrypted on your device before storage." as const;
 
-export const LINKS_NAVBAR_ABOUT = `Encrypted bookmarks organized in nested folders you control. Link names and URLs are encrypted on your device before storage. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const LINKS_NAVBAR_ABOUT =
+  "Encrypted bookmarks organized in nested folders you control. Link names and URLs are encrypted on your device before storage." as const;
 
 /** Navbar About copy for Helvety PDF (optional limit line override). */
 export function pdfNavbarAbout(

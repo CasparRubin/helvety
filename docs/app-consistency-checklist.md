@@ -296,7 +296,7 @@ bun run ci:release  # clean:artifacts + ci:check + build (before push / Vercel)
 
 Run these locally before merge; Vercel validates builds on deploy.
 
-Optional local E2E: `bun run ci:check:e2e` (installs Chromium if needed and starts all zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset) or `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e`. New E2EE zones: `bun run scaffold:e2ee-zone <slug>` prints the copy-from-contacts checklist.
+Optional local E2E: `bun run ci:check:e2e` (installs Chromium if needed, starts all zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset, and uses non-production placeholder credentials when local service env is absent) or `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e`. New E2EE zones: `bun run scaffold:e2ee-zone <slug>` prints the copy-from-contacts checklist.
 
 ## See also
 

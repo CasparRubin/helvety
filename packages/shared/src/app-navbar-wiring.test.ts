@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -55,6 +55,21 @@ const NAVBAR_WIRING = [
 ] as const;
 
 describe("app navbar wiring", () => {
+  it("covers every app with a navbar component", () => {
+    const appsRoot = join(repoRoot, "apps");
+    const discoveredNavbars = readdirSync(appsRoot, { withFileTypes: true })
+      .filter(
+        (entry) =>
+          entry.isDirectory() &&
+          existsSync(join(appsRoot, entry.name, "components/navbar.tsx"))
+      )
+      .map((entry) => `apps/${entry.name}/components/navbar.tsx`)
+      .sort();
+    const coveredNavbars = NAVBAR_WIRING.map(({ rel }) => rel).sort();
+
+    expect(coveredNavbars).toEqual(discoveredNavbars);
+  });
+
   it.each(NAVBAR_WIRING)(
     "$rel imports shared navbar About copy ($symbol)",
     ({ rel, symbol }) => {

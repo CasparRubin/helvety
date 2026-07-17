@@ -29,18 +29,23 @@ describe("dev zone ports wiring", () => {
     expect(DEV_ALL_ZONES_READY_SENTINEL).toBe("[dev] All 11 zones ready.");
   });
 
-  it("run-dev.mjs imports shared zone ports and logs the sentinel prefix", () => {
+  it("run-dev.mjs derives sufficient concurrency from shared zone ports", () => {
     const src = readScript("scripts/run-dev.mjs");
     expect(src).toContain('from "./dev-zone-ports.mjs"');
     expect(src).toContain("DEV_ALL_ZONES_READY_SENTINEL");
     expect(src).toContain("ZONE_PORTS");
-    expect(src).toContain("--concurrency=11");
+    expect(src).toContain("ZONE_PORTS.length + 1");
+    expect(src).toContain("`--concurrency=${TURBO_CONCURRENCY}`");
+    expect(src).not.toMatch(/["'`]--concurrency=\d+["'`]/);
   });
 
   it("run-e2e-smoke.mjs waits on the shared readiness sentinel", () => {
     const src = readScript("scripts/run-e2e-smoke.mjs");
     expect(src).toContain('from "./dev-zone-ports.mjs"');
     expect(src).toContain("DEV_ALL_ZONES_READY_SENTINEL");
+    expect(src).toContain(
+      'SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? "1"'
+    );
     expect(src).not.toContain("All 9 zones ready");
   });
 });

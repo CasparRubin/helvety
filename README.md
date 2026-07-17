@@ -152,7 +152,7 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
   - `bun run clean:artifacts` (removes local gitignored `.next/`, `coverage/`, `.turbo/`, test reports, `.DS_Store`; skips active Vitest `coverage/.tmp`; smoke-tested in `@helvety/shared` guardrail tests)
   - `bun run deps:check` / `bun run knip:exports` / `bun run knip:full` / `bun run deps:unused` (`deps:unused` is the CI gate; `knip:full` also reports unlisted deps and binaries that `ci:check` does not fail on)
   - Optional local dead-code triage: `bun run fallow` / `fallow:dead-code` / `fallow:dupes` / `fallow:health` / `fallow:fix` (`.fallowrc.json` may use broader ignores than [`knip.json`](knip.json); not in `ci:check`)
-  - `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e` or `bun run ci:check:e2e` (Playwright gateway smoke; `ci:check:e2e` installs Chromium if needed and starts all zone dev servers when the base URL is unset)
+  - `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e` or `bun run ci:check:e2e` (Playwright gateway smoke; `ci:check:e2e` installs Chromium if needed and starts all zone dev servers when the base URL is unset, using non-production placeholder credentials when local service env is absent)
 
 ## Environment Model
 

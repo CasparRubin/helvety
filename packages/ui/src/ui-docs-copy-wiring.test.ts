@@ -95,6 +95,26 @@ describe("UI docs and README copy (Base UI / no stale Radix stack)", () => {
     }
   );
 
+  it("navbar docs describe split About sections and one-column encryption copy", () => {
+    const sharedReadme = readRepoFile("packages/shared/README.md");
+    const uiReadme = readRepoFile("packages/ui/README.md");
+    const naming = readRepoFile("docs/naming-conventions.md");
+
+    expect(sharedReadme).toMatch(/app-specific product copy only/i);
+    expect(sharedReadme).toMatch(/separate section/i);
+    expect(sharedReadme).not.toMatch(/Swiss closing uses/i);
+
+    expect(uiReadme).toMatch(/app-specific introduction/i);
+    expect(uiReadme).toMatch(/visually separated \*\*Helvety\*\* section/i);
+    expect(uiReadme).toMatch(/single left-aligned column/i);
+    expect(uiReadme).not.toMatch(
+      /About dialog appends product copy.*then Helvety attribution/i
+    );
+
+    expect(naming).toMatch(/app-specific introduction copy only/i);
+    expect(naming).toMatch(/separate \*\*Helvety\*\* section/i);
+  });
+
   it("ui-shadcn integration policy documents Base UI and entity link picker", () => {
     const policy = readRepoFile("docs/ui-shadcn-integration-policy.md");
     expect(policy).toContain("base-vega");

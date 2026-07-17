@@ -80,6 +80,7 @@ export type HelvetyShellNavbarAuthSnapshot = {
 export type HelvetyShellNavbarProps = {
   initialUser?: User | null;
   brand: HelvetyShellNavbarBrand;
+  /** App-specific introduction for the first About-dialog section. */
   aboutDescription: string;
   navigationMenuDescription: string;
   versionLabel: string | null;
@@ -220,7 +221,7 @@ export function HelvetyShellNavbar({
                   <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" />
                   <span className="hidden md:inline">Encryption enabled</span>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs space-y-2 p-3">
+                <TooltipContent className="block max-w-xs space-y-2 p-3 text-left">
                   {encryptionBadge.tooltipContent}
                 </TooltipContent>
               </Tooltip>
@@ -457,22 +458,41 @@ export function HelvetyShellNavbar({
         <DialogContent>
           <DialogHeader className="pr-8">
             <DialogTitle>About</DialogTitle>
-            <DialogDescription className="pt-2">
-              {aboutDescription} Helvety software by{" "}
-              <a
-                href="https://casparrubin.ch"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2"
-              >
-                Caspar Rubin
-              </a>
-              , engineered, designed, and made in Switzerland.{" "}
-              {buildInfo
-                ? `This version was built on ${buildInfo}.`
-                : "This is a development build."}
-            </DialogDescription>
           </DialogHeader>
+          <div className="space-y-4">
+            <DialogDescription>{aboutDescription}</DialogDescription>
+            <Separator />
+            <section
+              className="space-y-2"
+              aria-labelledby="about-helvety-heading"
+            >
+              <h3
+                id="about-helvety-heading"
+                className="text-sm font-medium"
+              >
+                Helvety
+              </h3>
+              <div className="text-muted-foreground space-y-2 text-sm">
+                <p>
+                  Helvety software by{" "}
+                  <a
+                    href="https://casparrubin.ch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground underline underline-offset-2"
+                  >
+                    Caspar Rubin
+                  </a>
+                  , engineered, designed, and made in Switzerland.
+                </p>
+                <p>
+                  {buildInfo
+                    ? `This version was built on ${buildInfo}.`
+                    : "This is a development build."}
+                </p>
+              </div>
+            </section>
+          </div>
           <DialogClose render={<Button variant="outline" className="w-full" />}>
             Close
           </DialogClose>

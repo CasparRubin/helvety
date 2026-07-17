@@ -9,6 +9,8 @@ import { DEV_ALL_ZONES_READY_SENTINEL, ZONE_PORTS } from "./dev-zone-ports.mjs";
 const WARMUP_DELAY_MS = 4000;
 const POLL_INTERVAL_MS = 500;
 const MAX_ATTEMPTS = 120;
+// Turbo requires one slot beyond the number of persistent dev tasks.
+const TURBO_CONCURRENCY = ZONE_PORTS.length + 1;
 
 /**
  * @param {number} port
@@ -52,9 +54,13 @@ async function warmZones() {
   );
 }
 
-const child = spawn("bun", ["run", "turbo", "run", "dev", "--concurrency=11"], {
-  stdio: "inherit",
-});
+const child = spawn(
+  "bun",
+  ["run", "turbo", "run", "dev", `--concurrency=${TURBO_CONCURRENCY}`],
+  {
+    stdio: "inherit",
+  }
+);
 
 void warmZones();
 

@@ -75,7 +75,11 @@ function startDevServer() {
   const child = spawn("node", ["scripts/run-dev.mjs"], {
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],
-    env: process.env,
+    env: {
+      ...process.env,
+      // Local smoke tests exercise routing/UI without requiring real service credentials.
+      SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? "1",
+    },
   });
 
   const forward = (stream, target) => {

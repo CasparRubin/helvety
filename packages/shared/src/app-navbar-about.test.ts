@@ -14,7 +14,6 @@ import {
   ocrNavbarAbout,
   pdfNavbarAbout,
 } from "./app-navbar-about";
-import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-helpers";
 
 describe("app-navbar-about", () => {
@@ -37,7 +36,16 @@ describe("app-navbar-about", () => {
     assertNoEmDashInCustomerCopy(_id, text);
   });
 
-  it("E2EE about copy uses device encryption and Swiss closing", () => {
+  it.each(allAbout)(
+    "%s excludes the shared company and build section",
+    (_id, text) => {
+      expect(text).not.toMatch(
+        /Helvety software by|This version was built on|development build/i
+      );
+    }
+  );
+
+  it("keeps E2EE about copy app-specific without company attribution", () => {
     for (const text of [
       TASKS_NAVBAR_ABOUT,
       CONTACTS_NAVBAR_ABOUT,
@@ -45,7 +53,7 @@ describe("app-navbar-about", () => {
       NOTES_NAVBAR_ABOUT,
     ]) {
       expect(text).toMatch(/encrypted on your device before storage/i);
-      expect(text).toContain(HELVETY_SWISS_ORIGIN_SEO);
+      expect(text).not.toMatch(/Switzerland|Helvety software by/i);
     }
   });
 });

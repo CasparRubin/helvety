@@ -20,9 +20,11 @@ describe("gateway smoke e2e wiring", () => {
     expect(gatewaySmokeSource).toContain(`page.goto("${route}")`);
   });
 
-  it("covers core gateway and E2EE rewrite smoke routes", () => {
-    for (const route of ["/", "/store", "/auth/login", "/tasks"]) {
+  it("covers credential-free core gateway and E2EE rewrite routes", () => {
+    for (const route of ["/", "/store", "/auth/robots.txt", "/tasks"]) {
       expect(gatewaySmokeSource).toContain(`page.goto("${route}")`);
     }
+    expect(gatewaySmokeSource).not.toContain('page.goto("/auth/login")');
+    expect(gatewaySmokeSource).not.toContain("INVALID_ID/download");
   });
 });

@@ -24,7 +24,7 @@ bun run ci:check:e2e
 HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
 ```
 
-`deps:security` runs floors plus `bun audit`. Vercel env audits require Vercel CLI login. `consistency:supabase-rls` needs a local gitignored `supabase/supabase.json` export. `ci:check:e2e` installs Chromium if needed, starts all zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset, and runs Playwright gateway smoke tests; `test:e2e` alone expects a reachable gateway (default port 3001) or `HELVETY_SMOKE_BASE_URL`.
+`deps:security` runs floors plus `bun audit`. Vercel env audits require Vercel CLI login. `consistency:supabase-rls` needs a local gitignored `supabase/supabase.json` export. `ci:check:e2e` installs Chromium if needed, starts all zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset, uses non-production placeholder credentials when local service env is absent, and runs Playwright gateway smoke tests; `test:e2e` alone expects a reachable gateway (default port 3001) or `HELVETY_SMOKE_BASE_URL`.
 
 ## Vercel production and preview env
 

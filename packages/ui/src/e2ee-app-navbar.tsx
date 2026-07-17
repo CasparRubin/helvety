@@ -14,7 +14,7 @@ export type E2eeAppNavbarLabels = {
   titleText: string;
   /** First body paragraph in the encryption tooltip (after the heading). */
   encryptionTooltipBody: string;
-  /** About dialog body. */
+  /** App-specific introduction shown before the shared Helvety/build section. */
   aboutDescription: string;
   /** Screen-reader description for the mobile menu sheet (`AccessibleSheetHeader`). */
   navigationMenuDescription: string;
