@@ -51,8 +51,8 @@ Plaintext structural fields:
 ## Crawl and Indexing
 
 - `apps/contacts` is intentionally non-indexable.
-- `/contacts/robots.txt` disallows crawling.
-- `/contacts/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
+- `/contacts/robots.txt` disallows `/contacts` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
+- `/contacts/sitemap.xml` is not published (404). Private zones omit sitemap routes. Zone `llms.txt` remains published and is linked from the gateway guide, but gateway `robots.txt` disallows `/contacts` so compliant crawlers should not fetch it.
 
 ## Environment Variables
 

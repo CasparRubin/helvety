@@ -36,7 +36,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 ## Crawl and Indexing
 
 - `apps/pdf` is publicly indexable.
-- `/pdf/robots.txt` allows crawl and advertises `/pdf/sitemap.xml`.
+- `/pdf/robots.txt` allows crawl, disallows `/pdf/api` and `/pdf/auth`, and advertises `/pdf/sitemap.xml` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
 - `/pdf/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model

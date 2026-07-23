@@ -104,8 +104,8 @@ Production rate limiting on these routes requires a **trusted proxy IP** (`x-rea
 ## Crawl and Indexing
 
 - `apps/auth` is intentionally non-indexable.
-- `/auth/robots.txt` disallows crawling.
-- `/auth/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
+- `/auth/robots.txt` disallows `/auth` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
+- `/auth/sitemap.xml` is not published (404). Private zones omit sitemap routes. Zone `llms.txt` remains published and is linked from the gateway guide, but gateway `robots.txt` disallows `/auth` so compliant crawlers should not fetch it.
 
 ## Environment Variables
 

@@ -5,11 +5,18 @@
  * the gateway and product routes in this monorepo.
  *
  * Public zones use explicit allow rules for major AI crawlers (in addition to
- * `*`) so agentic systems can discover `llms.txt` and indexable routes without
- * guessing. Google sitemaps list indexable page URLs only (`url` + `lastmod`);
+ * `*`) so agentic systems can discover public `llms.txt` and indexable routes.
+ * Google sitemaps list indexable page URLs only (`url` + `lastmod`);
  * `llms.txt` is not included. Private non-indexable zones (auth and E2EE vault apps)
- * disallow those same user agents alongside `*` and omit `app/sitemap.ts` (empty urlsets
- * fail Search Console).
+ * are disallowed for those same user agents (and `*`) at the gateway via
+ * {@link GATEWAY_DISALLOWED_PATHS}, mirrored in zone robots, and omit `app/sitemap.ts`
+ * (empty urlsets fail Search Console).
+ *
+ * Canonical crawl policy for compliant crawlers (RFC 9309 / Google) is only
+ * `https://helvety.com/robots.txt` from the gateway (`createOpenRobots` with
+ * {@link GATEWAY_DISALLOWED_PATHS}). Path-zone `/store/robots.txt`, `/pdf/robots.txt`,
+ * etc. are mirrors for humans and agents that fetch them; they use host-absolute
+ * disallow paths.
  */
 
 import { urls } from "./config";
@@ -22,15 +29,49 @@ const GOOGLE_BOT_SNIPPET = {
   "max-snippet": -1,
 };
 
-/** Major AI / answer-engine crawlers; explicit robots rules aid agentic discovery. */
+/**
+ * Major AI / answer-engine crawlers; explicit robots rules aid agentic discovery.
+ * Training vs search/user tokens are listed separately in vendor docs; Helvety
+ * allows both on public content (discovery-friendly). Official references:
+ * OpenAI (GPTBot, OAI-SearchBot, ChatGPT-User), Anthropic (ClaudeBot, Claude-User,
+ * Claude-SearchBot), Google-Extended, Perplexity (PerplexityBot, Perplexity-User),
+ * Applebot-Extended.
+ */
 export const AI_DISCOVERY_USER_AGENTS = [
   "GPTBot",
+  "OAI-SearchBot",
   "ChatGPT-User",
   "Google-Extended",
   "ClaudeBot",
-  "anthropic-ai",
+  "Claude-User",
+  "Claude-SearchBot",
   "PerplexityBot",
+  "Perplexity-User",
   "Applebot-Extended",
+] as const;
+
+/**
+ * Host-absolute paths disallowed in gateway `/robots.txt` (RFC 9309 source of
+ * truth). Private zones plus non-indexable account/API/auth callback paths on
+ * public product zones.
+ */
+export const GATEWAY_DISALLOWED_PATHS = [
+  "/auth",
+  "/tasks",
+  "/contacts",
+  "/notes",
+  "/links",
+  "/store/account",
+  "/store/api",
+  "/store/auth",
+  "/pdf/api",
+  "/pdf/auth",
+  "/image-upscaler/api",
+  "/image-upscaler/auth",
+  "/image-editor/api",
+  "/image-editor/auth",
+  "/ocr/api",
+  "/ocr/auth",
 ] as const;
 
 /** Single Next.js `MetadataRoute.Robots` rule entry (user agent + allow/disallow). */
@@ -57,13 +98,17 @@ function buildPublicCrawlerRules(disallowedPaths: string[] = []): RobotsRule[] {
   ];
 }
 
-/** Private zone crawl rules: block `*` and AI crawlers from the app root. */
-function buildPrivateCrawlerRules(): RobotsRule[] {
+/**
+ * Private zone crawl rules: block `*` and AI crawlers from the zone path prefix
+ * (host-absolute, e.g. `/auth`).
+ */
+function buildPrivateCrawlerRules(zonePath: string): RobotsRule[] {
+  const disallow = normalizePath(zonePath);
   return [
-    { userAgent: "*", disallow: "/" },
+    { userAgent: "*", disallow },
     ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
       userAgent,
-      disallow: "/",
+      disallow,
     })),
   ];
 }
@@ -185,6 +230,50 @@ function normalizePath(path: string): string {
 }
 
 /**
+ * Zone base path from a zone sitemap path (`/store/sitemap.xml` → `/store`).
+ * Returns `""` for gateway-style sitemaps that are not under a path zone.
+ */
+function zoneBasePathFromSitemap(sitemapPath: string): string {
+  const normalizedSitemapPath = normalizePath(sitemapPath);
+  if (!normalizedSitemapPath.endsWith("/sitemap.xml")) {
+    return "";
+  }
+  const withoutFile = normalizedSitemapPath.replace(/\/sitemap\.xml$/, "");
+  return withoutFile === "" ? "" : withoutFile;
+}
+
+/**
+ * Maps zone-relative disallow paths to host-absolute paths under the zone
+ * basePath (`/api` + `/store` → `/store/api`). Paths already under the zone
+ * prefix are left unchanged.
+ */
+export function toHostAbsoluteZonePaths(
+  disallowedPaths: readonly string[],
+  zoneBasePath: string
+): string[] {
+  const base = normalizePath(zoneBasePath);
+  if (!base || base === "/") {
+    return [
+      ...new Set(disallowedPaths.map((path) => normalizePath(path))),
+    ].filter((path) => path !== "");
+  }
+
+  return [
+    ...new Set(
+      disallowedPaths.map((path) => {
+        const normalized = normalizePath(path);
+        if (!normalized) return "";
+        if (normalized === "/") return base;
+        if (normalized === base || normalized.startsWith(`${base}/`)) {
+          return normalized;
+        }
+        return `${base}${normalized}`;
+      })
+    ),
+  ].filter((path) => path !== "");
+}
+
+/**
  * Prevents self-blocking robots rules by removing:
  * - the sitemap file path itself
  * - the canonical app URL advertised by that sitemap
@@ -225,16 +314,23 @@ export function createAppSitemap(
 
 /**
  * Creates a robots.txt configuration for a helvety.com path-zone app.
+ * Zone-relative disallow paths (`/api`, `/account`) are prefixed with the zone
+ * basePath derived from `sitemapPath` so mirrors use host-absolute rules.
  *
- * @param disallowedPaths - Paths to disallow (e.g. ["/api", "/auth/callback"])
+ * @param disallowedPaths - Zone-relative or host-absolute paths to disallow
  * @param sitemapPath - Path to the sitemap (e.g. "/pdf/sitemap.xml")
  */
 export function createAppRobots(
   disallowedPaths: string[],
   sitemapPath: string
 ): () => MetadataRoute.Robots {
-  const sanitizedDisallowedPaths = sanitizeDisallowedPaths(
+  const zoneBasePath = zoneBasePathFromSitemap(sitemapPath);
+  const hostAbsolutePaths = toHostAbsoluteZonePaths(
     disallowedPaths,
+    zoneBasePath
+  );
+  const sanitizedDisallowedPaths = sanitizeDisallowedPaths(
+    hostAbsolutePaths,
     sitemapPath
   );
 
@@ -248,17 +344,23 @@ export function createAppRobots(
 }
 
 /**
- * Creates a robots.txt configuration with no disallowed paths.
- * Used by the web gateway which allows full crawling.
+ * Creates gateway (or other open) robots.txt. Compliant crawlers only honor
+ * `https://helvety.com/robots.txt`; pass {@link GATEWAY_DISALLOWED_PATHS} there.
  *
- * @param sitemapPath - Path to the sitemap (e.g. "/sitemap.xml")
+ * @param sitemapPath - Path to the sitemap (e.g. "/sitemap-index.xml")
+ * @param disallowedPaths - Optional host-absolute paths to disallow
  */
 export function createOpenRobots(
-  sitemapPath: string
+  sitemapPath: string,
+  disallowedPaths: readonly string[] = []
 ): () => MetadataRoute.Robots {
+  const normalizedDisallows = [
+    ...new Set(disallowedPaths.map((path) => normalizePath(path))),
+  ].filter((path) => path !== "" && path !== "/");
+
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: buildPublicCrawlerRules(),
+      rules: buildPublicCrawlerRules(normalizedDisallows),
       sitemap: `${DOMAIN}${sitemapPath}`,
       host: DOMAIN,
     };
@@ -268,24 +370,31 @@ export function createOpenRobots(
 /**
  * Creates a robots.txt configuration for private/auth-required apps.
  * The app remains accessible to authenticated users, but is excluded from crawling.
+ * Disallows the zone path prefix (host-absolute). Production private zones omit
+ * `app/sitemap.ts` and do not advertise a sitemap (`includeSitemap` defaults to false).
  *
- * Production private zones omit `app/sitemap.ts` and do not advertise a sitemap
- * (`includeSitemap` defaults to false). The optional sitemap path exists for tests
- * and edge cases only.
- *
- * @param sitemapPath - Optional sitemap path when `includeSitemap` is true
+ * @param zonePath - Host-absolute zone prefix (e.g. "/auth", "/tasks")
+ * @param options - Optional sitemap advertisement for tests/edge cases
  */
 export function createPrivateAppRobots(
-  sitemapPath?: string,
+  zonePath: string,
   options?: {
     includeSitemap?: boolean;
+    sitemapPath?: string;
   }
 ): () => MetadataRoute.Robots {
   const includeSitemap = options?.includeSitemap ?? false;
+  const sitemapPath = options?.sitemapPath;
+  const normalizedZone = normalizePath(zonePath);
+  if (!normalizedZone || normalizedZone === "/") {
+    throw new Error(
+      "createPrivateAppRobots requires a non-root zone path (e.g. /auth)"
+    );
+  }
 
   return function robots(): MetadataRoute.Robots {
     return {
-      rules: buildPrivateCrawlerRules(),
+      rules: buildPrivateCrawlerRules(normalizedZone),
       ...(includeSitemap && sitemapPath
         ? { sitemap: `${DOMAIN}${sitemapPath}` }
         : {}),

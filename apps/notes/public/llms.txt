@@ -13,7 +13,7 @@
 
 ## Crawling And Indexing
 - Notes routes are intended not to be indexed.
-- These routes are not intended as crawl targets and are protected by noindex metadata and authentication controls.
+- Gateway `https://helvety.com/robots.txt` disallows `/notes` (canonical crawl policy). Zone `/notes/robots.txt` is a host-absolute mirror. Routes also use noindex and authentication controls.
 
 ## Related Helvety Apps
 - [Helvety](https://helvety.com)

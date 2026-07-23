@@ -18,7 +18,7 @@ export const metadata = createHelvetyProductMetadata({
   metadataBase: urls.auth,
   title: {
     default: "Helvety Auth | Sign in to your account",
-    template: "%s | Helvety",
+    template: "%s | Helvety Auth",
   },
   description: AUTH_DESCRIPTION,
   keywords: ["Helvety", "sign in", "login", "authentication"],

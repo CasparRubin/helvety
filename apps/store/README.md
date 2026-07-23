@@ -82,8 +82,8 @@ category pills, and the app switcher product sections.
 
 - Public/indexable: `/store`, `/store/products`, `/store/products/[slug]`
 - Non-indexable: `/store/account`
-- `/store/robots.txt` allows public crawl and disallows `/account`, `/api`, `/auth`
-- `/store/sitemap.xml` includes the store home, product listing, and product detail pages only (excludes `/account`, `llms.txt`, and auth/API paths).
+- `/store/robots.txt` allows public crawl and disallows `/store/account`, `/store/api`, `/store/auth` (host-absolute mirror; canonical policy is gateway `/robots.txt`)
+- `/store/sitemap.xml` includes the store home, product listing, and product detail pages only (excludes `/store/account`, `llms.txt`, and auth/API paths).
 
 ## Environment Variables
 

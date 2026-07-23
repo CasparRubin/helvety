@@ -50,7 +50,7 @@ All Tesseract.js assets are self-hosted under `public/` so nothing is fetched fr
 ## Crawl and Indexing
 
 - `apps/ocr` is publicly indexable.
-- `/ocr/robots.txt` allows crawl and advertises `/ocr/sitemap.xml`.
+- `/ocr/robots.txt` allows crawl, disallows `/ocr/api` and `/ocr/auth`, and advertises `/ocr/sitemap.xml` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
 - `/ocr/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model

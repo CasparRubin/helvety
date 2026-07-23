@@ -12,7 +12,7 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Helvety",
+  title: "Terms of Service",
   description: "Terms of Service for Helvety products and apps",
   alternates: {
     canonical: `${urls.home}/terms`,

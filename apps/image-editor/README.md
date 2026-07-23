@@ -44,7 +44,7 @@ All image processing runs in the browser; no image data leaves the client in the
 ## Crawl and Indexing
 
 - `apps/image-editor` is publicly indexable.
-- `/image-editor/robots.txt` allows crawl and advertises `/image-editor/sitemap.xml`.
+- `/image-editor/robots.txt` allows crawl, disallows `/image-editor/api` and `/image-editor/auth`, and advertises `/image-editor/sitemap.xml` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
 - `/image-editor/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model

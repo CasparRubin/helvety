@@ -49,8 +49,8 @@ Plaintext structural fields:
 ## Crawl and Indexing
 
 - `apps/tasks` is intentionally non-indexable.
-- `/tasks/robots.txt` disallows crawling.
-- `/tasks/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
+- `/tasks/robots.txt` disallows `/tasks` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
+- `/tasks/sitemap.xml` is not published (404). Private zones omit sitemap routes. Zone `llms.txt` remains published and is linked from the gateway guide, but gateway `robots.txt` disallows `/tasks` so compliant crawlers should not fetch it.
 
 ## Environment Variables
 

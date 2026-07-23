@@ -51,8 +51,8 @@ Plaintext structural fields:
 ## Crawl and Indexing
 
 - `apps/links` is intentionally non-indexable.
-- `/links/robots.txt` disallows crawling.
-- `/links/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
+- `/links/robots.txt` disallows `/links` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
+- `/links/sitemap.xml` is not published (404). Private zones omit sitemap routes. Zone `llms.txt` remains published and is linked from the gateway guide, but gateway `robots.txt` disallows `/links` so compliant crawlers should not fetch it.
 
 ## Supabase schema
 

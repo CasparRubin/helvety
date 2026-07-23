@@ -25,9 +25,19 @@ describe("web SEO routes", () => {
     expect(rules.map((rule) => rule.userAgent)).toEqual(
       expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
     );
-    expect(rules.find((rule) => rule.userAgent === "*")).toMatchObject({
+    const starRule = rules.find((rule) => rule.userAgent === "*");
+    expect(starRule).toMatchObject({
       allow: "/",
     });
+    const disallow = starRule?.disallow;
+    const disallowPaths = Array.isArray(disallow)
+      ? disallow
+      : disallow
+        ? [disallow]
+        : [];
+    expect(disallowPaths).toEqual(
+      expect.arrayContaining(["/auth", "/tasks", "/store/account", "/pdf/api"])
+    );
     expect(robotsOutput.sitemap).toBe(`${urls.home}/sitemap-index.xml`);
     expect(robotsOutput.host).toBe(urls.home);
   });

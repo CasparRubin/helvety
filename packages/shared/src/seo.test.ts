@@ -8,6 +8,8 @@ import {
   createHelvetyProductMetadata,
   createOpenRobots,
   createPrivateAppRobots,
+  GATEWAY_DISALLOWED_PATHS,
+  toHostAbsoluteZonePaths,
 } from "./seo";
 import { assertValidPublicSitemapEntries } from "./test-utils/seo-route-test-helpers";
 
@@ -48,17 +50,45 @@ function getRulesForAgent(
 }
 
 describe("seo helpers", () => {
+  it("lists current vendor AI discovery user agents", () => {
+    expect(AI_DISCOVERY_USER_AGENTS).toEqual([
+      "GPTBot",
+      "OAI-SearchBot",
+      "ChatGPT-User",
+      "Google-Extended",
+      "ClaudeBot",
+      "Claude-User",
+      "Claude-SearchBot",
+      "PerplexityBot",
+      "Perplexity-User",
+      "Applebot-Extended",
+    ]);
+    expect(AI_DISCOVERY_USER_AGENTS).not.toContain("anthropic-ai");
+  });
+
+  it("prefixes zone-relative disallow paths to host-absolute paths", () => {
+    expect(toHostAbsoluteZonePaths(["/api", "/auth"], "/pdf")).toEqual([
+      "/pdf/api",
+      "/pdf/auth",
+    ]);
+    expect(
+      toHostAbsoluteZonePaths(["/store/api", "/account"], "/store")
+    ).toEqual(["/store/api", "/store/account"]);
+  });
+
   it("keeps sitemap canonical URLs crawlable for public app configs", () => {
     const appConfigs = [
       {
         appPath: "/store",
         disallowedPaths: ["/account", "/api", "/auth"],
         sitemapPath: "/store/sitemap.xml",
+        expectedDisallows: ["/store/account", "/store/api", "/store/auth"],
       },
       {
         appPath: "/pdf",
         disallowedPaths: ["/api", "/auth"],
         sitemapPath: "/pdf/sitemap.xml",
+        expectedDisallows: ["/pdf/api", "/pdf/auth"],
       },
     ] as const;
 
@@ -74,6 +104,9 @@ describe("seo helpers", () => {
       const disallowedPaths = getDisallowedPaths(robots.rules);
 
       expect(disallowedPaths).not.toContain(canonicalPath);
+      expect(disallowedPaths).toEqual(
+        expect.arrayContaining([...config.expectedDisallows])
+      );
     }
   });
 
@@ -84,7 +117,7 @@ describe("seo helpers", () => {
     )();
 
     const disallowedPaths = getDisallowedPaths(robots.rules);
-    expect(disallowedPaths).toEqual(["/api"]);
+    expect(disallowedPaths).toEqual(["/contacts/api"]);
   });
 
   it("returns canonical app root URL only in generated app sitemaps", () => {
@@ -95,31 +128,48 @@ describe("seo helpers", () => {
     assertValidPublicSitemapEntries(sitemapEntries);
   });
 
-  it("disallows all crawling for private app robots configs", () => {
-    const robots = createPrivateAppRobots()();
+  it("disallows the zone path for private app robots configs", () => {
+    const robots = createPrivateAppRobots("/tasks")();
     const disallowedPaths = getDisallowedPaths(robots.rules);
 
-    expect(disallowedPaths).toEqual(["/"]);
+    expect(disallowedPaths).toEqual(["/tasks"]);
     expect(robots.host).toBe("https://helvety.com");
     expect(robots.sitemap).toBeUndefined();
   });
 
   it("can include sitemap output for private robots when explicitly enabled", () => {
     // Production private zones omit app/sitemap.ts and use includeSitemap: false.
-    const robots = createPrivateAppRobots("/tasks/sitemap.xml", {
+    const robots = createPrivateAppRobots("/tasks", {
       includeSitemap: true,
+      sitemapPath: "/tasks/sitemap.xml",
     })();
 
     expect(robots.sitemap).toBe("https://helvety.com/tasks/sitemap.xml");
   });
 
-  it("returns an allow-all robots policy for open apps", () => {
+  it("returns an allow-all robots policy for open apps without disallows", () => {
     const robots = createOpenRobots("/sitemap.xml")();
 
     const disallowedPaths = getDisallowedPaths(robots.rules);
     expect(disallowedPaths).toEqual([]);
     expect(robots.sitemap).toBe("https://helvety.com/sitemap.xml");
     expect(robots.host).toBe("https://helvety.com");
+  });
+
+  it("applies gateway disallow paths on open robots when provided", () => {
+    const robots = createOpenRobots(
+      "/sitemap-index.xml",
+      GATEWAY_DISALLOWED_PATHS
+    )();
+    const disallowedPaths = getDisallowedPaths(robots.rules);
+
+    expect(disallowedPaths).toEqual(
+      expect.arrayContaining(["/auth", "/tasks"])
+    );
+    expect(disallowedPaths).toEqual(
+      expect.arrayContaining(["/store/account", "/pdf/api"])
+    );
+    expect(disallowedPaths).not.toContain("/");
   });
 
   it("allows major AI crawlers on public robots alongside *", () => {
@@ -146,19 +196,19 @@ describe("seo helpers", () => {
 
     expect(gptRule?.allow).toBe("/");
     expect(getDisallowedPaths(gptRule ? [gptRule] : [])).toEqual([
-      "/account",
-      "/api",
+      "/store/account",
+      "/store/api",
     ]);
   });
 
   it("disallows major AI crawlers on private app robots", () => {
-    const robots = createPrivateAppRobots()();
+    const robots = createPrivateAppRobots("/auth")();
 
     for (const agent of ["*", ...AI_DISCOVERY_USER_AGENTS]) {
       const disallowedPaths = getDisallowedPaths(
         getRulesForAgent(robots.rules, agent)
       );
-      expect(disallowedPaths, agent).toEqual(["/"]);
+      expect(disallowedPaths, agent).toEqual(["/auth"]);
     }
   });
 });
@@ -246,7 +296,7 @@ describe("createHelvetyProductMetadata", () => {
       metadataBase: "https://helvety.com/auth",
       title: {
         default: "Helvety Auth | Sign in",
-        template: "%s | Helvety",
+        template: "%s | Helvety Auth",
       },
       description: "Auth desc",
       keywords: ["auth"],

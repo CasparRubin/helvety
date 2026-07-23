@@ -10,20 +10,20 @@
 
 ## Crawling And Indexing
 - Public pages are intended to be indexable by search and AI crawlers.
-- Private app routes are not intended as search index targets and use noindex and auth-gated controls.
+- Private app routes (`/auth`, `/tasks`, `/contacts`, `/notes`, `/links`) are not crawl or index targets: gateway `https://helvety.com/robots.txt` disallows those prefixes, and the apps also use noindex (plus auth where required).
 
 ## Agent And Crawler Guides
-Per-zone `llms.txt` summaries (discoverable via robots.txt and gateway links):
+Per-zone `llms.txt` summaries. Public tool guides below are crawlable. Private-zone guides are listed for humans and for agents that already have the URL; compliant crawlers must not fetch them because gateway `robots.txt` disallows `/auth`, `/tasks`, `/contacts`, `/notes`, and `/links`.
 - [Helvety Store](https://helvety.com/store/llms.txt)
 - [Helvety PDF](https://helvety.com/pdf/llms.txt)
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler/llms.txt)
 - [Helvety Image Editor](https://helvety.com/image-editor/llms.txt)
 - [Helvety OCR](https://helvety.com/ocr/llms.txt)
-- [Helvety Auth](https://helvety.com/auth/llms.txt)
-- [Helvety Contacts](https://helvety.com/contacts/llms.txt)
-- [Helvety Notes](https://helvety.com/notes/llms.txt)
-- [Helvety Links](https://helvety.com/links/llms.txt)
-- [Helvety Tasks](https://helvety.com/tasks/llms.txt)
+- [Helvety Auth](https://helvety.com/auth/llms.txt) (private; robots-disallowed prefix)
+- [Helvety Contacts](https://helvety.com/contacts/llms.txt) (private; robots-disallowed prefix)
+- [Helvety Notes](https://helvety.com/notes/llms.txt) (private; robots-disallowed prefix)
+- [Helvety Links](https://helvety.com/links/llms.txt) (private; robots-disallowed prefix)
+- [Helvety Tasks](https://helvety.com/tasks/llms.txt) (private; robots-disallowed prefix)
 
 ## Cookies And Storage
 - Helvety web zones use essential and authentication cookies and browser storage for preferences and encrypted vault sessions. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies).

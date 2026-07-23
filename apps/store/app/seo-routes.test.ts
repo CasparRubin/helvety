@@ -16,7 +16,7 @@ import sitemap from "./sitemap";
 describe("store SEO routes", () => {
   it("returns public robots output without self-blocking entries", () => {
     expectPublicCrawlerRobots(robots(), {
-      disallowPaths: ["/account", "/api", "/auth"],
+      disallowPaths: ["/store/account", "/store/api", "/store/auth"],
       mustNotDisallow: ["/store", "/store/sitemap.xml"],
       sitemap: `${urls.home}/store/sitemap.xml`,
     });

@@ -5,6 +5,6 @@ import robots from "./robots";
 
 describe("notes SEO routes", () => {
   it("returns private robots output", () => {
-    expectPrivateZoneRobots(robots());
+    expectPrivateZoneRobots(robots(), "/notes");
   });
 });

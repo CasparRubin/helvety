@@ -25,7 +25,7 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Helvety",
+  title: "Privacy Policy",
   description: "Privacy Policy for Helvety - How we handle your data",
   alternates: {
     canonical: `${urls.home}/privacy`,

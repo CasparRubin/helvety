@@ -46,8 +46,8 @@ Plaintext structural fields:
 ## Crawl and Indexing
 
 - `apps/notes` is intentionally non-indexable.
-- `/notes/robots.txt` disallows crawling.
-- `/notes/sitemap.xml` is not published (404). Private zones omit sitemap routes; `llms.txt` remains discoverable via robots and gateway links.
+- `/notes/robots.txt` disallows `/notes` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
+- `/notes/sitemap.xml` is not published (404). Private zones omit sitemap routes. Zone `llms.txt` remains published and is linked from the gateway guide, but gateway `robots.txt` disallows `/notes` so compliant crawlers should not fetch it.
 
 ## Environment Variables
 

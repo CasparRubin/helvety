@@ -21,7 +21,7 @@
 
 ## Crawling And Indexing
 - Links routes are intended not to be indexed.
-- These routes are not intended as crawl targets and are protected by noindex metadata and authentication controls.
+- Gateway `https://helvety.com/robots.txt` disallows `/links` (canonical crawl policy). Zone `/links/robots.txt` is a host-absolute mirror. Routes also use noindex and authentication controls.
 
 ## Related Helvety Apps
 - [Helvety](https://helvety.com)

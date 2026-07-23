@@ -29,11 +29,11 @@ describe("seo-route-test-helpers", () => {
   it("expectPublicCrawlerRobots requires AI agents to mirror the star rule", () => {
     const robotsOutput = {
       rules: [
-        { userAgent: "*", allow: "/", disallow: ["/api"] },
+        { userAgent: "*", allow: "/", disallow: ["/pdf/api"] },
         ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
           userAgent,
           allow: "/",
-          disallow: ["/api"],
+          disallow: ["/pdf/api"],
         })),
       ],
       sitemap: "https://helvety.com/pdf/sitemap.xml",
@@ -41,7 +41,7 @@ describe("seo-route-test-helpers", () => {
 
     expect(() =>
       expectPublicCrawlerRobots(robotsOutput, {
-        disallowPaths: ["/api"],
+        disallowPaths: ["/pdf/api"],
         sitemap: "https://helvety.com/pdf/sitemap.xml",
       })
     ).not.toThrow();
@@ -78,36 +78,45 @@ describe("seo-route-test-helpers", () => {
     ).toThrow();
   });
 
-  it("expectPrivateZoneRobots requires disallow / and no sitemap", () => {
+  it("expectPrivateZoneRobots requires zone-prefix disallow and no sitemap", () => {
     expect(() =>
-      expectPrivateZoneRobots({
-        rules: [{ userAgent: "*", disallow: "/" }],
-      })
+      expectPrivateZoneRobots(
+        {
+          rules: [{ userAgent: "*", disallow: "/tasks" }],
+        },
+        "/tasks"
+      )
     ).toThrow();
 
     expect(() =>
-      expectPrivateZoneRobots({
-        rules: [
-          { userAgent: "*", disallow: "/" },
-          ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
-            userAgent,
-            disallow: "/",
-          })),
-        ],
-        sitemap: "https://helvety.com/tasks/sitemap.xml",
-      })
+      expectPrivateZoneRobots(
+        {
+          rules: [
+            { userAgent: "*", disallow: "/tasks" },
+            ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
+              userAgent,
+              disallow: "/tasks",
+            })),
+          ],
+          sitemap: "https://helvety.com/tasks/sitemap.xml",
+        },
+        "/tasks"
+      )
     ).toThrow();
 
     expect(() =>
-      expectPrivateZoneRobots({
-        rules: [
-          { userAgent: "*", disallow: "/" },
-          ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
-            userAgent,
-            disallow: "/",
-          })),
-        ],
-      })
+      expectPrivateZoneRobots(
+        {
+          rules: [
+            { userAgent: "*", disallow: "/tasks" },
+            ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
+              userAgent,
+              disallow: "/tasks",
+            })),
+          ],
+        },
+        "/tasks"
+      )
     ).not.toThrow();
   });
 });

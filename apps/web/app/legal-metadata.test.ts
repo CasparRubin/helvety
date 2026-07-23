@@ -36,4 +36,20 @@ describe("web legal page metadata", () => {
     expect(privacyMetadata.alternates?.canonical).toBe(`${urls.home}/privacy`);
     expect(termsMetadata.alternates?.canonical).toBe(`${urls.home}/terms`);
   });
+
+  it("uses bare titles so the root template does not double the brand", () => {
+    // Root layout template is `%s | Helvety`; including `| Helvety` here
+    // would render as "… | Helvety | Helvety" in the document title.
+    expect(impressumMetadata.title).toBe("Impressum");
+    expect(privacyMetadata.title).toBe("Privacy Policy");
+    expect(termsMetadata.title).toBe("Terms of Service");
+    for (const title of [
+      impressumMetadata.title,
+      privacyMetadata.title,
+      termsMetadata.title,
+    ]) {
+      expect(typeof title).toBe("string");
+      expect(String(title)).not.toMatch(/\|\s*Helvety\s*$/i);
+    }
+  });
 });

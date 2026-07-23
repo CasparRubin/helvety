@@ -11,7 +11,7 @@ import sitemap from "./sitemap";
 describe("image upscaler SEO routes", () => {
   it("returns crawlable robots with expected disallow rules", () => {
     expectPublicCrawlerRobots(robots(), {
-      disallowPaths: ["/api", "/auth"],
+      disallowPaths: ["/image-upscaler/api", "/image-upscaler/auth"],
       mustNotDisallow: ["/image-upscaler", "/image-upscaler/sitemap.xml"],
       sitemap: `${urls.home}/image-upscaler/sitemap.xml`,
     });

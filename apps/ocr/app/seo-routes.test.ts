@@ -11,7 +11,7 @@ import sitemap from "./sitemap";
 describe("ocr SEO routes", () => {
   it("returns crawlable robots with expected disallow rules", () => {
     expectPublicCrawlerRobots(robots(), {
-      disallowPaths: ["/api", "/auth"],
+      disallowPaths: ["/ocr/api", "/ocr/auth"],
       mustNotDisallow: ["/ocr", "/ocr/sitemap.xml"],
       sitemap: `${urls.home}/ocr/sitemap.xml`,
     });

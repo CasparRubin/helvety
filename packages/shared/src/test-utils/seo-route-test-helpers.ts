@@ -74,9 +74,13 @@ export function assertValidPublicSitemapEntries(
   }
 }
 
-/** Asserts private-zone robots: disallow all crawling and omit sitemap advertisement. */
+/**
+ * Asserts private-zone robots: disallow the host-absolute zone prefix and omit
+ * sitemap advertisement.
+ */
 export function expectPrivateZoneRobots(
-  robotsOutput: MetadataRoute.Robots
+  robotsOutput: MetadataRoute.Robots,
+  zonePath: string
 ): void {
   const rules = normalizeRobotsRules(robotsOutput);
 
@@ -84,7 +88,7 @@ export function expectPrivateZoneRobots(
     expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
   );
   for (const rule of rules) {
-    expect(rule.disallow).toBe("/");
+    expect(rule.disallow).toBe(zonePath);
   }
   expect(robotsOutput.sitemap).toBeUndefined();
 }

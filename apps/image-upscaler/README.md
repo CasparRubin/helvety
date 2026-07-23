@@ -73,7 +73,7 @@ Real-ESRGAN by xinntao (BSD-3-Clause).
 ## Crawl and Indexing
 
 - `apps/image-upscaler` is publicly indexable.
-- `/image-upscaler/robots.txt` allows crawl and advertises `/image-upscaler/sitemap.xml`.
+- `/image-upscaler/robots.txt` allows crawl, disallows `/image-upscaler/api` and `/image-upscaler/auth`, and advertises `/image-upscaler/sitemap.xml` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
 - `/image-upscaler/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model

@@ -4,7 +4,7 @@ import { describe, it } from "vitest";
 import robots from "./robots";
 
 describe("links SEO routes", () => {
-  it("returns noindex robots rules", () => {
-    expectPrivateZoneRobots(robots());
+  it("returns private robots output", () => {
+    expectPrivateZoneRobots(robots(), "/links");
   });
 });

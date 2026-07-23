@@ -11,7 +11,7 @@ import sitemap from "./sitemap";
 describe("pdf SEO routes", () => {
   it("returns crawlable robots with expected disallow rules", () => {
     expectPublicCrawlerRobots(robots(), {
-      disallowPaths: ["/api", "/auth"],
+      disallowPaths: ["/pdf/api", "/pdf/auth"],
       mustNotDisallow: ["/pdf", "/pdf/sitemap.xml"],
       sitemap: `${urls.home}/pdf/sitemap.xml`,
     });

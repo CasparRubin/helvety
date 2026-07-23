@@ -37,6 +37,13 @@ describe("auth root layout metadata", () => {
     });
   });
 
+  it("uses Helvety Auth in the document title template", () => {
+    expect(metadata.title).toMatchObject({
+      default: "Helvety Auth | Sign in to your account",
+      template: "%s | Helvety Auth",
+    });
+  });
+
   it("uses license-free sign-in SEO copy", () => {
     assertLicenseFreeSeoCopy("AUTH_DESCRIPTION", AUTH_DESCRIPTION);
     assertSwissOriginInSeoCopy("AUTH_DESCRIPTION", AUTH_DESCRIPTION);

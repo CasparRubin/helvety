@@ -24,10 +24,10 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 - All Helvety Next apps use `experimental.cssChunking: "strict"` via `@helvety/config/next`, which may reduce (not eliminate) unused CSS preload console warnings while `app/loading.tsx` or encryption gates are active.
 - Direct-domain sub-app roots are expected to redirect to their base path.
 - `apps/web` is indexable and serves:
-  - `/robots.txt` (points crawlers at `/sitemap-index.xml`)
+  - `/robots.txt` (RFC 9309 source of truth: allow public crawl, disallow private zones and non-indexable account/API paths via `GATEWAY_DISALLOWED_PATHS`, advertise `/sitemap-index.xml`)
   - `/sitemap.xml` (home, impressum, privacy, terms; no `llms.txt`)
   - `/sitemap-index.xml` (index of public zone sitemaps: `web`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`)
-- Private zones (`auth`, `contacts`, `notes`, `tasks`, `links`) are non-indexable, disallow crawl in zone `robots.txt`, and omit `sitemap.xml` routes (404).
+- Private zones (`auth`, `contacts`, `notes`, `tasks`, `links`) are non-indexable (`noindex` + gateway robots disallow), publish zone `robots.txt` mirrors, and omit `sitemap.xml` routes (404).
 
 ## Security Model
 

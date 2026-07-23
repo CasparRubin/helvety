@@ -23,7 +23,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 
 ## Crawling And Indexing
 - Public catalog and product pages are intended to be crawlable and indexable.
-- Account routes are intended not to be indexed and are protected by authentication and noindex metadata.
+- Account routes are not crawl or index targets: gateway and store robots disallow `/store/account`, and the account page also uses authentication and noindex.
 
 ## Licensing
 The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.

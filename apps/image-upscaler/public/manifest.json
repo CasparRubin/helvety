@@ -1,6 +1,6 @@
 {
   "name": "Helvety Image Upscaler",
-  "short_name": "Image Upscaler",
+  "short_name": "Helvety Image Upscaler",
   "description": "Upscale images in your browser with AI when supported. No account required. Engineered, designed and made in Switzerland.",
   "start_url": "/image-upscaler",
   "display": "standalone",

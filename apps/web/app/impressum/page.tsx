@@ -20,7 +20,7 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Impressum | Helvety",
+  title: "Impressum",
   description: "Impressum for Helvety products and apps",
   alternates: {
     canonical: `${urls.home}/impressum`,

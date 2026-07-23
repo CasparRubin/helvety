@@ -1,6 +1,6 @@
 {
   "name": "Helvety OCR",
-  "short_name": "OCR",
+  "short_name": "Helvety OCR",
   "description": "Extract text from PDFs and images in your browser with on-device OCR. No account required. Engineered, designed and made in Switzerland.",
   "start_url": "/ocr",
   "display": "standalone",
