@@ -164,12 +164,27 @@ describe("extended dependency inventory pin parity", () => {
     const driftConfig = readDriftConfig();
     const root = readWorkspacePackage("package.json");
     const supabaseOverride = root.overrides?.["@supabase/supabase-js"];
+    const viteOverride = root.overrides?.vite;
+    const latestUpdatesHeading = "## Subsequent updates (2026-07-23)";
+    const latestUpdatesIndex = audit.indexOf(latestUpdatesHeading);
+    expect(latestUpdatesIndex).toBeGreaterThan(-1);
+    const latestUpdatesSection = audit.slice(latestUpdatesIndex);
 
+    // Historical pass remains documented; latest section is the live pin trail.
     expect(audit).toMatch(/## Subsequent updates \(2026-07-16\)/);
-    expect(audit).toMatch(/dependency-inventory\.md.*current pins/i);
+    expect(latestUpdatesSection).toMatch(
+      /dependency-inventory\.md.*current pins/i
+    );
     expect(supabaseOverride).toBeTruthy();
-    expect(audit).toContain(supabaseOverride);
-    expect(audit).toContain(driftConfig.requiredVersionByDep["lucide-react"]);
+    expect(viteOverride).toBeTruthy();
+    expect(latestUpdatesSection).toContain(supabaseOverride);
+    expect(latestUpdatesSection).toContain(
+      driftConfig.requiredVersionByDep["lucide-react"]
+    );
+    expect(latestUpdatesSection).toContain(
+      driftConfig.requiredVersionByDep.next
+    );
+    expect(latestUpdatesSection).toContain(`\`vite\` \`${viteOverride}\``);
   });
 
   it("security audit July stack table is labeled as a historical pass", () => {
@@ -184,7 +199,7 @@ describe("extended dependency inventory pin parity", () => {
     expect(stackSection).toMatch(/July 2026 re-audit pass/i);
     expect(stackSection).toMatch(/at that time|snapshot/i);
     expect(stackSection).toMatch(
-      /Subsequent updates \(2026-07-16\)|dependency-inventory\.md.*current pins/i
+      /Subsequent updates \(2026-07-23\)|dependency-inventory\.md.*current pins/i
     );
   });
 

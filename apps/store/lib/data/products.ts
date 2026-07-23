@@ -626,7 +626,7 @@ const helvetyImageUpscaler: SaaSProduct = {
         items: [
           "Choose 2× or 4× upscale, or set a target width or height.",
           "Process up to five images per batch and download them one by one or together.",
-          "The AI model downloads on first use and stays cached for later runs.",
+          "The AI model downloads from Helvety-hosted storage on first use and stays cached for later runs.",
           "Very large images may be limited so your browser tab stays stable.",
         ],
       },

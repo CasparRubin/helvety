@@ -142,13 +142,13 @@ describe("ImageUpscalerCommandBar", () => {
     expect(onScaleChange).toHaveBeenCalledWith(4);
   });
 
-  it("confirms clear-all action before invoking callback", () => {
+  it("confirms clear-all action before invoking callback", async () => {
     const onClearAll = vi.fn();
     renderCommandBar({ hasItems: true, onClearAll });
 
     fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
-    const dialog = screen.getByRole("alertdialog");
-    expect(screen.getByText("Clear All Images?")).toBeInTheDocument();
+    const dialog = await screen.findByRole("alertdialog");
+    expect(await screen.findByText("Clear All Images?")).toBeInTheDocument();
     expect(onClearAll).not.toHaveBeenCalled();
 
     fireEvent.click(within(dialog).getByRole("button", { name: "Clear All" }));

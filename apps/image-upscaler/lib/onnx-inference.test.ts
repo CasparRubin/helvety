@@ -54,7 +54,7 @@ describe("onnx-inference session loading", () => {
       bytes: mainBytes,
       externalData: [
         {
-          path: "real_esrgan_general_x4v3.data",
+          path: generalSidecar.path,
           bytes: sidecarBytes,
         },
       ],
@@ -68,14 +68,12 @@ describe("onnx-inference session loading", () => {
       {
         id: "realesr-general-x4v3",
         url: generalModel.url,
-        sha256:
-          "a848eba3a04de14cc5846733032c3fdc2eee175fd29df264067c3e85ab29d9b3",
+        sha256: generalModel.sha256,
         externalData: [
           {
             url: generalSidecar.url,
-            path: "real_esrgan_general_x4v3.data",
-            sha256:
-              "512d0ec9940c2e9d85d27f2952f12a0b77b7841dc22df4ce9f3ea458bc98f37f",
+            path: generalSidecar.path,
+            sha256: generalSidecar.sha256,
           },
         ],
       },
@@ -88,7 +86,7 @@ describe("onnx-inference session loading", () => {
         graphOptimizationLevel: "all",
         externalData: [
           {
-            path: "real_esrgan_general_x4v3.data",
+            path: generalSidecar.path,
             data: sidecarBytes,
           },
         ],

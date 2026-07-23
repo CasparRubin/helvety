@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",
-    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/jest-dom": "^6.10.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
@@ -26,9 +26,9 @@
     "eslint": "^10.7.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "29.1.1",
-    "prettier": "^3.9.5",
+    "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "shadcn": "^4.13.0",
+    "shadcn": "^4.14.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"

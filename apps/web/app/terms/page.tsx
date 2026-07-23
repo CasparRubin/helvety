@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="July 11, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="July 23, 2026" />
 
       {/* Table of Contents */}
       <LegalToc>
@@ -500,12 +500,14 @@ export default function TermsPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           Certain Services use AI-assisted or model-assisted processing. For
           Helvety Image Upscaler, image transformation runs in your browser
-          under the current architecture. For Helvety Maguna, model inference
-          runs locally on your device, while model weights may be downloaded
-          from third-party hosts such as Hugging Face. We do not guarantee that
-          outputs will be accurate, visually improved, fit for a specific
-          purpose, or free from artifacts, hallucinations, unsafe output, or
-          licensing restrictions in every case.
+          under the current architecture, while model weights may be downloaded
+          from Helvety-hosted storage (for example Supabase Storage) on first AI
+          use. For Helvety Maguna, model inference runs locally on your device,
+          while model weights may be downloaded from third-party hosts such as
+          Hugging Face. We do not guarantee that outputs will be accurate,
+          visually improved, fit for a specific purpose, or free from artifacts,
+          hallucinations, unsafe output, or licensing restrictions in every
+          case.
         </p>
         <p className="text-muted-foreground text-sm">
           You are responsible for reviewing outputs before relying on them in

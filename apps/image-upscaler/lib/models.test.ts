@@ -29,16 +29,16 @@ describe("upscale model registry", () => {
     expect(model.url).toContain(
       `${STORAGE_PATH_PREFIX}real_esrgan_general_x4v3.onnx`
     );
-    expect(model.externalData).toEqual([
-      {
-        url: expect.stringContaining(
-          `${STORAGE_PATH_PREFIX}real_esrgan_general_x4v3.data`
-        ),
-        path: "real_esrgan_general_x4v3.data",
-        sha256:
-          "512d0ec9940c2e9d85d27f2952f12a0b77b7841dc22df4ce9f3ea458bc98f37f",
-      },
-    ]);
+    expect(model.sha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(model.externalData).toHaveLength(1);
+    const sidecar = model.externalData?.[0];
+    expect(sidecar).toMatchObject({
+      path: "real_esrgan_general_x4v3.data",
+      sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    expect(sidecar?.url).toContain(
+      `${STORAGE_PATH_PREFIX}real_esrgan_general_x4v3.data`
+    );
   });
 
   it("does not expose removed or undocumented engines", () => {
@@ -58,5 +58,20 @@ describe("upscale model registry", () => {
     vi.stubGlobal("WebAssembly", undefined);
 
     expect(getDefaultEngineForRuntime()).toBe("canvas");
+  });
+
+  it("models runbook digests match the live registry pins", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const readme = readFileSync(
+      join(import.meta.dirname, "../public/models/README.md"),
+      "utf8"
+    );
+    const model = getModelById(DEFAULT_UPSCALE_MODEL_ID);
+    expect(model.sha256).toBeTruthy();
+    expect(readme).toContain(model.sha256 as string);
+    const sidecarSha = model.externalData?.[0]?.sha256;
+    expect(sidecarSha).toBeTruthy();
+    expect(readme).toContain(sidecarSha as string);
   });
 });

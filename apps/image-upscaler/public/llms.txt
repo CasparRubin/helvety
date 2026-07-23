@@ -1,6 +1,6 @@
 # Helvety Image Upscaler
 
-> Upscale PNG, JPEG, or WebP in your browser on your device. AI quality when supported, with sensible limits so tabs stay responsive. No image upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
+> Upscale PNG, JPEG, or WebP in your browser on your device. AI quality when supported, with sensible limits so tabs stay responsive. Image pixels are not uploaded to Helvety for processing in the normal flow; AI model weights may download once from Helvety-hosted storage. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety Image Upscaler](https://helvety.com/image-upscaler): Main application route

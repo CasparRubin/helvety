@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="July 11, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="July 23, 2026" />
 
       {/* Introduction */}
       <section className="legal-section">
@@ -519,11 +519,15 @@ export default function PrivacyPage() {
             </strong>{" "}
             Raster upscales execute locally when the build supports them: image
             files are processed in your browser and are not uploaded to our
-            servers for upscaling. No login or account is required. The service
-            still uses minimal server-side endpoints for platform and security
-            functions (for example CSP reporting and session/security proxy
-            logic). The service is provided free of charge; technical safeguards
-            may still apply for security and operational stability.
+            servers for upscaling. On first AI use, model weight files may be
+            downloaded from Helvety-hosted storage (for example Supabase
+            Storage) so inference can run in your browser; that delivery may
+            process connection and download metadata, but not your image pixels.
+            No login or account is required. The service still uses minimal
+            server-side endpoints for platform and security functions (for
+            example CSP reporting and session/security proxy logic). The service
+            is provided free of charge; technical safeguards may still apply for
+            security and operational stability.
           </li>
           <li>
             <strong className="text-foreground">
@@ -678,12 +682,14 @@ export default function PrivacyPage() {
           optical character recognition, and file contents and extracted text
           are not uploaded to our servers for text extraction or used to train
           or fine-tune machine-learning models under the current architecture.
-          Model files used by the upscaler, and the OCR engine and language
-          files used by Helvety OCR, are downloaded to your browser and may be
-          cached locally by your browser. In normal operation, the minimal
-          server-side endpoints referenced above process technical/security
-          context and are not intended to receive full file payloads for
-          upscaling, annotation, PDF processing, or text extraction.
+          Model files used by the upscaler may be downloaded from Helvety-hosted
+          storage (for example Supabase Storage) and cached locally by your
+          browser. The OCR engine and language files used by Helvety OCR are
+          likewise downloaded to your browser and may be cached locally. In
+          normal operation, the minimal server-side endpoints referenced above
+          process technical/security context and are not intended to receive
+          full file payloads for upscaling, annotation, PDF processing, or text
+          extraction.
         </p>
       </section>
 

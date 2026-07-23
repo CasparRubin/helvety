@@ -68,7 +68,7 @@ Live audit confirms a **strong security posture**: all 9 user-data tables have f
 
 ## Extended assets
 
-> Pins below are **as of 2026-06-13**. For **current** pins, use [`dependency-inventory.md`](./dependency-inventory.md). Dependency changelog: [Subsequent updates (2026-07-14)](#subsequent-updates-2026-07-14--cross-repo-uxsecurity-remediation) (latest code remediations); also [2026-07-11](#subsequent-updates-2026-07-11).
+> Pins below are **as of 2026-06-13**. For **current** pins, use [`dependency-inventory.md`](./dependency-inventory.md). Dependency changelog: [Subsequent updates (2026-07-23)](#subsequent-updates-2026-07-23) (latest); earlier remediations include [2026-07-16](#subsequent-updates-2026-07-16), [2026-07-14](#subsequent-updates-2026-07-14--cross-repo-uxsecurity-remediation), and [2026-07-11](#subsequent-updates-2026-07-11).
 
 | Asset                              | Pin at audit (2026-06-13)                                            | Upstream latest (at audit)                               | Recommendation                                                                                   |
 | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -314,7 +314,7 @@ Automated copy guardrails and targeted legal/SEO/store tests were re-run; **no f
 
 **Accurate qualifiers in place:** Privacy and Terms use **zero-knowledge-oriented** (not absolute zero-knowledge); E2EE apps disclose plaintext structural metadata and cross-app linking; public tools state client-local processing; Store browser-extension copy states open beta, manual GitHub install, and passkey unlock; navbar tooltips match encryption reality.
 
-**Not outdated:** `lastReviewed="June 19, 2026"` on privacy/terms/impressum remains correct (no legal body changes this pass). Historical security-audit tables that say "9 zone projects" are **June 2026 snapshots**; **current count is eleven** (see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) and [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)).
+**As of that pass:** Privacy/Terms/Impressum `lastReviewed` was still `June 19, 2026` (no legal body changes in that remediation). Later legal body updates moved `lastReviewed` to **July 11, 2026**, then **July 23, 2026** (see the live pages). Historical security-audit tables that say "9 zone projects" are **June 2026 snapshots**; **current count is eleven** (see [Subsequent updates (2026-07-11)](#subsequent-updates-2026-07-11) and [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md)).
 
 ### Critical/High fixes applied
 
@@ -452,7 +452,7 @@ No misleading E2EE or extension weekly-re-auth claims detected by automated guar
 
 ### Stack / best-practices alignment (July 2026 re-audit pass)
 
-Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins **at that time** and guardrails then in force — no drift, no auth-pattern regressions. Pins in this table are a snapshot; see [Subsequent updates (2026-07-16)](#subsequent-updates-2026-07-16) and **dependency-inventory.md** for current pins.
+Verified against [`docs/dependency-inventory.md`](./dependency-inventory.md) pins **at that time** and guardrails then in force — no drift, no auth-pattern regressions. Pins in this table are a snapshot; see [Subsequent updates (2026-07-23)](#subsequent-updates-2026-07-23) and **dependency-inventory.md** for current pins.
 
 | Area                  | Pin / pattern                                                                                | Status                                                                |
 | --------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
@@ -566,3 +566,22 @@ Patch/minor dependency sweep across monorepo + Helvety Chromium extension + PPC 
 | PPC extension                              | intentional Tailwind 3 / Vite 7 lag   | in-range only: lucide `1.24.0`, vitest `4.1.10`, prettier `3.9.5`, vite `7.3.6`, eslint `9.39.5` |
 
 Verification: `bun run deps:drift`, `bun run deps:security`, `bun run consistency:pdfjs-worker`, `consistency:supabase-auth`, `consistency:extension-auth`, `consistency:extension-e2ee` (monorepo); `pnpm run ci:check` (Helvety extension). Historical tables above remain audit snapshots; use **dependency-inventory.md** for current pins.
+
+## Subsequent updates (2026-07-23)
+
+Patch/minor + security override sweep (canonical pins: [`dependency-inventory.md`](./dependency-inventory.md); drift map in `scripts/workspace-version-drift.config.json`).
+
+| Item                                       | As of 2026-07-16                                                                                                                       | As of 2026-07-23                                                                                                                                                                    |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Next.js / `eslint-config-next`             | `^16.2.10`                                                                                                                             | `^16.2.11` (security floor)                                                                                                                                                         |
+| React / React DOM                          | `^19.2.7`                                                                                                                              | `^19.2.8`                                                                                                                                                                           |
+| `@supabase/supabase-js` (override + floor) | `2.110.7`                                                                                                                              | `2.110.8`                                                                                                                                                                           |
+| `lucide-react` (drift)                     | `^1.24.0`                                                                                                                              | `^1.26.0`                                                                                                                                                                           |
+| `shadcn` (dev-deps + ui)                   | `^4.13.0`                                                                                                                              | `^4.14.0`                                                                                                                                                                           |
+| Root overrides                             | `hono` `4.12.29`, `vite` `8.1.4`, `protobufjs` `7.6.4`, `js-yaml` `4.2.0`, `@hono/node-server` `1.19.13`, `typescript-eslint` `8.64.0` | `hono` `4.12.31`, `vite` `8.1.5`, `protobufjs` `7.6.5`, `js-yaml` `4.3.0`, `@hono/node-server` `2.0.11`, `typescript-eslint` `8.65.0`, plus `body-parser` `2.3.0`, `sharp` `0.35.3` |
+| Toolchain                                  | turbo `2.10.5`, knip `6.27.0`, prettier `3.9.5`                                                                                        | turbo `2.10.6`, knip `6.29.0`, prettier `3.9.6`, `@testing-library/jest-dom` `^6.10.0`                                                                                              |
+| `eslint-plugin-react` git tip              | `f6ec87dd…`                                                                                                                            | `c9a2de77…`                                                                                                                                                                         |
+
+Deferred: TypeScript 7, undici 8, standalone pdfjs-dist 6, `@types/node` 26, Real-ESRGAN HF packaging `v0.58.0` graph SHA (`.data` weights unchanged; adopt only with Supabase upload).
+
+Verification: `bun run deps:drift`, `bun run deps:security` (`bun audit` clean), `bun run consistency:pdfjs-worker`, `bun run ci:check`. Use **dependency-inventory.md** for current pins.

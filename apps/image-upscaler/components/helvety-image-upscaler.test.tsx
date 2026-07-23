@@ -111,9 +111,9 @@ describe("HelvetyImageUpscaler", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
 
-    expect(screen.getByText("Clear All Images?")).toBeInTheDocument();
+    expect(await screen.findByText("Clear All Images?")).toBeInTheDocument();
     expect(
-      screen.getByText(
+      await screen.findByText(
         "This will remove all queued and processed images. This action cannot be undone."
       )
     ).toBeInTheDocument();

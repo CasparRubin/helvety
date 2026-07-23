@@ -97,6 +97,30 @@ describe("legal pages enumerate public local-processing tools", () => {
     }
   });
 
+  it("privacy §2 documents Helvety Image Upscaler model-weight download host", () => {
+    const source = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/privacy/page.tsx"), "utf8")
+    );
+    expect(source).toContain(
+      "Helvety Image Upscaler (helvety.com/image-upscaler):"
+    );
+    expect(source).toContain("Helvety-hosted storage");
+    expect(source).toContain("not your image pixels");
+  });
+
+  it("terms 4.6 discloses Upscaler Helvety-hosted weights and Maguna Hugging Face weights", () => {
+    const source = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/terms/page.tsx"), "utf8")
+    );
+    const section = sliceBetween(
+      source,
+      "4.6 AI-assisted tools (including Helvety Image Upscaler)",
+      "5. Free Services and Beta Features"
+    );
+    expect(section).toContain("Helvety-hosted storage");
+    expect(section).toContain("Hugging Face");
+  });
+
   it("terms section 9.1 documents no-account access for every public local tool", () => {
     const source = normalizeLegalSource(
       readFileSync(join(repoRoot, "apps/web/app/terms/page.tsx"), "utf8")
@@ -130,7 +154,7 @@ describe("legal local-processing statements cover every public local tool", () =
     const statement = sliceBetween(
       source,
       "AI model training and retention statement:",
-      "PDF processing, or text extraction."
+      "3. Legal Basis for Processing"
     );
     for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
       expect(
