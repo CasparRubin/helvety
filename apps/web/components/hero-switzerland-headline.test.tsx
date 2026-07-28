@@ -32,17 +32,17 @@ describe("HeroSwitzerlandHeadline", () => {
   it("cycles Engineered / Designed / Made via RotatingText", () => {
     const html = renderToStaticMarkup(<HeroSwitzerlandHeadline />);
 
+    expect(html).toContain("Engineered");
+    expect(html).toContain(" in ");
     expect(html).toContain("Switzerland");
     expect(html).toContain("text-brand-swiss-red");
     expect(html).toContain('data-testid="rotating"');
-    expect(html).toContain("Engineered");
     expect(mocks.RotatingText).toHaveBeenCalledWith(
       expect.objectContaining({
         texts: [...HERO_SWITZERLAND_ROTATING_TEXTS],
-        loop: true,
-        auto: true,
+        staggerDuration: 0.025,
         staggerFrom: "last",
-        rotationInterval: 2200,
+        rotationInterval: 4000,
       }),
       undefined
     );

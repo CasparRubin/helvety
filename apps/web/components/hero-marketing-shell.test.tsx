@@ -34,7 +34,7 @@ vi.mock("next/link", () => ({
 }));
 
 describe("HeroMarketingShell", () => {
-  it("wires Helvety logo, company values, and Switzerland RotatingText island", () => {
+  it("wires Software Products title, company values, and Switzerland RotatingText island", () => {
     const src = readFileSync(shellPath, "utf8");
 
     expect(src).toContain("HeroSwitzerlandHeadline");
@@ -43,11 +43,11 @@ describe("HeroMarketingShell", () => {
     expect(src).toContain("HERO_COMPANY_VALUES_TAGLINE_DISPLAY");
     expect(src).toContain("HeroCompanyValuesTagline");
     expect(src).not.toMatch(/WebGL/);
-    expect(src).toContain("HelvetyLogo");
-    expect(src).toContain("@helvety/brand");
+    expect(src).toContain("Software Products");
+    expect(src).not.toContain("HelvetyLogo");
+    expect(src).not.toContain("@helvety/brand");
     expect(src).not.toContain("@helvety/ui/badge");
     expect(src).not.toContain("hero-text");
-    expect(src).not.toContain("Software products");
     expect(src).not.toContain("HELVETY_SWISS_ORIGIN_SEO");
   });
 
@@ -76,10 +76,9 @@ describe("HeroMarketingShell", () => {
       (match) => match[1]
     );
 
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*aria-label="Helvety"[\s\S]*<\/h1>/);
-    expect(html).toContain('viewBox="0 0 4000 1000"');
+    expect(html).toMatch(/<h1[^>]*>Software Products<\/h1>/);
     expect(html).toContain("Engineered");
-    expect(html).toContain(">in <");
+    expect(html).toContain(" in ");
     expect(html).toContain("Switzerland");
     expect(html).toContain("text-brand-swiss-red");
     expect(html).not.toContain("Engineered, designed and made in Switzerland.");
@@ -90,8 +89,9 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("tracking-[0.08em]");
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
-    expect(html).toContain("justify-start");
-    expect(html).toContain("sm:justify-center");
+    expect(html).toContain("justify-center");
+    expect(html).toContain("gap-12");
+    expect(html).toContain("sm:gap-16");
     expect(html).toContain("max-w-md");
     expect(html).toContain("sm:max-w-2xl");
     expect(html).toContain("text-center sm:text-left");

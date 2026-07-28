@@ -25,6 +25,7 @@ describe("StoreProductsSpeculation", () => {
     expect(html).toContain("/store/products");
     expect(html).toContain('"source":"list"');
     expect(html).toContain('"prefetch"');
+    expect(element.props.suppressHydrationWarning).toBe(true);
   });
 
   it("omits nonce when the request header is unavailable", async () => {

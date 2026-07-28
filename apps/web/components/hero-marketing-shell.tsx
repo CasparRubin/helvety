@@ -1,4 +1,3 @@
-import { HelvetyLogo } from "@helvety/brand";
 import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
@@ -39,8 +38,7 @@ export function HeroMarketingShell() {
   return (
     <section
       className={cn(
-        "relative flex w-full min-w-0 flex-1 flex-col justify-start overflow-hidden pt-10 pb-14",
-        "sm:justify-center sm:py-0",
+        "relative flex w-full min-w-0 flex-1 flex-col justify-center overflow-hidden py-12 sm:py-16",
         HERO_MIN_MAIN,
         "bg-background"
       )}
@@ -61,13 +59,10 @@ export function HeroMarketingShell() {
         )}
       />
 
-      <div className="pointer-events-none relative mx-auto flex w-full max-w-3xl flex-col items-center gap-8 px-4 text-center sm:gap-10 md:px-6">
-        <div className="hero-enter-brand space-y-3 sm:space-y-4">
-          <h1 className="flex justify-center">
-            <HelvetyLogo
-              aria-label="Helvety"
-              className="h-10 w-auto max-w-full sm:h-12 md:h-14 lg:h-16"
-            />
+      <div className="pointer-events-none relative mx-auto flex w-full max-w-3xl flex-col items-center gap-12 px-4 text-center sm:gap-16 md:px-6">
+        <div className="hero-enter-brand space-y-4 sm:space-y-5">
+          <h1 className="text-muted-foreground text-base font-medium tracking-[0.12em] uppercase">
+            Software Products
           </h1>
           <div className="flex justify-center">
             <HeroSwitzerlandHeadline />

@@ -28,5 +28,6 @@ describe("StoreProductsSpeculation wiring", () => {
     expect(source).toContain('type="speculationrules"');
     expect(source).toContain("urls.storeProducts");
     expect(source).toContain("nonce={nonce}");
+    expect(source).toContain("suppressHydrationWarning");
   });
 });
