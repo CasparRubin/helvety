@@ -10,6 +10,7 @@ import { HeroSwitzerlandHeadline } from "@/components/hero-switzerland-headline"
 export {
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
   HERO_COMPANY_VALUES_TAGLINE_TEXT,
+  HERO_OPEN_SOURCE_ASSURANCE,
 } from "@/components/hero-company-values-copy";
 
 export { HERO_SWITZERLAND_ROTATING_TEXTS } from "@/components/hero-switzerland-headline";
@@ -23,7 +24,7 @@ const HERO_CTA_BUTTON_CLASS =
 
 /** Helvety Cloud destination blurb under the primary CTA. */
 export const HERO_CLOUD_CTA_DESCRIPTION =
-  "Our flagship SaaS. Fully end-to-end encrypted workspace for tasks, notes, contacts, and more. Open source so you can verify our claims.";
+  "Fully end-to-end encrypted workspace for tasks, notes, contacts, and more.";
 
 /** Store products destination blurb under the secondary CTA. */
 export const HERO_PRODUCTS_CTA_DESCRIPTION =
@@ -62,7 +63,7 @@ export function HeroMarketingShell() {
       <div className="pointer-events-none relative mx-auto flex w-full max-w-3xl flex-col items-center gap-12 px-4 text-center sm:gap-16 md:px-6">
         <div className="hero-enter-brand space-y-4 sm:space-y-5">
           <h1 className="text-muted-foreground text-base font-medium tracking-[0.12em] uppercase">
-            Software Products
+            Software
           </h1>
           <div className="flex justify-center">
             <HeroSwitzerlandHeadline />
@@ -73,7 +74,7 @@ export function HeroMarketingShell() {
         </div>
 
         <div className="hero-enter-ctas pointer-events-auto mx-auto grid w-full max-w-md grid-cols-1 gap-5 sm:max-w-2xl sm:grid-cols-2 sm:items-start sm:gap-6">
-          <div className="flex flex-col items-stretch gap-2.5 text-center sm:text-left">
+          <div className="flex flex-col items-stretch gap-2.5 text-center">
             <Button
               size="lg"
               className={HERO_CTA_BUTTON_CLASS}
@@ -92,7 +93,7 @@ export function HeroMarketingShell() {
             </p>
           </div>
 
-          <div className="flex flex-col items-stretch gap-2.5 text-center sm:text-left">
+          <div className="flex flex-col items-stretch gap-2.5 text-center">
             <Button
               size="lg"
               variant="outline"

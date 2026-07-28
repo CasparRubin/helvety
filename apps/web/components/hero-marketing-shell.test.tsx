@@ -10,6 +10,7 @@ import {
   HERO_CLOUD_CTA_DESCRIPTION,
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
   HERO_COMPANY_VALUES_TAGLINE_TEXT,
+  HERO_OPEN_SOURCE_ASSURANCE,
   HERO_PRODUCTS_CTA_DESCRIPTION,
   HERO_SWITZERLAND_ROTATING_TEXTS,
   HeroMarketingShell,
@@ -34,7 +35,7 @@ vi.mock("next/link", () => ({
 }));
 
 describe("HeroMarketingShell", () => {
-  it("wires Software Products title, company values, and Switzerland RotatingText island", () => {
+  it("wires Software title, company values, and Switzerland RotatingText island", () => {
     const src = readFileSync(shellPath, "utf8");
 
     expect(src).toContain("HeroSwitzerlandHeadline");
@@ -43,7 +44,7 @@ describe("HeroMarketingShell", () => {
     expect(src).toContain("HERO_COMPANY_VALUES_TAGLINE_DISPLAY");
     expect(src).toContain("HeroCompanyValuesTagline");
     expect(src).not.toMatch(/WebGL/);
-    expect(src).toContain("Software Products");
+    expect(src).toContain("Software");
     expect(src).not.toContain("HelvetyLogo");
     expect(src).not.toContain("@helvety/brand");
     expect(src).not.toContain("@helvety/ui/badge");
@@ -60,13 +61,17 @@ describe("HeroMarketingShell", () => {
       "private · simple · clean"
     );
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
+    expect(HERO_OPEN_SOURCE_ASSURANCE).toBe(
+      "Everything we build is open source so you can verify our claims."
+    );
+    expect(HERO_OPEN_SOURCE_ASSURANCE).not.toMatch(EMOJI_PATTERN);
   });
 
-  it("exposes Switzerland rotating city phrases for RotatingText", () => {
+  it("exposes Switzerland rotating origin phrases for RotatingText", () => {
     expect([...HERO_SWITZERLAND_ROTATING_TEXTS]).toEqual([
-      "Made in Wallis",
-      "Designed in Basel",
-      "Engineered in Zürich",
+      "Designed in Basel,",
+      "Engineered in Zürich,",
+      "Made in",
     ]);
   });
 
@@ -76,14 +81,17 @@ describe("HeroMarketingShell", () => {
       (match) => match[1]
     );
 
-    expect(html).toMatch(/<h1[^>]*>Software Products<\/h1>/);
-    expect(html).toContain("Made in Wallis");
-    expect(html).toContain(", ");
+    expect(html).toMatch(/<h1[^>]*>Software<\/h1>/);
+    expect(html).toContain("Designed in Basel,");
     expect(html).toContain("Switzerland");
     expect(html).toContain("text-brand-swiss-red");
+    expect(html).not.toContain("Made in Wallis");
     expect(html).not.toContain("Engineered, designed and made in Switzerland.");
     expect(html).toContain("private · simple · clean");
     expect(html).not.toContain("private, simple, clean");
+    expect(html).toContain(HERO_OPEN_SOURCE_ASSURANCE);
+    expect(html).toContain("text-muted-foreground/50");
+    expect(html).toContain("text-xs");
     expect(html).toContain("text-muted-foreground");
     expect(html).toContain("font-medium");
     expect(html).toContain("tracking-[0.08em]");
@@ -94,7 +102,8 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("sm:gap-16");
     expect(html).toContain("max-w-md");
     expect(html).toContain("sm:max-w-2xl");
-    expect(html).toContain("text-center sm:text-left");
+    expect(html).toContain("text-center");
+    expect(html).not.toContain("sm:text-left");
     expect(html).toContain("hero-enter-brand");
     expect(html).toContain("hero-enter-ctas");
     expect(html).toContain("Helvety Cloud");

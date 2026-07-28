@@ -29,12 +29,11 @@ describe("HeroSwitzerlandHeadline", () => {
     mocks.useReducedMotion.mockReturnValue(false);
   });
 
-  it("cycles city origin phrases via RotatingText with static Switzerland", () => {
+  it("cycles lead-in phrases via RotatingText with static red Switzerland", () => {
     const html = renderToStaticMarkup(<HeroSwitzerlandHeadline />);
 
-    expect(html).toContain("Made in Wallis");
-    expect(html).toContain(", ");
-    expect(html).toContain("Switzerland");
+    expect(html).toContain("Designed in Basel,");
+    expect(html).toContain(HELVETY_SWISS_ORIGIN_COUNTRY);
     expect(html).toContain("text-brand-swiss-red");
     expect(html).toContain('data-testid="rotating"');
     expect(mocks.RotatingText).toHaveBeenCalledWith(
@@ -54,13 +53,13 @@ describe("HeroSwitzerlandHeadline", () => {
     const html = renderToStaticMarkup(<HeroSwitzerlandHeadline />);
 
     expect(html).toContain(
-      "Made in Wallis, designed in Basel &amp; engineered in Zürich,"
+      "Designed in Basel, engineered in Zürich &amp; made in"
     );
     expect(html).toContain(HELVETY_SWISS_ORIGIN_COUNTRY);
     expect(html).toContain("text-brand-swiss-red");
     expect(mocks.RotatingText).not.toHaveBeenCalled();
     expect(HERO_SWITZERLAND_STATIC_LINE).toBe(
-      `Made in Wallis, designed in Basel & engineered in Zürich, ${HELVETY_SWISS_ORIGIN_COUNTRY}`
+      `Designed in Basel, engineered in Zürich & made in ${HELVETY_SWISS_ORIGIN_COUNTRY}`
     );
   });
 });

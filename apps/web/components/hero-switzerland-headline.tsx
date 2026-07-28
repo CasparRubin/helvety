@@ -10,15 +10,19 @@ import { useReducedMotion } from "framer-motion";
 
 import RotatingText from "@/components/vendor/RotatingText";
 
-/** Origin phrases cycled by RotatingText before static “, Switzerland”. */
+/**
+ * Lead-in phrases cycled by RotatingText before a static space + red
+ * Switzerland. Trailing commas stay on the first two so “Made in Switzerland”
+ * has no comma.
+ */
 export const HERO_SWITZERLAND_ROTATING_TEXTS = [
-  "Made in Wallis",
-  "Designed in Basel",
-  "Engineered in Zürich",
+  "Designed in Basel,",
+  "Engineered in Zürich,",
+  "Made in",
 ] as const;
 
 /** Static fallback when the user prefers reduced motion. */
-export const HERO_SWITZERLAND_STATIC_LINE = `Made in Wallis, designed in Basel & engineered in Zürich, ${HELVETY_SWISS_ORIGIN_COUNTRY}`;
+export const HERO_SWITZERLAND_STATIC_LINE = `Designed in Basel, engineered in Zürich & made in ${HELVETY_SWISS_ORIGIN_COUNTRY}`;
 
 const HEADLINE_CLASS =
   "text-foreground text-center text-lg font-semibold tracking-tight sm:text-xl md:text-2xl lg:text-[1.75rem] lg:leading-snug";
@@ -32,7 +36,7 @@ export function HeroSwitzerlandHeadline() {
   if (reducedMotion) {
     return (
       <p className={HEADLINE_CLASS}>
-        Made in Wallis, designed in Basel &amp; engineered in Zürich,{" "}
+        Designed in Basel, engineered in Zürich &amp; made in{" "}
         <span className="text-brand-swiss-red font-medium">
           {HELVETY_SWISS_ORIGIN_COUNTRY}
         </span>
@@ -49,8 +53,7 @@ export function HeroSwitzerlandHeadline() {
           staggerFrom="last"
           rotationInterval={5000}
         />
-      </span>
-      {", "}
+      </span>{" "}
       <span className="text-brand-swiss-red font-medium">
         {HELVETY_SWISS_ORIGIN_COUNTRY}
       </span>
