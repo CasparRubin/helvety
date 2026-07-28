@@ -336,6 +336,7 @@ export function createEslintConfig(rootDir) {
         "prefer-template": "off",
         "import-x/order": "off",
         "import-x/no-duplicates": "off",
+        "react/no-array-index-key": "off",
       },
     },
     globalIgnores([

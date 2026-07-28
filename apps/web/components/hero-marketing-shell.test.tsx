@@ -11,6 +11,7 @@ import {
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
   HERO_COMPANY_VALUES_TAGLINE_TEXT,
   HERO_PRODUCTS_CTA_DESCRIPTION,
+  HERO_SWITZERLAND_ROTATING_TEXTS,
   HeroMarketingShell,
 } from "./hero-marketing-shell";
 
@@ -33,19 +34,21 @@ vi.mock("next/link", () => ({
 }));
 
 describe("HeroMarketingShell", () => {
-  it("uses the country accent constant, not the full Swiss SEO closing", () => {
+  it("wires Helvety logo, company values, and Switzerland RotatingText island", () => {
     const src = readFileSync(shellPath, "utf8");
 
-    expect(src).toContain("HELVETY_SWISS_ORIGIN_COUNTRY");
-    expect(src).not.toContain("HELVETY_SWISS_ORIGIN_SEO");
+    expect(src).toContain("HeroSwitzerlandHeadline");
+    expect(src).toContain("hero-switzerland-headline");
     expect(src).toContain("hero-company-values-copy");
     expect(src).toContain("HERO_COMPANY_VALUES_TAGLINE_DISPLAY");
     expect(src).toContain("HeroCompanyValuesTagline");
     expect(src).not.toMatch(/WebGL/);
-    expect(src).toContain("lg:whitespace-nowrap");
+    expect(src).toContain("HelvetyLogo");
+    expect(src).toContain("@helvety/brand");
     expect(src).not.toContain("@helvety/ui/badge");
     expect(src).not.toContain("hero-text");
     expect(src).not.toContain("Software products");
+    expect(src).not.toContain("HELVETY_SWISS_ORIGIN_SEO");
   });
 
   it("derives hero tagline text from shared company values (ASCII, no emoji)", () => {
@@ -59,18 +62,27 @@ describe("HeroMarketingShell", () => {
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
   });
 
+  it("exposes Switzerland rotating verbs for RotatingText", () => {
+    expect([...HERO_SWITZERLAND_ROTATING_TEXTS]).toEqual([
+      "Engineered",
+      "Designed",
+      "Made",
+    ]);
+  });
+
   it("server-renders hero copy with Cloud and Store CTAs", () => {
     const html = renderToStaticMarkup(<HeroMarketingShell />);
     const hrefs = [...html.matchAll(/\bhref="([^"]*)"/g)].map(
       (match) => match[1]
     );
 
-    expect(html).toMatch(/<h1[^>]*>Helvety<\/h1>/);
-    expect(html).toContain("Engineered, designed &amp; made in");
+    expect(html).toMatch(/<h1[^>]*>[\s\S]*aria-label="Helvety"[\s\S]*<\/h1>/);
+    expect(html).toContain('viewBox="0 0 4000 1000"');
+    expect(html).toContain("Engineered");
+    expect(html).toContain(">in <");
     expect(html).toContain("Switzerland");
     expect(html).toContain("text-brand-swiss-red");
     expect(html).not.toContain("Engineered, designed and made in Switzerland.");
-    expect((html.match(/Engineered/gi) ?? []).length).toBe(1);
     expect(html).toContain("private · simple · clean");
     expect(html).not.toContain("private, simple, clean");
     expect(html).toContain("text-muted-foreground");
@@ -78,6 +90,11 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("tracking-[0.08em]");
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
+    expect(html).toContain("justify-start");
+    expect(html).toContain("sm:justify-center");
+    expect(html).toContain("max-w-md");
+    expect(html).toContain("sm:max-w-2xl");
+    expect(html).toContain("text-center sm:text-left");
     expect(html).toContain("hero-enter-brand");
     expect(html).toContain("hero-enter-ctas");
     expect(html).toContain("Helvety Cloud");

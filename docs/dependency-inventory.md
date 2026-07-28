@@ -67,11 +67,11 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public 
 
 ## web (gateway)
 
-| Name                            | Current pin                             | Upstream      | Check URL                                         | Update procedure                                                                                  | Risk             |
-| ------------------------------- | --------------------------------------- | ------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------- |
-| React Bits (Shuffle, ShinyText) | Vendored `apps/web/components/vendor/*` | reactbits.dev | https://reactbits.dev                             | `cd apps/web && shadcn add @react-bits/...`; reconcile per `docs/ui-shadcn-integration-policy.md` | Hero text motion |
-| `gsap` / `@gsap/react`          | `^3.15.0` / `^2.1.2`                    | GreenSock     | https://github.com/greensock/GSAP/releases        | npm bump; Shuffle tests                                                                           | Animation API    |
-| `framer-motion`                 | `^12.42.2`                              | Motion        | https://github.com/motiondivision/motion/releases | npm bump; hero-text tests                                                                         | Motion v12 API   |
+| Name                                          | Current pin                             | Upstream      | Check URL                                         | Update procedure                                                                                                         | Risk             |
+| --------------------------------------------- | --------------------------------------- | ------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| React Bits (RotatingText, Shuffle, ShinyText) | Vendored `apps/web/components/vendor/*` | reactbits.dev | https://reactbits.dev                             | `cd apps/web && shadcn add @react-bits/...`; reconcile per `docs/ui-shadcn-integration-policy.md` (keep `framer-motion`) | Hero text motion |
+| `gsap` / `@gsap/react`                        | `^3.15.0` / `^2.1.2`                    | GreenSock     | https://github.com/greensock/GSAP/releases        | npm bump; Shuffle tests                                                                                                  | Animation API    |
+| `framer-motion`                               | `^12.42.2`                              | Motion        | https://github.com/motiondivision/motion/releases | npm bump; hero-text tests                                                                                                | Motion v12 API   |
 
 ---
 

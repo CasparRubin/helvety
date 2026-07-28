@@ -30,10 +30,10 @@ Index of policy, ops, and architecture docs under this folder.
 
 ## Legal, cookies, and footer
 
-| Document                                                               | Purpose                                                                           |
-| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Document                                                               | Purpose                                                                                |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | [`cookies-telemetry-and-footer.md`](./cookies-telemetry-and-footer.md) | Developer reference for footer and localStorage preferences (no third-party analytics) |
-| [`legal-change-guardrails.md`](./legal-change-guardrails.md)           | When legal pages must be re-reviewed before release                               |
+| [`legal-change-guardrails.md`](./legal-change-guardrails.md)           | When legal pages must be re-reviewed before release                                    |
 
 ## Related docs outside this folder
 
