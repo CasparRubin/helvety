@@ -87,11 +87,36 @@ describe("legal pages enumerate public local-processing tools", () => {
       expect(source).not.toContain("Helvety Notes");
       expect(source).not.toContain("Helvety Links");
       expect(source).not.toContain("image-upscaler");
-      expect(source).not.toMatch(/end-to-end encrypt/i);
-      expect(source).not.toMatch(/\bE2EE\b/);
       expect(source).not.toContain("Helvety Browser Extension");
-      expect(source).not.toContain("passkey");
     }
+  });
+
+  it("unified legal pack covers Helvety Cloud", () => {
+    for (const rel of [
+      "apps/web/app/privacy/page.tsx",
+      "apps/web/app/terms/page.tsx",
+      "apps/web/app/impressum/page.tsx",
+    ] as const) {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      expect(source).toContain("Helvety Cloud");
+      expect(source).toContain("helvety.cloud");
+      expect(source).not.toMatch(
+        /Helvety Cloud[\s\S]{0,120}is not governed|do not cover Helvety Cloud|own privacy policy,\s*terms/
+      );
+    }
+    const terms = readFileSync(
+      join(repoRoot, "apps/web/app/terms/page.tsx"),
+      "utf8"
+    );
+    expect(terms).toContain('id="eligibility"');
+    expect(terms).toContain('id="aup"');
+    expect(terms).toContain('id="e2ee"');
+    expect(terms).toContain('id="billing"');
+    const privacy = readFileSync(
+      join(repoRoot, "apps/web/app/privacy/page.tsx"),
+      "utf8"
+    );
+    expect(privacy).toContain('id="subprocessors"');
   });
 
   it("terms section on product access documents no-account access for every public local tool", () => {
@@ -148,7 +173,7 @@ describe("legal local-processing statements cover every public local tool", () =
     const purposes = sliceBetween(
       source,
       "4. How We Use Information",
-      "5. Processors and Third Parties"
+      "5. Processors and Subprocessors"
     );
     for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
       expect(purposes, `privacy §4 must mention ${name}`).toContain(name);
@@ -165,11 +190,11 @@ describe("legal local-processing statements cover every public local tool", () =
     );
     const section = sliceBetween(
       source,
-      "5.2 License to Us",
-      "5.3 Your Responsibilities"
+      "6.2 License to Us",
+      "6.3 Your Responsibilities"
     );
     for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
-      expect(section, `terms 5.2 must mention ${name}`).toContain(name);
+      expect(section, `terms 6.2 must mention ${name}`).toContain(name);
     }
     expect(section).toContain("the current architecture");
     expect(section).toContain("PDF contents, or extracted text");
@@ -183,8 +208,8 @@ describe("legal local-processing statements cover every public local tool", () =
     );
     const section = sliceBetween(
       source,
-      "5.3 Your Responsibilities",
-      "6. Intellectual Property and Source"
+      "6.3 Your Responsibilities",
+      "7. Helvety Cloud and E2EE"
     );
     expect(section).toContain("extracted text");
     expect(section).toContain("PDFs and images");

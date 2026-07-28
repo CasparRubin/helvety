@@ -59,7 +59,7 @@ All image processing runs in the browser; no image data leaves the client in the
 
 - Switzerland-first service posture.
 - Publicly accessible without login.
-- Not actively targeted to EU/EEA markets at this time.
+- Not offered in the EU/EEA.
 
 ## Environment Variables
 

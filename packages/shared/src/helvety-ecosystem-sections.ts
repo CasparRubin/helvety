@@ -1,8 +1,8 @@
 /**
  * Single source of truth for Helvety ecosystem product sections.
  * Drives app-switcher grouping, store category pills, and catalog filters.
- * `Core Apps` (Home, Store) stays in the UI layer only; the Store switcher href
- * is `urls.storeProducts` in `@helvety/ui` (not this module).
+ * `Core Apps` (Home, Cloud, Store) stays in the UI layer only; the Store switcher href
+ * is `urls.storeProducts` in `@helvety/ui` (not this module). Cloud uses `urls.cloud`.
  */
 
 import { urls } from "./config";

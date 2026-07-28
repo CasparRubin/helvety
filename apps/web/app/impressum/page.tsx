@@ -117,15 +117,22 @@ export default function ImpressumPage() {
       <LegalSection title="Business Activity">
         <p className="text-muted-foreground mb-3 text-sm">
           Helvety by Rubin designs and ships software products and web
-          applications across Microsoft 365 integrations, browser utilities, and
-          desktop tooling. Listed products are currently free of charge. Where
-          source repositories are published, the repository LICENSE file
-          governs. The helvety.com monorepo is licensed under the GNU Affero
-          General Public License version 3 or later (AGPL-3.0). Other Helvety
-          repositories may use different licenses, including MIT. Development is
-          primarily based in Switzerland.
+          applications across end-to-end encrypted cloud workspaces, Microsoft
+          365 integrations, browser utilities, and desktop tooling. Public tools
+          and Store listings are currently free of charge. Helvety Cloud offers
+          a free plan and paid plans. Where source repositories are published,
+          the repository LICENSE file governs. The helvety.com monorepo is
+          licensed under the GNU Affero General Public License version 3 or
+          later (AGPL-3.0). Other Helvety repositories may use different
+          licenses, including MIT. Development is primarily based in
+          Switzerland. Services are not offered in the EU/EEA.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
+          <li>
+            <strong className="text-foreground">Helvety Cloud</strong>{" "}
+            (helvety.cloud): passwordless, end-to-end encrypted workspace
+            service.
+          </li>
           <li>
             <strong className="text-foreground">Helvety SPO Explorer</strong>:
             SharePoint Framework navigation for sites you can access.
@@ -204,13 +211,16 @@ export default function ImpressumPage() {
             <p className="text-muted-foreground">
               Legal requests must follow applicable Swiss law. We respond to
               valid Swiss court orders and binding legal requests. helvety.com
-              does not require accounts, so we generally hold only technical
-              metadata (for example IP addresses, timestamps, and download
-              records), not profiles. Routine security metadata has a target
-              retention window up to about 6 months under current policy,
-              subject to legal hold. Local desktop content (for example Screen
-              Tools screenshots) is not available to us unless you sent it
-              separately.
+              public tools do not require accounts, so for those surfaces we
+              generally hold only technical metadata (for example IP addresses,
+              timestamps, and download records), not profiles. Helvety Cloud
+              holds account and membership metadata plus opaque ciphertext;
+              Helvety cannot produce encrypted plaintext. Routine security
+              metadata has a target retention window up to about 6 months under
+              current policy, subject to legal hold. Local desktop content (for
+              example Screen Tools screenshots) is not available to us unless
+              you sent it separately. Reports that require Helvety to read
+              Helvety Cloud ciphertext cannot be fulfilled.
             </p>
           </div>
         </LegalCard>
@@ -285,7 +295,14 @@ export default function ImpressumPage() {
         </p>
         <p className="text-muted-foreground text-sm">
           Services are primarily intended for customers in Switzerland. We do
-          not actively target EU/EEA markets.
+          not offer the Services in the EU/EEA. See{" "}
+          <Link
+            href="/terms#eligibility"
+            className="hover:text-foreground underline transition-colors"
+          >
+            Terms (Geographic Eligibility)
+          </Link>
+          .
         </p>
       </LegalSection>
 

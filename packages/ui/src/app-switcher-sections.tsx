@@ -1,7 +1,7 @@
 /**
  * App switcher navigation sections for {@link AppSwitcher}.
  * Product sections derive from `@helvety/shared/helvety-ecosystem-sections`; Core Apps
- * (Home, Store) and per-product Lucide icons stay in this UI module.
+ * (Home, Cloud, Store) and per-product Lucide icons stay in this UI module.
  */
 
 import { urls } from "@helvety/shared/config";
@@ -13,6 +13,7 @@ import {
 } from "@helvety/shared/helvety-ecosystem-sections";
 import {
   Building2,
+  Cloud,
   FileText,
   House,
   ImagePlus,
@@ -77,12 +78,14 @@ function ecosystemSectionToSwitcherSection(
  * `@helvety/shared/helvety-ecosystem-sections`; Core Apps stay UI-local.
  * Core Apps **Store** uses {@link urls.storeProducts} so navigation skips the
  * store-root redirect to `/store/products`.
+ * Core Apps **Cloud** links to {@link urls.cloud} (`https://helvety.cloud`).
  */
 export const appSwitcherSections: AppSwitcherSection[] = [
   {
     title: "Core Apps",
     links: [
       { name: "Home", href: urls.home, icon: House },
+      { name: "Cloud", href: urls.cloud, icon: Cloud },
       { name: "Store", href: urls.storeProducts, icon: Store },
     ],
   },

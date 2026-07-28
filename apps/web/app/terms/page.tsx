@@ -49,6 +49,14 @@ export default function TermsPage() {
           </li>
           <li>
             <a
+              href="#eligibility"
+              className="hover:text-foreground transition-colors"
+            >
+              Geographic Eligibility
+            </a>
+          </li>
+          <li>
+            <a
               href="#access"
               className="hover:text-foreground transition-colors"
             >
@@ -56,10 +64,7 @@ export default function TermsPage() {
             </a>
           </li>
           <li>
-            <a
-              href="#acceptable-use"
-              className="hover:text-foreground transition-colors"
-            >
+            <a href="#aup" className="hover:text-foreground transition-colors">
               Acceptable Use
             </a>
           </li>
@@ -69,6 +74,19 @@ export default function TermsPage() {
               className="hover:text-foreground transition-colors"
             >
               Your Content and Local Tools
+            </a>
+          </li>
+          <li>
+            <a href="#e2ee" className="hover:text-foreground transition-colors">
+              Helvety Cloud and E2EE
+            </a>
+          </li>
+          <li>
+            <a
+              href="#billing"
+              className="hover:text-foreground transition-colors"
+            >
+              Billing
             </a>
           </li>
           <li>
@@ -114,8 +132,9 @@ export default function TermsPage() {
       <section id="acceptance" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">1. Acceptance</h2>
         <p className="text-muted-foreground text-sm">
-          By using helvety.com or any Helvety product that links to these Terms
-          (&quot;the Services&quot;), you agree to these Terms and our{" "}
+          By using helvety.com, helvety.cloud, or any Helvety product that links
+          to these Terms (&quot;the Services&quot;), you agree to these Terms
+          and our{" "}
           <a
             href="/privacy"
             className="hover:text-foreground underline transition-colors"
@@ -123,8 +142,9 @@ export default function TermsPage() {
             Privacy Policy
           </a>
           . If you do not agree, do not use the Services. Helvety by Rubin is
-          the provider. Services are primarily intended for users in
-          Switzerland.
+          the provider. For Helvety Cloud, creating an account or accepting
+          these Terms in the product also binds you to the Acceptable Use
+          section, the E2EE / zero-access notice, and the Billing section below.
         </p>
       </section>
 
@@ -160,23 +180,46 @@ export default function TermsPage() {
             Microsoft 365 and Windows products distributed separately from the
             browser tools above.
           </li>
+          <li>
+            <strong className="text-foreground">Helvety Cloud</strong>{" "}
+            (helvety.cloud): passwordless, end-to-end encrypted workspace
+            service with email one-time-code sign-in, device unlock via WebAuthn
+            PRF / passkey, and optional paid plans via Stripe.
+          </li>
         </ul>
+        <p className="text-muted-foreground text-sm">
+          Public tools and Store listings are currently offered free of charge.
+          Helvety Cloud has a free plan and paid options described under
+          Billing. Features may change or be withdrawn. Enterprise add-ins and
+          extensions you install into Microsoft 365 or a browser follow the host
+          platform&apos;s rules in addition to these Terms.
+        </p>
+      </section>
+
+      <section id="eligibility" className="legal-section">
+        <h2 className="mb-4 text-xl font-semibold">
+          3. Geographic Eligibility
+        </h2>
         <p className="text-muted-foreground mb-4 text-sm">
-          Helvety Cloud (helvety.cloud) is a separate product and repository
-          with its own terms, privacy policy, and LICENSE. These Terms do not
-          cover Helvety Cloud.
+          The Services are primarily intended for customers in Switzerland. We
+          do not offer the Services to persons or entities located in the
+          European Union or the European Economic Area (EU/EEA). You must not
+          use the Services if you are located in the EU/EEA, or on behalf of a
+          person or entity located there.
         </p>
         <p className="text-muted-foreground text-sm">
-          Listed products are currently offered free of charge. Features may
-          change or be withdrawn. Enterprise add-ins and extensions you install
-          into Microsoft 365 or a browser follow the host platform&apos;s rules
-          in addition to these Terms.
+          When Helvety Cloud requires acknowledgment of this section, you
+          warrant that you are not located in the EU/EEA and are not using the
+          Service on behalf of a person or entity located there. Helvety may
+          refuse, suspend, or terminate access if it reasonably believes this
+          warranty is false or that continued use would place Helvety under
+          obligations it does not intend to assume.
         </p>
       </section>
 
       <section id="access" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">
-          3. Access and Availability
+          4. Access and Availability
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
           <strong className="text-foreground">
@@ -197,6 +240,11 @@ export default function TermsPage() {
             Helvety Store catalog browsing and public downloads do not require a
             Helvety account.
           </li>
+          <li>
+            Helvety Cloud requires an email account for one-time-code sign-in
+            and a separate unlock passkey for encryption. Session sign-in is not
+            the same as encryption unlock.
+          </li>
         </ul>
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">
@@ -205,58 +253,217 @@ export default function TermsPage() {
           : We aim for reliable uptime but do not guarantee uninterrupted or
           error-free service. Maintenance, outages, rate limits, and third-party
           platform changes (Microsoft, Google Chrome Web Store, hosting, GitHub
-          Releases) may affect access.
+          Releases, Supabase, Stripe) may affect access.
         </p>
       </section>
 
-      <section id="acceptable-use" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">4. Acceptable Use</h2>
+      <section id="aup" className="legal-section">
+        <h2 className="mb-4 text-xl font-semibold">5. Acceptable Use</h2>
         <p className="text-muted-foreground mb-4 text-sm">
           You may use the Services only for lawful purposes. You must not:
         </p>
-        <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
+        <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Probe, overload, or disrupt our infrastructure or downloads</li>
-          <li>Circumvent rate limits or security controls</li>
+          <li>Circumvent rate limits, account limits, or security controls</li>
           <li>
-            Use the Services to distribute malware or infringe others&apos;
-            rights
+            Use the Services to distribute malware, spam, or infringe
+            others&apos; rights
           </li>
           <li>
             Misrepresent affiliation with Helvety or misuse Helvety trademarks
           </li>
+          <li>
+            Use Helvety Cloud for illegal activity, including storage or
+            distribution of illegal content, child sexual abuse material,
+            prohibited terrorism content, harassment, fraud, or unauthorized
+            access to systems
+          </li>
+          <li>
+            Scrape or harvest Helvety Cloud accounts without authorization, or
+            probe systems except through coordinated responsible disclosure to
+            Helvety
+          </li>
         </ul>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Because Helvety Cloud data is end-to-end encrypted, Helvety cannot
+          moderate plaintext. Enforcement options are limited to account-level
+          and ciphertext-level measures (for example suspending accounts,
+          deleting encrypted blobs or workspaces, or blocking access) based on
+          signals Helvety can see, such as abuse of APIs, illegal account
+          activity, or lawful requests relating to metadata Helvety holds.
+          Helvety does not claim the ability to inspect or &quot;clean&quot;
+          encrypted content.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          You are responsible for the lawfulness of content you process or
+          encrypt and for compliance with applicable law. Helvety&apos;s
+          inability to read Cloud data does not authorize illegal use. If
+          Helvety reasonably believes your use creates legal risk or harms the
+          Service or others, Helvety may suspend or terminate access without
+          prior notice when urgency reasonably requires it. Abuse reports:{" "}
+          <a
+            href="/impressum#abuse"
+            className="hover:text-foreground underline transition-colors"
+          >
+            Impressum (Abuse)
+          </a>{" "}
+          or{" "}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="hover:text-foreground underline transition-colors"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          .
+        </p>
       </section>
 
       <section id="user-content" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">
-          5. Your Content and Local Tools
+          6. Your Content and Local Tools
         </h2>
-        <h3 className="mb-3 text-lg font-medium">5.1 Your files</h3>
+        <h3 className="mb-3 text-lg font-medium">6.1 Your files</h3>
         <p className="text-muted-foreground mb-4 text-sm">
           You remain responsible for files and content you open in Helvety PDF,
           Helvety Image Editor, Helvety OCR, Screen Tools, or similar local
           software. You confirm you have the rights to process that content.
         </p>
-        <h3 className="mb-3 text-lg font-medium">5.2 License to Us</h3>
+        <h3 className="mb-3 text-lg font-medium">6.2 License to Us</h3>
         <p className="text-muted-foreground mb-4 text-sm">
           Under the current architecture, Helvety PDF, Helvety Image Editor, and
           Helvety OCR keep PDF contents, or extracted text, and images on your
           device for routine processing. You do not grant us a license to use
           that local content for our own products or AI training. If you email
           us attachments or text for support, you grant us a limited license to
-          use that material only to respond and improve support quality.
+          use that material only to respond and improve support quality. For
+          Helvety Cloud, you retain ownership of content you create and grant
+          Helvety only the rights needed to store and transmit ciphertext and
+          related metadata to operate the Service.
         </p>
-        <h3 className="mb-3 text-lg font-medium">5.3 Your Responsibilities</h3>
+        <h3 className="mb-3 text-lg font-medium">6.3 Your Responsibilities</h3>
         <p className="text-muted-foreground text-sm">
           Keep backups of important PDFs and images. Verify extracted text and
           edited exports before relying on them. Local tools can fail or lose
-          unsaved work if the browser tab closes.
+          unsaved work if the browser tab closes. For Helvety Cloud, keep
+          control of your email, unlock passkey, devices, and any recovery
+          export. Helvety cannot reset encryption access for you.
+        </p>
+      </section>
+
+      <section id="e2ee" className="legal-section">
+        <h2 className="mb-4 text-xl font-semibold">
+          7. Helvety Cloud and E2EE / Zero-Access Notice
+        </h2>
+        <p className="text-muted-foreground mb-4 text-sm">
+          This section is a core part of how Helvety Cloud works. You must
+          acknowledge it before encryption setup in the product.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Helvety cannot decrypt your data. There is no company master key, no
+          key escrow, and no support workflow that restores encrypted plaintext.
+          Authentication (email OTP for session) is separate from encryption
+          unlock. A signed-in session does not mean Helvety can read encrypted
+          workspace data.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          If you lose your unlock passkey / PRF capability and any recovery
+          export you were shown, Helvety cannot recover your data. Lost keys
+          mean permanent loss of that encrypted content. Any recovery export
+          shown during setup must be stored offline by you. Never email it to
+          Helvety or paste it into support channels with an expectation of
+          restoration.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Encrypted content lives in workspaces. Every invited member has the
+          same rights: invite others, remove members, manage billing, and delete
+          the workspace. Only invite people you trust fully. Leaving a shared
+          workspace, or being removed, drops your membership and wrapped keys
+          for that workspace. Content stays for remaining members. Helvety does
+          not rotate workspace keys when someone leaves or is removed. If you
+          are the only member and leave, or if any member deletes the workspace,
+          its ciphertext is permanently deleted for everyone. Your Personal
+          workspace cannot be left or deleted except by deleting your account.
+          Deleting your account permanently removes your account data and
+          workspaces where you are the only member. Shared workspaces remain for
+          other members.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          By accepting this notice you confirm that you understand Helvety
+          cannot read or restore your data, that you are responsible for your
+          content and keys, and that permanent data loss is possible if unlock
+          or recovery material is lost. Helvety Cloud is not a plaintext backup,
+          not a key-recovery service, and not a content host that can inspect or
+          restore your encrypted workspace content. Support cannot decrypt your
+          data or restore lost keys.
+        </p>
+      </section>
+
+      <section id="billing" className="legal-section">
+        <h2 className="mb-4 text-xl font-semibold">8. Billing</h2>
+        <p className="text-muted-foreground mb-4 text-sm">
+          This section applies to Helvety Cloud. Public tools and Store listings
+          that are free remain free unless we state otherwise for a specific
+          paid product.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Helvety Cloud offers a free plan and a paid Pro Workspace plan per
+          workspace, processed through Stripe, plus an optional Capacity
+          Increase add-on that raises paid limits together. Nothing is charged
+          unless a workspace member explicitly starts Checkout (where the price
+          is shown before any charge) or changes paid add-ons. Any discounts are
+          applied through Stripe. Helvety does not issue separate in-app
+          discount or complimentary codes. These terms do not themselves create
+          an obligation to purchase.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          The free plan applies fair-use limits per workspace. File uploads and
+          document storage are not available on the free plan. Current limits
+          are shown in the product where they apply. Each account may have one
+          free-tier workspace attributed to it (typically the Personal
+          workspace). Additional workspaces attributed to the account require
+          Pro Workspace access for that workspace. If a paid Pro Workspace ends
+          and you would then own more than one free-tier workspace, Helvety may
+          soft-lock the overflow workspace(s): existing encrypted content stays
+          available to open, edit, download, export, and delete, but creating
+          new resources in that workspace is paused until you upgrade or reduce
+          owned free workspaces. Helvety does not delete ciphertext or withhold
+          wrapped keys solely because a workspace is soft-locked.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Subscriptions are workspace-scoped: any member may manage that
+          workspace&apos;s Pro Workspace plan and add-ons. Leaving a Pro
+          workspace does not cancel billing. Pro Workspace includes higher
+          operational limits and encrypted file and document storage for that
+          workspace, within limits shown in the product. Uploaded files are
+          end-to-end encrypted on your device; Helvety stores ciphertext and
+          operational size meters only. Capacity Increase requires an active Pro
+          Workspace subscription. Prices, billing intervals, renewals, taxes,
+          and any Stripe-applied discount are shown at Stripe Checkout or in the
+          billing portal. Unless stated otherwise, subscriptions renew
+          automatically until cancelled. You may cancel renewal at any time in
+          the Stripe billing portal; access to paid limits continues through the
+          paid period already purchased unless stated otherwise. Helvety never
+          needs encrypted plaintext or raw encryption keys for billing.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          If mandatory consumer law grants you a withdrawal right for digital
+          services, Helvety will honor that right as required. If a paid plan is
+          active and payment fails, Helvety may retry charges and may end paid
+          entitlements after notice so free-plan limits apply. Billing
+          questions:{" "}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="hover:text-foreground underline transition-colors"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          .
         </p>
       </section>
 
       <section id="ip" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">
-          6. Intellectual Property and Source
+          9. Intellectual Property and Source
         </h2>
         <p className="text-muted-foreground text-sm">
           Helvety branding and product names are used as trademarks by Helvety
@@ -265,53 +472,75 @@ export default function TermsPage() {
           Helvety repositories may use different licenses, including MIT. Always
           check the repository LICENSE file or release source link for the
           package you obtain. Chrome Web Store listings and Microsoft 365
-          packages remain subject to those platforms&apos; policies.
+          packages remain subject to those platforms&apos; policies. Subject to
+          these Terms and Acceptable Use, Helvety grants you a limited,
+          non-exclusive, non-transferable, revocable right to use the Services
+          for lawful purposes.
         </p>
       </section>
 
       <section id="liability" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">
-          7. Disclaimers and Liability
+          10. Disclaimers and Liability
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
           The Services are provided &quot;as is&quot; and &quot;as
           available,&quot; without warranties of any kind to the fullest extent
           permitted by Swiss law. We do not warrant fitness for a particular
           purpose, merchantability, non-infringement, or that results (including
-          OCR text or PDF edits) will be accurate or complete.
+          OCR text or PDF edits) will be accurate or complete. Helvety does not
+          warrant that encrypted Helvety Cloud data will remain recoverable if
+          you lose unlock or recovery material, or that third-party browsers, OS
+          passkey stores, or devices will always remain compatible.
+        </p>
+        <p className="text-muted-foreground mb-4 text-sm">
+          To the fullest extent permitted by law, Helvety by Rubin and Caspar
+          Camille Rubin (as sole proprietor) are not liable for indirect,
+          incidental, special, consequential, or punitive damages, or loss of
+          data, profits, revenue, goodwill, or business, arising from use of the
+          Services, including permanent loss of Helvety Cloud data due to lost
+          keys or recovery material. Our aggregate liability for claims relating
+          to the Services is limited to CHF 0 for free offerings, or the greater
+          of CHF 100 or the amounts you paid Helvety for the Service in the
+          twelve (12) months before the claim. Nothing excludes liability that
+          cannot be limited under mandatory Swiss law (or other mandatory
+          consumer protections that apply to you), including liability for death
+          or personal injury caused by negligence where such limitation is
+          prohibited, or for fraud or willful misconduct.
         </p>
         <p className="text-muted-foreground text-sm">
-          To the fullest extent permitted by law, Helvety by Rubin is not liable
-          for indirect, incidental, special, consequential, or punitive damages,
-          or loss of data, profits, or business, arising from use of the
-          Services. Our aggregate liability for claims relating to the Services
-          is limited to CHF 0 for free offerings, or the amount you paid us for
-          the specific paid service giving rise to the claim in the twelve
-          months before the claim (if any). Nothing excludes liability that
-          cannot be limited under mandatory Swiss law.
+          You will defend and indemnify Helvety against claims, damages, and
+          reasonable costs arising from your unlawful use of the Services, your
+          encrypted content, or your breach of these Terms, except to the extent
+          caused by Helvety&apos;s willful misconduct.
         </p>
       </section>
 
       <section id="governing" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">8. Governing Law</h2>
+        <h2 className="mb-4 text-xl font-semibold">11. Governing Law</h2>
         <p className="text-muted-foreground text-sm">
-          These Terms are governed by Swiss law. Exclusive jurisdiction is
+          These Terms are governed by the substantive laws of Switzerland,
+          excluding conflict-of-law rules. Exclusive jurisdiction is
           Basel-Stadt, Switzerland, except where mandatory law provides
-          otherwise. We do not actively target EU/EEA markets.
+          otherwise. Mandatory consumer rights that cannot be waived under
+          applicable law remain unaffected. We do not offer the Services in the
+          EU/EEA (see Geographic Eligibility).
         </p>
       </section>
 
       <section id="changes" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">9. Changes</h2>
+        <h2 className="mb-4 text-xl font-semibold">12. Changes</h2>
         <p className="text-muted-foreground text-sm">
           We may update these Terms by posting a revised version on this page.
           Continued use after the &quot;Last reviewed&quot; date means you
-          accept the updated Terms.
+          accept the updated Terms for public tools. For Helvety Cloud, material
+          changes may require acceptance of a new version string before
+          continued use of encrypted features.
         </p>
       </section>
 
       <section id="contact" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">10. Contact</h2>
+        <h2 className="mb-4 text-xl font-semibold">13. Contact</h2>
         <p className="text-muted-foreground text-sm">
           Questions:{" "}
           <a

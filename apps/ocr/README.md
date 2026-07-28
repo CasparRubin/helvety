@@ -65,7 +65,7 @@ All Tesseract.js assets are self-hosted under `public/` so nothing is fetched fr
 
 - Switzerland-first service posture.
 - Publicly accessible without login.
-- Not actively targeted to EU/EEA markets at this time.
+- Not offered in the EU/EEA.
 
 ## Environment Variables
 

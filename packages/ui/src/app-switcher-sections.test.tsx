@@ -20,6 +20,15 @@ describe("app-switcher-sections", () => {
     expect(storeLink?.href).toBe(urls.storeProducts);
   });
 
+  it("links Core Apps Cloud to helvety.cloud", () => {
+    const coreApps = appSwitcherSections.find(
+      (section) => section.title === "Core Apps"
+    );
+    const cloudLink = coreApps?.links.find((link) => link.name === "Cloud");
+    expect(cloudLink?.href).toBe(urls.cloud);
+    expect(cloudLink?.href).toBe("https://helvety.cloud");
+  });
+
   it("covers every ecosystem store product slug with an icon", () => {
     expect(new Set(ECOSYSTEM_SWITCHER_STORE_PRODUCT_SLUGS)).toEqual(
       new Set(allEcosystemStoreProductSlugs())

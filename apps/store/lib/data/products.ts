@@ -613,7 +613,7 @@ const helvetyImageEditor: SaaSProduct = {
   category: cHelvetyImageEditor.category,
   description: {
     intro:
-      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, spotlight highlights, blur regions, and crops with a layers panel for reordering and selection, a tool properties bar with color pickers plus sliders and number inputs for stroke, blur, dim, and corner radius, and zoom for detail work on large screenshots. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
+      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, spotlight highlights, blur regions, and crops with a layers panel for reordering and selection, a tool properties bar with color pickers plus sliders and number inputs for stroke, blur, dim, and corner radius, and zoom for detail work on large screenshots. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access model",
@@ -716,7 +716,7 @@ const helvetyOcr: SaaSProduct = {
   category: cHelvetyOcr.category,
   description: {
     intro:
-      "Helvety OCR reads text out of PDFs and images without uploading your files. Drop a scan or photo and on-device optical character recognition transcribes it; drop a born-digital PDF and the app reuses the existing text layer instead of re-recognizing it. When extraction finishes you can read the text on screen, copy it, or download a plain .txt file. Helvety is Switzerland-first and not actively marketed to EU/EEA users; see our Privacy Policy for details.",
+      "Helvety OCR reads text out of PDFs and images without uploading your files. Drop a scan or photo and on-device optical character recognition transcribes it; drop a born-digital PDF and the app reuses the existing text layer instead of re-recognizing it. When extraction finishes you can read the text on screen, copy it, or download a plain .txt file. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access model",
