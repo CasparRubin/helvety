@@ -62,11 +62,11 @@ describe("HeroMarketingShell", () => {
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
   });
 
-  it("exposes Switzerland rotating verbs for RotatingText", () => {
+  it("exposes Switzerland rotating city phrases for RotatingText", () => {
     expect([...HERO_SWITZERLAND_ROTATING_TEXTS]).toEqual([
-      "Engineered",
-      "Designed",
-      "Made",
+      "Made in Wallis",
+      "Designed in Basel",
+      "Engineered in Zürich",
     ]);
   });
 
@@ -77,8 +77,8 @@ describe("HeroMarketingShell", () => {
     );
 
     expect(html).toMatch(/<h1[^>]*>Software Products<\/h1>/);
-    expect(html).toContain("Engineered");
-    expect(html).toContain(" in ");
+    expect(html).toContain("Made in Wallis");
+    expect(html).toContain(", ");
     expect(html).toContain("Switzerland");
     expect(html).toContain("text-brand-swiss-red");
     expect(html).not.toContain("Engineered, designed and made in Switzerland.");

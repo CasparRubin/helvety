@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Hero Switzerland line: React Bits Rotating Text + “in Switzerland”.
+ * Hero Switzerland line: React Bits RotatingText + static Switzerland.
  * Upstream: https://reactbits.dev/text-animations/rotating-text
  */
 
@@ -10,15 +10,15 @@ import { useReducedMotion } from "framer-motion";
 
 import RotatingText from "@/components/vendor/RotatingText";
 
-/** Verbs cycled by RotatingText before “in Switzerland”. */
+/** Origin phrases cycled by RotatingText before static “, Switzerland”. */
 export const HERO_SWITZERLAND_ROTATING_TEXTS = [
-  "Engineered",
-  "Designed",
-  "Made",
+  "Made in Wallis",
+  "Designed in Basel",
+  "Engineered in Zürich",
 ] as const;
 
 /** Static fallback when the user prefers reduced motion. */
-export const HERO_SWITZERLAND_STATIC_LINE = `Engineered, designed & made in ${HELVETY_SWISS_ORIGIN_COUNTRY}`;
+export const HERO_SWITZERLAND_STATIC_LINE = `Made in Wallis, designed in Basel & engineered in Zürich, ${HELVETY_SWISS_ORIGIN_COUNTRY}`;
 
 const HEADLINE_CLASS =
   "text-foreground text-center text-lg font-semibold tracking-tight sm:text-xl md:text-2xl lg:text-[1.75rem] lg:leading-snug";
@@ -32,7 +32,7 @@ export function HeroSwitzerlandHeadline() {
   if (reducedMotion) {
     return (
       <p className={HEADLINE_CLASS}>
-        Engineered, designed &amp; made in{" "}
+        Made in Wallis, designed in Basel &amp; engineered in Zürich,{" "}
         <span className="text-brand-swiss-red font-medium">
           {HELVETY_SWISS_ORIGIN_COUNTRY}
         </span>
@@ -47,10 +47,10 @@ export function HeroSwitzerlandHeadline() {
           texts={[...HERO_SWITZERLAND_ROTATING_TEXTS]}
           staggerDuration={0.025}
           staggerFrom="last"
-          rotationInterval={4000}
+          rotationInterval={5000}
         />
       </span>
-      {" in "}
+      {", "}
       <span className="text-brand-swiss-red font-medium">
         {HELVETY_SWISS_ORIGIN_COUNTRY}
       </span>
