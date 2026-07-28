@@ -79,11 +79,11 @@
     "@babel/core": "8.0.1",
     "flatted": "3.4.2",
     "yaml": "2.9.0",
-    "brace-expansion": "5.0.7",
+    "brace-expansion": "5.0.8",
     "path-to-regexp": "8.4.2",
     "picomatch": "2.3.2",
     "ip-address": "10.2.0",
-    "postcss": "8.5.16",
+    "postcss": "8.5.24",
     "protobufjs": "7.6.5",
     "qs": "6.15.3",
     "dompurify": "3.4.12",
@@ -100,6 +100,6 @@
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
     "knip": "^6.29.0",
-    "turbo": "^2.10.6"
+    "turbo": "^2.10.7"
   }
 }
