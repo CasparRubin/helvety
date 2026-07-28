@@ -5,8 +5,7 @@ Canonical placement, icons, labels, and variants for toolbar and row actions acr
 ## Primitives
 
 - **Button:** `@helvety/ui/button` only (CVA variants: `default`, `outline`, `secondary`, `ghost`, `destructive`, `link`).
-- **Row actions:** `@helvety/ui/row-action-button`. Web lists use `aria-label`; extension popups use `showTooltip`.
-- **Icons:** `lucide-react` only. Default size: `@helvety/ui/icon-size` → `ICON_SIZE_CLASS` (`size-4`). List delete: **`Trash2Icon`** (not legacy `TrashIcon`).
+- **Icons:** `lucide-react` only. Prefer `size-4` for toolbar icons. List delete: **`Trash2Icon`** (not legacy `TrashIcon`).
 - **Toasts:** Zone apps import `toast` from `@helvety/ui/sonner` only (do not add a direct `sonner` app dependency).
 
 ## Placement map
@@ -17,7 +16,7 @@ Canonical placement, icons, labels, and variants for toolbar and row actions acr
 | Extension list              | Footer `Add` |                     |              | Row ghost `Trash2Icon`    | N/A                            | Header icons |
 | Extension form              |              | Footer, dirty-gated | Header ghost | Header ghost `Trash2Icon` | N/A                            |              |
 
-Pin command bars **outside** scroll (`CommandBarPageLayout` or a flex sibling above the workspace). External Chromium extensions use `@helvety/extension-chrome` popup shell chrome (header + tab panels) instead of web command bars.
+Pin command bars **outside** scroll (flex sibling above the workspace, or shell `scrollAreaMainPrefix`). External Chromium extensions use `@helvety/extension-chrome` popup shell chrome (header + tab panels) instead of web command bars.
 
 ## Icon map
 
@@ -47,7 +46,7 @@ System radius is `--radius: 0`. Allowed exceptions: legal callouts (`rounded-lg`
 
 ## Extension bounded parity
 
-Shared Chromium extension UI lives in `@helvety/extension-chrome` (theme boot, popup shell, header). Power Platform Configurator is the primary consumer. Align icons, variants, and form spacing with web when the popup viewport allows. Do not assume web-only shells (`CommandBarPageLayout`, public-tool workspace) exist in the extension.
+Shared Chromium extension UI lives in `@helvety/extension-chrome` (theme boot, popup shell, header). Power Platform Configurator is the primary consumer. Align icons, variants, and form spacing with web when the popup viewport allows. Do not assume web-only shells (`CommandBar`, public-tool workspace) exist in the extension.
 
 Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*` classes in `@helvety/ui/public-tool-workspace`). Store section nav is **not** a canvas tool.
 

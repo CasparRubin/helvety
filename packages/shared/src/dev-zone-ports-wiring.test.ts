@@ -38,14 +38,4 @@ describe("dev zone ports wiring", () => {
     expect(src).toContain("`--concurrency=${TURBO_CONCURRENCY}`");
     expect(src).not.toMatch(/["'`]--concurrency=\d+["'`]/);
   });
-
-  it("run-e2e-smoke.mjs waits on the shared readiness sentinel", () => {
-    const src = readScript("scripts/run-e2e-smoke.mjs");
-    expect(src).toContain('from "./dev-zone-ports.mjs"');
-    expect(src).toContain("DEV_ALL_ZONES_READY_SENTINEL");
-    expect(src).toContain(
-      'SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? "1"'
-    );
-    expect(src).not.toContain("All 9 zones ready");
-  });
 });

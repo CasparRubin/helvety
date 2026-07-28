@@ -10,12 +10,6 @@ export const PUBLIC_TOOL_WORKSPACE_ROW_CLASS =
 /** Desktop sidebar width (PDF toolkit, image-editor layers panel). */
 export const PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS = "w-80 flex-shrink-0";
 
-/**
- * Legacy alias for {@link PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS} (`w-80` = 320px).
- * Prefer `PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS` in new code.
- */
-export const PUBLIC_TOOL_SIDEBAR_WIDTH_PX_CLASS = "w-[320px] flex-shrink-0";
-
 /** Desktop sidebar surface + padding. */
 export const PUBLIC_TOOL_SIDEBAR_PANEL_CLASS =
   "bg-surface-panel border-border/50 border p-6";

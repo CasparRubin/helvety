@@ -10,7 +10,7 @@ All text extraction runs in the browser; no file data leaves the client in the n
 ## URLs
 
 - Production: `https://helvety.com/ocr`
-- Dev (zone): `http://localhost:3011/ocr`
+- Dev (zone): `http://localhost:3005/ocr`
 - Dev (gateway): `http://localhost:3001/ocr`
 
 ## Key Features

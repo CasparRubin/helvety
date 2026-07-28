@@ -34,7 +34,7 @@ At minimum, review and update:
   `packages/shared/src/store-catalog.ts`, `apps/store/lib/data/products.ts`,
   `apps/*/lib/product-copy.ts`, manifests, `llms.txt`, READMEs)
 - [`docs/cookies-telemetry-and-footer.md`](./cookies-telemetry-and-footer.md)
-  when cookie, storage, analytics, or footer behavior changes
+  when storage, analytics, or footer behavior changes
 
 ## Verification checklist
 

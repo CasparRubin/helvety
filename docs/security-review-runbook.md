@@ -20,12 +20,9 @@ Run these before major releases or production promotions:
 bun run deps:security
 bun run consistency:vercel-prod-env
 bun run consistency:vercel-preview-env
-bun run ci:check:e2e
-# or, with an existing gateway only:
-HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
 ```
 
-`deps:security` runs floors plus `bun audit`. Vercel env audits require Vercel CLI login. `ci:check:e2e` installs Chromium if needed, starts zone dev servers when `HELVETY_SMOKE_BASE_URL` is unset, and runs Playwright gateway smoke tests.
+`deps:security` runs floors plus `bun audit`. Vercel env audits require Vercel CLI login.
 
 ## Vercel production and preview env
 

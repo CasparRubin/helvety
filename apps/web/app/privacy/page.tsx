@@ -163,7 +163,9 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           This notice covers helvety.com marketing and legal pages, Helvety
           Store, and the public browser tools below. Separately distributed
-          desktop or Microsoft 365 products may also link here.
+          desktop or Microsoft 365 products may also link here. Helvety Cloud
+          (helvety.cloud) is a separate product with its own privacy policy,
+          terms, and LICENSE; it is not governed by this notice.
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>

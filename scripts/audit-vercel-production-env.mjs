@@ -32,7 +32,7 @@ const TEAM = "helvety";
 
 /** @type {Record<string, string>} */
 export const PROJECT_TO_APP = {
-  "helvety-web": "web",
+  "helvety-com": "web",
   "helvety-store": "store",
   "helvety-pdf": "pdf",
   "helvety-image-editor": "image-editor",

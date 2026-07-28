@@ -106,9 +106,8 @@ Three legacy browser-extension listings were merged into **Power Platform Config
 - **Package name**: `@helvety/<short-name>` in `package.json`.
 - **Public export subpaths** (e.g. `@helvety/ui`): **kebab-case** matching the file stem (`./command-bar` → `command-bar.tsx`).
 
-- Shared UI that resolves icon names from strings uses `@helvety/ui/icon-renderer` (`getLucideIcon`) with **kebab-case** Lucide names (for example `check-circle`, `flask-conical`). Unknown names fall back to `circle`.
 - **lucide-react v1** removed brand icons. Prefer supported Lucide names only.
-- Navbar chrome and the app switcher import Lucide components directly; do not assume every surface uses `icon-renderer`.
+- Navbar chrome and the app switcher import Lucide components directly.
 
 ## Imports
 

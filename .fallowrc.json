@@ -2,7 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
   "entry": [
     "scripts/**/*.{mjs,js}",
-    "e2e/**/*.{ts,tsx}",
     "apps/**/app/**/*.{ts,tsx,js,jsx,mjs,cjs}",
     "apps/**/{instrumentation,proxy}.{ts,tsx,js,mjs,cjs}",
     "apps/**/next.config.{ts,js,mjs,cjs}",

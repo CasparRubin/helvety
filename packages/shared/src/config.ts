@@ -91,10 +91,10 @@ export function getLocalAppHref(url: string): string {
  */
 export const DEV_PORTS = {
   web: 3001,
-  store: 3003,
-  pdf: 3004,
-  imageEditor: 3010,
-  ocr: 3011,
+  store: 3002,
+  pdf: 3003,
+  imageEditor: 3004,
+  ocr: 3005,
 } as const;
 
 /** Shared viewport config reused by each web app layout in this monorepo */

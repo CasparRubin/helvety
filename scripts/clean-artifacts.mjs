@@ -10,13 +10,7 @@ const repoRoot = join(fileURLToPath(new URL(".", import.meta.url)), "..");
 const skipCoverageClean = process.env.HELVEY_SKIP_COVERAGE_CLEAN === "1";
 
 /** Directory names removed wherever they appear under the repo (except node_modules). */
-const ARTIFACT_DIR_NAMES = new Set([
-  ".next",
-  "coverage",
-  ".turbo",
-  "test-results",
-  "playwright-report",
-]);
+const ARTIFACT_DIR_NAMES = new Set([".next", "coverage", ".turbo"]);
 
 /**
  * @param {string} dir

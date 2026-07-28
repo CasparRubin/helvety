@@ -4,3 +4,24 @@
    Workspace packages must be added explicitly so their classes are generated. */
 @source "../../../packages/ui/src";
 @source "../../../packages/brand/src";
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .hero-enter-brand {
+    animation: hero-fade-up 0.7s ease-out both;
+  }
+
+  .hero-enter-ctas {
+    animation: hero-fade-up 0.7s ease-out 0.12s both;
+  }
+}

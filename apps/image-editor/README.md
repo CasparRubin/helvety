@@ -10,7 +10,7 @@ All image processing runs in the browser; no image data leaves the client in the
 ## URLs
 
 - Production: `https://helvety.com/image-editor`
-- Dev (zone): `http://localhost:3010/image-editor`
+- Dev (zone): `http://localhost:3004/image-editor`
 - Dev (gateway): `http://localhost:3001/image-editor`
 
 ## Key Features

@@ -9,7 +9,6 @@ This policy defines where UI primitives live and how apps should consume them.
 - **shadcn style:** `base-vega` in every `components.json` (canonical: `packages/ui/components.json`). Primitives use **Base UI** (`@base-ui/react`), not Radix.
 - **Composition API:** Base UI shadcn uses **`render`** (and `nativeButton={false}` on link triggers) instead of Radix **`asChild`**. Do not add `asChild` in `packages/ui` or zone apps. `consistency:guardrails` fails on it.
 - **New shadcn CLI adds** should target `packages/ui/components.json` first, then re-export from `@helvety/ui/*`. App `components.json` files keep shadcn aliases for CLI compatibility only; **do not** create `apps/*/components/ui/` directories or import `@/components/ui/*` from app code. `consistency:guardrails` enforces `rsc: true`, `tsx: true`, and a `registries` object on every app UI surface.
-- Shared date pickers live in `@helvety/ui/date-picker` and `@helvety/ui/date-time-picker` (not under any app).
 
 ## App-local UI (disallowed)
 
@@ -23,20 +22,19 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 - After `shadcn add @react-bits/...` from `apps/web`, reconcile Helvety tweaks and keep motion files under `components/vendor/` with imports updated in `hero-text.tsx`.
 - Prefer the `**/components/vendor/**` ESLint override in `@helvety/config` over file-level `eslint-disable` in vendored files.
 
-## Calendar and icon primitives
+## Form and sheet primitives
 
-- **`@helvety/ui/calendar`** wraps **react-day-picker v10** (shadcn-style `classNames`, including `month_grid`). Use `@helvety/ui/date-picker` / `@helvety/ui/date-time-picker` for forms; do not pin day-picker v9 APIs or class keys.
-- **Kebab-case icon names** resolve through **`@helvety/ui/icon-renderer`** (`getLucideIcon`, `renderIcon`). Use supported **lucide-react v1** names only; unknown names fall back to `circle`.
+- Prefer `@helvety/ui/input`, `@helvety/ui/textarea`, and `@helvety/ui/native-select` for forms.
+- Prefer lucide-react icons directly in app code; do not add a shared icon-name string registry.
 
 ## Styling And Composition Rules
 
 - **Tailwind / PostCSS:** zone apps import `@helvety/ui/globals.css` and re-export `@helvety/config/postcss` (plugin loaded from `@helvety/dev-deps`). Production `tailwindcss`, `@tailwindcss/postcss`, and **`shadcn`** (for `@import "shadcn/tailwind.css"` in `globals.css`) on `@helvety/ui` keep Tailwind on zone apps’ production dependency graph for Turbopack. See [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md).
 - Prefer semantic variants/tokens (`primary`, `secondary`, `destructive`, `muted`) over hardcoded palette classes. Gateway marketing accents use `--brand-swiss-red` / `text-brand-swiss-red` from `packages/ui/globals.css` (not raw `#FF0000` in components).
-- Prefer reusable state primitives for list surfaces (`ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`).
 - Pin command bars **outside** scroll: Store uses `scrollAreaMainPrefix` on `HelvetyPublicShellRootLayout` with `CommandBar` `variant="solid"` on `StoreNav`; PDF, image-editor, and OCR pin `CommandBar` (`variant="solid"`) as a flex sibling above an `overflow-hidden` workspace (`mainVariant: "overflow-main"` on the public shell). Image-editor adds a second translucent `ImageEditorToolPropertiesBar` below the main bar. Do not rely on CSS `sticky` on `CommandBar` for page-level pinning.
 - **Scrollable sheets:** full-height slide-outs use `@helvety/ui/sheet-scroll-layout` (`SHEET_SCROLLABLE_SHELL_CLASS` on `SheetContent`, optional `SHEET_SCROLLABLE_BODY_CLASS` wrapper below a pinned header). List-style sheets (`AppSwitcher`, mobile nav menu) put `ScrollArea` with `min-h-0 flex-1` directly under the header. Do not scroll the sheet root with raw `overflow-y-auto`; keep the flex height chain intact (`min-h-0`, `flex-1`, `overflow-hidden` on each flex child). Guarded by `sheet-scroll-wiring.test.ts`.
 - Use `NativeSelect` from `@helvety/ui/native-select` for consistent native select styling when the full custom select is not required.
-- **Action buttons:** follow [`ui-action-button-contract.md`](./ui-action-button-contract.md) for icon, label, placement, and responsive rules. Use `@helvety/ui/row-action-button` for list row icon actions. Import `toast` from `@helvety/ui/sonner` in zone apps (not direct `sonner`). `bun run consistency:ui-actions` (in `ci:check`) guards adoption.
+- **Action buttons:** follow [`ui-action-button-contract.md`](./ui-action-button-contract.md) for icon, label, placement, and responsive rules. Import `toast` from `@helvety/ui/sonner` in zone apps (not direct `sonner`). `bun run consistency:ui-actions` (in `ci:check`) guards sonner imports and public-tool workspace constants.
 
 ## Mobile form controls (iOS input zoom)
 
@@ -44,7 +42,7 @@ iOS Safari zooms the page when a focused text field is below **16px**. Helvety u
 
 1. **CSS safety net:** `@helvety/ui/form-control-touch.css` (imported by `@helvety/ui/globals.css`). Sets `font-size: 1rem` on touch/coarse-pointer devices for `input`, `select`, `textarea`, and `[contenteditable="true"]`.
 2. **Tailwind constant:** `@helvety/ui/form-control-text-size` exports `FORM_CONTROL_TEXT_SIZE_CLASS` and `FORM_CONTROL_PROSE_SIZE_CLASS` (16px on touch, 14px on mouse desktop). Use only when authoring new shared primitives, not in app code.
-3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/date-picker`, `@helvety/ui/date-time-picker` (pass optional `id` for `FormField` / `htmlFor`). Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components`.
+3. **Approved primitives:** `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select` (pass optional `id` for labels / `htmlFor`). Never raw `<input>`, `<select>`, or `<textarea>` in `apps/*/components`.
 
 Do **not** disable pinch zoom via viewport `maximum-scale=1` / `user-scalable=no`.
 

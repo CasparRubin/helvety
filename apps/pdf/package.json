@@ -15,9 +15,9 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "bun run sync:pdf-worker && node ../../scripts/generate-version.mjs && next dev -p 3004",
+    "dev": "bun run sync:pdf-worker && node ../../scripts/generate-version.mjs && next dev -p 3003",
     "build": "bun run sync:pdf-worker && node ../../scripts/generate-version.mjs && next build",
-    "start": "next start -p 3004",
+    "start": "next start -p 3003",
     "lint": "node ../../scripts/generate-version.mjs && eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "type-check": "node ../../scripts/generate-version.mjs && bunx next typegen && tsc --noEmit",

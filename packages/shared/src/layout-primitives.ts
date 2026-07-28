@@ -58,6 +58,7 @@ export const HELVETY_SAME_AS_URLS = [
   urls.imageEditor,
   urls.ocr,
   urls.store,
+  urls.cloud,
   "https://github.com/CasparRubin",
 ];
 

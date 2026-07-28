@@ -7,8 +7,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  HERO_CLOUD_CTA_DESCRIPTION,
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
   HERO_COMPANY_VALUES_TAGLINE_TEXT,
+  HERO_PRODUCTS_CTA_DESCRIPTION,
   HeroMarketingShell,
 } from "./hero-marketing-shell";
 
@@ -41,9 +43,9 @@ describe("HeroMarketingShell", () => {
     expect(src).toContain("HeroCompanyValuesTagline");
     expect(src).not.toMatch(/WebGL/);
     expect(src).toContain("lg:whitespace-nowrap");
-    expect(src).toContain("text-base");
     expect(src).not.toContain("@helvety/ui/badge");
     expect(src).not.toContain("hero-text");
+    expect(src).not.toContain("Software products");
   });
 
   it("derives hero tagline text from shared company values (ASCII, no emoji)", () => {
@@ -59,13 +61,11 @@ describe("HeroMarketingShell", () => {
 
   it("server-renders hero copy with Cloud and Store CTAs", () => {
     const html = renderToStaticMarkup(<HeroMarketingShell />);
-    const eyebrowHtml = html.match(/<p[^>]*>Software products<\/p>/)?.[0] ?? "";
     const hrefs = [...html.matchAll(/\bhref="([^"]*)"/g)].map(
       (match) => match[1]
     );
 
-    expect(eyebrowHtml).toContain("text-base");
-    expect(eyebrowHtml).not.toMatch(/\btext-sm\b/);
+    expect(html).toMatch(/<h1[^>]*>Helvety<\/h1>/);
     expect(html).toContain("Engineered, designed &amp; made in");
     expect(html).toContain("Switzerland");
     expect(html).toContain("text-brand-swiss-red");
@@ -78,10 +78,16 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("tracking-[0.08em]");
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
+    expect(html).toContain("hero-enter-brand");
+    expect(html).toContain("hero-enter-ctas");
     expect(html).toContain("Helvety Cloud");
-    expect(html).toContain("Browse products");
-    expect(html).toContain("End-to-end encrypted open-space workspace");
-    expect(html).toContain("Free browser tools and Microsoft 365 apps");
+    expect(html).toContain("Browse other products");
+    expect(html).toContain(HERO_CLOUD_CTA_DESCRIPTION);
+    expect(html).toContain(HERO_PRODUCTS_CTA_DESCRIPTION);
+    expect(html).not.toContain("Microsoft 365");
+    expect(html).not.toContain("M365");
+    expect(html).not.toContain("End-to-end encrypted open-space workspace");
+    expect(html).not.toContain("Free browser tools and Microsoft 365 apps");
     expect(hrefs).toContain("https://helvety.cloud");
     expect(hrefs).toContain("/store/products");
     expect(hrefs).not.toContain("/store");

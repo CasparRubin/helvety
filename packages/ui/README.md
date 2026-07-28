@@ -24,15 +24,14 @@ This package provides:
 - `@helvety/ui/loading-spinner` -> `LoadingSpinner` for root `app/loading.tsx` on **pdf**, **image-editor**, and **ocr**
 - `@helvety/ui/create-app-navbar` -> `createPublicShellNavbar`, `publicToolNavbarBrand`
 - `@helvety/ui/public-tool-workspace` -> layout class strings for PDF, image-editor, and OCR sidebars/canvas shells
-- `@helvety/ui/row-action-button` -> `RowActionButton`
 - `@helvety/ui/sonner` -> `Toaster`, `toast` (zone apps import here; do not depend on `sonner` directly)
-- `@helvety/ui/list-states` -> `ListLoadingState`, `ListErrorState`, `ListEmptyState`, `ListEmptySearchState`
 - `@helvety/ui/sheet-scroll-layout` -> `SHEET_SCROLLABLE_SHELL_CLASS`, `SHEET_SCROLLABLE_BODY_CLASS`
 - `@helvety/ui/accessible-sheet-header` -> `AccessibleSheetHeader`
-- `@helvety/ui/form-field`, `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`, `@helvety/ui/date-picker`, `@helvety/ui/date-time-picker`
+- `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`
 - `@helvety/ui/helvety-shell-navbar` -> `HelvetyShellNavbar`
+- `@helvety/ui/footer` -> `Footer` (copyright, contact, legal nav; storage disclosure is Privacy §8 only)
 
-Also includes reusable UI building blocks (Base UI / shadcn `base-vega`, calendar, table, icon-renderer, CommandBar toolbar shells).
+Also includes reusable UI building blocks (Base UI / shadcn `base-vega`, table, dialog, sheet, CommandBar toolbar shells).
 
 ## Styling / Tailwind
 

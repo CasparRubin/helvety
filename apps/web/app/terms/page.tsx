@@ -161,6 +161,11 @@ export default function TermsPage() {
             browser tools above.
           </li>
         </ul>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Helvety Cloud (helvety.cloud) is a separate product and repository with
+          its own terms, privacy policy, and LICENSE. These Terms do not cover
+          Helvety Cloud.
+        </p>
         <p className="text-muted-foreground text-sm">
           Listed products are currently offered free of charge. Features may
           change or be withdrawn. Enterprise add-ins and extensions you install

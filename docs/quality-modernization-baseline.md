@@ -30,7 +30,7 @@ Living contracts and guardrails for the Helvety monorepo. Completed modernizatio
 - **Cross-zone navigation:** shell ecosystem navigation (`AppSwitcher`) uses absolute `urls.*` hrefs so `basePath` does not prefix another app’s path
 - **Proxy matchers:** basePath-mounted apps inline `SECURITY_PROXY_MATCHER` so static `public/` assets (`.mjs` / `.wasm` / `.json` for PDF.js and OCR) skip the security proxy chain
 - **Vercel Root Directory:** each zone project uses `apps/<slug>` (see [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md))
-- Store ecosystem categories and catalog caching; public-tool product copy; Playwright gateway smoke
+- Store ecosystem categories and catalog caching; public-tool product copy
 - UI stack: **@base-ui/react** (`base-vega`), lucide-react v1, shadcn CLI v4
 - Toolchain: TypeScript 6 and ESLint 10 across workspaces (`deps:drift` in `ci:check`)
 

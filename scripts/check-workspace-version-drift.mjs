@@ -19,7 +19,6 @@ const DEV_DEPS_MANAGED = new Set([
   "@testing-library/jest-dom",
   "@testing-library/react",
   "jsdom",
-  "fake-indexeddb",
   "@types/node",
   "@types/react",
   "@types/react-dom",

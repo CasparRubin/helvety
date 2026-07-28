@@ -11,22 +11,3 @@ export const TOAST_DURATIONS = {
   /** Critical errors (manual dismiss) */
   ERROR_CRITICAL: Infinity,
 } as const;
-
-/**
- * Reusable user-facing error messages
- */
-export const ERROR_MESSAGES = {
-  /** Data export failure */
-  EXPORT_FAILED: "Failed to export data. Please try again.",
-} as const;
-
-/**
- * Shared caps for batch reorder, chunked updates, export row bounds, and list
- * prefetch reads.
- */
-export const ACTION_LIMITS = {
-  MAX_REORDER_ITEMS: 2000,
-  REORDER_CHUNK_SIZE: 50,
-  MAX_EXPORT_ROWS_PER_TABLE: 5000,
-  MAX_DASHBOARD_ROWS: 2000,
-} as const;

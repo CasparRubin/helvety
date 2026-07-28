@@ -75,13 +75,9 @@ bun run type-check
 bun run test
 bun run format
 
-# remove local gitignored artifacts (.next/, coverage/, .turbo/, test-results/, .DS_Store, …)
+# remove local gitignored artifacts (.next/, coverage/, .turbo/, .DS_Store, …)
 # skips coverage/ dirs while Vitest is writing coverage (.tmp) or when HELVEY_SKIP_COVERAGE_CLEAN=1
 bun run clean:artifacts
-
-# optional: Playwright gateway smoke (all zones via ci:check:e2e, or gateway-only test:e2e)
-bun run ci:check:e2e
-# HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e
 ```
 
 ## Testing Consistency
@@ -116,7 +112,7 @@ Full index: [`docs/README.md`](docs/README.md). Key references:
 Quality gates run locally via `bun run ci:check` and `bun run ci:release` before push. Vercel builds and deploys from the pushed commit.
 
 - `bun run ci:check` (run during development) runs, in order: `consistency:proxy-docs`, `consistency:toolchain-docs`, `consistency:env-templates`, `consistency:vercel-apps`, `consistency:guardrails`, `consistency:ui-actions`, `consistency:zone-modernization`, `consistency:workspace-scripts`, `consistency:license`, `consistency:customer-copy`, `consistency:install-manifest-metadata`, `consistency:lifecycle-scripts`, `consistency:project-naming`, `test:hygiene`, `deps:security:floors`, `deps:drift`, `consistency:pdfjs-worker`, `consistency:filenames`, `deps:unused` (Knip: unused files, dependencies, exports, types), `format:check`, `lint`, `type-check`, `test`.
-  - `consistency:ui-actions` enforces shared row-action icons (`Trash2Icon`, `@helvety/ui/row-action-button`, `@helvety/ui/icon-size`), `@helvety/ui/sonner` imports in apps, public-tool workspace constants, and extension OKLCH token imports (see [`docs/ui-action-button-contract.md`](docs/ui-action-button-contract.md)).
+  - `consistency:ui-actions` enforces `@helvety/ui/sonner` imports in apps, public-tool workspace constants (`PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS`), and extension OKLCH token imports (see [`docs/ui-action-button-contract.md`](docs/ui-action-button-contract.md)).
   - `consistency:pdfjs-worker` syncs the PDF and OCR zone workers from react-pdf's resolved `pdfjs-dist` and rejects API/worker version skew or independent `pdfjs-dist` pins (see [`apps/pdf/README.md`](apps/pdf/README.md) and [`apps/ocr/README.md`](apps/ocr/README.md) › PDF.js stack).
   - `consistency:proxy-docs` (web gateway `apps/web/proxy.ts` ↔ `apps/web/README.md` only) keeps the public marketing proxy contract documented.
   - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`, keeps this README's documented `ci:check` step order aligned with `package.json` (all steps, not only `consistency:*`), and keeps Tailwind/PostCSS Vercel guidance aligned across root, [`packages/ui/README.md`](packages/ui/README.md), and [`packages/dev-deps/README.md`](packages/dev-deps/README.md).
@@ -131,15 +127,14 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
   - Cursor **dependency-update** skill (`.cursor/skills/dependency-update/`) for full npm + extended sweeps with upstream release research
   - `bun run deps:outdated` then filtered `bun update <pkg...> --filter='@helvety/*'` before releases (manual; no Renovate/Dependabot; see `.cursor/skills/dependency-update/`; never bare `bun update -r` at repo root)
   - `bun run deadcode:sweep` (lighter Knip + lint + type-check without the full `ci:check` suite; `deps:unused` already runs inside `ci:check`)
-  - `bun run clean:artifacts` (removes local gitignored `.next/`, `coverage/`, `.turbo/`, test reports, `.DS_Store`; skips active Vitest `coverage/.tmp`; smoke-tested in `@helvety/shared` guardrail tests)
+  - `bun run clean:artifacts` (removes local gitignored `.next/`, `coverage/`, `.turbo/`, `.DS_Store`; skips active Vitest `coverage/.tmp`; smoke-tested in `@helvety/shared` guardrail tests)
   - `bun run deps:check` / `bun run knip:exports` / `bun run knip:full` / `bun run deps:unused` (`deps:unused` is the CI gate; `knip:full` also reports unlisted deps and binaries that `ci:check` does not fail on)
   - Optional local dead-code triage: `bun run fallow` / `fallow:dead-code` / `fallow:dupes` / `fallow:health` / `fallow:fix` (`.fallowrc.json` may use broader ignores than [`knip.json`](knip.json); not in `ci:check`)
-  - `HELVETY_SMOKE_BASE_URL=http://localhost:3001 bun run test:e2e` or `bun run ci:check:e2e` (Playwright gateway smoke; `ci:check:e2e` installs Chromium if needed and starts all zone dev servers when the base URL is unset, using `SKIP_ENV_VALIDATION=1` when local service env such as Store Upstash is absent)
 
 ## Environment Model
 
 - Copy each app's `env.template` to `.env.local` before running that app (see setup commands above). `bun run consistency:env-templates` (in `ci:check`) keeps every template aligned with startup validation in `lib/env.ts` and gateway config in `apps/web/next.config.ts`. `bun run consistency:local-env` audits local `.env.local` files against those tiers before you sync Vercel Production/Preview. `bun run sync:local-env` rewrites existing `.env.local` files from templates (comments/structure only; values preserved).
-- App URL and cookie domain logic are derived from `NODE_ENV` via shared config (`packages/shared/src/config.ts`).
+- App URL logic is derived from `NODE_ENV` via shared config (`packages/shared/src/config.ts`). Local zone ports are contiguous `3001`–`3005` (`DEV_PORTS`: web, store, pdf, image-editor, ocr).
 - **Per-app tiers** (see each `apps/*/env.template`, app README, [`docs/turbo-env-tiers.md`](docs/turbo-env-tiers.md), and [`docs/env-vercel-audit-checklist.md`](docs/env-vercel-audit-checklist.md)):
   - **Store** (`store`): Upstash Redis for public package download rate limiting.
   - **Public tools** (`pdf`, `image-editor`, `ocr`): no required service env (browser-local processing).
@@ -151,7 +146,7 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
 ## Security Posture (High Level)
 
 - `proxy.ts` is lightweight request setup (CSP headers with per-request nonce and zone-aware `report-uri` / `report-to` endpoints), not a full application security boundary. Zoned apps report CSP violations to `/{basePath}/api/csp-report` (gateway uses `/api/csp-report`). Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal) so common static files skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
-- All five Next.js zones share a cookie/storage notice in root layouts (no third-party analytics). User-facing disclosure: Privacy §8; shared footer points to Privacy for storage ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
+- All five Next.js zones share the site footer in root layouts (copyright, contact, legal nav; no third-party analytics). User-facing storage disclosure: Privacy §8 ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
 
 ## Project Structure
 

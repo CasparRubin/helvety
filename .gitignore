@@ -55,8 +55,6 @@ yarn-error.log*
 
 # Testing
 coverage/
-test-results/
-playwright-report/
 
 # Fallow (local cache; commit .fallowrc.json at repo root)
 .fallow/

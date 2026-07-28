@@ -64,8 +64,6 @@
     "fallow:dupes": "npx fallow dupes",
     "fallow:health": "npx fallow health",
     "fallow:fix": "npx fallow fix --dry-run",
-    "test:e2e": "playwright test",
-    "ci:check:e2e": "node scripts/run-e2e-smoke.mjs",
     "clean:artifacts": "node scripts/clean-artifacts.mjs"
   },
   "overrides": {
@@ -101,7 +99,6 @@
   },
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
-    "@playwright/test": "^1.61.1",
     "knip": "^6.29.0",
     "turbo": "^2.10.6"
   }

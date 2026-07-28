@@ -84,11 +84,11 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 
 ### List row and toolbar actions
 
-| Pattern              | Canonical                                      | Guard                                                                                      |
-| -------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Row icon actions     | `@helvety/ui/row-action-button` (`aria-label`) | [`ui-action-button-contract.md`](./ui-action-button-contract.md), `consistency:ui-actions` |
-| Public-tool sidebars | `@helvety/ui/public-tool-workspace`            | PDF toolkit, image-editor layers panel, OCR workspace                                      |
-| Toasts in apps       | `import { toast } from "@helvety/ui/sonner"`   | Knip (`deps:unused`), `consistency:ui-actions`                                             |
+| Pattern              | Canonical                                    | Guard                                                                          |
+| -------------------- | -------------------------------------------- | ------------------------------------------------------------------------------ |
+| Public-tool sidebars | `@helvety/ui/public-tool-workspace`          | PDF toolkit, image-editor layers panel, OCR workspace; `consistency:ui-actions` |
+| Toasts in apps       | `import { toast } from "@helvety/ui/sonner"` | Knip (`deps:unused`), `consistency:ui-actions`                                 |
+| Toolbar / delete     | [`ui-action-button-contract.md`](./ui-action-button-contract.md) | Lucide icons; `Trash2Icon` for delete                                 |
 
 ### Lib / copy
 

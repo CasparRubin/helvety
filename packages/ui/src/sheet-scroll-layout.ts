@@ -1,6 +1,6 @@
 /**
  * Shared Tailwind classes for full-height sheets that pin chrome and scroll body
- * content via {@link ScrollArea} or {@link CommandBarPageLayout}.
+ * content via {@link ScrollArea}.
  */
 
 /** Sheet content shell: full viewport height, no outer padding/gap, clips overflow. */

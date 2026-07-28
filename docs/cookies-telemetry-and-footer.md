@@ -1,4 +1,4 @@
-# Cookies and Site Footer
+# Cookies, storage, and site footer
 
 Canonical developer reference for Helvety web zones on `helvety.com`. User-facing legal text lives on the [Privacy Policy](https://helvety.com/privacy) (Section 8).
 
@@ -6,7 +6,7 @@ Canonical developer reference for Helvety web zones on `helvety.com`. User-facin
 
 Mounted by `HelvetyPublicShellRootLayout` on every Next.js zone.
 
-The footer states that the site uses essential cookies and similar storage for security and core functionality (for example theme preference). It links to **Privacy** for storage details (not a separate cookie banner).
+The footer shows copyright, contact email, and legal nav (**Privacy** / Terms / Impressum / Abuse). It does **not** include a cookie-consent banner or an inline cookie/storage blurb. Full storage disclosure lives on Privacy §8 only.
 
 - Gateway (`apps/web`): relative `/privacy` link (`footerExternal: false`).
 - Sub-zones: absolute `https://helvety.com/privacy` with `target="_blank"`.
@@ -15,13 +15,11 @@ The footer states that the site uses essential cookies and similar storage for s
 
 We do not mount third-party analytics or advertising trackers in shared root layouts.
 
-## First-party HTTP cookies (summary)
+## HTTP cookies
 
-`apps/web` uses the `public-marketing` proxy profile (CSP only).
+These public zones do not set first-party HTTP cookies for auth, analytics, or preferences. Preference storage uses `localStorage` only (see below).
 
-Production cookie domain (when cookies are set): `.helvety.com` (`packages/shared/src/config.ts`).
-
-## Browser storage (not cookies)
+## Browser storage (localStorage)
 
 Documented in Privacy §8 table (SSOT: `apps/web/lib/legal-cookies-disclosure.ts`):
 
@@ -30,9 +28,11 @@ Documented in Privacy §8 table (SSOT: `apps/web/lib/legal-cookies-disclosure.ts
 | Theme preference (`localStorage`)      | All zones | Remember dark/light mode          |
 | `helvety-pdf-columns` (`localStorage`) | `pdf`     | Remember PDF viewer column layout |
 
+No consent modal is required for strictly local preference storage with no analytics.
+
 ## When to update legal copy
 
-See [`docs/legal-change-guardrails.md`](./legal-change-guardrails.md). Any change to new cookies/storage keys or footer disclosure requires updating:
+See [`docs/legal-change-guardrails.md`](./legal-change-guardrails.md). Any change to new storage keys requires updating:
 
 - `apps/web/app/privacy/page.tsx` (and usually terms/impressum `lastReviewed` in sync)
 - `apps/web/lib/legal-cookies-disclosure.ts` + `apps/web/app/legal-cookies-disclosure.test.ts`

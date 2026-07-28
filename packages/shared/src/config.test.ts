@@ -3,14 +3,14 @@ import { describe, expect, it } from "vitest";
 import { DEV_PORTS, getLocalAppHref, urls } from "./config";
 
 describe("urls and DEV_PORTS", () => {
-  it("exposes the PDF zone on the gateway and dev port 3004", () => {
+  it("exposes the PDF zone on the gateway and dev port 3003", () => {
     expect(urls.pdf).toMatch(/\/pdf$/);
-    expect(DEV_PORTS.pdf).toBe(3004);
+    expect(DEV_PORTS.pdf).toBe(3003);
   });
 
-  it("exposes the OCR zone on dev port 3011", () => {
+  it("exposes the OCR zone on dev port 3005", () => {
     expect(urls.ocr).toMatch(/\/ocr$/);
-    expect(DEV_PORTS.ocr).toBe(3011);
+    expect(DEV_PORTS.ocr).toBe(3005);
   });
 
   it("deep-links store catalog landing under the store zone", () => {

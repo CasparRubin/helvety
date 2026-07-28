@@ -3,10 +3,3 @@
 ## Dependency updates
 
 When asked to update dependencies to latest stable compatible versions, use the **dependency-update** project skill (`.cursor/skills/dependency-update/SKILL.md`) and `docs/dependency-inventory.md`. Include non-npm assets (models, vendored workers/WASM, PDF.js worker via react-pdf, React Bits vendor, external repos), not only `package.json`. For the PDF and OCR zones, never pin `pdfjs-dist` independently of `react-pdf` — run `consistency:pdfjs-worker` after bumps (it validates both zones).
-
-## Supabase Export - NEVER COMMIT
-
-- `supabase/supabase.json` contains a full database export (schema, RLS policies, grants, etc.)
-- This file is gitignored. Never suggest or add `!supabase/supabase.json` to override the ignore.
-- Never move the export outside `/supabase` or commit it to any repo.
-- Use `supabase/getSupabase.sql` to generate fresh exports; keep the output in supabase.json locally only.
