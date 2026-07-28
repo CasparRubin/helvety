@@ -82,17 +82,8 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
         return devUrl(devPort);
       }
 
-      const authUrl = getAppUrl("AUTH_URL", DEV_PORTS.auth);
-      const tasksUrl = getAppUrl("TASKS_URL", DEV_PORTS.tasks);
-      const contactsUrl = getAppUrl("CONTACTS_URL", DEV_PORTS.contacts);
-      const notesUrl = getAppUrl("NOTES_URL", DEV_PORTS.notes);
-      const linksUrl = getAppUrl("LINKS_URL", DEV_PORTS.links);
       const storeUrl = getAppUrl("STORE_URL", DEV_PORTS.store);
       const pdfUrl = getAppUrl("PDF_URL", DEV_PORTS.pdf);
-      const imageUpscalerUrl = getAppUrl(
-        "IMAGE_UPSCALER_URL",
-        DEV_PORTS.imageUpscaler
-      );
       const imageEditorUrl = getAppUrl(
         "IMAGE_EDITOR_URL",
         DEV_PORTS.imageEditor
@@ -101,71 +92,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
 
       return {
         beforeFiles: [
-          {
-            source: "/auth",
-            destination: `${authUrl}/auth`,
-          },
-          {
-            source: "/auth/:path*",
-            destination: `${authUrl}/auth/:path*`,
-          },
-          {
-            // Forward auth zone static assets (assetPrefix: /auth-static).
-            source: "/auth-static/:path*",
-            destination: `${authUrl}/auth-static/:path*`,
-          },
-          {
-            source: "/tasks",
-            destination: `${tasksUrl}/tasks`,
-          },
-          {
-            // Use :path* so trailing-slash and empty-subpath variants
-            // (including some App Router RSC prefetch forms) are forwarded too.
-            source: "/tasks/:path*",
-            destination: `${tasksUrl}/tasks/:path*`,
-          },
-          {
-            source: "/tasks-static/:path*",
-            destination: `${tasksUrl}/tasks-static/:path*`,
-          },
-          {
-            source: "/contacts",
-            destination: `${contactsUrl}/contacts`,
-          },
-          {
-            // Use :path* so trailing-slash and empty-subpath variants
-            // (including some App Router RSC prefetch forms) are forwarded too.
-            source: "/contacts/:path*",
-            destination: `${contactsUrl}/contacts/:path*`,
-          },
-          {
-            source: "/contacts-static/:path*",
-            destination: `${contactsUrl}/contacts-static/:path*`,
-          },
-          {
-            source: "/notes",
-            destination: `${notesUrl}/notes`,
-          },
-          {
-            source: "/notes/:path*",
-            destination: `${notesUrl}/notes/:path*`,
-          },
-          {
-            source: "/notes-static/:path*",
-            destination: `${notesUrl}/notes-static/:path*`,
-          },
-          {
-            source: "/links",
-            destination: `${linksUrl}/links`,
-          },
-          {
-            source: "/links/:path*",
-            destination: `${linksUrl}/links/:path*`,
-          },
-          {
-            source: "/links-static/:path*",
-            destination: `${linksUrl}/links-static/:path*`,
-          },
           {
             source: "/store",
             destination: `${storeUrl}/store`,
@@ -181,14 +107,6 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
           {
             source: "/pdf/:path*",
             destination: `${pdfUrl}/pdf/:path*`,
-          },
-          {
-            source: "/image-upscaler",
-            destination: `${imageUpscalerUrl}/image-upscaler`,
-          },
-          {
-            source: "/image-upscaler/:path*",
-            destination: `${imageUpscalerUrl}/image-upscaler/:path*`,
           },
           {
             source: "/image-editor",

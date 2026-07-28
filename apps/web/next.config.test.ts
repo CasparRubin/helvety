@@ -48,117 +48,6 @@ describe("web gateway rewrites", () => {
     }
   });
 
-  it("forwards auth routes and auth static assets to the auth zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const authOrigin = `http://localhost:${DEV_PORTS.auth}`;
-
-    expect(Array.isArray(beforeFiles)).toBe(true);
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/auth",
-          destination: `${authOrigin}/auth`,
-        },
-        {
-          source: "/auth/:path*",
-          destination: `${authOrigin}/auth/:path*`,
-        },
-        {
-          source: "/auth-static/:path*",
-          destination: `${authOrigin}/auth-static/:path*`,
-        },
-      ])
-    );
-  });
-
-  it("keeps localhost auth routing in development even when AUTH_URL is set", async () => {
-    vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/auth/:path*",
-          destination: `http://localhost:${DEV_PORTS.auth}/auth/:path*`,
-        },
-      ])
-    );
-  });
-
-  it("forwards notes routes and notes static assets to the notes zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const notesOrigin = `http://localhost:${DEV_PORTS.notes}`;
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        { source: "/notes", destination: `${notesOrigin}/notes` },
-        { source: "/notes/:path*", destination: `${notesOrigin}/notes/:path*` },
-        {
-          source: "/notes-static/:path*",
-          destination: `${notesOrigin}/notes-static/:path*`,
-        },
-      ])
-    );
-  });
-
-  it("forwards links routes and links static assets to the links zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const linksOrigin = `http://localhost:${DEV_PORTS.links}`;
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        { source: "/links", destination: `${linksOrigin}/links` },
-        { source: "/links/:path*", destination: `${linksOrigin}/links/:path*` },
-        {
-          source: "/links-static/:path*",
-          destination: `${linksOrigin}/links-static/:path*`,
-        },
-      ])
-    );
-  });
-
-  it("forwards tasks routes and tasks static assets to the tasks zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const tasksOrigin = `http://localhost:${DEV_PORTS.tasks}`;
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        { source: "/tasks", destination: `${tasksOrigin}/tasks` },
-        { source: "/tasks/:path*", destination: `${tasksOrigin}/tasks/:path*` },
-        {
-          source: "/tasks-static/:path*",
-          destination: `${tasksOrigin}/tasks-static/:path*`,
-        },
-      ])
-    );
-  });
-
-  it("forwards contacts routes and contacts static assets to the contacts zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const contactsOrigin = `http://localhost:${DEV_PORTS.contacts}`;
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        { source: "/contacts", destination: `${contactsOrigin}/contacts` },
-        {
-          source: "/contacts/:path*",
-          destination: `${contactsOrigin}/contacts/:path*`,
-        },
-        {
-          source: "/contacts-static/:path*",
-          destination: `${contactsOrigin}/contacts-static/:path*`,
-        },
-      ])
-    );
-  });
-
   it("forwards store routes to the store zone", async () => {
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);
@@ -181,25 +70,6 @@ describe("web gateway rewrites", () => {
       expect.arrayContaining([
         { source: "/pdf", destination: `${pdfOrigin}/pdf` },
         { source: "/pdf/:path*", destination: `${pdfOrigin}/pdf/:path*` },
-      ])
-    );
-  });
-
-  it("forwards image-upscaler routes to the image-upscaler zone", async () => {
-    const rewritesResult = await nextConfig.rewrites?.();
-    const beforeFiles = getBeforeFiles(rewritesResult);
-    const imageUpscalerOrigin = `http://localhost:${DEV_PORTS.imageUpscaler}`;
-
-    expect(beforeFiles).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/image-upscaler",
-          destination: `${imageUpscalerOrigin}/image-upscaler`,
-        },
-        {
-          source: "/image-upscaler/:path*",
-          destination: `${imageUpscalerOrigin}/image-upscaler/:path*`,
-        },
       ])
     );
   });
@@ -242,59 +112,62 @@ describe("web gateway rewrites", () => {
     );
   });
 
+  it("does not forward retired zone routes", async () => {
+    const rewritesResult = await nextConfig.rewrites?.();
+    const beforeFiles = getBeforeFiles(rewritesResult) ?? [];
+    const sources = beforeFiles.map((rule) => rule.source);
+
+    expect(sources.some((source) => source.startsWith("/auth"))).toBe(false);
+    expect(sources.some((source) => source.startsWith("/tasks"))).toBe(false);
+    expect(sources.some((source) => source.startsWith("/contacts"))).toBe(
+      false
+    );
+    expect(sources.some((source) => source.startsWith("/notes"))).toBe(false);
+    expect(sources.some((source) => source.startsWith("/links"))).toBe(false);
+    expect(sources.some((source) => source.startsWith("/image-upscaler"))).toBe(
+      false
+    );
+  });
+
   it("uses localhost rewrite targets in production when gateway env vars are unset and not on Vercel", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "");
-    vi.stubEnv("AUTH_URL", "");
-    vi.stubEnv("TASKS_URL", "");
-    vi.stubEnv("CONTACTS_URL", "");
-    vi.stubEnv("NOTES_URL", "");
-    vi.stubEnv("LINKS_URL", "");
     vi.stubEnv("STORE_URL", "");
     vi.stubEnv("PDF_URL", "");
-    vi.stubEnv("IMAGE_UPSCALER_URL", "");
     vi.stubEnv("IMAGE_EDITOR_URL", "");
     vi.stubEnv("OCR_URL", "");
 
     const rewritesResult = await nextConfig.rewrites?.();
     const beforeFiles = getBeforeFiles(rewritesResult);
-    const authOrigin = `http://localhost:${DEV_PORTS.auth}`;
+    const storeOrigin = `http://localhost:${DEV_PORTS.store}`;
 
     expect(beforeFiles).toEqual(
       expect.arrayContaining([
         {
-          source: "/auth/:path*",
-          destination: `${authOrigin}/auth/:path*`,
+          source: "/store/:path*",
+          destination: `${storeOrigin}/store/:path*`,
         },
       ])
     );
   });
 
-  it("requires gateway env vars on Vercel production when unset", async () => {
+  it("requires STORE_URL on Vercel production when unset", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "1");
-    vi.stubEnv("AUTH_URL", "");
+    vi.stubEnv("STORE_URL", "");
 
     await expect(nextConfig.rewrites?.()).rejects.toThrow(
-      "AUTH_URL is required on Vercel in production."
+      "STORE_URL is required on Vercel in production."
     );
   });
 
   it("requires IMAGE_EDITOR_URL on Vercel production when unset", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "1");
-    vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
     vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
     vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
-    vi.stubEnv(
-      "IMAGE_UPSCALER_URL",
-      "https://helvety-image-upscaler.vercel.app"
-    );
     vi.stubEnv("IMAGE_EDITOR_URL", "");
-    vi.stubEnv("TASKS_URL", "https://helvety-tasks.vercel.app");
-    vi.stubEnv("CONTACTS_URL", "https://helvety-contacts.vercel.app");
-    vi.stubEnv("NOTES_URL", "https://helvety-notes.vercel.app");
-    vi.stubEnv("LINKS_URL", "https://helvety-links.vercel.app");
+    vi.stubEnv("OCR_URL", "https://helvety-ocr.vercel.app");
 
     await expect(nextConfig.rewrites?.()).rejects.toThrow(
       "IMAGE_EDITOR_URL is required on Vercel in production."
@@ -304,19 +177,10 @@ describe("web gateway rewrites", () => {
   it("requires OCR_URL on Vercel production when unset", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "1");
-    vi.stubEnv("AUTH_URL", "https://helvety-auth.vercel.app");
     vi.stubEnv("STORE_URL", "https://helvety-store.vercel.app");
     vi.stubEnv("PDF_URL", "https://helvety-pdf.vercel.app");
-    vi.stubEnv(
-      "IMAGE_UPSCALER_URL",
-      "https://helvety-image-upscaler.vercel.app"
-    );
     vi.stubEnv("IMAGE_EDITOR_URL", "https://helvety-image-editor.vercel.app");
     vi.stubEnv("OCR_URL", "");
-    vi.stubEnv("TASKS_URL", "https://helvety-tasks.vercel.app");
-    vi.stubEnv("CONTACTS_URL", "https://helvety-contacts.vercel.app");
-    vi.stubEnv("NOTES_URL", "https://helvety-notes.vercel.app");
-    vi.stubEnv("LINKS_URL", "https://helvety-links.vercel.app");
 
     await expect(nextConfig.rewrites?.()).rejects.toThrow(
       "OCR_URL is required on Vercel in production."

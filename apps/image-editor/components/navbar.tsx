@@ -14,5 +14,4 @@ export const Navbar = createPublicShellNavbar({
   aboutDescription: imageEditorNavbarAbout(),
   navigationMenuDescription: "Image Editor navigation menu",
   versionLabel: VERSION ?? null,
-  account: { variant: "external-store" },
 });

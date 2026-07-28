@@ -53,9 +53,6 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Supabase exports (sensitive)
-supabase/supabase.json
-
 # Testing
 coverage/
 test-results/

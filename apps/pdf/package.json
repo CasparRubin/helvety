@@ -37,8 +37,7 @@
     "pdf-lib": "^1.17.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-pdf": "^10.4.1",
-    "server-only": "^0.0.1"
+    "react-pdf": "^10.4.1"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",

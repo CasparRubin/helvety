@@ -14,14 +14,14 @@ describe("readExtensionVersion", () => {
     expect(readExtensionVersion()).toBe("1.2.3");
   });
 
-  it("returns an em dash when chrome is unavailable", () => {
+  it("returns an empty string when chrome is unavailable", () => {
     vi.stubGlobal("chrome", undefined);
-    expect(readExtensionVersion()).toBe("—");
+    expect(readExtensionVersion()).toBe("");
   });
 
-  it("returns an em dash when getManifest is missing", () => {
+  it("returns an empty string when getManifest is missing", () => {
     vi.stubGlobal("chrome", { runtime: {} });
-    expect(readExtensionVersion()).toBe("—");
+    expect(readExtensionVersion()).toBe("");
   });
 });
 

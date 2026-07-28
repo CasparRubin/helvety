@@ -11,13 +11,6 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
-vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
-  bootstrapE2eeLayoutSession: vi.fn().mockResolvedValue({
-    csrfToken: "",
-    initialUser: null,
-  }),
-}));
-
 vi.mock("@/components/navbar", () => ({
   Navbar: () => null,
 }));
@@ -44,7 +37,18 @@ describe("store root layout metadata", () => {
     assertSwissOriginInSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
     expect(STORE_DESCRIPTION).toMatch(/Browse free Helvety apps/i);
     expect(metadata.keywords).toEqual(
-      expect.arrayContaining(["links", "encrypted bookmarks", "notes"])
+      expect.arrayContaining(["pdf", "image editor", "ocr"])
+    );
+    expect(metadata.keywords).not.toEqual(
+      expect.arrayContaining([
+        "encrypted bookmarks",
+        "image upscaler",
+        "browser extension",
+        "tasks",
+        "contacts",
+        "notes",
+        "links",
+      ])
     );
   });
 });

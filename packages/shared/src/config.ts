@@ -1,7 +1,7 @@
 /**
  * Centralized configuration for Helvety web apps in this monorepo (helvety.com Next.js path zones).
  *
- * Derives default values (URLs, cookie domain, ports) from NODE_ENV for the
+ * Derives default values (URLs, ports) from NODE_ENV for the
  * current Helvety deployment model.
  */
 
@@ -18,6 +18,9 @@ export const CONTACT_EMAIL = "contact@helvety.com";
 /** Development gateway (multi-zone entry point) */
 const DEV_GATEWAY = "http://localhost:3001";
 
+/** Sister product: Helvety Cloud (end-to-end encrypted workspace). */
+export const CLOUD_DOMAIN = "helvety.cloud";
+
 /**
  * App base URLs for navigation, redirects, metadata, etc.
  *
@@ -25,40 +28,35 @@ const DEV_GATEWAY = "http://localhost:3001";
  * Prod: https://helvety.com/{app}
  *
  * Prefer {@link urls.storeProducts} for Store catalog CTAs (skips the store-root
- * redirect). Keep {@link urls.store} for the zone base, metadata, account, and SEO.
+ * redirect). Keep {@link urls.store} for the zone base, metadata, and SEO.
+ * {@link urls.cloud} is always the production Cloud origin (separate product).
  */
 export const urls = {
   home: isDev ? DEV_GATEWAY : `https://${DOMAIN}`,
-  auth: isDev ? `${DEV_GATEWAY}/auth` : `https://${DOMAIN}/auth`,
   store: isDev ? `${DEV_GATEWAY}/store` : `https://${DOMAIN}/store`,
   /** Store catalog landing (avoids `/store` → `/store/products` redirect). */
   storeProducts: isDev
     ? `${DEV_GATEWAY}/store/products`
     : `https://${DOMAIN}/store/products`,
   pdf: isDev ? `${DEV_GATEWAY}/pdf` : `https://${DOMAIN}/pdf`,
-  imageUpscaler: isDev
-    ? `${DEV_GATEWAY}/image-upscaler`
-    : `https://${DOMAIN}/image-upscaler`,
   imageEditor: isDev
     ? `${DEV_GATEWAY}/image-editor`
     : `https://${DOMAIN}/image-editor`,
   ocr: isDev ? `${DEV_GATEWAY}/ocr` : `https://${DOMAIN}/ocr`,
-  tasks: isDev ? `${DEV_GATEWAY}/tasks` : `https://${DOMAIN}/tasks`,
-  contacts: isDev ? `${DEV_GATEWAY}/contacts` : `https://${DOMAIN}/contacts`,
-  notes: isDev ? `${DEV_GATEWAY}/notes` : `https://${DOMAIN}/notes`,
-  links: isDev ? `${DEV_GATEWAY}/links` : `https://${DOMAIN}/links`,
+  /** Helvety Cloud workspace (https://helvety.cloud), not a helvety.com zone. */
+  cloud: `https://${CLOUD_DOMAIN}`,
 } as const;
 
 /**
  * Convert an app URL to a Next.js-friendly root-relative href when possible.
  *
- * Returns a path-based href (`/store/products`, `/tasks`, etc.) for absolute
+ * Returns a path-based href (`/store/products`, `/pdf`, etc.) for absolute
  * Helvety URLs on `helvety.com`, `*.helvety.com`, `localhost`, or `127.0.0.1`
  * when you want **`next/link`** without a **`basePath`** (for example
  * **`apps/web`**, the gateway) so same-origin navigation stays path-shaped.
  *
  * Do **not** use this for cross-app **`Link`** targets rendered inside apps with
- * a Next **`basePath`** (`/auth`, `/store`, …): Next prepends that prefix to
+ * a Next **`basePath`** (`/store`, `/pdf`, …): Next prepends that prefix to
  * path-only hrefs and breaks other zones. **`AppSwitcher`** uses absolute **`urls.*`**
  * hrefs instead.
  *
@@ -89,30 +87,13 @@ export function getLocalAppHref(url: string): string {
 }
 
 /**
- * Cookie domain for session sharing.
- *
- * In dev: undefined (defaults to current host).
- * In prod: .helvety.com (shared across all path-based apps).
- */
-export const COOKIE_DOMAIN: string | undefined = isDev
-  ? undefined
-  : `.${DOMAIN}`;
-
-/**
- * Development-only: direct app ports for WebAuthn origins,
- * gateway rewrites, etc.
+ * Development-only: direct app ports for gateway rewrites, etc.
  */
 export const DEV_PORTS = {
   web: 3001,
-  auth: 3002,
   store: 3003,
   pdf: 3004,
-  tasks: 3005,
-  contacts: 3006,
-  notes: 3007,
-  imageUpscaler: 3008,
   imageEditor: 3010,
-  links: 3009,
   ocr: 3011,
 } as const;
 

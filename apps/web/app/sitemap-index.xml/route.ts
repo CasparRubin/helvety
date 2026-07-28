@@ -7,7 +7,6 @@ const SITEMAP_PATHS = [
   "/sitemap.xml",
   "/store/sitemap.xml",
   "/pdf/sitemap.xml",
-  "/image-upscaler/sitemap.xml",
   "/image-editor/sitemap.xml",
   "/ocr/sitemap.xml",
 ] as const;

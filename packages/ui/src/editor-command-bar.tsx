@@ -34,7 +34,7 @@ export interface EditorCommandBarAction {
   variant?: "outline" | "destructive";
 }
 
-/** Shared editor command bar contract for tasks/contacts-like screens. */
+/** Shared editor command bar contract (back, refresh, save, overflow actions). */
 export interface EditorCommandBarProps {
   backIcon: ReactNode;
   backLabel?: string;

@@ -73,22 +73,3 @@ export function assertValidPublicSitemapEntries(
     expect(entry.url).not.toMatch(/\/llms\.txt$/);
   }
 }
-
-/**
- * Asserts private-zone robots: disallow the host-absolute zone prefix and omit
- * sitemap advertisement.
- */
-export function expectPrivateZoneRobots(
-  robotsOutput: MetadataRoute.Robots,
-  zonePath: string
-): void {
-  const rules = normalizeRobotsRules(robotsOutput);
-
-  expect(rules.map((rule) => rule.userAgent)).toEqual(
-    expect.arrayContaining(["*", ...AI_DISCOVERY_USER_AGENTS])
-  );
-  for (const rule of rules) {
-    expect(rule.disallow).toBe(zonePath);
-  }
-  expect(robotsOutput.sitemap).toBeUndefined();
-}

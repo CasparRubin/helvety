@@ -4,41 +4,31 @@
  * not necessarily the same string as a store catalog card `id`.
  */
 
-// =============================================================================
-// PACKAGE DEFINITIONS
-// =============================================================================
-
 /** Configuration for a downloadable package product */
 interface PackageInfo {
-  /** Display version string (not parsed from storage filenames). */
+  /** Display version string. */
   version: string;
-  /** Original filename for the download Content-Disposition header */
+  /** Original filename for downloads. */
   filename: string;
-  /** Folder in Supabase Storage bucket `packages` that contains package files. */
-  storageFolderPath: string;
-  /** File extension to match in storage (e.g. ".sppkg", ".zip"), case-insensitive. */
-  storageFileSuffix: string;
-  /** Whether package can be downloaded without account login */
+  /** Absolute HTTPS URL of the package artifact (GitHub Releases). */
+  downloadUrl: string;
+  /** Whether package can be downloaded without login. */
   isPublic: boolean;
 }
 
 /**
  * Package configuration for all downloadable products.
- * The download resolver picks the newest matching file in each folder at runtime.
+ * Publish/update the `.sppkg` as a GitHub Release asset on helvety-spo-explorer.
  */
 const PACKAGE_CONFIG: Record<string, PackageInfo> = {
   "spo-explorer": {
     version: "1.0.0.4",
     filename: "helvety-spo-explorer.sppkg",
-    storageFolderPath: "spfx/helvety-spo-explorer",
-    storageFileSuffix: ".sppkg",
+    downloadUrl:
+      "https://github.com/CasparRubin/helvety-spo-explorer/releases/latest/download/helvety-spo-explorer.sppkg",
     isPublic: true,
   },
 } as const;
-
-// =============================================================================
-// HELPER FUNCTIONS
-// =============================================================================
 
 /** Returns package info for the given package ID, or undefined if not found */
 export function getPackageInfo(packageId: string): PackageInfo | undefined {

@@ -10,7 +10,7 @@ Index of policy, ops, and architecture docs under this folder.
 | [`app-consistency-checklist.md`](./app-consistency-checklist.md)           | Required files and tests for each `apps/*` zone                                                |
 | [`ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md)     | Shared UI primitives in `@helvety/ui` only; React Bits vendor rules                            |
 | [`ui-action-button-contract.md`](./ui-action-button-contract.md)           | Row actions, canvas tool command bars, placement, responsive labels (`consistency:ui-actions`) |
-| [`quality-modernization-baseline.md`](./quality-modernization-baseline.md) | Shared package contracts, proxy/auth/env baselines, completed modernization                    |
+| [`quality-modernization-baseline.md`](./quality-modernization-baseline.md) | Shared package contracts, proxy/env baselines, completed modernization                         |
 
 ## Deploy and Vercel ops
 
@@ -22,11 +22,11 @@ Index of policy, ops, and architecture docs under this folder.
 
 ## Release and security review
 
-| Document                                                         | Purpose                                                                                                              |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| [`security-review-runbook.md`](./security-review-runbook.md)     | Periodic security review cadence (`ci:check`, Vercel env, Supabase)                                                  |
-| [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) | Point-in-time audit snapshot (2026-06-13) with subsequent update log; see `dependency-inventory.md` for current pins |
-| [`dependency-inventory.md`](./dependency-inventory.md)           | Extended pins (ONNX, workers, vendors, toolchain) for dependency sweeps                                              |
+| Document                                                         | Purpose                                                                                  |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [`security-review-runbook.md`](./security-review-runbook.md)     | Periodic security review cadence (`ci:check`, Vercel env)                                |
+| [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) | Point-in-time audit archive (2026-06-13); see `dependency-inventory.md` for current pins |
+| [`dependency-inventory.md`](./dependency-inventory.md)           | Extended pins (workers, vendors, toolchain) for dependency sweeps                        |
 
 ## Legal, cookies, and footer
 
@@ -40,6 +40,4 @@ Index of policy, ops, and architecture docs under this folder.
 - Root hub: [`README.md`](../README.md) (getting started, env model, automation)
 - Per-zone READMEs: [`apps/*/README.md`](../apps/)
 - Package READMEs: [`packages/*/README.md`](../packages/) (including [`packages/brand`](../packages/brand/README.md) and [`packages/config`](../packages/config/README.md))
-- Extension auth API production setup (OTP + passkey): [`apps/auth/docs/extension-passkey-production.md`](../apps/auth/docs/extension-passkey-production.md)
-- Image upscaler model hosting: [`apps/image-upscaler/public/models/README.md`](../apps/image-upscaler/public/models/README.md)
 - OCR Tesseract assets and language data: [`apps/ocr/README.md`](../apps/ocr/README.md) (Tesseract assets and language data section)

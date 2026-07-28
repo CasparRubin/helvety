@@ -77,16 +77,20 @@ describe("cookies and storage documentation consistency", () => {
     }
   });
 
-  it("canonical cookies doc links to privacy section 9 and states no third-party analytics", async () => {
+  it("canonical cookies doc links to privacy section 8 and states no third-party analytics", async () => {
     const source = await readFile(
       join(REPO_ROOT, "docs/cookies-telemetry-and-footer.md"),
       "utf8"
     );
-    expect(source).toContain("helvety_device_trust");
+    expect(source).toContain("Theme preference");
+    expect(source).toContain("helvety-pdf-columns");
     expect(source).toContain("legal-cookies-disclosure");
     expect(source).toContain(
       "We do not mount third-party analytics or advertising trackers"
     );
+    expect(source).not.toContain("helvety_device_trust");
+    expect(source).not.toContain("helvety-prf-salt");
+    expect(source).not.toContain("weekly_proof");
   });
 
   it("gateway llms.txt states no third-party analytics", async () => {

@@ -2,16 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { GET } from "./route";
 
-const PRIVATE_ZONE_SITEMAP_PATHS = [
-  "/auth/sitemap.xml",
-  "/contacts/sitemap.xml",
-  "/notes/sitemap.xml",
-  "/tasks/sitemap.xml",
-  "/links/sitemap.xml",
-] as const;
-
 describe("GET /sitemap-index.xml", () => {
-  it("returns a sitemap index containing all app sitemaps", async () => {
+  it("returns a sitemap index containing all public app sitemaps", async () => {
     const response = GET();
     const xml = await response.text();
 
@@ -25,7 +17,6 @@ describe("GET /sitemap-index.xml", () => {
       "/sitemap.xml",
       "/store/sitemap.xml",
       "/pdf/sitemap.xml",
-      "/image-upscaler/sitemap.xml",
       "/image-editor/sitemap.xml",
       "/ocr/sitemap.xml",
     ];
@@ -34,9 +25,9 @@ describe("GET /sitemap-index.xml", () => {
       expect(xml).toContain(`<loc>https://helvety.com${path}</loc>`);
     }
 
-    for (const path of PRIVATE_ZONE_SITEMAP_PATHS) {
-      expect(xml).not.toContain(path);
-    }
+    expect(xml).not.toContain("/image-upscaler/sitemap.xml");
+    expect(xml).not.toContain("/auth/sitemap.xml");
+    expect(xml).not.toContain("/tasks/sitemap.xml");
 
     const locMatches = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
       (match) => match[1]

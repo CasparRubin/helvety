@@ -16,16 +16,10 @@ function toPosixRelative(absolutePath) {
 /** @type {Record<string, { rootLoading: string }>} */
 const LOADING_MATRIX = {
   web: { rootLoading: "HelvetyShellRouteLoading" },
-  auth: { rootLoading: "HelvetyShellRouteLoading" },
   store: { rootLoading: "HelvetyShellRouteLoading" },
   pdf: { rootLoading: "LoadingSpinner" },
-  "image-upscaler": { rootLoading: "LoadingSpinner" },
   "image-editor": { rootLoading: "LoadingSpinner" },
   ocr: { rootLoading: "LoadingSpinner" },
-  tasks: { rootLoading: "E2eeShellRouteLoading" },
-  contacts: { rootLoading: "E2eeShellRouteLoading" },
-  notes: { rootLoading: "E2eeShellRouteLoading" },
-  links: { rootLoading: "E2eeShellRouteLoading" },
 };
 
 async function readJson(relativePath) {

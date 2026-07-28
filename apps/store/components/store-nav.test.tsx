@@ -1,14 +1,9 @@
 import { openMenuTrigger } from "@helvety/shared/test-utils/base-ui-test-helpers";
-import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: vi.fn(() => "/products"),
-}));
-
-vi.mock("@helvety/ui/use-navbar-auth-state", () => ({
-  useNavbarAuthState: vi.fn(() => ({ user: null })),
 }));
 
 import { StoreNav } from "./store-nav";
@@ -26,12 +21,7 @@ describe("StoreNav", () => {
     );
   });
 
-  it("mobile section dropdown exposes Link menuitems with nativeButton={false}", async () => {
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: { id: "u1", email: "dev@example.com" },
-      isLoading: false,
-    });
-
+  it("mobile section dropdown exposes Products Link menuitem with nativeButton={false}", async () => {
     render(<StoreNav />);
 
     const triggers = screen.getAllByRole("button", { name: /Products/i });
@@ -41,8 +31,9 @@ describe("StoreNav", () => {
     expect(mobileTrigger).toBeDefined();
     openMenuTrigger(mobileTrigger!);
 
-    const account = await screen.findByRole("menuitem", { name: /Account/i });
-    expect(account).toHaveAttribute("href", "/account");
-    expect(account).toHaveAttribute("role", "menuitem");
+    const products = await screen.findByRole("menuitem", { name: /Products/i });
+    expect(products).toHaveAttribute("href", "/products");
+    expect(products).toHaveAttribute("role", "menuitem");
+    expect(screen.queryByRole("menuitem", { name: /Account/i })).toBeNull();
   });
 });

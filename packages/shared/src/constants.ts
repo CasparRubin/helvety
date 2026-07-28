@@ -21,8 +21,8 @@ export const ERROR_MESSAGES = {
 } as const;
 
 /**
- * Shared caps for server actions: batch reorder, chunked updates, export row bounds,
- * and dashboard/list prefetch reads (including cross-app link pickers in tasks/notes).
+ * Shared caps for batch reorder, chunked updates, export row bounds, and list
+ * prefetch reads.
  */
 export const ACTION_LIMITS = {
   MAX_REORDER_ITEMS: 2000,

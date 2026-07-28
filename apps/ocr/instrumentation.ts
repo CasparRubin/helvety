@@ -1,7 +1,4 @@
-/** Runs once at app startup to validate environment variables. */
+/** Public tools have no required server env; kept for Next.js instrumentation hook parity. */
 export async function register(): Promise<void> {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { getValidatedOcrEnv } = await import("@/lib/env");
-    getValidatedOcrEnv();
-  }
+  // No-op: OCR has no Upstash secrets.
 }

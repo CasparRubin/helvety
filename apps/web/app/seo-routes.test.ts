@@ -36,7 +36,15 @@ describe("web SEO routes", () => {
         ? [disallow]
         : [];
     expect(disallowPaths).toEqual(
-      expect.arrayContaining(["/auth", "/tasks", "/store/account", "/pdf/api"])
+      expect.arrayContaining([
+        "/store/api",
+        "/pdf/api",
+        "/image-editor/api",
+        "/ocr/api",
+      ])
+    );
+    expect(disallowPaths).not.toEqual(
+      expect.arrayContaining(["/auth", "/tasks", "/store/account"])
     );
     expect(robotsOutput.sitemap).toBe(`${urls.home}/sitemap-index.xml`);
     expect(robotsOutput.host).toBe(urls.home);
@@ -45,21 +53,15 @@ describe("web SEO routes", () => {
   it("gateway llms.txt links per-zone agent guides", () => {
     const text = readFileSync(gatewayLlmsPath, "utf8");
     expect(text).toContain("## Agent And Crawler Guides");
-    const zoneLlmsUrls = [
-      urls.store,
-      urls.pdf,
-      urls.imageUpscaler,
-      urls.imageEditor,
-      urls.ocr,
-      urls.auth,
-      urls.contacts,
-      urls.notes,
-      urls.links,
-      urls.tasks,
-    ].map((base) => `${base}/llms.txt`);
+    const zoneLlmsUrls = [urls.store, urls.pdf, urls.imageEditor, urls.ocr].map(
+      (base) => `${base}/llms.txt`
+    );
     for (const llmsUrl of zoneLlmsUrls) {
       expect(text).toContain(llmsUrl);
     }
+    expect(text).not.toContain("/auth/llms.txt");
+    expect(text).not.toContain("/image-upscaler/llms.txt");
+    expect(text).not.toContain("/tasks/llms.txt");
   });
 
   it("returns canonical public sitemap entries", () => {

@@ -3,8 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { DatePicker } from "./date-picker";
 import { DateTimePicker } from "./date-time-picker";
-import { E2EE_FORM_FIELD_CLASS } from "./e2ee-form-layout";
-import { FormField } from "./form-field";
+import { FORM_FIELD_CLASS, FormField } from "./form-field";
 import { Input } from "./input";
 
 describe("FormField", () => {
@@ -29,7 +28,7 @@ describe("FormField", () => {
     expect(screen.getByText("Title *")).toBeInTheDocument();
   });
 
-  it("uses shared E2EE field spacing", () => {
+  it("uses shared field spacing", () => {
     const { container } = render(
       <FormField label="Email" id="contact-email">
         <Input />
@@ -37,7 +36,7 @@ describe("FormField", () => {
     );
 
     const fieldGroup = container.firstElementChild;
-    expect(fieldGroup).toHaveClass(...E2EE_FORM_FIELD_CLASS.split(/\s+/));
+    expect(fieldGroup).toHaveClass(...FORM_FIELD_CLASS.split(/\s+/));
   });
 
   it("auto-generates an id when none is provided", () => {

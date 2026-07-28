@@ -5,12 +5,10 @@ import {
 
 export const proxy = createAppProxy({
   securityProxy: createProfiledSecurityProxy("public-tool", {
-    // tesseract.js compiles WebAssembly modules for the OCR engine; required
-    // the same way image-upscaler enables it for onnxruntime-web.
+    // tesseract.js compiles WebAssembly modules for the OCR engine.
     buildCspOptions: { wasmUnsafeEval: true },
   }),
   defaultBasePath: "/ocr",
-  failClosedOnAuthRefresh: true,
 });
 
 /** Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal). */

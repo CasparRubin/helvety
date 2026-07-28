@@ -54,16 +54,10 @@ export function getHelvetyThemeInitScript(): string {
 
 export const HELVETY_SAME_AS_URLS = [
   urls.home,
-  urls.auth,
-  urls.contacts,
-  urls.notes,
-  urls.links,
   urls.pdf,
-  urls.imageUpscaler,
   urls.imageEditor,
   urls.ocr,
   urls.store,
-  urls.tasks,
   "https://github.com/CasparRubin",
 ];
 

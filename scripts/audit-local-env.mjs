@@ -6,32 +6,16 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import {
-  AUTH_EXTRA_KEYS,
   EXPECTED_KEYS_BY_APP,
   FORBIDDEN_KEYS_BY_APP,
-  PUBLIC_SUPABASE_KEYS,
-  SERVER_UPSTASH_KEYS,
-  UPSTASH_COOKIE_KEYS,
+  UPSTASH_KEYS,
   WEB_GATEWAY_KEYS,
 } from "./env-template-expectations.mjs";
 
 const rootDir = process.cwd();
 
 /** Keys that must match across all apps that define them. */
-const SHARED_PARITY_KEYS = [
-  ...PUBLIC_SUPABASE_KEYS,
-  "UPSTASH_REDIS_REST_URL",
-  "UPSTASH_REDIS_REST_TOKEN",
-  "HELVETY_COOKIE_SIGNING_SECRET",
-];
-
-/** User-scoped E2EE zones must share auth's device-trust signing secret. */
-const DEVICE_TRUST_PARITY_APPS = new Set([
-  "tasks",
-  "contacts",
-  "notes",
-  "links",
-]);
+const SHARED_PARITY_KEYS = [...UPSTASH_KEYS];
 
 /**
  * @param {string} content
@@ -125,9 +109,9 @@ async function main() {
     }
   }
 
-  const referenceApp = byApp.auth?.NEXT_PUBLIC_SUPABASE_URL
-    ? "auth"
-    : Object.keys(byApp).find((a) => byApp[a].NEXT_PUBLIC_SUPABASE_URL);
+  const referenceApp = byApp.store?.UPSTASH_REDIS_REST_URL
+    ? "store"
+    : Object.keys(byApp).find((a) => byApp[a].UPSTASH_REDIS_REST_URL);
 
   if (referenceApp) {
     const ref = byApp[referenceApp];
@@ -150,31 +134,11 @@ async function main() {
     }
   }
 
-  const authDeviceTrust = byApp.auth?.DEVICE_TRUST_COOKIE_SECRET?.trim();
-  if (authDeviceTrust) {
-    for (const app of DEVICE_TRUST_PARITY_APPS) {
-      const actual = byApp[app]?.DEVICE_TRUST_COOKIE_SECRET?.trim();
-      if (!actual) {
-        continue;
-      }
-      if (actual !== authDeviceTrust) {
-        errors.push(
-          `DEVICE_TRUST_COOKIE_SECRET in apps/${app}/.env.local must match apps/auth/.env.local (same value as helvety-auth on Vercel)`
-        );
-      }
-    }
-  }
-
   console.log("Helvety local env audit\n");
   console.log("Tier reference:");
-  console.log(
-    `  Gateway (web): ${PUBLIC_SUPABASE_KEYS.join(", ")}, ${WEB_GATEWAY_KEYS.join(", ")}`
-  );
-  console.log(`  Admin (auth, store): + ${SERVER_UPSTASH_KEYS.join(", ")}`);
-  console.log(`  Auth only: + ${AUTH_EXTRA_KEYS.join(", ")}`);
-  console.log(
-    `  User-scoped / public tools: + ${UPSTASH_COOKIE_KEYS.join(", ")} (no SUPABASE_SECRET_KEY)\n`
-  );
+  console.log(`  Gateway (web): ${WEB_GATEWAY_KEYS.join(", ")}`);
+  console.log(`  Store (rate limit): ${UPSTASH_KEYS.join(", ")}`);
+  console.log("  Public tools (pdf, image-editor, ocr): no required secrets\n");
 
   if (warnings.length > 0) {
     console.log("Warnings:");

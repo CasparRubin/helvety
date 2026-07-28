@@ -1,19 +1,19 @@
 import "server-only";
 
 import {
-  createAppServerUpstashEnv,
-  serverUpstashMergedSchema,
+  createAppUpstashEnv,
+  upstashEnvSchema,
 } from "@helvety/shared/env-validation";
 
 /**
- * Validates server-only Supabase + Upstash env on first call, then caches.
+ * Validates Upstash env on first call, then caches.
  *
- * With `SKIP_ENV_VALIDATION=1` off Vercel: uses CI placeholders only when any
- * required server env values are missing; otherwise validates `process.env` with Zod.
- * See repository root `README.md` → Automation (`ci:release`).
+ * Required for download rate limiting.
+ * With `SKIP_ENV_VALIDATION=1` off Vercel: uses CI placeholders when values
+ * are missing. See repository root `README.md` → Automation (`ci:release`).
  */
-export const getValidatedStoreEnv = createAppServerUpstashEnv({
+export const getValidatedStoreEnv = createAppUpstashEnv({
   appName: "store",
   envTemplatePath: "apps/store/env.template",
-  schema: serverUpstashMergedSchema,
+  schema: upstashEnvSchema,
 });

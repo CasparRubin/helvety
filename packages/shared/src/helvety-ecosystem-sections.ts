@@ -10,16 +10,12 @@ import { urls } from "./config";
 /** Keys on {@link urls} used for web-zone navigation from the app switcher. */
 export type HelvetyWebAppUrlKey = Exclude<
   keyof typeof urls,
-  "home" | "auth" | "store" | "storeProducts"
+  "home" | "store" | "storeProducts" | "cloud"
 >;
 
 /** Slug union for ecosystem product categories. */
 export type HelvetyEcosystemCategorySlug =
-  | "encryption-apps"
-  | "file-tools"
-  | "browser-extensions"
-  | "sharepoint-apps"
-  | "desktop-apps";
+  "file-tools" | "browser-extensions" | "sharepoint-apps" | "desktop-apps";
 
 /** One linkable product in the Helvety ecosystem. */
 export interface HelvetyEcosystemItem {
@@ -41,32 +37,6 @@ export interface HelvetyEcosystemSection {
  */
 export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
   {
-    slug: "encryption-apps",
-    title: "Encryption Apps",
-    items: [
-      {
-        displayName: "Tasks",
-        storeProductSlug: "helvety-tasks",
-        webAppUrlKey: "tasks",
-      },
-      {
-        displayName: "Contacts",
-        storeProductSlug: "helvety-contacts",
-        webAppUrlKey: "contacts",
-      },
-      {
-        displayName: "Notes",
-        storeProductSlug: "helvety-notes",
-        webAppUrlKey: "notes",
-      },
-      {
-        displayName: "Links",
-        storeProductSlug: "helvety-links",
-        webAppUrlKey: "links",
-      },
-    ],
-  },
-  {
     slug: "file-tools",
     title: "File Tools",
     items: [
@@ -74,11 +44,6 @@ export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
         displayName: "PDF",
         storeProductSlug: "helvety-pdf",
         webAppUrlKey: "pdf",
-      },
-      {
-        displayName: "Image Upscaler",
-        storeProductSlug: "helvety-image-upscaler",
-        webAppUrlKey: "imageUpscaler",
       },
       {
         displayName: "Image Editor",
@@ -96,10 +61,6 @@ export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
     slug: "browser-extensions",
     title: "Browser Extensions",
     items: [
-      {
-        displayName: "Helvety Browser Extension",
-        storeProductSlug: "helvety-browser-extension",
-      },
       {
         displayName: "Power Platform Configurator",
         storeProductSlug: "helvety-power-platform-configurator",

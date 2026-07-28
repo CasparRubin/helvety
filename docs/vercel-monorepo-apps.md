@@ -2,19 +2,13 @@
 
 Each Helvety zone is a **separate Vercel project** with **Root Directory** set to `apps/<slug>` (not the repository root). Framework preset: **Next.js**. Leave install/build/output commands at defaults; each app’s [`vercel.json`](../apps/pdf/vercel.json) only sets `"framework": "nextjs"`.
 
-| Zone app       | Vercel project           | Root Directory        |
-| -------------- | ------------------------ | --------------------- |
-| Web (gateway)  | `helvety-com`            | `apps/web`            |
-| Auth           | `helvety-auth`           | `apps/auth`           |
-| Store          | `helvety-store`          | `apps/store`          |
-| PDF            | `helvety-pdf`            | `apps/pdf`            |
-| Image Upscaler | `helvety-image-upscaler` | `apps/image-upscaler` |
-| Image Editor   | `helvety-image-editor`   | `apps/image-editor`   |
-| OCR            | `helvety-ocr`            | `apps/ocr`            |
-| Tasks          | `helvety-tasks`          | `apps/tasks`          |
-| Contacts       | `helvety-contacts`       | `apps/contacts`       |
-| Notes          | `helvety-notes`          | `apps/notes`          |
-| Links          | `helvety-links`          | `apps/links`          |
+| Zone app      | Vercel project         | Root Directory      |
+| ------------- | ---------------------- | ------------------- |
+| Web (gateway) | `helvety-com`          | `apps/web`          |
+| Store         | `helvety-store`        | `apps/store`        |
+| PDF           | `helvety-pdf`          | `apps/pdf`          |
+| Image Editor  | `helvety-image-editor` | `apps/image-editor` |
+| OCR           | `helvety-ocr`          | `apps/ocr`          |
 
 ## Gateway env
 
@@ -36,7 +30,6 @@ Zone apps re-export [`@helvety/config/postcss`](../packages/config/postcss.mjs),
 
 Copy keys from each zone’s `apps/<slug>/env.template` into that Vercel project (not the repo root). Tier reference: [`turbo-env-tiers.md`](./turbo-env-tiers.md). Step-by-step Vercel UI checklist: [`env-vercel-audit-checklist.md`](./env-vercel-audit-checklist.md).
 
-- **Admin tier** (`helvety-auth`, `helvety-store`): needs `SUPABASE_SECRET_KEY`, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` (auth also needs `DEVICE_TRUST_COOKIE_SECRET` and `HELVETY_CHROME_EXTENSION_ORIGINS`).
-- **User-scoped tier** (E2EE apps): public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, and **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`); do **not** deploy `SUPABASE_SECRET_KEY` (least privilege).
-- **Public tools** (`helvety-pdf`, `helvety-image-upscaler`, `helvety-image-editor`, `helvety-ocr`): public Supabase, Upstash, and `HELVETY_COOKIE_SIGNING_SECRET` only — **no** `DEVICE_TRUST_COOKIE_SECRET` (Upstash still required for auth callback rate limiting).
-- **Gateway** (`helvety-com`): public Supabase keys + all **ten zone rewrite URLs** (`AUTH_URL`, `STORE_URL`, `PDF_URL`, `IMAGE_UPSCALER_URL`, `IMAGE_EDITOR_URL`, `OCR_URL`, `TASKS_URL`, `CONTACTS_URL`, `NOTES_URL`, `LINKS_URL`) when `VERCEL=1` — one per deployed zone except the gateway itself (**eleven** Vercel zone projects total); no `HELVETY_COOKIE_SIGNING_SECRET`, Upstash, or `SUPABASE_SECRET_KEY`.
+- **Store** (`helvety-store`): needs keys required for catalog and package download delivery (see `apps/store/env.template`).
+- **Public tools** (`helvety-pdf`, `helvety-image-editor`, `helvety-ocr`): public-tool env from each zone’s `env.template`.
+- **Gateway** (`helvety-com`): zone rewrite URLs (`STORE_URL`, `PDF_URL`, `IMAGE_EDITOR_URL`, `OCR_URL`) when `VERCEL=1`. Five Vercel zone projects total.

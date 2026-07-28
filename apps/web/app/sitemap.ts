@@ -4,7 +4,7 @@ import type { MetadataRoute } from "next";
 
 /**
  * Generates sitemap.xml with indexable gateway pages for search engines.
- * Excludes llms.txt (agent discovery uses robots allow rules for public zones and gateway links; private-zone prefixes are robots-disallowed).
+ * Excludes llms.txt (agent discovery uses robots allow rules for public zones and gateway links).
  */
 
 /** Static build-time date for consistent sitemap caching */

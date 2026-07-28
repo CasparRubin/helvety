@@ -43,7 +43,7 @@ function collectSourceFiles(dir: string, base = dir): string[] {
       entry === ".next" ||
       entry === "dist" ||
       entry === "coverage" ||
-      // Generated/synced runtime assets (onnxruntime, tessdata, pdf workers)
+      // Generated/synced runtime assets (tessdata, pdf workers, orphaned asset dirs)
       entry === "ort" ||
       entry === "tessdata" ||
       entry === "tesseract"

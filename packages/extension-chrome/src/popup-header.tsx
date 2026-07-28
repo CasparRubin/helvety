@@ -13,7 +13,7 @@ export function PopupHeader({
   iconAlt?: string;
 }): JSX.Element {
   const versionLabel =
-    version && version !== "—" ? (
+    version && version.length > 0 ? (
       <span className="text-muted-foreground text-[11px] leading-tight">
         v{version}
       </span>

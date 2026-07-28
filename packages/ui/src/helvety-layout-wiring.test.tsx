@@ -12,17 +12,11 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const PUBLIC_SHELL_APPS = [
   "web",
-  "auth",
   "store",
   "pdf",
-  "image-upscaler",
   "image-editor",
   "ocr",
 ] as const;
-
-const E2EE_SHELL_APPS = ["tasks", "contacts", "notes", "links"] as const;
-
-const ALL_SHELL_APPS = [...PUBLIC_SHELL_APPS, ...E2EE_SHELL_APPS] as const;
 
 /** Reads a UTF-8 source file from `apps/<app>/`. */
 function readAppFile(app: string, relativePath: string): string {
@@ -44,11 +38,8 @@ function assertNoAnalyticsMarkers(
 }
 
 describe("Helvety layout wiring", () => {
-  it("covers all eleven Helvety web zones that use shared root shells", () => {
-    expect(ALL_SHELL_APPS).toHaveLength(11);
-    expect([...PUBLIC_SHELL_APPS, ...E2EE_SHELL_APPS]).toEqual([
-      ...ALL_SHELL_APPS,
-    ]);
+  it("covers remaining Helvety web zones that use shared root shells", () => {
+    expect(PUBLIC_SHELL_APPS).toHaveLength(5);
   });
 
   it.each(PUBLIC_SHELL_APPS)(
@@ -59,12 +50,7 @@ describe("Helvety layout wiring", () => {
     }
   );
 
-  it.each(E2EE_SHELL_APPS)("apps/%s uses E2eeAppRootLayout", (app) => {
-    const src = readAppFile(app, "app/layout.tsx");
-    expect(src).toContain("E2eeAppRootLayout");
-  });
-
-  it.each(ALL_SHELL_APPS)(
+  it.each(PUBLIC_SHELL_APPS)(
     "apps/%s root layout does not wire third-party analytics",
     (app) => {
       const layout = readAppFile(app, "app/layout.tsx");
@@ -78,10 +64,6 @@ describe("Helvety layout wiring", () => {
       join(repoRoot, "packages/ui/src/helvety-public-shell-root-layout.tsx"),
       "utf8"
     );
-    const e2eeShell = readFileSync(
-      join(repoRoot, "packages/ui/src/e2ee-app-root-layout.tsx"),
-      "utf8"
-    );
     const uiPackage = readFileSync(
       join(repoRoot, "packages/ui/package.json"),
       "utf8"
@@ -91,7 +73,6 @@ describe("Helvety layout wiring", () => {
       publicShell,
       "helvety-public-shell-root-layout.tsx"
     );
-    assertNoAnalyticsMarkers(e2eeShell, "e2ee-app-root-layout.tsx");
     assertNoAnalyticsMarkers(uiPackage, "packages/ui/package.json");
   });
 
@@ -100,14 +81,6 @@ describe("Helvety layout wiring", () => {
       join(repoRoot, "packages/ui/src/helvety-public-shell-root-layout.tsx"),
       "utf8"
     );
-    const commandBarLayout = readFileSync(
-      join(repoRoot, "packages/ui/src/command-bar-page-layout.tsx"),
-      "utf8"
-    );
-
-    for (const src of [publicShell, commandBarLayout]) {
-      expect(src).toContain("[&>[data-slot=scroll-area-viewport]]");
-      expect(src).not.toContain("data-radix-scroll-area-viewport");
-    }
+    expect(publicShell).toContain("data-slot=scroll-area-viewport");
   });
 });

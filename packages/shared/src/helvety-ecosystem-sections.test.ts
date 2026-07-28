@@ -20,11 +20,12 @@ const ecosystemSourcePath = join(
 );
 
 describe("helvety-ecosystem-sections", () => {
-  it("excludes storeProducts from HelvetyWebAppUrlKey", () => {
+  it("excludes non-zone url keys from HelvetyWebAppUrlKey", () => {
     const source = readFileSync(ecosystemSourcePath, "utf8");
     expect(source).toMatch(
       /Exclude<\s*keyof typeof urls,\s*[\s\S]*"storeProducts"/
     );
+    expect(source).toMatch(/Exclude<\s*keyof typeof urls,\s*[\s\S]*"cloud"/);
 
     for (const section of HELVETY_ECOSYSTEM_PRODUCT_SECTIONS) {
       for (const item of section.items) {
@@ -34,6 +35,7 @@ describe("helvety-ecosystem-sections", () => {
         const webAppUrlKey = item.webAppUrlKey;
         expect(webAppUrlKey).not.toBe("store");
         expect(webAppUrlKey).not.toBe("storeProducts");
+        expect(webAppUrlKey).not.toBe("cloud");
         expect(Object.hasOwn(urls, webAppUrlKey)).toBe(true);
       }
     }
@@ -70,56 +72,26 @@ describe("helvety-ecosystem-sections", () => {
   });
 
   it("resolves web-zone hrefs for monorepo apps and store hrefs for extensions", () => {
-    const tasks = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[0].items[0];
-    expect(tasks.storeProductSlug).toBe("helvety-tasks");
-    expect(ecosystemItemHref(tasks)).toMatch(/\/tasks$/);
+    const pdf = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[0].items[0];
+    expect(pdf.storeProductSlug).toBe("helvety-pdf");
+    expect(ecosystemItemHref(pdf)).toMatch(/\/pdf$/);
 
-    const browserExtension = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[2].items[0];
-    expect(ecosystemItemHref(browserExtension)).toMatch(
-      /\/store\/products\/helvety-browser-extension$/
+    const ppc = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[1].items[0];
+    expect(ecosystemItemHref(ppc)).toMatch(
+      /\/store\/products\/helvety-power-platform-configurator$/
     );
   });
 
-  it("assigns the expected ecosystem category to every catalog product", () => {
-    const expectedBySlug: Record<string, string> = {
-      "helvety-tasks": "encryption-apps",
-      "helvety-contacts": "encryption-apps",
-      "helvety-notes": "encryption-apps",
-      "helvety-links": "encryption-apps",
-      "helvety-pdf": "file-tools",
-      "helvety-image-upscaler": "file-tools",
-      "helvety-image-editor": "file-tools",
-      "helvety-ocr": "file-tools",
-      "helvety-browser-extension": "browser-extensions",
-      "helvety-power-platform-configurator": "browser-extensions",
-      "helvety-spo-explorer": "sharepoint-apps",
-      "helvety-screen-tools": "desktop-apps",
-    };
-
-    expect(Object.keys(expectedBySlug)).toHaveLength(
-      STORE_PRODUCT_CARDS.length
-    );
-
-    for (const card of STORE_PRODUCT_CARDS) {
-      expect(card.category).toBe(expectedBySlug[card.slug]);
-    }
-  });
-
-  it("groups catalog products into the five ecosystem sections", () => {
-    const counts = Object.fromEntries(
-      HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map((section) => [
-        section.slug,
-        STORE_PRODUCT_CARDS.filter((card) => card.category === section.slug)
-          .length,
-      ])
-    );
-
-    expect(counts).toEqual({
-      "encryption-apps": 4,
-      "file-tools": 4,
-      "browser-extensions": 2,
-      "sharepoint-apps": 1,
-      "desktop-apps": 1,
-    });
+  it("does not include removed products", () => {
+    const slugs = allEcosystemStoreProductSlugs();
+    expect(slugs).not.toContain("helvety-tasks");
+    expect(slugs).not.toContain("helvety-browser-extension");
+    expect(slugs).not.toContain("helvety-image-upscaler");
+    expect(HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map((s) => s.slug)).toEqual([
+      "file-tools",
+      "browser-extensions",
+      "sharepoint-apps",
+      "desktop-apps",
+    ]);
   });
 });

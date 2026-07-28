@@ -211,7 +211,7 @@ const ICON_MAP: Record<string, LucideIconComponent> = {
   pin: PinIcon,
   play: PlayIcon,
   plus: PlusIcon,
-  // lucide-react v1 removed brand icons; keep stored E2EE icon names working.
+  // lucide-react v1 removed brand icons; keep aliases used by Store / PPC.
   power: PowerIcon,
   printer: PrinterIcon,
   radio: RadioIcon,

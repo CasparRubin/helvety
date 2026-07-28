@@ -13,10 +13,6 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
-vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
-  bootstrapPublicLayoutUser: vi.fn().mockResolvedValue(null),
-}));
-
 vi.mock("@/components/navbar", () => ({
   Navbar: () => null,
 }));
@@ -42,22 +38,20 @@ describe("web root layout metadata", () => {
     expect(metadata.openGraph?.url).toBe(urls.home);
   });
 
-  it("describes encrypted apps in SEO copy", () => {
-    expect(WEB_SITE_DESCRIPTION).toMatch(
-      /encrypted task, contact, note, and link apps/i
-    );
-  });
-
   it("uses license-free company SEO copy and keywords", () => {
     assertLicenseFreeSeoCopy("WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION);
     assertLicenseFreeSeoKeywords("web metadata.keywords", metadata.keywords);
     expect(WEB_SITE_DESCRIPTION).toMatch(/Software products/i);
     expect(WEB_SITE_DESCRIPTION).toMatch(/Private, simple, clean/i);
     expect(metadata.keywords).toEqual(
+      expect.arrayContaining(["PDF tools", "image editor", "ocr"])
+    );
+    expect(metadata.keywords).not.toEqual(
       expect.arrayContaining([
         "encrypted notes",
         "encrypted bookmarks",
-        "links",
+        "image upscaler",
+        "end-to-end encryption",
       ])
     );
   });

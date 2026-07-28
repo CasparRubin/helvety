@@ -1,6 +1,6 @@
 /**
  * Removes local generated artifacts (gitignored). Safe to run anytime.
- * Does not touch source, node_modules, or supabase/supabase.json.
+ * Does not touch source or node_modules.
  */
 import { readdirSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";

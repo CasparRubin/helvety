@@ -46,9 +46,7 @@ describe("store-catalog", () => {
   });
 
   it("finds cards by public slug", () => {
-    expect(findStoreProductCardBySlug("helvety-links")?.id).toBe(
-      "helvety-links"
-    );
+    expect(findStoreProductCardBySlug("helvety-pdf")?.id).toBe("helvety-pdf");
     expect(findStoreProductCardBySlug("not-a-product")).toBeUndefined();
   });
 
@@ -76,23 +74,6 @@ describe("store-catalog", () => {
     const b = { id: "helvety-spo-explorer", releaseDate: "2025-10-05" };
     expect(compareStoreCatalogEntriesNewestFirst(a, b)).toBeGreaterThan(0);
     expect(compareStoreCatalogEntriesNewestFirst(b, a)).toBeLessThan(0);
-  });
-
-  it("includes Helvety Links in the catalog with SaaS metadata", () => {
-    const card = requireStoreProductCard("helvety-links");
-    expect(card.name).toBe("Helvety Links");
-    expect(card.runsOn).toBe("Browser");
-    expect(card.releaseDate).toBe("2026-05-16");
-    expect(card.shortDescription).toMatch(/before storage/i);
-    expect(card.shortDescription).not.toMatch(/before they sync/i);
-  });
-
-  it("store llms.txt lists the Helvety Links product page", () => {
-    const text = readFileSync(
-      join(repoRoot, "apps/store/public/llms.txt"),
-      "utf8"
-    );
-    expect(text).toContain("https://helvety.com/store/products/helvety-links");
   });
 
   it("Power Platform Configurator card uses canonical current-product copy and llms lists Chrome Web Store install", () => {

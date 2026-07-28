@@ -88,12 +88,6 @@
   ],
   "ignoreIssues": {
     "apps/image-editor/vitest.konva-mock.ts": ["exports"],
-    "packages/shared/src/types/database.types.ts": [
-      "exports",
-      "types",
-      "nsExports",
-      "nsTypes"
-    ],
     "packages/shared/src/env-validation.ts": ["duplicates"]
   }
 }

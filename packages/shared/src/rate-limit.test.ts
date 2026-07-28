@@ -31,135 +31,30 @@ describe("checkRateLimit policy behavior", () => {
 
     expect(result.allowed).toBe(true);
   });
-
-  it("fails closed in production when Redis is not configured for OTP lockout", async () => {
-    vi.stubEnv("NODE_ENV", "production");
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const { recordOtpFailureAndCheckLockout, checkEscalatingLockout } =
-      await import("./rate-limit");
-
-    const record = await recordOtpFailureAndCheckLockout("user@example.com");
-    expect(record.allowed).toBe(false);
-    expect(record.retryAfter).toBeGreaterThan(0);
-
-    const check = await checkEscalatingLockout("user@example.com");
-    expect(check.allowed).toBe(false);
-    expect(check.retryAfter).toBeGreaterThan(0);
-  });
-
-  it("locks out after escalating OTP threshold and resets on success", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const {
-      recordOtpFailureAndCheckLockout,
-      checkEscalatingLockout,
-      resetEscalatingLockout,
-    } = await import("./rate-limit");
-
-    const email = "user@example.com";
-
-    for (let i = 0; i < 14; i++) {
-      const result = await recordOtpFailureAndCheckLockout(email);
-      expect(result.allowed).toBe(true);
-    }
-
-    const thresholdHit = await recordOtpFailureAndCheckLockout(email);
-    expect(thresholdHit.allowed).toBe(false);
-    expect(thresholdHit.retryAfter).toBeGreaterThan(0);
-
-    const activeLockout = await checkEscalatingLockout(email);
-    expect(activeLockout.allowed).toBe(false);
-    expect(activeLockout.retryAfter).toBeGreaterThan(0);
-
-    await resetEscalatingLockout(email);
-    const afterReset = await checkEscalatingLockout(email);
-    expect(afterReset.allowed).toBe(true);
-  });
 });
 
-describe("RATE_LIMITS.EXPORT", () => {
-  it("matches the E2EE bulk-export read limit contract", async () => {
+describe("RATE_LIMITS", () => {
+  it("exposes shared API and READ defaults", async () => {
     const { RATE_LIMITS } = await import("./rate-limit");
 
-    expect(RATE_LIMITS.EXPORT).toEqual({
-      maxRequests: 5,
+    expect(RATE_LIMITS.API).toEqual({
+      maxRequests: 100,
       windowMs: 60_000,
     });
-  });
-});
-
-describe("RATE_LIMITS.PREFETCH", () => {
-  it("is stricter than READ and looser than EXPORT", async () => {
-    const { RATE_LIMITS } = await import("./rate-limit");
-
-    expect(RATE_LIMITS.PREFETCH).toEqual({
-      maxRequests: 20,
+    expect(RATE_LIMITS.READ).toEqual({
+      maxRequests: 300,
       windowMs: 60_000,
     });
-    expect(RATE_LIMITS.PREFETCH.maxRequests).toBeLessThan(
-      RATE_LIMITS.READ.maxRequests
-    );
-    expect(RATE_LIMITS.PREFETCH.maxRequests).toBeGreaterThan(
-      RATE_LIMITS.EXPORT.maxRequests
-    );
-  });
-});
-
-describe("consumeSingleUseKey", () => {
-  it("allows the first claim and rejects replay in development", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const { consumeSingleUseKey } = await import("./rate-limit");
-
-    expect(await consumeSingleUseKey("passkey:nonce:abc", 60_000, "soft")).toBe(
-      true
-    );
-    expect(await consumeSingleUseKey("passkey:nonce:abc", 60_000, "soft")).toBe(
-      false
-    );
-    expect(await consumeSingleUseKey("passkey:nonce:def", 60_000, "soft")).toBe(
-      true
-    );
-  });
-
-  it("fails closed in production with strict policy when Redis is not configured", async () => {
-    vi.stubEnv("NODE_ENV", "production");
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const { consumeSingleUseKey } = await import("./rate-limit");
-
-    expect(
-      await consumeSingleUseKey("passkey:nonce:abc", 60_000, "strict")
-    ).toBe(false);
   });
 });
 
 describe("rate-limit internals", () => {
-  it("uses consistent key namespaces for all key types", async () => {
+  it("uses consistent key namespaces for generic keys", async () => {
     const { rateLimitInternals } = await import("./rate-limit");
 
     expect(
-      rateLimitInternals.buildRateLimitStorageKey("generic", "Contacts:USER-1")
-    ).toBe("ratelimit:generic:contacts:user-1");
-    expect(
-      rateLimitInternals.buildRateLimitStorageKey(
-        "otpFailureCounter",
-        "USER@example.com"
-      )
-    ).toBe("ratelimit:otp:lockout:failures:user@example.com");
-    expect(
-      rateLimitInternals.buildRateLimitStorageKey(
-        "otpLockoutUntil",
-        "USER@example.com"
-      )
-    ).toBe("ratelimit:otp:lockout:until:user@example.com");
+      rateLimitInternals.buildRateLimitStorageKey("generic", "Store:USER-1")
+    ).toBe("ratelimit:generic:store:user-1");
   });
 
   it("records bounded metrics for decisions", async () => {
@@ -183,14 +78,14 @@ describe("rate-limit internals", () => {
     const firstApi = await checkRateLimit("same-key", 1, 60_000, "api", "soft");
     expect(firstApi.allowed).toBe(true);
 
-    const firstAuth = await checkRateLimit(
+    const firstDownloads = await checkRateLimit(
       "same-key",
       1,
       60_000,
-      "auth",
+      "downloads",
       "soft"
     );
-    expect(firstAuth.allowed).toBe(true);
+    expect(firstDownloads.allowed).toBe(true);
 
     const secondApi = await checkRateLimit(
       "same-key",

@@ -40,7 +40,7 @@ export const OCR_TESSDATA_PUBLIC_PATH = "/ocr/tessdata";
 /** Public directory hosting the self-hosted Tesseract worker + core WASM. */
 export const OCR_TESSERACT_ASSETS_PUBLIC_PATH = "/ocr/tesseract";
 
-/** Wall-clock timeout for a single page recognition (matches image-upscaler). */
+/** Wall-clock timeout for a single page recognition. */
 export const OCR_WORKER_OPERATION_TIMEOUT_MS = 180_000;
 
 /** Page separator used when concatenating multi-page PDF output. */

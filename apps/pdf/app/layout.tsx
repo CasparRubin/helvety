@@ -1,7 +1,6 @@
 import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { bootstrapPublicLayoutUser } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
@@ -46,13 +45,11 @@ export const metadata = createHelvetyProductMetadata({
 /**
  * Root layout: fixed header (Navbar), overflow-hidden main with shared container gutters (PDF toolkit manages its own scroll), fixed footer.
  */
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): Promise<React.JSX.Element> {
-  const initialUser = await bootstrapPublicLayoutUser();
-
+}>): React.JSX.Element {
   return (
     <HelvetyPublicShellRootLayout
       organizationLogoUrl={brandAssets.identifierLogo}
@@ -68,7 +65,7 @@ export default async function RootLayout({
           browserRequirements: "Requires a modern web browser",
         },
       ]}
-      renderNavbar={<Navbar initialUser={initialUser} />}
+      renderNavbar={<Navbar />}
       mainVariant="overflow-main"
     >
       {children}

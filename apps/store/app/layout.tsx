@@ -2,9 +2,7 @@ import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { STORE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { bootstrapE2eeLayoutSession } from "@helvety/shared/layout-session-bootstrap";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
-import { CSRFProvider } from "@helvety/ui/csrf-provider";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
 
 import { Navbar } from "@/components/navbar";
@@ -27,19 +25,12 @@ export const metadata = createHelvetyProductMetadata({
     "web apps",
     "free tools",
     "pdf",
-    "image upscaler",
     "image editor",
     "ocr",
     "text extraction",
-    "tasks",
-    "contacts",
-    "notes",
-    "links",
-    "encrypted bookmarks",
     "privacy",
     "Swiss",
     "catalog",
-    "browser extension",
     "SharePoint",
     "power automate",
     "screen tools",
@@ -61,15 +52,12 @@ export const metadata = createHelvetyProductMetadata({
  * Pinned StoreNav (`scrollAreaMainPrefix`), scrollable main (`ScrollArea`), and footer follow.
  * Navbar-only ThemeProvider keeps next-themes off catalog routes; head script sets `html.dark` before body paint.
  * Does not use shell overflow overrides.
- * Session bootstrap: `bootstrapE2eeLayoutSession()` (CSRF + user for `CSRFProvider` and nav).
  */
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): Promise<React.JSX.Element> {
-  const { csrfToken, initialUser } = await bootstrapE2eeLayoutSession();
-
+}>): React.JSX.Element {
   return (
     <HelvetyPublicShellRootLayout
       organizationLogoUrl={brandAssets.identifierLogo}
@@ -83,14 +71,11 @@ export default async function RootLayout({
           operatingSystem: "Any",
         },
       ]}
-      renderNavbar={<Navbar initialUser={initialUser} />}
+      renderNavbar={<Navbar />}
       mainVariant="scroll-area"
       themeProviderScope="navbar-only"
-      scrollAreaMainPrefix={<StoreNav initialUser={initialUser} />}
+      scrollAreaMainPrefix={<StoreNav />}
       scrollAreaMainClassName="min-w-0"
-      wrapInsideTooltipProvider={(shell) => (
-        <CSRFProvider csrfToken={csrfToken}>{shell}</CSRFProvider>
-      )}
     >
       {children}
     </HelvetyPublicShellRootLayout>

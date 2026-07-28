@@ -22,8 +22,9 @@ describe("Footer", () => {
     expect(copyrightLine.textContent).toContain(
       "essential cookies and similar storage"
     );
-    expect(copyrightLine.textContent).toContain("authentication cookies");
+    expect(copyrightLine.textContent).toContain("theme preference");
     expect(copyrightLine.textContent).toContain("storage details");
+    expect(copyrightLine.textContent).not.toContain("authentication cookies");
     expect(copyrightLine.textContent).not.toMatch(/\bthird-party analytics\b/i);
     expect(copyrightLine.textContent).not.toContain("account-based services");
     expect(copyrightLine.textContent).not.toContain(
@@ -34,7 +35,7 @@ describe("Footer", () => {
   it("links Privacy from the cookie notice", () => {
     render(<Footer external={false} />);
 
-    const copyrightLine = screen.getByText(/signed-in services also use/);
+    const copyrightLine = screen.getByText(/for example theme preference/);
     const privacyInNotice = copyrightLine.querySelector('a[href="/privacy"]');
     expect(privacyInNotice).toHaveTextContent("Privacy");
   });
@@ -42,7 +43,7 @@ describe("Footer", () => {
   it("uses absolute Privacy link in cookie notice for embedded apps", () => {
     render(<Footer />);
 
-    const copyrightLine = screen.getByText(/signed-in services also use/);
+    const copyrightLine = screen.getByText(/for example theme preference/);
     const privacyInNotice = copyrightLine.querySelector(
       `a[href="${urls.home}/privacy"]`
     );

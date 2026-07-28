@@ -1,4 +1,3 @@
-import { getSupabaseUrl } from "@helvety/shared/env-validation";
 import { z } from "zod";
 
 /** Public download package ids (`/store/api/packages/{id}/download`): lowercase alphanumeric with hyphens. */
@@ -11,76 +10,44 @@ export const packageIdSchema = z
     "Package ID must be lowercase alphanumeric with hyphens"
   );
 
-const SIGNED_PACKAGES_PREFIX = "/storage/v1/object/sign/packages/";
-
-/** Rejects literal or percent-encoded `..` segments before pathname normalization. */
-function containsPathTraversal(pathname: string): boolean {
-  const lower = pathname.toLowerCase();
-  return lower.includes("..") || lower.includes("%2e%2e");
-}
-
-/** True when pathname is a signed object under the `packages` bucket without traversal. */
-function isAllowedSignedPackagesPath(pathname: string): boolean {
-  const normalized = new URL(pathname, "https://local.invalid").pathname;
-  if (!normalized.startsWith(SIGNED_PACKAGES_PREFIX)) {
-    return false;
-  }
-
-  const objectPath = normalized.slice(SIGNED_PACKAGES_PREFIX.length);
-  if (!objectPath) {
-    return false;
-  }
-
-  const segments = objectPath.split("/");
-  if (segments.length < 2) {
-    return false;
-  }
-
-  return segments.every(
-    (segment) =>
-      segment.length > 0 &&
-      segment !== "." &&
-      segment !== ".." &&
-      !segment.includes("..")
-  );
-}
-
 /** Shared IP-scoped key for public package download throttling. */
 export function buildPublicDownloadRateLimitKey(clientIp: string): string {
   return `public-download:ip:${clientIp}`;
 }
 
+const ALLOWED_DOWNLOAD_HOSTS = new Set([
+  "github.com",
+  "objects.githubusercontent.com",
+  "release-assets.githubusercontent.com",
+]);
+
 /**
  * Ensures HTTP redirects from the public package download route only target
- * trusted Supabase Storage origins. Uses `NEXT_PUBLIC_SUPABASE_URL` through
- * `getSupabaseUrl()` — not `SUPABASE_URL`.
+ * trusted GitHub Releases hosts (fail closed for anything else).
  */
 export function isAllowedDownloadUrl(rawUrl: string): boolean {
   try {
     const parsed = new URL(rawUrl);
-    if (parsed.protocol !== "https:") return false;
-
-    const allowedOrigins = new Set<string>();
-    try {
-      allowedOrigins.add(new URL(getSupabaseUrl()).origin);
-    } catch {
-      // Ignore when public Supabase URL is unset; non-production may allow below.
-    }
-
-    if (allowedOrigins.size === 0) {
+    if (parsed.protocol !== "https:") {
       return false;
     }
-
-    if (!allowedOrigins.has(parsed.origin)) {
+    if (!ALLOWED_DOWNLOAD_HOSTS.has(parsed.hostname.toLowerCase())) {
       return false;
     }
-
-    if (containsPathTraversal(parsed.pathname)) {
-      return false;
+    // github.com download links must stay under /owner/repo/releases/...
+    if (parsed.hostname.toLowerCase() === "github.com") {
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      if (parts.length < 5) {
+        return false;
+      }
+      if (parts[2] !== "releases") {
+        return false;
+      }
+      if (parts.includes("..")) {
+        return false;
+      }
     }
-
-    const normalizedPath = new URL(parsed.pathname, parsed.origin).pathname;
-    return isAllowedSignedPackagesPath(normalizedPath);
+    return true;
   } catch {
     return false;
   }

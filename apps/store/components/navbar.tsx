@@ -18,5 +18,4 @@ export const Navbar = createPublicShellNavbar({
   aboutDescription: STORE_NAVBAR_ABOUT,
   navigationMenuDescription: "Store navigation menu",
   versionLabel: VERSION ?? null,
-  account: { variant: "same-origin", href: "/account" },
 });

@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="July 23, 2026"
+        lastReviewed="July 28, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -42,7 +42,6 @@ export default function ImpressumPage() {
         }
       />
 
-      {/* Company Information */}
       <LegalSection title="Company Information">
         <LegalCard>
           <div>
@@ -115,19 +114,16 @@ export default function ImpressumPage() {
         </LegalCard>
       </LegalSection>
 
-      {/* Business Activity */}
       <LegalSection title="Business Activity">
         <p className="text-muted-foreground mb-3 text-sm">
           Helvety by Rubin designs and ships software products and web
-          applications across Microsoft 365 integrations, browser utilities,
-          desktop tooling, and encrypted Tasks, Contacts, Notes, and Links. The
-          listed products are currently offered free of charge. Where source
-          repositories are published, the applicable repository LICENSE file
-          governs that source. The `helvety.com` monorepo is licensed under the
-          GNU Affero General Public License version 3 or later (AGPL-3.0).
-          Separately distributed Helvety product repositories may use different
-          open-source licenses, including MIT. Product development is primarily
-          based in Switzerland.
+          applications across Microsoft 365 integrations, browser utilities, and
+          desktop tooling. Listed products are currently free of charge. Where
+          source repositories are published, the repository LICENSE file
+          governs. The helvety.com monorepo is licensed under the GNU Affero
+          General Public License version 3 or later (AGPL-3.0). Other Helvety
+          repositories may use different licenses, including MIT. Development is
+          primarily based in Switzerland.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -144,32 +140,12 @@ export default function ImpressumPage() {
             {POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE}
           </li>
           <li>
-            <strong className="text-foreground">
-              Helvety Chromium extension
-            </strong>
-            : E2EE side panel for Tasks, Notes, Contacts, Links, and folders
-            (email OTP sign-in and passkey unlock via Helvety Auth; source on{" "}
-            <a
-              className="text-primary underline underline-offset-2"
-              href="https://github.com/CasparRubin/helvety-browser-extension-chromium"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              GitHub
-            </a>
-            ).
-          </li>
-          <li>
             <strong className="text-foreground">Helvety PDF</strong>: in-browser
             PDF toolkit for supported local workflows.
           </li>
           <li>
             <strong className="text-foreground">Helvety Screen Tools</strong>:
             Windows desktop capture and Live Draw overlay.
-          </li>
-          <li>
-            <strong className="text-foreground">Helvety Image Upscaler</strong>:
-            browser-based upscaling with on-device processing where supported.
           </li>
           <li>
             <strong className="text-foreground">Helvety Image Editor</strong>:
@@ -180,26 +156,9 @@ export default function ImpressumPage() {
             browser-based text extraction from PDFs and images with on-device
             optical character recognition.
           </li>
-          <li>
-            <strong className="text-foreground">Helvety Tasks</strong>:
-            encrypted task boards with staged workflows.
-          </li>
-          <li>
-            <strong className="text-foreground">Helvety Contacts</strong>:
-            encrypted contact management with export tooling.
-          </li>
-          <li>
-            <strong className="text-foreground">Helvety Notes</strong>:
-            encrypted notes grouped by Personal, Work, and Other.
-          </li>
-          <li>
-            <strong className="text-foreground">Helvety Links</strong>:
-            encrypted bookmarks organized in nested folders.
-          </li>
         </ul>
       </LegalSection>
 
-      {/* Trademark */}
       <LegalSection title="Trademark">
         <p className="text-muted-foreground text-sm">
           The Helvety name is used as a trademark by Helvety by Rubin. All
@@ -209,12 +168,10 @@ export default function ImpressumPage() {
         </p>
       </LegalSection>
 
-      {/* Abuse Reporting */}
       <LegalSection id="abuse" title="Abuse Reporting">
         <p className="text-muted-foreground mb-4 text-sm">
-          If you believe that our Services are being used for illegal activity,
-          or if you are a law enforcement authority with a legal request, please
-          contact us:
+          If you believe the Services are used for illegal activity, or if you
+          are a law enforcement authority with a legal request, contact:
         </p>
         <LegalCard>
           <div>
@@ -232,16 +189,12 @@ export default function ImpressumPage() {
             </p>
           </div>
           <div>
-            <p className="text-foreground mb-1 font-medium">
-              What to Include in a Report
-            </p>
+            <p className="text-foreground mb-1 font-medium">What to Include</p>
             <ul className="text-muted-foreground list-outside list-disc space-y-1 pl-5 text-sm">
-              <li>Description of the suspected illegal activity or content</li>
-              <li>
-                Any account identifiers you may have (e.g., email address)
-              </li>
+              <li>Description of the suspected activity or content</li>
+              <li>Any identifiers you have (for example a request time)</li>
               <li>Your contact information for follow-up</li>
-              <li>Reference to the applicable legal basis (if known)</li>
+              <li>Legal basis, if known</li>
             </ul>
           </div>
           <div>
@@ -249,52 +202,31 @@ export default function ImpressumPage() {
               For Law Enforcement
             </p>
             <p className="text-muted-foreground">
-              Legal requests must be issued in accordance with applicable Swiss
-              law. We respond to valid Swiss court orders and binding legal
-              requests. For services using end-to-end encryption, our
-              architecture is designed so we are generally unable to access
-              plaintext user content during normal operation. Depending on the
-              service and legal basis, we may provide available non-encrypted
-              metadata (for example account identifiers, IP addresses,
-              timestamps, and storage usage information). Typical security/abuse
-              metadata has a target retention window up to 6 months under
-              current operational policy (subject to legal hold, incident
-              handling, and technical constraints), while legally required
-              contract/accounting evidence may be retained longer (for example
-              up to 10 years where required by Swiss law).
-            </p>
-            <p className="text-muted-foreground mt-2">
-              For local-device software (for example Helvety Screen Tools), we
-              generally cannot provide local screenshot or annotation content
-              unless that content was separately provided to us by the user (for
-              example via support communication).
-            </p>
-          </div>
-          <div>
-            <p className="text-foreground mb-1 font-medium">
-              Response Commitment
-            </p>
-            <p className="text-muted-foreground">
-              We aim to acknowledge abuse reports as promptly as reasonably
-              possible, subject to request volume, legal requirements, and case
-              complexity.
+              Legal requests must follow applicable Swiss law. We respond to
+              valid Swiss court orders and binding legal requests. helvety.com
+              does not require accounts, so we generally hold only technical
+              metadata (for example IP addresses, timestamps, and download
+              records), not profiles. Routine security metadata has a target
+              retention window up to about 6 months under current policy,
+              subject to legal hold. Local desktop content (for example Screen
+              Tools screenshots) is not available to us unless you sent it
+              separately.
             </p>
           </div>
         </LegalCard>
       </LegalSection>
 
-      {/* Data Protection */}
       <LegalSection title="Data Protection">
         <p className="text-muted-foreground text-sm">
-          For data protection inquiries or to exercise your rights under the
-          Swiss Federal Act on Data Protection (nDSG), please contact us at{" "}
+          For data protection inquiries under the Swiss Federal Act on Data
+          Protection (nDSG), contact{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="hover:text-foreground transition-colors"
           >
             {CONTACT_EMAIL}
           </a>
-          . For full details on how we handle your data, see our{" "}
+          . Details:{" "}
           <Link
             href="/privacy"
             className="hover:text-foreground underline transition-colors"
@@ -305,41 +237,28 @@ export default function ImpressumPage() {
         </p>
       </LegalSection>
 
-      {/* Disclaimer */}
       <LegalSection title="Disclaimer">
         <LegalSubsection title="Liability for Content">
           <p className="text-muted-foreground mb-4 text-sm">
-            We strive to keep the content of this website accurate and up to
-            date. However, we cannot guarantee the accuracy, completeness, or
-            timeliness of the content. As a service provider, we are responsible
-            for our own content on these pages in accordance with general laws.
-            However, we are not obligated to monitor transmitted or stored
-            third-party information or to investigate circumstances that
-            indicate illegal activity.
+            We strive to keep website content accurate, but we cannot guarantee
+            completeness or timeliness. We are responsible for our own content
+            under general laws and are not obligated to monitor third-party
+            information transmitted or stored through the Services.
           </p>
         </LegalSubsection>
 
         <LegalSubsection title="Liability for Links">
           <p className="text-muted-foreground mb-4 text-sm">
-            Our website may contain links to external third-party websites over
-            whose content we have no influence. Therefore, we cannot accept any
-            liability for this third-party content. The respective provider or
-            operator of the linked pages is generally responsible for the
-            content of the linked pages. The linked pages were checked for
-            possible legal violations at the time of linking. Illegal content
-            was not recognizable at the time of linking. Permanent monitoring of
-            the content of the linked pages is not reasonable without concrete
-            evidence of a legal violation. Upon notification of violations, we
-            will remove such links as soon as reasonably practicable.
+            External links are outside our control. The linked site&apos;s
+            operator is responsible for that content. We remove links after
+            notice of legal violations as soon as reasonably practicable.
           </p>
         </LegalSubsection>
 
-        <LegalSubsection title="Liability for Software and SaaS">
+        <LegalSubsection title="Liability for Software">
           <p className="text-muted-foreground mb-4 text-sm">
-            Our software and SaaS products are provided without guarantee of
-            uninterrupted or error-free operation and without obligation to
-            provide updates. Detailed disclaimers and limitations are set out in
-            our{" "}
+            Software is provided without guarantee of uninterrupted or
+            error-free operation. See our{" "}
             <Link
               href="/terms"
               className="hover:text-foreground underline transition-colors"
@@ -352,37 +271,24 @@ export default function ImpressumPage() {
 
         <LegalSubsection title="Copyright">
           <p className="text-muted-foreground text-sm">
-            The content and works created by the site operators on these pages
-            are subject to Swiss copyright law. Reproduction, editing,
-            distribution, and any kind of use outside the limits of copyright
-            law require the written consent of the respective author or creator.
-            Source code published in Helvety public repositories is licensed
-            under the terms stated in the relevant repository LICENSE file.
+            Website content is subject to Swiss copyright law except where a
+            public repository LICENSE grants broader rights to source code.
           </p>
         </LegalSubsection>
       </LegalSection>
 
-      {/* Applicable Law */}
       <LegalSection title="Applicable Law and Jurisdiction">
         <p className="text-muted-foreground mb-4 text-sm">
-          This Impressum and any disputes arising from or in connection with
-          this website are governed by Swiss law. The exclusive place of
+          This Impressum is governed by Swiss law. Exclusive place of
           jurisdiction is Basel-Stadt, Switzerland, except where mandatory law
           provides otherwise.
         </p>
         <p className="text-muted-foreground text-sm">
-          Our services are primarily intended for customers in Switzerland, and
-          we do not actively target EU/EEA markets at this time. Sign-in for
-          account-based services requires a confirmation that the user is not
-          located in the EU/EEA before verification-code delivery. This
-          attestation is an eligibility control, not strict geolocation
-          enforcement, and technical access from outside Switzerland may still
-          occur. Where mandatory law in another jurisdiction applies in a
-          specific case, those mandatory provisions remain unaffected.
+          Services are primarily intended for customers in Switzerland. We do
+          not actively target EU/EEA markets.
         </p>
       </LegalSection>
 
-      {/* Related Documents */}
       <LegalSection title="Related Documents">
         <ul className="text-muted-foreground space-y-2 text-sm">
           <li>
@@ -392,7 +298,6 @@ export default function ImpressumPage() {
             >
               Terms of Service
             </Link>
-            {" - "}Usage terms, disclaimers, and limitations
           </li>
           <li>
             <Link
@@ -401,16 +306,14 @@ export default function ImpressumPage() {
             >
               Privacy Policy
             </Link>
-            {" - "}How your data is handled and protected
           </li>
         </ul>
       </LegalSection>
 
-      {/* Final Notice */}
       <LegalFooterNote>
         <p className="text-muted-foreground text-center text-xs">
-          By using Helvety services, you acknowledge that this Impressum applies
-          to your use of the services.
+          By using Helvety services, you acknowledge that this Impressum
+          applies.
         </p>
       </LegalFooterNote>
     </LegalPageShell>

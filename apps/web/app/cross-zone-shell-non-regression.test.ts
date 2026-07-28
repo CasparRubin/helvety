@@ -14,16 +14,10 @@ const footerPath = join(repoRoot, "packages/ui/src/footer.tsx");
 const webLayoutPath = join(repoRoot, "apps/web/app/layout.tsx");
 
 const OTHER_ZONE_LAYOUTS = [
-  "apps/auth/app/layout.tsx",
   "apps/store/app/layout.tsx",
   "apps/pdf/app/layout.tsx",
-  "apps/image-upscaler/app/layout.tsx",
   "apps/image-editor/app/layout.tsx",
   "apps/ocr/app/layout.tsx",
-  "apps/tasks/app/layout.tsx",
-  "apps/contacts/app/layout.tsx",
-  "apps/notes/app/layout.tsx",
-  "apps/links/app/layout.tsx",
 ] as const;
 
 describe("cross-zone shell non-regression", () => {

@@ -16,16 +16,10 @@ import {
   FileText,
   House,
   ImagePlus,
-  ImageUp,
-  ListTodo,
   Monitor,
-  Link2,
-  NotebookPen,
-  PanelRight,
   Puzzle,
   ScanText,
   Store,
-  Users,
 } from "lucide-react";
 
 import type { ComponentType, SVGProps } from "react";
@@ -48,15 +42,9 @@ const ecosystemItemIcons: Record<
   string,
   ComponentType<SVGProps<SVGSVGElement>>
 > = {
-  "helvety-tasks": ListTodo,
-  "helvety-contacts": Users,
-  "helvety-notes": NotebookPen,
-  "helvety-links": Link2,
   "helvety-pdf": FileText,
-  "helvety-image-upscaler": ImageUp,
   "helvety-image-editor": ImagePlus,
   "helvety-ocr": ScanText,
-  "helvety-browser-extension": PanelRight,
   "helvety-power-platform-configurator": Puzzle,
   "helvety-spo-explorer": Building2,
   "helvety-screen-tools": Monitor,

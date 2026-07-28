@@ -12,13 +12,7 @@
 - [Helvety](https://helvety.com)
 - [Helvety Store](https://helvety.com/store/products)
 - [Helvety PDF](https://helvety.com/pdf)
-- [Helvety Image Upscaler](https://helvety.com/image-upscaler)
 - [Helvety Image Editor](https://helvety.com/image-editor)
-- [Helvety Auth](https://helvety.com/auth)
-- [Helvety Contacts](https://helvety.com/contacts)
-- [Helvety Notes](https://helvety.com/notes)
-- [Helvety Tasks](https://helvety.com/tasks)
-- [Helvety Links](https://helvety.com/links)
 
 ## Licensing
 The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.

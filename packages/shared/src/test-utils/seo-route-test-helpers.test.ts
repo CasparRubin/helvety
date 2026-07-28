@@ -4,7 +4,6 @@ import { AI_DISCOVERY_USER_AGENTS } from "../seo";
 
 import {
   assertValidPublicSitemapEntries,
-  expectPrivateZoneRobots,
   expectPublicCrawlerRobots,
   normalizeRobotsRules,
 } from "./seo-route-test-helpers";
@@ -76,47 +75,5 @@ describe("seo-route-test-helpers", () => {
         },
       ])
     ).toThrow();
-  });
-
-  it("expectPrivateZoneRobots requires zone-prefix disallow and no sitemap", () => {
-    expect(() =>
-      expectPrivateZoneRobots(
-        {
-          rules: [{ userAgent: "*", disallow: "/tasks" }],
-        },
-        "/tasks"
-      )
-    ).toThrow();
-
-    expect(() =>
-      expectPrivateZoneRobots(
-        {
-          rules: [
-            { userAgent: "*", disallow: "/tasks" },
-            ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
-              userAgent,
-              disallow: "/tasks",
-            })),
-          ],
-          sitemap: "https://helvety.com/tasks/sitemap.xml",
-        },
-        "/tasks"
-      )
-    ).toThrow();
-
-    expect(() =>
-      expectPrivateZoneRobots(
-        {
-          rules: [
-            { userAgent: "*", disallow: "/tasks" },
-            ...AI_DISCOVERY_USER_AGENTS.map((userAgent) => ({
-              userAgent,
-              disallow: "/tasks",
-            })),
-          ],
-        },
-        "/tasks"
-      )
-    ).not.toThrow();
   });
 });

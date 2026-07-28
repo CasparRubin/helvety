@@ -2,7 +2,6 @@ import "./globals.css";
 import { brandAssets } from "@helvety/brand/urls";
 import { WEB_SITE_DESCRIPTION } from "@helvety/shared/app-product-descriptions";
 import { sharedViewport, urls } from "@helvety/shared/config";
-import { bootstrapPublicLayoutUser } from "@helvety/shared/layout-session-bootstrap";
 import { HELVETY_WEB_DEFAULT_TITLE } from "@helvety/shared/licensing";
 import { createHelvetyProductMetadata } from "@helvety/shared/seo";
 import { HelvetyPublicShellRootLayout } from "@helvety/ui/helvety-public-shell-root-layout";
@@ -23,18 +22,11 @@ export const metadata = createHelvetyProductMetadata({
   keywords: [
     "Helvety",
     "Swiss software",
-    "encrypted tasks",
-    "encrypted contacts",
-    "encrypted notes",
-    "encrypted bookmarks",
-    "links",
     "PDF tools",
-    "image upscaler",
     "image editor",
     "image annotation",
     "ocr",
     "text extraction",
-    "end-to-end encryption",
     "privacy",
     "Switzerland",
   ],
@@ -59,19 +51,13 @@ export const metadata = createHelvetyProductMetadata({
  * `bodyClassName` below.
  *
  * Public marketing/legal pages plus metadata routes (robots, sitemap, CSP
- * reporting). CSP nonce flows from request headers. The navbar gets an SSR
- * `initialUser` snapshot via `bootstrapPublicLayoutUser()` from
- * `@helvety/shared/layout-session-bootstrap` (logs and falls
- * back to null on failure); `useNavbarAuthState` reconciles with the client
- * session afterward.
+ * reporting). CSP nonce flows from request headers.
  */
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): Promise<React.JSX.Element> {
-  const initialUser = await bootstrapPublicLayoutUser();
-
+}>): React.JSX.Element {
   return (
     <HelvetyPublicShellRootLayout
       bodyClassName="overflow-x-clip"
@@ -84,7 +70,7 @@ export default async function RootLayout({
           description: WEB_SITE_DESCRIPTION,
         },
       ]}
-      renderNavbar={<Navbar initialUser={initialUser} />}
+      renderNavbar={<Navbar />}
       mainVariant="scroll-area"
       footerExternal={false}
     >

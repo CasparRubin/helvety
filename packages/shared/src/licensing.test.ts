@@ -65,16 +65,10 @@ describe("workspace package manifests", () => {
   const packageJsonPaths = [
     "package.json",
     "apps/web/package.json",
-    "apps/auth/package.json",
     "apps/store/package.json",
     "apps/pdf/package.json",
-    "apps/image-upscaler/package.json",
     "apps/image-editor/package.json",
     "apps/ocr/package.json",
-    "apps/tasks/package.json",
-    "apps/contacts/package.json",
-    "apps/notes/package.json",
-    "apps/links/package.json",
     "packages/shared/package.json",
     "packages/ui/package.json",
     "packages/config/package.json",
@@ -95,15 +89,10 @@ describe("workspace package manifests", () => {
   it("does not mention AGPL in customer-facing app package descriptions", () => {
     const appPackages = [
       "apps/web/package.json",
-      "apps/auth/package.json",
       "apps/store/package.json",
       "apps/pdf/package.json",
-      "apps/image-upscaler/package.json",
       "apps/image-editor/package.json",
       "apps/ocr/package.json",
-      "apps/tasks/package.json",
-      "apps/contacts/package.json",
-      "apps/notes/package.json",
     ];
     for (const rel of appPackages) {
       const pkg = JSON.parse(readFileSync(join(repoRoot, rel), "utf8")) as {

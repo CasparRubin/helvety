@@ -4,7 +4,7 @@ import { afterEach, expect } from "vitest";
 
 expect.extend(matchers);
 
-// TipTap 3.27+ placeholder viewport tracking calls document.elementFromPoint (jsdom gap).
+// jsdom does not implement document.elementFromPoint; stub for viewport helpers in tests.
 if (typeof document.elementFromPoint !== "function") {
   document.elementFromPoint = () => null;
 }

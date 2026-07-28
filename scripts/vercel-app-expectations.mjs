@@ -5,11 +5,6 @@
  * @type {Record<string, { vercelProject: string; rootDirectory: string; displayName: string; forbiddenRootDirectories?: string[] }>}
  */
 export const VERCEL_APP_EXPECTATIONS = {
-  auth: {
-    vercelProject: "helvety-auth",
-    rootDirectory: "apps/auth",
-    displayName: "Auth",
-  },
   web: {
     vercelProject: "helvety-com",
     rootDirectory: "apps/web",
@@ -25,11 +20,6 @@ export const VERCEL_APP_EXPECTATIONS = {
     rootDirectory: "apps/pdf",
     displayName: "PDF",
   },
-  "image-upscaler": {
-    vercelProject: "helvety-image-upscaler",
-    rootDirectory: "apps/image-upscaler",
-    displayName: "Image Upscaler",
-  },
   "image-editor": {
     vercelProject: "helvety-image-editor",
     rootDirectory: "apps/image-editor",
@@ -39,26 +29,6 @@ export const VERCEL_APP_EXPECTATIONS = {
     vercelProject: "helvety-ocr",
     rootDirectory: "apps/ocr",
     displayName: "OCR",
-  },
-  tasks: {
-    vercelProject: "helvety-tasks",
-    rootDirectory: "apps/tasks",
-    displayName: "Tasks",
-  },
-  contacts: {
-    vercelProject: "helvety-contacts",
-    rootDirectory: "apps/contacts",
-    displayName: "Contacts",
-  },
-  notes: {
-    vercelProject: "helvety-notes",
-    rootDirectory: "apps/notes",
-    displayName: "Notes",
-  },
-  links: {
-    vercelProject: "helvety-links",
-    rootDirectory: "apps/links",
-    displayName: "Links",
   },
 };
 

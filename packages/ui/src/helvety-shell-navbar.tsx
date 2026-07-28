@@ -1,26 +1,9 @@
 "use client";
 
-import {
-  redirectToLogin,
-  redirectToLogout,
-} from "@helvety/shared/auth-redirect";
-import { urls } from "@helvety/shared/config";
 import { HELVETY_SWISS_ORIGIN_SEO } from "@helvety/shared/licensing";
-import {
-  CircleUser as UserIcon,
-  Code2,
-  Info,
-  LogIn,
-  LogOut,
-  Menu,
-  Moon,
-  Settings,
-  ShieldCheck,
-  Sun,
-} from "lucide-react";
-import Link from "next/link";
+import { Code2, Info, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
 import { AccessibleSheetHeader } from "./accessible-sheet-header";
 import { Button } from "./button";
@@ -33,23 +16,12 @@ import {
   DialogTitle,
 } from "./dialog";
 import { NavbarBrand } from "./navbar-brand";
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "./popover";
 import { ScrollArea } from "./scroll-area";
 import { Separator } from "./separator";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
 import { SHEET_SCROLLABLE_SHELL_CLASS } from "./sheet-scroll-layout";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-import { useNavbarAuthState } from "./use-navbar-auth-state";
-
-import type { User } from "@helvety/shared/supabase-types";
 
 /** Props forwarded to `NavbarBrand`. */
 export type HelvetyShellNavbarBrand = {
@@ -60,112 +32,27 @@ export type HelvetyShellNavbarBrand = {
   titleHref?: string;
 };
 
-/** Account entry: Helvety Store in another tab, or same-origin (e.g. Store app). */
-export type HelvetyShellNavbarAccount =
-  { variant: "external-store" } | { variant: "same-origin"; href: string };
-
-/** Optional encryption badge (rich tooltip on desktop; status only on mobile). */
-export type HelvetyShellNavbarEncryption = {
-  loading: boolean;
-  showBadge: boolean;
-  tooltipContent: ReactNode;
-};
-
-/** Auth snapshot passed to `encryption` when it is a function (e.g. E2EE product apps). */
-export type HelvetyShellNavbarAuthSnapshot = {
-  user: User | null;
-  isLoading: boolean;
-};
-
 /** Props for `HelvetyShellNavbar`. */
 export type HelvetyShellNavbarProps = {
-  initialUser?: User | null;
   brand: HelvetyShellNavbarBrand;
   /** App-specific introduction for the first About-dialog section. */
   aboutDescription: string;
   navigationMenuDescription: string;
   versionLabel: string | null;
-  account: HelvetyShellNavbarAccount;
-  /** When set, `redirectToLogin` receives the current page URL (e.g. Auth app). */
-  loginReturnUrl?: "current";
-  /**
-   * Static config (Auth) or a function of navbar auth state (E2EE) so encryption
-   * can depend on `user.id` without a second `useNavbarAuthState` subscription.
-   */
-  encryption?:
-    | HelvetyShellNavbarEncryption
-    | null
-    | ((
-        auth: HelvetyShellNavbarAuthSnapshot
-      ) => HelvetyShellNavbarEncryption | null);
 };
-
-/** Account link for desktop popover (`outline`) or mobile sheet (`ghost`). */
-function AccountLink({
-  account,
-  onNavigate,
-  className,
-  variant,
-}: {
-  account: HelvetyShellNavbarAccount;
-  onNavigate: () => void;
-  className: string;
-  variant: "outline" | "ghost";
-}) {
-  if (account.variant === "same-origin") {
-    return (
-      <Button
-        variant={variant}
-        className={className}
-        render={<Link href={account.href} onClick={onNavigate} />}
-        nativeButton={false}
-      >
-        <Settings className="size-4" />
-        Account
-      </Button>
-    );
-  }
-  return (
-    <Button
-      variant={variant}
-      className={className}
-      render={
-        <a
-          href={`${urls.store}/account`}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onNavigate}
-        />
-      }
-      nativeButton={false}
-    >
-      <Settings className="size-4" />
-      Account
-    </Button>
-  );
-}
 
 /**
  * Shared top navigation chrome for Helvety web apps in this monorepo.
- * Does not call `useEncryptionContext`; callers may pass `encryption` as a
- * function of navbar auth state (Auth and `E2eeAppNavbar`), as a static object
- * (tests or rare one-offs), pass vault-only badge/tooltips, or omit it
- * (`web`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`).
+ * Public shell only: brand, About, GitHub, and theme. No account or session UI.
  */
 export function HelvetyShellNavbar({
-  initialUser = null,
   brand,
   aboutDescription,
   navigationMenuDescription,
   versionLabel,
-  account,
-  loginReturnUrl,
-  encryption = null,
 }: HelvetyShellNavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const { user, isLoading } = useNavbarAuthState(initialUser);
   const { resolvedTheme, setTheme, theme: currentTheme } = useTheme();
 
   const isDark = (resolvedTheme ?? "light") === "dark";
@@ -177,34 +64,7 @@ export function HelvetyShellNavbar({
     }
   };
 
-  const isAuthenticated = !!user;
   const versionInfo = versionLabel?.replace(/^(?:Built|Generated) on\s+/u, "");
-
-  const handleLogin = () => {
-    if (loginReturnUrl === "current" && typeof window !== "undefined") {
-      redirectToLogin(window.location.href);
-    } else {
-      redirectToLogin();
-    }
-  };
-
-  const handleLogout = () => {
-    redirectToLogout(window.location.href);
-  };
-
-  const resolvedEncryption =
-    encryption == null
-      ? null
-      : typeof encryption === "function"
-        ? encryption({ user, isLoading })
-        : encryption;
-
-  const encryptionBadge =
-    resolvedEncryption &&
-    !resolvedEncryption.loading &&
-    resolvedEncryption.showBadge
-      ? resolvedEncryption
-      : null;
 
   return (
     <nav className="bg-surface-chrome/80 supports-[backdrop-filter]:bg-surface-chrome/60 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -212,83 +72,6 @@ export function HelvetyShellNavbar({
         <NavbarBrand {...brand} />
         <div className="flex shrink-0 items-center gap-2">
           <div className="hidden items-center gap-2 sm:flex">
-            {encryptionBadge && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <div className="text-muted-foreground flex cursor-default items-center gap-1.5 text-sm" />
-                  }
-                >
-                  <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  <span className="hidden md:inline">Encryption enabled</span>
-                </TooltipTrigger>
-                <TooltipContent className="block max-w-xs space-y-2 p-3 text-left">
-                  {encryptionBadge.tooltipContent}
-                </TooltipContent>
-              </Tooltip>
-            )}
-
-            {!isAuthenticated && !isLoading && (
-              <Button variant="default" size="sm" onClick={handleLogin}>
-                <LogIn className="size-4" />
-                Sign in
-              </Button>
-            )}
-
-            {isAuthenticated && !isLoading && (
-              <Popover open={profileOpen} onOpenChange={setProfileOpen}>
-                <PopoverTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Open profile menu"
-                    />
-                  }
-                >
-                  <UserIcon className="size-5" />
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-80">
-                  <PopoverHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-                        <UserIcon className="text-primary size-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <PopoverTitle className="truncate">
-                          {user?.email ?? "Account"}
-                        </PopoverTitle>
-                        <PopoverDescription>Signed in</PopoverDescription>
-                      </div>
-                    </div>
-                  </PopoverHeader>
-                  <Separator />
-                  <div className="flex flex-col gap-2">
-                    <AccountLink
-                      account={account}
-                      onNavigate={() => setProfileOpen(false)}
-                      className="w-full justify-start"
-                      variant="outline"
-                    />
-                  </div>
-                  <Separator />
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      variant="destructive"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        handleLogout();
-                      }}
-                    >
-                      <LogOut className="size-4" />
-                      Sign out
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -359,54 +142,6 @@ export function HelvetyShellNavbar({
               />
               <ScrollArea className="min-h-0 flex-1">
                 <nav className="flex flex-col gap-2 px-4 pb-4">
-                  {encryptionBadge && (
-                    <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                      <ShieldCheck className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                      <span>Encryption enabled</span>
-                    </div>
-                  )}
-                  {!isAuthenticated && !isLoading && (
-                    <Button
-                      variant="default"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        handleLogin();
-                      }}
-                    >
-                      <LogIn className="size-4" />
-                      Sign in
-                    </Button>
-                  )}
-                  {isAuthenticated && !isLoading && (
-                    <>
-                      <div className="text-muted-foreground flex h-9 items-center gap-2 px-2.5 text-sm">
-                        <UserIcon className="size-4 shrink-0" />
-                        <span className="truncate">
-                          {user?.email ?? "Account"}
-                        </span>
-                      </div>
-                      <AccountLink
-                        account={account}
-                        onNavigate={() => setMobileMenuOpen(false)}
-                        className="w-full justify-start"
-                        variant="ghost"
-                      />
-                      <Separator />
-                      <Button
-                        variant="destructive"
-                        className="w-full justify-start"
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          handleLogout();
-                        }}
-                      >
-                        <LogOut className="size-4" />
-                        Sign out
-                      </Button>
-                    </>
-                  )}
-                  <Separator />
                   <Button
                     variant="ghost"
                     className="w-full justify-start"
@@ -434,6 +169,7 @@ export function HelvetyShellNavbar({
                     <Code2 className="size-4" />
                     GitHub
                   </Button>
+                  <Separator />
                   <Button
                     variant="ghost"
                     className="w-full justify-start"

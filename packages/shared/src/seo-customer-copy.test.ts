@@ -5,12 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
-  AUTH_PWA_MANIFEST_DESCRIPTION,
-  CONTACTS_APP_DESCRIPTION,
-  LINKS_APP_DESCRIPTION,
-  NOTES_APP_DESCRIPTION,
   STORE_DESCRIPTION,
-  TASKS_APP_DESCRIPTION,
   WEB_SITE_DESCRIPTION,
 } from "./app-product-descriptions";
 import {
@@ -34,11 +29,6 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const SHARED_SEO_DESCRIPTIONS = [
   ["WEB_SITE_DESCRIPTION", WEB_SITE_DESCRIPTION],
   ["STORE_DESCRIPTION", STORE_DESCRIPTION],
-  ["TASKS_APP_DESCRIPTION", TASKS_APP_DESCRIPTION],
-  ["CONTACTS_APP_DESCRIPTION", CONTACTS_APP_DESCRIPTION],
-  ["LINKS_APP_DESCRIPTION", LINKS_APP_DESCRIPTION],
-  ["NOTES_APP_DESCRIPTION", NOTES_APP_DESCRIPTION],
-  ["AUTH_PWA_MANIFEST_DESCRIPTION", AUTH_PWA_MANIFEST_DESCRIPTION],
 ] as const;
 
 describe("seo customer copy guardrails", () => {
@@ -92,14 +82,14 @@ describe("seo customer copy guardrails", () => {
     }
   });
 
-  it("app llms Related Helvety Apps sections link to Helvety Links", () => {
+  it("app llms Related Helvety Apps sections link to Helvety Store", () => {
     for (const rel of CUSTOMER_COPY_LLMS_RELATIVE_PATHS) {
       const source = readFileSync(join(repoRoot, rel), "utf8");
       if (!source.includes("## Related Helvety Apps")) {
         continue;
       }
-      expect(source, rel).toContain("Helvety Links");
-      expect(source, rel).toContain("helvety.com/links");
+      expect(source, rel).toContain("Helvety Store");
+      expect(source, rel).toContain("helvety.com/store");
     }
   });
 

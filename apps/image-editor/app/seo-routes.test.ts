@@ -11,7 +11,7 @@ import sitemap from "./sitemap";
 describe("image editor SEO routes", () => {
   it("returns crawlable robots with expected disallow rules", () => {
     expectPublicCrawlerRobots(robots(), {
-      disallowPaths: ["/image-editor/api", "/image-editor/auth"],
+      disallowPaths: ["/image-editor/api"],
       mustNotDisallow: ["/image-editor", "/image-editor/sitemap.xml"],
       sitemap: `${urls.home}/image-editor/sitemap.xml`,
     });

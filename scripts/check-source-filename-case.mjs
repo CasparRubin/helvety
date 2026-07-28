@@ -58,9 +58,7 @@ const SKIP_DIR_NAMES = new Set([
  * Generated or legacy dotted/colocated test names.
  */
 const ALLOWLIST = new Set([
-  "apps/auth/components/encryption-setup.copy.test.ts",
   "apps/store/app/products/[slug]/page.seo.test.tsx",
-  "packages/shared/src/types/database.types.ts",
   "packages/ui/src/helvety-theme-init-script.test-helpers.ts",
 ]);
 

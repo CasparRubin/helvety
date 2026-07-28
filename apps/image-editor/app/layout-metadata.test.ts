@@ -11,10 +11,6 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
-vi.mock("@helvety/shared/layout-session-bootstrap", () => ({
-  bootstrapPublicLayoutUser: vi.fn().mockResolvedValue(null),
-}));
-
 vi.mock("@helvety/shared/logger", () => ({
   logger: { logUnexpectedError: vi.fn() },
 }));

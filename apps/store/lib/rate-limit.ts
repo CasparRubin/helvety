@@ -16,12 +16,8 @@ export { checkRateLimit } from "@helvety/shared/rate-limit";
  * Store-specific rate limit configurations
  */
 export const RATE_LIMITS = {
-  /** API calls: 100 per minute per user */
+  /** API calls: 100 per minute per identifier */
   API: { maxRequests: 100, windowMs: 60 * 1000 },
   /** Public package download requests: 2 per minute per IP */
   DOWNLOADS: { maxRequests: 2, windowMs: 60 * 1000 },
-  /** Account mutations (email change, deletion): 3 per minute per user */
-  ACCOUNT_MUTATE: { maxRequests: 3, windowMs: 60 * 1000 },
-  /** Data export: 3 per minute per user */
-  DATA_EXPORT: { maxRequests: 3, windowMs: 60 * 1000 },
 } as const;

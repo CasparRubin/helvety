@@ -3,12 +3,14 @@
 import { cn } from "@helvety/shared/utils";
 import { cloneElement, isValidElement, useId } from "react";
 
-import { E2EE_FORM_FIELD_CLASS } from "./e2ee-form-layout";
 import { Label } from "./label";
 
 import type { ReactElement, ReactNode } from "react";
 
-/** Props for a labeled form control using E2EE vertical rhythm (`grid gap-2`). */
+/** Label-to-control spacing within one field group. */
+export const FORM_FIELD_CLASS = "grid gap-2";
+
+/** Props for a labeled form control (`grid gap-2`). */
 export interface FormFieldProps {
   label: string;
   required?: boolean;
@@ -18,7 +20,7 @@ export interface FormFieldProps {
 }
 
 /**
- * Label + control group with shared E2EE spacing. Clones `id` onto the child
+ * Label + control group with shared spacing. Clones `id` onto the child
  * control when the child accepts `id`.
  */
 export function FormField({
@@ -35,7 +37,7 @@ export function FormField({
     : children;
 
   return (
-    <div className={cn(E2EE_FORM_FIELD_CLASS, className)}>
+    <div className={cn(FORM_FIELD_CLASS, className)}>
       <Label htmlFor={fieldId}>
         {label}
         {required ? " *" : null}

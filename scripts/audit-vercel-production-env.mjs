@@ -6,7 +6,6 @@
  * Preview tier: node scripts/audit-vercel-production-env.mjs --preview
  * Remove flagged keys: node scripts/audit-vercel-production-env.mjs --remove
  */
-import { createHash } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -31,30 +30,13 @@ import {
 
 const TEAM = "helvety";
 
-/** Zones that must share the same DEVICE_TRUST_COOKIE_SECRET value in production. */
-const DEVICE_TRUST_PARITY_PROJECTS = [
-  "helvety-auth",
-  "helvety-tasks",
-  "helvety-contacts",
-  "helvety-notes",
-  "helvety-links",
-];
-
-const DEVICE_TRUST_SECRET_KEY = "DEVICE_TRUST_COOKIE_SECRET";
-
 /** @type {Record<string, string>} */
 export const PROJECT_TO_APP = {
-  "helvety-com": "web",
-  "helvety-auth": "auth",
+  "helvety-web": "web",
   "helvety-store": "store",
   "helvety-pdf": "pdf",
-  "helvety-image-upscaler": "image-upscaler",
   "helvety-image-editor": "image-editor",
   "helvety-ocr": "ocr",
-  "helvety-tasks": "tasks",
-  "helvety-contacts": "contacts",
-  "helvety-notes": "notes",
-  "helvety-links": "links",
 };
 
 const OPTIONAL_KEYS = new Set([
@@ -62,16 +44,29 @@ const OPTIONAL_KEYS = new Set([
   "HELVETY_SERVER_ACTION_ALLOWED_ORIGINS",
 ]);
 
-/** Legacy Supabase key names — migrate to publishable/secret env vars. */
-const LEGACY_SUPABASE_KEY_NAMES = new Set([
+/** Retired auth/DB env names that must be removed from every zone project. */
+const RETIRED_SUPABASE_ENV_KEY_NAMES = new Set([
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_ANON_KEY",
+  "SUPABASE_SECRET_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
   "SERVICE_ROLE_KEY",
+  "HELVETY_COOKIE_SIGNING_SECRET",
+  "DEVICE_TRUST_COOKIE_SECRET",
 ]);
 
 /** Retired env vars that must not remain on any zone project (removed apps / rewrites). */
-export const OBSOLETE_VERCEL_ENV_KEYS = ["DOCS_URL"];
+export const OBSOLETE_VERCEL_ENV_KEYS = [
+  "DOCS_URL",
+  "AUTH_URL",
+  "TASKS_URL",
+  "CONTACTS_URL",
+  "NOTES_URL",
+  "LINKS_URL",
+  "IMAGE_UPSCALER_URL",
+];
 
 /**
  * Validates one zone project's env keys against tier expectations.
@@ -127,9 +122,10 @@ export function auditProjectEnv({ project, app, keys, target = "production" }) {
     );
   }
   for (const key of keys) {
-    if (LEGACY_SUPABASE_KEY_NAMES.has(key)) {
-      warnings.push(
-        `${project}: legacy Supabase key name ${key} — use NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY / SUPABASE_SECRET_KEY`
+    if (RETIRED_SUPABASE_ENV_KEY_NAMES.has(key)) {
+      toRemove.push({ project, app, key });
+      errors.push(
+        `${project}: remove retired auth/DB env var ${key} (helvety.com no longer uses Supabase)`
       );
     }
   }
@@ -143,77 +139,6 @@ export function auditProjectEnv({ project, app, keys, target = "production" }) {
   }
 
   return { errors, warnings, toRemove };
-}
-
-/**
- * SHA-256 hash of a secret for cross-project parity checks (never log raw values).
- *
- * @param {string} value
- */
-export function hashDeviceTrustSecret(value) {
-  return createHash("sha256").update(value, "utf8").digest("hex");
-}
-
-/** Max allowed spread of `updatedAt` (ms) across zones when values are sensitive (not readable). */
-export const DEVICE_TRUST_SENSITIVE_UPDATED_AT_MAX_SPREAD_MS = 60 * 60 * 1000;
-
-/**
- * @param {Record<string, { hash: string | null; updatedAt: number; type: string } | null>} projectRecords
- * @returns {{ errors: string[]; warnings: string[] }}
- */
-export function auditDeviceTrustSecretParity(projectRecords) {
-  const errors = [];
-  const warnings = [];
-  const entries = Object.entries(projectRecords);
-  const missing = entries
-    .filter(([, record]) => record == null)
-    .map(([project]) => project);
-  if (missing.length > 0) {
-    errors.push(`${DEVICE_TRUST_SECRET_KEY} missing on: ${missing.join(", ")}`);
-  }
-
-  const present = entries
-    .map(([, record]) => record)
-    .filter((record) => record != null);
-  if (present.length === 0) {
-    return { errors, warnings };
-  }
-
-  const hashes = present
-    .map((record) => record.hash)
-    .filter((hash) => hash != null);
-  const uniqueHashes = new Set(hashes);
-  if (hashes.length > 0 && uniqueHashes.size > 1) {
-    const summary = entries
-      .filter(([, record]) => record?.hash)
-      .map(([project, record]) => `${project}=${record.hash.slice(0, 12)}…`)
-      .join(", ");
-    errors.push(
-      `${DEVICE_TRUST_SECRET_KEY} hash mismatch across zones (${summary})`
-    );
-  }
-
-  const allSensitive = present.every((record) => record.type === "sensitive");
-  const noneReadable = hashes.length === 0;
-  if (allSensitive && noneReadable) {
-    const updatedAts = present.map((record) => record.updatedAt);
-    const spreadMs = Math.max(...updatedAts) - Math.min(...updatedAts);
-    if (spreadMs > DEVICE_TRUST_SENSITIVE_UPDATED_AT_MAX_SPREAD_MS) {
-      errors.push(
-        `${DEVICE_TRUST_SECRET_KEY} updated independently across zones (spread ${Math.round(spreadMs / 1000)}s) — verify the same value in Vercel dashboard`
-      );
-    } else {
-      warnings.push(
-        `${DEVICE_TRUST_SECRET_KEY} is sensitive in Vercel (values not readable via CLI); updatedAt spread ${Math.round(spreadMs / 1000)}s across zones looks consistent`
-      );
-    }
-  } else if (hashes.length > 0 && hashes.length < present.length) {
-    warnings.push(
-      `${DEVICE_TRUST_SECRET_KEY} is readable on some zones only — confirm all zones share the same value in Vercel`
-    );
-  }
-
-  return { errors, warnings };
 }
 
 /**
@@ -307,54 +232,6 @@ async function removeEnvVar(project, key, target) {
   }
 }
 
-/** @deprecated Use removeEnvVar */
-async function removeProductionEnv(project, key) {
-  return removeEnvVar(project, key, "production");
-}
-
-/**
- * Fetches DEVICE_TRUST env metadata via authenticated Vercel API (CLI).
- *
- * @param {string} project
- * @param {"production" | "preview"} target
- * @returns {Promise<{ hash: string | null; updatedAt: number; type: string } | null>}
- */
-async function fetchDeviceTrustEnvRecord(project, target) {
-  const base = await mkdtemp(join(tmpdir(), "helvety-vercel-env-"));
-  const cwd = join(base, project);
-  const { mkdir } = await import("node:fs/promises");
-  await mkdir(cwd, { recursive: true });
-  try {
-    await runVercel(cwd, [
-      "link",
-      "--yes",
-      "--project",
-      project,
-      "--scope",
-      TEAM,
-    ]);
-    const out = await runVercel(cwd, [
-      "api",
-      `/v10/projects/${project}/env?decrypt=true&target=${target}`,
-    ]);
-    const parsed = JSON.parse(out);
-    const entry = (parsed.envs ?? []).find(
-      (env) => env.key === DEVICE_TRUST_SECRET_KEY
-    );
-    if (!entry) {
-      return null;
-    }
-    const value = typeof entry.value === "string" ? entry.value.trim() : "";
-    return {
-      type: entry.type ?? "unknown",
-      updatedAt: entry.updatedAt ?? 0,
-      hash: value.length > 0 ? hashDeviceTrustSecret(value) : null,
-    };
-  } finally {
-    await rm(base, { recursive: true, force: true });
-  }
-}
-
 async function main() {
   const remove = process.argv.includes("--remove");
   const preview = process.argv.includes("--preview");
@@ -371,11 +248,11 @@ async function main() {
     try {
       keys = await fetchEnvKeys(project, target);
     } catch (error) {
-      errors.push(`${project}: failed to list env — ${error.message}`);
+      errors.push(`${project}: failed to list env: ${error.message}`);
       continue;
     }
 
-    console.log(`${project} (apps/${app}) — ${keys.length} ${target} key(s)`);
+    console.log(`${project} (apps/${app}): ${keys.length} ${target} key(s)`);
     if (keys.length > 0) {
       console.log(`  ${keys.sort().join(", ")}`);
     }
@@ -388,7 +265,7 @@ async function main() {
   }
 
   if (warnings.length > 0) {
-    console.log("Warnings (review — may be intentional shared vars):");
+    console.log("Warnings (review; may be intentional shared vars):");
     for (const w of warnings) {
       console.log(`  - ${w}`);
     }
@@ -402,7 +279,7 @@ async function main() {
         await removeEnvVar(project, key, target);
         console.log(`  removed ${project} / ${key} (${target})`);
       } catch (error) {
-        errors.push(`${project}: failed to remove ${key} — ${error.message}`);
+        errors.push(`${project}: failed to remove ${key}: ${error.message}`);
       }
     }
     console.log("");
@@ -411,36 +288,6 @@ async function main() {
       `Re-run with --remove to delete forbidden/obsolete ${target} keys listed above.\n`
     );
   }
-
-  console.log(`${DEVICE_TRUST_SECRET_KEY} parity (${target})…`);
-  /** @type {Record<string, { hash: string | null; updatedAt: number; type: string } | null>} */
-  const deviceTrustRecords = {};
-  for (const project of DEVICE_TRUST_PARITY_PROJECTS) {
-    try {
-      deviceTrustRecords[project] = await fetchDeviceTrustEnvRecord(
-        project,
-        target
-      );
-      const record = deviceTrustRecords[project];
-      if (!record) {
-        console.log(`  ${project}: missing`);
-        continue;
-      }
-      const hashLabel = record.hash
-        ? `${record.hash.slice(0, 12)}…`
-        : `sensitive (${record.type})`;
-      console.log(`  ${project}: ${hashLabel}, updated ${record.updatedAt}`);
-    } catch (error) {
-      errors.push(
-        `${project}: failed to inspect ${DEVICE_TRUST_SECRET_KEY} — ${error.message}`
-      );
-      deviceTrustRecords[project] = null;
-    }
-  }
-  const parity = auditDeviceTrustSecretParity(deviceTrustRecords);
-  errors.push(...parity.errors);
-  warnings.push(...parity.warnings);
-  console.log("");
 
   if (errors.length > 0) {
     console.log("Issues:");

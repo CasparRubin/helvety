@@ -26,7 +26,6 @@ import {
   LayoutGrid,
   Monitor,
   Puzzle,
-  ShieldCheck,
 } from "lucide-react";
 
 /** Product category filter including the "all" option. */
@@ -41,14 +40,12 @@ interface ProductFiltersProps {
   counts?: Record<FilterType, number>;
 }
 
-const categoryIcons: Record<HelvetyEcosystemCategorySlug, typeof ShieldCheck> =
-  {
-    "encryption-apps": ShieldCheck,
-    "file-tools": FileText,
-    "browser-extensions": Puzzle,
-    "sharepoint-apps": Building2,
-    "desktop-apps": Monitor,
-  };
+const categoryIcons: Record<HelvetyEcosystemCategorySlug, typeof FileText> = {
+  "file-tools": FileText,
+  "browser-extensions": Puzzle,
+  "sharepoint-apps": Building2,
+  "desktop-apps": Monitor,
+};
 
 const filterOptions: {
   value: FilterType;

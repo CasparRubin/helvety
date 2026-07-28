@@ -18,49 +18,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@helvety/ui/dropdown-menu";
-import { useNavbarAuthState } from "@helvety/ui/use-navbar-auth-state";
-import {
-  ChevronDownIcon,
-  PackageIcon as Package,
-  UserIcon as UserGlyph,
-} from "lucide-react";
+import { ChevronDownIcon, PackageIcon as Package } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import type { User } from "@helvety/shared/supabase-types";
-
 const PRODUCT_LINKS = [{ href: "/products", label: "Products", icon: Package }];
 
-const ACCOUNT_LINK = {
-  href: "/account",
-  label: "Account",
-  icon: UserGlyph,
-};
-
-/**
- * Renders the store section nav.
- * Account is only visible for authenticated users.
- */
-export function StoreNav({
-  initialUser = null,
-}: {
-  initialUser?: User | null;
-}) {
+/** Renders the store section nav (Products only). */
+export function StoreNav() {
   const pathname = usePathname();
-  const { user } = useNavbarAuthState(initialUser);
-  const isAuthenticated = Boolean(user);
-  const links = isAuthenticated
-    ? [...PRODUCT_LINKS, ACCOUNT_LINK]
-    : PRODUCT_LINKS;
-
-  const getIsActive = (href: string) => {
-    const isProducts = href === "/products";
-    return isProducts
-      ? pathname === "/products" || pathname.startsWith("/products/")
-      : pathname === href;
-  };
-
-  const activeLink = links.find((l) => getIsActive(l.href)) ?? links[0]!;
+  const links = PRODUCT_LINKS;
+  const isProductsActive =
+    pathname === "/products" || pathname.startsWith("/products/");
+  const activeLink = links[0]!;
   const ActiveIcon = activeLink.icon;
 
   return (
@@ -68,7 +38,6 @@ export function StoreNav({
       {/* Desktop: horizontal link row */}
       <div className="hidden items-center gap-1 md:flex">
         {links.map(({ href, label, icon }) => {
-          const isActive = getIsActive(href);
           const IconComponent = icon;
 
           return (
@@ -77,7 +46,7 @@ export function StoreNav({
               href={href}
               className={cn(
                 "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                isActive
+                isProductsActive
                   ? "bg-secondary text-secondary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
@@ -102,7 +71,6 @@ export function StoreNav({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           {links.map(({ href, label, icon }) => {
-            const isActive = getIsActive(href);
             const IconComponent = icon;
 
             return (
@@ -110,7 +78,7 @@ export function StoreNav({
                 key={href}
                 render={<Link href={href} />}
                 nativeButton={false}
-                className={cn(isActive && "bg-accent")}
+                className={cn(isProductsActive && "bg-accent")}
               >
                 <IconComponent className="mr-2 size-4" />
                 <span>{label}</span>

@@ -22,11 +22,11 @@ describe("dev zone ports wiring", () => {
   it("ZONE_PORTS matches sorted DEV_PORTS values", () => {
     const configPorts = Object.values(DEV_PORTS).sort((a, b) => a - b);
     expect([...ZONE_PORTS].sort((a, b) => a - b)).toEqual(configPorts);
-    expect(ZONE_PORTS).toHaveLength(11);
+    expect(ZONE_PORTS).toHaveLength(5);
   });
 
   it("readiness sentinel reflects the warmed zone count", () => {
-    expect(DEV_ALL_ZONES_READY_SENTINEL).toBe("[dev] All 11 zones ready.");
+    expect(DEV_ALL_ZONES_READY_SENTINEL).toBe("[dev] All 5 zones ready.");
   });
 
   it("run-dev.mjs derives sufficient concurrency from shared zone ports", () => {

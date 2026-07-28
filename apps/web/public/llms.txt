@@ -1,6 +1,6 @@
 # Helvety
 
-> Helvety software products engineered, designed and made in Switzerland. Private, simple, clean. Web apps, legal pages, and Store links for the full product line.
+> Helvety software products engineered, designed and made in Switzerland. Private, simple, clean. Web apps, legal pages, and Store links for browser utilities and desktop tools.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page
@@ -10,38 +10,26 @@
 
 ## Crawling And Indexing
 - Public pages are intended to be indexable by search and AI crawlers.
-- Private app routes (`/auth`, `/tasks`, `/contacts`, `/notes`, `/links`) are not crawl or index targets: gateway `https://helvety.com/robots.txt` disallows those prefixes, and the apps also use noindex (plus auth where required).
+- API paths under public zones (`/store/api`, `/pdf/api`, `/image-editor/api`, `/ocr/api`) are disallowed in gateway `https://helvety.com/robots.txt`.
 
 ## Agent And Crawler Guides
-Per-zone `llms.txt` summaries. Public tool guides below are crawlable. Private-zone guides are listed for humans and for agents that already have the URL; compliant crawlers must not fetch them because gateway `robots.txt` disallows `/auth`, `/tasks`, `/contacts`, `/notes`, and `/links`.
+Per-zone `llms.txt` summaries. Public tool guides below are crawlable.
 - [Helvety Store](https://helvety.com/store/llms.txt)
 - [Helvety PDF](https://helvety.com/pdf/llms.txt)
-- [Helvety Image Upscaler](https://helvety.com/image-upscaler/llms.txt)
 - [Helvety Image Editor](https://helvety.com/image-editor/llms.txt)
 - [Helvety OCR](https://helvety.com/ocr/llms.txt)
-- [Helvety Auth](https://helvety.com/auth/llms.txt) (private; robots-disallowed prefix)
-- [Helvety Contacts](https://helvety.com/contacts/llms.txt) (private; robots-disallowed prefix)
-- [Helvety Notes](https://helvety.com/notes/llms.txt) (private; robots-disallowed prefix)
-- [Helvety Links](https://helvety.com/links/llms.txt) (private; robots-disallowed prefix)
-- [Helvety Tasks](https://helvety.com/tasks/llms.txt) (private; robots-disallowed prefix)
 
 ## Cookies And Storage
-- Helvety web zones use essential and authentication cookies and browser storage for preferences and encrypted vault sessions. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §9](https://helvety.com/privacy#cookies).
+- Helvety web zones use essential cookies and browser storage for preferences. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §8](https://helvety.com/privacy#cookies).
 
 ## Related apps and tools
 - [Helvety Store](https://helvety.com/store/products): Product specs, SPFx and other Store-hosted downloads, and install links (for example Chrome Web Store) from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Power Automate: choose Classic Designer, New Designer, or Paused; Hide sets v3survey=false on rewrites, while Show only normalizes an existing parameter. Power Apps: reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots and on-screen drawing
-- [Helvety Browser Extension](https://helvety.com/store/products/helvety-browser-extension): Open beta Chromium side panel for your encrypted Helvety tasks, notes, contacts, links, and folders; manual install from GitHub releases while it is not yet in the Chrome Web Store
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
-- [Helvety Image Upscaler](https://helvety.com/image-upscaler): Upscale images in the browser on your device
 - [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser on your device with text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable stroke, blur, and corner radius; layers panel and zoom; no image upload to Helvety servers in the normal flow
 - [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR and born-digital PDFs reuse their text layer; read, copy, or download plain text with no file upload to Helvety servers
-- [Helvety Contacts](https://helvety.com/contacts): Encrypted address book with export tooling
-- [Helvety Notes](https://helvety.com/notes): Encrypted notes in Personal, Work, and Other groups
-- [Helvety Links](https://helvety.com/links): Encrypted bookmarks in nested folders
-- [Helvety Tasks](https://helvety.com/tasks): Encrypted stage-based task board
 
 ## Licensing
 The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.

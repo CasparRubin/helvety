@@ -14,5 +14,4 @@ export const Navbar = createPublicShellNavbar({
   aboutDescription: ocrNavbarAbout(),
   navigationMenuDescription: "OCR navigation menu",
   versionLabel: VERSION ?? null,
-  account: { variant: "external-store" },
 });

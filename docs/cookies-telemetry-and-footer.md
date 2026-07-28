@@ -1,40 +1,34 @@
 # Cookies and Site Footer
 
-Canonical developer reference for Helvety web zones on `helvety.com`. User-facing legal text lives on the [Privacy Policy](https://helvety.com/privacy) (Section 9).
+Canonical developer reference for Helvety web zones on `helvety.com`. User-facing legal text lives on the [Privacy Policy](https://helvety.com/privacy) (Section 8).
 
 ## Site footer (`@helvety/ui/footer`)
 
-Mounted by `HelvetyPublicShellRootLayout` and `E2eeAppRootLayout` on every Next.js zone except the Chromium extension (no shared footer there).
+Mounted by `HelvetyPublicShellRootLayout` on every Next.js zone.
 
-The footer states that the site uses essential cookies and similar storage for security and core functionality; signed-in services also use authentication cookies. It links to **Privacy** for storage details (not a separate cookie banner).
+The footer states that the site uses essential cookies and similar storage for security and core functionality (for example theme preference). It links to **Privacy** for storage details (not a separate cookie banner).
 
 - Gateway (`apps/web`): relative `/privacy` link (`footerExternal: false`).
 - Sub-zones: absolute `https://helvety.com/privacy` with `target="_blank"`.
 
-**Eleven zones:** `web`, `auth`, `store`, `pdf`, `image-upscaler`, `image-editor`, `ocr`, `tasks`, `contacts`, `notes`, `links`.
+**Five zones:** `web`, `store`, `pdf`, `image-editor`, `ocr`.
 
 We do not mount third-party analytics or advertising trackers in shared root layouts.
 
 ## First-party HTTP cookies (summary)
 
-| Cookie                 | Apps                              | Purpose                                                                                                                                                                                                                                                                                         |
-| ---------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sb-*-auth-token`      | Any zone when signed in           | Supabase session (httpOnly)                                                                                                                                                                                                                                                                     |
-| `csrf_token`           | All except `apps/web` gateway     | CSRF double-submit (signed, httpOnly)                                                                                                                                                                                                                                                           |
-| `webauthn_challenge`   | `auth`                            | Web passkey ceremony on helvety.com (3 min, signed httpOnly cookie)                                                                                                                                                                                                                             |
-| `helvety_device_trust` | `auth` (+ verified on E2EE zones) | Weekly device-trust marker on **helvety.com** (httpOnly, signed); passkey-first sign-in on `/auth/login` when trusted; required for continuing E2EE API access. **Not** used by the Chromium extension (extension uses HMAC `weekly_proof` in `helvety_extension_weekly_proof`; see Privacy §9) |
+`apps/web` uses the `public-marketing` proxy profile (CSP only).
 
-**Extension auth API** (`/api/extension/otp/*`, `/api/extension/passkey/*`): OTP send/verify and passkey challenges are signed server-side values (passkey `challengeEnvelope` consumed once per ceremony via Upstash `consumeSingleUseKey`, 3 min TTL; in-memory fallback in dev). They are **not** browser cookies.
-
-`apps/web` uses the `public-marketing` proxy profile: **no** CSRF cookie bootstrap (no `HELVETY_COOKIE_SIGNING_SECRET` on the gateway).
-
-Production cookie domain: `.helvety.com` (`packages/shared/src/config.ts`).
+Production cookie domain (when cookies are set): `.helvety.com` (`packages/shared/src/config.ts`).
 
 ## Browser storage (not cookies)
 
-Documented in Privacy §9 table: theme (`localStorage`), `helvety-prf-salt` (auth login flows; **7-day** cache per `prf-salt-cache.ts`), `helvety-crypto` (IndexedDB master-key cache for E2EE apps and the Chromium extension side panel), `helvety-pdf-columns` (PDF viewer). Chromium extension: Supabase session refresh bundle in `chrome.storage.local`, access token mirror in `chrome.storage.session`, and `helvety_extension_weekly_proof` (server-HMAC weekly proof; same schema as device trust).
+Documented in Privacy §8 table (SSOT: `apps/web/lib/legal-cookies-disclosure.ts`):
 
-E2EE vault session (`helvety-crypto` IndexedDB, not a cookie): master encryption key cache with **24h sliding idle** and **7d absolute max** lifetime (`@helvety/shared/auth-session-policy.ts`, `crypto/vault-session.ts`). Used by Tasks, Contacts, Notes, Links, and the Chromium extension side panel. Cleared on logout / hard logout.
+| Storage                                | Apps      | Purpose                           |
+| -------------------------------------- | --------- | --------------------------------- |
+| Theme preference (`localStorage`)      | All zones | Remember dark/light mode          |
+| `helvety-pdf-columns` (`localStorage`) | `pdf`     | Remember PDF viewer column layout |
 
 ## When to update legal copy
 
@@ -44,4 +38,4 @@ See [`docs/legal-change-guardrails.md`](./legal-change-guardrails.md). Any chang
 - `apps/web/lib/legal-cookies-disclosure.ts` + `apps/web/app/legal-cookies-disclosure.test.ts`
 - This document if operational facts change
 
-Regression tests: `bun run test` in `apps/web` (`legal-cookies-disclosure.test.ts`, `legal-metadata.test.ts`, `legal-privacy-tables.test.ts`, `legal-e2ee-products.test.ts`).
+Regression tests: `bun run test` in `apps/web` (`legal-cookies-disclosure.test.ts`, `legal-metadata.test.ts`, `legal-privacy-tables.test.ts`, `legal-public-tools.test.ts`).

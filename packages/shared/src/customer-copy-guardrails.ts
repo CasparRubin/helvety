@@ -13,14 +13,8 @@ export const CUSTOMER_COPY_EM_DASH = "\u2014";
 export const CUSTOMER_COPY_README_RELATIVE_PATHS = [
   "README.md",
   "apps/pdf/README.md",
-  "apps/tasks/README.md",
-  "apps/contacts/README.md",
-  "apps/links/README.md",
-  "apps/notes/README.md",
-  "apps/auth/README.md",
   "apps/store/README.md",
   "apps/web/README.md",
-  "apps/image-upscaler/README.md",
   "apps/image-editor/README.md",
   "apps/ocr/README.md",
 ] as const;
@@ -30,12 +24,6 @@ export const CUSTOMER_COPY_LLMS_RELATIVE_PATHS = [
   "apps/web/public/llms.txt",
   "apps/store/public/llms.txt",
   "apps/pdf/public/llms.txt",
-  "apps/tasks/public/llms.txt",
-  "apps/contacts/public/llms.txt",
-  "apps/links/public/llms.txt",
-  "apps/notes/public/llms.txt",
-  "apps/auth/public/llms.txt",
-  "apps/image-upscaler/public/llms.txt",
   "apps/image-editor/public/llms.txt",
   "apps/ocr/public/llms.txt",
 ] as const;
@@ -45,12 +33,6 @@ export const CUSTOMER_COPY_MANIFEST_RELATIVE_PATHS = [
   "apps/web/public/manifest.json",
   "apps/store/public/manifest.json",
   "apps/pdf/public/manifest.json",
-  "apps/tasks/public/manifest.json",
-  "apps/contacts/public/manifest.json",
-  "apps/links/public/manifest.json",
-  "apps/notes/public/manifest.json",
-  "apps/auth/public/manifest.json",
-  "apps/image-upscaler/public/manifest.json",
   "apps/image-editor/public/manifest.json",
   "apps/ocr/public/manifest.json",
 ] as const;
@@ -71,7 +53,6 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
   "packages/shared/src/power-platform-configurator-copy.ts",
   "apps/store/lib/data/products.ts",
   "apps/pdf/lib/product-copy.ts",
-  "apps/image-upscaler/lib/product-copy.ts",
   "apps/image-editor/lib/product-copy.ts",
   "apps/ocr/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
@@ -84,16 +65,10 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
  * Used by `scripts/check-customer-copy-style.mjs`.
  */
 export const CUSTOMER_COPY_USER_FACING_APP_IDS = [
-  "auth",
-  "contacts",
-  "image-upscaler",
   "image-editor",
-  "links",
-  "notes",
   "ocr",
   "pdf",
   "store",
-  "tasks",
   "web",
 ] as const;
 

@@ -125,7 +125,7 @@ export function createHelvetyNextConfig({
     // Next.js currently documents both options under experimental config.
     experimental: {
       ...restExperimentalOverrides,
-      // May reduce unused CSS preload warnings while loading shells or encryption gates are active.
+      // May reduce unused CSS preload warnings while loading shells are active.
       cssChunking: "strict",
       optimizePackageImports: mergedOptimizePackageImports,
       ...(Object.keys(mergedServerActions).length > 0
@@ -136,40 +136,8 @@ export function createHelvetyNextConfig({
   };
 }
 
-const DEFAULT_OPTIMIZE_IMPORTS = ["lucide-react", "@base-ui/react", "sonner"];
-
-const E2EE_DND_OPTIMIZE_IMPORTS = [
-  ...DEFAULT_OPTIMIZE_IMPORTS,
-  "@dnd-kit/core",
-  "@dnd-kit/sortable",
-  "@dnd-kit/utilities",
-];
-
 /**
- * Next config for E2EE list zones (tasks, contacts, notes, links).
- *
- * @param {object} options
- * @param {string} options.appName
- * @param {string[]} [options.extraOptimize]
- * @param {import("next").NextConfig} [options.overrides]
- * @returns {import("next").NextConfig}
- */
-export function createE2eeZoneNextConfig({
-  appName,
-  extraOptimize = [],
-  overrides = {},
-}) {
-  return createHelvetyNextConfig({
-    appName,
-    basePath: `/${appName}`,
-    assetPrefix: `/${appName}-static`,
-    optimizePackageImports: [...E2EE_DND_OPTIMIZE_IMPORTS, ...extraOptimize],
-    overrides,
-  });
-}
-
-/**
- * Next config for public tool zones (pdf, image-upscaler) without assetPrefix.
+ * Next config for public tool zones (pdf, image-editor, ocr) without assetPrefix.
  *
  * @param {object} options
  * @param {string} options.appName
@@ -186,25 +154,6 @@ export function createPublicToolNextConfig({
     appName,
     basePath: `/${appName}`,
     ...(optimizePackageImports ? { optimizePackageImports } : {}),
-    overrides,
-  });
-}
-
-/**
- * Next config for the auth gateway zone.
- *
- * @param {import("next").NextConfig} [overrides]
- * @returns {import("next").NextConfig}
- */
-export function createAuthGatewayNextConfig(overrides = {}) {
-  return createHelvetyNextConfig({
-    appName: "auth",
-    basePath: "/auth",
-    assetPrefix: "/auth-static",
-    optimizePackageImports: [
-      ...DEFAULT_OPTIMIZE_IMPORTS,
-      "@simplewebauthn/browser",
-    ],
     overrides,
   });
 }

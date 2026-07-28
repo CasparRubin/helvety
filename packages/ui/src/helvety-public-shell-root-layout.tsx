@@ -6,12 +6,10 @@ import {
 } from "@helvety/shared/layout-primitives";
 import { cn } from "@helvety/shared/utils";
 
-import { AuthTokenHandler } from "./auth-token-handler";
 import { Footer } from "./footer";
 import { HelvetyThemeInitScript } from "./helvety-theme-init-script";
 import { JsonLdScript } from "./json-ld-script";
 import { ScrollArea } from "./scroll-area";
-import { SessionRecovery } from "./session-recovery";
 import { SkipToContent } from "./skip-to-content";
 import { Toaster } from "./sonner";
 import { ThemeProvider } from "./theme-provider";
@@ -39,7 +37,6 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   /** Fixed header slot (conventionally the app `Navbar`; non-scrolling). */
   renderNavbar: ReactNode;
   mainVariant: HelvetyPublicShellMainVariant;
-  sessionRecoveryMode?: "optional" | "required";
   footerClassName?: string;
   /** Passed to {@link Footer} `external` (gateway uses `false`). */
   footerExternal?: boolean;
@@ -47,15 +44,14 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   htmlSmoothScroll?: boolean;
   /**
    * When {@link themeProviderScope} is `"full"` (default): wraps **column + toaster**
-   * only (Auth: CSRF + encryption around that fragment; auth/session stay outside).
+   * only.
    *
-   * When {@link themeProviderScope} is `"navbar-only"` (Store): wraps **auth handler +
-   * session recovery + column + toaster** so outer wrappers (e.g. `CSRFProvider` in
-   * {@link wrapInsideTooltipProvider}) wrap the same subtree as the store layout.
+   * When {@link themeProviderScope} is `"navbar-only"` (Store): wraps **column + toaster**
+   * so callers can nest additional providers around the same subtree.
    */
   wrapInsideTooltipProvider?: (shell: ReactNode) => ReactNode;
   /**
-   * `full`: `ThemeProvider` wraps auth, session recovery, tooltip shell (default).
+   * `full`: `ThemeProvider` wraps the tooltip shell (default).
    * `navbar-only`: `ThemeProvider` wraps only the header / navbar; outer tree is
    * `TooltipProvider` then optional {@link wrapInsideTooltipProvider}.
    */
@@ -135,27 +131,14 @@ function buildMainBlock(
 }
 
 /**
- * Shared root shell for **public** Helvety apps (`web`, `auth`, `store`, `pdf`,
- * `image-upscaler`, `image-editor`, `ocr`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} in
- * `<head>` (all {@link HelvetyPublicShellThemeProviderScope} values, including Store),
- * theme via `ThemeProvider` (see {@link HelvetyPublicShellThemeProviderScope}), auth token
- * handler, session recovery, `TooltipProvider`, optional
- * {@link wrapInsideTooltipProvider} (e.g. Auth: CSRF and encryption; Store: `CSRFProvider`),
- * navbar + main + {@link Footer} (cookie notice; Privacy link for storage),
- * toaster.
+ * Shared root shell for **public** Helvety apps (`web`, `store`, `pdf`,
+ * `image-editor`, `ocr`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} in
+ * `<head>`, theme via `ThemeProvider`, `TooltipProvider`, optional
+ * {@link wrapInsideTooltipProvider}, navbar + main + {@link Footer}, toaster.
  *
  * With `mainVariant: "scroll-area"`, optional **`scrollAreaMainPrefix`** (for example Store
- * section nav, solid `CommandBar` on Store) renders **above** the main `ScrollArea`
- * so it stays visible while catalog content scrolls. Optional **`shellColumnClassName`**,
- * **`scrollAreaRootClassName`**, **`scrollAreaViewportClassName`**, and **`bodyClassName`**
- * can still override the default clipping when a caller needs it. Other public apps keep
- * the defaults.
- *
- * `<body>` always merges **`bg-background text-foreground font-sans antialiased`** with optional
- * **`bodyClassName`**. {@link HelvetyThemeInitScript} in `<head>` applies `html.dark` before body
- * paint so semantic tokens match storage/system (for example the gateway hero and Store catalog).
- *
- * E2EE apps (`tasks`, `contacts`, `notes`, `links`) use `E2eeAppRootLayout` (`e2ee-app-root-layout.tsx`) instead.
+ * section nav) renders **above** the main `ScrollArea` so it stays visible while catalog
+ * content scrolls.
  */
 export async function HelvetyPublicShellRootLayout({
   children,
@@ -163,7 +146,6 @@ export async function HelvetyPublicShellRootLayout({
   jsonLdGraphTail,
   renderNavbar,
   mainVariant,
-  sessionRecoveryMode = "optional",
   footerClassName = "shrink-0",
   footerExternal = true,
   htmlSmoothScroll = false,
@@ -227,17 +209,9 @@ export async function HelvetyPublicShellRootLayout({
   );
 
   if (themeProviderScope === "navbar-only") {
-    const storeShell = (
-      <>
-        <AuthTokenHandler />
-        <SessionRecovery mode={sessionRecoveryMode} />
-        {shellWithToaster}
-      </>
-    );
-
     const wrappedStore = wrapInsideTooltipProvider
-      ? wrapInsideTooltipProvider(storeShell)
-      : storeShell;
+      ? wrapInsideTooltipProvider(shellWithToaster)
+      : shellWithToaster;
 
     return (
       <html
@@ -290,8 +264,6 @@ export async function HelvetyPublicShellRootLayout({
         <SkipToContent />
         <JsonLdScript nonce={nonce} json={ldJson} />
         <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
-          <AuthTokenHandler />
-          <SessionRecovery mode={sessionRecoveryMode} />
           <TooltipProvider>{tooltipBody}</TooltipProvider>
         </ThemeProvider>
       </body>

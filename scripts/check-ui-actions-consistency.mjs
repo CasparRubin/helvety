@@ -6,11 +6,6 @@ import { resolve } from "node:path";
 
 const rootDir = process.cwd();
 const appsDir = resolve(rootDir, "apps");
-const extensionDir = resolve(
-  rootDir,
-  "..",
-  "helvety-browser-extension-chromium"
-);
 
 const failures = [];
 
@@ -35,23 +30,6 @@ function walkTsx(dir, files = []) {
   return files;
 }
 
-for (const app of ["tasks", "notes", "contacts"]) {
-  const rowName = app === "contacts" ? "contact-row.tsx" : "entity-row.tsx";
-  const rowFile = resolve(appsDir, app, "components", rowName);
-  if (!existsSync(rowFile)) {
-    continue;
-  }
-  const rowSrc = read(rowFile);
-  if (rowSrc.includes("TrashIcon")) {
-    failures.push(`${rowFile}: use Trash2Icon in list row delete actions`);
-  }
-  if (!rowSrc.includes("@helvety/ui/icon-size")) {
-    failures.push(
-      `${rowFile}: import ICON_SIZE_CLASS from @helvety/ui/icon-size`
-    );
-  }
-}
-
 for (const app of readdirSync(appsDir, { withFileTypes: true }).filter((e) =>
   e.isDirectory()
 )) {
@@ -68,32 +46,6 @@ for (const app of readdirSync(appsDir, { withFileTypes: true }).filter((e) =>
   }
 }
 
-if (existsSync(extensionDir)) {
-  const globals = read(resolve(extensionDir, "src", "globals.css"));
-  if (!globals.includes("@helvety/extension-chrome/extension-tokens.css")) {
-    failures.push(
-      "extension globals.css must import @helvety/extension-chrome/extension-tokens.css"
-    );
-  }
-  if (globals.includes("./popup/extension-tokens.css")) {
-    failures.push("extension must not use local extension-tokens.css fork");
-  }
-  for (const rowRel of [
-    "src/popup/components/lists/entity-row.tsx",
-    "src/popup/components/lists/contact-row.tsx",
-  ]) {
-    const rowFile = resolve(extensionDir, rowRel);
-    if (
-      existsSync(rowFile) &&
-      !read(rowFile).includes("@helvety/ui/icon-size")
-    ) {
-      failures.push(
-        `${rowFile}: import ICON_SIZE_CLASS from @helvety/ui/icon-size`
-      );
-    }
-  }
-}
-
 const popupCss = read(
   resolve(rootDir, "packages", "extension-chrome", "popup.css")
 );
@@ -101,24 +53,6 @@ if (popupCss.includes("hsl(var(--foreground)")) {
   failures.push(
     "packages/extension-chrome/popup.css must not use hsl(var(--*)) with OKLCH tokens"
   );
-}
-
-const upscaler = resolve(
-  appsDir,
-  "image-upscaler",
-  "components",
-  "helvety-image-upscaler.tsx"
-);
-if (existsSync(upscaler)) {
-  const upscalerSrc = read(upscaler);
-  if (!upscalerSrc.includes("@helvety/ui/public-tool-workspace")) {
-    failures.push(`${upscaler}: import public-tool-workspace constants`);
-  }
-  if (!upscalerSrc.includes("PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS")) {
-    failures.push(
-      `${upscaler}: use PUBLIC_TOOL_SIDEBAR_WIDTH_CLASS from public-tool-workspace`
-    );
-  }
 }
 
 const ocrShell = resolve(appsDir, "ocr", "components", "helvety-ocr.tsx");
@@ -151,11 +85,8 @@ if (
 }
 
 if (failures.length > 0) {
-  console.error("UI actions consistency failed:\n");
-  for (const failure of failures) {
-    console.error(`  - ${failure}`);
-  }
+  console.error(failures.join("\n"));
   process.exit(1);
 }
 
-console.log("UI actions consistency checks passed.");
+console.log("UI action consistency checks passed.");

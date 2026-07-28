@@ -74,17 +74,6 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
 
   it("drift map includes required multi-workspace dependencies", () => {
     for (const dep of [
-      "@dnd-kit/core",
-      "@dnd-kit/sortable",
-      "@dnd-kit/utilities",
-      "@supabase/supabase-js",
-      "@supabase/ssr",
-      "@simplewebauthn/server",
-      "@simplewebauthn/browser",
-      "@tiptap/starter-kit",
-      "@tiptap/extension-link",
-      "@tiptap/extension-placeholder",
-      "@tiptap/extension-underline",
       "@base-ui/react",
       "lucide-react",
       "next",
@@ -138,52 +127,30 @@ describe("workspace drift parity (package.json vs shared drift config)", () => {
     expect([...lucidePins][0]).toBe(required.get("lucide-react"));
   });
 
-  it("@dnd-kit pins match across E2EE apps and packages/ui", () => {
-    const e2eeApps = [
-      "apps/tasks/package.json",
-      "apps/contacts/package.json",
-      "apps/notes/package.json",
-      "apps/links/package.json",
-      "packages/ui/package.json",
-    ];
-    for (const dep of ["@dnd-kit/core", "@dnd-kit/sortable"] as const) {
-      const expected = required.get(dep);
-      for (const path of e2eeApps) {
-        expect(getDeclaredVersion(readManifest(path), dep)).toBe(expected);
-      }
-    }
-    const utilitiesExpected = required.get("@dnd-kit/utilities");
-    for (const path of e2eeApps.slice(0, 4)) {
-      expect(getDeclaredVersion(readManifest(path), "@dnd-kit/utilities")).toBe(
-        utilitiesExpected
-      );
-    }
-  });
-
-  it("packages/ui @tiptap and @base-ui/react pins match drift map", () => {
+  it("does not declare removed editor dependencies", () => {
     const ui = readManifest("packages/ui/package.json");
     for (const dep of [
+      "@dnd-kit/core",
+      "@dnd-kit/sortable",
       "@tiptap/pm",
       "@tiptap/react",
       "@tiptap/starter-kit",
-      "@tiptap/extension-link",
-      "@tiptap/extension-placeholder",
-      "@tiptap/extension-underline",
-      "@base-ui/react",
     ] as const) {
-      expect(getDeclaredVersion(ui, dep)).toBe(required.get(dep));
+      expect(getDeclaredVersion(ui, dep)).toBeUndefined();
     }
+    expect(getDeclaredVersion(ui, "@base-ui/react")).toBe(
+      required.get("@base-ui/react")
+    );
   });
 });
 
 describe("security dependency floors script", () => {
-  it("tracks canonical next, supabase, react, and webauthn minimums", () => {
+  it("tracks canonical next and react minimums", () => {
     const source = readFileSync(
       join(repoRoot, "scripts/check-security-dependency-floors.mjs"),
       "utf8"
     );
     const required = parseDriftRequiredVersions();
-    const root = readManifest("package.json");
     const minimum = (dependencyName: string): string => {
       const specifier = required.get(dependencyName);
       if (!specifier) {
@@ -194,12 +161,8 @@ describe("security dependency floors script", () => {
 
     expect(source).toContain(`next: "${minimum("next")}"`);
     expect(source).toContain(`react: "${minimum("react")}"`);
-    expect(source).toContain(
-      `"@supabase/supabase-js": "${root.overrides?.["@supabase/supabase-js"]}"`
-    );
-    expect(source).toContain(
-      `"@simplewebauthn/server": "${minimum("@simplewebauthn/server")}"`
-    );
+    expect(source).not.toContain("@supabase/supabase-js");
+    expect(source).not.toContain("@simplewebauthn/server");
   });
 });
 
@@ -209,15 +172,13 @@ describe("dependency inventory doc pins", () => {
     "utf8"
   );
 
-  it("lists current supabase, next, and override pins", () => {
+  it("lists current next and override pins", () => {
     const required = parseDriftRequiredVersions();
     const root = readManifest("package.json");
 
-    expect(inventory).toContain(required.get("@supabase/supabase-js"));
     expect(inventory).toContain(required.get("next"));
     expect(inventory).toContain(`vite@${root.overrides?.vite}`);
     expect(inventory).toContain(`postcss@${root.overrides?.postcss}`);
-    expect(inventory).toContain(`dompurify@${root.overrides?.dompurify}`);
   });
 
   it("documents drift config JSON as the workspace specifier SSOT", () => {

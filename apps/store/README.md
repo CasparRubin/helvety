@@ -1,35 +1,33 @@
 # Helvety Store
 
-Product catalog app for Helvety products: specs, Store-hosted downloads (for example SPFx), and install links (for example the Chrome Web Store for browser extensions) for helvety.com web apps **and** separately distributed software, including items whose primary source lives outside this monorepo.
+Product catalog app for Helvety products: specs, Store-hosted download redirects (for example SPFx via GitHub Releases), and install links (for example the Chrome Web Store for browser extensions) for helvety.com web apps **and** separately distributed software.
 
 **App URL:** <https://helvety.com/store> (catalog landing: <https://helvety.com/store/products>)  
 **Monorepo path:** `apps/store`
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`) with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); `wrapInsideTooltipProvider` wraps the shell in `CSRFProvider`; `bootstrapE2eeLayoutSession()` from `@helvety/shared/layout-session-bootstrap` feeds CSRF and navbar / `StoreNav`; metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`) with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products` with product cards that overlay frosted ecosystem category badges and an “Art by …” artist credit on artwork ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
 - Public SPFx package download endpoints (no login required); browser extensions link to vendor stores (for example Chrome Web Store) from product pages
-- Optional authenticated account page at `/store/account`
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
-- Product listing server-renders a text-only grid from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag); the client keeps text cards until a dynamic `import()` of `lib/data/products` resolves, then swaps in artwork cards (keeps the heavy artwork chunk out of the initial client graph). Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`) so visitors skip the root `/store` redirect. Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only (no server import of `products.ts` artwork bundle); sitemap uses `lib/data/product-catalog-cache.ts`
+- Product listing server-renders a text-only grid from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag); the client keeps text cards until a dynamic `import()` of `lib/data/products` resolves, then swaps in artwork cards. Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`). Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only; sitemap uses `lib/data/product-catalog-cache.ts`
 
 ## Package Download Behavior
 
-- Download files are served from Supabase Storage bucket `packages`.
-- `spfx/helvety-spo-explorer`: newest `.sppkg` by timestamp/name.
-- **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no public ZIP in bucket `packages`). Retired `power-automate-*` and `power-platform-configurator` package ids are not served (`lib/packages/create-package-download.ts` and the public download route return not-found).
-- If storage listing fails, the download route returns not-found (no silent filename fallback).
-- Public package downloads use `lib/download-security.ts` (`buildPublicDownloadRateLimitKey`, `packageIdSchema`, `isAllowedDownloadUrl`) and `lib/packages/create-package-download.ts` for signing.
-- The public download route responds with an HTTP redirect to a signed Supabase Storage URL. Redirect targets must be `https:` on the Supabase project origin from `NEXT_PUBLIC_SUPABASE_URL` (via `getSupabaseUrl()`); `SUPABASE_URL` alone is not used for this check. Paths must stay under `/storage/v1/object/sign/packages/` with at least folder + file segments, no `..` or `%2e%2e` traversal (normalized paths that escape the `packages` prefix are rejected). If the public Supabase URL is unset or invalid, `isAllowedDownloadUrl` rejects all redirect targets (fail-closed; no open redirect). Storage listing ignores object names containing `/`, `\`, or `..`. Retired **package/download** ids return not-found; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs (see Key Features above).
+- Downloadable SPFx packages are configured in [`lib/packages/config.ts`](lib/packages/config.ts) with absolute **GitHub Releases** asset URLs (for example Helvety SPO Explorer: `spo-explorer` → `helvety-spo-explorer` latest `.sppkg`).
+- The public download route responds with an HTTP redirect to that URL. Redirect targets must be `https:` on trusted GitHub hosts (`github.com`, `objects.githubusercontent.com`, `release-assets.githubusercontent.com`) via `isAllowedDownloadUrl` (fail-closed for anything else).
+- **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no Store-hosted ZIP). Retired `power-automate-*` and `power-platform-configurator` package ids are not served.
+- Public package downloads use `lib/download-security.ts` (`buildPublicDownloadRateLimitKey`, `packageIdSchema`, `isAllowedDownloadUrl`) and `lib/packages/create-package-download.ts` for resolution.
+- Retired **package/download** ids return not-found; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs.
 - Downloads are IP-rate-limited (2/min per IP on the route) and fail closed when trusted client IP is unavailable in production.
 
 ## Adding a New Product
 
 Card-level fields (name, blurb, release date, type, runs-on, free / open-source
-flags) live in `@helvety/shared/store-catalog`. **Ecosystem category** (Encryption
-Apps, File Tools, Browser Extensions, SharePoint Apps, Desktop Apps) is derived
-from `@helvety/shared/helvety-ecosystem-sections` and drives store filters,
+flags) live in `@helvety/shared/store-catalog`. **Ecosystem category** (File Tools,
+Browser Extensions, SharePoint Apps, Desktop Apps) is derived from
+`@helvety/shared/helvety-ecosystem-sections` and drives store filters,
 category pills, and the app switcher product sections.
 
 1. **Register the product in the ecosystem** in
@@ -44,70 +42,52 @@ category pills, and the app switcher product sections.
    - Card `type` uses the shared `StoreProductType` union (`"saas" | "software" | "physical"`).
    - If the new product shares a `releaseDate` with an existing card, add a
      priority value to `PRODUCT_RELEASE_TIE_PRIORITY` (higher = newer).
-   - Run `bun run test --filter=@helvety/shared` (from repo root; same `--filter=` style as the root [`README.md`](../../README.md)) to confirm catalog and ecosystem wiring tests still pass.
+   - Run `bun run test --filter=@helvety/shared` (from repo root) to confirm catalog and ecosystem wiring tests still pass.
 3. **Add the full Store product** in `apps/store/lib/data/products.ts`:
-   - Call `cardCore("<id>", "<saas|software|physical>")`: TS narrows `type`
-     to the literal you pass, and the helper throws at startup if the catalog
-     declares a different `type` for that id (no `as` casts needed).
+   - Call `cardCore("<id>", "<saas|software|physical>")`.
    - Spread the `c<Name>` object into the `Product` literal and fill in the
-     long-copy fields (`description`, `features`, `pricing` (tier metadata and
-     free-tier flags only; the Store does not render price amounts in the UI),
-     `links`,
-     `metadata.releaseDate: c<Name>.releaseDate`, `image: productArtwork.*`,
-     `artist` for the “Art by …” badge on cards and product heroes; category
-     and release badges use a frosted overlay in
-     [`components/products/product-badge.tsx`](components/products/product-badge.tsx).
+     long-copy fields (`description`, `features`, `pricing`, `links`,
+     `metadata.releaseDate`, `image`, `artist`).
    - For new hero art: add `public/artwork_<n>.webp`, register it in
      `lib/data/product-artwork.ts`, assign it in `products.ts`, and update the
-     canonical slug → artwork/artist map in `lib/data/products.test.ts`
-     (`assigns canonical store artwork and artist per product`). Pick an unused
-     `productArtwork.artwork<n>` for the product (each assigned asset should map
-     to one product; tests enforce registry parity, unique assignments, and the
-     canonical map).
+     canonical slug → artwork/artist map in `lib/data/products.test.ts`.
    - Write `description.intro` and sections in plain language; it must **not**
      repeat the catalog `shortDescription` opening (see
      [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
    - Add the new product to the `products` array near the bottom of the file.
 4. **Sync other surfaces** for the same product (when applicable):
-   - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json` (SEO describes the product; do not add AGPL to metadata or manifest `description`)
-   - `public/llms.txt` for that app or Store/web crawler files (`>` tagline = product/company summary; license text under `## Licensing` only)
+   - App `layout.tsx` / `lib/product-copy.ts` metadata and `public/manifest.json`
+   - `public/llms.txt` for that app or Store/web crawler files
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
-   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and Chrome Web Store listing URL; run `bun run consistency:project-naming` (retired `power-automate-*` slugs must not appear outside the allowlisted negative-test paths; see [`docs/naming-conventions.md`](../../docs/naming-conventions.md))
-   - Run `bun run test --filter=@helvety/shared` (copy guardrails) and
+   - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and Chrome Web Store listing URL; run `bun run consistency:project-naming`
+   - For **SPO Explorer** SPFx downloads, add/update the GitHub Releases URL in `lib/packages/config.ts`
+   - Run `bun run test --filter=@helvety/shared` and
      `bun run consistency:install-manifest-metadata`
 5. **Run pre-deployment validations** from the repo root:
-   `bun run ci:release` (full guardrails, Knip, format, lint, type-check, test, and build).
+   `bun run ci:release`.
 
 ## Crawl and Indexing
 
 - Public/indexable: `/store`, `/store/products`, `/store/products/[slug]`
-- Non-indexable: `/store/account`
-- `/store/robots.txt` allows public crawl and disallows `/store/account`, `/store/api`, `/store/auth` (host-absolute mirror; canonical policy is gateway `/robots.txt`)
-- `/store/sitemap.xml` includes the store home, product listing, and product detail pages only (excludes `/store/account`, `llms.txt`, and auth/API paths).
+- `/store/robots.txt` allows public crawl and disallows `/store/api` (host-absolute mirror; canonical policy is gateway `/robots.txt`)
+- `/store/sitemap.xml` includes the store home, product listing, and product detail pages only (excludes `llms.txt` and API paths).
 
 ## Environment Variables
 
 Copy `env.template` to `.env.local`.
 
-| Variable                               | Required | Server-only | Description                                                                                      |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                         |
-| `SUPABASE_SECRET_KEY`                  | Yes      | Yes         | Trusted server-side Supabase key                                                                 |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL                                                                           |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token                                                                         |
-| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
-
-`NEXT_PUBLIC_SUPABASE_URL` is also required on Vercel production builds so Next.js image `remotePatterns` can target your Supabase host.
+| Variable                   | Required | Server-only | Description                            |
+| -------------------------- | -------- | ----------- | -------------------------------------- |
+| `UPSTASH_REDIS_REST_URL`   | Yes      | Yes         | Upstash Redis REST URL for rate limits |
+| `UPSTASH_REDIS_REST_TOKEN` | Yes      | Yes         | Upstash Redis REST token               |
 
 Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
 ## Security Model
 
-- `proxy.ts` performs request bootstrap (CSP, CSRF cookie bootstrap/re-issue, Supabase session refresh via `store-gateway`), not full auth enforcement. The `store-gateway` profile uses **fail-closed** auth refresh (clears stale `sb-*` cookies when Supabase session refresh fails). `createAppProxy` also refreshes sessions on direct root hits (`/` → `/store`) when auth cookies are present. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so `ci:check` guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
-- Account actions enforce authz in pages/server actions/route handlers.
+- `proxy.ts` performs request bootstrap (CSP via `store-gateway`). `createAppProxy` still applies the shared security proxy matcher. Its `config.matcher` string matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires that pattern as a **static literal** in `proxy.ts`, so `ci:check` guardrails keep the two in sync). Extensions such as `.mjs`, `.wasm`, and `.json` bypass the proxy chain.
 - Public download endpoints use explicit abuse protections and rate limiting.
-- Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
+- Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §8](https://helvety.com/privacy#cookies).
 
 ## Development and Testing
 
@@ -120,7 +100,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + dynamic artwork import (`components/products/products-catalog.test.tsx`, `app/products/page.test.ts`), ecosystem category wiring (`packages/shared/src/helvety-ecosystem-sections.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`), catalog badge surfaces (`components/products/product-badge.test.tsx`, `components/products/product-ui-wiring.test.ts`), touch-visible card copy, badge overlays, and no prefetch on cards (`components/products/product-card.test.tsx`), click-only package downloads (`app/products/[slug]/product-detail-client.test.tsx`), public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()` (`app/products/[slug]/page.seo.test.tsx`), opaque product-detail panels, artwork registry parity (`lib/data/product-artwork.test.ts`), and canonical per-product artwork/artist assignments (`lib/data/products.test.ts`).
+Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + dynamic artwork import, ecosystem category wiring, catalog badge surfaces, public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()`, and canonical per-product artwork/artist assignments.
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 

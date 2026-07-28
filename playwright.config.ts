@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 const smokeBaseUrl = process.env.HELVETY_SMOKE_BASE_URL;
 
 /**
- * Cross-zone smoke tests (gateway + auth redirect). Run locally:
+ * Cross-zone smoke tests (gateway + public tool rewrites). Run locally:
  *   bunx playwright install chromium
  *   bun run ci:check:e2e
  * Or with an existing gateway:

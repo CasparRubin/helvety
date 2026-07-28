@@ -7,7 +7,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; `bootstrapPublicLayoutUser()` supplies an optional SSR session snapshot to the navbar (login still not required for tools). `PdfCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll). Command bar labels per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Files** / **Add More** (primary), **Download PDF** (secondary), **Clear All** (destructive, right); empty-state hint references the command bar above
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`) for shared metadata and shell chrome; `PdfCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll). Command bar labels per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Files** / **Add More** (primary), **Download PDF** (secondary), **Clear All** (destructive, right); empty-state hint references the command bar above
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports `PDF_APP_DESCRIPTION` and `PDF_PWA_MANIFEST_DESCRIPTION` from `@helvety/shared/app-product-descriptions` for metadata / JSON-LD and PWA [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Local browser processing for supported operations
 - PDF and image input support
@@ -36,31 +36,20 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 ## Crawl and Indexing
 
 - `apps/pdf` is publicly indexable.
-- `/pdf/robots.txt` allows crawl, disallows `/pdf/api` and `/pdf/auth`, and advertises `/pdf/sitemap.xml` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
+- `/pdf/robots.txt` allows crawl, disallows `/pdf/api`, and advertises `/pdf/sitemap.xml` (zone mirror; canonical crawl policy is gateway `/robots.txt`).
 - `/pdf/sitemap.xml` contains the canonical app root URL only (`llms.txt` is discoverable via robots and gateway links, not the sitemap).
 
 ## Security Model
 
 - File conversion is client-side for supported operations.
-- `proxy.ts` provides request bootstrap (CSP, CSRF cookie bootstrap/re-issue, optional session refresh) via the `public-tool` profile with **fail-closed** auth refresh when `sb-*` cookies are present; this app does not require login for PDF workflows. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, synced from react-pdf's resolved `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build and loaded at `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
-- Full-app E2EE is not used here (E2EE apps are `tasks`, `contacts`, `notes`, `links`).
-- Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §9](https://helvety.com/privacy#cookies).
+- `proxy.ts` provides request bootstrap (CSP headers) via the `public-tool` profile. Its `config.matcher` matches `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (inlined as a static literal per Next.js). Static `public/` files (including `pdf.worker.min.mjs`, synced from react-pdf's resolved `pdfjs-dist` by `bun run sync:pdf-worker` before dev/build and loaded at `/pdf/pdf.worker.min.mjs`) therefore skip the proxy chain.
+- Shared site footer via `HelvetyPublicShellRootLayout`; see [`docs/cookies-telemetry-and-footer.md`](../../docs/cookies-telemetry-and-footer.md) and [Privacy §8](https://helvety.com/privacy#cookies).
 
 ## Environment Variables
 
 Copy `env.template` to `.env.local`.
 
-This app does not use `SUPABASE_SECRET_KEY` (no server admin client). Upstash is required for auth callback strict rate limiting and CSRF cookie signing in the proxy.
-
-| Variable                               | Required | Server-only | Description                                                                                      |
-| -------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | No          | Supabase project URL                                                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | No          | Supabase publishable key                                                                         |
-| `UPSTASH_REDIS_REST_URL`               | Yes      | Yes         | Upstash Redis REST URL for rate limiting                                                         |
-| `UPSTASH_REDIS_REST_TOKEN`             | Yes      | Yes         | Upstash Redis REST token for rate limiting                                                       |
-| `HELVETY_COOKIE_SIGNING_SECRET`        | Yes      | Yes         | Signs CSRF cookies in proxy; re-issues invalid cookies (min 32 chars; not `SUPABASE_SECRET_KEY`) |
-
-Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
+This public tool has **no required server secrets** (client-side processing). Optional monorepo variables are documented as comments in [`env.template`](./env.template). Shared behavior is in the root [`README.md`](../../README.md) Environment Model; Vercel Production/Preview setup: [`docs/env-vercel-audit-checklist.md`](../../docs/env-vercel-audit-checklist.md). Run `bun run consistency:local-env` from the repo root to audit local `.env.local` files.
 
 ## Development and Testing
 

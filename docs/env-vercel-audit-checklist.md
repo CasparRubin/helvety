@@ -1,122 +1,34 @@
 # Vercel environment audit checklist
 
-See also [`security-review-runbook.md`](./security-review-runbook.md) for the full periodic review cadence and [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) for the 2026-06-13 audit snapshot (current dependency pins: [`dependency-inventory.md`](./dependency-inventory.md)).
+See also [`security-review-runbook.md`](./security-review-runbook.md) for the full periodic review cadence and [`security-audit-2026-06-13.md`](./security-audit-2026-06-13.md) for the 2026-06-13 audit archive (current dependency pins: [`dependency-inventory.md`](./dependency-inventory.md)).
 
 Use this when syncing **Production** and **Preview** env in the Vercel dashboard. Local parity: `bun run consistency:local-env`. Template guardrails: `bun run consistency:env-templates`. Automated audits (requires Vercel CLI login): `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env` ([`scripts/audit-vercel-production-env.mjs`](../scripts/audit-vercel-production-env.mjs); add `--preview` for Preview tier).
 
-All **eleven** zone projects exist on team **Helvety** (`helvety-com`, `helvety-auth`, `helvety-store`, `helvety-pdf`, `helvety-image-upscaler`, `helvety-image-editor`, `helvety-ocr`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`).
+All **five** zone projects on team **Helvety**: `helvety-com`, `helvety-store`, `helvety-pdf`, `helvety-image-editor`, `helvety-ocr`.
 
 ## Per-project keys
 
-| Vercel project                                                                 | Root Directory | Set these                                                                                                                                                  | Do not set                                                          |
-| ------------------------------------------------------------------------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `helvety-com`                                                                  | `apps/web`     | `NEXT_PUBLIC_SUPABASE_*`, all ten `*_URL` gateway vars (incl. `IMAGE_EDITOR_URL` and `OCR_URL`)                                                            | `SUPABASE_SECRET_KEY`, `UPSTASH_*`, `HELVETY_COOKIE_SIGNING_SECRET` |
-| `helvety-auth`                                                                 | `apps/auth`    | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`**, **`HELVETY_CHROME_EXTENSION_ORIGINS`** | —                                                                   |
-| `helvety-store`                                                                | `apps/store`   | Public Supabase, `SUPABASE_SECRET_KEY`, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`                                                                           | `DEVICE_TRUST_COOKIE_SECRET`                                        |
-| `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`          | `apps/<slug>`  | Public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET`, **`DEVICE_TRUST_COOKIE_SECRET`** (same value as `helvety-auth`)                                 | `SUPABASE_SECRET_KEY`                                               |
-| `helvety-pdf`, `helvety-image-upscaler`, `helvety-image-editor`, `helvety-ocr` | `apps/<slug>`  | **Public tool tier:** public Supabase, Upstash, `HELVETY_COOKIE_SIGNING_SECRET` only (no `DEVICE_TRUST_COOKIE_SECRET`)                                     | `SUPABASE_SECRET_KEY`, `DEVICE_TRUST_COOKIE_SECRET`                 |
+| Vercel project         | Root Directory      | Set these                                                                    | Do not set (examples)                        |
+| ---------------------- | ------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- |
+| `helvety-com`          | `apps/web`          | Gateway `*_URL` vars (`STORE_URL`, `PDF_URL`, `IMAGE_EDITOR_URL`, `OCR_URL`) | Secrets not required by the gateway template |
+| `helvety-store`        | `apps/store`        | Keys from `apps/store/env.template`                                          | Keys not listed on that template             |
+| `helvety-pdf`          | `apps/pdf`          | Keys from `apps/pdf/env.template`                                            | Keys not listed on that template             |
+| `helvety-image-editor` | `apps/image-editor` | Keys from `apps/image-editor/env.template`                                   | Keys not listed on that template             |
+| `helvety-ocr`          | `apps/ocr`          | Keys from `apps/ocr/env.template`                                            | Keys not listed on that template             |
 
-Copy exact key names and comments from each zone’s `apps/<slug>/env.template` (for example `apps/auth/env.template`).
+Copy exact key names and comments from each zone’s `apps/<slug>/env.template`.
 
-## Shared values (must match across projects that use them)
+## Shared values
 
-- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_*` only; not JWT anon keys) — every project
-- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — every project except `helvety-com`
-- `HELVETY_COOKIE_SIGNING_SECRET` — every project except `helvety-com` (one shared value)
-- `SUPABASE_SECRET_KEY` — only `helvety-auth` and `helvety-store` (must differ from publishable key)
-- `DEVICE_TRUST_COOKIE_SECRET` — `helvety-auth` and all user-scoped E2EE zones (same shared value; weekly device-trust gate). `bun run consistency:vercel-prod-env` checks presence plus parity: SHA-256 when Vercel exposes values, otherwise `updatedAt` spread across zones (sensitive vars are not readable via CLI/API).
-- `HELVETY_CHROME_EXTENSION_ORIGINS` — only `helvety-auth`
+- Upstash secrets only on zones whose `env.template` still lists them (Store downloads)
+- Gateway rewrite URLs on `helvety-com` must point at the four non-gateway zone deployments
 
-### `HELVETY_CHROME_EXTENSION_ORIGINS` (helvety-auth only)
+## Operator checks (keep current)
 
-Comma-separated **Chromium extension ids** (32 chars `a`–`p`), e.g. from `edge://extensions/?id=<id>` or `chrome://extensions`. Full `chrome-extension://<id>` URLs are also accepted.
-
-Example (Edge unpacked dev + optional second id):
-
-```text
-kjdldfioiofpblkchjodefakpopmkjjf
-```
-
-After changing this value, **redeploy `helvety-auth`**. Verify routes:
-
-```bash
-curl -sS -o /dev/null -w "%{http_code}\n" -X POST \
-  "https://helvety.com/auth/api/extension/passkey/options" \
-  -H "Content-Type: application/json" \
-  -d '{"origin":"chrome-extension://kjdldfioiofpblkchjodefakpopmkjjf","isMobile":false,"expectedUserId":"00000000-0000-4000-8000-000000000001"}'
-```
-
-Expect **`401`** with a JSON body (not `404` or HTML).
-
-### Dashboard verification (auth/E2EE audit 2026-06-13)
-
-| Check                                                                                              | Status                                                        |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `user_passkey_params.key_check_value` on live Postgres                                             | Applied via migration                                         |
-| `bun run consistency:vercel-prod-env` (incl. `HELVETY_CHROME_EXTENSION_ORIGINS` on `helvety-auth`) | **Passed**                                                    |
-| `bun run consistency:vercel-preview-env`                                                           | **Passed** (re-run after adding Preview keys on any new zone) |
-| Supabase leaked password protection                                                                | **N/A** — no password sign-in; Supabase Free tier             |
-| Supabase session JWT / 7d / 24h inactivity                                                         | **Manual** — align with `auth-session-policy.ts` on Pro       |
-| Vercel Analytics disabled (all 11 projects)                                                        | **Manual** — see runbook § Vercel dashboard                   |
-
-### Production health audit (2026-07-04)
-
-| Check                                                                                   | Status                                                                                                                       |
-| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `bun run consistency:vercel-prod-env` / `consistency:vercel-preview-env` (all 11 zones) | **Passed**                                                                                                                   |
-| `DEVICE_TRUST_COOKIE_SECRET` parity (auth + 4 E2EE zones)                               | **Passed** (`updatedAt` spread consistent; values sensitive)                                                                 |
-| `helvety-com` production deployment                                                     | **READY** (redeploy after any `*_URL` change, including `OCR_URL`; aliased to `helvety.com`)                                 |
-| `helvety-image-editor` production deployment                                            | **READY** (gateway rewrite `/image-editor` → 200)                                                                            |
-| `helvety-ocr` production deployment                                                     | **READY** (gateway rewrite `/ocr` → 200; confirm `OCR_URL` on `helvety-com`)                                                 |
-| Extension passkey route smoke (`POST …/auth/api/extension/passkey/options`)             | **401** (expected)                                                                                                           |
-| Obsolete `DOCS_URL` on `helvety-com`                                                    | **Remove** from Production and Preview; `consistency:vercel-prod-env` / `consistency:vercel-preview-env` flag it as an error |
-| `entity_links` CHECK constraints include `links` endpoint type                          | **Applied** (hosted migration; guarded by `consistency:entity-links-types`)                                                  |
-| Supabase leaked password protection                                                     | **N/A** — no password sign-in; Supabase Free tier                                                                            |
-| Supabase session JWT / 7d / 24h inactivity                                              | **Manual**                                                                                                                   |
-| Vercel Analytics + Speed Insights disabled (all 11 projects)                            | **Manual**                                                                                                                   |
-
-### Full env audit (2026-07-11)
-
-| Check                                                                                    | Status                                                                                                                                    |
-| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `bun run consistency:env-templates` / `consistency:vercel-apps`                          | **Passed**                                                                                                                                |
-| `bun run consistency:local-env` (all 11 apps)                                            | **Passed** (after syncing templates, bootstrapping `apps/ocr/.env.local`, adding `IMAGE_EDITOR_URL` / `OCR_URL` to `apps/web/.env.local`) |
-| `bun run consistency:vercel-prod-env` / `consistency:vercel-preview-env` (all 11 zones)  | **Passed**                                                                                                                                |
-| `DEVICE_TRUST_COOKIE_SECRET` parity (auth + 4 E2EE zones)                                | **Passed** (`updatedAt` spread consistent; values sensitive)                                                                              |
-| Supabase MCP: project URL `https://bkdzeihxzvrkndjvyzye.supabase.co`                     | **Confirmed** (matches all zones)                                                                                                         |
-| Supabase MCP: enabled `sb_publishable_*` keys exist (`vercel_prod`, `local_dev`)         | **Confirmed**                                                                                                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` on Vercel Production                              | **Review** — currently `local_dev` key on all zones; Supabase also has dedicated `vercel_prod` key (optional rotation)                    |
-| Missing `OCR_URL` on `helvety-com`                                                       | **Fixed** — added Production + Preview; gateway redeployed (`dpl_74kbDwM7KsidYqK8wCZbAeFbLkbL`, aliased to `helvety.com`)                 |
-| Obsolete `DOCS_URL` on `helvety-com`                                                     | **Absent** (no longer flagged by audit)                                                                                                   |
-| `helvety-com` production deployment                                                      | **READY** (was ERROR before `OCR_URL` fix; redeploy succeeded)                                                                            |
-| Gateway rewrite smoke (`helvety.com/*` → 200 for all zones incl. `/ocr`)                 | **Passed**                                                                                                                                |
-| Extension passkey route smoke (`POST …/auth/api/extension/passkey/options`)              | **401** (expected)                                                                                                                        |
-| Runtime errors (env-related) on `helvety-com`, `helvety-auth`, `helvety-ocr`             | **None env-related** (gateway shows stale refresh-token and bot `%5C` path noise only)                                                    |
-| Supabase session JWT / 7d / 24h inactivity                                               | **Manual**                                                                                                                                |
-| Vercel Analytics + Speed Insights disabled (all 11 projects)                             | **Manual**                                                                                                                                |
-| Accidental `helvety/web` Vercel project (CLI deploy from `apps/web` without `--project`) | **Manual** — delete in Vercel dashboard if unused                                                                                         |
-
-**Auto-fixes applied during this audit:**
-
-- Synced 9 local `.env.local` files from templates (`node scripts/sync-local-env-from-template.mjs`)
-- Created [`apps/ocr/.env.local`](../apps/ocr/.env.local) with shared secrets from auth reference
-- Added `IMAGE_EDITOR_URL` and `OCR_URL` to [`apps/web/.env.local`](../apps/web/.env.local)
-- Added `OCR_URL=https://helvety-ocr.vercel.app` to `helvety-com` (Production + Preview) via Vercel CLI
-- Redeployed `helvety-com` production after `OCR_URL` was set
-
-Each `*_URL` must be the **HTTPS deployment origin** (e.g. `https://helvety-pdf.vercel.app`), not the public `helvety.com` path.
-
-After changing any `*_URL`, **redeploy `helvety-com`** so rewrites pick up new origins. Deploying a sub-zone alone does not update `helvety.com/<path>` until the gateway is redeployed.
-
-## Vercel Web Analytics and Speed Insights (all eleven projects)
-
-Helvety does not use Vercel Analytics or Speed Insights in application code. In the Vercel dashboard for **each of the eleven** zone projects (`helvety-com`, `helvety-auth`, `helvety-store`, `helvety-pdf`, `helvety-image-upscaler`, `helvety-image-editor`, `helvety-ocr`, `helvety-tasks`, `helvety-contacts`, `helvety-notes`, `helvety-links`), confirm **Analytics → Web Analytics** and **Speed Insights** are **disabled** so the platform does not inject `va.vercel-scripts.com` or related scripts outside the repo.
-
-Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview env (forbidden by `scripts/env-template-expectations.mjs`; flagged by `bun run consistency:vercel-prod-env` and `bun run consistency:vercel-preview-env`).
-
-## Optional
-
-- `HELVETY_SERVER_ACTION_ALLOWED_ORIGINS` — comma-separated override (defaults on Vercel include `https://helvety.com` and deployment URLs)
-- Never set `SKIP_ENV_VALIDATION=1` on Vercel production
-
-See also [`vercel-monorepo-apps.md`](./vercel-monorepo-apps.md) and [`turbo-env-tiers.md`](./turbo-env-tiers.md).
+| Check                                                                    | Notes                                                                  |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `bun run consistency:env-templates` / `consistency:vercel-apps`          | Templates and Vercel project wiring                                    |
+| `bun run consistency:local-env`                                          | Local `.env.local` vs templates                                        |
+| `bun run consistency:vercel-prod-env` / `consistency:vercel-preview-env` | Requires Vercel CLI login                                              |
+| Vercel Web Analytics / Speed Insights                                    | Keep disabled; do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`       |
+| Gateway rewrite smoke                                                    | `helvety.com/store`, `/pdf`, `/image-editor`, `/ocr` after URL changes |

@@ -14,7 +14,7 @@ export interface RowActionButtonProps extends Omit<
 > {
   label: string;
   tooltip?: ReactNode;
-  /** Extension/side panel: tooltip on hover. Web lists: aria-label only. */
+  /** Extension popup: tooltip on hover. Web lists: aria-label only. */
   showTooltip?: boolean;
   onClick?: ComponentProps<typeof Button>["onClick"];
   /** Row actions stop propagation by default so the row click handler does not fire. */
@@ -23,8 +23,8 @@ export interface RowActionButtonProps extends Omit<
 }
 
 /**
- * Icon-only row action shared by web list toolbars and the Chromium extension.
- * Use `showTooltip` in narrow side panels; web list rows rely on `aria-label`.
+ * Icon-only row action shared by web list toolbars and Chromium extension popups.
+ * Use `showTooltip` in narrow extension chrome; web list rows rely on `aria-label`.
  */
 export function RowActionButton({
   label,

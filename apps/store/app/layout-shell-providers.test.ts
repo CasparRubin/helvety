@@ -7,18 +7,14 @@ import { describe, expect, it } from "vitest";
 const layoutPath = join(dirname(fileURLToPath(import.meta.url)), "layout.tsx");
 
 describe("store root layout shell providers", () => {
-  it("wraps shell in CSRF", () => {
+  it("uses HelvetyPublicShellRootLayout without retired providers", () => {
     const src = readFileSync(layoutPath, "utf8");
 
-    expect(src).toContain("<CSRFProvider csrfToken={csrfToken}>");
-    expect(src).toContain("wrapInsideTooltipProvider");
-    expect(src).toMatch(/\{\s*shell\s*\}/);
-
-    const csrfOpen = src.indexOf("<CSRFProvider");
-    const csrfClose = src.lastIndexOf("</CSRFProvider>");
-    const wrapFn = src.indexOf("wrapInsideTooltipProvider");
-
-    expect(wrapFn).toBeGreaterThan(-1);
-    expect(csrfOpen).toBeLessThan(csrfClose);
+    expect(src).toContain("<HelvetyPublicShellRootLayout");
+    expect(src).not.toContain("CSRFProvider");
+    expect(src).not.toContain("bootstrapE2eeLayoutSession");
+    expect(src).not.toContain("wrapInsideTooltipProvider");
+    expect(src).toContain("renderNavbar={<Navbar />}");
+    expect(src).toContain("scrollAreaMainPrefix={<StoreNav />}");
   });
 });

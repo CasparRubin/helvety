@@ -36,8 +36,7 @@
     "next": "^16.2.11",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-konva": "^19.2.5",
-    "server-only": "^0.0.1"
+    "react-konva": "^19.2.5"
   },
   "devDependencies": {
     "@helvety/config": "workspace:*",

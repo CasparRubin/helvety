@@ -24,10 +24,10 @@ describe("resolveCspReportEndpoint", () => {
 
   it("prefixes zone base paths", () => {
     expect(resolveCspReportEndpoint("/pdf")).toBe("/pdf/api/csp-report");
-    expect(resolveCspReportEndpoint("/image-upscaler")).toBe(
-      "/image-upscaler/api/csp-report"
+    expect(resolveCspReportEndpoint("/ocr")).toBe("/ocr/api/csp-report");
+    expect(resolveCspReportEndpoint("/image-editor/")).toBe(
+      "/image-editor/api/csp-report"
     );
-    expect(resolveCspReportEndpoint("/links/")).toBe("/links/api/csp-report");
   });
 });
 
@@ -102,7 +102,6 @@ describe("buildCsp", () => {
 
   it("adds nonce and omits unsafe-eval in production by default", () => {
     process.env.NODE_ENV = "production";
-    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://project-id.supabase.co";
     const csp = buildCsp({ nonce: "nonce-123" });
 
     expect(csp).toContain(
@@ -111,9 +110,8 @@ describe("buildCsp", () => {
     const scriptDirective = getDirective(csp, "script-src");
     expect(scriptDirective).not.toContain("'unsafe-eval'");
     expect(scriptDirective).not.toContain("'unsafe-inline'");
-    expect(csp).toContain(
-      "connect-src 'self' https://project-id.supabase.co wss://project-id.supabase.co"
-    );
+    expect(csp).toContain("connect-src 'self'");
+    expect(csp).not.toContain("supabase.co");
     expect(csp).toContain("upgrade-insecure-requests");
     expect(csp).not.toContain("va.vercel-scripts.com");
   });

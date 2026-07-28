@@ -59,8 +59,8 @@ describe("store product SEO", () => {
   });
 
   it("returns indexable canonical metadata for a valid product", async () => {
-    const card = findStoreProductCardBySlug("helvety-links");
-    if (!card) throw new Error("Expected Helvety Links product card");
+    const card = findStoreProductCardBySlug("helvety-pdf");
+    if (!card) throw new Error("Expected Helvety PDF product card");
 
     const metadata = await generateMetadata({
       params: Promise.resolve({ slug: card.slug }),

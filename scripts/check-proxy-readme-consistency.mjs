@@ -1,7 +1,9 @@
+/**
+ * Web-only: keeps apps/web/proxy.ts aligned with apps/web/README.md (not other zones).
+ */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-/** Web-only: keeps apps/web/proxy.ts aligned with apps/web/README.md (not other zones). */
 const rootDir = process.cwd();
 
 async function main() {
@@ -15,17 +17,21 @@ async function main() {
 
   const usesPublicMarketingProfile =
     /createProfiledSecurityProxy\("public-marketing"\)/.test(proxyContent);
-  const csrfDisabledInline = /includeCsrf:\s*false/.test(proxyContent);
-  const csrfDisabled = usesPublicMarketingProfile || csrfDisabledInline;
-  const readmeMentionsCsrfDisabled = [
-    /CSRF cookie bootstrap is intentionally disabled/i,
-    /public-marketing/i,
-    /includeCsrf:\s*false/i,
-  ].every((pattern) => pattern.test(readmeContent));
-
-  if (csrfDisabled && !readmeMentionsCsrfDisabled) {
+  if (!usesPublicMarketingProfile) {
     throw new Error(
-      'apps/web/README.md must document that CSRF cookie bootstrap is disabled when apps/web/proxy.ts uses the "public-marketing" profile or explicitly sets includeCsrf: false.'
+      'apps/web/proxy.ts must use createProfiledSecurityProxy("public-marketing").'
+    );
+  }
+
+  if (!/public-marketing/i.test(readmeContent)) {
+    throw new Error(
+      'apps/web/README.md must document the "public-marketing" security proxy profile.'
+    );
+  }
+
+  if (/includeCsrf/i.test(proxyContent)) {
+    throw new Error(
+      "apps/web/proxy.ts must not reference includeCsrf (cookie signing was removed from zone proxies)."
     );
   }
 

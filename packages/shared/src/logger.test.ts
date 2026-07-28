@@ -93,7 +93,7 @@ describe("logger", () => {
     vi.stubEnv("NODE_ENV", "production");
     const { logger } = await import("./logger");
 
-    logger.error("Auth failed", {
+    logger.error("Request failed", {
       password: "secret123",
       userId: "user-1",
     });

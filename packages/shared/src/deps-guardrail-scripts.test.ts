@@ -27,17 +27,6 @@ describe("workspace version drift script", () => {
   });
 });
 
-describe("auth server-action guard script", () => {
-  it("passes on the monorepo auth action patterns", () => {
-    const output = execFileSync(
-      process.execPath,
-      [join(repoRoot, "scripts", "check-auth-server-action-guards.mjs")],
-      { cwd: repoRoot, encoding: "utf8" }
-    );
-    expect(output).toContain("Auth server-action guard checks passed.");
-  });
-});
-
 describe("Vercel env audit script", () => {
   it("passes on the monorepo env tier expectations via auditProjectEnv", () => {
     const output = execFileSync(
@@ -114,16 +103,5 @@ describe("consistency guardrails script", () => {
       { cwd: repoRoot, encoding: "utf8" }
     );
     expect(output).toContain("Consistency guardrail checks passed.");
-  });
-});
-
-describe("E2EE AAD guardrail script", () => {
-  it("passes when entity crypto modules use field-bound helpers", () => {
-    const output = execFileSync(
-      process.execPath,
-      [join(repoRoot, "scripts", "check-e2ee-aad-patterns.mjs")],
-      { cwd: repoRoot, encoding: "utf8" }
-    );
-    expect(output).toContain("E2EE AAD guardrail passed");
   });
 });

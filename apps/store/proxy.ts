@@ -6,7 +6,6 @@ import {
 export const proxy = createAppProxy({
   securityProxy: createProfiledSecurityProxy("store-gateway"),
   defaultBasePath: "/store",
-  failClosedOnAuthRefresh: true,
 });
 
 /** Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal). */

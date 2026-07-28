@@ -83,19 +83,8 @@ async function assertNoAsChildProp(directory) {
 }
 
 const filesToCheck = [
-  "apps/contacts/app/actions/batch-actions.ts",
-  "apps/links/app/actions/batch-actions.ts",
-  "apps/notes/app/actions/batch-actions.ts",
-  "apps/tasks/app/actions/batch-actions.ts",
-  "apps/auth/lib/login-email-bootstrap.ts",
-  "apps/auth/app/actions/otp-actions.ts",
   "apps/store/lib/rate-limit.ts",
   "apps/store/lib/packages/create-package-download.ts",
-  "apps/store/app/actions/account-actions.ts",
-  "apps/tasks/app/actions/entity-actions.ts",
-  "apps/links/app/actions/entity-actions.ts",
-  "apps/notes/app/actions/entity-actions.ts",
-  "apps/contacts/app/actions/contact-actions.ts",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/impressum/page.tsx",
@@ -118,55 +107,6 @@ async function main() {
       content: await readFile(resolve(rootDir, relativePath), "utf8"),
     }))
   );
-
-  for (const file of contents.slice(0, 3)) {
-    if (/const\s+MAX_DASHBOARD_ROWS\s*=/.test(file.content)) {
-      throw new Error(
-        `${file.relativePath} must use ACTION_LIMITS.MAX_DASHBOARD_ROWS instead of local MAX_DASHBOARD_ROWS constants.`
-      );
-    }
-  }
-
-  const loginBootstrap = contents.find((item) =>
-    item.relativePath.endsWith("login-email-bootstrap.ts")
-  );
-  if (
-    loginBootstrap &&
-    /step:\s*"encryption-setup"\s*\|\s*"passkey-signin"/.test(
-      loginBootstrap.content
-    )
-  ) {
-    throw new Error(
-      "apps/auth/lib/login-email-bootstrap.ts must use RequiredAuthStep instead of an inline auth-step union."
-    );
-  }
-
-  const otpActions = contents.find((item) =>
-    item.relativePath.endsWith("otp-actions.ts")
-  );
-  if (
-    otpActions &&
-    /nextStep:\s*"encryption-setup"\s*\|\s*"passkey-signin"/.test(
-      otpActions.content
-    )
-  ) {
-    throw new Error(
-      "apps/auth/app/actions/otp-actions.ts must use RequiredAuthStep instead of an inline auth-step union."
-    );
-  }
-
-  const legalCommentTargets = contents.filter((item) =>
-    /app\/actions\/(account-actions|entity-actions|contact-actions)\.ts$/.test(
-      item.relativePath
-    )
-  );
-  for (const file of legalCommentTargets) {
-    if (/Legal basis:\s*nDSG/i.test(file.content)) {
-      throw new Error(
-        `${file.relativePath} should not encode statutory legal-basis interpretations in implementation comments. Reference product legal docs instead.`
-      );
-    }
-  }
 
   const storeRateLimit = contents.find((item) =>
     item.relativePath.endsWith("apps/store/lib/rate-limit.ts")
@@ -238,16 +178,10 @@ async function main() {
   }
 
   const rootAppPagePaths = [
-    "apps/auth/app/page.tsx",
-    "apps/contacts/app/page.tsx",
-    "apps/image-upscaler/app/page.tsx",
     "apps/image-editor/app/page.tsx",
-    "apps/links/app/page.tsx",
-    "apps/notes/app/page.tsx",
     "apps/ocr/app/page.tsx",
     "apps/pdf/app/page.tsx",
     "apps/store/app/page.tsx",
-    "apps/tasks/app/page.tsx",
     "apps/web/app/page.tsx",
   ];
   const rootAppPageContents = await Promise.all(
@@ -265,16 +199,10 @@ async function main() {
   }
 
   const securityProxyTargets = [
-    "apps/auth/proxy.ts",
-    "apps/contacts/proxy.ts",
-    "apps/image-upscaler/proxy.ts",
     "apps/image-editor/proxy.ts",
-    "apps/links/proxy.ts",
-    "apps/notes/proxy.ts",
     "apps/ocr/proxy.ts",
     "apps/pdf/proxy.ts",
     "apps/store/proxy.ts",
-    "apps/tasks/proxy.ts",
   ];
   const sharedProxySource = await readFile(
     resolve(rootDir, "packages/shared/src/proxy.ts"),
@@ -352,125 +280,42 @@ async function main() {
     );
   }
 
-  const adminServerUpstashEnvModules = [
-    "apps/auth/lib/env.ts",
-    "apps/store/lib/env.ts",
-  ];
-  const userScopedEnvModules = [
-    "apps/contacts/lib/env.ts",
-    "apps/links/lib/env.ts",
-    "apps/notes/lib/env.ts",
-    "apps/tasks/lib/env.ts",
-  ];
-  const upstashCookieEnvModules = [
-    "apps/pdf/lib/env.ts",
-    "apps/image-upscaler/lib/env.ts",
-    "apps/image-editor/lib/env.ts",
-    "apps/ocr/lib/env.ts",
-  ];
+  const storeUpstashEnvModules = ["apps/store/lib/env.ts"];
 
-  const adminServerUpstashEnvContents = await Promise.all(
-    adminServerUpstashEnvModules.map(async (relativePath) => ({
+  const storeUpstashEnvContents = await Promise.all(
+    storeUpstashEnvModules.map(async (relativePath) => ({
       relativePath,
       content: await readFile(resolve(rootDir, relativePath), "utf8"),
     }))
   );
-  for (const file of adminServerUpstashEnvContents) {
-    if (
-      !/validateServerUpstashEnv\(|createAppServerUpstashEnv\(/.test(
-        file.content
-      )
-    ) {
+  for (const file of storeUpstashEnvContents) {
+    if (!/validateUpstashEnv\(|createAppUpstashEnv\(/.test(file.content)) {
       throw new Error(
-        `${file.relativePath} must validate env via validateServerUpstashEnv or createAppServerUpstashEnv from @helvety/shared/env-validation.`
+        `${file.relativePath} must validate env via createAppUpstashEnv from @helvety/shared/env-validation.`
       );
     }
-    if (!/serverUpstashMergedSchema|authEnvSchema/.test(file.content)) {
+    if (!/upstashEnvSchema/.test(file.content)) {
       throw new Error(
-        `${file.relativePath} must use an admin-tier env schema (serverUpstashMergedSchema or authEnvSchema).`
+        `${file.relativePath} must use upstashEnvSchema (Upstash only).`
       );
     }
   }
 
-  const userScopedEnvContents = await Promise.all(
-    userScopedEnvModules.map(async (relativePath) => ({
-      relativePath,
-      content: await readFile(resolve(rootDir, relativePath), "utf8"),
-    }))
-  );
-  for (const file of userScopedEnvContents) {
-    if (
-      !/validateUpstashCookieEnv\(|createAppUserScopedE2eeEnv\(|createAppUpstashCookieEnv\(/.test(
-        file.content
-      )
-    ) {
-      throw new Error(
-        `${file.relativePath} must validate env via createAppUserScopedE2eeEnv or createAppUpstashCookieEnv from @helvety/shared/env-validation.`
-      );
-    }
-    if (/createAppUserScopedE2eeEnv\(/.test(file.content)) {
-      continue;
-    }
-    if (!/upstashCookieSigningEnvSchema/.test(file.content)) {
-      throw new Error(
-        `${file.relativePath} must use upstashCookieSigningEnvSchema (no admin client).`
-      );
-    }
-  }
-
-  const upstashCookieEnvContents = await Promise.all(
-    upstashCookieEnvModules.map(async (relativePath) => ({
-      relativePath,
-      content: await readFile(resolve(rootDir, relativePath), "utf8"),
-    }))
-  );
-  for (const file of upstashCookieEnvContents) {
-    if (
-      !/validateUpstashCookieEnv\(|createAppUpstashCookieEnv\(/.test(
-        file.content
-      )
-    ) {
-      throw new Error(
-        `${file.relativePath} must validate env via createAppUpstashCookieEnv from @helvety/shared/env-validation.`
-      );
-    }
-    if (!/upstashCookieSigningEnvSchema/.test(file.content)) {
-      throw new Error(
-        `${file.relativePath} must use upstashCookieSigningEnvSchema (Upstash + cookie signing).`
-      );
-    }
-  }
-
-  const csrfEnvTemplateApps = [
-    "auth",
+  const noCookieSigningEnvTemplateApps = [
     "store",
-    "tasks",
-    "contacts",
-    "notes",
-    "links",
     "pdf",
-    "image-upscaler",
     "image-editor",
     "ocr",
   ];
-  for (const app of csrfEnvTemplateApps) {
+  for (const app of noCookieSigningEnvTemplateApps) {
     const templatePath = `apps/${app}/env.template`;
     const templateContent = await readFile(
       resolve(rootDir, templatePath),
       "utf8"
     );
-    if (!/HELVETY_COOKIE_SIGNING_SECRET=/.test(templateContent)) {
+    if (/HELVETY_COOKIE_SIGNING_SECRET=/.test(templateContent)) {
       throw new Error(
-        `${templatePath} must document HELVETY_COOKIE_SIGNING_SECRET (required for CSRF proxy bootstrap/re-issue).`
-      );
-    }
-    if (
-      /SUPABASE_SECRET_KEY.*cookie signing|cookie signing.*SUPABASE_SECRET_KEY/i.test(
-        templateContent
-      )
-    ) {
-      throw new Error(
-        `${templatePath} must not suggest SUPABASE_SECRET_KEY as a substitute for HELVETY_COOKIE_SIGNING_SECRET.`
+        `${templatePath} must not document HELVETY_COOKIE_SIGNING_SECRET (remaining zones do not use cookie signing).`
       );
     }
   }
@@ -580,130 +425,6 @@ async function main() {
     }
   }
 
-  const extensionRoot = resolve(
-    rootDir,
-    "..",
-    "helvety-browser-extension-chromium"
-  );
-  try {
-    await access(extensionRoot, constants.F_OK);
-    try {
-      await access(resolve(extensionRoot, ".github/workflows"), constants.F_OK);
-      throw new Error(
-        "helvety-browser-extension-chromium/.github/workflows must not exist (use local pnpm ci:check / pnpm ci:release only)."
-      );
-    } catch (error) {
-      if (!(error && typeof error === "object" && error.code === "ENOENT")) {
-        throw error;
-      }
-    }
-    const extensionPopupTsx = await listTsxFiles(
-      resolve(extensionRoot, "src/popup")
-    );
-    for (const tsxPath of extensionPopupTsx) {
-      const source = await readFile(tsxPath, "utf8");
-      if (/<select[\s/>]/.test(source)) {
-        const relativePath = tsxPath.replace(`${extensionRoot}/`, "");
-        throw new Error(
-          `helvety-browser-extension-chromium/${relativePath} uses raw <select>. Use NativeSelect from @helvety/ui/native-select.`
-        );
-      }
-      if (/<textarea[\s/>]/.test(source)) {
-        const relativePath = tsxPath.replace(`${extensionRoot}/`, "");
-        throw new Error(
-          `helvety-browser-extension-chromium/${relativePath} uses raw <textarea>. Use Textarea from @helvety/ui/textarea.`
-        );
-      }
-      if (/from\s+["'][^"']*\/components\/Textarea["']/u.test(source)) {
-        const relativePath = tsxPath.replace(`${extensionRoot}/`, "");
-        throw new Error(
-          `helvety-browser-extension-chromium/${relativePath} imports local Textarea. Use @helvety/ui/textarea.`
-        );
-      }
-    }
-    try {
-      await access(
-        resolve(extensionRoot, "src/popup/components/Textarea.tsx"),
-        constants.F_OK
-      );
-      throw new Error(
-        "helvety-browser-extension-chromium/src/popup/components/Textarea.tsx must be removed; use @helvety/ui/textarea."
-      );
-    } catch (error) {
-      if (!(error && typeof error === "object" && error.code === "ENOENT")) {
-        throw error;
-      }
-    }
-    const extensionGlobals = await readFile(
-      resolve(extensionRoot, "src/globals.css"),
-      "utf8"
-    );
-    if (
-      !extensionGlobals.includes('@import "@helvety/ui/globals.css"') &&
-      !extensionGlobals.includes('@import "@helvety/ui/form-control-touch.css"')
-    ) {
-      throw new Error(
-        "helvety-browser-extension-chromium/src/globals.css must import @helvety/ui/globals.css (or @helvety/ui/form-control-touch.css)."
-      );
-    }
-    if (
-      !extensionGlobals.includes(
-        '@import "@helvety/extension-chrome/extension-tokens.css"'
-      )
-    ) {
-      throw new Error(
-        "helvety-browser-extension-chromium/src/globals.css must import @helvety/extension-chrome/extension-tokens.css (canonical OKLCH profile)."
-      );
-    }
-    if (extensionGlobals.includes("./popup/extension-tokens.css")) {
-      throw new Error(
-        "helvety-browser-extension-chromium must not use a local extension-tokens.css fork; use @helvety/extension-chrome/extension-tokens.css."
-      );
-    }
-    const extensionTsconfig = JSON.parse(
-      await readFile(resolve(extensionRoot, "tsconfig.json"), "utf8")
-    );
-    if (
-      extensionTsconfig.extends !== "@helvety/config/tsconfig.extension.json"
-    ) {
-      throw new Error(
-        "helvety-browser-extension-chromium/tsconfig.json must extend @helvety/config/tsconfig.extension.json."
-      );
-    }
-    const extensionVitestConfig = await readFile(
-      resolve(extensionRoot, "vitest.config.ts"),
-      "utf8"
-    );
-    if (
-      !extensionVitestConfig.includes("createExtensionVitestConfig") ||
-      !extensionVitestConfig.includes("@helvety/config/vitest-extension")
-    ) {
-      throw new Error(
-        "helvety-browser-extension-chromium/vitest.config.ts must use createExtensionVitestConfig from @helvety/config/vitest-extension."
-      );
-    }
-    try {
-      await access(resolve(extensionRoot, "env.example"), constants.F_OK);
-    } catch {
-      throw new Error(
-        "helvety-browser-extension-chromium/env.example must document optional VITE_HELVETY_AUTH_ORIGIN."
-      );
-    }
-    const extensionPackage = JSON.parse(
-      await readFile(resolve(extensionRoot, "package.json"), "utf8")
-    );
-    if (!extensionPackage.scripts?.["test:coverage"]) {
-      throw new Error(
-        "helvety-browser-extension-chromium/package.json must expose test:coverage."
-      );
-    }
-    await assertNoAsChildProp(resolve(extensionRoot, "src/popup"));
-  } catch (error) {
-    if (!(error && typeof error === "object" && error.code === "ENOENT")) {
-      throw error;
-    }
-  }
-
   const proxyMatcherComment =
     "Must stay identical to `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy`";
   for (const entry of appDirectories.filter((item) => item.isDirectory())) {
@@ -720,28 +441,7 @@ async function main() {
     }
   }
 
-  const e2eeApps = ["contacts", "tasks", "notes", "links"];
-  for (const appName of e2eeApps) {
-    const layoutShellTestPath = resolve(
-      rootDir,
-      "apps",
-      appName,
-      "app/layout-shell-providers.test.ts"
-    );
-    const layoutShellTest = await readFile(layoutShellTestPath, "utf8");
-    if (!layoutShellTest.includes("E2eeAppRootLayout")) {
-      throw new Error(
-        `apps/${appName}/app/layout-shell-providers.test.ts must assert E2eeAppRootLayout usage.`
-      );
-    }
-    if (!layoutShellTest.includes("encryptionProvider={EncryptionProvider}")) {
-      throw new Error(
-        `apps/${appName}/app/layout-shell-providers.test.ts must assert encryptionProvider={EncryptionProvider}.`
-      );
-    }
-  }
-
-  const publicToolApps = ["pdf", "image-upscaler", "image-editor", "ocr"];
+  const publicToolApps = ["pdf", "image-editor", "ocr"];
   for (const appName of publicToolApps) {
     const layoutShellTestPath = resolve(
       rootDir,
@@ -755,31 +455,21 @@ async function main() {
         `apps/${appName}/app/layout-shell-providers.test.ts must assert HelvetyPublicShellRootLayout usage.`
       );
     }
-    if (!layoutShellTest.includes("bootstrapPublicLayoutUser")) {
-      throw new Error(
-        `apps/${appName}/app/layout-shell-providers.test.ts must assert bootstrapPublicLayoutUser session bootstrap.`
-      );
-    }
   }
 
-  const userScopedEnvComment =
+  const envCiReleaseComment =
     "See repository root `README.md` → Automation (`ci:release`).";
-  for (const appName of [
-    "contacts",
-    "tasks",
-    "notes",
-    "links",
-    "store",
-    "pdf",
-    "image-upscaler",
-    "image-editor",
-    "ocr",
-  ]) {
+  for (const appName of ["store", "web"]) {
     const envPath = resolve(rootDir, "apps", appName, "lib/env.ts");
     const envSource = await readFile(envPath, "utf8");
-    if (!envSource.includes(userScopedEnvComment)) {
+    if (appName === "store" && !envSource.includes(envCiReleaseComment)) {
       throw new Error(
         `apps/${appName}/lib/env.ts must document SKIP_ENV_VALIDATION / ci:release (match other validated env zones).`
+      );
+    }
+    if (appName === "web" && !/getValidated(Web|Gateway)Env/.test(envSource)) {
+      throw new Error(
+        `apps/${appName}/lib/env.ts must re-export getValidatedGatewayEnv / getValidatedWebEnv.`
       );
     }
   }
@@ -812,7 +502,7 @@ async function main() {
   );
   const qualityBaseline = await readFile(qualityBaselinePath, "utf8");
   if (
-    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-upscaler, image-editor, ocr\b/.test(
+    !/Omit `assetPrefix`[\s\S]*\bstore, pdf, image-editor, ocr\b/.test(
       qualityBaseline
     )
   ) {

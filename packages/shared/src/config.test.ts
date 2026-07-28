@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { DEV_PORTS, getLocalAppHref, urls } from "./config";
 
 describe("urls and DEV_PORTS", () => {
-  it("exposes the links zone on the gateway and dev port 3009", () => {
-    expect(urls.links).toMatch(/\/links$/);
-    expect(DEV_PORTS.links).toBe(3009);
+  it("exposes the PDF zone on the gateway and dev port 3004", () => {
+    expect(urls.pdf).toMatch(/\/pdf$/);
+    expect(DEV_PORTS.pdf).toBe(3004);
   });
 
   it("exposes the OCR zone on dev port 3011", () => {
@@ -22,35 +22,40 @@ describe("urls and DEV_PORTS", () => {
     );
   });
 
-  it("defines eleven unique dev ports across all zones", () => {
+  it("points cloud at the helvety.cloud product origin", () => {
+    expect(urls.cloud).toBe("https://helvety.cloud");
+    expect(getLocalAppHref(urls.cloud)).toBe("https://helvety.cloud");
+  });
+
+  it("defines five unique dev ports across remaining zones", () => {
     const ports = Object.values(DEV_PORTS);
-    expect(ports).toHaveLength(11);
-    expect(new Set(ports).size).toBe(11);
+    expect(ports).toHaveLength(5);
+    expect(new Set(ports).size).toBe(5);
   });
 });
 
 describe("getLocalAppHref (gateway path helper: not for cross-zone Link inside basePath apps)", () => {
   it("returns local paths unchanged", () => {
     expect(getLocalAppHref("/store")).toBe("/store");
-    expect(getLocalAppHref("/notes?tab=all#section")).toBe(
-      "/notes?tab=all#section"
+    expect(getLocalAppHref("/pdf?tab=all#section")).toBe(
+      "/pdf?tab=all#section"
     );
   });
 
   it("converts helvety absolute URLs to root-relative paths", () => {
     expect(getLocalAppHref("https://helvety.com/store")).toBe("/store");
-    expect(getLocalAppHref("https://helvety.com/tasks?view=board#top")).toBe(
-      "/tasks?view=board#top"
+    expect(getLocalAppHref("https://helvety.com/pdf?view=grid#top")).toBe(
+      "/pdf?view=grid#top"
     );
-    expect(getLocalAppHref("https://preview.helvety.com/contacts")).toBe(
-      "/contacts"
-    );
+    expect(getLocalAppHref("https://preview.helvety.com/ocr")).toBe("/ocr");
   });
 
   it("converts localhost gateway URLs to root-relative paths", () => {
     expect(getLocalAppHref("http://localhost:3001/store")).toBe("/store");
-    expect(getLocalAppHref("http://127.0.0.1:3001/notes")).toBe("/notes");
-    expect(getLocalAppHref("http://127.0.0.1:3001/links")).toBe("/links");
+    expect(getLocalAppHref("http://127.0.0.1:3001/pdf")).toBe("/pdf");
+    expect(getLocalAppHref("http://127.0.0.1:3001/image-editor")).toBe(
+      "/image-editor"
+    );
   });
 
   it("keeps external absolute URLs unchanged", () => {

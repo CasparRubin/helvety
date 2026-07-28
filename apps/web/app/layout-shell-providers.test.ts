@@ -7,11 +7,12 @@ import { describe, expect, it } from "vitest";
 const layoutPath = join(dirname(fileURLToPath(import.meta.url)), "layout.tsx");
 
 describe("web gateway root layout shell providers", () => {
-  it("uses HelvetyPublicShellRootLayout with public session bootstrap", () => {
+  it("uses HelvetyPublicShellRootLayout without retired providers", () => {
     const src = readFileSync(layoutPath, "utf8");
 
     expect(src).toContain("<HelvetyPublicShellRootLayout");
     expect(src).not.toMatch(/return\s+HelvetyPublicShellRootLayout\s*\(/);
-    expect(src).toContain("bootstrapPublicLayoutUser");
+    expect(src).not.toContain("bootstrapPublicLayoutUser");
+    expect(src).toContain("renderNavbar={<Navbar />}");
   });
 });

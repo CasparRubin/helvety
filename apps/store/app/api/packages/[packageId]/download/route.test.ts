@@ -36,22 +36,12 @@ import { getValidatedStoreEnv } from "@/lib/env";
 
 import { GET } from "./route";
 
-const TRUSTED_DOWNLOAD_URL =
-  "https://abc123.supabase.co/storage/v1/object/sign/packages/spfx/test.sppkg";
-
-const TRUSTED_NESTED_DOWNLOAD_URL =
-  "https://abc123.supabase.co/storage/v1/object/sign/packages/spfx/helvety-spo-explorer/helvety-spo-explorer-hotfix.sppkg";
-
 describe("GET /api/packages/[packageId]/download", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env = {
-      ...originalEnv,
-      NEXT_PUBLIC_SUPABASE_URL: "https://abc123.supabase.co",
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_testkey1234567890",
-    };
+    process.env = { ...originalEnv };
     mocks.getTrustedClientIp.mockReturnValue("203.0.113.10");
     mocks.checkRateLimit.mockResolvedValue({ allowed: true, remaining: 1 });
   });
@@ -111,28 +101,10 @@ describe("GET /api/packages/[packageId]/download", () => {
     });
   });
 
-  it("returns 500 when signed URL fails origin allowlist", async () => {
+  it("rejects any download URL while package storage allowlist fails closed", async () => {
     mocks.createPackageDownload.mockResolvedValue({
       ok: true,
-      downloadUrl:
-        "https://evil.example/storage/v1/object/sign/packages/spfx/evil.sppkg",
-    });
-
-    const response = await GET(new Request("https://helvety.com") as never, {
-      params: Promise.resolve({ packageId: "spo-explorer" }),
-    });
-
-    expect(response.status).toBe(500);
-    await expect(response.json()).resolves.toEqual({
-      success: false,
-      error: "Failed to generate download link",
-    });
-  });
-
-  it("redirects with no-store cache headers on success", async () => {
-    mocks.createPackageDownload.mockResolvedValue({
-      ok: true,
-      downloadUrl: TRUSTED_DOWNLOAD_URL,
+      downloadUrl: "https://example.com/packages/test.sppkg",
     });
 
     const response = await GET(new Request("https://helvety.com") as never, {
@@ -140,37 +112,11 @@ describe("GET /api/packages/[packageId]/download", () => {
     });
 
     expect(getValidatedStoreEnv).toHaveBeenCalledTimes(1);
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe(TRUSTED_DOWNLOAD_URL);
-    expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
-  });
-
-  it("redirects for nested storage paths used by resolve-version", async () => {
-    mocks.createPackageDownload.mockResolvedValue({
-      ok: true,
-      downloadUrl: TRUSTED_NESTED_DOWNLOAD_URL,
-    });
-
-    const response = await GET(new Request("https://helvety.com") as never, {
-      params: Promise.resolve({ packageId: "spo-explorer" }),
-    });
-
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe(TRUSTED_NESTED_DOWNLOAD_URL);
-  });
-
-  it("returns 500 when signed URL escapes the packages bucket via traversal", async () => {
-    mocks.createPackageDownload.mockResolvedValue({
-      ok: true,
-      downloadUrl:
-        "https://abc123.supabase.co/storage/v1/object/sign/packages/../other-bucket/evil.sppkg",
-    });
-
-    const response = await GET(new Request("https://helvety.com") as never, {
-      params: Promise.resolve({ packageId: "spo-explorer" }),
-    });
-
     expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Failed to generate download link",
+    });
   });
 
   it("returns 404 for retired power-platform-configurator package id", async () => {

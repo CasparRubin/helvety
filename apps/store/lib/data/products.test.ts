@@ -61,9 +61,8 @@ describe("store product catalog", () => {
     );
 
     expect(counts).toEqual({
-      "encryption-apps": 4,
-      "file-tools": 4,
-      "browser-extensions": 2,
+      "file-tools": 3,
+      "browser-extensions": 1,
       "sharepoint-apps": 1,
       "desktop-apps": 1,
     });
@@ -91,12 +90,6 @@ describe("store product catalog", () => {
       fileTools.every((product) => product.category === "file-tools")
     ).toBe(true);
     expect(fileTools.length).toBeGreaterThan(0);
-
-    const encryptionApps = getFilteredProducts({ category: "encryption-apps" });
-    expect(
-      encryptionApps.every((product) => product.category === "encryption-apps")
-    ).toBe(true);
-    expect(encryptionApps.length).toBeGreaterThan(0);
 
     const fileToolIds = fileTools.map((product) => product.id);
     expect(fileToolIds).toEqual(
@@ -133,12 +126,12 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.slug).toBe(
       "helvety-screen-tools"
     );
-    expect(getProductBySlug("helvety-image-upscaler")?.slug).toBe(
-      "helvety-image-upscaler"
+    expect(getProductBySlug("helvety-image-editor")?.slug).toBe(
+      "helvety-image-editor"
     );
-    expect(getProductBySlug("helvety-links")?.name).toBe("Helvety Links");
-    expect(getProductBySlug("helvety-links")?.links?.website).toBe(
-      "https://helvety.com/links"
+    expect(getProductBySlug("helvety-ocr")?.name).toBe("Helvety OCR");
+    expect(getProductBySlug("helvety-ocr")?.links?.website).toBe(
+      "https://helvety.com/ocr"
     );
   });
 
@@ -163,16 +156,6 @@ describe("store product catalog", () => {
         artwork: "artwork1",
         artist: "Alexandre Calame",
       },
-      "helvety-image-upscaler": {
-        artwork: "artwork2",
-        artist: "Alexandre Calame",
-      },
-      "helvety-tasks": { artwork: "artwork3", artist: "Alexandre Calame" },
-      "helvety-contacts": {
-        artwork: "artwork4",
-        artist: "Ferdinand Hodler",
-      },
-      "helvety-notes": { artwork: "artwork5", artist: "Rudolf Koller" },
       "helvety-power-platform-configurator": {
         artwork: "artwork6",
         artist: "Rudolf Koller",
@@ -182,10 +165,6 @@ describe("store product catalog", () => {
         artwork: "artwork8",
         artist: "Ferdinand Hodler",
       },
-      "helvety-links": {
-        artwork: "artwork9",
-        artist: "Anny Meisser Vonzun",
-      },
       "helvety-image-editor": {
         artwork: "artwork11",
         artist: "Clara von Rappard",
@@ -193,10 +172,6 @@ describe("store product catalog", () => {
       "helvety-ocr": {
         artwork: "artwork13",
         artist: "Anny Meisser Vonzun",
-      },
-      "helvety-browser-extension": {
-        artwork: "artwork12",
-        artist: "Clara von Rappard",
       },
     };
 
@@ -211,41 +186,6 @@ describe("store product catalog", () => {
       expect(product.image, slug).toBe(productArtwork[artwork]);
       expect(product.artist, slug).toBe(artist);
     }
-  });
-
-  it("Helvety Links is a SaaS listing with store artwork and monorepo source", () => {
-    const product = getProductBySlug("helvety-links");
-    expect(product).toBeDefined();
-    if (!product) {
-      return;
-    }
-    expect(product.type).toBe("saas");
-    expect(product.links?.github).toContain("apps/links");
-    expect(product.description.intro).toMatch(/before storage/i);
-    expect(product.description.intro).not.toMatch(/before they sync/i);
-    expect(product.features).toContain(
-      "End-to-end encryption for bookmark names and URLs"
-    );
-    expect(product.features).toContain("Drag-and-drop reorder and reparenting");
-    expect(product.features).not.toContain(
-      "Drag and drop reorder within a folder"
-    );
-    expect(product.features).not.toContain(
-      "Reorder links and folders within the same parent folder"
-    );
-    const organization = product.description.sections?.find(
-      (section) => section.heading === "Organization"
-    );
-    expect(organization?.kind).toBe("bullets");
-    if (organization?.kind === "bullets") {
-      expect(organization.items[0]).toContain("All folder as the library root");
-      expect(organization.items.join(" ")).toMatch(/2,000/);
-      expect(organization.items.join(" ")).toMatch(/drag-and-drop/i);
-      expect(organization.items.join(" ")).toMatch(
-        /open every link in a folder/i
-      );
-    }
-    expect(product.description.intro).not.toMatch(/Unlimited nested/i);
   });
 
   it("stores structured About copy for every product", () => {
@@ -370,29 +310,6 @@ describe("store product catalog", () => {
 
     expect(product.image).toBe(productArtwork.artwork13);
     expect(product.artist).toBe("Anny Meisser Vonzun");
-  });
-
-  it("Helvety Browser Extension uses Clara von Rappard artwork and save-first copy", () => {
-    const product = getProductBySlug("helvety-browser-extension");
-    expect(product).toBeDefined();
-    if (!product) {
-      return;
-    }
-
-    expect(product.image).toBe(productArtwork.artwork12);
-    expect(product.artist).toBe("Clara von Rappard");
-
-    const blob = [
-      product.description.intro,
-      ...product.features,
-      ...(product.description.sections ?? []).flatMap((s) =>
-        s.kind === "paragraph" ? [s.body] : s.items
-      ),
-    ].join("\n");
-
-    expect(blob).toMatch(/save-first|first save/i);
-    expect(blob).not.toMatch(/draft row/i);
-    expect(blob).not.toMatch(/persist-on-open/i);
   });
 
   it("Power Platform Configurator listing uses canonical store card copy", () => {

@@ -2,10 +2,11 @@
 
 Shared **Chromium extension UI chrome** for Helvety products: CSP-safe theme boot, local light/dark preference, shell layout helpers, header row, and scroll/choice utilities.
 
-Used by:
+Used by external Chromium extension repositories that depend on this monorepo package, including:
 
-- [helvety-browser-extension-chromium](https://github.com/CasparRubin/helvety-browser-extension-chromium) — Chromium **side panel** (full viewport height; does not use `POPUP_WIDTH_CLASS`)
-- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) — action **popup** at Chrome’s 800×600 maximum ([Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang)); uses `POPUP_WIDTH_CLASS` (`w-[800px]`)
+- [power-platform-configurator-browser-extension-chromium](https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium) (action popup; Chrome Web Store listing for Power Platform Configurator)
+
+This package is for external Chromium extension repos (for example Power Platform Configurator). It is not a Helvety.com web zone.
 
 ## Exports
 
@@ -20,7 +21,7 @@ Used by:
 | `extension-version`                  | `readExtensionVersion()` / `readExtensionId()` from the Chromium manifest                          |
 | `popup.css` / `extension-tokens.css` | Shared extension Tailwind utilities (OKLCH design tokens; scrollbars use `color-mix(in oklch, …)`) |
 
-Each extension passes its own **storage key** (for example `popupThemePreference` vs `helvetyPopupThemePreference`) and icon URL into the wrappers in its UI module (for example `src/popup/components/` in consumer repos).
+Each extension passes its own **storage key** and icon URL into the wrappers in its UI module.
 
 ## Tests
 

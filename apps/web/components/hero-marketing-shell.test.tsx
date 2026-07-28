@@ -57,7 +57,7 @@ describe("HeroMarketingShell", () => {
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
   });
 
-  it("server-renders hero copy and store CTA", () => {
+  it("server-renders hero copy with Cloud and Store CTAs", () => {
     const html = renderToStaticMarkup(<HeroMarketingShell />);
     const eyebrowHtml = html.match(/<p[^>]*>Software products<\/p>/)?.[0] ?? "";
     const hrefs = [...html.matchAll(/\bhref="([^"]*)"/g)].map(
@@ -78,15 +78,21 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("tracking-[0.08em]");
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
-    expect(html).toContain("Browse Helvety products");
+    expect(html).toContain("Helvety Cloud");
+    expect(html).toContain("Browse products");
+    expect(html).toContain("End-to-end encrypted open-space workspace");
+    expect(html).toContain("Free browser tools and Microsoft 365 apps");
+    expect(hrefs).toContain("https://helvety.cloud");
     expect(hrefs).toContain("/store/products");
     expect(hrefs).not.toContain("/store");
     expect(html).not.toMatch(EMOJI_PATTERN);
   });
 
-  it("deep-links the store CTA via urls.storeProducts", () => {
+  it("links Cloud via urls.cloud and Store via urls.storeProducts", () => {
     const src = readFileSync(shellPath, "utf8");
+    expect(src).toContain("urls.cloud");
     expect(src).toContain("urls.storeProducts");
     expect(src).not.toContain("getLocalAppHref(urls.store)");
+    expect(src).not.toContain("getLocalAppHref(urls.cloud)");
   });
 });

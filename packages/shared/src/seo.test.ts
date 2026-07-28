@@ -7,7 +7,6 @@ import {
   createAppSitemap,
   createHelvetyProductMetadata,
   createOpenRobots,
-  createPrivateAppRobots,
   GATEWAY_DISALLOWED_PATHS,
   toHostAbsoluteZonePaths,
 } from "./seo";
@@ -67,28 +66,31 @@ describe("seo helpers", () => {
   });
 
   it("prefixes zone-relative disallow paths to host-absolute paths", () => {
-    expect(toHostAbsoluteZonePaths(["/api", "/auth"], "/pdf")).toEqual([
+    expect(toHostAbsoluteZonePaths(["/api", "/preview"], "/pdf")).toEqual([
       "/pdf/api",
-      "/pdf/auth",
+      "/pdf/preview",
     ]);
-    expect(
-      toHostAbsoluteZonePaths(["/store/api", "/account"], "/store")
-    ).toEqual(["/store/api", "/store/account"]);
+    expect(toHostAbsoluteZonePaths(["/store/api", "/api"], "/store")).toEqual([
+      "/store/api",
+    ]);
+    expect(toHostAbsoluteZonePaths(["/extra"], "/store")).toEqual([
+      "/store/extra",
+    ]);
   });
 
   it("keeps sitemap canonical URLs crawlable for public app configs", () => {
     const appConfigs = [
       {
         appPath: "/store",
-        disallowedPaths: ["/account", "/api", "/auth"],
+        disallowedPaths: ["/api"],
         sitemapPath: "/store/sitemap.xml",
-        expectedDisallows: ["/store/account", "/store/api", "/store/auth"],
+        expectedDisallows: ["/store/api"],
       },
       {
         appPath: "/pdf",
-        disallowedPaths: ["/api", "/auth"],
+        disallowedPaths: ["/api"],
         sitemapPath: "/pdf/sitemap.xml",
-        expectedDisallows: ["/pdf/api", "/pdf/auth"],
+        expectedDisallows: ["/pdf/api"],
       },
     ] as const;
 
@@ -112,12 +114,12 @@ describe("seo helpers", () => {
 
   it("removes self-blocking and duplicate disallow paths", () => {
     const robots = createAppRobots(
-      ["/contacts", "/contacts/", "/contacts/sitemap.xml", "/api", "/api"],
-      "/contacts/sitemap.xml"
+      ["/pdf", "/pdf/", "/pdf/sitemap.xml", "/api", "/api"],
+      "/pdf/sitemap.xml"
     )();
 
     const disallowedPaths = getDisallowedPaths(robots.rules);
-    expect(disallowedPaths).toEqual(["/contacts/api"]);
+    expect(disallowedPaths).toEqual(["/pdf/api"]);
   });
 
   it("returns canonical app root URL only in generated app sitemaps", () => {
@@ -126,25 +128,6 @@ describe("seo helpers", () => {
 
     expect(urls).toEqual(["https://helvety.com/pdf"]);
     assertValidPublicSitemapEntries(sitemapEntries);
-  });
-
-  it("disallows the zone path for private app robots configs", () => {
-    const robots = createPrivateAppRobots("/tasks")();
-    const disallowedPaths = getDisallowedPaths(robots.rules);
-
-    expect(disallowedPaths).toEqual(["/tasks"]);
-    expect(robots.host).toBe("https://helvety.com");
-    expect(robots.sitemap).toBeUndefined();
-  });
-
-  it("can include sitemap output for private robots when explicitly enabled", () => {
-    // Production private zones omit app/sitemap.ts and use includeSitemap: false.
-    const robots = createPrivateAppRobots("/tasks", {
-      includeSitemap: true,
-      sitemapPath: "/tasks/sitemap.xml",
-    })();
-
-    expect(robots.sitemap).toBe("https://helvety.com/tasks/sitemap.xml");
   });
 
   it("returns an allow-all robots policy for open apps without disallows", () => {
@@ -164,10 +147,15 @@ describe("seo helpers", () => {
     const disallowedPaths = getDisallowedPaths(robots.rules);
 
     expect(disallowedPaths).toEqual(
-      expect.arrayContaining(["/auth", "/tasks"])
+      expect.arrayContaining([
+        "/store/api",
+        "/pdf/api",
+        "/image-editor/api",
+        "/ocr/api",
+      ])
     );
-    expect(disallowedPaths).toEqual(
-      expect.arrayContaining(["/store/account", "/pdf/api"])
+    expect(disallowedPaths).not.toEqual(
+      expect.arrayContaining(["/auth", "/tasks", "/image-upscaler"])
     );
     expect(disallowedPaths).not.toContain("/");
   });
@@ -188,28 +176,13 @@ describe("seo helpers", () => {
   });
 
   it("applies the same disallow paths to AI crawlers on partial-public app robots", () => {
-    const robots = createAppRobots(
-      ["/account", "/api"],
-      "/store/sitemap.xml"
-    )();
+    const robots = createAppRobots(["/api"], "/store/sitemap.xml")();
     const [gptRule] = getRulesForAgent(robots.rules, "GPTBot");
 
     expect(gptRule?.allow).toBe("/");
     expect(getDisallowedPaths(gptRule ? [gptRule] : [])).toEqual([
-      "/store/account",
       "/store/api",
     ]);
-  });
-
-  it("disallows major AI crawlers on private app robots", () => {
-    const robots = createPrivateAppRobots("/auth")();
-
-    for (const agent of ["*", ...AI_DISCOVERY_USER_AGENTS]) {
-      const disallowedPaths = getDisallowedPaths(
-        getRulesForAgent(robots.rules, agent)
-      );
-      expect(disallowedPaths, agent).toEqual(["/auth"]);
-    }
   });
 });
 
@@ -248,8 +221,8 @@ describe("createHelvetyProductMetadata", () => {
   it("sets noindex robots when indexing is none", () => {
     const m = createHelvetyProductMetadata({
       ...baseParams,
-      canonicalUrl: "https://helvety.com/notes",
-      metadataBase: "https://helvety.com/notes",
+      canonicalUrl: "https://helvety.com/store/products/missing",
+      metadataBase: "https://helvety.com/store",
       indexing: "none",
     });
     expect(m.robots).toMatchObject({
@@ -293,15 +266,15 @@ describe("createHelvetyProductMetadata", () => {
 
   it("omits manifest and category when not passed", () => {
     const m = createHelvetyProductMetadata({
-      metadataBase: "https://helvety.com/auth",
+      metadataBase: "https://helvety.com/store",
       title: {
-        default: "Helvety Auth | Sign in",
-        template: "%s | Helvety Auth",
+        default: "Product Not Found",
+        template: "%s | Helvety Store",
       },
-      description: "Auth desc",
-      keywords: ["auth"],
-      siteName: "Helvety Auth",
-      canonicalUrl: "https://helvety.com/auth",
+      description: "Missing product",
+      keywords: ["store"],
+      siteName: "Helvety Store",
+      canonicalUrl: "https://helvety.com/store/products/missing",
       brandImage: {
         url: "https://cdn.example.com/id.png",
         ogAlt: "Helvety",

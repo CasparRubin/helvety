@@ -44,7 +44,7 @@ export type RateLimitPolicy = "strict" | "soft";
 /** Internal outcome classification for rate-limit decisions. */
 type RateLimitDecision = "allow" | "deny" | "error";
 /** Internal storage key categories used by Redis and fallbacks. */
-type RateLimitKeyType = "generic" | "otpFailureCounter" | "otpLockoutUntil";
+type RateLimitKeyType = "generic";
 
 /** Structured metric dimensions recorded for rate-limit observability. */
 interface RateLimitMetricKey {
@@ -78,10 +78,6 @@ function buildRateLimitStorageKey(
   switch (keyType) {
     case "generic":
       return `ratelimit:generic:${normalizedIdentifier}`;
-    case "otpFailureCounter":
-      return `ratelimit:otp:lockout:failures:${normalizedIdentifier}`;
-    case "otpLockoutUntil":
-      return `ratelimit:otp:lockout:until:${normalizedIdentifier}`;
   }
 }
 
@@ -207,7 +203,6 @@ interface RateLimitRecord {
 }
 
 const inMemoryStore = new Map<string, RateLimitRecord>();
-const inMemoryLockoutStore = new Map<string, number>();
 const MAX_IN_MEMORY_ENTRIES = 10_000;
 
 const CLEANUP_INTERVAL = 60 * 1000;
@@ -230,11 +225,6 @@ function startCleanup(): void {
       for (let i = 0; i < excess; i++) {
         const next = keys.next();
         if (!next.done) inMemoryStore.delete(next.value);
-      }
-    }
-    for (const [key, lockoutUntil] of inMemoryLockoutStore.entries()) {
-      if (now > lockoutUntil) {
-        inMemoryLockoutStore.delete(key);
       }
     }
   }, CLEANUP_INTERVAL);
@@ -472,277 +462,6 @@ export async function resetRateLimit(
 }
 
 // =============================================================================
-// Escalating Lockout for OTP Verification
-// =============================================================================
-
-/**
- * Escalating lockout thresholds.
- * After N cumulative failed OTP attempts for a given email, the lockout
- * duration increases. The counter TTL is 24 hours (resets if no failures
- * for 24h).
- */
-const ESCALATING_LOCKOUT_THRESHOLDS = [
-  { attempts: 15, lockoutSeconds: 5 * 60 }, // 15 failures → 5 min lockout
-  { attempts: 30, lockoutSeconds: 15 * 60 }, // 30 failures → 15 min lockout
-  { attempts: 50, lockoutSeconds: 60 * 60 }, // 50 failures → 1 hour lockout
-  { attempts: 100, lockoutSeconds: 24 * 60 * 60 }, // 100 failures → 24 hour lockout
-] as const;
-
-/** TTL for the cumulative failure counter (24 hours) */
-const FAILURE_COUNTER_TTL_SECONDS = 24 * 60 * 60;
-
-/**
- * Check if an email is under escalating lockout and increment the failure counter.
- *
- * Uses a Redis counter (INCR + EXPIRE) to track cumulative failed OTP attempts
- * per email. If the count exceeds a threshold, returns a lockout with the
- * corresponding duration.
- *
- * Call this on OTP verification failure (not on success). On success, call
- * `resetEscalatingLockout` to clear the counter.
- *
- * In production without Redis, fails closed (rejects the request). In
- * development without Redis, falls back to in-memory tracking (single-server).
- *
- * @param email - Normalized email address
- * @returns Whether the email is locked out and for how long
- */
-export async function recordOtpFailureAndCheckLockout(
-  email: string
-): Promise<RateLimitResult> {
-  const normalizedEmail = email.trim().toLowerCase();
-  const failureCounterKey = buildRateLimitStorageKey(
-    "otpFailureCounter",
-    normalizedEmail
-  );
-  const lockoutUntilKey = buildRateLimitStorageKey(
-    "otpLockoutUntil",
-    normalizedEmail
-  );
-
-  const redisClient = getRedis();
-  if (redisClient) {
-    try {
-      // Keep this as one transaction-like operation so the counter has TTL when it succeeds.
-      const txResult = await redisClient
-        .multi()
-        .incr(failureCounterKey)
-        .expire(failureCounterKey, FAILURE_COUNTER_TTL_SECONDS)
-        .exec();
-      const countResult = txResult[0];
-      const count =
-        typeof countResult === "number" ? countResult : Number(countResult);
-
-      // Check thresholds (highest first)
-      for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
-        const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
-        if (count >= threshold.attempts) {
-          const lockoutUntil = Date.now() + threshold.lockoutSeconds * 1000;
-          await redisClient.set(lockoutUntilKey, lockoutUntil, {
-            ex: threshold.lockoutSeconds,
-          });
-          return {
-            allowed: false,
-            remaining: 0,
-            retryAfter: threshold.lockoutSeconds,
-          };
-        }
-      }
-
-      return { allowed: true, remaining: 0 };
-    } catch (error) {
-      logger.logUnexpectedError("Failed to check escalating lockout", error);
-      // Fail closed in production (OTP lockout is security-critical; no soft policy)
-      if (process.env.NODE_ENV === "production") {
-        return { allowed: false, remaining: 0, retryAfter: 300 };
-      }
-    }
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    return { allowed: false, remaining: 0, retryAfter: 300 };
-  }
-
-  // Development fallback: in-memory tracking
-  const now = Date.now();
-  const memFailureKey = `lockout:failures:${normalizedEmail}`;
-  const memLockoutKey = `lockout:until:${normalizedEmail}`;
-  const record = inMemoryStore.get(memFailureKey);
-
-  if (!record || now > record.resetTime) {
-    inMemoryStore.set(memFailureKey, {
-      count: 1,
-      resetTime: now + FAILURE_COUNTER_TTL_SECONDS * 1000,
-    });
-    inMemoryLockoutStore.delete(memLockoutKey);
-    return { allowed: true, remaining: 0 };
-  }
-
-  record.count++;
-
-  for (let i = ESCALATING_LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
-    const threshold = ESCALATING_LOCKOUT_THRESHOLDS[i]!;
-    if (record.count >= threshold.attempts) {
-      const lockoutUntil = now + threshold.lockoutSeconds * 1000;
-      inMemoryLockoutStore.set(memLockoutKey, lockoutUntil);
-      return {
-        allowed: false,
-        remaining: 0,
-        retryAfter: threshold.lockoutSeconds,
-      };
-    }
-  }
-
-  return { allowed: true, remaining: 0 };
-}
-
-/**
- * Check if an email is currently under escalating lockout without incrementing.
- * Use this before processing to reject early.
- *
- * In production without Redis, fails closed (rejects the request). In
- * development without Redis, falls back to in-memory tracking (single-server).
- *
- * @param email - Normalized email address
- * @returns Whether the email is locked out
- */
-export async function checkEscalatingLockout(
-  email: string
-): Promise<RateLimitResult> {
-  const normalizedEmail = email.trim().toLowerCase();
-  const lockoutUntilKey = buildRateLimitStorageKey(
-    "otpLockoutUntil",
-    normalizedEmail
-  );
-
-  const redisClient = getRedis();
-  if (redisClient) {
-    try {
-      const lockoutUntil = await redisClient.get<number>(lockoutUntilKey);
-      const now = Date.now();
-      if (typeof lockoutUntil === "number" && lockoutUntil > now) {
-        const retryAfter = Math.ceil((lockoutUntil - now) / 1000);
-        return {
-          allowed: false,
-          remaining: 0,
-          retryAfter: Math.max(retryAfter, 1),
-        };
-      }
-
-      return { allowed: true, remaining: 0 };
-    } catch (error) {
-      logger.logUnexpectedError("Failed to check escalating lockout", error);
-      if (process.env.NODE_ENV === "production") {
-        return { allowed: false, remaining: 0, retryAfter: 300 };
-      }
-    }
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    return { allowed: false, remaining: 0, retryAfter: 300 };
-  }
-
-  // Development fallback
-  const memLockoutKey = `lockout:until:${normalizedEmail}`;
-  const lockoutUntil = inMemoryLockoutStore.get(memLockoutKey);
-  const now = Date.now();
-  if (typeof lockoutUntil === "number" && lockoutUntil > now) {
-    return {
-      allowed: false,
-      remaining: 0,
-      retryAfter: Math.max(Math.ceil((lockoutUntil - now) / 1000), 1),
-    };
-  }
-  inMemoryLockoutStore.delete(memLockoutKey);
-
-  return { allowed: true, remaining: 0 };
-}
-
-/**
- * Reset the escalating lockout counter for an email (call on successful verification).
- *
- * @param email - Normalized email address
- */
-export async function resetEscalatingLockout(email: string): Promise<void> {
-  const normalizedEmail = email.trim().toLowerCase();
-  const failureCounterKey = buildRateLimitStorageKey(
-    "otpFailureCounter",
-    normalizedEmail
-  );
-  const lockoutUntilKey = buildRateLimitStorageKey(
-    "otpLockoutUntil",
-    normalizedEmail
-  );
-
-  const redisClient = getRedis();
-  if (redisClient) {
-    try {
-      await redisClient.del(failureCounterKey, lockoutUntilKey);
-    } catch (error) {
-      logger.warn("Failed to reset escalating lockout:", error);
-    }
-  }
-
-  inMemoryStore.delete(`lockout:failures:${normalizedEmail}`);
-  inMemoryLockoutStore.delete(`lockout:until:${normalizedEmail}`);
-}
-
-// =============================================================================
-// Single-use keys (e.g. WebAuthn challenge envelopes)
-// =============================================================================
-
-const inMemorySingleUseStore = new Map<string, number>();
-
-/**
- * Atomically marks a key as used for `ttlMs`. Returns true when this call
- * claimed the key; false when it was already consumed within the TTL window.
- */
-export async function consumeSingleUseKey(
-  storageKey: string,
-  ttlMs: number,
-  policy: RateLimitPolicy = "strict"
-): Promise<boolean> {
-  const normalizedKey = normalizeKeyPart(storageKey);
-  const redisClient = getRedis();
-
-  if (redisClient) {
-    try {
-      const result = await redisClient.set(normalizedKey, "1", {
-        nx: true,
-        px: ttlMs,
-      });
-      return result === "OK";
-    } catch (error) {
-      if (process.env.NODE_ENV === "production" && policy === "strict") {
-        logger.logUnexpectedError(
-          "Single-use key consume failed in production - failing closed",
-          error,
-          { storageKey: normalizedKey }
-        );
-        return false;
-      }
-      logger.warn("Single-use key consume failed - using in-memory fallback", {
-        storageKey: normalizedKey,
-        error,
-      });
-    }
-  }
-
-  if (process.env.NODE_ENV === "production" && policy === "strict") {
-    return false;
-  }
-
-  startCleanup();
-  const now = Date.now();
-  const expiresAt = inMemorySingleUseStore.get(normalizedKey);
-  if (expiresAt !== undefined && expiresAt > now) {
-    return false;
-  }
-  inMemorySingleUseStore.set(normalizedKey, now + ttlMs);
-  return true;
-}
-
-// =============================================================================
 // Common Rate Limit Configurations
 // =============================================================================
 
@@ -750,27 +469,14 @@ export async function consumeSingleUseKey(
  * Common rate limit configurations shared across apps.
  *
  * App-specific rate limits should be defined in each app's own
- * `lib/rate-limit.ts` as a local `RATE_LIMITS` constant.
+ * `lib/rate-limit.ts` as a local `RATE_LIMITS` constant (for example Store
+ * package downloads).
  */
 export const RATE_LIMITS = {
-  /** API calls: 100 per minute per user */
+  /** API calls: 100 per minute per identifier */
   API: { maxRequests: 100, windowMs: 60 * 1000 },
-  /** Auth callback: 20 per minute per IP */
-  AUTH_CALLBACK: { maxRequests: 20, windowMs: 60 * 1000 },
-  /** Read-only actions: 300 per minute per user (prevents scraping/enumeration) */
+  /** Read-only actions: 300 per minute per identifier */
   READ: { maxRequests: 300, windowMs: 60 * 1000 },
-  /**
-   * Encrypted bulk export (data portability). Use with `readRateLimitConfig` in
-   * `authenticateAndRateLimit` - export actions are read-only (no CSRF token).
-   */
-  EXPORT: { maxRequests: 5, windowMs: 60 * 1000 },
-  /**
-   * Encrypted dashboard prefetch (list GET APIs). Tighter than READ to limit
-   * session-hijack blast radius; looser than EXPORT for normal navigation.
-   */
-  PREFETCH: { maxRequests: 20, windowMs: 60 * 1000 },
-  /** Encryption unlock attempts: 5 per minute per user */
-  ENCRYPTION_UNLOCK: { maxRequests: 5, windowMs: 60 * 1000 },
 } as const;
 
 /** Test-only surface for rate-limit helpers and metrics (see `rate-limit.test.ts`). */

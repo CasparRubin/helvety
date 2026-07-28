@@ -13,9 +13,9 @@ describe("PopupHeader", () => {
     expect(screen.getByText("v1.2.3")).toBeInTheDocument();
   });
 
-  it("hides the version label when the version is the placeholder dash", () => {
+  it("hides the version label when the version is empty", () => {
     render(
-      <PopupHeader displayName="Helvety" version="—" iconSrc="/icon.png" />
+      <PopupHeader displayName="Helvety" version="" iconSrc="/icon.png" />
     );
 
     expect(screen.queryByText(/^v/)).toBeNull();

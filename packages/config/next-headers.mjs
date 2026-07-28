@@ -2,7 +2,7 @@
  * CSP violation report URL for a zone. Gateway uses `/api/csp-report`; zoned apps
  * use `/{basePath}/api/csp-report` so reports reach the app that emitted the policy.
  *
- * @param {string | undefined} basePath - Next.js `basePath` (e.g. `/pdf`, `/image-upscaler`)
+ * @param {string | undefined} basePath - Next.js `basePath` (e.g. `/pdf`, `/ocr`)
  * @returns {string}
  */
 export function resolveCspReportEndpoint(basePath) {
@@ -112,7 +112,7 @@ export function createSecurityHeaders({ appName, basePath } = {}) {
  * @param {boolean} [opts.imgBlob=false] - Allow blob: in img-src
  * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
- * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. onnxruntime-web)
+ * @param {boolean} [opts.wasmUnsafeEval=false] - Add 'wasm-unsafe-eval' to script-src (required for WebAssembly compilation, e.g. Tesseract.js in OCR)
  * @param {boolean} [opts.googleFonts=false] - Allow Google Fonts CDN in style-src (optional)
  * @param {string} [opts.basePath] - Next.js zone base path for CSP report-uri / report-to
  * @returns {string}
@@ -128,7 +128,6 @@ export function buildCsp({
 } = {}) {
   const isDevelopment = process.env.NODE_ENV === "development";
   const cspReportEndpoint = resolveCspReportEndpoint(basePath);
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   const useUnsafeEval =
     scriptUnsafeEval === "always" ||
@@ -140,19 +139,6 @@ export function buildCsp({
   const nonceDirective = nonce ? ` 'nonce-${nonce}'` : "";
   const connectSources = new Set(["'self'"]);
   const imageSources = new Set(["'self'", "data:", "https://helvety.com"]);
-
-  if (supabaseUrl) {
-    try {
-      const parsed = new URL(supabaseUrl);
-      if (parsed.protocol === "https:") {
-        connectSources.add(parsed.origin);
-        connectSources.add(`wss://${parsed.host}`);
-        imageSources.add(parsed.origin);
-      }
-    } catch {
-      // Ignore malformed env values; runtime env validation handles this.
-    }
-  }
 
   const styleSources = ["'self'", "'unsafe-inline'"];
   const fontSources = new Set(["'self'", "data:"]);

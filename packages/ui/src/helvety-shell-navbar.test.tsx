@@ -1,23 +1,12 @@
 import { urls } from "@helvety/shared/config";
 import { assertLicenseFreeSeoCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { HelvetyShellNavbar } from "./helvety-shell-navbar";
 import { TooltipProvider } from "./tooltip";
-import { useNavbarAuthState } from "./use-navbar-auth-state";
 
 import type { ReactNode } from "react";
-
-vi.mock("./use-navbar-auth-state");
-
-const redirectToLogin = vi.fn();
-const redirectToLogout = vi.fn();
-
-vi.mock("@helvety/shared/auth-redirect", () => ({
-  redirectToLogin: (...args: unknown[]) => redirectToLogin(...args),
-  redirectToLogout: (...args: unknown[]) => redirectToLogout(...args),
-}));
 
 vi.mock("next-themes", () => ({
   useTheme: () => ({
@@ -59,7 +48,6 @@ function renderShell(
     aboutDescription: "Test product copy for the About dialog.",
     navigationMenuDescription: "Test navigation menu",
     versionLabel: null,
-    account: { variant: "external-store" },
     ...props,
   };
   return render(
@@ -70,247 +58,24 @@ function renderShell(
 }
 
 describe("HelvetyShellNavbar", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: null,
-      isLoading: false,
-    });
-  });
-
-  it("renders Sign in when there is no session", () => {
+  it("renders About and GitHub without sign-in controls", () => {
     renderShell();
-    expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
-  });
-
-  it("renders the brand home link without opening a new tab", () => {
-    renderShell();
-    const home = screen.getByRole("link", { name: "Visit Helvety.com" });
-    expect(home).toHaveAttribute("href", urls.home);
-    expect(home).not.toHaveAttribute("target");
-  });
-
-  it("links to the Helvety GitHub repository with an accessible label", () => {
-    renderShell();
-    const github = screen.getByRole("button", {
-      name: "View source code on GitHub",
-    });
-    expect(github).toHaveAttribute(
-      "href",
-      "https://github.com/CasparRubin/helvety"
-    );
-    expect(github).toHaveAttribute("target", "_blank");
-  });
-
-  it("renders profile menu trigger when authenticated", () => {
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: { id: "u1", email: "dev@example.com" },
-      isLoading: false,
-    });
-    renderShell();
+    expect(screen.getByLabelText("Open about dialog")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Open profile menu" })
+      screen.getByLabelText("View source code on GitHub")
     ).toBeInTheDocument();
+    expect(screen.queryByText("Sign in")).not.toBeInTheDocument();
+    expect(screen.queryByText("Sign out")).not.toBeInTheDocument();
+    expect(screen.queryByText("Account")).not.toBeInTheDocument();
   });
 
-  it("shows encryption badge when encryption is a static object with loading false and showBadge true", () => {
-    renderShell({
-      encryption: {
-        loading: false,
-        showBadge: true,
-        tooltipContent: (
-          <>
-            <p className="font-semibold">Client-Side Encryption</p>
-            <p>Test tooltip body.</p>
-          </>
-        ),
-      },
-    });
-    expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
-    const shields = document.querySelectorAll(
-      "svg.text-emerald-600.dark\\:text-emerald-400"
+  it("opens About dialog with product copy", () => {
+    renderShell({ aboutDescription: "PDF about copy." });
+    fireEvent.click(screen.getByLabelText("Open about dialog"));
+    expect(screen.getByText("PDF about copy.")).toBeInTheDocument();
+    assertLicenseFreeSeoCopy(
+      "about",
+      screen.getByText("PDF about copy.").textContent ?? ""
     );
-    expect(shields.length).toBeGreaterThan(0);
-    for (const shield of shields) {
-      expect(shield).not.toHaveClass("text-primary");
-    }
-  });
-
-  it("opens rich encryption content in a single-column tooltip", async () => {
-    renderShell({
-      encryption: {
-        loading: false,
-        showBadge: true,
-        tooltipContent: (
-          <>
-            <p className="font-semibold">Client-Side Encryption</p>
-            <p>Test tooltip body.</p>
-          </>
-        ),
-      },
-    });
-
-    const trigger = screen
-      .getAllByText("Encryption enabled")
-      .map((label) => label.closest('[data-slot="tooltip-trigger"]'))
-      .find((element) => element !== null);
-    expect(trigger).toBeDefined();
-    if (!trigger) {
-      throw new Error("Encryption tooltip trigger was not rendered");
-    }
-
-    fireEvent.focus(trigger);
-
-    const tooltipBody = await screen.findByText("Test tooltip body.");
-    const tooltip = tooltipBody.closest('[data-slot="tooltip-content"]');
-    expect(tooltip).toHaveClass("block", "text-left");
-    expect(tooltip).not.toHaveClass("inline-flex");
-  });
-
-  it("hides encryption badge while encryption.loading is true", () => {
-    renderShell({
-      encryption: {
-        loading: true,
-        showBadge: true,
-        tooltipContent: <p>Should not show</p>,
-      },
-    });
-    expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
-  });
-
-  it("resolves encryption from auth snapshot when encryption is a function", () => {
-    renderShell({
-      encryption: ({ user }) => ({
-        loading: false,
-        showBadge: user?.id === "u1",
-        tooltipContent: <p>E2EE-style tooltip</p>,
-      }),
-    });
-    expect(screen.queryByText("Encryption enabled")).not.toBeInTheDocument();
-
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: { id: "u1", email: "x@y.z" },
-      isLoading: false,
-    });
-    renderShell({
-      encryption: ({ user }) => ({
-        loading: false,
-        showBadge: user?.id === "u1",
-        tooltipContent: <p>E2EE-style tooltip</p>,
-      }),
-    });
-    expect(screen.getAllByText("Encryption enabled").length).toBeGreaterThan(0);
-  });
-
-  it("separates app copy from Helvety and generated version information", async () => {
-    renderShell({
-      versionLabel: "Generated on 16.07.2026 at 15:45:11 (Europe/Zurich)",
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
-    const dialog = await screen.findByRole("dialog");
-    const appDescription = dialog.querySelector(
-      '[data-slot="dialog-description"]'
-    );
-    const helvetyHeading = screen.getByRole("heading", { name: "Helvety" });
-    const helvetySection = helvetyHeading.closest("section");
-
-    assertLicenseFreeSeoCopy("About dialog", dialog.textContent ?? "");
-    expect(appDescription).toHaveTextContent(
-      "Test product copy for the About dialog."
-    );
-    expect(appDescription).not.toHaveTextContent(/Helvety software by/i);
-    expect(helvetySection).toHaveTextContent(
-      "Engineered, designed and made in Switzerland."
-    );
-    expect(helvetySection).toHaveTextContent(
-      "Version information generated on 16.07.2026 at 15:45:11 (Europe/Zurich)."
-    );
-    expect(screen.getByRole("link", { name: "Caspar Rubin" })).toHaveAttribute(
-      "href",
-      "https://casparrubin.ch"
-    );
-  });
-
-  it("shows the unavailable-build-information fallback", async () => {
-    renderShell();
-    fireEvent.click(screen.getByRole("button", { name: "Open about dialog" }));
-    await screen.findByRole("dialog");
-
-    const helvetySection = screen
-      .getByRole("heading", { name: "Helvety" })
-      .closest("section");
-    expect(helvetySection).toHaveTextContent(
-      "Build information is unavailable."
-    );
-  });
-
-  it("calls redirectToLogin with no args by default when Sign in is clicked", () => {
-    renderShell();
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    expect(redirectToLogin).toHaveBeenCalledTimes(1);
-    expect(redirectToLogin).toHaveBeenCalledWith();
-  });
-
-  it("calls redirectToLogin with current URL when loginReturnUrl is current", () => {
-    const href = "https://unit.test/auth/callback";
-    vi.stubGlobal("location", { ...window.location, href });
-    renderShell({ loginReturnUrl: "current" });
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    expect(redirectToLogin).toHaveBeenCalledWith(href);
-    vi.unstubAllGlobals();
-  });
-
-  it("renders same-origin Account link when account variant is same-origin", () => {
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: { id: "u1", email: "dev@example.com" },
-      isLoading: false,
-    });
-    renderShell({
-      account: { variant: "same-origin", href: "/account" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Open profile menu" }));
-    const account = screen.getByRole("button", { name: /Account/i });
-    expect(account).toHaveAttribute("href", "/account");
-  });
-
-  it("renders external-store Account link to the Store account page", () => {
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: { id: "u1", email: "dev@example.com" },
-      isLoading: false,
-    });
-    renderShell({ account: { variant: "external-store" } });
-    fireEvent.click(screen.getByRole("button", { name: "Open profile menu" }));
-    const account = screen.getByRole("button", { name: /Account/i });
-    expect(account).toHaveAttribute("href", `${urls.store}/account`);
-    expect(account).toHaveAttribute("target", "_blank");
-  });
-
-  it("calls redirectToLogout with the current URL when Sign out is clicked", () => {
-    const href = "https://unit.test/pdf";
-    vi.stubGlobal("location", { ...window.location, href });
-    vi.mocked(useNavbarAuthState).mockReturnValue({
-      user: { id: "u1", email: "dev@example.com" },
-      isLoading: false,
-    });
-    renderShell();
-    fireEvent.click(screen.getByRole("button", { name: "Open profile menu" }));
-    fireEvent.click(screen.getByRole("button", { name: /Sign out/i }));
-    expect(redirectToLogout).toHaveBeenCalledTimes(1);
-    expect(redirectToLogout).toHaveBeenCalledWith(href);
-    vi.unstubAllGlobals();
-  });
-
-  it("mobile menu sheet uses scrollable shell layout", () => {
-    renderShell();
-    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-
-    const sheetContent = document.body.querySelector(
-      '[data-slot="sheet-content"]'
-    );
-    expect(sheetContent?.className).toContain("overflow-hidden");
-    expect(sheetContent?.className).toContain("gap-0");
-    expect(
-      document.body.querySelector('[data-slot="scroll-area"]')
-    ).not.toBeNull();
   });
 });

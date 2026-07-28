@@ -1,5 +1,8 @@
 ---
-description: When updating dependencies, bumping packages, or running deps:drift / bun outdated — follow the dependency-update skill and extended inventory (not npm-only).
+description: >-
+  When updating dependencies, bumping packages, or running deps:drift / bun
+  outdated, follow the dependency-update skill and extended inventory (not
+  npm-only).
 alwaysApply: false
 ---
 
@@ -7,4 +10,4 @@ alwaysApply: false
 
 Apply the project skill [`.cursor/skills/dependency-update/SKILL.md`](../skills/dependency-update/SKILL.md) and walk [docs/dependency-inventory.md](../../docs/dependency-inventory.md).
 
-Include non-npm assets (ONNX models, ORT WASM, PDF.js worker, React Bits vendor, git overrides, external repos)—not only `package.json`.
+Include non-npm assets (PDF.js worker, Tesseract WASM/assets, React Bits vendor, git overrides, external repos), not only `package.json`.

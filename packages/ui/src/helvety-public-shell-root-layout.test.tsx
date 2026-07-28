@@ -18,14 +18,6 @@ vi.mock("next-themes", () => ({
   }),
 }));
 
-vi.mock("./session-recovery", () => ({
-  SessionRecovery: () => null,
-}));
-
-vi.mock("./auth-token-handler", () => ({
-  AuthTokenHandler: () => null,
-}));
-
 import { HelvetyPublicShellRootLayout } from "./helvety-public-shell-root-layout";
 import {
   expectThemeScriptBeforeSkipLink,
@@ -100,7 +92,7 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(bodyIndex).toBeGreaterThan(mainIndex);
   });
 
-  it("navbar-only scope passes auth+session+column+toaster into wrap and renders scroll prefix", async () => {
+  it("navbar-only scope wraps shell and renders scroll prefix", async () => {
     const tree = await HelvetyPublicShellRootLayout({
       children: <p>Catalog</p>,
       organizationLogoUrl: "https://example.com/logo.png",

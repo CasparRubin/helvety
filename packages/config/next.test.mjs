@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  createAuthGatewayNextConfig,
-  createE2eeZoneNextConfig,
   createHelvetyNextConfig,
   createPublicToolNextConfig,
 } from "./next.mjs";
@@ -15,12 +13,6 @@ describe("createHelvetyNextConfig", () => {
 });
 
 describe("zone next config presets", () => {
-  it("createE2eeZoneNextConfig sets basePath and assetPrefix", () => {
-    const config = createE2eeZoneNextConfig({ appName: "contacts" });
-    expect(config.basePath).toBe("/contacts");
-    expect(config.assetPrefix).toBe("/contacts-static");
-  });
-
   it("createPublicToolNextConfig sets basePath without assetPrefix", () => {
     const config = createPublicToolNextConfig({ appName: "pdf" });
     expect(config.basePath).toBe("/pdf");
@@ -37,11 +29,5 @@ describe("zone next config presets", () => {
     );
 
     expect(reporting?.value).toBe('csp="/pdf/api/csp-report"');
-  });
-
-  it("createAuthGatewayNextConfig sets auth static prefix", () => {
-    const config = createAuthGatewayNextConfig();
-    expect(config.basePath).toBe("/auth");
-    expect(config.assetPrefix).toBe("/auth-static");
   });
 });

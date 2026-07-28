@@ -13,7 +13,7 @@ Shared toolchain **factories** for Helvety apps and packages. Version pins live 
 | `@helvety/config/vitest-extension`        | `createExtensionVitestConfig` (Vite extension repos; jsdom + shadcn CSS alias)       |
 | `@helvety/config/vitest.setup`            | jest-dom + RTL cleanup (import from each `vitest.setup.ts`)                          |
 | `@helvety/config/postcss`                 | Tailwind PostCSS one-liner for zone apps                                             |
-| `@helvety/config/next`                    | Next.js presets (`createE2eeZoneNextConfig`, `createAuthGatewayNextConfig`, etc.)    |
+| `@helvety/config/next`                    | Next.js presets (`createHelvetyNextConfig`, `createPublicToolNextConfig`, etc.)      |
 | `@helvety/config/next-headers`            | Shared security headers (used by `@helvety/shared/proxy`)                            |
 
 ## App wiring (typical)
@@ -32,7 +32,7 @@ export default createVitestConfig(__dirname, { passWithNoTests: false });
 
 Zone Next.js presets are enforced by `packages/shared/src/zone-next-config-wiring.test.ts`. See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
 
-## Extension wiring (Chromium side panel / popup repos)
+## Extension wiring (Chromium popup / extension repos)
 
 ```typescript
 // vitest.config.ts

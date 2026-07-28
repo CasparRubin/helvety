@@ -16,14 +16,8 @@ const EM_DASH = "\u2014";
 const README_RELATIVE_PATHS = [
   "README.md",
   "apps/pdf/README.md",
-  "apps/tasks/README.md",
-  "apps/contacts/README.md",
-  "apps/links/README.md",
-  "apps/notes/README.md",
-  "apps/auth/README.md",
   "apps/store/README.md",
   "apps/web/README.md",
-  "apps/image-upscaler/README.md",
   "apps/image-editor/README.md",
   "apps/ocr/README.md",
 ];
@@ -33,23 +27,11 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/web/public/llms.txt",
   "apps/store/public/llms.txt",
   "apps/pdf/public/llms.txt",
-  "apps/tasks/public/llms.txt",
-  "apps/contacts/public/llms.txt",
-  "apps/notes/public/llms.txt",
-  "apps/links/public/llms.txt",
-  "apps/auth/public/llms.txt",
-  "apps/image-upscaler/public/llms.txt",
   "apps/image-editor/public/llms.txt",
   "apps/ocr/public/llms.txt",
   "apps/web/public/manifest.json",
   "apps/store/public/manifest.json",
   "apps/pdf/public/manifest.json",
-  "apps/tasks/public/manifest.json",
-  "apps/contacts/public/manifest.json",
-  "apps/notes/public/manifest.json",
-  "apps/links/public/manifest.json",
-  "apps/auth/public/manifest.json",
-  "apps/image-upscaler/public/manifest.json",
   "apps/image-editor/public/manifest.json",
   "apps/ocr/public/manifest.json",
   "packages/shared/src/store-catalog.ts",
@@ -61,7 +43,6 @@ const EXPLICIT_RELATIVE_PATHS = [
   "packages/shared/src/power-platform-configurator-copy.ts",
   "apps/store/lib/data/products.ts",
   "apps/pdf/lib/product-copy.ts",
-  "apps/image-upscaler/lib/product-copy.ts",
   "apps/image-editor/lib/product-copy.ts",
   "apps/ocr/lib/product-copy.ts",
   "apps/web/app/terms/page.tsx",
@@ -69,19 +50,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/web/app/impressum/page.tsx",
 ];
 
-const USER_FACING_APP_IDS = [
-  "auth",
-  "contacts",
-  "image-upscaler",
-  "image-editor",
-  "links",
-  "notes",
-  "ocr",
-  "pdf",
-  "store",
-  "tasks",
-  "web",
-];
+const USER_FACING_APP_IDS = ["image-editor", "ocr", "pdf", "store", "web"];
 
 const SKIP_DIRS = new Set([
   "node_modules",

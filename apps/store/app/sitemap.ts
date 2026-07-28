@@ -7,7 +7,7 @@ import type { MetadataRoute } from "next";
 /**
  * Sitemap for public store pages.
  * Catalog slugs come from the tagged `unstable_cache` card list.
- * Excludes /store/account (auth-gated) and llms.txt.
+ * Excludes llms.txt.
  */
 
 /** Generates the sitemap for public store pages. */

@@ -6,19 +6,13 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-/** Mirrors `LOADING_MATRIX` in scripts/check-zone-modernization.mjs. */
+/** Root loading component expected per Next.js zone. */
 const LOADING_MATRIX: Record<string, string> = {
   web: "HelvetyShellRouteLoading",
-  auth: "HelvetyShellRouteLoading",
   store: "HelvetyShellRouteLoading",
   pdf: "LoadingSpinner",
-  "image-upscaler": "LoadingSpinner",
   "image-editor": "LoadingSpinner",
   ocr: "LoadingSpinner",
-  tasks: "E2eeShellRouteLoading",
-  contacts: "E2eeShellRouteLoading",
-  notes: "E2eeShellRouteLoading",
-  links: "E2eeShellRouteLoading",
 };
 
 describe("zone root loading wiring", () => {

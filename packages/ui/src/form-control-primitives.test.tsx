@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 
 import { FORM_CONTROL_TEXT_SIZE_CLASS } from "./form-control-text-size";
 import { Input } from "./input";
-import { ListSearchField } from "./list-search-field";
 import { NativeSelect } from "./native-select";
 import { Textarea } from "./textarea";
 
@@ -32,13 +31,6 @@ describe("form control primitives apply touch-safe text sizing", () => {
       </NativeSelect>
     );
     expectTouchSafeTextSize(screen.getByTestId("field"));
-  });
-
-  it("ListSearchField searchbox inherits Input touch-safe sizing", () => {
-    render(
-      <ListSearchField value="" onChange={() => {}} aria-label="Search items" />
-    );
-    expectTouchSafeTextSize(screen.getByRole("searchbox"));
   });
 
   it("merges caller className without dropping touch-safe sizing", () => {

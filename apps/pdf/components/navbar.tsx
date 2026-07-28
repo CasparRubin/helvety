@@ -14,5 +14,4 @@ export const Navbar = createPublicShellNavbar({
   aboutDescription: pdfNavbarAbout(),
   navigationMenuDescription: "PDF navigation menu",
   versionLabel: VERSION ?? null,
-  account: { variant: "external-store" },
 });

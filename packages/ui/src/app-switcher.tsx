@@ -23,8 +23,8 @@ interface AppSwitcherProps {
  * Displays grouped sections of links in a slide-out sheet.
  *
  * Links keep **absolute** `urls.*` hrefs so **`next/link`** does not prepend the current app’s
- * Next.js **`basePath`** (`/auth`, `/store`, `/pdf`, …) to another zone’s path (which would yield
- * wrong targets like `/auth/pdf` and spurious RSC **404** prefetches).
+ * Next.js **`basePath`** (`/store`, `/pdf`, …) to another zone’s path (which would yield
+ * wrong targets like `/store/pdf` and spurious RSC **404** prefetches).
  */
 export function AppSwitcher({ currentApp }: AppSwitcherProps) {
   const [open, setOpen] = useState(false);
