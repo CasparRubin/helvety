@@ -6,7 +6,7 @@ Canonical developer reference for Helvety web zones on `helvety.com`. User-facin
 
 Mounted by `HelvetyPublicShellRootLayout` on every Next.js zone.
 
-The footer shows copyright, contact email, and legal nav (**Privacy** / Terms / Impressum / Abuse). It does **not** include a cookie-consent banner or an inline cookie/storage blurb. Full storage disclosure lives on Privacy §8 only.
+The footer shows a centered row: copyright plus **Impressum** / Privacy / Terms (middots between the legal links). On narrow widths, copyright wraps alone onto the first row and the three legal links stay together on the second. Contact is in the navbar About dialog. Storage disclosure lives on Privacy §8 only (no cookie banner or inline storage blurb in the footer).
 
 - Gateway (`apps/web`): relative `/privacy` link (`footerExternal: false`).
 - Sub-zones: absolute `https://helvety.com/privacy` with `target="_blank"`.

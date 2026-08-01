@@ -1,8 +1,5 @@
-import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
-import { Fragment } from "react";
-
-import type { ReactNode } from "react";
 
 const LEGAL_BASE = urls.home;
 const COPYRIGHT_GLUE = "\u00A0";
@@ -14,35 +11,25 @@ const LINKS = [
   { href: "/impressum", label: "Impressum" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
-  { href: "/impressum#abuse", label: "Abuse" },
 ] as const;
 
 /**
- * Site footer: copyright, contact email, and legal links.
- * Browser preference storage is disclosed on the Privacy Policy (nav link),
- * not repeated inline here.
+ * Site footer: copyright and legal links as a centered middot row.
+ * On narrow widths, copyright wraps alone onto the first row and the three
+ * legal links stay together on the second. Browser preference storage is
+ * disclosed on the Privacy Policy (nav link), not repeated inline here.
+ * Contact lives in the About dialog.
  *
  * @param external - When true, legal links point to absolute URLs (urls.home)
  *   with target="_blank" (for apps served on sub-paths). When false, links are
  *   relative (for the main web app).
- * @param renderLink - Optional custom link renderer (e.g. Next.js Link). Receives
- *   href, className, children, and optional target/rel. If not provided, plain
- *   `<a>` tags are used.
  */
 export function Footer({
   className,
   external = true,
-  renderLink,
 }: {
   className?: string;
   external?: boolean;
-  renderLink?: (props: {
-    href: string;
-    className: string;
-    children: ReactNode;
-    target?: string;
-    rel?: string;
-  }) => ReactNode;
 }) {
   const currentYear = new Date().getFullYear();
 
@@ -51,15 +38,6 @@ export function Footer({
     const extraProps = external
       ? { target: "_blank" as const, rel: "noopener noreferrer" }
       : {};
-
-    if (renderLink) {
-      return renderLink({
-        href: fullHref,
-        className: linkClass,
-        children: label,
-        ...extraProps,
-      });
-    }
 
     return (
       <a href={fullHref} className={linkClass} {...extraProps}>
@@ -75,25 +53,25 @@ export function Footer({
         className
       )}
     >
-      <div className="mx-auto w-full max-w-[2000px] px-4 py-5">
-        <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-xs">
-          <p>
+      <div className="mx-auto w-full max-w-[2000px] px-4 py-3">
+        <nav
+          aria-label="Legal"
+          className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center text-xs"
+        >
+          <span>
             &copy; {currentYear}
             {COPYRIGHT_GLUE}
             Helvety
-          </p>
-          <nav className="text-muted-foreground/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px]">
-            <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
-              {CONTACT_EMAIL}
-            </a>
-            {LINKS.map(({ href, label }) => (
-              <Fragment key={href}>
-                <span aria-hidden>·</span>
+          </span>
+          <span className="inline-flex items-center gap-x-4">
+            {LINKS.map(({ href, label }, index) => (
+              <span key={href} className="inline-flex items-center gap-x-4">
+                {index > 0 ? <span aria-hidden>·</span> : null}
                 {link(href, label)}
-              </Fragment>
+              </span>
             ))}
-          </nav>
-        </div>
+          </span>
+        </nav>
       </div>
     </footer>
   );

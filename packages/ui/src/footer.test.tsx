@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import { urls } from "@helvety/shared/config";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -15,30 +15,50 @@ describe("Footer", () => {
 
     render(<Footer />);
 
-    const copyrightLine = screen.getByText(/Helvety/);
-    expect(copyrightLine.textContent).toContain("© 2026\u00A0Helvety");
-    expect(copyrightLine.textContent).not.toContain("essential cookies");
-    expect(copyrightLine.textContent).not.toContain("theme preference");
-    expect(copyrightLine.textContent).not.toContain("authentication cookies");
-    expect(copyrightLine.textContent).not.toMatch(/\bthird-party analytics\b/i);
+    expect(screen.getByText(/Helvety/).textContent).toContain(
+      "© 2026\u00A0Helvety"
+    );
+  });
+
+  it("keeps the three legal links in one wrap unit separate from copyright", () => {
+    render(<Footer />);
+
+    const impressum = screen.getByRole("link", { name: "Impressum" });
+    const privacy = screen.getByRole("link", { name: "Privacy" });
+    const terms = screen.getByRole("link", { name: "Terms" });
+    const copyright = screen.getByText(/Helvety/);
+
+    expect(impressum.parentElement?.parentElement).toBe(
+      privacy.parentElement?.parentElement
+    );
+    expect(privacy.parentElement?.parentElement).toBe(
+      terms.parentElement?.parentElement
+    );
+    expect(copyright.parentElement).not.toBe(
+      impressum.parentElement?.parentElement
+    );
   });
 
   it("renders absolute legal links by default for embedded apps", () => {
     render(<Footer />);
 
-    const impressumLink = screen.getByRole("link", { name: "Impressum" });
-    expect(impressumLink).toHaveAttribute("href", `${urls.home}/impressum`);
-    expect(impressumLink).toHaveAttribute("target", "_blank");
-    expect(impressumLink).toHaveAttribute("rel", "noopener noreferrer");
+    for (const [name, path] of [
+      ["Impressum", "/impressum"],
+      ["Privacy", "/privacy"],
+      ["Terms", "/terms"],
+    ] as const) {
+      const legalLink = screen.getByRole("link", { name });
+      expect(legalLink).toHaveAttribute("href", `${urls.home}${path}`);
+      expect(legalLink).toHaveAttribute("target", "_blank");
+      expect(legalLink).toHaveAttribute("rel", "noopener noreferrer");
+    }
 
-    const privacyLink = screen.getByRole("link", { name: "Privacy" });
-    expect(privacyLink).toHaveAttribute("href", `${urls.home}/privacy`);
-    expect(privacyLink).toHaveAttribute("target", "_blank");
-
-    expect(screen.getByRole("link", { name: CONTACT_EMAIL })).toHaveAttribute(
-      "href",
-      `mailto:${CONTACT_EMAIL}`
-    );
+    expect(
+      screen.queryByRole("link", { name: "Abuse" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /@helvety\.com/i })
+    ).not.toBeInTheDocument();
   });
 
   it("supports relative legal links when external is false", () => {
