@@ -161,9 +161,9 @@ async function main() {
     if (jsdomVersion) {
       jsdomVersions.set(relativePackageJsonPath, jsdomVersion);
       const major = extractMajor(jsdomVersion);
-      if (major !== null && major < 24) {
+      if (major !== null && major < 30) {
         issues.push(
-          `${relativePackageJsonPath} uses jsdom ${jsdomVersion}. Expected jsdom v24+ with Vitest 4 / Node 24.`
+          `${relativePackageJsonPath} uses jsdom ${jsdomVersion}. Expected jsdom 30.x with Vitest 4 / Node 24.`
         );
       }
     }

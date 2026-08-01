@@ -42,7 +42,7 @@ export const metadata = createHelvetyProductMetadata({
 
 /**
  * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
- * gutters, fixed footer (contact + legal links).
+ * gutters, fixed footer (copyright + legal links).
  *
  * `app/loading.tsx` re-exports `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`)
  * so pending navigations keep a full-viewport `bg-background` shell. The public shell injects

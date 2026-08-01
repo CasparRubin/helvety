@@ -37,7 +37,6 @@ export type HelvetyPublicShellRootLayoutProps = Readonly<{
   /** Fixed header slot (conventionally the app `Navbar`; non-scrolling). */
   renderNavbar: ReactNode;
   mainVariant: HelvetyPublicShellMainVariant;
-  footerClassName?: string;
   /** Passed to {@link Footer} `external` (gateway uses `false`). */
   footerExternal?: boolean;
   /** Sets `data-scroll-behavior="smooth"` on `<html>` when true. */
@@ -146,7 +145,6 @@ export async function HelvetyPublicShellRootLayout({
   jsonLdGraphTail,
   renderNavbar,
   mainVariant,
-  footerClassName = "shrink-0",
   footerExternal = true,
   htmlSmoothScroll = false,
   wrapInsideTooltipProvider,
@@ -197,7 +195,7 @@ export async function HelvetyPublicShellRootLayout({
     >
       {header}
       {mainBlock}
-      <Footer className={footerClassName} external={footerExternal} />
+      <Footer external={footerExternal} />
     </div>
   );
 

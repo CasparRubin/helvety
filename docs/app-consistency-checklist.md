@@ -93,7 +93,7 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 ### Lib / copy
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`.
-- `lib/product-copy.test.ts`: `pdf` / `image-editor` / `ocr` thin re-exports from `@helvety/shared/app-product-descriptions` (see `zone-product-copy-wiring.test.ts`).
+- `lib/product-copy.test.ts`: `pdf` / `image-editor` / `ocr` thin re-exports from `@helvety/shared/app-product-descriptions`.
 - Store catalog SSOT: `@helvety/shared/helvety-ecosystem-sections` → `@helvety/shared/store-catalog` → `apps/store/lib/types/products.ts` → `apps/store/lib/data/products.ts`. Wiring: `helvety-ecosystem-sections.test.ts`, `store-catalog.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`, `apps/store/components/products/product-ui-wiring.test.ts`.
 
 ## `package.json` conventions
@@ -147,7 +147,7 @@ Nested routes (e.g. store products) use `LoadingSpinner`. Enforced by `consisten
 | Gateway            | `getValidatedGatewayEnv` (re-exported as `getValidatedWebEnv`) | `web`                        |
 | Public tools       | No `lib/env.ts` (empty `env.template`)                         | `pdf`, `image-editor`, `ocr` |
 
-Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:guardrails`.
+Wired by `packages/shared/src/env-validation.test.ts` and `consistency:guardrails`.
 
 ## Next.js config presets
 
@@ -156,7 +156,7 @@ Wired by `packages/shared/src/zone-env-factory-wiring.test.ts` and `consistency:
 | `createPublicToolNextConfig`   | `pdf`, `image-editor`, `ocr`                    |
 | `createHelvetyNextConfig` only | `web`, `store` (bespoke `overrides` / rewrites) |
 
-Wired by `packages/shared/src/zone-next-config-wiring.test.ts` and `consistency:zone-modernization`.
+Wired by `packages/config/next.test.mjs` and `consistency:zone-modernization`.
 
 ## Navbar factories
 

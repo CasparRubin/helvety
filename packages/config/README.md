@@ -30,7 +30,7 @@ import { createVitestConfig } from "@helvety/config/vitest";
 export default createVitestConfig(__dirname, { passWithNoTests: false });
 ```
 
-Zone Next.js presets are enforced by `packages/shared/src/zone-next-config-wiring.test.ts`. See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
+Zone Next.js presets are covered by `packages/config/next.test.mjs`. See [`docs/app-consistency-checklist.md`](../../docs/app-consistency-checklist.md).
 
 ## Extension wiring (Chromium popup / extension repos)
 

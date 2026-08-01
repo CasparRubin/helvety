@@ -146,7 +146,7 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
 ## Security Posture (High Level)
 
 - `proxy.ts` is lightweight request setup (CSP headers with per-request nonce and zone-aware `report-uri` / `report-to` endpoints), not a full application security boundary. Zoned apps report CSP violations to `/{basePath}/api/csp-report` (gateway uses `/api/csp-report`). Zone apps inline the same `config.matcher` pattern as `SECURITY_PROXY_MATCHER` in `@helvety/shared/proxy` (Next.js requires a static literal) so common static files skip that chain. The `apps/web` gateway uses a custom matcher with the same static extension exclusions plus zone path skips.
-- All five Next.js zones share the site footer in root layouts (copyright, contact, legal nav; no third-party analytics). User-facing storage disclosure: Privacy §8 ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
+- All five Next.js zones share the site footer in root layouts (copyright + legal nav; contact in the About dialog; no third-party analytics). User-facing storage disclosure: Privacy §8 ([`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)).
 
 ## Project Structure
 

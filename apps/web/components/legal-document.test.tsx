@@ -1,46 +1,82 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { describe, expect, it } from "vitest";
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
-const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const legalDocumentPath = join(webRoot, "components", "legal-document.tsx");
+import {
+  LegalPageShell,
+  LegalTable,
+  LegalTableWrap,
+  LegalToc,
+} from "./legal-document";
 
-describe("LegalTableWrap", () => {
-  it("keeps the shared scroll region accessible", () => {
-    const src = readFileSync(legalDocumentPath, "utf8");
-    expect(src).toContain('role="region"');
-    expect(src).toContain("aria-label={ariaLabel}");
-    expect(src).toContain("tabIndex={0}");
-    expect(src).toContain('"legal-table-wrap"');
+describe("legal-document", () => {
+  it("keeps the table scroll region keyboard-accessible", () => {
+    render(
+      <LegalTableWrap ariaLabel="Cookie providers">
+        <span>table</span>
+      </LegalTableWrap>
+    );
+
+    const region = screen.getByRole("region", { name: "Cookie providers" });
+    expect(region).toHaveAttribute("tabIndex", "0");
+    expect(region.className).toContain("legal-table-wrap");
   });
-});
 
-describe("LegalTable", () => {
-  it("applies scroll layout class for provider tables", () => {
-    const src = readFileSync(legalDocumentPath, "utf8");
-    expect(src).toContain('"legal-table-scroll"');
+  it("applies scroll and card layout classes", () => {
+    const { rerender } = render(
+      <LegalTable layout="scroll">
+        <span>rows</span>
+      </LegalTable>
+    );
+    expect(screen.getByText("rows").parentElement?.className).toContain(
+      "legal-table-scroll"
+    );
+
+    rerender(
+      <LegalTable layout="cards">
+        <span>rows</span>
+      </LegalTable>
+    );
+    expect(screen.getByText("rows").parentElement?.className).toContain(
+      "legal-table-cards"
+    );
   });
 
-  it("applies card layout class for wide tables", () => {
-    const src = readFileSync(legalDocumentPath, "utf8");
-    expect(src).toContain('"legal-table-cards"');
+  it("exposes a named table of contents landmark", () => {
+    render(
+      <LegalToc>
+        <a href="#section">Section</a>
+      </LegalToc>
+    );
+    expect(
+      screen.getByRole("navigation", { name: "Table of contents" })
+    ).toBeInTheDocument();
   });
-});
 
-describe("LegalToc", () => {
-  it("renders a named navigation landmark", () => {
-    const src = readFileSync(legalDocumentPath, "utf8");
-    expect(src).toContain('aria-label="Table of contents"');
-    expect(src).toContain('"legal-toc"');
-  });
-});
+  it("renders the shared legal page shell with a back link", () => {
+    render(
+      <LegalPageShell backHref="/legal" backLabel="Back to Legal">
+        <p>Body</p>
+      </LegalPageShell>
+    );
 
-describe("LegalPageShell", () => {
-  it("server-renders the shared legal section shell", () => {
-    const src = readFileSync(legalDocumentPath, "utf8");
-    expect(src).toContain("LegalPageShell");
-    expect(src).toContain("LegalTableWrap");
+    expect(
+      screen.getByRole("button", { name: /Back to Legal/i })
+    ).toHaveAttribute("href", "/legal");
+    expect(screen.getByText("Body")).toBeInTheDocument();
   });
 });

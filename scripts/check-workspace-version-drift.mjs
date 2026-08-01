@@ -16,6 +16,7 @@ const DEV_DEPS_MANAGED = new Set([
   "@vitest/coverage-v8",
   "prettier",
   "prettier-plugin-tailwindcss",
+  "@testing-library/dom",
   "@testing-library/jest-dom",
   "@testing-library/react",
   "jsdom",

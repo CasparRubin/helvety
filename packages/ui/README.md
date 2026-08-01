@@ -29,7 +29,7 @@ This package provides:
 - `@helvety/ui/accessible-sheet-header` -> `AccessibleSheetHeader`
 - `@helvety/ui/input`, `@helvety/ui/textarea`, `@helvety/ui/native-select`
 - `@helvety/ui/helvety-shell-navbar` -> `HelvetyShellNavbar`
-- `@helvety/ui/footer` -> `Footer` (copyright, contact, legal nav; storage disclosure is Privacy §8 only)
+- `@helvety/ui/footer` -> `Footer` (copyright + legal nav; contact is in the About dialog; storage disclosure is Privacy §8 only)
 
 Also includes reusable UI building blocks (Base UI / shadcn `base-vega`, table, dialog, sheet, CommandBar toolbar shells).
 

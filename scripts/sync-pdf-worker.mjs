@@ -6,7 +6,7 @@
  * Run with cwd set to the zone app (e.g. `cd apps/pdf && bun run sync:pdf-worker`).
  */
 import { randomUUID } from "node:crypto";
-import { cp, mkdir, rename, writeFile } from "node:fs/promises";
+import { cp, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
@@ -15,6 +15,31 @@ import {
   PDFJS_SOURCE_LABEL,
   resolvePdfJsForReactPdf,
 } from "./resolve-pdfjs-for-react-pdf.mjs";
+
+/**
+ * Atomically replace `destination` with `temporary` (Windows-safe when the
+ * destination is briefly locked: remove then rename).
+ *
+ * @param {string} temporary
+ * @param {string} destination
+ */
+async function replaceFile(temporary, destination) {
+  try {
+    await rename(temporary, destination);
+    return;
+  } catch (error) {
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? String(error.code)
+        : "";
+    if (code !== "EPERM" && code !== "EACCES" && code !== "EEXIST") {
+      throw error;
+    }
+  }
+
+  await rm(destination, { force: true });
+  await rename(temporary, destination);
+}
 
 /**
  * @param {string} [cwd]
@@ -30,7 +55,7 @@ export async function syncPdfWorker(cwd = process.cwd()) {
 
   await mkdir(publicDir, { recursive: true });
   await cp(workerSourcePath, tmpDestinationPath);
-  await rename(tmpDestinationPath, destinationPath);
+  await replaceFile(tmpDestinationPath, destinationPath);
   await writeFile(
     tmpMetaPath,
     `${JSON.stringify(
@@ -43,7 +68,7 @@ export async function syncPdfWorker(cwd = process.cwd()) {
       2
     )}\n`
   );
-  await rename(tmpMetaPath, metaPath);
+  await replaceFile(tmpMetaPath, metaPath);
 
   console.log(
     `Synced pdf.worker.min.mjs (pdfjs-dist@${version} via ${PDFJS_SOURCE_LABEL})`

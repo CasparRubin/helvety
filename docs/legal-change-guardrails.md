@@ -53,7 +53,8 @@ At minimum, review and update:
   [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts);
   footer matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx)
   (`bun run test` in `apps/web` for `legal-cookies-disclosure`,
-  `legal-metadata`, `legal-privacy-tables`, `legal-public-tools`)
+  `legal-metadata`, `legal-privacy-tables`, `legal-public-tools`,
+  `legal-document`)
 - When legal body copy changes, bump `lastReviewed` on **all three** pages to
   the same date (`legal-metadata.test.ts`)
 - CH-first / not-offered-in-EU-EEA language stays consistent

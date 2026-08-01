@@ -92,11 +92,19 @@ const filesToCheck = [
 ];
 
 async function main() {
-  const forbiddenAppDirs = ["apps/qr", "apps/compress"];
+  const forbiddenAppDirs = [
+    "apps/qr",
+    "apps/compress",
+    "apps/auth",
+    "apps/contacts",
+    "apps/links",
+    "apps/notes",
+    "apps/tasks",
+  ];
   for (const relativePath of forbiddenAppDirs) {
     if (existsSync(resolve(rootDir, relativePath))) {
       throw new Error(
-        `${relativePath} must not exist; remove abandoned QR/Compress zone scaffolds before commit.`
+        `${relativePath} must not exist; remove abandoned or retired zone scaffolds before commit.`
       );
     }
   }
@@ -321,16 +329,19 @@ async function main() {
   }
 
   const appDirectories = await readdir(appsDir, { withFileTypes: true });
+  const workspaceAppDirs = appDirectories.filter(
+    (entry) =>
+      entry.isDirectory() &&
+      existsSync(resolve(appsDir, entry.name, "package.json"))
+  );
   const componentConfigs = await Promise.all(
-    appDirectories
-      .filter((entry) => entry.isDirectory())
-      .map(async (entry) => {
-        const relativePath = `apps/${entry.name}/components.json`;
-        return {
-          relativePath,
-          content: await readFile(resolve(rootDir, relativePath), "utf8"),
-        };
-      })
+    workspaceAppDirs.map(async (entry) => {
+      const relativePath = `apps/${entry.name}/components.json`;
+      return {
+        relativePath,
+        content: await readFile(resolve(rootDir, relativePath), "utf8"),
+      };
+    })
   );
 
   const requiredShadcnConfig = {
@@ -474,7 +485,7 @@ async function main() {
     }
   }
 
-  for (const entry of appDirectories.filter((item) => item.isDirectory())) {
+  for (const entry of workspaceAppDirs) {
     const actionsDir = resolve(appsDir, entry.name, "app/actions");
     const actionFiles = await collectActionFiles(actionsDir);
     for (const actionPath of actionFiles) {
@@ -557,8 +568,7 @@ async function main() {
     }
   }
 
-  const appEntries = await readdir(appsDir, { withFileTypes: true });
-  for (const entry of appEntries.filter((item) => item.isDirectory())) {
+  for (const entry of workspaceAppDirs) {
     const readmePath = resolve(appsDir, entry.name, "README.md");
     let source;
     try {

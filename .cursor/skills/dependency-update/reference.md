@@ -37,7 +37,7 @@ bun run consistency:pdfjs-worker
 
 # ocr: Tesseract worker/WASM + PDF.js worker
 cd apps/ocr && bun run sync:assets       # sync:tesseract + sync:pdf-worker (dev/build run this)
-bun run download:tessdata                # only when adding/refreshing eng/deu language data
+cd apps/ocr && bun run download:tessdata  # only when adding/refreshing eng/deu language data
 # Root command validates both pdf and ocr zones (same as ci:check)
 bun run consistency:pdfjs-worker
 

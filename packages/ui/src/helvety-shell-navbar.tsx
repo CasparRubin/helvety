@@ -1,5 +1,6 @@
 "use client";
 
+import { CONTACT_EMAIL } from "@helvety/shared/config";
 import { HELVETY_SWISS_ORIGIN_SEO } from "@helvety/shared/licensing";
 import { Code2, Info, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -226,6 +227,23 @@ export function HelvetyShellNavbar({
                     : "Build information is unavailable."}
                 </p>
               </div>
+            </section>
+            <Separator />
+            <section
+              className="space-y-2"
+              aria-labelledby="about-contact-heading"
+            >
+              <h3 id="about-contact-heading" className="text-sm font-medium">
+                Contact
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="hover:text-foreground underline underline-offset-2"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
             </section>
           </div>
           <DialogClose render={<Button variant="outline" className="w-full" />}>

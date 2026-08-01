@@ -10,5 +10,7 @@ describe("HelvetyShellRouteLoading", () => {
     expect(html).toContain("bg-background");
     expect(html).toContain("flex-1");
     expect(html).toContain("Loading...");
+    expect(html).toContain("animate-spin");
+    expect(html).toContain("rounded-full");
   });
 });

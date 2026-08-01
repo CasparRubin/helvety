@@ -10,24 +10,33 @@ const speculationPath = join(
   appDir,
   "../components/store-products-speculation.tsx"
 );
+const speculationClientPath = join(
+  appDir,
+  "../components/store-products-speculation-client.tsx"
+);
 
 describe("gateway home page", () => {
-  it("mounts store catalog Speculation Rules next to the marketing hero", () => {
+  it("server-renders the marketing shell with store Speculation Rules", () => {
     const source = readFileSync(pagePath, "utf8");
 
-    expect(source).toContain("StoreProductsSpeculation");
     expect(source).toContain("HeroMarketingShell");
+    expect(source).toContain("StoreProductsSpeculation");
+    expect(source).toMatch(/plain theme background/i);
+    expect(source).not.toContain("HeroSection");
+    expect(source).not.toContain('"use client"');
+    expect(source).not.toMatch(/Hyperspeed|SideRays|light-pillar|WebGL/i);
   });
 });
 
 describe("StoreProductsSpeculation wiring", () => {
-  it("loads the request CSP nonce for speculationrules script-src", () => {
-    const source = readFileSync(speculationPath, "utf8");
+  it("builds rules with CSP nonce and injects via the DOM client", () => {
+    const server = readFileSync(speculationPath, "utf8");
+    const client = readFileSync(speculationClientPath, "utf8");
 
-    expect(source).toContain("getRequestCspNonce");
-    expect(source).toContain('type="speculationrules"');
-    expect(source).toContain("urls.storeProducts");
-    expect(source).toContain("nonce={nonce}");
-    expect(source).toContain("suppressHydrationWarning");
+    expect(server).toContain("getRequestCspNonce");
+    expect(server).toContain("urls.storeProducts");
+    expect(server).toContain("StoreProductsSpeculationClient");
+    expect(client).toContain("document.createElement");
+    expect(client).toContain('type = "speculationrules"');
   });
 });

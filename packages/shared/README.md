@@ -11,7 +11,7 @@ This package centralizes:
 - Logging and error-handling helpers
 - Canonical **user-visible** error strings and rate-limit copy via `@helvety/shared/user-facing-errors` (`GENERIC_USER_ERROR`, `buildRateLimitedUserMessage`) - safe to import from client components (no `server-only`)
 - Shared constants, schemas, and utility functions
-- Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata`, `AI_DISCOVERY_USER_AGENTS`, `GATEWAY_DISALLOWED_PATHS`, plus sitemap/robots factories). Canonical crawl policy is gateway `/robots.txt` (RFC 9309); zone robots files are host-absolute mirrors. Vitest guardrails: `seo-zone-consistency.test.ts`, `seo.test.ts`, and per-app `seo-routes.test.ts` helpers in `@helvety/shared/test-utils/seo-route-test-helpers`.
+- Next.js product metadata via `@helvety/shared/seo` (`createHelvetyProductMetadata`, `AI_DISCOVERY_USER_AGENTS`, `GATEWAY_DISALLOWED_PATHS`, plus sitemap/robots factories). Canonical crawl policy is gateway `/robots.txt` (RFC 9309); zone robots files are host-absolute mirrors. Vitest guardrails: `seo.test.ts` and per-app `seo-routes.test.ts` helpers in `@helvety/shared/test-utils/seo-route-test-helpers`.
 - Company and licensing copy constants in `@helvety/shared/licensing`
 - Helvety ecosystem product sections via `@helvety/shared/helvety-ecosystem-sections` (app switcher grouping, store filter pills, category badges). Register new products here first.
 - Card-level Helvety Store catalog via `@helvety/shared/store-catalog` (card fields, `StoreProductType`, sort/lookup helpers). See `apps/store/README.md` › "Adding a New Product".

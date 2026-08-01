@@ -1,4 +1,4 @@
-import { urls } from "@helvety/shared/config";
+import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import { assertLicenseFreeSeoCopy } from "@helvety/shared/test-utils/customer-copy-test-helpers";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -77,5 +77,15 @@ describe("HelvetyShellNavbar", () => {
       "about",
       screen.getByText("PDF about copy.").textContent ?? ""
     );
+  });
+
+  it("opens About dialog with a Contact mailto link", () => {
+    renderShell();
+    fireEvent.click(screen.getByLabelText("Open about dialog"));
+    expect(
+      screen.getByRole("heading", { name: "Contact" })
+    ).toBeInTheDocument();
+    const contactLink = screen.getByRole("link", { name: CONTACT_EMAIL });
+    expect(contactLink).toHaveAttribute("href", `mailto:${CONTACT_EMAIL}`);
   });
 });
