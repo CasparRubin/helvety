@@ -97,6 +97,7 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("tracking-[0.08em]");
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
+    expect(html).not.toContain("radial-gradient");
     expect(html).toContain("justify-center");
     expect(html).toContain("gap-12");
     expect(html).toContain("sm:gap-16");

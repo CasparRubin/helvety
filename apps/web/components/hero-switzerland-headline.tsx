@@ -51,7 +51,7 @@ export function HeroSwitzerlandHeadline() {
           texts={[...HERO_SWITZERLAND_ROTATING_TEXTS]}
           staggerDuration={0.025}
           staggerFrom="last"
-          rotationInterval={5000}
+          rotationInterval={4000}
         />
       </span>{" "}
       <span className="text-brand-swiss-red font-medium">

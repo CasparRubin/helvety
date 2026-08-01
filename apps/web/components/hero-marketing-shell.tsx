@@ -39,28 +39,12 @@ export function HeroMarketingShell() {
   return (
     <section
       className={cn(
-        "relative flex w-full min-w-0 flex-1 flex-col justify-center overflow-hidden py-12 sm:py-16",
+        "flex w-full min-w-0 flex-1 flex-col justify-center py-12 sm:py-16",
         HERO_MIN_MAIN,
         "bg-background"
       )}
     >
-      <div
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute inset-0",
-          "bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,color-mix(in_oklch,var(--brand-swiss-red)_12%,transparent),transparent_55%)]",
-          "dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,color-mix(in_oklch,var(--brand-swiss-red)_18%,transparent),transparent_55%)]"
-        )}
-      />
-      <div
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute inset-0",
-          "bg-[radial-gradient(ellipse_70%_50%_at_50%_100%,color-mix(in_oklch,var(--muted)_80%,transparent),transparent_60%)]"
-        )}
-      />
-
-      <div className="pointer-events-none relative mx-auto flex w-full max-w-3xl flex-col items-center gap-12 px-4 text-center sm:gap-16 md:px-6">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-12 px-4 text-center sm:gap-16 md:px-6">
         <div className="hero-enter-brand space-y-4 sm:space-y-5">
           <h1 className="text-muted-foreground text-base font-medium tracking-[0.12em] uppercase">
             Software
@@ -73,7 +57,7 @@ export function HeroMarketingShell() {
           </div>
         </div>
 
-        <div className="hero-enter-ctas pointer-events-auto mx-auto grid w-full max-w-md grid-cols-1 gap-5 sm:max-w-2xl sm:grid-cols-2 sm:items-start sm:gap-6">
+        <div className="hero-enter-ctas mx-auto grid w-full max-w-md grid-cols-1 gap-5 sm:max-w-2xl sm:grid-cols-2 sm:items-start sm:gap-6">
           <div className="flex flex-col items-stretch gap-2.5 text-center">
             <Button
               size="lg"
