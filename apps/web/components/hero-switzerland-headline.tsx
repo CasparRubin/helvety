@@ -50,7 +50,7 @@ export function HeroSwitzerlandHeadline() {
         <RotatingText
           texts={[...HERO_SWITZERLAND_ROTATING_TEXTS]}
           staggerDuration={0.025}
-          staggerFrom="last"
+          staggerFrom="first"
           rotationInterval={4000}
         />
       </span>{" "}
