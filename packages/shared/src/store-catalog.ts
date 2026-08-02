@@ -59,6 +59,7 @@ function withDerivedCategory(card: StoreProductCardBase): StoreProductCard {
  * (newer for display when using newest-first sort).
  */
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
+  "helvety-cloud": 9,
   "helvety-ocr": 8,
   "helvety-image-editor": 8,
   "helvety-screen-tools": 7,
@@ -138,6 +139,18 @@ const STORE_PRODUCT_CARDS_BASE = [
     type: "saas",
     runsOn: "Browser",
     isFree: true,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-cloud",
+    slug: "helvety-cloud",
+    name: "Helvety Cloud",
+    shortDescription:
+      "Swiss end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, comments, and files. Encrypt on your device; Helvety cannot read or recover your content.",
+    releaseDate: "2026-07-28",
+    type: "saas",
+    runsOn: "Browser",
+    isFree: false,
     isOpenSource: true,
   },
 ] as const satisfies readonly StoreProductCardBase[];

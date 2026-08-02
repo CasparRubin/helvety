@@ -25,8 +25,8 @@ Product catalog app for Helvety products: specs, Store-hosted download redirects
 ## Adding a New Product
 
 Card-level fields (name, blurb, release date, type, runs-on, free / open-source
-flags) live in `@helvety/shared/store-catalog`. **Ecosystem category** (File Tools,
-Browser Extensions, SharePoint Apps, Desktop Apps) is derived from
+flags) live in `@helvety/shared/store-catalog`. **Ecosystem category** (Encryption
+Apps, File Tools, Browser Extensions, SharePoint Apps, Desktop Apps) is derived from
 `@helvety/shared/helvety-ecosystem-sections` and drives store filters,
 category pills, and the app switcher product sections.
 
@@ -34,8 +34,11 @@ category pills, and the app switcher product sections.
    `packages/shared/src/helvety-ecosystem-sections.ts`:
    - Add an item under the correct section (`displayName`, `storeProductSlug`,
      optional `webAppUrlKey` for monorepo web zones).
+   - Sister products already linked from Core Apps (for example Helvety Cloud)
+     may set `omitFromAppSwitcher: true` so they still get a store category
+     without a duplicate switcher entry.
    - Add an icon in `packages/ui/src/app-switcher-sections.tsx`
-     (`ecosystemItemIcons`).
+     (`ecosystemItemIcons`) unless the item is omitted from the switcher.
 2. **Add the card entry** in `packages/shared/src/store-catalog.ts`:
    - Append to `STORE_PRODUCT_CARDS_BASE` (category is derived from the ecosystem
      registry via `storeProductSlug`; do not set `category` manually).

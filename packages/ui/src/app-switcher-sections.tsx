@@ -7,7 +7,7 @@
 import { urls } from "@helvety/shared/config";
 import {
   ecosystemItemHref,
-  HELVETY_ECOSYSTEM_PRODUCT_SECTIONS,
+  ecosystemSectionsForAppSwitcher,
   type HelvetyEcosystemItem,
   type HelvetyEcosystemSection,
 } from "@helvety/shared/helvety-ecosystem-sections";
@@ -89,7 +89,7 @@ export const appSwitcherSections: AppSwitcherSection[] = [
       { name: "Store", href: urls.storeProducts, icon: Store },
     ],
   },
-  ...HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map(ecosystemSectionToSwitcherSection),
+  ...ecosystemSectionsForAppSwitcher().map(ecosystemSectionToSwitcherSection),
 ];
 
 /** Store product slugs that require an icon in {@link ecosystemItemIcons}. */

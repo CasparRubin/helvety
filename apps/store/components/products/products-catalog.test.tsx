@@ -96,12 +96,12 @@ describe("ProductsCatalog", () => {
     });
   });
 
-  it("lists all four ecosystem category filters", () => {
+  it("lists all five ecosystem category filters", () => {
     render(<ProductsCatalog initialCards={toInitialCards(mockProducts)} />);
 
     expect(
-      screen.queryByRole("button", { name: /Encryption Apps/i })
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /Encryption Apps/i })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /File Tools/i })
     ).toBeInTheDocument();

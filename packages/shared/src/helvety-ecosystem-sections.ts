@@ -15,13 +15,23 @@ export type HelvetyWebAppUrlKey = Exclude<
 
 /** Slug union for ecosystem product categories. */
 export type HelvetyEcosystemCategorySlug =
-  "file-tools" | "browser-extensions" | "sharepoint-apps" | "desktop-apps";
+  | "encryption-apps"
+  | "file-tools"
+  | "browser-extensions"
+  | "sharepoint-apps"
+  | "desktop-apps";
 
 /** One linkable product in the Helvety ecosystem. */
 export interface HelvetyEcosystemItem {
   displayName: string;
   storeProductSlug: string;
   webAppUrlKey?: HelvetyWebAppUrlKey;
+  /**
+   * When true, the product still drives store category filters/badges but is
+   * omitted from the app switcher (for example Helvety Cloud, which already
+   * appears under Core Apps).
+   */
+  omitFromAppSwitcher?: true;
 }
 
 /** One ecosystem product section (app switcher heading + store filter category). */
@@ -36,6 +46,17 @@ export interface HelvetyEcosystemSection {
  * Edit here when adding or moving products; store categories derive from this.
  */
 export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
+  {
+    slug: "encryption-apps",
+    title: "Encryption Apps",
+    items: [
+      {
+        displayName: "Helvety Cloud",
+        storeProductSlug: "helvety-cloud",
+        omitFromAppSwitcher: true,
+      },
+    ],
+  },
   {
     slug: "file-tools",
     title: "File Tools",
@@ -125,6 +146,25 @@ export function ecosystemCategoryForStoreSlug(
 /** Flat list of every store product slug in the ecosystem registry. */
 export function allEcosystemStoreProductSlugs(): string[] {
   return HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.flatMap((section) =>
+    section.items.map((item) => item.storeProductSlug)
+  );
+}
+
+/** Ecosystem sections with switcher-omitted items removed (and empty sections dropped). */
+export function ecosystemSectionsForAppSwitcher(): HelvetyEcosystemSection[] {
+  return HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map((section) => ({
+    slug: section.slug,
+    title: section.title,
+    items: section.items.filter(
+      (item) =>
+        !("omitFromAppSwitcher" in item && item.omitFromAppSwitcher === true)
+    ),
+  })).filter((section) => section.items.length > 0);
+}
+
+/** Store product slugs that should appear in the app switcher product sections. */
+export function allAppSwitcherEcosystemStoreProductSlugs(): string[] {
+  return ecosystemSectionsForAppSwitcher().flatMap((section) =>
     section.items.map((item) => item.storeProductSlug)
   );
 }

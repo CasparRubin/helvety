@@ -22,6 +22,7 @@ import {
 import {
   Building2,
   ChevronDownIcon,
+  Cloud,
   FileText,
   LayoutGrid,
   Monitor,
@@ -41,6 +42,7 @@ interface ProductFiltersProps {
 }
 
 const categoryIcons: Record<HelvetyEcosystemCategorySlug, typeof FileText> = {
+  "encryption-apps": Cloud,
   "file-tools": FileText,
   "browser-extensions": Puzzle,
   "sharepoint-apps": Building2,

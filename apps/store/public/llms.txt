@@ -8,6 +8,7 @@
 
 ## Product pages
 The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:
+- [Helvety Cloud](https://helvety.com/store/products/helvety-cloud): Swiss end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, comments, and files on helvety.cloud; encrypt on your device; Helvety cannot read or recover your content
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
 - [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor)

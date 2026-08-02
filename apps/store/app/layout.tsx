@@ -24,6 +24,8 @@ export const metadata = createHelvetyProductMetadata({
     "software",
     "web apps",
     "free tools",
+    "helvety cloud",
+    "encryption",
     "pdf",
     "image editor",
     "ocr",

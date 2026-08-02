@@ -1,8 +1,8 @@
 import { urls } from "@helvety/shared/config";
 import {
-  allEcosystemStoreProductSlugs,
+  allAppSwitcherEcosystemStoreProductSlugs,
   ecosystemItemHref,
-  HELVETY_ECOSYSTEM_PRODUCT_SECTIONS,
+  ecosystemSectionsForAppSwitcher,
 } from "@helvety/shared/helvety-ecosystem-sections";
 import { describe, expect, it } from "vitest";
 
@@ -29,28 +29,36 @@ describe("app-switcher-sections", () => {
     expect(cloudLink?.href).toBe("https://helvety.cloud");
   });
 
-  it("covers every ecosystem store product slug with an icon", () => {
+  it("does not duplicate Helvety Cloud under Encryption Apps", () => {
+    const encryptionApps = appSwitcherSections.find(
+      (section) => section.title === "Encryption Apps"
+    );
+    expect(encryptionApps).toBeUndefined();
+  });
+
+  it("covers every switcher-visible ecosystem store product slug with an icon", () => {
     expect(new Set(ECOSYSTEM_SWITCHER_STORE_PRODUCT_SLUGS)).toEqual(
-      new Set(allEcosystemStoreProductSlugs())
+      new Set(allAppSwitcherEcosystemStoreProductSlugs())
     );
   });
 
-  it("renders product section titles from the shared ecosystem registry", () => {
+  it("renders product section titles from switcher-visible ecosystem sections", () => {
     const productSections = appSwitcherSections.filter(
       (section) => section.title !== "Core Apps"
     );
     expect(productSections.map((section) => section.title)).toEqual(
-      HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map((section) => section.title)
+      ecosystemSectionsForAppSwitcher().map((section) => section.title)
     );
   });
 
-  it("builds link names and hrefs from the shared ecosystem registry", () => {
+  it("builds link names and hrefs from switcher-visible ecosystem sections", () => {
     const productSections = appSwitcherSections.filter(
       (section) => section.title !== "Core Apps"
     );
+    const registrySections = ecosystemSectionsForAppSwitcher();
 
     for (const [index, section] of productSections.entries()) {
-      const registrySection = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[index]!;
+      const registrySection = registrySections[index]!;
       expect(section.title).toBe(registrySection.title);
       expect(section.links).toHaveLength(registrySection.items.length);
 

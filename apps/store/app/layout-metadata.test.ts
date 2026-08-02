@@ -35,9 +35,15 @@ describe("store root layout metadata", () => {
     assertLicenseFreeSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
     assertLicenseFreeSeoKeywords("store metadata.keywords", metadata.keywords);
     assertSwissOriginInSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
-    expect(STORE_DESCRIPTION).toMatch(/Browse free Helvety apps/i);
+    expect(STORE_DESCRIPTION).toMatch(/Browse Helvety apps/i);
     expect(metadata.keywords).toEqual(
-      expect.arrayContaining(["pdf", "image editor", "ocr"])
+      expect.arrayContaining([
+        "pdf",
+        "image editor",
+        "ocr",
+        "helvety cloud",
+        "encryption",
+      ])
     );
     expect(metadata.keywords).not.toEqual(
       expect.arrayContaining([

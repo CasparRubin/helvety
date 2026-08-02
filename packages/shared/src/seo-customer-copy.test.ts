@@ -118,6 +118,16 @@ describe("seo customer copy guardrails", () => {
     expect(source).toContain("helvety.com/store/products/helvety-ocr");
   });
 
+  it("store llms.txt lists the Helvety Cloud product page", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/store/public/llms.txt"),
+      "utf8"
+    );
+    expect(source).toContain("helvety-cloud");
+    expect(source).toContain("helvety.com/store/products/helvety-cloud");
+    expect(source).toContain("helvety.cloud");
+  });
+
   it("zone llms Related Helvety Apps sections link to Helvety OCR", () => {
     const zoneLlmsWithRelated = CUSTOMER_COPY_LLMS_RELATIVE_PATHS.filter(
       (rel) =>

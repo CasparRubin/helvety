@@ -19,7 +19,7 @@ import {
 } from "@helvety/shared/store-catalog";
 import { describe, expect, it } from "vitest";
 
-import { isSoftwareProduct } from "../types/products";
+import { isSaaSProduct, isSoftwareProduct } from "../types/products";
 
 import { productArtwork } from "./product-artwork";
 import {
@@ -61,6 +61,7 @@ describe("store product catalog", () => {
     );
 
     expect(counts).toEqual({
+      "encryption-apps": 1,
       "file-tools": 3,
       "browser-extensions": 1,
       "sharepoint-apps": 1,
@@ -74,9 +75,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (OCR newest; PDF oldest)", () => {
+  it("default sort is newest release first (Cloud newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-ocr");
+    expect(ids[0]).toBe("helvety-cloud");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -133,6 +134,13 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-ocr")?.links?.website).toBe(
       "https://helvety.com/ocr"
     );
+    expect(getProductBySlug("helvety-cloud")?.name).toBe("Helvety Cloud");
+    expect(getProductBySlug("helvety-cloud")?.links?.website).toBe(
+      "https://helvety.cloud"
+    );
+    expect(getProductBySlug("helvety-cloud")?.links?.github).toBe(
+      "https://github.com/CasparRubin/helvety-cloud"
+    );
   });
 
   it("every listing has store artwork and an artist credit", () => {
@@ -145,6 +153,7 @@ describe("store product catalog", () => {
   it("assigns each artwork asset to exactly one product", () => {
     const images = getAllProducts().map((product) => product.image);
     expect(new Set(images).size).toBe(images.length);
+    expect(Object.keys(productArtwork)).toHaveLength(getAllProducts().length);
   });
 
   it("assigns canonical store artwork and artist per product", () => {
@@ -152,6 +161,10 @@ describe("store product catalog", () => {
       string,
       { artwork: keyof typeof productArtwork; artist: string }
     > = {
+      "helvety-cloud": {
+        artwork: "artwork3",
+        artist: "Alexandre Calame",
+      },
       "helvety-spo-explorer": {
         artwork: "artwork1",
         artist: "Alexandre Calame",
@@ -310,6 +323,27 @@ describe("store product catalog", () => {
 
     expect(product.image).toBe(productArtwork.artwork13);
     expect(product.artist).toBe("Anny Meisser Vonzun");
+  });
+
+  it("Helvety Cloud points at helvety.cloud with Calame artwork", () => {
+    const product = getProductBySlug("helvety-cloud");
+    expect(product).toBeDefined();
+    if (!product) {
+      return;
+    }
+
+    expect(product.category).toBe("encryption-apps");
+    expect(product.image).toBe(productArtwork.artwork3);
+    expect(product.artist).toBe("Alexandre Calame");
+    expect(isSaaSProduct(product)).toBe(true);
+    if (!isSaaSProduct(product)) {
+      return;
+    }
+    expect(product.saas.appUrl).toBe("https://helvety.cloud");
+    expect(product.pricing.hasFreeTier).toBe(true);
+    expect(product.pricing.tiers.some((tier) => tier.interval === "year")).toBe(
+      true
+    );
   });
 
   it("Power Platform Configurator listing uses canonical store card copy", () => {

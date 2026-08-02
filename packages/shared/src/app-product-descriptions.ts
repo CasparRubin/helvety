@@ -9,7 +9,7 @@ export const WEB_SITE_DESCRIPTION =
   "Software products engineered, designed and made in Switzerland. Private, simple, clean. Browser utilities for PDF, image editor, and OCR tools, extensions, and desktop tools.";
 
 /** Shared store SEO / social copy. */
-export const STORE_DESCRIPTION = `Browse free Helvety apps, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const STORE_DESCRIPTION = `Browse Helvety apps, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Store products listing metadata (products wording vs {@link STORE_DESCRIPTION} apps). */
 export const STORE_PRODUCTS_PAGE_DESCRIPTION = STORE_DESCRIPTION.replace(

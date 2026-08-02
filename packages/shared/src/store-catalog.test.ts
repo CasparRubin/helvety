@@ -41,7 +41,7 @@ describe("store-catalog", () => {
 
   it("sorts newest release first with expected endpoints", () => {
     const sorted = getStoreCatalogNewestFirst();
-    expect(sorted[0]?.id).toBe("helvety-ocr");
+    expect(sorted[0]?.id).toBe("helvety-cloud");
     expect(sorted[sorted.length - 1]?.id).toBe("helvety-pdf");
   });
 
@@ -58,7 +58,11 @@ describe("store-catalog", () => {
 
   it("declares free and open-source flags on every current card", () => {
     for (const card of STORE_PRODUCT_CARDS) {
-      expect(card.isFree).toBe(true);
+      if (card.id === "helvety-cloud") {
+        expect(card.isFree).toBe(false);
+      } else {
+        expect(card.isFree).toBe(true);
+      }
       expect(card.isOpenSource).toBe(true);
     }
   });

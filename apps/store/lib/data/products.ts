@@ -805,6 +805,124 @@ const helvetyOcr: SaaSProduct = {
 };
 
 // =============================================================================
+// HELVETY CLOUD
+// =============================================================================
+
+/**
+ * Helvety Cloud - end-to-end encrypted workspace (helvety.cloud)
+ */
+const cHelvetyCloud = cardCore("helvety-cloud", "saas");
+const helvetyCloud: SaaSProduct = {
+  id: cHelvetyCloud.id,
+  slug: cHelvetyCloud.slug,
+  name: cHelvetyCloud.name,
+  shortDescription: cHelvetyCloud.shortDescription,
+  type: cHelvetyCloud.type,
+  category: cHelvetyCloud.category,
+  description: {
+    intro:
+      "Private by design: sign in with a one-time email code, unlock encryption with a passkey, and keep workspace content sealed on your device before it reaches our servers. There is no master key.",
+    sections: [
+      {
+        heading: "What you get",
+        kind: "bullets",
+        items: [
+          "Projects, tasks, notes, contacts, boards, comments, and files under one encrypted workspace, with sharing when you invite others.",
+          "End-to-end encryption on every plan, including Free. Helvety cannot decrypt your content.",
+          "Passwordless account: email one-time code for the session; WebAuthn passkey (PRF) unlocks encryption.",
+          "Open source on GitHub; see the repository LICENSE for the exact license terms.",
+        ],
+      },
+      {
+        heading: "Pricing",
+        kind: "paragraph",
+        body: "Start on Free Workspace with fair-use limits (no encrypted file uploads on Free). Upgrade a workspace to Pro Workspace (CHF 250 per year) for higher limits and encrypted files. Capacity Increase add-ons are available for active Pro workspaces.",
+      },
+      {
+        heading: "Recovery and honesty",
+        kind: "paragraph",
+        body: "You hold the recovery file. Helvety cannot read or recover encrypted content. Losing your passkey and recovery file means permanent loss of that content. Session login is not the same as encryption unlock.",
+      },
+    ],
+  },
+  image: productArtwork.artwork3,
+  artist: "Alexandre Calame",
+  features: [
+    "End-to-end encryption on every plan; Helvety cannot decrypt your content",
+    "Zero-knowledge design: no master key, no escrow, no support content recovery",
+    "Passwordless: email one-time code; unlock encryption with a passkey",
+    "Workspace-scoped projects, tasks, notes, contacts, boards, comments, and files",
+    "Invite others by sealing the workspace key to them",
+    "User-held recovery file; lost passkey and recovery means permanent loss",
+    "Open source with published source on GitHub",
+    "Free Workspace to start; Pro Workspace for higher limits and encrypted files",
+  ],
+  pricing: {
+    hasFreeTier: true,
+    tiers: [
+      {
+        id: "helvety-cloud-free",
+        name: "Free Workspace",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "End-to-end encryption",
+          "Fair-use workspace limits",
+          "No encrypted file uploads",
+          "One free workspace per user",
+        ],
+      },
+      {
+        id: "helvety-cloud-pro",
+        name: "Pro Workspace",
+        price: 25000,
+        currency: "CHF",
+        interval: "year",
+        highlighted: true,
+        features: [
+          "Higher workspace limits",
+          "Encrypted file and document storage",
+          "Capacity Increase add-ons available",
+        ],
+      },
+    ],
+  },
+  links: {
+    website: "https://helvety.cloud",
+    github: "https://github.com/CasparRubin/helvety-cloud",
+  },
+  saas: {
+    appUrl: "https://helvety.cloud",
+    hasApiAccess: false,
+  },
+  metadata: {
+    targetAudience: [
+      "Privacy-conscious professionals",
+      "Teams and individuals who want zero-knowledge workspaces",
+    ],
+    platforms: platformsFromRunsOn(cHelvetyCloud.runsOn),
+    keywords: [
+      "cloud",
+      "e2ee",
+      "end-to-end encryption",
+      "zero knowledge",
+      "workspace",
+      "tasks",
+      "notes",
+      "contacts",
+      "boards",
+      "passkey",
+      "privacy",
+      "switzerland",
+    ],
+    featured: true,
+    releaseDate: cHelvetyCloud.releaseDate,
+  },
+};
+
+// =============================================================================
 // ALL PRODUCTS
 // =============================================================================
 
@@ -819,6 +937,7 @@ const products: Product[] = [
   helvetyScreenTools,
   helvetyImageEditor,
   helvetyOcr,
+  helvetyCloud,
 ];
 
 // =============================================================================
