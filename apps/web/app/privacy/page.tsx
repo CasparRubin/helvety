@@ -309,6 +309,12 @@ export default function PrivacyPage() {
             status and meter counts). Billing never includes encrypted plaintext
             or raw encryption keys.
           </li>
+          <li>
+            Intentional plaintext product metadata that is not ciphertext: for
+            example workspace membership, entity-link UUID pairs (which ids are
+            linked, never titles or colors), categorization soft-reference ids
+            on tasks, and similar operational fields needed to run the Service.
+          </li>
         </ul>
         <h3 className="mb-3 text-lg font-medium">
           3.3 Data Helvety cannot access
