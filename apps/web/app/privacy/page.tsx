@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="July 28, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="August 2, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
@@ -288,6 +288,11 @@ export default function PrivacyPage() {
             via Supabase Auth).
           </li>
           <li>
+            Workspace invitation email addresses (including invitees who have
+            not yet created an account), plus invitation claim and accept
+            timestamps.
+          </li>
+          <li>
             Profile and membership records (user id, workspace membership,
             timestamps).
           </li>
@@ -313,7 +318,10 @@ export default function PrivacyPage() {
             Intentional plaintext product metadata that is not ciphertext: for
             example workspace membership, entity-link UUID pairs (which ids are
             linked, never titles or colors), categorization soft-reference ids
-            on tasks, and similar operational fields needed to run the Service.
+            on tasks, attachment operational fields (byte size, storage path,
+            status, and which entities link to an attachment id), and similar
+            operational fields needed to run the Service. Filenames and file
+            bytes remain ciphertext.
           </li>
         </ul>
         <h3 className="mb-3 text-lg font-medium">
@@ -322,8 +330,9 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground text-sm">
           Encrypted Helvety Cloud content (ciphertext) is opaque to Helvety.
           Staff, database administrators, and privileged database roles cannot
-          decrypt titles, bodies, files, or other plaintext from your encrypted
-          data. Helvety does not receive PRF output, unlock keys, recovery key
+          decrypt titles, bodies, board graphs, comments, contact fields,
+          filenames, file bytes, or other plaintext from your encrypted data.
+          Helvety does not receive PRF output, unlock keys, recovery key
           plaintext, or raw private keys. Helvety cannot restore your data if
           you lose unlock or recovery material. Helvety is not a controller of
           plaintext it cannot access.
@@ -398,6 +407,15 @@ export default function PrivacyPage() {
                   </TableCell>
                 </TableRow>
                 <TableRow>
+                  <TableCell>Object storage (Cloud files)</TableCell>
+                  <TableCell>
+                    Supabase Storage in the same Zurich Helvety Cloud project:
+                    opaque encrypted attachment ciphertext objects. Helvety
+                    stores size and path metadata for quotas; it cannot decrypt
+                    filenames or file contents.
+                  </TableCell>
+                </TableRow>
+                <TableRow>
                   <TableCell>Email (Cloud auth)</TableCell>
                   <TableCell>
                     OTP and auth emails via Supabase Auth. Region depends on
@@ -436,11 +454,12 @@ export default function PrivacyPage() {
           </LegalTable>
         </LegalTableWrap>
         <p className="text-muted-foreground mt-4 text-sm">
-          Primary Helvety Cloud database and auth are hosted in Switzerland
-          (Zurich). Hosting and email tooling may involve processing in other
-          regions depending on vendor configuration. Where required, Helvety
-          relies on appropriate transfer mechanisms offered by those vendors
-          (for example standard contractual clauses) and contractual safeguards.
+          Primary Helvety Cloud database, auth, and attachment object storage
+          are hosted in Switzerland (Zurich). Hosting and email tooling may
+          involve processing in other regions depending on vendor configuration.
+          Where required, Helvety relies on appropriate transfer mechanisms
+          offered by those vendors (for example standard contractual clauses)
+          and contractual safeguards.
         </p>
         <p className="text-muted-foreground mt-4 text-sm">
           Microsoft 365, SharePoint / Power Platform runtimes, browser vendors,

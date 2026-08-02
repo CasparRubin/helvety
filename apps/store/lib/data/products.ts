@@ -849,7 +849,7 @@ const helvetyCloud: SaaSProduct = {
   artist: "Alexandre Calame",
   features: [
     "End-to-end encryption on every plan; Helvety cannot decrypt your content",
-    "Zero-knowledge design: no master key, no escrow, no support content recovery",
+    "E2EE / zero-access design: no master key, no escrow, no support content recovery",
     "Passwordless: email one-time code; unlock encryption with a passkey",
     "Workspace-scoped projects, tasks, notes, contacts, boards, comments, and files",
     "Invite others by sealing the workspace key to them",
@@ -900,14 +900,14 @@ const helvetyCloud: SaaSProduct = {
   metadata: {
     targetAudience: [
       "Privacy-conscious professionals",
-      "Teams and individuals who want zero-knowledge workspaces",
+      "Teams and individuals who want end-to-end encrypted workspaces",
     ],
     platforms: platformsFromRunsOn(cHelvetyCloud.runsOn),
     keywords: [
       "cloud",
       "e2ee",
       "end-to-end encryption",
-      "zero knowledge",
+      "zero-access",
       "workspace",
       "tasks",
       "notes",
