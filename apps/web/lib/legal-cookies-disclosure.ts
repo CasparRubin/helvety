@@ -11,4 +11,5 @@ export const HELVETY_WEB_ZONE_APP_SLUGS = [
 export const HELVETY_PRIVACY_COOKIE_TABLE_IDENTIFIERS = [
   "Theme preference (localStorage)",
   "helvety-pdf-columns (localStorage)",
+  "Supabase Auth session (helvety.cloud)",
 ] as const;

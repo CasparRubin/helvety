@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="August 2, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="August 9, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
@@ -44,10 +44,10 @@ export default function PrivacyPage() {
           Company&quot;) explains how we handle information when you use
           helvety.com, helvety.cloud, and related Helvety products (&quot;the
           Services&quot;). This notice is based primarily on the Swiss Federal
-          Act on Data Protection (nDSG / FADP). We focus on customers in
-          Switzerland and do not offer the Services in the EU/EEA. Where
-          mandatory law elsewhere applies in a specific case, we follow those
-          obligations.
+          Act on Data Protection (nDSG / FADP). The Services are intended for
+          customers in Switzerland. We do not offer the Services in the EU/EEA.
+          Where mandatory law elsewhere applies in a specific case, we follow
+          those obligations.
         </p>
         <p className="text-muted-foreground text-sm">
           helvety.com public browser tools and the Store do not require a
@@ -122,6 +122,11 @@ export default function PrivacyPage() {
               className="hover:text-foreground transition-colors"
             >
               Cookies and Local Storage
+            </a>
+          </li>
+          <li>
+            <a href="#dpa" className="hover:text-foreground transition-colors">
+              Controller, Processor, and DPA
             </a>
           </li>
           <li>
@@ -343,6 +348,14 @@ export default function PrivacyPage() {
         <h2 className="mb-4 text-xl font-semibold">
           4. How We Use Information
         </h2>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Under Swiss nDSG we process personal data for the purposes below where
+          processing is connected with a contract with you, needed to take
+          pre-contractual steps you request, justified by overriding private
+          interests that are not outweighed by yours (for example security,
+          abuse prevention, and reliable hosting), based on your consent where
+          we ask for it, or required to meet Swiss legal duties.
+        </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
             Operate and secure helvety.com, Helvety Store, Helvety PDF, Helvety
@@ -351,8 +364,9 @@ export default function PrivacyPage() {
           </li>
           <li>
             Provide and secure Helvety Cloud: authenticate you, manage accounts
-            and workspaces, store ciphertext and related metadata, and record
-            policy acceptances.
+            and workspaces, store ciphertext and related metadata, deliver
+            workspace invitations (including to invitee email addresses), and
+            record policy acceptances.
           </li>
           <li>
             Deliver public package downloads, apply rate limits, and investigate
@@ -395,7 +409,10 @@ export default function PrivacyPage() {
                   <TableCell>Hosting / CDN</TableCell>
                   <TableCell>
                     Serve helvety.com zones, helvety.cloud, and static assets
-                    (currently Vercel)
+                    (currently Vercel). Request routing and edge delivery may
+                    involve processing in the United States and other Vercel
+                    edge regions in addition to Swiss or EU points of presence,
+                    depending on visitor location and vendor configuration.
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -418,16 +435,19 @@ export default function PrivacyPage() {
                 <TableRow>
                   <TableCell>Email (Cloud auth)</TableCell>
                   <TableCell>
-                    OTP and auth emails via Supabase Auth. Region depends on
-                    vendor email configuration.
+                    OTP, invitation, and auth emails via Supabase Auth and its
+                    configured email providers. Message delivery may involve
+                    processing outside Switzerland (for example EU or US regions
+                    depending on vendor email configuration).
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Payments (Cloud)</TableCell>
                   <TableCell>
-                    Stripe: billing identity and payment metadata for Pro
-                    Workspace and add-ons. Never encrypted plaintext or raw
-                    encryption keys.
+                    Stripe (typically Ireland and/or United States entities,
+                    depending on account configuration): billing identity and
+                    payment metadata for Pro Workspace and add-ons. Never
+                    encrypted plaintext or raw encryption keys.
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -455,11 +475,13 @@ export default function PrivacyPage() {
         </LegalTableWrap>
         <p className="text-muted-foreground mt-4 text-sm">
           Primary Helvety Cloud database, auth, and attachment object storage
-          are hosted in Switzerland (Zurich). Hosting and email tooling may
-          involve processing in other regions depending on vendor configuration.
-          Where required, Helvety relies on appropriate transfer mechanisms
-          offered by those vendors (for example standard contractual clauses)
-          and contractual safeguards.
+          are hosted in Switzerland (Zurich). Hosting, CDN, payments, and email
+          tooling may involve processing in other countries or regions
+          (including the United States and EU member states) depending on vendor
+          configuration and where you connect from. Where Swiss law requires
+          safeguards for transfers abroad, Helvety relies on appropriate
+          mechanisms offered by those vendors (for example standard contractual
+          clauses, adequacy where recognized, and contractual security terms).
         </p>
         <p className="text-muted-foreground mt-4 text-sm">
           Microsoft 365, SharePoint / Power Platform runtimes, browser vendors,
@@ -529,10 +551,10 @@ export default function PrivacyPage() {
           We do not operate third-party analytics, advertising trackers, or
           cross-site profiling on helvety.com. Preference storage is kept in
           your browser so theme and tool UI settings survive reloads. Helvety
-          Cloud may also use session cookies or similar storage required for
+          Cloud uses session cookies or similar browser storage required for
           authentication and product operation (for example Supabase Auth
-          session), separate from encryption unlock material which stays on your
-          device.
+          session on helvety.cloud), separate from encryption unlock material
+          which stays on your device.
         </p>
         <LegalTableWrap ariaLabel="Cookies and local storage">
           <LegalTable layout="cards">
@@ -566,14 +588,52 @@ export default function PrivacyPage() {
                   <TableCell data-label="Domain">helvety.com/pdf</TableCell>
                   <TableCell data-label="Duration">Until cleared</TableCell>
                 </TableRow>
+                <TableRow>
+                  <TableCell data-label="Cookie / Storage">
+                    Supabase Auth session (helvety.cloud)
+                  </TableCell>
+                  <TableCell data-label="Purpose">
+                    Keep your Helvety Cloud signed-in session after email OTP
+                    (required for the service; not encryption unlock)
+                  </TableCell>
+                  <TableCell data-label="Domain">helvety.cloud</TableCell>
+                  <TableCell data-label="Duration">
+                    Session / vendor-defined expiry until sign-out or clear
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </LegalTable>
         </LegalTableWrap>
       </section>
 
+      <section id="dpa" className="legal-section">
+        <h2 className="mb-4 text-xl font-semibold">
+          9. Controller, Processor, and DPA
+        </h2>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Helvety is the controller of Helvety Cloud account, authentication,
+          invitation, policy-acceptance, and billing metadata described in this
+          notice. Helvety stores end-to-end encrypted workspace ciphertext it
+          cannot read and is not a controller of that plaintext.
+        </p>
+        <p className="text-muted-foreground text-sm">
+          If you are an organization that needs a written Swiss nDSG Art. 9
+          processor agreement for Helvety&apos;s processing of Cloud account
+          metadata on your documented instructions, see the{" "}
+          <a
+            href="/dpa"
+            className="hover:text-foreground underline transition-colors"
+          >
+            Helvety Cloud Data Processing Addendum (metadata)
+          </a>
+          . That addendum does not cover encrypted workspace plaintext Helvety
+          cannot access.
+        </p>
+      </section>
+
       <section id="changes" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">9. Changes</h2>
+        <h2 className="mb-4 text-xl font-semibold">10. Changes</h2>
         <p className="text-muted-foreground text-sm">
           We may update this Privacy Policy when the Services change. The
           &quot;Last reviewed&quot; date at the top shows the latest review.
@@ -585,7 +645,7 @@ export default function PrivacyPage() {
       </section>
 
       <section id="contact" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">10. Contact</h2>
+        <h2 className="mb-4 text-xl font-semibold">11. Contact</h2>
         <p className="text-muted-foreground text-sm">
           Privacy questions:{" "}
           <a
@@ -600,6 +660,13 @@ export default function PrivacyPage() {
             className="hover:text-foreground underline transition-colors"
           >
             Terms of Service
+          </a>
+          ,{" "}
+          <a
+            href="/dpa"
+            className="hover:text-foreground underline transition-colors"
+          >
+            Cloud DPA (metadata)
           </a>
           ,{" "}
           <a

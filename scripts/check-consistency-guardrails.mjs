@@ -88,6 +88,7 @@ const filesToCheck = [
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/impressum/page.tsx",
+  "apps/web/app/dpa/page.tsx",
   "apps/web/public/.well-known/security.txt",
 ];
 

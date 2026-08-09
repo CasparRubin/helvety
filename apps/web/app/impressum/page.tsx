@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="August 2, 2026"
+        lastReviewed="August 9, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -125,7 +125,8 @@ export default function ImpressumPage() {
           licensed under the GNU Affero General Public License version 3 or
           later (AGPL-3.0). Other Helvety repositories may use different
           licenses, including MIT. Development is primarily based in
-          Switzerland. Services are not offered in the EU/EEA.
+          Switzerland. The Services are intended for customers in Switzerland
+          and are not offered in the EU/EEA.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -294,8 +295,9 @@ export default function ImpressumPage() {
           provides otherwise.
         </p>
         <p className="text-muted-foreground text-sm">
-          Services are primarily intended for customers in Switzerland. We do
-          not offer the Services in the EU/EEA. See{" "}
+          Services are intended for customers in Switzerland. We do not offer
+          the Services in the EU/EEA. Technical reachability of a public URL
+          from outside Switzerland is not an offer in the EU/EEA. See{" "}
           <Link
             href="/terms#eligibility"
             className="hover:text-foreground underline transition-colors"
@@ -322,6 +324,14 @@ export default function ImpressumPage() {
               className="hover:text-foreground underline transition-colors"
             >
               Privacy Policy
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dpa"
+              className="hover:text-foreground underline transition-colors"
+            >
+              Cloud DPA (metadata)
             </Link>
           </li>
         </ul>

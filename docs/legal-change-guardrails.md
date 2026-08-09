@@ -1,7 +1,8 @@
 # Legal Change Guardrails
 
 Release guardrails for shared legal pages
-(`helvety.com/privacy`, `helvety.com/terms`, `helvety.com/impressum`).
+(`helvety.com/privacy`, `helvety.com/terms`, `helvety.com/impressum`,
+`helvety.com/dpa`).
 
 ## Why this exists
 
@@ -30,6 +31,7 @@ At minimum, review and update:
 - `apps/web/app/privacy/page.tsx`
 - `apps/web/app/terms/page.tsx`
 - `apps/web/app/impressum/page.tsx`
+- `apps/web/app/dpa/page.tsx` when processor / metadata DPA facts change
 - product-facing copy (for example
   `packages/shared/src/helvety-ecosystem-sections.ts`,
   `packages/shared/src/store-catalog.ts`, `apps/store/lib/data/products.ts`,
@@ -37,7 +39,7 @@ At minimum, review and update:
 - [`docs/cookies-telemetry-and-footer.md`](./cookies-telemetry-and-footer.md)
   when storage, analytics, or footer behavior changes
 - Helvety Cloud `CURRENT_POLICY_VERSIONS` when gated Terms/Privacy/AUP/E2EE/
-  eligibility text changes materially (Cloud links here; versions live in the
+  eligibility/age text changes materially (Cloud links here; versions live in the
   helvety-cloud repo)
 
 ## Verification checklist
@@ -55,9 +57,10 @@ At minimum, review and update:
   (`bun run test` in `apps/web` for `legal-cookies-disclosure`,
   `legal-metadata`, `legal-privacy-tables`, `legal-public-tools`,
   `legal-document`)
-- When legal body copy changes, bump `lastReviewed` on **all three** pages to
-  the same date (`legal-metadata.test.ts`)
+- When legal body copy changes, bump `lastReviewed` on **all legal pages**
+  (impressum, privacy, terms, dpa) to the same date (`legal-metadata.test.ts`)
 - CH-first / not-offered-in-EU-EEA language stays consistent
 - Stable anchors used by Helvety Cloud remain: `/terms#eligibility`,
-  `/terms#aup`, `/terms#e2ee`, `/terms#billing`, `/privacy#subprocessors`,
+  `/terms#age`, `/terms#aup`, `/terms#e2ee`, `/terms#billing`,
+  `/terms#transparency`, `/privacy#subprocessors`, `/privacy#dpa`,
   `/impressum#abuse`

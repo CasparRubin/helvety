@@ -17,6 +17,7 @@ describe("web legal pages copy", () => {
     ["terms", "apps/web/app/terms/page.tsx"],
     ["impressum", "apps/web/app/impressum/page.tsx"],
     ["privacy", "apps/web/app/privacy/page.tsx"],
+    ["dpa", "apps/web/app/dpa/page.tsx"],
   ] as const)("%s page contains no em-dash", (_label, rel) => {
     assertNoEmDashInCustomerCopy(rel, readLegalPage(rel));
   });

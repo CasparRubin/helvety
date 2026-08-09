@@ -109,14 +109,28 @@ describe("legal pages enumerate public local-processing tools", () => {
       "utf8"
     );
     expect(terms).toContain('id="eligibility"');
+    expect(terms).toContain('id="age"');
     expect(terms).toContain('id="aup"');
     expect(terms).toContain('id="e2ee"');
     expect(terms).toContain('id="billing"');
+    expect(terms).toContain('id="transparency"');
     const privacy = readFileSync(
       join(repoRoot, "apps/web/app/privacy/page.tsx"),
       "utf8"
     );
     expect(privacy).toContain('id="subprocessors"');
+    expect(privacy).toContain('id="dpa"');
+  });
+
+  it("terms geographic eligibility and age sections stay CH-only and 16+", () => {
+    const terms = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/terms/page.tsx"), "utf8")
+    );
+    expect(terms).toContain("not an offer of the Services in the EU/EEA");
+    expect(terms).toContain("at least 16 years old");
+    expect(terms).toContain(
+      "does not provide a general statutory right of withdrawal"
+    );
   });
 
   it("terms section on product access documents no-account access for every public local tool", () => {
@@ -190,11 +204,11 @@ describe("legal local-processing statements cover every public local tool", () =
     );
     const section = sliceBetween(
       source,
-      "6.2 License to Us",
-      "6.3 Your Responsibilities"
+      "7.2 License to Us",
+      "7.3 Your Responsibilities"
     );
     for (const name of PUBLIC_LOCAL_TOOL_NAMES) {
-      expect(section, `terms 6.2 must mention ${name}`).toContain(name);
+      expect(section, `terms 7.2 must mention ${name}`).toContain(name);
     }
     expect(section).toContain("the current architecture");
     expect(section).toContain("PDF contents, or extracted text");
@@ -208,8 +222,8 @@ describe("legal local-processing statements cover every public local tool", () =
     );
     const section = sliceBetween(
       source,
-      "6.3 Your Responsibilities",
-      "7. Helvety Cloud and E2EE"
+      "7.3 Your Responsibilities",
+      "8. Helvety Cloud and E2EE"
     );
     expect(section).toContain("extracted text");
     expect(section).toContain("PDFs and images");

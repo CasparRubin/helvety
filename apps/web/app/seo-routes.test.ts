@@ -74,9 +74,10 @@ describe("web SEO routes", () => {
         `${urls.home}/impressum`,
         `${urls.home}/privacy`,
         `${urls.home}/terms`,
+        `${urls.home}/dpa`,
       ])
     );
-    expect(entryUrls).toHaveLength(4);
+    expect(entryUrls).toHaveLength(5);
     expect(entryUrls).not.toContain(`${urls.home}/llms.txt`);
     assertValidPublicSitemapEntries(entries);
   });

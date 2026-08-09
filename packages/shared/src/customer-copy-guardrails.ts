@@ -58,6 +58,7 @@ export const CUSTOMER_COPY_USER_FACING_RELATIVE_PATHS = [
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/impressum/page.tsx",
+  "apps/web/app/dpa/page.tsx",
 ] as const;
 
 /**
