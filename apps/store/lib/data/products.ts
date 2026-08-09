@@ -827,7 +827,7 @@ const helvetyCloud: SaaSProduct = {
         heading: "What you get",
         kind: "bullets",
         items: [
-          "Projects, tasks, notes, contacts, boards, comments, and files under one encrypted workspace, with sharing when you invite others.",
+          "Projects, tasks, notes, contacts, boards, databases, comments, and files under one encrypted workspace, with sharing when you invite others.",
           "End-to-end encryption on every plan, including Free. Helvety cannot decrypt your content.",
           "Passwordless account: email one-time code for the session; WebAuthn passkey (PRF) unlocks encryption.",
           "Open source on GitHub; see the repository LICENSE for the exact license terms.",
@@ -851,7 +851,7 @@ const helvetyCloud: SaaSProduct = {
     "End-to-end encryption on every plan; Helvety cannot decrypt your content",
     "E2EE / zero-access design: no master key, no escrow, no support content recovery",
     "Passwordless: email one-time code; unlock encryption with a passkey",
-    "Workspace-scoped projects, tasks, notes, contacts, boards, comments, and files",
+    "Workspace-scoped projects, tasks, notes, contacts, boards, databases, comments, and files",
     "Invite others by sealing the workspace key to them",
     "User-held recovery file; lost passkey and recovery means permanent loss",
     "Open source with published source on GitHub",

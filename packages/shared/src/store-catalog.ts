@@ -146,7 +146,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     slug: "helvety-cloud",
     name: "Helvety Cloud",
     shortDescription:
-      "Swiss end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, comments, and files. Encrypt on your device; Helvety cannot read or recover your content.",
+      "Swiss end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, databases, comments, and files. Encrypt on your device; Helvety cannot read or recover your content.",
     releaseDate: "2026-07-28",
     type: "saas",
     runsOn: "Browser",
