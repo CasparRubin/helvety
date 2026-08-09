@@ -62,7 +62,7 @@ describe("HeroMarketingShell", () => {
     );
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
     expect(HERO_OPEN_SOURCE_ASSURANCE).toBe(
-      "Everything we build is open source so you can verify our claims."
+      "Our products are open source so you can verify our claims."
     );
     expect(HERO_OPEN_SOURCE_ASSURANCE).not.toMatch(EMOJI_PATTERN);
   });

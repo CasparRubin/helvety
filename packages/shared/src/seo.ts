@@ -51,9 +51,10 @@ export const AI_DISCOVERY_USER_AGENTS = [
 
 /**
  * Host-absolute paths disallowed in gateway `/robots.txt` (RFC 9309 source of
- * truth). Non-indexable API paths on public product zones.
+ * truth). Non-indexable API paths on the gateway and public product zones.
  */
 export const GATEWAY_DISALLOWED_PATHS = [
+  "/api",
   "/store/api",
   "/pdf/api",
   "/image-editor/api",

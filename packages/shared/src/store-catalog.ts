@@ -134,7 +134,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     slug: "helvety-ocr",
     name: "Helvety OCR",
     shortDescription:
-      "Extract text from PDFs and images in the browser. Scanned pages run on-device OCR; born-digital PDFs reuse their text layer. Read, copy, or download plain text; files stay on your device.",
+      "Extract text from PDFs and images in the browser. Scanned pages run on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient. Read, copy, or download plain text; files stay on your device.",
     releaseDate: "2026-07-11",
     type: "saas",
     runsOn: "Browser",

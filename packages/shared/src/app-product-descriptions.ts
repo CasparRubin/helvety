@@ -6,7 +6,7 @@ import {
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
-  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Browser utilities for PDF, image editor, and OCR tools, extensions, and desktop tools.";
+  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Helvety Cloud (end-to-end encrypted workspace on helvety.cloud), browser utilities for PDF, image editor, and OCR tools, extensions, and desktop tools.";
 
 /** Shared store SEO / social copy. */
 export const STORE_DESCRIPTION = `Browse Helvety apps, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
@@ -30,7 +30,7 @@ export const IMAGE_EDITOR_APP_DESCRIPTION = `Annotate PNG, JPEG, and WebP in you
 export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable corners. Layers panel and zoom; PNG and JPEG export. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared OCR SEO / social copy. */
-export const OCR_APP_DESCRIPTION = `Extract text from PDFs and images in your browser: scanned or photographed pages run through on-device OCR, and born-digital PDFs reuse their existing text layer (${PDF_FILE_SIZE_LIMIT_COPY}). Read, copy, or download plain text with no server-side processing and no sign-in. Switzerland-first; not offered in the EU/EEA. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const OCR_APP_DESCRIPTION = `Extract text from PDFs and images in your browser: scanned or photographed pages run through on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient (${PDF_FILE_SIZE_LIMIT_COPY}). Read, copy, or download plain text with no server-side processing and no sign-in. Switzerland-first; not offered in the EU/EEA. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** PWA `public/manifest.json` summary for OCR. */
 export const OCR_PWA_MANIFEST_DESCRIPTION = `Extract text from PDFs and images in your browser with on-device OCR. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;

@@ -24,7 +24,7 @@ const HERO_CTA_BUTTON_CLASS =
 
 /** Helvety Cloud destination blurb under the primary CTA. */
 export const HERO_CLOUD_CTA_DESCRIPTION =
-  "Fully end-to-end encrypted workspace for tasks, notes, contacts, and more.";
+  "End-to-end encrypted workspace for projects, tasks, notes, contacts, boards, databases, comments, and files. Helvety cannot read or recover your content.";
 
 /** Store products destination blurb under the secondary CTA. */
 export const HERO_PRODUCTS_CTA_DESCRIPTION =

@@ -1,6 +1,6 @@
 # Helvety OCR
 
-> Extract text from PDFs and images in your browser on your device. Scanned or photographed pages run through on-device OCR, and born-digital PDFs reuse their existing text layer. Read, copy, or download plain text. No file upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
+> Extract text from PDFs and images in your browser on your device. Scanned or photographed pages run through on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient. Read, copy, or download plain text. No file upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety OCR](https://helvety.com/ocr): Main application route
@@ -10,6 +10,7 @@
 
 ## Related Helvety Apps
 - [Helvety](https://helvety.com)
+- [Helvety Cloud](https://helvety.cloud): Swiss end-to-end encrypted workspace; Helvety cannot read or recover your content ([store specs](https://helvety.com/store/products/helvety-cloud))
 - [Helvety Store](https://helvety.com/store/products)
 - [Helvety PDF](https://helvety.com/pdf)
 - [Helvety Image Editor](https://helvety.com/image-editor)

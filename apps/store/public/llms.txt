@@ -8,11 +8,11 @@
 
 ## Product pages
 The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:
-- [Helvety Cloud](https://helvety.com/store/products/helvety-cloud): Swiss end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, databases, comments, and files on helvety.cloud; encrypt on your device; Helvety cannot read or recover your content
+- [Helvety Cloud](https://helvety.com/store/products/helvety-cloud): Swiss end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, databases, comments, and files on helvety.cloud; encrypt on your device; Helvety cannot read or recover your content. Free Workspace (no encrypted files); Pro Workspace CHF 250 / year; Capacity Increase CHF 99 / year (Pro only)
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer)
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf)
 - [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor)
-- [Helvety OCR](https://helvety.com/store/products/helvety-ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR and born-digital PDFs reuse their text layer; read, copy, or download plain text with no file upload to Helvety servers
+- [Helvety OCR](https://helvety.com/store/products/helvety-ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient; read, copy, or download plain text with no file upload to Helvety servers
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools)
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Power Automate: choose Classic Designer, New Designer, or Paused; Hide sets v3survey=false on rewrites, while Show only normalizes an existing parameter. Power Apps: reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 

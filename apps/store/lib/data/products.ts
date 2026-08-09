@@ -716,7 +716,7 @@ const helvetyOcr: SaaSProduct = {
   category: cHelvetyOcr.category,
   description: {
     intro:
-      "Helvety OCR reads text out of PDFs and images without uploading your files. Drop a scan or photo and on-device optical character recognition transcribes it; drop a born-digital PDF and the app reuses the existing text layer instead of re-recognizing it. When extraction finishes you can read the text on screen, copy it, or download a plain .txt file. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
+      "Helvety OCR reads text out of PDFs and images without uploading your files. Drop a scan or photo and on-device optical character recognition transcribes it; drop a born-digital PDF and the app uses the existing text layer first, falling back to OCR when that layer is insufficient. When extraction finishes you can read the text on screen, copy it, or download a plain .txt file. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access model",
@@ -729,7 +729,7 @@ const helvetyOcr: SaaSProduct = {
         items: [
           "Images in PNG, JPEG, and WebP formats.",
           "Scanned or image-only PDFs, transcribed page by page with on-device OCR.",
-          "Born-digital PDFs, where the existing text layer is extracted directly for speed and accuracy.",
+          "Born-digital PDFs, where the existing text layer is used first and OCR runs when that layer is insufficient.",
           "English and German text recognition, selectable in the sidebar.",
           "Per-file ceiling of 100 MB and up to 50 pages per PDF; actual throughput depends on your device.",
         ],
@@ -745,7 +745,7 @@ const helvetyOcr: SaaSProduct = {
   artist: "Anny Meisser Vonzun",
   features: [
     "Client-side OCR for scanned pages and images",
-    "Born-digital PDFs reuse their existing text layer",
+    "Born-digital PDFs use their text layer first, with OCR fallback when needed",
     "PNG, JPEG, and WebP image support",
     "English and German recognition",
     "Read, copy, or download extracted text as .txt",
@@ -836,7 +836,7 @@ const helvetyCloud: SaaSProduct = {
       {
         heading: "Pricing",
         kind: "paragraph",
-        body: "Start on Free Workspace with fair-use limits (no encrypted file uploads on Free). Upgrade a workspace to Pro Workspace (CHF 250 per year) for higher limits and encrypted files. Capacity Increase add-ons are available for active Pro workspaces.",
+        body: "Start on Free Workspace with fair-use limits (no encrypted file uploads on Free). Upgrade a workspace to Pro Workspace (CHF 250 per year) for higher limits and encrypted files. Capacity Increase add-ons are CHF 99 per year each for active Pro workspaces.",
       },
       {
         heading: "Recovery and honesty",
@@ -855,7 +855,7 @@ const helvetyCloud: SaaSProduct = {
     "Invite others by sealing the workspace key to them",
     "User-held recovery file; lost passkey and recovery means permanent loss",
     "Open source with published source on GitHub",
-    "Free Workspace to start; Pro Workspace for higher limits and encrypted files",
+    "Free Workspace to start; Pro Workspace (CHF 250 / year) for higher limits and encrypted files; Capacity Increase CHF 99 / year (Pro only)",
   ],
   pricing: {
     hasFreeTier: true,
@@ -884,7 +884,7 @@ const helvetyCloud: SaaSProduct = {
         features: [
           "Higher workspace limits",
           "Encrypted file and document storage",
-          "Capacity Increase add-ons available",
+          "Capacity Increase add-ons (CHF 99 per year each)",
         ],
       },
     ],

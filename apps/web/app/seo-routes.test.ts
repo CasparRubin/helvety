@@ -37,6 +37,7 @@ describe("web SEO routes", () => {
         : [];
     expect(disallowPaths).toEqual(
       expect.arrayContaining([
+        "/api",
         "/store/api",
         "/pdf/api",
         "/image-editor/api",

@@ -148,6 +148,7 @@ describe("seo helpers", () => {
 
     expect(disallowedPaths).toEqual(
       expect.arrayContaining([
+        "/api",
         "/store/api",
         "/pdf/api",
         "/image-editor/api",

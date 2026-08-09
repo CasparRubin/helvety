@@ -10,7 +10,7 @@
 
 ## Crawling And Indexing
 - Public pages are intended to be indexable by search and AI crawlers.
-- API paths under public zones (`/store/api`, `/pdf/api`, `/image-editor/api`, `/ocr/api`) are disallowed in gateway `https://helvety.com/robots.txt`.
+- API paths (`/api`, `/store/api`, `/pdf/api`, `/image-editor/api`, `/ocr/api`) are disallowed in gateway `https://helvety.com/robots.txt`.
 
 ## Agent And Crawler Guides
 Per-zone `llms.txt` summaries. Public tool guides below are crawlable.
@@ -23,14 +23,14 @@ Per-zone `llms.txt` summaries. Public tool guides below are crawlable.
 - Helvety web zones use browser localStorage for preferences (theme and tool UI). They do not set preference HTTP cookies. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §8](https://helvety.com/privacy#cookies).
 
 ## Related apps and tools
-- [Helvety Cloud](https://helvety.cloud): Passwordless end-to-end encrypted workspace product (helvety.cloud); covered by helvety.com Privacy/Terms/Impressum; separate LICENSE and repository
+- [Helvety Cloud](https://helvety.cloud): Swiss passwordless end-to-end encrypted workspace for projects, tasks, notes, contacts, boards, databases, comments, and files; encrypt on your device; Helvety cannot read or recover your content. Covered by helvety.com Privacy/Terms/Impressum; separate LICENSE and repository. Specs: https://helvety.com/store/products/helvety-cloud
 - [Helvety Store](https://helvety.com/store/products): Product specs, SPFx and other Store-hosted downloads, and install links (for example Chrome Web Store) from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Power Automate: choose Classic Designer, New Designer, or Paused; Hide sets v3survey=false on rewrites, while Show only normalizes an existing parameter. Power Apps: reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots and on-screen drawing
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
 - [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser on your device with text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable stroke, blur, and corner radius; layers panel and zoom; no image upload to Helvety servers in the normal flow
-- [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR and born-digital PDFs reuse their text layer; read, copy, or download plain text with no file upload to Helvety servers
+- [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient; read, copy, or download plain text with no file upload to Helvety servers
 
 ## Licensing
 The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.

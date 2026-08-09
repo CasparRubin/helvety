@@ -10,6 +10,7 @@
 
 ## Related Helvety Apps
 - [Helvety](https://helvety.com)
+- [Helvety Cloud](https://helvety.cloud): Swiss end-to-end encrypted workspace; Helvety cannot read or recover your content ([store specs](https://helvety.com/store/products/helvety-cloud))
 - [Helvety Store](https://helvety.com/store/products)
 - [Helvety PDF](https://helvety.com/pdf)
 - [Helvety OCR](https://helvety.com/ocr)
