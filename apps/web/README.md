@@ -21,7 +21,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 
 - Default title and description come from `HELVETY_WEB_DEFAULT_TITLE` and `WEB_SITE_DESCRIPTION` in [`app/layout.tsx`](app/layout.tsx); [`public/manifest.json`](public/manifest.json) and [`public/llms.txt`](public/llms.txt) stay aligned (tagline is company/product copy; AGPL details live under `## Licensing` in `llms.txt` only).
 - Sub-app forwarding is defined in `next.config.ts`.
-- All Helvety Next apps use `experimental.cssChunking: "strict"` via `@helvety/config/next`, which may reduce (not eliminate) unused CSS preload console warnings while `app/loading.tsx` is active.
+- Helvety Next apps share Turbopack + security headers via `@helvety/config/next`. Unused CSS preload console warnings may still appear while `app/loading.tsx` is active.
 - Direct-domain sub-app roots are expected to redirect to their base path.
 - `apps/web` is indexable and serves:
   - `/robots.txt` (RFC 9309 source of truth: allow public crawl, disallow non-indexable API paths via `GATEWAY_DISALLOWED_PATHS`, advertise `/sitemap-index.xml`)

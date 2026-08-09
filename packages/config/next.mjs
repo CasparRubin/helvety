@@ -122,11 +122,10 @@ export function createHelvetyNextConfig({
       ...turbopackOverrides,
     },
     reactCompiler: true,
-    // Next.js currently documents both options under experimental config.
     experimental: {
       ...restExperimentalOverrides,
-      // May reduce unused CSS preload warnings while loading shells are active.
-      cssChunking: "strict",
+      // Do not set experimental.cssChunking: Turbopack (default bundler) rejects it;
+      // that option is webpack-only in Next 16.3+.
       optimizePackageImports: mergedOptimizePackageImports,
       ...(Object.keys(mergedServerActions).length > 0
         ? { serverActions: mergedServerActions }

@@ -177,8 +177,16 @@ describe("dependency inventory doc pins", () => {
     const root = readManifest("package.json");
 
     expect(inventory).toContain(required.get("next"));
+    expect(inventory).toContain(required.get("@base-ui/react"));
+    expect(inventory).toContain(required.get("shadcn"));
     expect(inventory).toContain(`vite@${root.overrides?.vite}`);
     expect(inventory).toContain(`postcss@${root.overrides?.postcss}`);
+    expect(inventory).toContain(
+      `typescript-eslint@${root.overrides?.["typescript-eslint"]}`
+    );
+    expect(inventory).toContain(`hono@${root.overrides?.hono}`);
+    expect(inventory).toContain(`nanoid@${root.overrides?.nanoid}`);
+    expect(inventory).toContain(`undici@${root.overrides?.undici}`);
   });
 
   it("documents drift config JSON as the workspace specifier SSOT", () => {
