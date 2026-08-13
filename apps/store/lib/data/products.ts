@@ -836,7 +836,7 @@ const helvetyCloud: SaaSProduct = {
       {
         heading: "Pricing",
         kind: "paragraph",
-        body: "Start on Free Workspace with fair-use limits (no encrypted file uploads on Free). Upgrade a workspace to Pro Workspace (CHF 250 per year) for higher limits and encrypted files. Capacity Increase add-ons are CHF 99 per year each for active Pro workspaces.",
+        body: "Start on Free Workspace with fair-use limits (no encrypted file uploads on Free). Upgrade a workspace to Pro Workspace (CHF 499 per year) for higher limits and encrypted files. Capacity Increase add-ons are CHF 199 per year each for active Pro workspaces.",
       },
       {
         heading: "Recovery and honesty",
@@ -855,7 +855,7 @@ const helvetyCloud: SaaSProduct = {
     "Invite others by sealing the workspace key to them",
     "User-held recovery file; lost passkey and recovery means permanent loss",
     "Open source with published source on GitHub",
-    "Free Workspace to start; Pro Workspace (CHF 250 / year) for higher limits and encrypted files; Capacity Increase CHF 99 / year (Pro only)",
+    "Free Workspace to start; Pro Workspace (CHF 499 / year) for higher limits and encrypted files; Capacity Increase CHF 199 / year (Pro only)",
   ],
   pricing: {
     hasFreeTier: true,
@@ -877,14 +877,14 @@ const helvetyCloud: SaaSProduct = {
       {
         id: "helvety-cloud-pro",
         name: "Pro Workspace",
-        price: 25000,
+        price: 49900,
         currency: "CHF",
         interval: "year",
         highlighted: true,
         features: [
           "Higher workspace limits",
           "Encrypted file and document storage",
-          "Capacity Increase add-ons (CHF 99 per year each)",
+          "Capacity Increase add-ons (CHF 199 per year each)",
         ],
       },
     ],

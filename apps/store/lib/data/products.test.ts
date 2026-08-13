@@ -344,6 +344,11 @@ describe("store product catalog", () => {
     expect(product.pricing.tiers.some((tier) => tier.interval === "year")).toBe(
       true
     );
+    const proTier = product.pricing.tiers.find(
+      (tier) => tier.id === "helvety-cloud-pro"
+    );
+    expect(proTier?.price).toBe(49900);
+    expect(proTier?.currency).toBe("CHF");
   });
 
   it("Power Platform Configurator listing uses canonical store card copy", () => {
