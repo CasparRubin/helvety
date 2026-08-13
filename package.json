@@ -89,7 +89,7 @@
     "dompurify": "3.4.12",
     "js-yaml": "4.3.1",
     "nanoid": "3.3.18",
-    "typescript-eslint": "8.66.0",
+    "typescript-eslint": "8.67.0",
     "body-parser": "2.3.0",
     "sharp": "0.35.3",
     "react": "^19.2.8",
@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
-    "knip": "^6.32.0",
+    "knip": "^6.32.2",
     "turbo": "^2.10.9"
   }
 }
