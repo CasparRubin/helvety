@@ -3,7 +3,7 @@
 /**
  * Product detail client component.
  * Displays full product information with free actions: Chrome Web Store install
- * links where configured, Store-hosted SPFx package downloads, or app deep links.
+ * links where configured, Store-hosted package downloads, or app deep links.
  * The server page calls `notFound()` when the slug is absent from
  * `@helvety/shared/store-catalog`; this client guard covers rare
  * catalog vs `products.ts` drift. Package downloads use a click-only button
@@ -54,6 +54,13 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       : null;
   const githubUrl = product.links?.github;
   const chromeWebStoreUrl = product.links?.chromeWebStore;
+  const softwareModules =
+    isSoftwareProduct(product) && product.software.modules?.length
+      ? product.software.modules.map((module) => ({
+          ...module,
+          downloadUrl: `/store/api/packages/${module.publicPackageId}/download`,
+        }))
+      : [];
 
   const showDownload = Boolean(packageDownloadUrl && downloadFormat);
   const showAppLink = Boolean(appUrl);
@@ -110,6 +117,49 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               ))}
             </div>
           </section>
+
+          {softwareModules.length > 0 && (
+            <section
+              id="modules"
+              className="bg-surface-panel ring-foreground/5 rounded-2xl border p-6 shadow-sm sm:p-8"
+            >
+              <h2 className="mb-4 text-xl font-semibold tracking-tight">
+                Modules
+              </h2>
+              <p className="text-muted-foreground mb-6 text-sm leading-relaxed text-pretty sm:text-base">
+                Drop-in modules live in the app modules folder. Download a ZIP,
+                extract it, and copy the module folder there. In the app, use
+                Open modules folder.
+              </p>
+              <ul className="space-y-5">
+                {softwareModules.map((module) => (
+                  <li
+                    key={module.id}
+                    className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                  >
+                    <div className="min-w-0">
+                      <h3 className="text-foreground text-base font-semibold tracking-tight">
+                        {module.name}
+                      </h3>
+                      <p className="text-muted-foreground mt-1 text-sm leading-relaxed text-pretty">
+                        {module.description}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      className="w-full shrink-0 sm:w-auto"
+                      onClick={() => {
+                        window.location.assign(module.downloadUrl);
+                      }}
+                    >
+                      <Download className="size-4 shrink-0" />
+                      Download {module.name} .{module.fileFormat}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {installationSteps && (
             <section className="bg-surface-panel ring-foreground/5 rounded-2xl border p-6 shadow-sm sm:p-8">

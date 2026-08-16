@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="August 9, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="August 16, 2026" />
 
       <LegalToc>
         <h2 className="mb-4 text-lg font-semibold">Table of Contents</h2>
@@ -179,7 +179,8 @@ export default function TermsPage() {
           </li>
           <li>
             <strong className="text-foreground">Helvety Store</strong>: catalog
-            and public downloads (for example Helvety SPO Explorer packages).
+            and public downloads (for example Helvety SPO Explorer packages and
+            Helvety Power Platform Tools ZIPs).
           </li>
           <li>
             <strong className="text-foreground">
@@ -190,10 +191,13 @@ export default function TermsPage() {
             Chrome Web Store.
           </li>
           <li>
-            <strong className="text-foreground">Helvety SPO Explorer</strong>{" "}
+            <strong className="text-foreground">Helvety SPO Explorer</strong>,{" "}
+            <strong className="text-foreground">Helvety Screen Tools</strong>,
             and{" "}
-            <strong className="text-foreground">Helvety Screen Tools</strong>:
-            Microsoft 365 and Windows products distributed separately from the
+            <strong className="text-foreground">
+              Helvety Power Platform Tools
+            </strong>
+            : Microsoft 365 and Windows products distributed separately from the
             browser tools above.
           </li>
           <li>

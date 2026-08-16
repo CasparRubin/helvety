@@ -65,7 +65,7 @@ describe("store product catalog", () => {
       "file-tools": 3,
       "browser-extensions": 1,
       "sharepoint-apps": 1,
-      "desktop-apps": 1,
+      "desktop-apps": 2,
     });
   });
 
@@ -75,9 +75,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Cloud newest; PDF oldest)", () => {
+  it("default sort is newest release first (Power Platform Tools newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-cloud");
+    expect(ids[0]).toBe("helvety-power-platform-tools");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -111,6 +111,9 @@ describe("store product catalog", () => {
     expect(
       getProductBySlug("helvety-screen-tools")?.metadata?.platforms
     ).toEqual(["Windows"]);
+    expect(
+      getProductBySlug("helvety-power-platform-tools")?.metadata?.platforms
+    ).toEqual(["Windows"]);
     expect(getProductBySlug("helvety-pdf")?.metadata?.platforms).toEqual([
       "Web",
     ]);
@@ -127,6 +130,12 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.slug).toBe(
       "helvety-screen-tools"
     );
+    expect(getProductBySlug("helvety-power-platform-tools")?.name).toBe(
+      "Helvety Power Platform Tools"
+    );
+    expect(
+      getProductBySlug("helvety-power-platform-tools")?.links?.github
+    ).toBe("https://github.com/CasparRubin/helvety-power-platform-tools");
     expect(getProductBySlug("helvety-image-editor")?.slug).toBe(
       "helvety-image-editor"
     );
@@ -185,6 +194,10 @@ describe("store product catalog", () => {
       "helvety-ocr": {
         artwork: "artwork13",
         artist: "Anny Meisser Vonzun",
+      },
+      "helvety-power-platform-tools": {
+        artwork: "artwork2",
+        artist: "Alexandre Calame",
       },
     };
 
@@ -398,6 +411,7 @@ describe("store product catalog", () => {
       "helvety-spo-explorer",
       "helvety-power-platform-configurator",
       "helvety-screen-tools",
+      "helvety-power-platform-tools",
     ] as const) {
       const product = getProductBySlug(slug);
       expect(product, slug).toBeDefined();
@@ -427,6 +441,9 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
       HELVETY_FREE_SOURCE_FEATURE
     );
+    expect(
+      getProductBySlug("helvety-power-platform-tools")?.features
+    ).toContain(HELVETY_FREE_SOURCE_FEATURE);
   });
 
   it("Power Platform Configurator links to the Chrome Web Store and has no package download", () => {
@@ -498,5 +515,26 @@ describe("store product catalog", () => {
         new RegExp(phrase, "i")
       );
     }
+  });
+
+  it("Helvety Power Platform Tools serves a core zip and Flow Explorer module", () => {
+    const product = getProductBySlug("helvety-power-platform-tools");
+    expect(product).toBeDefined();
+    if (!product || !isSoftwareProduct(product)) {
+      throw new Error("Expected Helvety Power Platform Tools software product");
+    }
+
+    expect(product.software.publicPackageId).toBe("power-platform-tools");
+    expect(product.software.fileFormat).toBe("zip");
+    expect(product.software.modules).toEqual([
+      {
+        id: "flow-explorer",
+        name: "Flow Explorer",
+        description:
+          "See what a cloud flow touches, and which flows use a Dataverse table.",
+        publicPackageId: "flow-explorer",
+        fileFormat: "zip",
+      },
+    ]);
   });
 });

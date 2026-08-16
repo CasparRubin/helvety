@@ -1,6 +1,6 @@
 # Helvety Store
 
-> Catalog pages with product specs, Store-hosted downloads (for example SPFx packages), and install links (for example the Chrome Web Store). Product prose is aligned with each app’s documentation. Hosted from Switzerland.
+> Catalog pages with product specs, Store-hosted downloads (for example SPFx packages and desktop ZIPs), and install links (for example the Chrome Web Store). Product prose is aligned with each app’s documentation. Hosted from Switzerland.
 
 ## Canonical URLs
 - [Products catalog](https://helvety.com/store/products): Authoritative product listing (primary landing; nav CTAs use this path)
@@ -14,6 +14,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor)
 - [Helvety OCR](https://helvety.com/store/products/helvety-ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient; read, copy, or download plain text with no file upload to Helvety servers
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools)
+- [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows app for Dataverse in your user context; download the core ZIP and optional modules such as Flow Explorer from this Store page
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Power Automate: choose Classic Designer, New Designer, or Paused; Hide sets v3survey=false on rewrites, while Show only normalizes an existing parameter. Power Apps: reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 
 ## Crawling And Indexing

@@ -19,7 +19,7 @@ describe("download-security", () => {
     );
   });
 
-  it("allows GitHub Releases download URLs and rejects others", () => {
+  it("allows GitHub Releases and public Supabase packages URLs; rejects others", () => {
     expect(
       isAllowedDownloadUrl(
         "https://github.com/CasparRubin/helvety-spo-explorer/releases/latest/download/helvety-spo-explorer.sppkg"
@@ -32,7 +32,22 @@ describe("download-security", () => {
     ).toBe(true);
     expect(
       isAllowedDownloadUrl(
+        "https://qnoeiurmyyyuawkcifmw.supabase.co/storage/v1/object/public/packages/power-platform-tools/Helvety-Power-Platform-Tools-win64.zip"
+      )
+    ).toBe(true);
+    expect(
+      isAllowedDownloadUrl(
         "https://abc123.supabase.co/storage/v1/object/sign/packages/spfx/test.sppkg"
+      )
+    ).toBe(false);
+    expect(
+      isAllowedDownloadUrl(
+        "https://abc123.supabase.co/storage/v1/object/public/other-bucket/file.zip"
+      )
+    ).toBe(false);
+    expect(
+      isAllowedDownloadUrl(
+        "https://evil.abc123.supabase.co/storage/v1/object/public/packages/file.zip"
       )
     ).toBe(false);
     expect(isAllowedDownloadUrl("https://example.com/file.sppkg")).toBe(false);

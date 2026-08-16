@@ -500,6 +500,135 @@ const helvetyScreenTools: SoftwareProduct = {
   },
 };
 
+/**
+ * Helvety Power Platform Tools - portable Dataverse desktop app with drop-in modules
+ */
+const cHelvetyPowerPlatformTools = cardCore(
+  "helvety-power-platform-tools",
+  "software"
+);
+const helvetyPowerPlatformTools: SoftwareProduct = {
+  id: cHelvetyPowerPlatformTools.id,
+  slug: cHelvetyPowerPlatformTools.slug,
+  name: cHelvetyPowerPlatformTools.name,
+  shortDescription: cHelvetyPowerPlatformTools.shortDescription,
+  type: cHelvetyPowerPlatformTools.type,
+  category: cHelvetyPowerPlatformTools.category,
+  image: productArtwork.artwork2,
+  artist: "Alexandre Calame",
+  description: {
+    intro:
+      "Helvety Power Platform Tools is a portable Windows desktop app that talks to Dataverse in your user context. There is no admin installer and no Microsoft Graph access.",
+    sections: [
+      {
+        heading: "Distribution",
+        kind: "paragraph",
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. The core Windows ZIP is hosted on this Store page. Use the Download button, extract the archive, and run the app. Optional modules are listed below on this page.`,
+      },
+      {
+        heading: "Workflow highlights",
+        kind: "bullets",
+        items: [
+          "Sign in with your Microsoft work or school account in the system browser.",
+          "Pick a Dataverse environment from Global Discovery.",
+          "Read records and metadata with the permissions you already have.",
+          "Add drop-in modules from the modules folder, including Flow Explorer.",
+        ],
+      },
+      {
+        heading: "Documentation",
+        kind: "paragraph",
+        body: "Auth, packaging, and module layout stay in the project README so the latest details sit next to the source.",
+      },
+    ],
+  },
+  features: [
+    "Sign in with your Microsoft work or school account",
+    "Pick a Dataverse environment from Global Discovery",
+    "Read Dataverse records and metadata in your user context",
+    "Drop-in modules, including Flow Explorer",
+    "Portable ZIP with no admin installer",
+    HELVETY_FREE_SOURCE_FEATURE,
+  ],
+  pricing: {
+    hasFreeTier: true,
+    tiers: [
+      {
+        id: "helvety-power-platform-tools-free",
+        name: "Free",
+        price: 0,
+        currency: "CHF",
+        interval: "one-time",
+        isFree: true,
+        features: [
+          "Core app and published modules",
+          "No account required to download",
+          "Free to use",
+        ],
+      },
+    ],
+  },
+  links: {
+    github: "https://github.com/CasparRubin/helvety-power-platform-tools",
+  },
+  software: {
+    fileFormat: "zip",
+    requirements: ["Windows 10 or Windows 11"],
+    licenseType: "free",
+    publicPackageId: "power-platform-tools",
+    modules: [
+      {
+        id: "flow-explorer",
+        name: "Flow Explorer",
+        description:
+          "See what a cloud flow touches, and which flows use a Dataverse table.",
+        publicPackageId: "flow-explorer",
+        fileFormat: "zip",
+      },
+    ],
+    installationSteps: [
+      {
+        title: "Download the core ZIP",
+        description:
+          "Use the Download button on this page to get Helvety-Power-Platform-Tools-win64.zip.",
+      },
+      {
+        title: "Extract and run",
+        description:
+          "Extract the ZIP to a folder you keep on disk, then start Helvety Power Platform Tools.exe.",
+      },
+      {
+        title: "Sign in and pick an environment",
+        description:
+          "Sign in with your Microsoft work or school account, then choose a Dataverse environment.",
+      },
+      {
+        title: "Optional: add a module",
+        description:
+          "Download a module ZIP from the Modules section, extract it, and copy the module folder into the app modules directory. In the app, use Open modules folder.",
+      },
+    ],
+  },
+  metadata: {
+    targetAudience: [
+      "Power Platform makers",
+      "Dataverse administrators and makers",
+      "Consultants inspecting cloud flows",
+    ],
+    platforms: platformsFromRunsOn(cHelvetyPowerPlatformTools.runsOn),
+    keywords: [
+      "dataverse",
+      "power platform",
+      "cloud flow",
+      "windows",
+      "desktop",
+      "flow explorer",
+    ],
+    featured: true,
+    releaseDate: cHelvetyPowerPlatformTools.releaseDate,
+  },
+};
+
 // =============================================================================
 // HELVETY PDF
 // =============================================================================
@@ -938,6 +1067,7 @@ const products: Product[] = [
   helvetyImageEditor,
   helvetyOcr,
   helvetyCloud,
+  helvetyPowerPlatformTools,
 ];
 
 // =============================================================================

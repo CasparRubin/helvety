@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="August 9, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="August 16, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
@@ -228,6 +228,14 @@ export default function PrivacyPage() {
             <strong className="text-foreground">Helvety Screen Tools:</strong>{" "}
             Windows desktop app distributed outside this monorepo. Screenshot
             and annotation content stays on your device in normal operation.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety Power Platform Tools:
+            </strong>{" "}
+            Windows desktop app distributed outside this monorepo. It signs in
+            with your Microsoft account and talks to Dataverse in your user
+            context. Tokens stay on your device in normal operation.
           </li>
           <li>
             <strong className="text-foreground">
@@ -460,7 +468,9 @@ export default function PrivacyPage() {
                 <TableRow>
                   <TableCell>Package delivery</TableCell>
                   <TableCell>
-                    GitHub Releases (or equivalent) for public .sppkg downloads
+                    GitHub Releases for public .sppkg downloads; public Supabase
+                    Storage in the Helvety Cloud project for Helvety Power
+                    Platform Tools ZIPs
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -486,9 +496,9 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mt-4 text-sm">
           Microsoft 365, SharePoint / Power Platform runtimes, browser vendors,
           and Windows operate under their own terms when you use SPO Explorer,
-          Power Platform Configurator, or Screen Tools. We do not sell personal
-          data. This subprocessors list may change; material changes will be
-          reflected on this page.
+          Power Platform Configurator, Screen Tools, or Helvety Power Platform
+          Tools. We do not sell personal data. This subprocessors list may
+          change; material changes will be reflected on this page.
         </p>
       </section>
 

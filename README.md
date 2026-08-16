@@ -6,7 +6,7 @@ Monorepo for Helvety **web applications** served from **helvety.com** (Next.js p
 
 Helvety is a Next.js monorepo for apps served under `helvety.com` paths:
 
-- Other Helvety products (browser extensions, SPFx controls, WinUI tools, and similar) are **distributed separately** from their own repositories; where source is published for those products, the applicable repository `LICENSE` file governs it. The [Helvety Store catalog](https://helvety.com/store/products) lists product pages with Store-hosted downloads (for example SPFx), Chrome Web Store install links (for example Power Platform Configurator), and other install or source links across the full product line (zone root `/store` redirects to that catalog).
+- Other Helvety products (browser extensions, SPFx controls, Windows desktop tools, and similar) are **distributed separately** from their own repositories; where source is published for those products, the applicable repository `LICENSE` file governs it. The [Helvety Store catalog](https://helvety.com/store/products) lists product pages with Store-hosted downloads (for example SPFx and desktop ZIPs), Chrome Web Store install links (for example Power Platform Configurator), and other install or source links across the full product line (zone root `/store` redirects to that catalog).
 - Public gateway and tools: `web`, `store`, `pdf`, `image-editor`, `ocr`
 - Shared packages: `@helvety/shared`, `@helvety/ui` (components, `globals.css`, and production Tailwind/PostCSS packages for Vercel builds), `@helvety/config` (shared config entrypoints), `@helvety/dev-deps` (canonical toolchain versions), `@helvety/brand`, `@helvety/extension-chrome` (shared UI chrome for external extension repos such as Power Platform Configurator)
 
@@ -14,13 +14,13 @@ Root layouts for these zones use `@helvety/ui/helvety-public-shell-root-layout`.
 
 ## Applications
 
-| App                                       | URL                                | Purpose                                                                                                                        |
-| ----------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| [`apps/web`](apps/web/)                   | <https://helvety.com>              | Gateway app, marketing homepage (static SSR hero on plain theme background), legal pages, sitemap index, cross-zone navigation |
-| [`apps/store`](apps/store/)               | <https://helvety.com/store>        | Product catalog (landing `/store/products`), SPFx package downloads, and external install links (for example Chrome Web Store) |
-| [`apps/pdf`](apps/pdf/)                   | <https://helvety.com/pdf>          | Browser-based PDF tools                                                                                                        |
-| [`apps/image-editor`](apps/image-editor/) | <https://helvety.com/image-editor> | Browser-based image annotation                                                                                                 |
-| [`apps/ocr`](apps/ocr/)                   | <https://helvety.com/ocr>          | Browser-based OCR for PDFs and images                                                                                          |
+| App                                       | URL                                | Purpose                                                                                                                                |
+| ----------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| [`apps/web`](apps/web/)                   | <https://helvety.com>              | Gateway app, marketing homepage (static SSR hero on plain theme background), legal pages, sitemap index, cross-zone navigation         |
+| [`apps/store`](apps/store/)               | <https://helvety.com/store>        | Product catalog (landing `/store/products`), Store-hosted package downloads, and external install links (for example Chrome Web Store) |
+| [`apps/pdf`](apps/pdf/)                   | <https://helvety.com/pdf>          | Browser-based PDF tools                                                                                                                |
+| [`apps/image-editor`](apps/image-editor/) | <https://helvety.com/image-editor> | Browser-based image annotation                                                                                                         |
+| [`apps/ocr`](apps/ocr/)                   | <https://helvety.com/ocr>          | Browser-based OCR for PDFs and images                                                                                                  |
 
 ## Shared Packages
 

@@ -33,4 +33,22 @@ describe("createPackageDownload", () => {
         "https://github.com/CasparRubin/helvety-spo-explorer/releases/latest/download/helvety-spo-explorer.sppkg",
     });
   });
+
+  it("returns public Supabase Storage URLs for Power Platform Tools packages", async () => {
+    const core = await createPackageDownload("power-platform-tools");
+    expect(core.ok).toBe(true);
+    if (core.ok) {
+      expect(core.downloadUrl).toContain(
+        "/storage/v1/object/public/packages/power-platform-tools/"
+      );
+    }
+
+    const moduleZip = await createPackageDownload("flow-explorer");
+    expect(moduleZip.ok).toBe(true);
+    if (moduleZip.ok) {
+      expect(moduleZip.downloadUrl).toContain(
+        "/storage/v1/object/public/packages/flow-explorer/"
+      );
+    }
+  });
 });

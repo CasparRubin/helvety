@@ -73,6 +73,17 @@ describe("legal pages enumerate public local-processing tools", () => {
     }
   );
 
+  it("privacy, terms, and impressum mention Helvety Power Platform Tools", () => {
+    for (const rel of [
+      "apps/web/app/privacy/page.tsx",
+      "apps/web/app/terms/page.tsx",
+      "apps/web/app/impressum/page.tsx",
+    ] as const) {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      expect(source, rel).toContain("Helvety Power Platform Tools");
+    }
+  });
+
   it("privacy and terms do not mention removed products", () => {
     for (const rel of [
       "apps/web/app/privacy/page.tsx",

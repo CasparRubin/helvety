@@ -128,6 +128,17 @@ describe("seo customer copy guardrails", () => {
     expect(source).toContain("helvety.cloud");
   });
 
+  it("store llms.txt lists Helvety Power Platform Tools", () => {
+    const source = readFileSync(
+      join(repoRoot, "apps/store/public/llms.txt"),
+      "utf8"
+    );
+    expect(source).toContain("helvety-power-platform-tools");
+    expect(source).toContain(
+      "helvety.com/store/products/helvety-power-platform-tools"
+    );
+  });
+
   it("zone llms Related Helvety Apps sections link to Helvety OCR", () => {
     const zoneLlmsWithRelated = CUSTOMER_COPY_LLMS_RELATIVE_PATHS.filter(
       (rel) =>

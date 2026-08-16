@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="August 9, 2026"
+        lastReviewed="August 16, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -154,6 +154,12 @@ export default function ImpressumPage() {
           <li>
             <strong className="text-foreground">Helvety Screen Tools</strong>:
             Windows desktop capture and Live Draw overlay.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Helvety Power Platform Tools
+            </strong>
+            : portable Windows app for Dataverse with optional drop-in modules.
           </li>
           <li>
             <strong className="text-foreground">Helvety Image Editor</strong>:

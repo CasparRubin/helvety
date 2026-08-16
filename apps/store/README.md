@@ -1,6 +1,6 @@
 # Helvety Store
 
-Product catalog app for Helvety products: specs, Store-hosted download redirects (for example SPFx via GitHub Releases), and install links (for example the Chrome Web Store for browser extensions) for helvety.com web apps **and** separately distributed software.
+Product catalog app for Helvety products: specs, Store-hosted download redirects (SPFx via GitHub Releases, desktop ZIPs via Supabase Storage), and install links (for example the Chrome Web Store) for helvety.com web apps **and** separately distributed software.
 
 **App URL:** <https://helvety.com/store> (catalog landing: <https://helvety.com/store/products>)  
 **Monorepo path:** `apps/store`
@@ -9,14 +9,14 @@ Product catalog app for Helvety products: specs, Store-hosted download redirects
 
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`) with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
 - Public product catalog at `/store/products` with product cards that overlay frosted ecosystem category badges and an “Art by …” artist credit on artwork ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
-- Public SPFx package download endpoints (no login required); browser extensions link to vendor stores (for example Chrome Web Store) from product pages
+- Public package download endpoints (no login required) for SPFx and desktop ZIPs; browser extensions link to vendor stores (for example Chrome Web Store) from product pages
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
 - Product listing server-renders a text-only grid from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag); the client keeps text cards until a dynamic `import()` of `lib/data/products` resolves, then swaps in artwork cards. Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`). Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only; sitemap uses `lib/data/product-catalog-cache.ts`
 
 ## Package Download Behavior
 
-- Downloadable SPFx packages are configured in [`lib/packages/config.ts`](lib/packages/config.ts) with absolute **GitHub Releases** asset URLs (for example Helvety SPO Explorer: `spo-explorer` → `helvety-spo-explorer` latest `.sppkg`).
-- The public download route responds with an HTTP redirect to that URL. Redirect targets must be `https:` on trusted GitHub hosts (`github.com`, `objects.githubusercontent.com`, `release-assets.githubusercontent.com`) via `isAllowedDownloadUrl` (fail-closed for anything else).
+- Downloadable packages are configured in [`lib/packages/config.ts`](lib/packages/config.ts) with absolute HTTPS URLs. Helvety SPO Explorer uses a **GitHub Releases** `.sppkg`. Helvety Power Platform Tools uses public **Supabase Storage** objects in the `packages` bucket (core ZIP and module ZIPs).
+- The public download route responds with an HTTP redirect to that URL. Redirect targets must be `https:` on trusted GitHub hosts (`github.com`, `objects.githubusercontent.com`, `release-assets.githubusercontent.com`) or public `{ref}.supabase.co/storage/v1/object/public/packages/...` URLs via `isAllowedDownloadUrl` (fail-closed for anything else).
 - **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no Store-hosted ZIP). Retired `power-automate-*` and `power-platform-configurator` package ids are not served.
 - Public package downloads use `lib/download-security.ts` (`buildPublicDownloadRateLimitKey`, `packageIdSchema`, `isAllowedDownloadUrl`) and `lib/packages/create-package-download.ts` for resolution.
 - Retired **package/download** ids return not-found; that is separate from **product page** 404s for unknown `helvety-*` catalog slugs.
@@ -64,6 +64,7 @@ category pills, and the app switcher product sections.
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
    - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and Chrome Web Store listing URL; run `bun run consistency:project-naming`
    - For **SPO Explorer** SPFx downloads, add/update the GitHub Releases URL in `lib/packages/config.ts`
+   - For **Helvety Power Platform Tools**, add/update public Supabase Storage object URLs in `lib/packages/config.ts` (core ZIP plus each module ZIP)
    - Run `bun run test --filter=@helvety/shared` and
      `bun run consistency:install-manifest-metadata`
 5. **Run pre-deployment validations** from the repo root:
@@ -103,7 +104,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + dynamic artwork import, ecosystem category wiring, catalog badge surfaces, public download signing and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()`, and canonical per-product artwork/artist assignments.
+Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + dynamic artwork import, ecosystem category wiring, catalog badge surfaces, public download redirects and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()`, and canonical per-product artwork/artist assignments.
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 

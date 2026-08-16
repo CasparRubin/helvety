@@ -197,6 +197,15 @@ interface SoftwareInstallationStep {
   description: string;
 }
 
+/** One drop-in module download listed on a software product page. */
+interface SoftwareModuleDownload {
+  id: string;
+  name: string;
+  description: string;
+  publicPackageId: string;
+  fileFormat: string;
+}
+
 /**
  * Additional fields for downloadable software
  */
@@ -212,6 +221,8 @@ interface SoftwareProductDetails {
    * `/store/api/packages/{publicPackageId}/download` (must match a key in `apps/store/lib/packages/config.ts`).
    */
   publicPackageId?: string;
+  /** Optional drop-in modules listed on the same product page. */
+  modules?: SoftwareModuleDownload[];
   /** Step-by-step installation copy for the product detail page */
   installationSteps?: SoftwareInstallationStep[];
 }

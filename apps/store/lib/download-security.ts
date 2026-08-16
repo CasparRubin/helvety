@@ -15,15 +15,64 @@ export function buildPublicDownloadRateLimitKey(clientIp: string): string {
   return `public-download:ip:${clientIp}`;
 }
 
-const ALLOWED_DOWNLOAD_HOSTS = new Set([
+const ALLOWED_GITHUB_DOWNLOAD_HOSTS = new Set([
   "github.com",
   "objects.githubusercontent.com",
   "release-assets.githubusercontent.com",
 ]);
 
+const SUPABASE_PUBLIC_PACKAGES_PREFIX = "/storage/v1/object/public/packages/";
+
+/** GitHub Releases hosts used by SPFx downloads. */
+function isAllowedGitHubDownloadUrl(parsed: URL): boolean {
+  const host = parsed.hostname.toLowerCase();
+  if (!ALLOWED_GITHUB_DOWNLOAD_HOSTS.has(host)) {
+    return false;
+  }
+  if (host === "github.com") {
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    if (parts.length < 5) {
+      return false;
+    }
+    if (parts[2] !== "releases") {
+      return false;
+    }
+    if (parts.includes("..")) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Public Supabase Storage objects in the `packages` bucket
+ * (`{ref}.supabase.co/storage/v1/object/public/packages/...`).
+ */
+function isAllowedSupabasePackagesUrl(parsed: URL): boolean {
+  const host = parsed.hostname.toLowerCase();
+  const labels = host.split(".");
+  if (labels.length !== 3) {
+    return false;
+  }
+  if (labels[1] !== "supabase" || labels[2] !== "co") {
+    return false;
+  }
+  if (!labels[0]) {
+    return false;
+  }
+  if (parsed.pathname.includes("..")) {
+    return false;
+  }
+  if (!parsed.pathname.startsWith(SUPABASE_PUBLIC_PACKAGES_PREFIX)) {
+    return false;
+  }
+  return parsed.pathname.length > SUPABASE_PUBLIC_PACKAGES_PREFIX.length;
+}
+
 /**
  * Ensures HTTP redirects from the public package download route only target
- * trusted GitHub Releases hosts (fail closed for anything else).
+ * trusted GitHub Releases hosts or public `packages` objects on
+ * `{ref}.supabase.co` (fail closed for anything else).
  */
 export function isAllowedDownloadUrl(rawUrl: string): boolean {
   try {
@@ -31,23 +80,9 @@ export function isAllowedDownloadUrl(rawUrl: string): boolean {
     if (parsed.protocol !== "https:") {
       return false;
     }
-    if (!ALLOWED_DOWNLOAD_HOSTS.has(parsed.hostname.toLowerCase())) {
-      return false;
-    }
-    // github.com download links must stay under /owner/repo/releases/...
-    if (parsed.hostname.toLowerCase() === "github.com") {
-      const parts = parsed.pathname.split("/").filter(Boolean);
-      if (parts.length < 5) {
-        return false;
-      }
-      if (parts[2] !== "releases") {
-        return false;
-      }
-      if (parts.includes("..")) {
-        return false;
-      }
-    }
-    return true;
+    return (
+      isAllowedGitHubDownloadUrl(parsed) || isAllowedSupabasePackagesUrl(parsed)
+    );
   } catch {
     return false;
   }

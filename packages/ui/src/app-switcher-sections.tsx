@@ -21,6 +21,7 @@ import {
   Puzzle,
   ScanText,
   Store,
+  Workflow,
 } from "lucide-react";
 
 import type { ComponentType, SVGProps } from "react";
@@ -49,6 +50,7 @@ const ecosystemItemIcons: Record<
   "helvety-power-platform-configurator": Puzzle,
   "helvety-spo-explorer": Building2,
   "helvety-screen-tools": Monitor,
+  "helvety-power-platform-tools": Workflow,
 };
 
 /** Maps a shared ecosystem section to app-switcher links with Lucide icons. */

@@ -59,6 +59,7 @@ function withDerivedCategory(card: StoreProductCardBase): StoreProductCard {
  * (newer for display when using newest-first sort).
  */
 export const PRODUCT_RELEASE_TIE_PRIORITY: Readonly<Record<string, number>> = {
+  "helvety-power-platform-tools": 10,
   "helvety-cloud": 9,
   "helvety-ocr": 8,
   "helvety-image-editor": 8,
@@ -151,6 +152,18 @@ const STORE_PRODUCT_CARDS_BASE = [
     type: "saas",
     runsOn: "Browser",
     isFree: false,
+    isOpenSource: true,
+  },
+  {
+    id: "helvety-power-platform-tools",
+    slug: "helvety-power-platform-tools",
+    name: "Helvety Power Platform Tools",
+    shortDescription:
+      "Windows app for Dataverse. Sign in with your Microsoft account, pick an environment, and add drop-in modules such as Flow Explorer.",
+    releaseDate: "2026-08-16",
+    type: "software",
+    runsOn: "Windows 10 & 11",
+    isFree: true,
     isOpenSource: true,
   },
 ] as const satisfies readonly StoreProductCardBase[];

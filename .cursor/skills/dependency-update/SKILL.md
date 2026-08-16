@@ -48,7 +48,7 @@ Update [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) if 
 
 ## Phase 4: External repos
 
-Mention Store catalog products from inventory **external repositories** table (Power Platform Configurator, SPO Explorer, Screen Tools). Note if `@helvety/extension-chrome` changes require coordinated releases outside this monorepo.
+Mention Store catalog products from inventory **external repositories** table (Power Platform Configurator, SPO Explorer, Screen Tools, Power Platform Tools). Note if `@helvety/extension-chrome` changes require coordinated releases outside this monorepo.
 
 ## Required report (always produce)
 

@@ -78,7 +78,7 @@ Layered copy avoids repeating the same paragraph on a product page and across su
 
 Three legacy browser-extension listings were merged into **Power Platform Configurator** (`helvety-power-platform-configurator`). Public install is the Chrome Web Store only; the retired download package id `power-platform-configurator` (old ZIP sideload) is rejected server-side (404) like legacy `power-automate-*` ids. Retired store slugs and package ids (`helvety-power-automate-force-v3-false`, `helvety-power-automate-editor-preference`, `helvety-power-automate-editor-version-enforcer`, `power-platform-configurator`, and matching `power-automate-*` download paths) must **not** appear in customer-facing copy, catalog data, or legal text except in the allowlist below. They may appear only in:
 
-- [`apps/store/lib/packages/create-package-download.test.ts`](../apps/store/lib/packages/create-package-download.test.ts) (asserts download signing rejects legacy package ids)
+- [`apps/store/lib/packages/create-package-download.test.ts`](../apps/store/lib/packages/create-package-download.test.ts) (asserts download resolution rejects legacy package ids)
 - [`packages/shared/src/retired-power-platform-extension-naming.ts`](../packages/shared/src/retired-power-platform-extension-naming.ts) (canonical forbidden-pattern registry for tests)
 - [`apps/store/lib/packages/config.test.ts`](../apps/store/lib/packages/config.test.ts) (negative assertions for removed package ids)
 - [`docs/naming-conventions.md`](naming-conventions.md) (this section; lists retired slugs for contributors)

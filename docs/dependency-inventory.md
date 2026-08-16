@@ -81,21 +81,23 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public 
 
 Listed in Store catalog; bump or release separately from `helvety` npm.
 
-| Product                     | Repository                                                                            | Versioning / release notes                                                                                        | Check URL                                                                                                                              |
-| --------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Power Platform Configurator | https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium | Separate repo; Chrome Web Store install. Uses `@helvety/extension-chrome` from this monorepo when vendored.       | [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang); GitHub source |
-| Helvety SPO Explorer        | https://github.com/CasparRubin/helvety-spo-explorer                                   | SPFx `.sppkg` published as GitHub Release assets; Store download redirects to trusted GitHub Releases hosts.      | GitHub releases                                                                                                                        |
-| Helvety Screen Tools        | Separate Windows desktop product                                                      | Store catalog card + install/source links; not built in this monorepo.                                            | Store product page                                                                                                                     |
-| Shared extension chrome     | Consumes `@helvety/extension-chrome` from this repo                                   | Bump `@helvety/extension-chrome` in monorepo first; then release Power Platform Configurator if its copy changes. | `packages/extension-chrome/README.md`                                                                                                  |
+| Product                      | Repository                                                                            | Versioning / release notes                                                                                        | Check URL                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Power Platform Configurator  | https://github.com/CasparRubin/power-platform-configurator-browser-extension-chromium | Separate repo; Chrome Web Store install. Uses `@helvety/extension-chrome` from this monorepo when vendored.       | [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang); GitHub source |
+| Helvety SPO Explorer         | https://github.com/CasparRubin/helvety-spo-explorer                                   | SPFx `.sppkg` published as GitHub Release assets; Store download redirects to trusted GitHub Releases hosts.      | GitHub releases                                                                                                                        |
+| Helvety Screen Tools         | Separate Windows desktop product                                                      | Store catalog card + install/source links; not built in this monorepo.                                            | Store product page                                                                                                                     |
+| Helvety Power Platform Tools | https://github.com/CasparRubin/helvety-power-platform-tools                           | Portable Windows ZIP plus module ZIPs; Store download redirects to public Supabase Storage `packages` objects.    | Store product page                                                                                                                     |
+| Shared extension chrome      | Consumes `@helvety/extension-chrome` from this repo                                   | Bump `@helvety/extension-chrome` in monorepo first; then release Power Platform Configurator if its copy changes. | `packages/extension-chrome/README.md`                                                                                                  |
 
 ---
 
 ## Hosted services (no version in repo)
 
-| Service       | Used by                         | Notes                                                                                         |
-| ------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
-| Upstash Redis | rate limits (Store downloads)   | Env per `docs/turbo-env-tiers.md`                                                             |
-| Vercel        | deploy per `apps/*/vercel.json` | Node **24.x** (Functions: 20/22/24 only); five zone projects (`docs/vercel-monorepo-apps.md`) |
+| Service          | Used by                         | Notes                                                                                         |
+| ---------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| Upstash Redis    | rate limits (Store downloads)   | Env per `docs/turbo-env-tiers.md`                                                             |
+| Supabase Storage | Store desktop ZIP downloads     | Public `packages` bucket on the Helvety Cloud project; Store redirects to object URLs         |
+| Vercel           | deploy per `apps/*/vercel.json` | Node **24.x** (Functions: 20/22/24 only); five zone projects (`docs/vercel-monorepo-apps.md`) |
 
 Check Vercel runtime advisories during major updates. Do not bump `@types/node` or `engines.node` past what [Vercel Functions support](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
 

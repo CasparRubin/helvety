@@ -25,7 +25,7 @@ export default function DpaPage() {
     <LegalPageShell>
       <LegalHeader
         title="Helvety Cloud Data Processing Addendum (metadata)"
-        lastReviewed="August 9, 2026"
+        lastReviewed="August 16, 2026"
         subtitle="Swiss nDSG Art. 9 processor terms for account metadata only"
       />
 

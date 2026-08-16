@@ -46,8 +46,9 @@ Applies to every Vercel project in [`vercel-monorepo-apps.md`](./vercel-monorepo
 ## Store public downloads
 
 - SPFx packages (for example Helvety SPO Explorer) resolve to GitHub Releases asset URLs in `apps/store/lib/packages/config.ts`.
-- Signed redirect URLs from `createPackageDownload` must pass `isAllowedDownloadUrl` (trusted GitHub hosts only: `github.com`, `objects.githubusercontent.com`, `release-assets.githubusercontent.com`).
-- Reject test URLs with path traversal or wrong origin before shipping download config changes.
+- Helvety Power Platform Tools core and module ZIPs resolve to public Supabase Storage objects in the `packages` bucket (`{ref}.supabase.co/storage/v1/object/public/packages/...`).
+- Redirect URLs from `createPackageDownload` must pass `isAllowedDownloadUrl` (trusted GitHub hosts, or public `packages` objects on `{ref}.supabase.co`).
+- Reject test URLs with path traversal, signed Storage paths, other buckets, or wrong origin before shipping download config changes.
 - Power Platform Configurator installs from the Chrome Web Store (no Store-hosted ZIP).
 
 ## CSP
