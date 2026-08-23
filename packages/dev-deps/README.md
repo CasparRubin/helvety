@@ -13,7 +13,7 @@ Add to any app or package:
 
 Canonical versions live here in **`dependencies`** (not `devDependencies`) so Bun hoists toolchain bins and types into workspaces that declare `"@helvety/dev-deps": "workspace:*"`. Expected shared specifiers are defined in [`scripts/workspace-version-drift.config.json`](../../scripts/workspace-version-drift.config.json) and enforced by [`scripts/check-workspace-version-drift.mjs`](../../scripts/check-workspace-version-drift.mjs) (`bun run deps:drift`, included in root `bun run ci:check`). Do not duplicate these packages in individual workspace `package.json` files. Runtime dependency versions (for example `next`, `react`) stay in each app or library manifest and are checked by the same drift map.
 
-Keep app-specific devDependencies (for example `@types/chrome` ^0.2.5 on extension-chrome) in the workspace that needs them.
+Keep app-specific devDependencies (for example `@types/chrome` ^0.2.7 on extension-chrome) in the workspace that needs them.
 
 **Exceptions:**
 

@@ -101,6 +101,6 @@
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
     "knip": "^6.32.2",
-    "turbo": "^2.10.9"
+    "turbo": "^2.10.11"
   }
 }
