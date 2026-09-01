@@ -14,10 +14,9 @@ describe("web sitemap", () => {
         `${urls.home}/impressum`,
         `${urls.home}/privacy`,
         `${urls.home}/terms`,
-        `${urls.home}/dpa`,
       ])
     );
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(4);
     assertValidPublicSitemapEntries(entries);
   });
 });

@@ -7,7 +7,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  HERO_CLOUD_CTA_DESCRIPTION,
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
   HERO_COMPANY_VALUES_TAGLINE_TEXT,
   HERO_OPEN_SOURCE_ASSURANCE,
@@ -75,7 +74,7 @@ describe("HeroMarketingShell", () => {
     ]);
   });
 
-  it("server-renders hero copy with Cloud and Store CTAs", () => {
+  it("server-renders hero copy with a Store products CTA", () => {
     const html = renderToStaticMarkup(<HeroMarketingShell />);
     const hrefs = [...html.matchAll(/\bhref="([^"]*)"/g)].map(
       (match) => match[1]
@@ -93,25 +92,32 @@ describe("HeroMarketingShell", () => {
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
     expect(html).not.toContain("radial-gradient");
+    expect(html).toContain("justify-center");
+    expect(html).toContain("gap-12");
+    expect(html).toContain("sm:gap-16");
+    expect(html).toContain("max-w-md");
     expect(html).toContain("text-center");
     expect(html).not.toContain("sm:text-left");
-    expect(html).toContain("Helvety Cloud");
-    expect(html).toContain("Browse other products");
-    expect(html).toContain(HERO_CLOUD_CTA_DESCRIPTION);
+    expect(html).toContain("hero-enter-brand");
+    expect(html).toContain("hero-enter-ctas");
+    expect(html).toContain("Browse products");
     expect(html).toContain(HERO_PRODUCTS_CTA_DESCRIPTION);
+    expect(html).not.toContain("Helvety Cloud");
+    expect(html).not.toContain("Browse other products");
     expect(html).not.toContain("Microsoft 365");
     expect(html).not.toContain("M365");
-    expect(hrefs).toContain("https://helvety.cloud");
+    expect(html).not.toContain("End-to-end encrypted open-space workspace");
+    expect(html).not.toContain("Free browser tools and Microsoft 365 apps");
     expect(hrefs).toContain("/store/products");
     expect(hrefs).not.toContain("/store");
+    expect(hrefs).not.toContain("https://helvety.cloud");
     expect(html).not.toMatch(EMOJI_PATTERN);
   });
 
-  it("links Cloud via urls.cloud and Store via urls.storeProducts", () => {
+  it("links Store via urls.storeProducts", () => {
     const src = readFileSync(shellPath, "utf8");
-    expect(src).toContain("urls.cloud");
     expect(src).toContain("urls.storeProducts");
+    expect(src).not.toContain("urls.cloud");
     expect(src).not.toContain("getLocalAppHref(urls.store)");
-    expect(src).not.toContain("getLocalAppHref(urls.cloud)");
   });
 });

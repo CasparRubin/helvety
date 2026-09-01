@@ -18,9 +18,6 @@ export const CONTACT_EMAIL = "contact@helvety.com";
 /** Development gateway (multi-zone entry point) */
 const DEV_GATEWAY = "http://localhost:3001";
 
-/** Sister product: Helvety Cloud (end-to-end encrypted workspace). */
-export const CLOUD_DOMAIN = "helvety.cloud";
-
 /**
  * App base URLs for navigation, redirects, metadata, etc.
  *
@@ -29,7 +26,6 @@ export const CLOUD_DOMAIN = "helvety.cloud";
  *
  * Prefer {@link urls.storeProducts} for Store catalog CTAs (skips the store-root
  * redirect). Keep {@link urls.store} for the zone base, metadata, and SEO.
- * {@link urls.cloud} is always the production Cloud origin (separate product).
  */
 export const urls = {
   home: isDev ? DEV_GATEWAY : `https://${DOMAIN}`,
@@ -43,8 +39,6 @@ export const urls = {
     ? `${DEV_GATEWAY}/image-editor`
     : `https://${DOMAIN}/image-editor`,
   ocr: isDev ? `${DEV_GATEWAY}/ocr` : `https://${DOMAIN}/ocr`,
-  /** Helvety Cloud workspace (https://helvety.cloud), not a helvety.com zone. */
-  cloud: `https://${CLOUD_DOMAIN}`,
 } as const;
 
 /**

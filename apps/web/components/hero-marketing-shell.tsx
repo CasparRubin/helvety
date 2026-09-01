@@ -1,7 +1,7 @@
 import { getLocalAppHref, urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
-import { ChevronRight, Cloud, PackageOpen } from "lucide-react";
+import { ChevronRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 
 import { HeroCompanyValuesTagline } from "@/components/hero-company-values-tagline";
@@ -22,11 +22,7 @@ const HERO_MIN_MAIN = "min-h-[max(100%,calc(100svh-4rem-12.5rem))]";
 const HERO_CTA_BUTTON_CLASS =
   "h-12 w-full gap-2 px-4 text-sm sm:w-full sm:px-5 sm:text-base";
 
-/** Helvety Cloud destination blurb under the primary CTA. */
-export const HERO_CLOUD_CTA_DESCRIPTION =
-  "End-to-end encrypted workspace for projects, tasks, notes, contacts, boards, databases, comments, and files. Helvety cannot read or recover your content.";
-
-/** Store products destination blurb under the secondary CTA. */
+/** Store products destination blurb under the primary CTA. */
 export const HERO_PRODUCTS_CTA_DESCRIPTION =
   "Open-source browser tools, extensions, and other apps.";
 
@@ -57,45 +53,23 @@ export function HeroMarketingShell() {
           </div>
         </div>
 
-        <div className="hero-enter-ctas mx-auto grid w-full max-w-md grid-cols-1 gap-5 sm:max-w-2xl sm:grid-cols-2 sm:items-start sm:gap-6">
-          <div className="flex flex-col items-stretch gap-2.5 text-center">
-            <Button
-              size="lg"
-              className={HERO_CTA_BUTTON_CLASS}
-              render={<a href={urls.cloud} />}
-              nativeButton={false}
-            >
-              <Cloud className="size-5 shrink-0" aria-hidden="true" />
-              Helvety Cloud
-              <ChevronRight
-                className="size-4 shrink-0 transition-transform group-hover/button:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </Button>
-            <p className="text-muted-foreground text-sm text-pretty sm:px-1">
-              {HERO_CLOUD_CTA_DESCRIPTION}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-stretch gap-2.5 text-center">
-            <Button
-              size="lg"
-              variant="outline"
-              className={HERO_CTA_BUTTON_CLASS}
-              render={<Link href={getLocalAppHref(urls.storeProducts)} />}
-              nativeButton={false}
-            >
-              <PackageOpen className="size-5 shrink-0" aria-hidden="true" />
-              Browse other products
-              <ChevronRight
-                className="size-4 shrink-0 transition-transform group-hover/button:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </Button>
-            <p className="text-muted-foreground text-sm text-pretty sm:px-1">
-              {HERO_PRODUCTS_CTA_DESCRIPTION}
-            </p>
-          </div>
+        <div className="hero-enter-ctas mx-auto flex w-full max-w-md flex-col items-stretch gap-2.5 text-center">
+          <Button
+            size="lg"
+            className={HERO_CTA_BUTTON_CLASS}
+            render={<Link href={getLocalAppHref(urls.storeProducts)} />}
+            nativeButton={false}
+          >
+            <PackageOpen className="size-5 shrink-0" aria-hidden="true" />
+            Browse products
+            <ChevronRight
+              className="size-4 shrink-0 transition-transform group-hover/button:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </Button>
+          <p className="text-muted-foreground text-sm text-pretty sm:px-1">
+            {HERO_PRODUCTS_CTA_DESCRIPTION}
+          </p>
         </div>
       </div>
     </section>

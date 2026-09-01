@@ -1,14 +1,13 @@
 # Legal Change Guardrails
 
 Release guardrails for shared legal pages
-(`helvety.com/privacy`, `helvety.com/terms`, `helvety.com/impressum`,
-`helvety.com/dpa`).
+(`helvety.com/privacy`, `helvety.com/terms`, `helvety.com/impressum`).
 
 ## Why this exists
 
-Helvety legal pages cover public browser tools, the Store catalog, Helvety
-Cloud (helvety.cloud), and separately distributed products that link here. A
-technical change can make legal language inaccurate if not reviewed.
+Helvety legal pages cover public browser tools, the Store catalog, and
+separately distributed products that link here. A technical change can make
+legal language inaccurate if not reviewed.
 
 ## Mandatory legal-review triggers
 
@@ -20,7 +19,6 @@ Before release, review legal/content if a change introduces:
 - material changes to tracking or profiling (new cookies/localStorage keys, or
   shared footer disclosure text)
 - new login or account requirements for public tools
-- material Helvety Cloud crypto, billing, processor, or workspace-sharing changes
 - active EU/EEA market targeting or equivalent expansion
 - new subprocessors or changed cross-border transfer patterns
 
@@ -31,16 +29,12 @@ At minimum, review and update:
 - `apps/web/app/privacy/page.tsx`
 - `apps/web/app/terms/page.tsx`
 - `apps/web/app/impressum/page.tsx`
-- `apps/web/app/dpa/page.tsx` when processor / metadata DPA facts change
 - product-facing copy (for example
   `packages/shared/src/helvety-ecosystem-sections.ts`,
   `packages/shared/src/store-catalog.ts`, `apps/store/lib/data/products.ts`,
   `apps/*/lib/product-copy.ts`, manifests, `llms.txt`, READMEs)
 - [`docs/cookies-telemetry-and-footer.md`](./cookies-telemetry-and-footer.md)
   when storage, analytics, or footer behavior changes
-- Helvety Cloud `CURRENT_POLICY_VERSIONS` when gated Terms/Privacy/AUP/E2EE/
-  eligibility/age text changes materially (Cloud links here; versions live in the
-  helvety-cloud repo)
 
 ## Verification checklist
 
@@ -49,8 +43,7 @@ At minimum, review and update:
   (`bun run consistency:license` and shared copy guardrail tests)
 - local vs server processing claims match runtime behavior
 - no-training / no-retention claims remain true
-- no-account claims for public tools match actual access flow; Cloud accounts
-  and E2EE claims stay accurate
+- no-account claims for public tools match actual access flow
 - Privacy cookies section matches
   [`apps/web/lib/legal-cookies-disclosure.ts`](../apps/web/lib/legal-cookies-disclosure.ts);
   footer matches [`packages/ui/src/footer.tsx`](../packages/ui/src/footer.tsx)
@@ -58,9 +51,5 @@ At minimum, review and update:
   `legal-metadata`, `legal-privacy-tables`, `legal-public-tools`,
   `legal-document`)
 - When legal body copy changes, bump `lastReviewed` on **all legal pages**
-  (impressum, privacy, terms, dpa) to the same date (`legal-metadata.test.ts`)
+  (impressum, privacy, terms) to the same date (`legal-metadata.test.ts`)
 - CH-first / not-offered-in-EU-EEA language stays consistent
-- Stable anchors used by Helvety Cloud remain: `/terms#eligibility`,
-  `/terms#age`, `/terms#aup`, `/terms#e2ee`, `/terms#billing`,
-  `/terms#transparency`, `/privacy#subprocessors`, `/privacy#dpa`,
-  `/impressum#abuse`

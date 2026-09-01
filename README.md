@@ -164,12 +164,10 @@ Architecture entry points and flow references are documented in each app/package
 
 Services are primarily intended for customers in Switzerland and are not
 offered in the EU/EEA. Public tools and the Store catalog do not require a
-helvety.com account. Helvety Cloud (helvety.cloud) uses email OTP accounts and
-is covered by the same legal pages. Legal pages are hosted on
-<https://helvety.com>:
+helvety.com account. Legal pages are hosted on <https://helvety.com>:
 
 - Privacy: <https://helvety.com/privacy>
-- Terms: <https://helvety.com/terms> (includes eligibility, AUP, E2EE, billing)
+- Terms: <https://helvety.com/terms> (includes eligibility and AUP)
 - Impressum (including abuse reporting): <https://helvety.com/impressum#abuse>
 - Cookies and shared footer (developer reference): [`docs/cookies-telemetry-and-footer.md`](docs/cookies-telemetry-and-footer.md)
 - Internal legal update guardrails: [`docs/legal-change-guardrails.md`](docs/legal-change-guardrails.md)

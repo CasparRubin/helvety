@@ -22,7 +22,7 @@ interface PackageInfo {
 /**
  * Package configuration for all downloadable products.
  * SPO Explorer `.sppkg` is a GitHub Release asset. Helvety Power Platform Tools
- * zips are public objects in the Helvety Cloud Supabase `packages` bucket.
+ * zips are public objects in the Supabase `packages` bucket.
  */
 const PACKAGE_CONFIG: Record<string, PackageInfo> = {
   "spo-explorer": {

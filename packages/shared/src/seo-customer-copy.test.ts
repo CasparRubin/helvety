@@ -118,14 +118,13 @@ describe("seo customer copy guardrails", () => {
     expect(source).toContain("helvety.com/store/products/helvety-ocr");
   });
 
-  it("store llms.txt lists the Helvety Cloud product page", () => {
+  it("store llms.txt does not list Helvety Cloud", () => {
     const source = readFileSync(
       join(repoRoot, "apps/store/public/llms.txt"),
       "utf8"
     );
-    expect(source).toContain("helvety-cloud");
-    expect(source).toContain("helvety.com/store/products/helvety-cloud");
-    expect(source).toContain("helvety.cloud");
+    expect(source).not.toContain("helvety-cloud");
+    expect(source).not.toContain("helvety.cloud");
   });
 
   it("store llms.txt lists Helvety Power Platform Tools", () => {

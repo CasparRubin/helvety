@@ -15,7 +15,7 @@ import type { StaticImageData } from "next/image";
 /**
  * Billing interval for pricing
  * - one-time: Single free-access descriptor for current model
- * - year: Annual subscription (for example Helvety Cloud Pro Workspace)
+ * - year: Annual subscription (reserved for paid listings if added later)
  */
 type BillingInterval = "one-time" | "year";
 

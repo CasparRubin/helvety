@@ -36,24 +36,22 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="August 16, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="September 1, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
           Helvety by Rubin (&quot;we,&quot; &quot;us,&quot; or &quot;the
           Company&quot;) explains how we handle information when you use
-          helvety.com, helvety.cloud, and related Helvety products (&quot;the
-          Services&quot;). This notice is based primarily on the Swiss Federal
-          Act on Data Protection (nDSG / FADP). The Services are intended for
-          customers in Switzerland. We do not offer the Services in the EU/EEA.
-          Where mandatory law elsewhere applies in a specific case, we follow
-          those obligations.
+          helvety.com and related Helvety products (&quot;the Services&quot;).
+          This notice is based primarily on the Swiss Federal Act on Data
+          Protection (nDSG / FADP). The Services are intended for customers in
+          Switzerland. We do not offer the Services in the EU/EEA. Where
+          mandatory law elsewhere applies in a specific case, we follow those
+          obligations.
         </p>
         <p className="text-muted-foreground text-sm">
           helvety.com public browser tools and the Store do not require a
-          Helvety account. Helvety Cloud (helvety.cloud) does: email one-time
-          codes for sign-in, and separate device unlock for end-to-end
-          encryption. Encrypted workspace content is opaque to Helvety.
+          Helvety account.
         </p>
       </section>
 
@@ -125,11 +123,6 @@ export default function PrivacyPage() {
             </a>
           </li>
           <li>
-            <a href="#dpa" className="hover:text-foreground transition-colors">
-              Controller, Processor, and DPA
-            </a>
-          </li>
-          <li>
             <a
               href="#changes"
               className="hover:text-foreground transition-colors"
@@ -169,9 +162,8 @@ export default function PrivacyPage() {
         </h2>
         <p className="text-muted-foreground mb-4 text-sm">
           This notice covers helvety.com marketing and legal pages, Helvety
-          Store, the public browser tools below, Helvety Cloud at helvety.cloud,
-          and separately distributed desktop or Microsoft 365 products that link
-          here.
+          Store, the public browser tools below, and separately distributed
+          desktop or Microsoft 365 products that link here.
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>
@@ -237,16 +229,6 @@ export default function PrivacyPage() {
             with your Microsoft account and talks to Dataverse in your user
             context. Tokens stay on your device in normal operation.
           </li>
-          <li>
-            <strong className="text-foreground">
-              Helvety Cloud (helvety.cloud):
-            </strong>{" "}
-            Passwordless, end-to-end encrypted workspace service. Sign-in uses
-            email one-time codes. Encryption unlock and decryption happen only
-            on your device (WebAuthn PRF / passkey and related client-held
-            material). Helvety stores account metadata and opaque ciphertext. It
-            cannot decrypt workspace content and does not hold a master key.
-          </li>
         </ul>
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">
@@ -256,8 +238,7 @@ export default function PrivacyPage() {
           Helvety OCR to train AI models. Under the current architecture those
           tools keep content on your device and only use minimal server-side
           endpoints for platform and security functions (for example CSP
-          reporting). We also do not use Helvety Cloud ciphertext or decrypted
-          workspace content to train AI models.
+          reporting).
         </p>
       </section>
 
@@ -289,67 +270,6 @@ export default function PrivacyPage() {
             Local Storage).
           </li>
         </ul>
-        <h3 className="mb-3 text-lg font-medium">
-          3.2 Helvety Cloud account and metadata
-        </h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          When you use Helvety Cloud, Helvety processes:
-        </p>
-        <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
-          <li>
-            Email address and authentication metadata (for example OTP delivery
-            via Supabase Auth).
-          </li>
-          <li>
-            Workspace invitation email addresses (including invitees who have
-            not yet created an account), plus invitation claim and accept
-            timestamps.
-          </li>
-          <li>
-            Profile and membership records (user id, workspace membership,
-            timestamps).
-          </li>
-          <li>
-            Public cryptographic material needed for the product (for example
-            user public keys) and wrapped or encrypted blobs that Helvety cannot
-            decrypt.
-          </li>
-          <li>
-            Policy acceptance records (which policy versions you accepted and
-            when), including geographic eligibility acknowledgment.
-          </li>
-          <li>
-            Technical logs reasonably needed to operate and secure the Service
-            (for example IP addresses in hosting/auth logs, request metadata).
-          </li>
-          <li>
-            Billing metadata when you use paid plans (for example subscription
-            status and meter counts). Billing never includes encrypted plaintext
-            or raw encryption keys.
-          </li>
-          <li>
-            Intentional plaintext product metadata that is not ciphertext: for
-            example workspace membership, entity-link UUID pairs (which ids are
-            linked, never titles or colors), categorization soft-reference ids
-            on tasks, attachment operational fields (byte size, storage path,
-            status, and which entities link to an attachment id), and similar
-            operational fields needed to run the Service. Filenames and file
-            bytes remain ciphertext.
-          </li>
-        </ul>
-        <h3 className="mb-3 text-lg font-medium">
-          3.3 Data Helvety cannot access
-        </h3>
-        <p className="text-muted-foreground text-sm">
-          Encrypted Helvety Cloud content (ciphertext) is opaque to Helvety.
-          Staff, database administrators, and privileged database roles cannot
-          decrypt titles, bodies, board graphs, comments, contact fields,
-          filenames, file bytes, or other plaintext from your encrypted data.
-          Helvety does not receive PRF output, unlock keys, recovery key
-          plaintext, or raw private keys. Helvety cannot restore your data if
-          you lose unlock or recovery material. Helvety is not a controller of
-          plaintext it cannot access.
-        </p>
       </section>
 
       <section id="how-we-use" className="legal-section">
@@ -371,18 +291,8 @@ export default function PrivacyPage() {
             browser file tools under the current architecture).
           </li>
           <li>
-            Provide and secure Helvety Cloud: authenticate you, manage accounts
-            and workspaces, store ciphertext and related metadata, deliver
-            workspace invitations (including to invitee email addresses), and
-            record policy acceptances.
-          </li>
-          <li>
             Deliver public package downloads, apply rate limits, and investigate
             abuse.
-          </li>
-          <li>
-            Bill and account for paid Helvety Cloud plans (contract / legal
-            obligation).
           </li>
           <li>
             Respond to support and legal requests you or authorities send,
@@ -416,46 +326,11 @@ export default function PrivacyPage() {
                 <TableRow>
                   <TableCell>Hosting / CDN</TableCell>
                   <TableCell>
-                    Serve helvety.com zones, helvety.cloud, and static assets
-                    (currently Vercel). Request routing and edge delivery may
-                    involve processing in the United States and other Vercel
-                    edge regions in addition to Swiss or EU points of presence,
+                    Serve helvety.com zones and static assets (currently
+                    Vercel). Request routing and edge delivery may involve
+                    processing in the United States and other Vercel edge
+                    regions in addition to Swiss or EU points of presence,
                     depending on visitor location and vendor configuration.
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Auth / database (Cloud)</TableCell>
-                  <TableCell>
-                    Supabase: authentication and Postgres for Helvety Cloud in
-                    Zurich (eu-central-2). Processes account email/auth metadata
-                    and ciphertext/metadata as described above.
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Object storage (Cloud files)</TableCell>
-                  <TableCell>
-                    Supabase Storage in the same Zurich Helvety Cloud project:
-                    opaque encrypted attachment ciphertext objects. Helvety
-                    stores size and path metadata for quotas; it cannot decrypt
-                    filenames or file contents.
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Email (Cloud auth)</TableCell>
-                  <TableCell>
-                    OTP, invitation, and auth emails via Supabase Auth and its
-                    configured email providers. Message delivery may involve
-                    processing outside Switzerland (for example EU or US regions
-                    depending on vendor email configuration).
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Payments (Cloud)</TableCell>
-                  <TableCell>
-                    Stripe (typically Ireland and/or United States entities,
-                    depending on account configuration): billing identity and
-                    payment metadata for Pro Workspace and add-ons. Never
-                    encrypted plaintext or raw encryption keys.
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -469,7 +344,7 @@ export default function PrivacyPage() {
                   <TableCell>Package delivery</TableCell>
                   <TableCell>
                     GitHub Releases for public .sppkg downloads; public Supabase
-                    Storage in the Helvety Cloud project for Helvety Power
+                    Storage for Helvety Store package hosting of Helvety Power
                     Platform Tools ZIPs
                   </TableCell>
                 </TableRow>
@@ -484,14 +359,13 @@ export default function PrivacyPage() {
           </LegalTable>
         </LegalTableWrap>
         <p className="text-muted-foreground mt-4 text-sm">
-          Primary Helvety Cloud database, auth, and attachment object storage
-          are hosted in Switzerland (Zurich). Hosting, CDN, payments, and email
-          tooling may involve processing in other countries or regions
-          (including the United States and EU member states) depending on vendor
-          configuration and where you connect from. Where Swiss law requires
-          safeguards for transfers abroad, Helvety relies on appropriate
-          mechanisms offered by those vendors (for example standard contractual
-          clauses, adequacy where recognized, and contractual security terms).
+          Hosting, CDN, and Store package hosting may involve processing in
+          other countries or regions (including the United States and EU member
+          states) depending on vendor configuration and where you connect from.
+          Where Swiss law requires safeguards for transfers abroad, Helvety
+          relies on appropriate mechanisms offered by those vendors (for
+          example standard contractual clauses, adequacy where recognized, and
+          contractual security terms).
         </p>
         <p className="text-muted-foreground mt-4 text-sm">
           Microsoft 365, SharePoint / Power Platform runtimes, browser vendors,
@@ -504,25 +378,13 @@ export default function PrivacyPage() {
 
       <section id="retention" className="legal-section">
         <h2 className="mb-4 text-xl font-semibold">6. Retention</h2>
-        <p className="text-muted-foreground mb-4 text-sm">
+        <p className="text-muted-foreground text-sm">
           Hosting and security logs are kept only as long as needed for
           operations, abuse handling, and legal holds (typically up to about 6
           months for routine security metadata under current policy). Contract
           or accounting evidence may be kept longer where Swiss law requires it
           (for example up to 10 years). Browser-local files and preferences
           remain on your device until you clear them.
-        </p>
-        <p className="text-muted-foreground text-sm">
-          For Helvety Cloud: account and membership data are kept while your
-          account is active and for a reasonable period afterward as needed for
-          security, dispute handling, and legal retention. Ciphertext and
-          related encryption metadata are kept while associated with your
-          account or workspaces, or until deleted via the Service or account
-          closure. Account closure deletes workspaces where you are the only
-          member (including your Personal workspace) and their ciphertext.
-          Shared workspaces with other members are not wiped for those members.
-          Policy acceptance records are retained to evidence which terms
-          applied.
         </p>
       </section>
 
@@ -538,18 +400,14 @@ export default function PrivacyPage() {
           >
             {CONTACT_EMAIL}
           </a>
-          . Helvety may need to verify your identity. Helvety cannot produce
-          encrypted plaintext it never held.
+          . Helvety may need to verify your identity.
         </p>
         <p className="text-muted-foreground text-sm">
           For helvety.com public tools there is no self-service export or
           deletion dashboard; we generally hold only technical metadata and any
-          messages you sent us. For Helvety Cloud, erasure of account data does
-          not recreate lost encryption keys. Deleting ciphertext removes stored
-          blobs; it does not mean Helvety ever held plaintext. You may lodge a
-          complaint with the Swiss FDPIC or another competent supervisory
-          authority where applicable. The Service is not directed to children
-          under 16.
+          messages you sent us. You may lodge a complaint with the Swiss FDPIC
+          or another competent supervisory authority where applicable. The
+          Service is not directed to children under 16.
         </p>
       </section>
 
@@ -560,11 +418,7 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           We do not operate third-party analytics, advertising trackers, or
           cross-site profiling on helvety.com. Preference storage is kept in
-          your browser so theme and tool UI settings survive reloads. Helvety
-          Cloud uses session cookies or similar browser storage required for
-          authentication and product operation (for example Supabase Auth
-          session on helvety.cloud), separate from encryption unlock material
-          which stays on your device.
+          your browser so theme and tool UI settings survive reloads.
         </p>
         <LegalTableWrap ariaLabel="Cookies and local storage">
           <LegalTable layout="cards">
@@ -598,64 +452,23 @@ export default function PrivacyPage() {
                   <TableCell data-label="Domain">helvety.com/pdf</TableCell>
                   <TableCell data-label="Duration">Until cleared</TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell data-label="Cookie / Storage">
-                    Supabase Auth session (helvety.cloud)
-                  </TableCell>
-                  <TableCell data-label="Purpose">
-                    Keep your Helvety Cloud signed-in session after email OTP
-                    (required for the service; not encryption unlock)
-                  </TableCell>
-                  <TableCell data-label="Domain">helvety.cloud</TableCell>
-                  <TableCell data-label="Duration">
-                    Session / vendor-defined expiry until sign-out or clear
-                  </TableCell>
-                </TableRow>
               </TableBody>
             </Table>
           </LegalTable>
         </LegalTableWrap>
       </section>
 
-      <section id="dpa" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">
-          9. Controller, Processor, and DPA
-        </h2>
-        <p className="text-muted-foreground mb-4 text-sm">
-          Helvety is the controller of Helvety Cloud account, authentication,
-          invitation, policy-acceptance, and billing metadata described in this
-          notice. Helvety stores end-to-end encrypted workspace ciphertext it
-          cannot read and is not a controller of that plaintext.
-        </p>
-        <p className="text-muted-foreground text-sm">
-          If you are an organization that needs a written Swiss nDSG Art. 9
-          processor agreement for Helvety&apos;s processing of Cloud account
-          metadata on your documented instructions, see the{" "}
-          <a
-            href="/dpa"
-            className="hover:text-foreground underline transition-colors"
-          >
-            Helvety Cloud Data Processing Addendum (metadata)
-          </a>
-          . That addendum does not cover encrypted workspace plaintext Helvety
-          cannot access.
-        </p>
-      </section>
-
       <section id="changes" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">10. Changes</h2>
+        <h2 className="mb-4 text-xl font-semibold">9. Changes</h2>
         <p className="text-muted-foreground text-sm">
           We may update this Privacy Policy when the Services change. The
           &quot;Last reviewed&quot; date at the top shows the latest review.
-          Material changes will be reflected on this page. For Helvety Cloud,
-          material changes that affect signup-gated acceptance use a new version
-          string you must accept before continued encryption setup or use where
-          gated.
+          Material changes will be reflected on this page.
         </p>
       </section>
 
       <section id="contact" className="legal-section">
-        <h2 className="mb-4 text-xl font-semibold">11. Contact</h2>
+        <h2 className="mb-4 text-xl font-semibold">10. Contact</h2>
         <p className="text-muted-foreground text-sm">
           Privacy questions:{" "}
           <a
@@ -670,13 +483,6 @@ export default function PrivacyPage() {
             className="hover:text-foreground underline transition-colors"
           >
             Terms of Service
-          </a>
-          ,{" "}
-          <a
-            href="/dpa"
-            className="hover:text-foreground underline transition-colors"
-          >
-            Cloud DPA (metadata)
           </a>
           ,{" "}
           <a

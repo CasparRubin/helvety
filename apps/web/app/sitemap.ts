@@ -29,9 +29,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${urls.home}/terms`,
       lastModified,
     },
-    {
-      url: `${urls.home}/dpa`,
-      lastModified,
-    },
   ];
 }

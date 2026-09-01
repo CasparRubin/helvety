@@ -12,7 +12,6 @@ function expectBadge(element: HTMLElement): HTMLElement {
 }
 
 const categoryExpectations = [
-  { category: "encryption-apps" as const, label: "Encryption Apps" },
   { category: "file-tools" as const, label: "File Tools" },
   { category: "browser-extensions" as const, label: "Browser Extensions" },
   { category: "sharepoint-apps" as const, label: "SharePoint Apps" },

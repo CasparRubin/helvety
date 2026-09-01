@@ -102,18 +102,15 @@ describe("legal pages enumerate public local-processing tools", () => {
     }
   });
 
-  it("unified legal pack covers Helvety Cloud", () => {
+  it("unified legal pack does not mention Helvety Cloud", () => {
     for (const rel of [
       "apps/web/app/privacy/page.tsx",
       "apps/web/app/terms/page.tsx",
       "apps/web/app/impressum/page.tsx",
     ] as const) {
       const source = readFileSync(join(repoRoot, rel), "utf8");
-      expect(source).toContain("Helvety Cloud");
-      expect(source).toContain("helvety.cloud");
-      expect(source).not.toMatch(
-        /Helvety Cloud[\s\S]{0,120}is not governed|do not cover Helvety Cloud|own privacy policy,\s*terms/
-      );
+      expect(source).not.toContain("Helvety Cloud");
+      expect(source).not.toContain("helvety.cloud");
     }
     const terms = readFileSync(
       join(repoRoot, "apps/web/app/terms/page.tsx"),
@@ -122,15 +119,15 @@ describe("legal pages enumerate public local-processing tools", () => {
     expect(terms).toContain('id="eligibility"');
     expect(terms).toContain('id="age"');
     expect(terms).toContain('id="aup"');
-    expect(terms).toContain('id="e2ee"');
-    expect(terms).toContain('id="billing"');
     expect(terms).toContain('id="transparency"');
+    expect(terms).not.toContain('id="e2ee"');
+    expect(terms).not.toContain('id="billing"');
     const privacy = readFileSync(
       join(repoRoot, "apps/web/app/privacy/page.tsx"),
       "utf8"
     );
     expect(privacy).toContain('id="subprocessors"');
-    expect(privacy).toContain('id="dpa"');
+    expect(privacy).not.toContain('id="dpa"');
   });
 
   it("terms geographic eligibility and age sections stay CH-only and 16+", () => {
@@ -234,7 +231,7 @@ describe("legal local-processing statements cover every public local tool", () =
     const section = sliceBetween(
       source,
       "7.3 Your Responsibilities",
-      "8. Helvety Cloud and E2EE"
+      "8. Transparency"
     );
     expect(section).toContain("extracted text");
     expect(section).toContain("PDFs and images");

@@ -38,7 +38,6 @@ This package centralizes:
 
 - **`urls`**: canonical absolute base URLs for each helvety.com zone (and the dev gateway host).
 - **`urls.storeProducts`**: catalog landing (`…/store/products`) for nav CTAs; prefer over **`urls.store`** when opening the product list.
-- **`urls.cloud`**: Helvety Cloud product origin (`https://helvety.cloud`), not a helvety.com path zone.
 - **`getLocalAppHref`**: strips Helvety / localhost origins to **root-relative** paths for **`next/link`** in the **gateway** (`apps/web`, no Next **`basePath`**). Do **not** use it for cross-zone **`Link`** targets rendered inside **`basePath`** apps; use absolute **`urls.*`** (see **`AppSwitcher`** / `packages/ui` README).
 
 ### Rate Limits and Caching

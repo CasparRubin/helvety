@@ -6,7 +6,7 @@ import {
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
 export const WEB_SITE_DESCRIPTION =
-  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Helvety Cloud (end-to-end encrypted workspace on helvety.cloud), browser utilities for PDF, image editor, and OCR tools, extensions, and desktop tools.";
+  "Software products engineered, designed and made in Switzerland. Private, simple, clean. Browser utilities for PDF, image editor, and OCR tools, extensions, and desktop tools.";
 
 /** Shared store SEO / social copy. */
 export const STORE_DESCRIPTION = `Browse Helvety apps, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;

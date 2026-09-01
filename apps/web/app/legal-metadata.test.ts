@@ -4,7 +4,6 @@ import { join } from "node:path";
 import { urls } from "@helvety/shared/config";
 import { describe, expect, it } from "vitest";
 
-import { metadata as dpaMetadata } from "./dpa/page";
 import { metadata as impressumMetadata } from "./impressum/page";
 import { metadata as privacyMetadata } from "./privacy/page";
 import { metadata as termsMetadata } from "./terms/page";
@@ -13,7 +12,6 @@ const LEGAL_PAGE_PATHS = [
   "impressum/page.tsx",
   "privacy/page.tsx",
   "terms/page.tsx",
-  "dpa/page.tsx",
 ] as const;
 
 /** Reads a legal page source file relative to `apps/web/app/`. */
@@ -37,7 +35,6 @@ describe("web legal page metadata", () => {
     );
     expect(privacyMetadata.alternates?.canonical).toBe(`${urls.home}/privacy`);
     expect(termsMetadata.alternates?.canonical).toBe(`${urls.home}/terms`);
-    expect(dpaMetadata.alternates?.canonical).toBe(`${urls.home}/dpa`);
   });
 
   it("uses bare titles so the root template does not double the brand", () => {
@@ -46,12 +43,10 @@ describe("web legal page metadata", () => {
     expect(impressumMetadata.title).toBe("Impressum");
     expect(privacyMetadata.title).toBe("Privacy Policy");
     expect(termsMetadata.title).toBe("Terms of Service");
-    expect(dpaMetadata.title).toBe("Cloud Data Processing Addendum (metadata)");
     for (const title of [
       impressumMetadata.title,
       privacyMetadata.title,
       termsMetadata.title,
-      dpaMetadata.title,
     ]) {
       expect(typeof title).toBe("string");
       expect(String(title)).not.toMatch(/\|\s*Helvety\s*$/i);

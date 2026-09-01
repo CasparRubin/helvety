@@ -22,11 +22,6 @@ describe("urls and DEV_PORTS", () => {
     );
   });
 
-  it("points cloud at the helvety.cloud product origin", () => {
-    expect(urls.cloud).toBe("https://helvety.cloud");
-    expect(getLocalAppHref(urls.cloud)).toBe("https://helvety.cloud");
-  });
-
   it("defines five unique dev ports across remaining zones", () => {
     const ports = Object.values(DEV_PORTS);
     expect(ports).toHaveLength(5);

@@ -18,18 +18,10 @@ describe("app-switcher-sections", () => {
     );
     const storeLink = coreApps?.links.find((link) => link.name === "Store");
     expect(storeLink?.href).toBe(urls.storeProducts);
+    expect(coreApps?.links.map((link) => link.name)).toEqual(["Home", "Store"]);
   });
 
-  it("links Core Apps Cloud to helvety.cloud", () => {
-    const coreApps = appSwitcherSections.find(
-      (section) => section.title === "Core Apps"
-    );
-    const cloudLink = coreApps?.links.find((link) => link.name === "Cloud");
-    expect(cloudLink?.href).toBe(urls.cloud);
-    expect(cloudLink?.href).toBe("https://helvety.cloud");
-  });
-
-  it("does not duplicate Helvety Cloud under Encryption Apps", () => {
+  it("does not include an Encryption Apps switcher section", () => {
     const encryptionApps = appSwitcherSections.find(
       (section) => section.title === "Encryption Apps"
     );

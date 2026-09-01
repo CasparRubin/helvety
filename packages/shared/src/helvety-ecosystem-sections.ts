@@ -1,8 +1,8 @@
 /**
  * Single source of truth for Helvety ecosystem product sections.
  * Drives app-switcher grouping, store category pills, and catalog filters.
- * `Core Apps` (Home, Cloud, Store) stays in the UI layer only; the Store switcher href
- * is `urls.storeProducts` in `@helvety/ui` (not this module). Cloud uses `urls.cloud`.
+ * `Core Apps` (Home, Store) stays in the UI layer only; the Store switcher href
+ * is `urls.storeProducts` in `@helvety/ui` (not this module).
  */
 
 import { urls } from "./config";
@@ -10,12 +10,11 @@ import { urls } from "./config";
 /** Keys on {@link urls} used for web-zone navigation from the app switcher. */
 export type HelvetyWebAppUrlKey = Exclude<
   keyof typeof urls,
-  "home" | "store" | "storeProducts" | "cloud"
+  "home" | "store" | "storeProducts"
 >;
 
 /** Slug union for ecosystem product categories. */
 export type HelvetyEcosystemCategorySlug =
-  | "encryption-apps"
   | "file-tools"
   | "browser-extensions"
   | "sharepoint-apps"
@@ -28,8 +27,8 @@ export interface HelvetyEcosystemItem {
   webAppUrlKey?: HelvetyWebAppUrlKey;
   /**
    * When true, the product still drives store category filters/badges but is
-   * omitted from the app switcher (for example Helvety Cloud, which already
-   * appears under Core Apps).
+   * omitted from the app switcher (for example a sister product already linked
+   * under Core Apps).
    */
   omitFromAppSwitcher?: true;
 }
@@ -46,17 +45,6 @@ export interface HelvetyEcosystemSection {
  * Edit here when adding or moving products; store categories derive from this.
  */
 export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
-  {
-    slug: "encryption-apps",
-    title: "Encryption Apps",
-    items: [
-      {
-        displayName: "Helvety Cloud",
-        storeProductSlug: "helvety-cloud",
-        omitFromAppSwitcher: true,
-      },
-    ],
-  },
   {
     slug: "file-tools",
     title: "File Tools",

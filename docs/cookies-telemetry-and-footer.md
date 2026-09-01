@@ -27,9 +27,8 @@ Documented in Privacy §8 table (SSOT: `apps/web/lib/legal-cookies-disclosure.ts
 | -------------------------------------- | --------------------- | ------------------------------------------------------------- |
 | Theme preference (`localStorage`)      | All zones             | Remember dark/light mode                                      |
 | `helvety-pdf-columns` (`localStorage`) | `pdf`                 | Remember PDF viewer column layout                             |
-| Supabase Auth session                  | helvety.cloud (Cloud) | Signed-in session after OTP (required; not encryption unlock) |
 
-No consent modal is required for strictly local preference storage with no analytics. Cloud auth session storage is disclosed on Privacy §8; it is necessary for the authenticated service.
+No consent modal is required for strictly local preference storage with no analytics.
 
 ## When to update legal copy
 

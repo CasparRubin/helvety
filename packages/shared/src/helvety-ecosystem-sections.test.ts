@@ -6,12 +6,10 @@ import { describe, expect, it } from "vitest";
 
 import { urls } from "./config";
 import {
-  allAppSwitcherEcosystemStoreProductSlugs,
   allEcosystemStoreProductSlugs,
   ecosystemCategoryForStoreSlug,
   ecosystemCategoryTitle,
   ecosystemItemHref,
-  ecosystemSectionsForAppSwitcher,
   HELVETY_ECOSYSTEM_PRODUCT_SECTIONS,
 } from "./helvety-ecosystem-sections";
 import { STORE_PRODUCT_CARDS } from "./store-catalog";
@@ -27,7 +25,6 @@ describe("helvety-ecosystem-sections", () => {
     expect(source).toMatch(
       /Exclude<\s*keyof typeof urls,\s*[\s\S]*"storeProducts"/
     );
-    expect(source).toMatch(/Exclude<\s*keyof typeof urls,\s*[\s\S]*"cloud"/);
 
     for (const section of HELVETY_ECOSYSTEM_PRODUCT_SECTIONS) {
       for (const item of section.items) {
@@ -37,7 +34,6 @@ describe("helvety-ecosystem-sections", () => {
         const webAppUrlKey = item.webAppUrlKey;
         expect(webAppUrlKey).not.toBe("store");
         expect(webAppUrlKey).not.toBe("storeProducts");
-        expect(webAppUrlKey).not.toBe("cloud");
         expect(Object.hasOwn(urls, webAppUrlKey)).toBe(true);
       }
     }
@@ -74,11 +70,11 @@ describe("helvety-ecosystem-sections", () => {
   });
 
   it("resolves web-zone hrefs for monorepo apps and store hrefs for extensions", () => {
-    const pdf = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[1].items[0];
+    const pdf = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[0].items[0];
     expect(pdf.storeProductSlug).toBe("helvety-pdf");
     expect(ecosystemItemHref(pdf)).toMatch(/\/pdf$/);
 
-    const ppc = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[2].items[0];
+    const ppc = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[1].items[0];
     expect(ecosystemItemHref(ppc)).toMatch(
       /\/store\/products\/helvety-power-platform-configurator$/
     );
@@ -90,24 +86,11 @@ describe("helvety-ecosystem-sections", () => {
     expect(slugs).not.toContain("helvety-browser-extension");
     expect(slugs).not.toContain("helvety-image-upscaler");
     expect(HELVETY_ECOSYSTEM_PRODUCT_SECTIONS.map((s) => s.slug)).toEqual([
-      "encryption-apps",
       "file-tools",
       "browser-extensions",
       "sharepoint-apps",
       "desktop-apps",
     ]);
-  });
-
-  it("marks Helvety Cloud as omitFromAppSwitcher under Encryption Apps", () => {
-    const encryptionApps = HELVETY_ECOSYSTEM_PRODUCT_SECTIONS[0];
-    expect(encryptionApps.slug).toBe("encryption-apps");
-    expect(encryptionApps.items[0]?.storeProductSlug).toBe("helvety-cloud");
-    expect(encryptionApps.items[0]?.omitFromAppSwitcher).toBe(true);
-    expect(allAppSwitcherEcosystemStoreProductSlugs()).not.toContain(
-      "helvety-cloud"
-    );
-    expect(ecosystemSectionsForAppSwitcher().map((s) => s.slug)).not.toContain(
-      "encryption-apps"
-    );
+    expect(slugs).not.toContain("helvety-cloud");
   });
 });
