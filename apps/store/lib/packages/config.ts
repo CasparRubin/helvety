@@ -33,7 +33,7 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     isPublic: true,
   },
   "power-platform-tools": {
-    version: "1.0.0",
+    version: "0.2.1",
     filename: "Helvety-Power-Platform-Tools-win64.zip",
     downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/power-platform-tools/Helvety-Power-Platform-Tools-win64.zip`,
     isPublic: true,
@@ -42,6 +42,12 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     version: "1.0.0",
     filename: "helvety-flow-explorer.zip",
     downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/flow-explorer/helvety-flow-explorer.zip`,
+    isPublic: true,
+  },
+  "web-resource-explorer": {
+    version: "1.0.0",
+    filename: "helvety-web-resource-explorer.zip",
+    downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/web-resource-explorer/helvety-web-resource-explorer.zip`,
     isPublic: true,
   },
 } as const;

@@ -41,12 +41,15 @@ describe("store root layout metadata", () => {
         "pdf",
         "image editor",
         "ocr",
-        "helvety cloud",
-        "encryption",
+        "dataverse",
+        "power platform tools",
+        "live draw",
       ])
     );
     expect(metadata.keywords).not.toEqual(
       expect.arrayContaining([
+        "helvety cloud",
+        "encryption",
         "encrypted bookmarks",
         "image upscaler",
         "browser extension",

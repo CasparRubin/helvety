@@ -50,5 +50,13 @@ describe("createPackageDownload", () => {
         "/storage/v1/object/public/packages/flow-explorer/"
       );
     }
+
+    const webResourceZip = await createPackageDownload("web-resource-explorer");
+    expect(webResourceZip.ok).toBe(true);
+    if (webResourceZip.ok) {
+      expect(webResourceZip.downloadUrl).toContain(
+        "/storage/v1/object/public/packages/web-resource-explorer/"
+      );
+    }
   });
 });

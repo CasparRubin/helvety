@@ -15,10 +15,7 @@ export type HelvetyWebAppUrlKey = Exclude<
 
 /** Slug union for ecosystem product categories. */
 export type HelvetyEcosystemCategorySlug =
-  | "file-tools"
-  | "browser-extensions"
-  | "sharepoint-apps"
-  | "desktop-apps";
+  "file-tools" | "browser-extensions" | "sharepoint-apps" | "desktop-apps";
 
 /** One linkable product in the Helvety ecosystem. */
 export interface HelvetyEcosystemItem {

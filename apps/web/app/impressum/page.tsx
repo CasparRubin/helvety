@@ -33,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="September 1, 2026"
+        lastReviewed="September 4, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -119,13 +119,12 @@ export default function ImpressumPage() {
           Helvety by Rubin designs and ships software products and web
           applications across Microsoft 365 integrations, browser utilities, and
           desktop tooling. Public tools and Store listings are currently free of
-          charge. Where source repositories are published, the repository
-          LICENSE file governs. The helvety.com monorepo is licensed under the
-          GNU Affero General Public License version 3 or later (AGPL-3.0). Other
-          Helvety repositories may use different licenses, including MIT.
-          Development is primarily based in Switzerland. The Services are
-          intended for customers in Switzerland and are not offered in the
-          EU/EEA.
+          charge. Each published repository LICENSE file governs that product.
+          The helvety.com monorepo is licensed under the GNU Affero General
+          Public License version 3 or later (AGPL-3.0). Other Helvety
+          repositories may use different licenses, including MIT. Development is
+          primarily based in Switzerland. The Services are intended for
+          customers in Switzerland and are not offered in the EU/EEA.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -147,13 +146,15 @@ export default function ImpressumPage() {
           </li>
           <li>
             <strong className="text-foreground">Helvety Screen Tools</strong>:
-            Windows desktop capture and Live Draw overlay.
+            Windows desktop capture, Live Draw overlay, gallery, and built-in
+            PNG editor.
           </li>
           <li>
             <strong className="text-foreground">
               Helvety Power Platform Tools
             </strong>
-            : portable Windows app for Dataverse with optional drop-in modules.
+            : portable Windows app for Dataverse with modules including Flow
+            Explorer and Web Resource Explorer.
           </li>
           <li>
             <strong className="text-foreground">Helvety Image Editor</strong>:

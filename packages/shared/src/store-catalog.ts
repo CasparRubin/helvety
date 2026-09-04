@@ -110,7 +110,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     slug: "helvety-screen-tools",
     name: "Helvety Screen Tools",
     shortDescription:
-      "Windows app for quick screenshots and a see-through drawing layer on top of your desktop.",
+      "Windows app for hotkey screenshots, a transparent Live Draw layer on your desktop, and a gallery with a built-in PNG editor.",
     releaseDate: "2026-04-21",
     type: "software",
     runsOn: "Windows 10 & 11",
@@ -146,7 +146,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     slug: "helvety-power-platform-tools",
     name: "Helvety Power Platform Tools",
     shortDescription:
-      "Windows app for Dataverse. Sign in with your Microsoft account, pick an environment, and add drop-in modules such as Flow Explorer.",
+      "Windows app for Dataverse. Sign in with your Microsoft account, pick an environment, and use drop-in modules including Flow Explorer and Web Resource Explorer.",
     releaseDate: "2026-08-16",
     type: "software",
     runsOn: "Windows 10 & 11",

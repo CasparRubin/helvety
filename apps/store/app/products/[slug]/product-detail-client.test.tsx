@@ -130,6 +130,9 @@ describe("ProductDetailClient", () => {
     expect(
       screen.getByRole("heading", { name: "Flow Explorer" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Web Resource Explorer" })
+    ).toBeInTheDocument();
 
     const moduleDownload = screen.getByRole("button", {
       name: /Download Flow Explorer \.zip/i,
@@ -137,6 +140,14 @@ describe("ProductDetailClient", () => {
     moduleDownload.click();
     expect(assign).toHaveBeenCalledWith(
       "/store/api/packages/flow-explorer/download"
+    );
+
+    const webResourceDownload = screen.getByRole("button", {
+      name: /Download Web Resource Explorer \.zip/i,
+    });
+    webResourceDownload.click();
+    expect(assign).toHaveBeenCalledWith(
+      "/store/api/packages/web-resource-explorer/download"
     );
 
     vi.unstubAllGlobals();

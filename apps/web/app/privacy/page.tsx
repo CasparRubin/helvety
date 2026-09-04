@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="September 1, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="September 4, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
@@ -218,8 +218,9 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">Helvety Screen Tools:</strong>{" "}
-            Windows desktop app distributed outside this monorepo. Screenshot
-            and annotation content stays on your device in normal operation.
+            Windows desktop app distributed outside this monorepo. Screenshot,
+            Live Draw, gallery, and editor content stays on your device in
+            normal operation.
           </li>
           <li>
             <strong className="text-foreground">
@@ -363,8 +364,8 @@ export default function PrivacyPage() {
           other countries or regions (including the United States and EU member
           states) depending on vendor configuration and where you connect from.
           Where Swiss law requires safeguards for transfers abroad, Helvety
-          relies on appropriate mechanisms offered by those vendors (for
-          example standard contractual clauses, adequacy where recognized, and
+          relies on appropriate mechanisms offered by those vendors (for example
+          standard contractual clauses, adequacy where recognized, and
           contractual security terms).
         </p>
         <p className="text-muted-foreground mt-4 text-sm">

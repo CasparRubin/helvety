@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="September 1, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="September 4, 2026" />
 
       <LegalToc>
         <h2 className="mb-4 text-lg font-semibold">Table of Contents</h2>
@@ -184,8 +184,8 @@ export default function TermsPage() {
         </ul>
         <p className="text-muted-foreground text-sm">
           Public tools and Store listings are currently offered free of charge.
-          Swiss law does not provide a general statutory right of withdrawal
-          for these free public offerings. Features may change or be withdrawn.
+          Swiss law does not provide a general statutory right of withdrawal for
+          these free public offerings. Features may change or be withdrawn.
           Enterprise add-ins and extensions you install into Microsoft 365 or a
           browser follow the host platform&apos;s rules in addition to these
           Terms.

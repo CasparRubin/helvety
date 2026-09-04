@@ -397,7 +397,7 @@ const helvetyScreenTools: SoftwareProduct = {
   artist: "Ferdinand Hodler",
   description: {
     intro:
-      "Helvety Screen Tools is a small Windows desktop app for two jobs: grab a screenshot with a global hotkey, or draw on a transparent layer that sits above your desktop.",
+      "Use a global shortcut to freeze the screen, snap to a window or drag a rectangle, then save or copy the capture. Draw on the live desktop with Live Draw, browse saved PNGs in the home gallery, and open them in the built-in editor to crop, blur, highlight, add text, borders, arrows, a magnifier, or sample colors.",
     sections: [
       {
         heading: "Distribution",
@@ -409,7 +409,9 @@ const helvetyScreenTools: SoftwareProduct = {
         kind: "bullets",
         items: [
           "Frozen overlay selection with window snap or free regions.",
-          "Shape primitives from arrows through ellipses plus freehand strokes.",
+          "Live Draw shapes, freehand, and sparkle on a transparent fullscreen overlay.",
+          "Home gallery of PNG captures with Recycle Bin delete.",
+          "Built-in PNG editor: Canvas, Text, Border, Blur, Highlight, Arrow, Magnifier, Crop, and Color.",
           "Separate hotkeys for capture versus Live Draw, with modifier ergonomics.",
           "Tray behavior, optional autostart on packaged builds, and quality tuning from Settings.",
         ],
@@ -425,6 +427,8 @@ const helvetyScreenTools: SoftwareProduct = {
     "Global hotkey screenshot capture",
     "Frozen-screen selection overlay with window snapping",
     "Live Draw fullscreen annotation overlay",
+    "Home gallery of PNG captures with Recycle Bin delete",
+    "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, and color picker",
     "Shape tools: arrows, lines, rectangles, circles, ellipses, and free draw",
     "Configurable hotkeys and shortcut modifiers",
     "System tray support with settings-driven behavior",
@@ -441,7 +445,7 @@ const helvetyScreenTools: SoftwareProduct = {
         interval: "one-time",
         isFree: true,
         features: [
-          "All screenshot and Live Draw features",
+          "All screenshot, Live Draw, gallery, and editor features",
           "No account required",
           "Free to use",
         ],
@@ -494,6 +498,8 @@ const helvetyScreenTools: SoftwareProduct = {
       "winui",
       "live draw",
       "hotkey",
+      "gallery",
+      "png editor",
     ],
     featured: true,
     releaseDate: cHelvetyScreenTools.releaseDate,
@@ -523,7 +529,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
       {
         heading: "Distribution",
         kind: "paragraph",
-        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. The core Windows ZIP is hosted on this Store page. Use the Download button, extract the archive, and run the app. Optional modules are listed below on this page.`,
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. The core Windows ZIP is hosted on this Store page. Use the Download button, extract the archive, and run the app. Flow Explorer and Web Resource Explorer ship in the core ZIP and can also be added from the Modules section below.`,
       },
       {
         heading: "Workflow highlights",
@@ -532,7 +538,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
           "Sign in with your Microsoft work or school account in the system browser.",
           "Pick a Dataverse environment from Global Discovery.",
           "Read records and metadata with the permissions you already have.",
-          "Add drop-in modules from the modules folder, including Flow Explorer.",
+          "Add drop-in modules from the modules folder, including Flow Explorer and Web Resource Explorer.",
         ],
       },
       {
@@ -546,7 +552,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
     "Sign in with your Microsoft work or school account",
     "Pick a Dataverse environment from Global Discovery",
     "Read Dataverse records and metadata in your user context",
-    "Drop-in modules, including Flow Explorer",
+    "Drop-in modules, including Flow Explorer and Web Resource Explorer",
     "Portable ZIP with no admin installer",
     HELVETY_FREE_SOURCE_FEATURE,
   ],
@@ -583,6 +589,14 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
         description:
           "See what a cloud flow touches, and which flows use a Dataverse table.",
         publicPackageId: "flow-explorer",
+        fileFormat: "zip",
+      },
+      {
+        id: "web-resource-explorer",
+        name: "Web Resource Explorer",
+        description:
+          "Search Dataverse image web resources and copy their unique names, with live icon previews.",
+        publicPackageId: "web-resource-explorer",
         fileFormat: "zip",
       },
     ],
@@ -623,6 +637,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
       "windows",
       "desktop",
       "flow explorer",
+      "web resource explorer",
     ],
     featured: true,
     releaseDate: cHelvetyPowerPlatformTools.releaseDate,

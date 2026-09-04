@@ -23,10 +23,10 @@ These public zones do not set first-party HTTP cookies for auth, analytics, or p
 
 Documented in Privacy §8 table (SSOT: `apps/web/lib/legal-cookies-disclosure.ts`):
 
-| Storage                                | Apps                  | Purpose                                                       |
-| -------------------------------------- | --------------------- | ------------------------------------------------------------- |
-| Theme preference (`localStorage`)      | All zones             | Remember dark/light mode                                      |
-| `helvety-pdf-columns` (`localStorage`) | `pdf`                 | Remember PDF viewer column layout                             |
+| Storage                                | Apps      | Purpose                           |
+| -------------------------------------- | --------- | --------------------------------- |
+| Theme preference (`localStorage`)      | All zones | Remember dark/light mode          |
+| `helvety-pdf-columns` (`localStorage`) | `pdf`     | Remember PDF viewer column layout |
 
 No consent modal is required for strictly local preference storage with no analytics.
 

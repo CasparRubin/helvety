@@ -403,6 +403,12 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.features).toContain(
       HELVETY_FREE_SOURCE_FEATURE
     );
+    expect(getProductBySlug("helvety-screen-tools")?.features).toEqual(
+      expect.arrayContaining([
+        "Home gallery of PNG captures with Recycle Bin delete",
+        "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, and color picker",
+      ])
+    );
     expect(
       getProductBySlug("helvety-power-platform-tools")?.features
     ).toContain(HELVETY_FREE_SOURCE_FEATURE);
@@ -479,7 +485,7 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Helvety Power Platform Tools serves a core zip and Flow Explorer module", () => {
+  it("Helvety Power Platform Tools serves a core zip plus Flow Explorer and Web Resource Explorer modules", () => {
     const product = getProductBySlug("helvety-power-platform-tools");
     expect(product).toBeDefined();
     if (!product || !isSoftwareProduct(product)) {
@@ -495,6 +501,14 @@ describe("store product catalog", () => {
         description:
           "See what a cloud flow touches, and which flows use a Dataverse table.",
         publicPackageId: "flow-explorer",
+        fileFormat: "zip",
+      },
+      {
+        id: "web-resource-explorer",
+        name: "Web Resource Explorer",
+        description:
+          "Search Dataverse image web resources and copy their unique names, with live icon previews.",
+        publicPackageId: "web-resource-explorer",
         fileFormat: "zip",
       },
     ]);
