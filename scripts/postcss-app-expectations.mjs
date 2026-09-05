@@ -15,7 +15,7 @@ export const UI_TAILWIND_BUILD_DEPENDENCIES = {
   tailwindcss: "^4.3.3",
   "@tailwindcss/postcss": "^4.3.3",
   /** globals.css @import "shadcn/tailwind.css" (zone apps + extension popup) */
-  shadcn: "^4.19.0",
+  shadcn: "^4.21.0",
 };
 
 /**

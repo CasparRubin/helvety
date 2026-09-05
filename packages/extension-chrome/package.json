@@ -45,7 +45,7 @@
   "devDependencies": {
     "@helvety/config": "workspace:*",
     "@helvety/dev-deps": "workspace:*",
-    "@types/chrome": "^0.2.7",
+    "@types/chrome": "^0.2.8",
     "react": "^19.2.8"
   }
 }

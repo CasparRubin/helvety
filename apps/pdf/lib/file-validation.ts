@@ -4,6 +4,8 @@
  * Enforces maximum file size (100MB).
  */
 
+import { PDF_FILE_SIZE_LIMIT_BYTES } from "@helvety/shared/product-file-limit-copy";
+
 /**
  * Type guard to check if a file is a PDF based on validation.
  * Uses synchronous validation for performance.
@@ -179,8 +181,6 @@ export function validateFileType(
   };
 }
 
-const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB
-
 /**
  * Validates file size - checks max size and empty files.
  *
@@ -190,7 +190,7 @@ const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB
 export function validateFileSize(
   file: File
 ): Readonly<{ valid: boolean; error?: string }> {
-  if (file.size > MAX_FILE_SIZE_BYTES) {
+  if (file.size > PDF_FILE_SIZE_LIMIT_BYTES) {
     return {
       valid: false,
       error: `File exceeds maximum size of 100MB.`,

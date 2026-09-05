@@ -1,7 +1,9 @@
+import { PDF_FILE_SIZE_LIMIT_BYTES } from "@helvety/shared/product-file-limit-copy";
+
 /** OCR zone constants: limits, rendering, and worker configuration. */
 
 /** Maximum accepted file size (PDF or image), in bytes. Matches the PDF zone. */
-export const OCR_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
+export const OCR_FILE_SIZE_LIMIT_BYTES = PDF_FILE_SIZE_LIMIT_BYTES;
 
 /** Maximum number of pages processed from a single PDF. */
 export const OCR_MAX_PDF_PAGES = 50;

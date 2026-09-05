@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { pdfNavbarAbout } from "./app-navbar-about";
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
+  PDF_FILE_SIZE_LIMIT_BYTES,
   PDF_FILE_SIZE_LIMIT_COPY,
 } from "./product-file-limit-copy";
 import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-helpers";
@@ -10,6 +11,7 @@ import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-he
 describe("product-file-limit-copy", () => {
   it("exports stable user-facing limit labels", () => {
     expect(PDF_FILE_SIZE_LIMIT_COPY).toBe("up to 100MB per file");
+    expect(PDF_FILE_SIZE_LIMIT_BYTES).toBe(100 * 1024 * 1024);
     expect(IMAGE_FILE_SIZE_LIMIT_COPY).toBe("up to 25MB per image");
   });
 

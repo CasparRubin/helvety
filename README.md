@@ -76,7 +76,7 @@ bun run test
 bun run format
 
 # remove local gitignored artifacts (.next/, coverage/, .turbo/, .DS_Store, …)
-# skips coverage/ dirs while Vitest is writing coverage (.tmp) or when HELVEY_SKIP_COVERAGE_CLEAN=1
+# skips coverage/ dirs while Vitest is writing coverage (.tmp) or when HELVETY_SKIP_COVERAGE_CLEAN=1
 bun run clean:artifacts
 ```
 

@@ -32,7 +32,7 @@ After any root-level update, confirm root `package.json` has **no** `dependencie
 ```bash
 # pdf: PDF.js worker (from react-pdf's resolved pdfjs-dist)
 cd apps/pdf && bun run sync:pdf-worker   # dev/build also run this automatically
-# Root command syncs first, then validates (same as ci:check pdf gate)
+# Root command syncs both pdf and ocr workers, then validates (same as ci:check pdf gate)
 bun run consistency:pdfjs-worker
 
 # ocr: Tesseract worker/WASM + PDF.js worker

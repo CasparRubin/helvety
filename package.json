@@ -45,7 +45,7 @@
     "consistency:vercel-apps": "node scripts/check-vercel-app-config-consistency.mjs",
     "test:hygiene": "node scripts/check-test-hygiene.mjs",
     "consistency:filenames": "node scripts/check-source-filename-case.mjs",
-    "consistency:pdfjs-worker": "bun run --filter @helvety/pdf sync:pdf-worker && node scripts/check-pdfjs-worker-alignment.mjs",
+    "consistency:pdfjs-worker": "bun run --filter @helvety/pdf sync:pdf-worker && bun run --filter @helvety/ocr sync:pdf-worker && node scripts/check-pdfjs-worker-alignment.mjs",
     "ci:check": "bun run consistency:proxy-docs && bun run consistency:toolchain-docs && bun run consistency:env-templates && bun run consistency:vercel-apps && bun run consistency:guardrails && bun run consistency:ui-actions && bun run consistency:zone-modernization && bun run consistency:workspace-scripts && bun run consistency:license && bun run consistency:customer-copy && bun run consistency:install-manifest-metadata && bun run consistency:lifecycle-scripts && bun run consistency:project-naming && bun run test:hygiene && bun run deps:security:floors && bun run deps:drift && bun run consistency:pdfjs-worker && bun run consistency:filenames && bun run deps:unused && bun run format:check && bun run lint && bun run type-check && bun run test",
     "ci:release": "bun run clean:artifacts && bun run ci:check && bun run build",
     "deps:audit": "bun audit",
@@ -85,22 +85,24 @@
     "ip-address": "10.4.0",
     "postcss": "8.5.24",
     "protobufjs": "7.6.5",
-    "qs": "6.15.3",
+    "qs": "6.16.0",
+    "browserslist": "4.28.7",
+    "postcss-selector-parser": "7.1.3",
     "dompurify": "3.4.12",
     "js-yaml": "4.3.1",
     "nanoid": "3.3.18",
-    "typescript-eslint": "8.67.0",
+    "typescript-eslint": "8.69.0",
     "body-parser": "2.3.0",
-    "sharp": "0.35.3",
+    "sharp": "0.35.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "@types/node": "24.13.3",
     "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4"
+    "@types/react-dom": "19.2.7"
   },
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
-    "knip": "^6.32.2",
-    "turbo": "^2.10.11"
+    "knip": "^6.34.0",
+    "turbo": "^2.10.12"
   }
 }

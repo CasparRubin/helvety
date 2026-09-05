@@ -59,15 +59,15 @@
   "dependencies": {
     "@helvety/config": "workspace:*",
     "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.38.2",
+    "@upstash/redis": "^1.38.4",
     "canvas-size": "^2.0.0",
     "clsx": "^2.1.1",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "peerDependencies": {
-    "next": "^16.3.2",
+    "next": "^16.3.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

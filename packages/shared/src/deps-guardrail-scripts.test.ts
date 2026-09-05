@@ -66,7 +66,7 @@ describe("clean artifacts script", () => {
       {
         cwd: repoRoot,
         encoding: "utf8",
-        env: { ...process.env, HELVEY_SKIP_COVERAGE_CLEAN: "1" },
+        env: { ...process.env, HELVETY_SKIP_COVERAGE_CLEAN: "1" },
       }
     );
     expect(output).toContain("[clean:artifacts]");

@@ -8,16 +8,12 @@ import { cn } from "@helvety/shared/utils";
  */
 function TooltipProvider({
   delay = 0,
-  delayDuration,
   ...props
-}: TooltipPrimitive.Provider.Props & {
-  /** @deprecated Legacy prop alias from the pre–Base UI API — prefer `delay`. */
-  delayDuration?: number;
-}) {
+}: TooltipPrimitive.Provider.Props) {
   return (
     <TooltipPrimitive.Provider
       data-slot="tooltip-provider"
-      delay={delayDuration ?? delay}
+      delay={delay}
       {...props}
     />
   );

@@ -64,7 +64,7 @@
   --surface-chrome: oklch(0.935 0.006 35);
   --surface-toolbar: oklch(0.95 0.005 35);
   --surface-panel: oklch(0.965 0.005 35);
-  /** Marketing / headline Swiss red (static brand accent). */
+  /** Marketing / headline Swiss flag red. Distinct from logo accent `HELVETY_ACCENT_RED` (#ff102a). */
   --brand-swiss-red: #ff0000;
 }
 

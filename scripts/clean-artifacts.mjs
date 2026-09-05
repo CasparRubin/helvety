@@ -7,7 +7,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = join(fileURLToPath(new URL(".", import.meta.url)), "..");
-const skipCoverageClean = process.env.HELVEY_SKIP_COVERAGE_CLEAN === "1";
+const skipCoverageClean = process.env.HELVETY_SKIP_COVERAGE_CLEAN === "1";
 
 /** Directory names removed wherever they appear under the repo (except node_modules). */
 const ARTIFACT_DIR_NAMES = new Set([".next", "coverage", ".turbo"]);
@@ -34,7 +34,7 @@ function collectArtifactDirs(dir) {
     if (entry.isDirectory()) {
       if (ARTIFACT_DIR_NAMES.has(entry.name)) {
         // Vitest writes coverage to `.tmp` while `test:coverage` runs; do not delete mid-run.
-        // Guardrail tests set HELVEY_SKIP_COVERAGE_CLEAN=1 when exercising this script.
+        // Guardrail tests set HELVETY_SKIP_COVERAGE_CLEAN=1 when exercising this script.
         if (
           entry.name === "coverage" &&
           (skipCoverageClean || existsSync(join(abs, ".tmp")))
