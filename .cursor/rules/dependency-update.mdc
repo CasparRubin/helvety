@@ -10,4 +10,4 @@ alwaysApply: false
 
 Apply the project skill [`.cursor/skills/dependency-update/SKILL.md`](../skills/dependency-update/SKILL.md) and walk [docs/dependency-inventory.md](../../docs/dependency-inventory.md).
 
-Include non-npm assets (PDF.js worker, Tesseract WASM/assets, React Bits vendor, git overrides, external repos), not only `package.json`.
+Include non-npm assets (PDF.js worker, Tesseract WASM/assets, git overrides, external repos), not only `package.json`.

@@ -321,24 +321,6 @@ export function createEslintConfig(rootDir) {
         "jsdoc/require-jsdoc": "off",
       },
     },
-    // Vendored React Bits components (apps/web/components/vendor): upstream style, not Helvety conventions.
-    {
-      files: ["**/components/vendor/**"],
-      rules: {
-        "jsdoc/require-jsdoc": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/naming-convention": "off",
-        "@typescript-eslint/consistent-type-imports": "off",
-        "@typescript-eslint/no-unnecessary-type-assertion": "off",
-        "@typescript-eslint/prefer-optional-chain": "off",
-        "@typescript-eslint/prefer-nullish-coalescing": "off",
-        "@typescript-eslint/no-floating-promises": "off",
-        "prefer-template": "off",
-        "import-x/order": "off",
-        "import-x/no-duplicates": "off",
-        "react/no-array-index-key": "off",
-      },
-    },
     globalIgnores([
       ".next/**",
       "out/**",

@@ -10,7 +10,3 @@ export const HERO_COMPANY_VALUES_TAGLINE_DISPLAY =
     .split(/,\s*/)
     .map((value) => value.toLowerCase())
     .join(" · ");
-
-/** Subtle open-source assurance under the company-values tagline. */
-export const HERO_OPEN_SOURCE_ASSURANCE =
-  "Our products are open source so you can verify our claims.";

@@ -7,7 +7,7 @@ Gateway app for `helvety.com` and public legal/SEO surfaces.
 
 ## Key Features
 
-- **Home (`/`):** [`HeroMarketingShell`](components/hero-marketing-shell.tsx) from [`app/page.tsx`](app/page.tsx) server-renders a brand-first hero: **Software** title, Switzerland origin line via React Bits **RotatingText** ([`HeroSwitzerlandHeadline`](components/hero-switzerland-headline.tsx): Designed in Basel / Engineered in Zürich / Made in, then static red Switzerland; reduced-motion static fallback), company-values tagline (`private · simple · clean` from `HELVETY_COMPANY_VALUES_TAGLINE`) plus a subtle open-source assurance line via [`HeroCompanyValuesTagline`](components/hero-company-values-tagline.tsx), plain themed `bg-background`, light CSS enter motion, and a single primary **Browse products** CTA deep-linked to `urls.storeProducts` (`/store/products`; open-source tools blurb, no Microsoft 365 mention). The page also mounts [`StoreProductsSpeculation`](components/store-products-speculation.tsx). React Bits **Shuffle / ShinyText** presets live in [`hero-text.tsx`](components/hero-text.tsx) for vendor refresh and tests; production `/` does **not** mount them.
+- **Home (`/`):** [`HeroMarketingShell`](components/hero-marketing-shell.tsx) from [`app/page.tsx`](app/page.tsx) server-renders a brand-first hero: **Open-source Software** title, static **Made in Switzerland** (Switzerland in brand red), company-values tagline (`private · simple · clean` from `HELVETY_COMPANY_VALUES_TAGLINE`) via [`HeroCompanyValuesTagline`](components/hero-company-values-tagline.tsx), plain themed `bg-background`, light CSS enter motion, and a single primary **Browse products** CTA deep-linked to `urls.storeProducts` (`/store/products`; one-line verify-claims blurb, no Microsoft 365 mention). The page also mounts [`StoreProductsSpeculation`](components/store-products-speculation.tsx).
 - **Public shell:** [`app/layout.tsx`](app/layout.tsx) composes `HelvetyPublicShellRootLayout` (`mainVariant: "scroll-area"`; the shell injects `HelvetyThemeInitScript` in `<head>`). The gateway uses the shared shell defaults plus `bodyClassName="overflow-x-clip"` so theme background paint stays stable without hero-specific overflow escapes. See [`packages/ui/README.md`](../../packages/ui/README.md). Root [`loading.tsx`](app/loading.tsx) uses shared `HelvetyShellRouteLoading` (`@helvety/ui/helvety-shell-route-loading`).
 - **Legal pages (`/privacy`, `/terms`, `/impressum`):** shared shell via [`LegalPageShell`](components/legal-document.tsx) and [`legal.css`](app/legal.css). Privacy tables use `LegalTableWrap` + shadcn [`@helvety/ui/table`](../../packages/ui/src/table.tsx) (`layout="scroll"` for processors, `layout="cards"` with `data-label` for the cookies/localStorage table on small screens).
 - Multi-zone gateway rewrites for `/store`, `/pdf`, `/image-editor`, `/ocr`
@@ -58,17 +58,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-### React Bits (hero)
-
-React Bits text animation sources live under [`components/vendor/`](components/vendor/) (`RotatingText.tsx`, `Shuffle.tsx`, `ShinyText.tsx`). Production `/` uses [`hero-marketing-shell.tsx`](components/hero-marketing-shell.tsx) with a **RotatingText** client island for the Switzerland line ([`HeroSwitzerlandHeadline`](components/hero-switzerland-headline.tsx)) and a simple middle-dot company-values tagline in [`HeroCompanyValuesTagline`](components/hero-company-values-tagline.tsx) from `HELVETY_COMPANY_VALUES_TAGLINE` on a plain themed `bg-background`. [`hero-text.tsx`](components/hero-text.tsx) holds **Shuffle / ShinyText presets** for vendor refresh and unit tests ([`hero-text.test.tsx`](components/hero-text.test.tsx); not imported by the production shell). Shell coverage lives in [`hero-marketing-shell.test.tsx`](components/hero-marketing-shell.test.tsx) (copy/CTA wiring; mocks `next/link` only). [`hero-switzerland-headline.test.tsx`](components/hero-switzerland-headline.test.tsx) and [`hero-text.test.tsx`](components/hero-text.test.tsx) stub RotatingText / Shuffle / ShinyText and mock `framer-motion` as needed. Homepage composition is asserted in [`app/home-page-wiring.test.ts`](app/home-page-wiring.test.ts). **`RotatingText.tsx`** and **`ShinyText.tsx`** import **`framer-motion`** (not `motion/react`); **`Shuffle.tsx`** uses GSAP. ESLint relaxes style rules for `components/vendor/**` in `@helvety/config` (no per-file `eslint-disable`).
-
-Refresh text components from `apps/web` (CLI may write to `components/` first; move reconciled files into `components/vendor/` and keep imports aligned):
-
-```bash
-bunx shadcn add @react-bits/RotatingText-TS-TW @react-bits/ShinyText-TS-TW @react-bits/Shuffle-TS-TW
-```
-
-Reconcile Helvety tweaks (keep `framer-motion`, not `motion/react`) after refresh.
+Hero coverage lives in [`hero-marketing-shell.test.tsx`](components/hero-marketing-shell.test.tsx) (copy/CTA wiring; mocks `next/link` only). Homepage composition is asserted in [`app/home-page-wiring.test.ts`](app/home-page-wiring.test.ts).
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 

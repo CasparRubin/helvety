@@ -5,7 +5,7 @@ description: >-
   monorepo. Use when the user asks for dependency updates, bump deps, bun
   outdated, deps:drift, package upgrades, security floors, or a full dependency
   sweep. Covers npm/toolchain AND extended assets (PDF.js worker, Tesseract
-  assets, React Bits vendor, external repos); not npm-only.
+  assets, external repos); not npm-only.
 ---
 
 # Helvety dependency update
@@ -42,7 +42,7 @@ See [reference.md](./reference.md) for command cheat sheet.
 | **pdf**          | Bump `react-pdf` only (not `pdfjs-dist` at root/apps/pdf); `bun install`; `cd apps/pdf && bun run sync:pdf-worker`                                                                                                                                  | Viewer + merge tests; worker test suite; `consistency:pdfjs-worker`    |
 | **ocr**          | `react-pdf` (not `pdfjs-dist` at root/apps/ocr) + `tesseract.js` (core is transitive); `bun install`; `cd apps/ocr && bun run sync:assets` (tesseract worker/WASM + pdf worker); `cd apps/ocr && bun run download:tessdata` only to refresh eng/deu | Render + extract tests; worker test suite; `consistency:pdfjs-worker`  |
 | **image-editor** | Bump `konva` / `react-konva` as needed                                                                                                                                                                                                              | Canvas editor smoke                                                    |
-| **web**          | React Bits via shadcn from `apps/web`                                                                                                                                                                                                               | Reconcile `components/vendor/`; `docs/ui-shadcn-integration-policy.md` |
+| **web**          | No extra vendored motion/assets                                                                                                                                                                                                                     | Confirm `docs/dependency-inventory.md` still lists none                |
 
 Update [docs/dependency-inventory.md](../../../docs/dependency-inventory.md) if pins or procedures changed.
 

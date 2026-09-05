@@ -56,7 +56,6 @@
       "apps/web/app/terms/**",
       "apps/web/app/impressum/**",
       "scripts/**",
-      "apps/web/components/vendor/**",
       "apps/pdf/app/layout*.ts*"
     ]
   },

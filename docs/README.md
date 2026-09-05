@@ -8,7 +8,7 @@ Index of policy, ops, and architecture docs under this folder.
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [`naming-conventions.md`](./naming-conventions.md)                         | File/symbol naming, App Router conventions, customer-facing copy sync                          |
 | [`app-consistency-checklist.md`](./app-consistency-checklist.md)           | Required files and tests for each `apps/*` zone                                                |
-| [`ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md)     | Shared UI primitives in `@helvety/ui` only; React Bits vendor rules                            |
+| [`ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md)     | Shared UI primitives in `@helvety/ui` only; gateway hero is static copy                        |
 | [`ui-action-button-contract.md`](./ui-action-button-contract.md)           | Row actions, canvas tool command bars, placement, responsive labels (`consistency:ui-actions`) |
 | [`quality-modernization-baseline.md`](./quality-modernization-baseline.md) | Shared package contracts, proxy/env baselines, completed modernization                         |
 

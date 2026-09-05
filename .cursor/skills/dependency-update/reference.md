@@ -41,8 +41,7 @@ cd apps/ocr && bun run download:tessdata  # only when adding/refreshing eng/deu 
 # Root command validates both pdf and ocr zones (same as ci:check)
 bun run consistency:pdfjs-worker
 
-# web: React Bits (from apps/web)
-# shadcn add @react-bits/<name>.json, then reconcile apps/web/components/vendor/
+# web: no extra vendored motion libraries; hero is static copy
 ```
 
 ## Docs

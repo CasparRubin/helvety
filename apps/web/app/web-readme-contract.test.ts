@@ -12,8 +12,8 @@ describe("apps/web README contracts", () => {
     const readme = readFileSync(readmePath, "utf8");
 
     expect(readme).toContain("`bg-background`");
-    expect(readme).toContain("RotatingText");
-    expect(readme).toContain("HeroSwitzerlandHeadline");
+    expect(readme).toContain("Made in Switzerland");
+    expect(readme).toContain("HeroMarketingShell");
     expect(readme).toContain("LegalTableWrap");
     expect(readme).not.toMatch(
       /The gateway passes `scrollAreaViewportClassName` with `bg-background` so the scroll column/

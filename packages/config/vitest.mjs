@@ -35,15 +35,33 @@ const toolchainResolvePaths = {
   lucideReactDir: path.dirname(
     rootRequire.resolve("lucide-react/package.json")
   ),
-  framerMotion: rootRequire.resolve("framer-motion"),
-  framerMotionDir: path.dirname(
-    rootRequire.resolve("framer-motion/package.json")
-  ),
   reactRemoveScroll: rootRequire.resolve("react-remove-scroll"),
   reactRemoveScrollDir: path.dirname(
     rootRequire.resolve("react-remove-scroll/package.json")
   ),
 };
+
+/** Optional aliases so Vitest still loads after Motion is removed from the tree. */
+function framerMotionAliases(rootRequireFn) {
+  try {
+    const framerMotion = rootRequireFn.resolve("framer-motion");
+    const framerMotionDir = path.dirname(
+      rootRequireFn.resolve("framer-motion/package.json")
+    );
+    return [
+      {
+        find: /^framer-motion$/,
+        replacement: framerMotion,
+      },
+      {
+        find: /^framer-motion\/(.+)$/,
+        replacement: `${framerMotionDir}/$1`,
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
 
 /** Vite alias that pins a package to the hoisted root ESM entry when available. */
 function exactPackageAlias(rootRequireFn, packageName) {
@@ -223,14 +241,7 @@ export function createVitestConfig(rootDir, options = {}) {
           find: /^lucide-react\/(.+)$/,
           replacement: `${toolchainResolvePaths.lucideReactDir}/$1`,
         },
-        {
-          find: /^framer-motion$/,
-          replacement: toolchainResolvePaths.framerMotion,
-        },
-        {
-          find: /^framer-motion\/(.+)$/,
-          replacement: `${toolchainResolvePaths.framerMotionDir}/$1`,
-        },
+        ...framerMotionAliases(rootRequire),
         ...hoistedPackageAliases,
         {
           find: /^react-remove-scroll\/(.+)$/,

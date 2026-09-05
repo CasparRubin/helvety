@@ -36,14 +36,6 @@ function isAllowedProductionHost(hostname: string): boolean {
 
 const nextConfig: NextConfig = createHelvetyNextConfig({
   appName: "web",
-  optimizePackageImports: [
-    "lucide-react",
-    "@base-ui/react",
-    "sonner",
-    "framer-motion",
-    "gsap",
-    "@gsap/react",
-  ],
   overrides: {
     // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.
     async rewrites() {

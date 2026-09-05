@@ -171,14 +171,9 @@ async function main() {
     `- ${await describePath("OCR tessdata dir", "apps/ocr/public/tessdata")}`
   );
 
-  const vendorDir = path.join(ROOT, "apps/web/components/vendor");
-  if (existsSync(vendorDir)) {
-    const { readdir } = await import("node:fs/promises");
-    const files = await readdir(vendorDir);
-    console.log(`- React Bits vendor files: ${files.join(", ")}`);
-  } else {
-    console.log("- React Bits vendor: apps/web/components/vendor/ missing");
-  }
+  console.log(
+    "- Gateway hero: static copy in apps/web/components/hero-marketing-shell.tsx (no vendored motion)"
+  );
 
   console.log(
     "\nFull checklist and upstream URLs: docs/dependency-inventory.md\n"
