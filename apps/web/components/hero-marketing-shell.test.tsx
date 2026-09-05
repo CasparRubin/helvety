@@ -73,10 +73,10 @@ describe("HeroMarketingShell", () => {
     );
 
     expect(html).toMatch(/<h1[^>]*>open-source software<\/h1>/);
-    expect(html).toContain("made in");
-    expect(html).toContain("switzerland");
+    expect(html).toContain("Made in");
+    expect(html).toContain("Switzerland");
     expect(html).not.toContain("Open-source Software");
-    expect(html).not.toContain("Made in");
+    expect(html).not.toContain("made in switzerland");
     expect(html).toContain("text-brand-swiss-red");
     expect(html).not.toContain("Designed in Basel");
     expect(html).not.toContain("Engineered in Zürich");

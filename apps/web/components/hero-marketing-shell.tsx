@@ -44,9 +44,9 @@ export function HeroMarketingShell() {
         <div className="hero-enter-brand space-y-4 sm:space-y-5">
           <h1 className={HERO_MUTED_LINE_CLASS}>open-source software</h1>
           <p className={HEADLINE_CLASS}>
-            made in{" "}
+            Made in{" "}
             <span className="text-brand-swiss-red font-medium">
-              {HELVETY_SWISS_ORIGIN_COUNTRY.toLowerCase()}
+              {HELVETY_SWISS_ORIGIN_COUNTRY}
             </span>
           </p>
           <div className="flex justify-center">
