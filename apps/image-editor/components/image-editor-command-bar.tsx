@@ -160,6 +160,7 @@ export function ImageEditorCommandBar({
         <Button
           type="button"
           size="sm"
+          className="shrink-0"
           onClick={hasImage ? onReplaceImage : onOpenImage}
           aria-label={addButtonLabel}
         >
@@ -170,7 +171,7 @@ export function ImageEditorCommandBar({
         </Button>
 
         {hasImage ? (
-          <>
+          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto md:gap-2">
             {TOOL_BUTTONS.map(({ tool, label, icon }) => {
               const ToolIcon = icon;
               return (
@@ -179,13 +180,12 @@ export function ImageEditorCommandBar({
                   type="button"
                   variant={activeTool === tool ? "default" : "outline"}
                   size="sm"
+                  className="shrink-0"
                   onClick={() => onSetTool(tool)}
                   aria-pressed={activeTool === tool}
                 >
                   <ToolIcon className="size-4" />
-                  <span className="sr-only min-[500px]:not-sr-only">
-                    {label}
-                  </span>
+                  <span className="sr-only lg:not-sr-only">{label}</span>
                 </Button>
               );
             })}
@@ -196,6 +196,7 @@ export function ImageEditorCommandBar({
                   type="button"
                   variant="secondary"
                   size="sm"
+                  className="shrink-0"
                   disabled={!canApplyCrop}
                   onClick={onApplyCrop}
                 >
@@ -205,19 +206,20 @@ export function ImageEditorCommandBar({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="shrink-0"
                   onClick={onResetCrop}
                 >
                   Reset Crop
                 </Button>
               </>
             ) : null}
-          </>
-        ) : null}
-
-        <CommandBarSpacer />
+          </div>
+        ) : (
+          <CommandBarSpacer />
+        )}
 
         {hasImage ? (
-          <>
+          <div className="flex shrink-0 items-center gap-1 md:gap-2">
             <ZoomControls
               userZoom={userZoom}
               onZoomIn={onZoomIn}
@@ -391,7 +393,7 @@ export function ImageEditorCommandBar({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </>
+          </div>
         ) : null}
       </CommandBar>
     </>

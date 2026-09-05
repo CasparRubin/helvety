@@ -196,10 +196,14 @@ function renderEditorToStage(
   stage.height(stageHeight);
   stage.scale({ x: 1, y: 1 });
 
-  const layer = new Konva.Layer();
-  stage.add(layer);
+  const imageLayer = new Konva.Layer();
+  const dimLayer = new Konva.Layer();
+  const annotationLayer = new Konva.Layer();
+  stage.add(imageLayer);
+  stage.add(dimLayer);
+  stage.add(annotationLayer);
 
-  layer.add(
+  imageLayer.add(
     new Konva.Image({
       image: sourceImage,
       x: -crop.x,
@@ -213,13 +217,15 @@ function renderEditorToStage(
   const highlights = state.elements.filter(
     (element): element is HighlightElement => element.type === "highlight"
   );
-  addHighlightDimOverlay(layer, highlights, crop, stageWidth, stageHeight);
+  addHighlightDimOverlay(dimLayer, highlights, crop, stageWidth, stageHeight);
 
   for (const element of state.elements) {
-    addElementToLayer(layer, element, sourceImage, crop);
+    addElementToLayer(annotationLayer, element, sourceImage, crop);
   }
 
-  layer.draw();
+  imageLayer.draw();
+  dimLayer.draw();
+  annotationLayer.draw();
 }
 
 /** Renders the edit to a throwaway stage and returns it as an image blob. */

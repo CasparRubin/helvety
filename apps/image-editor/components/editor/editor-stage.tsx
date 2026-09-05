@@ -464,7 +464,7 @@ export function EditorStage({
           onTouchMove={handleStageMouseMove}
           onTouchEnd={handleStageMouseUp}
         >
-          <Layer>
+          <Layer listening={false}>
             <KonvaImage
               image={sourceImage}
               x={-crop.x}
@@ -473,7 +473,9 @@ export function EditorStage({
               height={imageHeight}
               listening={false}
             />
+          </Layer>
 
+          <Layer listening={false}>
             <HighlightDimOverlay
               highlights={highlights}
               crop={crop}
@@ -482,7 +484,9 @@ export function EditorStage({
               previewHole={highlightPreviewHole}
               previewDimOpacity={toolDimOpacity}
             />
+          </Layer>
 
+          <Layer>
             {state.elements.map((element) => {
               const selected = element.id === state.selectedId;
               const onSelect = () => {
