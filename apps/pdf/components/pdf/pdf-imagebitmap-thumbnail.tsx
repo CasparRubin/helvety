@@ -1,21 +1,20 @@
 /**
  * Component for rendering PDF pages from ImageBitmap.
  * Provides optimized rendering using ImageBitmap objects.
+ *
+ * Bitmaps are captured from an already-rotated react-pdf canvas, so this
+ * component draws them 1:1 without applying additional rotation.
  */
 
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-import { ROTATION_ANGLES } from "@/lib/constants";
-
-/** Props for ImageBitmap-based PDF thumbnail (imageBitmap, pageNumber, rotation, callbacks). */
+/** Props for ImageBitmap-based PDF thumbnail (imageBitmap, pageNumber, callbacks). */
 interface PdfImageBitmapThumbnailProps {
-  /** ImageBitmap to render */
+  /** ImageBitmap to render (already oriented) */
   imageBitmap: ImageBitmap;
   /** Page number for alt text */
   pageNumber: number;
-  /** Rotation angle in degrees */
-  rotation?: number;
   /** Additional CSS classes */
   className?: string;
   /** Callback when image loads */
@@ -26,15 +25,14 @@ interface PdfImageBitmapThumbnailProps {
 
 /**
  * Component for rendering ImageBitmap thumbnails.
- * Handles rotation transformations efficiently.
+ * Draws the bitmap at its native size; CSS object-contain handles layout.
  *
  * @param props - Component props
- * @returns Image element with ImageBitmap source
+ * @returns Canvas element with ImageBitmap contents
  */
 export function PdfImageBitmapThumbnail({
   imageBitmap,
   pageNumber,
-  rotation = 0,
   className,
   onLoad,
   onError,
@@ -54,33 +52,15 @@ export function PdfImageBitmapThumbnail({
       return;
     }
 
-    // Set canvas size
     canvas.width = imageBitmap.width;
     canvas.height = imageBitmap.height;
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Apply rotation if needed
-    if (rotation !== 0) {
-      ctx.save();
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      ctx.translate(centerX, centerY);
-      ctx.rotate((rotation * Math.PI) / 180);
-      ctx.translate(-centerX, -centerY);
-    }
-
-    // Draw ImageBitmap
     ctx.drawImage(imageBitmap, 0, 0);
-
-    if (rotation !== 0) {
-      ctx.restore();
-    }
 
     setIsLoaded(true);
     onLoad?.();
-  }, [imageBitmap, rotation, onLoad]);
+  }, [imageBitmap, onLoad]);
 
   // Handle errors
   React.useEffect(() => {
@@ -89,22 +69,16 @@ export function PdfImageBitmapThumbnail({
     }
   }, [imageBitmap, onError]);
 
-  // For 90/270 degree rotations, swap width/height to prevent clipping
-  const needsDimensionSwap =
-    rotation === ROTATION_ANGLES.QUARTER ||
-    rotation === ROTATION_ANGLES.THREE_QUARTER;
-
   return (
     <canvas
       ref={canvasRef}
       aria-label={`Page ${pageNumber}`}
       className={cn("max-h-full max-w-full object-contain", className)}
       style={{
-        width: needsDimensionSwap ? "auto" : "100%",
-        height: needsDimensionSwap ? "100%" : "auto",
+        width: "100%",
+        height: "auto",
         maxWidth: "100%",
         maxHeight: "100%",
-        transform: rotation ? `rotate(${rotation}deg)` : undefined,
         opacity: isLoaded ? 1 : 0,
         transition: "opacity 0.2s ease-in-out",
       }}

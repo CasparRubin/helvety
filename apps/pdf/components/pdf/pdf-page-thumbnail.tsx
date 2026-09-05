@@ -422,7 +422,6 @@ function PdfPageThumbnailComponent({
               <PdfImageBitmapThumbnail
                 imageBitmap={imageBitmap}
                 pageNumber={pageNumber}
-                rotation={rotation}
                 onLoad={() => {
                   setLoading(false);
                   setError(false);

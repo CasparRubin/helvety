@@ -1,11 +1,11 @@
 // External libraries
-import { degrees } from "pdf-lib";
+import { degrees, PDFDocument } from "pdf-lib";
 
 // Internal utilities
 import { ROTATION_ANGLES } from "./constants";
 import { validateFiniteNumber } from "./validation-utils";
 
-import type { PDFDocument, PDFPage } from "pdf-lib";
+import type { PDFPage } from "pdf-lib";
 
 /**
  * Normalizes a rotation angle to 0, 90, 180, or 270 degrees.
@@ -61,20 +61,29 @@ export function computeEffectiveRotation(
  * For 180° rotations, applyPageRotation() with metadata is sufficient and more efficient.
  *
  * @param targetPdf - The PDF document to add the rotated page to
- * @param sourcePage - The original page containing the image
+ * @param sourcePdf - Source document containing the image page
+ * @param pageIndex - Index of the image page in the source document
  * @param rotation - The rotation angle in degrees (typically 90 or 270)
  * @returns The newly created page with properly rotated content
  */
 async function createRotatedImagePage(
   targetPdf: PDFDocument,
-  sourcePage: PDFPage,
+  sourcePdf: PDFDocument,
+  pageIndex: number,
   rotation: number
 ): Promise<PDFPage> {
   const normalizedRotation = normalizeRotation(rotation);
+  const sourcePage = sourcePdf.getPage(pageIndex);
   const { width, height } = sourcePage.getSize();
 
-  // Embed the source page for drawing
-  const embeddedPage = await targetPdf.embedPage(sourcePage);
+  // embedPage on an unsaved PDFDocument.create() image PDF does not copy
+  // Image XObjects, so viewers show a blank page. Isolate via copyPages,
+  // serialize that copy, then embed from the loaded document.
+  const isolated = await PDFDocument.create();
+  const [copied] = await isolated.copyPages(sourcePdf, [pageIndex]);
+  isolated.addPage(copied);
+  const loaded = await PDFDocument.load(await isolated.save());
+  const embeddedPage = await targetPdf.embedPage(loaded.getPage(0));
 
   // For 90° and 270°, swap dimensions; for 180°, keep same dimensions
   const needsSwap =
@@ -180,8 +189,12 @@ export async function exportPageWithRotation(
     isImage && needsContentTransform(normalizedRotation);
 
   if (useContentTransform && normalizedRotation !== 0) {
-    const sourcePage = sourcePdf.getPage(pageIndex);
-    await createRotatedImagePage(targetPdf, sourcePage, normalizedRotation);
+    await createRotatedImagePage(
+      targetPdf,
+      sourcePdf,
+      pageIndex,
+      normalizedRotation
+    );
     return;
   }
 

@@ -6,6 +6,14 @@ import {
   exportPageWithRotation,
 } from "./pdf-rotation";
 
+/** 1×1 red PNG used to assert Image XObjects survive 90° image export. */
+const PNG_1X1 = Uint8Array.from(
+  atob(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+  ),
+  (char) => char.charCodeAt(0)
+);
+
 /** Creates a single-page PDF with optional /Rotate metadata for export tests. */
 async function createSourcePdfWithRotation(
   rotation: number
@@ -15,6 +23,23 @@ async function createSourcePdfWithRotation(
   if (rotation !== 0) {
     page.setRotation(degrees(rotation));
   }
+  return pdf;
+}
+
+/** Creates an in-memory image PDF the same way convertImageToPdf does (unsaved). */
+async function createSourcePdfWithPng(
+  pageWidth: number,
+  pageHeight: number
+): Promise<PDFDocument> {
+  const pdf = await PDFDocument.create();
+  const image = await pdf.embedPng(PNG_1X1);
+  const page = pdf.addPage([pageWidth, pageHeight]);
+  page.drawImage(image, {
+    x: 0,
+    y: 0,
+    width: pageWidth,
+    height: pageHeight,
+  });
   return pdf;
 }
 
@@ -75,6 +100,21 @@ describe("exportPageWithRotation", () => {
     const { width, height } = exportedPage.getSize();
     expect(width).toBe(300);
     expect(height).toBe(200);
+  });
+
+  it("copies image XObjects when content-transforming a 90° PNG page", async () => {
+    const source = await createSourcePdfWithPng(10, 20);
+    const outputPdf = await PDFDocument.create();
+    await exportPageWithRotation(outputPdf, source, 0, 90, true);
+
+    const exportedPage = outputPdf.getPage(0);
+    expect(exportedPage.getRotation().angle).toBe(0);
+    const { width, height } = exportedPage.getSize();
+    expect(width).toBe(20);
+    expect(height).toBe(10);
+
+    const pdfText = Buffer.from(await outputPdf.save()).toString("latin1");
+    expect(pdfText).toContain("/Subtype /Image");
   });
 
   it("uses metadata rotation for images at 180°", async () => {
