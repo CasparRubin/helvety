@@ -1,10 +1,9 @@
-import { HERO_COMPANY_VALUES_TAGLINE_DISPLAY } from "@/components/hero-company-values-copy";
+import {
+  HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
+  HERO_MUTED_LINE_CLASS,
+} from "@/components/hero-company-values-copy";
 
 /** Company-values tagline for the gateway hero. */
 export function HeroCompanyValuesTagline() {
-  return (
-    <p className="text-muted-foreground text-base font-medium tracking-[0.08em] md:text-lg">
-      {HERO_COMPANY_VALUES_TAGLINE_DISPLAY}
-    </p>
-  );
+  return <p className={HERO_MUTED_LINE_CLASS}>{HERO_COMPANY_VALUES_TAGLINE_DISPLAY}</p>;
 }

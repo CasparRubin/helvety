@@ -16,7 +16,7 @@ Do not add `apps/*/components/ui/*` primitives or feature wrappers under `@/comp
 
 ## Gateway hero (`apps/web`)
 
-- Production `/` uses `hero-marketing-shell.tsx`: static **Open-source Software** eyebrow, **Made in Switzerland** (Switzerland in brand red), company-values tagline `private · simple · clean` from `HELVETY_COMPANY_VALUES_TAGLINE` in `@helvety/shared/licensing` via `hero-company-values-copy.ts`, Store CTA deep-linked to `urls.storeProducts`, plain themed `bg-background`. Public shells inject blocking theme init in `<head>` (not after `SkipToContent`), so the gateway hero background resolves with the active theme.
+- Production `/` uses `hero-marketing-shell.tsx`: static **open-source software** eyebrow, **made in switzerland** (switzerland in brand red), company-values tagline `private · simple · clean` from `HELVETY_COMPANY_VALUES_TAGLINE` in `@helvety/shared/licensing` via `hero-company-values-copy.ts`, Store CTA deep-linked to `urls.storeProducts`, plain themed `bg-background`. Public shells inject blocking theme init in `<head>` (not after `SkipToContent`), so the gateway hero background resolves with the active theme.
 - **Legal tables (`apps/web`):** Privacy §5/§8 tables compose `@helvety/ui/table` inside `LegalTableWrap` / `LegalTable` (`apps/web/components/legal-document.tsx`, styles in `apps/web/app/legal.css`). Use `layout="scroll"` for wide tabular data or `layout="cards"` with `data-label` on cells for mobile-friendly disclosure tables; do not add raw `<table className="w-full">` blocks to legal pages.
 
 ## Form and sheet primitives

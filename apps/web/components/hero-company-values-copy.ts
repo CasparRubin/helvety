@@ -10,3 +10,7 @@ export const HERO_COMPANY_VALUES_TAGLINE_DISPLAY =
     .split(/,\s*/)
     .map((value) => value.toLowerCase())
     .join(" · ");
+
+/** Shared type for the eyebrow and company-values lines. */
+export const HERO_MUTED_LINE_CLASS =
+  "text-muted-foreground text-base font-medium tracking-[0.08em] md:text-lg";

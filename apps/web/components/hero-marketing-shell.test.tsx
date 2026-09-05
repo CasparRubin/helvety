@@ -32,15 +32,16 @@ vi.mock("next/link", () => ({
 }));
 
 describe("HeroMarketingShell", () => {
-  it("wires Open-source Software title, company values, and static Switzerland line", () => {
+  it("wires open-source software title, company values, and static Switzerland line", () => {
     const src = readFileSync(shellPath, "utf8");
 
     expect(src).toContain("HELVETY_SWISS_ORIGIN_COUNTRY");
     expect(src).toContain("hero-company-values-copy");
     expect(src).toContain("HERO_COMPANY_VALUES_TAGLINE_DISPLAY");
+    expect(src).toContain("HERO_MUTED_LINE_CLASS");
     expect(src).toContain("HeroCompanyValuesTagline");
     expect(src).not.toMatch(/WebGL/);
-    expect(src).toContain("Open-source Software");
+    expect(src).toContain("open-source software");
     expect(src).not.toContain("RotatingText");
     expect(src).not.toContain("hero-switzerland-headline");
     expect(src).not.toContain("HelvetyLogo");
@@ -71,9 +72,11 @@ describe("HeroMarketingShell", () => {
       (match) => match[1]
     );
 
-    expect(html).toMatch(/<h1[^>]*>Open-source Software<\/h1>/);
-    expect(html).toContain("Made in");
-    expect(html).toContain("Switzerland");
+    expect(html).toMatch(/<h1[^>]*>open-source software<\/h1>/);
+    expect(html).toContain("made in");
+    expect(html).toContain("switzerland");
+    expect(html).not.toContain("Open-source Software");
+    expect(html).not.toContain("Made in");
     expect(html).toContain("text-brand-swiss-red");
     expect(html).not.toContain("Designed in Basel");
     expect(html).not.toContain("Engineered in Zürich");

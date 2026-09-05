@@ -5,6 +5,7 @@ import { Button } from "@helvety/ui/button";
 import { ChevronRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 
+import { HERO_MUTED_LINE_CLASS } from "@/components/hero-company-values-copy";
 import { HeroCompanyValuesTagline } from "@/components/hero-company-values-tagline";
 
 export {
@@ -41,13 +42,11 @@ export function HeroMarketingShell() {
     >
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-12 px-4 text-center sm:gap-16 md:px-6">
         <div className="hero-enter-brand space-y-4 sm:space-y-5">
-          <h1 className="text-muted-foreground text-base font-medium tracking-[0.12em] uppercase">
-            Open-source Software
-          </h1>
+          <h1 className={HERO_MUTED_LINE_CLASS}>open-source software</h1>
           <p className={HEADLINE_CLASS}>
-            Made in{" "}
+            made in{" "}
             <span className="text-brand-swiss-red font-medium">
-              {HELVETY_SWISS_ORIGIN_COUNTRY}
+              {HELVETY_SWISS_ORIGIN_COUNTRY.toLowerCase()}
             </span>
           </p>
           <div className="flex justify-center">

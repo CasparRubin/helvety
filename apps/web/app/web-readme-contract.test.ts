@@ -12,7 +12,7 @@ describe("apps/web README contracts", () => {
     const readme = readFileSync(readmePath, "utf8");
 
     expect(readme).toContain("`bg-background`");
-    expect(readme).toContain("Made in Switzerland");
+    expect(readme).toContain("made in switzerland");
     expect(readme).toContain("HeroMarketingShell");
     expect(readme).toContain("LegalTableWrap");
     expect(readme).not.toMatch(
