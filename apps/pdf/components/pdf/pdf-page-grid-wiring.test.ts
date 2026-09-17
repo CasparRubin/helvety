@@ -13,6 +13,7 @@ describe("PdfPageGrid rotation wiring", () => {
   it("uses shared computeEffectiveRotation for thumbnail display", () => {
     const src = readFileSync(gridPath, "utf8");
 
+    expect(src).toContain('from "@/lib/pdf-rotation-math"');
     expect(src).toContain("computeEffectiveRotation");
     expect(src).not.toMatch(
       /const effectiveRotation = \(inherentRotation \+ userRotation\) % 360/

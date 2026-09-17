@@ -3,8 +3,7 @@
  * Extracted from pdf-utils.ts for better code organization.
  */
 
-// External libraries
-import { PDFDocument } from "pdf-lib";
+import type { PDFDocument } from "pdf-lib";
 
 /**
  * Extracts the inherent rotation angles from all pages in a PDF document.
@@ -50,5 +49,6 @@ export function getPageRotations(pdf: PDFDocument): Record<number, number> {
  */
 export async function loadPdfFromFile(file: File): Promise<PDFDocument> {
   const arrayBuffer = await file.arrayBuffer();
+  const { PDFDocument } = await import("pdf-lib");
   return await PDFDocument.load(arrayBuffer);
 }

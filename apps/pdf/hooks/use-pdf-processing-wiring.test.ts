@@ -56,4 +56,10 @@ describe("usePdfProcessing export wiring", () => {
     expect(hookSrc).toContain("totalRotation: computeEffectiveRotation");
     expect(workerSrc).toContain("request.payload.totalRotation");
   });
+
+  it("surfaces partial merge page failures instead of a clean success", () => {
+    expect(hookSrc).toContain("mergePartialFailureMessage");
+    expect(hookSrc).toContain("success: !hadPageFailures");
+    expect(hookSrc).toContain("page(s) could not be included in the download.");
+  });
 });

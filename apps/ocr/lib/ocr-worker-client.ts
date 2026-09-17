@@ -1,7 +1,5 @@
 "use client";
 
-import { createWorker, type Worker as TesseractWorker } from "tesseract.js";
-
 import {
   OCR_TESSDATA_PUBLIC_PATH,
   OCR_TESSERACT_ASSETS_PUBLIC_PATH,
@@ -9,6 +7,7 @@ import {
 } from "./constants";
 
 import type { OcrLanguage } from "./types";
+import type { Worker as TesseractWorker } from "tesseract.js";
 
 /** Image inputs Tesseract.js can recognize directly. */
 type OcrImageInput = Blob | File;
@@ -42,6 +41,7 @@ class OcrWorkerClientImpl implements OcrWorkerClient {
   private async createWorkerForLanguage(
     language: OcrLanguage
   ): Promise<TesseractWorker> {
+    const { createWorker } = await import("tesseract.js");
     return createWorker(language, undefined, {
       workerPath: `${OCR_TESSERACT_ASSETS_PUBLIC_PATH}/worker.min.js`,
       corePath: `${OCR_TESSERACT_ASSETS_PUBLIC_PATH}/`,

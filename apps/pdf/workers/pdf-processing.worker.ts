@@ -3,10 +3,8 @@
 import { PDFDocument } from "pdf-lib";
 
 import { convertImageToPdf } from "../lib/pdf-conversion";
-import {
-  computeEffectiveRotation,
-  exportPageWithRotation,
-} from "../lib/pdf-rotation";
+import { exportPageWithRotation } from "../lib/pdf-rotation";
+import { computeEffectiveRotation } from "../lib/pdf-rotation-math";
 
 import type {
   ExtractPageResponsePayload,

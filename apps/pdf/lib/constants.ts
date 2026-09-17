@@ -115,12 +115,12 @@ export const SCREEN_BREAKPOINTS = {
 export const PDF_RENDER = {
   /** Max wait for the public worker script probe before failing init (ms) */
   WORKER_PROBE_TIMEOUT_MS: 10_000,
-  /** Delay after document load before allowing page render (ms) */
-  DOCUMENT_READY_DELAY: 500,
+  /** Next-macrotask yield after document load before page render (ms); 0 = no extra wait */
+  DOCUMENT_READY_DELAY: 0,
   /** Delay between render retry attempts (ms) */
   RENDER_RETRY_DELAY: 1000,
-  /** Additional delay before page render after document ready (ms) */
-  PAGE_RENDER_DELAY: 200,
+  /** Extra next-macrotask yield before page render after document ready (ms); 0 = no extra wait */
+  PAGE_RENDER_DELAY: 0,
   /** Distance in pixels from viewport before unmounting thumbnails */
   UNMOUNT_DISTANCE: 500,
 } as const;

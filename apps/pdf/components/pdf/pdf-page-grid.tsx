@@ -17,7 +17,7 @@ import {
   createFileMap,
   createFileUrlMap,
 } from "@/lib/pdf-lookup-utils";
-import { computeEffectiveRotation } from "@/lib/pdf-rotation";
+import { computeEffectiveRotation } from "@/lib/pdf-rotation-math";
 
 import { PdfActionButtons } from "./pdf-action-buttons";
 import { PageErrorBoundary } from "./pdf-page-error-boundary";

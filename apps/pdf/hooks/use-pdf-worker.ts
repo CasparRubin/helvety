@@ -16,27 +16,35 @@ let workerInitPromise: Promise<void> | null = null;
 
 /**
  * Confirms the zone-public worker script is reachable before marking ready.
- * Uses GET (not HEAD) so static hosts without HEAD still succeed.
+ * Prefers HEAD so the full worker body is not downloaded twice; falls back to
+ * GET when the host does not allow HEAD.
  *
  * @param workerUrl - Absolute or root-relative path to `pdf.worker.min.mjs`
  */
 async function probePdfWorkerUrl(workerUrl: string): Promise<void> {
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => {
-    controller.abort();
-  }, PDF_RENDER.WORKER_PROBE_TIMEOUT_MS);
+  const request = async (method: "HEAD" | "GET"): Promise<Response> => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, PDF_RENDER.WORKER_PROBE_TIMEOUT_MS);
 
-  try {
-    const response = await fetch(workerUrl, {
-      method: "GET",
-      cache: "force-cache",
-      signal: controller.signal,
-    });
-    if (!response.ok) {
-      throw new Error(`PDF worker probe failed with status ${response.status}`);
+    try {
+      return await fetch(workerUrl, {
+        method,
+        cache: "force-cache",
+        signal: controller.signal,
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
     }
-  } finally {
-    window.clearTimeout(timeoutId);
+  };
+
+  let response = await request("HEAD");
+  if (response.status === 405 || response.status === 501) {
+    response = await request("GET");
+  }
+  if (!response.ok) {
+    throw new Error(`PDF worker probe failed with status ${response.status}`);
   }
 }
 
@@ -91,8 +99,13 @@ export function usePdfWorker(fileType: "pdf" | "image"): UsePdfWorkerReturn {
     // public worker URL responds successfully (not a fixed settle delay).
     workerInitPromise = import("react-pdf")
       .then(async (mod) => {
-        await probePdfWorkerUrl(PDF_WORKER_PUBLIC_PATH);
         mod.pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_PUBLIC_PATH;
+        try {
+          await probePdfWorkerUrl(PDF_WORKER_PUBLIC_PATH);
+        } catch (error) {
+          mod.pdfjs.GlobalWorkerOptions.workerSrc = "";
+          throw error;
+        }
       })
       .catch((err) => {
         // Reset promise on error so it can be retried

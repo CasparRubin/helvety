@@ -40,7 +40,7 @@ describe("PdfImageBitmapThumbnail", () => {
       />
     );
 
-    const canvas = screen.getByLabelText("Page 1") as HTMLCanvasElement;
+    const canvas = screen.getByLabelText<HTMLCanvasElement>("Page 1");
 
     await waitFor(() => {
       expect(onLoad).toHaveBeenCalledTimes(1);

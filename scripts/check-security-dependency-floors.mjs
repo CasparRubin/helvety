@@ -3,9 +3,9 @@ import path from "node:path";
 import process from "node:process";
 
 const SECURITY_FLOORS = {
-  next: "16.3.4",
-  react: "19.2.8",
-  "react-dom": "19.2.8",
+  next: "16.3.5",
+  react: "19.3.0",
+  "react-dom": "19.3.0",
 };
 
 const DEP_GROUPS = [

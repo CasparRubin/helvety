@@ -3,20 +3,16 @@
  * Extracted from pdf-utils.ts for better code organization.
  */
 
-// External libraries
-import { PDFDocument } from "pdf-lib";
-
-// Internal utilities
 import { safeRevokeObjectURL } from "./blob-url-utils";
 import { ERROR_TEMPLATES } from "./error-formatting";
+
+import type { PDFDocument, PDFImage } from "pdf-lib";
 
 /**
  * Represents an embedded image with its dimensions.
  */
 interface ImageEmbed {
-  readonly embed:
-    | Awaited<ReturnType<typeof PDFDocument.prototype.embedPng>>
-    | Awaited<ReturnType<typeof PDFDocument.prototype.embedJpg>>;
+  readonly embed: PDFImage;
   readonly width: number;
   readonly height: number;
 }
@@ -177,6 +173,7 @@ export async function convertImageToPdf(
   options: ImageConversionOptions = {}
 ): Promise<PDFDocument> {
   const arrayBuffer = await file.arrayBuffer();
+  const { PDFDocument } = await import("pdf-lib");
   const pdf = await PDFDocument.create();
   const { preferGpuPreprocess = false } = options;
 

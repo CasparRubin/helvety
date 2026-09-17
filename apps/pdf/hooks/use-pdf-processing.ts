@@ -2,7 +2,6 @@
 
 // External libraries
 import { logger } from "@helvety/shared/logger";
-import { PDFDocument } from "pdf-lib";
 import * as React from "react";
 
 // Internal utilities
@@ -17,10 +16,8 @@ import { createPageMap, createFileMap } from "@/lib/pdf-lookup-utils";
 import { selectPdfProcessingPipeline } from "@/lib/pdf-processing-pipeline";
 import { recordPipelineMetric } from "@/lib/pdf-processing-telemetry";
 import { PdfProcessingWorkerClient } from "@/lib/pdf-processing-worker-client";
-import {
-  computeEffectiveRotation,
-  exportPageWithRotation,
-} from "@/lib/pdf-rotation";
+import { exportPageWithRotation } from "@/lib/pdf-rotation";
+import { computeEffectiveRotation } from "@/lib/pdf-rotation-math";
 import { withTimeout, withTimeoutAndSignal } from "@/lib/timeout-utils";
 
 // Types
@@ -30,6 +27,12 @@ import type {
   WorkerUnifiedPage,
 } from "@/lib/pdf-processing-worker-types";
 import type { PdfFile, UnifiedPage } from "@/lib/types";
+import type { PDFDocument } from "pdf-lib";
+
+/** User-facing copy when merge skips one or more pages. */
+function mergePartialFailureMessage(failedPageCount: number): string {
+  return `${failedPageCount} page(s) could not be included in the download.`;
+}
 
 /** Return type of usePdfProcessing: isProcessing, extractPage, downloadMerged. */
 interface UsePdfProcessingReturn {
@@ -201,6 +204,7 @@ export function usePdfProcessing({
       );
       const isImage = file.type === "image";
 
+      const { PDFDocument } = await import("pdf-lib");
       const newPdf = await PDFDocument.create();
       await withTimeoutAndSignal(
         () =>
@@ -240,6 +244,7 @@ export function usePdfProcessing({
       blob: Blob;
       batchErrors: Array<{ pageNum: number; error: string }>;
     }> => {
+      const { PDFDocument } = await import("pdf-lib");
       const mergedPdf = await PDFDocument.create();
       const totalPages: number = activePages.length;
       const batchErrors: Array<{ pageNum: number; error: string }> = [];
@@ -685,13 +690,12 @@ export function usePdfProcessing({
         }
       }
 
-      // Report any page-level errors that occurred but didn't stop processing
+      // Keep a partial download, but do not treat page-level failures as success.
       if (batchErrors.length > 0) {
         logger.warn(
           `${batchErrors.length} page(s) failed during processing:`,
           batchErrors
         );
-        // Continue processing - some pages may have succeeded
       }
 
       const dateStr = formatTimestamp();
@@ -699,15 +703,25 @@ export function usePdfProcessing({
 
       downloadBlob(blob, filename, DELAYS.BLOB_URL_CLEANUP);
 
+      const hadPageFailures = batchErrors.length > 0;
       if (isMountedRef.current) {
-        onError(null);
+        onError(
+          hadPageFailures
+            ? mergePartialFailureMessage(batchErrors.length)
+            : null
+        );
       }
       recordPipelineMetric({
         operation: "merge",
         pipeline: getActivePipeline(),
         durationMs: Math.round(performance.now() - start),
-        success: true,
+        success: !hadPageFailures,
         pagesProcessed: activePages.length,
+        ...(hadPageFailures
+          ? {
+              error: mergePartialFailureMessage(batchErrors.length),
+            }
+          : {}),
       });
     } catch (err) {
       recordPipelineMetric({

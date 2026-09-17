@@ -32,7 +32,6 @@ import {
   DEFAULT_CORNER_RADIUS,
   DEFAULT_DIM_OPACITY,
 } from "@/lib/editor-types";
-import { exportEditedImage } from "@/lib/export-image";
 import {
   createDownloadName,
   imageValidationMessage,
@@ -157,6 +156,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
           });
         }
 
+        const { exportEditedImage } = await import("@/lib/export-image");
         const blob = await exportEditedImage(source.image, state, format);
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");

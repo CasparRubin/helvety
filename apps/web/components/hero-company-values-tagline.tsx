@@ -5,5 +5,9 @@ import {
 
 /** Company-values tagline for the gateway hero. */
 export function HeroCompanyValuesTagline() {
-  return <p className={HERO_MUTED_LINE_CLASS}>{HERO_COMPANY_VALUES_TAGLINE_DISPLAY}</p>;
+  return (
+    <p className={HERO_MUTED_LINE_CLASS}>
+      {HERO_COMPANY_VALUES_TAGLINE_DISPLAY}
+    </p>
+  );
 }

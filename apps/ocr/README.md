@@ -38,7 +38,7 @@ All Tesseract.js assets are self-hosted under `public/` so nothing is fetched fr
 
 - **Engine assets (generated, gitignored):** [`scripts/sync-tesseract-assets.mjs`](./scripts/sync-tesseract-assets.mjs) (`bun run sync:tesseract`) copies the Tesseract.js worker and core WebAssembly from the installed `tesseract.js` / `tesseract.js-core` packages into `public/tesseract/`. This runs automatically as part of `bun run sync:assets` before dev and build (alongside the PDF.js worker sync).
 - **Language data (vendored, committed):** `public/tessdata/` holds uncompressed `eng.traineddata` and `deu.traineddata` (from `tessdata_fast`, Apache-2.0). These are committed so production builds need no network fetch. [`scripts/download-tessdata.mjs`](./scripts/download-tessdata.mjs) (`bun run download:tessdata`) (re)downloads them when adding or refreshing a language; it is not part of the dev/build sync.
-- **Loading:** [`lib/ocr-worker-client.ts`](./lib/ocr-worker-client.ts) points Tesseract.js at these same-origin paths (`/ocr/tesseract` and `/ocr/tessdata`) with `workerBlobURL: false` and `gzip: false` to stay within the zone CSP and use the uncompressed traineddata.
+- **Loading:** [`lib/ocr-worker-client.ts`](./lib/ocr-worker-client.ts) dynamically imports `tesseract.js` when recognition starts (empty landing does not download the engine) and points it at these same-origin paths (`/ocr/tesseract` and `/ocr/tessdata`) with `workerBlobURL: false` and `gzip: false` to stay within the zone CSP and use the uncompressed traineddata.
 
 ## Limits
 

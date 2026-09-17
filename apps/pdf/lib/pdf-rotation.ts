@@ -1,52 +1,18 @@
-// External libraries
-import { degrees, PDFDocument } from "pdf-lib";
-
-// Internal utilities
 import { ROTATION_ANGLES } from "./constants";
+import {
+  computeEffectiveRotation,
+  needsContentTransform,
+  normalizeRotation,
+} from "./pdf-rotation-math";
 import { validateFiniteNumber } from "./validation-utils";
 
-import type { PDFPage } from "pdf-lib";
+import type { PDFDocument, PDFPage } from "pdf-lib";
 
-/**
- * Normalizes a rotation angle to 0, 90, 180, or 270 degrees.
- *
- * @param angle - The rotation angle in degrees
- * @returns Normalized angle (0, 90, 180, or 270)
- */
-export function normalizeRotation(angle: number): number {
-  let normalized = angle % ROTATION_ANGLES.FULL;
-  if (normalized < 0) normalized += ROTATION_ANGLES.FULL;
-  return (
-    (Math.round(normalized / ROTATION_ANGLES.INCREMENT) *
-      ROTATION_ANGLES.INCREMENT) %
-    ROTATION_ANGLES.FULL
-  );
-}
+export { computeEffectiveRotation, needsContentTransform, normalizeRotation };
 
-/**
- * Checks if a rotation angle requires content transformation for images.
- * 90° and 270° rotations need special handling because they swap dimensions.
- *
- * @param rotation - The normalized rotation angle
- * @returns True if the rotation requires content transformation
- */
-export function needsContentTransform(rotation: number): boolean {
-  const normalized = normalizeRotation(rotation);
-  return (
-    normalized === ROTATION_ANGLES.QUARTER ||
-    normalized === ROTATION_ANGLES.THREE_QUARTER
-  );
-}
-
-/**
- * Combines inherent PDF metadata rotation with user-applied rotation.
- * Matches the angle shown in thumbnails (react-pdf rotate prop).
- */
-export function computeEffectiveRotation(
-  inherentRotation: number,
-  userRotation: number
-): number {
-  return normalizeRotation(inherentRotation + userRotation);
+/** Loads pdf-lib only when merge/extract actually runs. */
+async function loadPdfLib() {
+  return import("pdf-lib");
 }
 
 /**
@@ -79,6 +45,7 @@ async function createRotatedImagePage(
   // embedPage on an unsaved PDFDocument.create() image PDF does not copy
   // Image XObjects, so viewers show a blank page. Isolate via copyPages,
   // serialize that copy, then embed from the loaded document.
+  const { PDFDocument, degrees } = await loadPdfLib();
   const isolated = await PDFDocument.create();
   const [copied] = await isolated.copyPages(sourcePdf, [pageIndex]);
   isolated.addPage(copied);
@@ -158,6 +125,7 @@ export async function applyPageRotation(
 
   validateFiniteNumber(effectiveRotation, "rotation angle");
 
+  const { degrees } = await loadPdfLib();
   const normalizedRotation = normalizeRotation(effectiveRotation);
 
   // For images with 180° rotation, we can still use setRotation as it doesn't change dimensions

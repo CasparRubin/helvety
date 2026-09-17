@@ -65,7 +65,7 @@ describe("usePdfWorker", () => {
     vi.unstubAllGlobals();
   });
 
-  it("sets pdfjs workerSrc after a successful worker URL probe", async () => {
+  it("sets pdfjs workerSrc then HEAD-probes the public worker URL", async () => {
     const hook = await renderUsePdfWorkerHook("pdf");
 
     await React.act(async () => {
@@ -75,13 +75,45 @@ describe("usePdfWorker", () => {
 
     expect(fetch).toHaveBeenCalledWith(
       "/pdf/pdf.worker.min.mjs",
-      expect.objectContaining({ method: "GET" })
+      expect.objectContaining({ method: "HEAD" })
     );
     expect(pdfjsMock.GlobalWorkerOptions.workerSrc).toBe(
       "/pdf/pdf.worker.min.mjs"
     );
     expect(hook.getCurrent().workerReady).toBe(true);
     expect(hook.getCurrent().error).toBeNull();
+    hook.unmount();
+  });
+
+  it("falls back to GET when HEAD is not allowed", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 405 })
+      .mockResolvedValueOnce({ ok: true });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const hook = await renderUsePdfWorkerHook("pdf");
+
+    await React.act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      "/pdf/pdf.worker.min.mjs",
+      expect.objectContaining({ method: "HEAD" })
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "/pdf/pdf.worker.min.mjs",
+      expect.objectContaining({ method: "GET" })
+    );
+    expect(pdfjsMock.GlobalWorkerOptions.workerSrc).toBe(
+      "/pdf/pdf.worker.min.mjs"
+    );
+    expect(hook.getCurrent().workerReady).toBe(true);
     hook.unmount();
   });
 

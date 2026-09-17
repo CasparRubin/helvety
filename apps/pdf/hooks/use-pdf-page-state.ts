@@ -2,7 +2,7 @@
 import * as React from "react";
 
 // Internal utilities
-import { normalizeRotation } from "@/lib/pdf-rotation";
+import { normalizeRotation } from "@/lib/pdf-rotation-math";
 
 /** Return type of usePdfPageState: deletion/rotation state and handlers. */
 interface UsePdfPageStateReturn {
