@@ -58,8 +58,8 @@ describe("usePdfProcessing export wiring", () => {
   });
 
   it("surfaces partial merge page failures instead of a clean success", () => {
+    expect(hookSrc).toContain("mergePagesOnMainThread");
     expect(hookSrc).toContain("mergePartialFailureMessage");
     expect(hookSrc).toContain("success: !hadPageFailures");
-    expect(hookSrc).toContain("page(s) could not be included in the download.");
   });
 });

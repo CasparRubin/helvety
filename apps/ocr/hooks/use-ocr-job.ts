@@ -39,15 +39,26 @@ type PdfPageProxy = PdfTextLayerPage & PdfRenderPage & { cleanup?: () => void };
 interface PdfDocumentProxy {
   readonly numPages: number;
   getPage(pageNumber: number): Promise<PdfPageProxy>;
+}
+
+/** PDF.js 6 tears down via the loading task, not `PDFDocumentProxy.destroy()`. */
+interface PdfLoadingTask {
+  readonly promise: Promise<unknown>;
   destroy(): Promise<void>;
 }
 
 /** Loads a PDF document via react-pdf's bundled pdf.js (client-only). */
-async function loadPdfDocument(data: ArrayBuffer): Promise<PdfDocumentProxy> {
+async function loadPdfDocument(data: ArrayBuffer): Promise<{
+  doc: PdfDocumentProxy;
+  loadingTask: PdfLoadingTask;
+}> {
   const { pdfjs } = await import("react-pdf");
   pdfjs.GlobalWorkerOptions.workerSrc = OCR_PDF_WORKER_PUBLIC_PATH;
-  const loadingTask = pdfjs.getDocument({ data });
-  return (await loadingTask.promise) as unknown as PdfDocumentProxy;
+  const loadingTask = pdfjs.getDocument({
+    data: new Uint8Array(data),
+  }) as PdfLoadingTask;
+  const doc = (await loadingTask.promise) as PdfDocumentProxy;
+  return { doc, loadingTask };
 }
 
 /** Throws an `AbortError` if the signal has already been aborted. */
@@ -112,7 +123,7 @@ export function useOcrJob(): UseOcrJobResult {
       setProgress({ phase: "loading", page: 0, totalPages: 0 });
       const buffer = await file.arrayBuffer();
       throwIfAborted(signal);
-      const doc = await loadPdfDocument(buffer);
+      const { doc, loadingTask } = await loadPdfDocument(buffer);
       try {
         if (doc.numPages > OCR_MAX_PDF_PAGES) {
           toast.warning(
@@ -157,7 +168,7 @@ export function useOcrJob(): UseOcrJobResult {
 
         return combinePageTexts(pageTexts);
       } finally {
-        await doc.destroy();
+        await loadingTask.destroy();
       }
     },
     [getClient]

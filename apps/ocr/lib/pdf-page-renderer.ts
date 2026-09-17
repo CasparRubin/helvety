@@ -16,6 +16,7 @@ interface PdfRenderTask {
 export interface PdfRenderPage {
   getViewport(params: { scale: number }): PdfViewport;
   render(params: {
+    canvas: OffscreenCanvas;
     canvasContext: OffscreenCanvasRenderingContext2D;
     viewport: PdfViewport;
   }): PdfRenderTask;
@@ -54,7 +55,7 @@ export async function renderPdfPageToImageBlob(
     throw new Error("2D canvas is not available in this browser.");
   }
 
-  const task = page.render({ canvasContext: context, viewport });
+  const task = page.render({ canvas, canvasContext: context, viewport });
 
   const onAbort = (): void => task.cancel();
   options.signal?.addEventListener("abort", onAbort, { once: true });

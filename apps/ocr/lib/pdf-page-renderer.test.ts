@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { OCR_PDF_BASE_DPI, OCR_RENDER_DPI } from "./constants";
 import {
@@ -18,6 +18,9 @@ describe("dpiToScale", () => {
 });
 
 describe("renderPdfPageToImageBlob", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
   it("aborts before touching the canvas when the signal is already aborted", async () => {
     const page: PdfRenderPage = {
       getViewport: vi.fn(),
@@ -31,5 +34,41 @@ describe("renderPdfPageToImageBlob", () => {
     ).rejects.toMatchObject({ name: "AbortError" });
     expect(page.getViewport).not.toHaveBeenCalled();
     expect(page.render).not.toHaveBeenCalled();
+  });
+
+  it("passes the OffscreenCanvas to page.render for PDF.js 6", async () => {
+    const viewport = { width: 2, height: 2 };
+    const render = vi.fn().mockReturnValue({
+      promise: Promise.resolve(),
+      cancel: vi.fn(),
+    });
+    const page: PdfRenderPage = {
+      getViewport: vi.fn().mockReturnValue(viewport),
+      render,
+    };
+
+    /** OffscreenCanvas stand-in so the renderer can pass `canvas` into PDF.js 6. */
+    class MockOffscreenCanvas {
+      constructor(
+        public width: number,
+        public height: number
+      ) {}
+      getContext() {
+        return {} as OffscreenCanvasRenderingContext2D;
+      }
+      convertToBlob() {
+        return Promise.resolve(new Blob(["png"], { type: "image/png" }));
+      }
+    }
+    vi.stubGlobal("OffscreenCanvas", MockOffscreenCanvas);
+
+    const blob = await renderPdfPageToImageBlob(page);
+    expect(blob.type).toBe("image/png");
+    expect(render).toHaveBeenCalledWith(
+      expect.objectContaining({
+        canvas: expect.any(MockOffscreenCanvas),
+        viewport,
+      })
+    );
   });
 });

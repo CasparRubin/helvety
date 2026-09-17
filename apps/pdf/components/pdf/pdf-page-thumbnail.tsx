@@ -437,6 +437,7 @@ function PdfPageThumbnailComponent({
               <Document
                 key={`${documentKey}-${pageNumber}-${listIndex}`}
                 file={pdfFile}
+                suspense={false}
                 onLoadSuccess={onDocumentLoadSuccess}
                 onLoadError={onDocumentLoadError}
                 loading={null}
