@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 
 const SECURITY_FLOORS = {
-  next: "16.3.5",
+  next: "16.3.6",
   react: "19.3.0",
   "react-dom": "19.3.0",
 };

@@ -189,7 +189,7 @@ See root [`README.md`](../README.md) § Environment Model.
 
 ```bash
 bun run ci:check    # full gate; see root README Automation for step order
-bun run ci:release  # clean:artifacts + ci:check + build (before push / Vercel)
+bun run ci:release  # clean:artifacts + ci:check + deps:audit + build (before push / Vercel)
 ```
 
 ## See also

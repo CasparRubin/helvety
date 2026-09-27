@@ -39,18 +39,18 @@
     "./next": "./next.mjs"
   },
   "peerDependencies": {
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "vitest": "^4.1.11"
   },
   "dependencies": {
-    "eslint": "^10.10.0",
-    "eslint-config-next": "^16.3.5",
-    "next": "^16.3.5",
+    "eslint": "^10.11.0",
+    "eslint-config-next": "^16.3.6",
+    "next": "^16.3.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#c9a2de775bdc704d3be416193cb28db0017c7f8b",
     "eslint-plugin-jsdoc": "^63.3.3",
-    "typescript-eslint": "^8.70.0",
+    "typescript-eslint": "^8.70.1",
     "@vitejs/plugin-react": "^6"
   },
   "devDependencies": {

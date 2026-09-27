@@ -3,11 +3,17 @@ import { describe, expect, it } from "vitest";
 import {
   generateUniqueFileName,
   validateArray,
+  validateFiles,
   validateFiniteNumber,
   validateNonNegativeInteger,
 } from "./validation-utils";
 
 import type { PdfFile } from "./types";
+
+/** Builds a minimal File for validation tests. */
+function mockFile(name: string, size = 1024, type = "application/pdf"): File {
+  return new File([new Uint8Array(size)], name, { type });
+}
 
 // =============================================================================
 // validateNonNegativeInteger
@@ -163,5 +169,29 @@ describe("generateUniqueFileName", () => {
     expect(generateUniqueFileName("bericht_über.pdf", existing)).toBe(
       "bericht_über_2.pdf"
     );
+  });
+});
+
+// =============================================================================
+// validateFiles (open-file budget)
+// =============================================================================
+
+describe("validateFiles", () => {
+  it("accepts uploads within the open-file budget", () => {
+    const result = validateFiles([mockFile("a.pdf")], 0);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
+  });
+
+  it("rejects when the open-file budget would be exceeded", () => {
+    const result = validateFiles([mockFile("a.pdf"), mockFile("b.pdf")], 19);
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain("20 files");
+  });
+
+  it("rejects when the workspace is already full", () => {
+    const result = validateFiles([mockFile("a.pdf")], 20);
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain("already have 20 files open");
   });
 });

@@ -116,7 +116,7 @@ Quality gates run locally via `bun run ci:check` and `bun run ci:release` before
   - `consistency:pdfjs-worker` syncs the PDF and OCR zone workers from react-pdf's resolved `pdfjs-dist` and rejects API/worker version skew or independent `pdfjs-dist` pins (see [`apps/pdf/README.md`](apps/pdf/README.md) and [`apps/ocr/README.md`](apps/ocr/README.md) › PDF.js stack).
   - `consistency:proxy-docs` (web gateway `apps/web/proxy.ts` ↔ `apps/web/README.md` only) keeps the public marketing proxy contract documented.
   - `consistency:toolchain-docs` keeps the Bun version called out in this README aligned with root `packageManager`, keeps the Next.js documentation deep link in [`docs/naming-conventions.md`](docs/naming-conventions.md) aligned with the caret minimum in [`apps/web/package.json`](apps/web/package.json) `dependencies.next`, keeps this README's documented `ci:check` step order aligned with `package.json` (all steps, not only `consistency:*`), and keeps Tailwind/PostCSS Vercel guidance aligned across root, [`packages/ui/README.md`](packages/ui/README.md), and [`packages/dev-deps/README.md`](packages/dev-deps/README.md).
-- `bun run ci:release` (run before `git push` / before Vercel deploys): `clean:artifacts`, then `ci:check`, then `build`.
+- `bun run ci:release` (run before `git push` / before Vercel deploys): `clean:artifacts`, then `ci:check`, then `deps:audit` (`bun audit`), then `build`.
 - Placeholder env mode (`SKIP_ENV_VALIDATION=1` off Vercel) is available for local build smoke tests, but `ci:release` runs with normal env validation.
 - `VERCEL=1` disables placeholder mode; production builds must use real env vars.
 - Additional manual dependency/security checks (see [`docs/security-review-runbook.md`](docs/security-review-runbook.md)):

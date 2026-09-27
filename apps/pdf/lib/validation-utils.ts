@@ -3,6 +3,8 @@
  * Extracted from hooks to improve code organization and reusability.
  */
 
+import { PDF_MAX_OPEN_FILES } from "@helvety/shared/product-file-limit-copy";
+
 // Internal utilities
 import {
   validateFileType,
@@ -68,16 +70,33 @@ export function validateFiniteNumber(
 
 /**
  * Validates multiple files for upload.
- * Performs type and size checks (100MB max, empty file detection).
+ * Performs type and size checks (100MB max, empty file detection) and the
+ * soft open-file budget (existing + incoming must not exceed the cap).
  * Duplicate files are allowed and renamed in the upload handler (use-pdf-files.ts).
  *
  * @param files - Array of files to validate
+ * @param existingFileCount - Files already open in the workspace
  * @returns Validation result with errors array
  */
 export function validateFiles(
-  files: ReadonlyArray<File>
+  files: ReadonlyArray<File>,
+  existingFileCount: number = 0
 ): FileValidationResult {
   const errors: string[] = [];
+
+  if (
+    !Number.isInteger(existingFileCount) ||
+    existingFileCount < 0 ||
+    existingFileCount + files.length > PDF_MAX_OPEN_FILES
+  ) {
+    const remaining = Math.max(0, PDF_MAX_OPEN_FILES - existingFileCount);
+    errors.push(
+      remaining === 0
+        ? `You already have ${PDF_MAX_OPEN_FILES} files open. Remove some before adding more.`
+        : `You can open up to ${PDF_MAX_OPEN_FILES} files at once (${remaining} remaining). Selected ${files.length}.`
+    );
+    return { valid: false, errors };
+  }
 
   for (const file of files) {
     const typeValidation = validateFileType(file);

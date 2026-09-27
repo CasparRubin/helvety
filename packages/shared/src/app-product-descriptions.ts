@@ -2,6 +2,7 @@ import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
+  PDF_WORKSPACE_LIMITS_COPY,
 } from "./product-file-limit-copy";
 
 /** Default helvety.com marketing blurb (metadata, OG, Twitter, JSON-LD). */
@@ -18,7 +19,7 @@ export const STORE_PRODUCTS_PAGE_DESCRIPTION = STORE_DESCRIPTION.replace(
 );
 
 /** Shared PDF SEO / social copy. */
-export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages in the tab; add images where supported. Work stays local (${PDF_FILE_SIZE_LIMIT_COPY}). Fair-use safeguards still apply, and no Helvety subscription gates the tools. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages in the tab; add images where supported. Work stays local (${PDF_WORKSPACE_LIMITS_COPY}). Fair-use safeguards still apply, and no Helvety subscription gates the tools. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** PWA `public/manifest.json` summary for PDF; keep aligned with `ci:check` (`consistency:install-manifest-metadata`). */
 export const PDF_PWA_MANIFEST_DESCRIPTION = `Merge, reorder, rotate, or extract PDFs in the tab; supported work stays local. ${HELVETY_SWISS_ORIGIN_SEO}`;

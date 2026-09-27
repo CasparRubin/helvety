@@ -9,6 +9,7 @@
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
+  PDF_WORKSPACE_LIMITS_COPY,
 } from "./product-file-limit-copy";
 
 export const WEB_NAVBAR_ABOUT =
@@ -19,7 +20,7 @@ export const STORE_NAVBAR_ABOUT =
 
 /** Navbar About copy for Helvety PDF (optional limit line override). */
 export function pdfNavbarAbout(
-  fileSizeLimitCopy: string = PDF_FILE_SIZE_LIMIT_COPY
+  fileSizeLimitCopy: string = PDF_WORKSPACE_LIMITS_COPY
 ): string {
   return `Merge, reorder, rotate, extract PDF pages, or add images where supported in your browser. Supported edits stay local (${fileSizeLimitCopy}). Free to use with fair-use safeguards.`;
 }

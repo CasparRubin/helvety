@@ -53,7 +53,7 @@ Applies to every Vercel project in [`vercel-monorepo-apps.md`](./vercel-monorepo
 
 ## CSP
 
-Document accepted tradeoffs in [`packages/config/next-headers.mjs`](../packages/config/next-headers.mjs): `style-src 'unsafe-inline'`, dev `unsafe-eval`, `wasm-unsafe-eval` where public tools need WASM (OCR).
+Document accepted tradeoffs in [`packages/config/next-headers.mjs`](../packages/config/next-headers.mjs): `style-src 'unsafe-inline'`, dev `unsafe-eval`, `wasm-unsafe-eval` where public tools need WASM (OCR). Do **not** introduce style nonces until the Tailwind / Next CSS pipeline supports them without regressions; keep the current accepted tradeoff.
 
 ## Quarterly cadence
 

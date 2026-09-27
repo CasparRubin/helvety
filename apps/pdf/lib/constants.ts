@@ -3,6 +3,11 @@
  * For toast durations, use @helvety/shared/constants.
  */
 
+import {
+  PDF_MAX_OPEN_FILES,
+  PDF_MAX_PAGES_PER_FILE,
+} from "@helvety/shared/product-file-limit-copy";
+
 /**
  * Breakpoint values for responsive column layout (in pixels)
  */
@@ -131,6 +136,10 @@ export const PDF_RENDER = {
 export const FILE_LIMITS = {
   /** Minimum delay between uploads in milliseconds */
   UPLOAD_RATE_LIMIT: 100,
+  /** Soft cap on concurrently open PDF/image documents (memory safeguard). */
+  MAX_OPEN_FILES: PDF_MAX_OPEN_FILES,
+  /** Soft cap on pages per uploaded document (memory safeguard). */
+  MAX_PAGES_PER_FILE: PDF_MAX_PAGES_PER_FILE,
 } as const;
 
 /**

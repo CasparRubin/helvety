@@ -19,7 +19,7 @@ Browser-based PDF toolkit for merge, reorder, rotate, extract, and add-images wo
 ## Limits and Runtime Notes
 
 - Maximum file size: `100MB` per file
-- No app-enforced page-count cap
+- Soft caps: `20` open files, `200` pages per file (memory safeguards; see `@helvety/shared/product-file-limit-copy`)
 - Performance depends on device/browser memory
 - Open PDF documents are LRU-cached in memory using shared `CACHE_LIMITS` caps (`getRecommendedCacheLimit` in [`hooks/use-pdf-files.ts`](./hooks/use-pdf-files.ts); desktop vs mobile limits in [`lib/constants.ts`](./lib/constants.ts))
 - Capability-driven processing pipeline with fallback (`gpu-worker` -> `worker` -> `main-thread`)

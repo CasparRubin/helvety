@@ -7,6 +7,7 @@
 
 // Internal utilities
 import { logger } from "@helvety/shared/logger";
+import { PDF_MAX_PAGES_PER_FILE } from "@helvety/shared/product-file-limit-copy";
 
 import { yieldToBrowser } from "./batch-processing";
 import { safeRevokeObjectURL } from "./blob-url-utils";
@@ -176,6 +177,13 @@ export async function processFile(
     if (count === 0) {
       safeRevokeObjectURL(url);
       return { error: `'${file.name}' has no pages.` };
+    }
+
+    if (count > PDF_MAX_PAGES_PER_FILE) {
+      safeRevokeObjectURL(url);
+      return {
+        error: `'${file.name}' has ${count} pages. Maximum is ${PDF_MAX_PAGES_PER_FILE} pages per file.`,
+      };
     }
 
     // Use mobile-specific cache limit
