@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="September 4, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="September 27, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
@@ -267,7 +267,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="text-foreground">On-device preferences:</strong>{" "}
-            Theme and tool UI settings stored in your browser (see Cookies and
+            Theme and PDF column layout stored in your browser (see Cookies and
             Local Storage).
           </li>
         </ul>
@@ -344,8 +344,8 @@ export default function PrivacyPage() {
                 <TableRow>
                   <TableCell>Package delivery</TableCell>
                   <TableCell>
-                    GitHub Releases for public .sppkg downloads; public Supabase
-                    Storage for Helvety Store package hosting of Helvety Power
+                    GitHub Releases for public .sppkg downloads and Helvety
+                    Screen Tools ZIPs; public Supabase Storage for Helvety Power
                     Platform Tools ZIPs
                   </TableCell>
                 </TableRow>
@@ -419,7 +419,7 @@ export default function PrivacyPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           We do not operate third-party analytics, advertising trackers, or
           cross-site profiling on helvety.com. Preference storage is kept in
-          your browser so theme and tool UI settings survive reloads.
+          your browser so the theme and PDF column layout survive reloads.
         </p>
         <LegalTableWrap ariaLabel="Cookies and local storage">
           <LegalTable layout="cards">

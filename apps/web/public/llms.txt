@@ -1,6 +1,6 @@
 # Helvety
 
-> Helvety software products engineered, designed and made in Switzerland. Private, simple, clean. Web apps, legal pages, and Store links for browser utilities and desktop tools.
+> Software products engineered, designed and made in Switzerland. Private, simple, clean. Browser tools for PDF, image editing, and OCR, plus extensions and desktop apps.
 
 ## Canonical URLs
 - [Home](https://helvety.com): Main landing page
@@ -20,17 +20,17 @@ Per-zone `llms.txt` summaries. Public tool guides below are crawlable.
 - [Helvety OCR](https://helvety.com/ocr/llms.txt)
 
 ## Cookies And Storage
-- Helvety web zones use browser localStorage for preferences (theme and tool UI). They do not set preference HTTP cookies. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §8](https://helvety.com/privacy#cookies).
+- Helvety web zones use browser localStorage for preferences (theme and PDF column layout). They do not set preference HTTP cookies. We do not use third-party analytics or advertising trackers. Full disclosure: [Privacy Policy §8](https://helvety.com/privacy#cookies).
 
 ## Related apps and tools
 - [Helvety Store](https://helvety.com/store/products): Product specs, Store-hosted downloads (SPFx and desktop ZIPs), and install links (for example Chrome Web Store) from the catalog
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
-- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Power Automate: choose Classic Designer, New Designer, or Paused; Hide sets v3survey=false on rewrites, while Show only normalizes an existing parameter. Power Apps: reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
+- [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots, Live Draw overlay, gallery, and built-in PNG editor
 - [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows app for Dataverse in your user context; download the core ZIP (Flow Explorer and Web Resource Explorer included) and optional drop-in module ZIPs from the Store
-- [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, and extract PDF pages in the browser
-- [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser on your device with text, arrows, borders, spotlight highlights, blur regions, and crop with adjustable stroke, blur, and corner radius; layers panel and zoom; no image upload to Helvety servers in the normal flow
-- [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser on your device; scanned pages run on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient; read, copy, or download plain text with no file upload to Helvety servers
+- [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, extract, and add images to PDF pages in the browser (up to 100 MB per file, 20 open files, 200 pages per file). Files stay in your browser.
+- [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser with text, arrows, borders, highlights, blur regions, and crop. Layers and zoom. Up to 25 MB per image. Edits stay in your browser.
+- [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first, then OCR. Up to 100 MB per file and 50 PDF pages. Files stay in your browser.
 
 ## Licensing
 The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.

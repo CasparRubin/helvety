@@ -2,7 +2,6 @@ import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
 import {
   POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE,
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
-  POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
 } from "@helvety/shared/power-platform-configurator-copy";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -33,7 +32,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="September 4, 2026"
+        lastReviewed="September 27, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -128,6 +127,10 @@ export default function ImpressumPage() {
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
+            <strong className="text-foreground">Helvety Store</strong>: public
+            catalog of Helvety products, with download and install links.
+          </li>
+          <li>
             <strong className="text-foreground">Helvety SPO Explorer</strong>:
             SharePoint Framework navigation for sites you can access.
           </li>
@@ -137,7 +140,6 @@ export default function ImpressumPage() {
             </strong>
             : {POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} Edge/Chrome extension
             available on the Chrome Web Store.{" "}
-            {POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}{" "}
             {POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE}
           </li>
           <li>

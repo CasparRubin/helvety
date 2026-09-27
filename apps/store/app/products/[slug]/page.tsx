@@ -8,8 +8,6 @@ import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
 import { notFound } from "next/navigation";
 
-import { ProductDetailServerHero } from "@/components/products/product-detail-server-hero";
-
 import { ProductDetailClient } from "./product-detail-client";
 
 import type { Metadata } from "next";
@@ -74,7 +72,7 @@ export async function generateMetadata({
 
 /**
  * Product detail page for viewing a specific product.
- * Server passes only `slug`; full product rows load in {@link ProductDetailClient}.
+ * The artwork hero (title and summary) renders with {@link ProductDetailClient}, which is server-rendered on first load.
  */
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const [{ slug }, nonce] = await Promise.all([params, getRequestCspNonce()]);
@@ -102,7 +100,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <>
       <JsonLdScript nonce={nonce ?? undefined} json={productJsonLd} />
-      <ProductDetailServerHero card={card} />
       <ProductDetailClient slug={slug} />
     </>
   );

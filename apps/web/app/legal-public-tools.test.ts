@@ -219,7 +219,7 @@ describe("legal local-processing statements cover every public local tool", () =
       expect(section, `terms 7.2 must mention ${name}`).toContain(name);
     }
     expect(section).toContain("the current architecture");
-    expect(section).toContain("PDF contents, or extracted text");
+    expect(section).toContain("PDF contents, extracted text, and images");
     expect(section).not.toContain("Image Upscaler");
   });
 

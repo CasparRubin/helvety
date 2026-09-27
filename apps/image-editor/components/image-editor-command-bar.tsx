@@ -152,7 +152,7 @@ export function ImageEditorCommandBar({
   onFitToView,
 }: ImageEditorCommandBarProps): React.JSX.Element {
   const [showClearDialog, setShowClearDialog] = React.useState(false);
-  const addButtonLabel = hasImage ? "Add More" : "Add Image";
+  const addButtonLabel = hasImage ? "Replace image" : "Add Image";
 
   return (
     <>

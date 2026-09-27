@@ -107,13 +107,13 @@ const helvetyExplorer: SoftwareProduct = {
     ],
   },
   features: [
-    "Site Discovery - auto-fetch all accessible sites",
-    "Real-time search with highlighted matches",
+    "Loads the sites you can access",
+    "Search with highlighted matches",
     "Favorites management",
     "Quick access dropdown menu",
     "Customizable settings panel",
     "SharePoint theme awareness (light/dark)",
-    "Performance optimized with caching",
+    "Caches the site list so repeat searches stay fast",
     "Full keyboard navigation and accessibility",
     "Easy SharePoint App Catalog installation",
   ],
@@ -399,7 +399,7 @@ const helvetyScreenTools: SoftwareProduct = {
       {
         heading: "Distribution",
         kind: "paragraph",
-        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. Releases live on GitHub. Use the Go to App button on this page to open GitHub Releases, choose the architecture that matches your machine, and download the ZIP.`,
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. Releases live on GitHub. Use the Open releases button on this page, choose the architecture that matches your machine, and download the ZIP.`,
       },
       {
         heading: "Workflow highlights",
@@ -409,7 +409,7 @@ const helvetyScreenTools: SoftwareProduct = {
           "Live Draw shapes, freehand, and sparkle on a transparent fullscreen overlay.",
           "Home gallery of PNG captures with Recycle Bin delete.",
           "Built-in PNG editor: Canvas, Text, Border, Blur, Highlight, Arrow, Magnifier, Crop, and Color.",
-          "Separate hotkeys for capture versus Live Draw, with modifier ergonomics.",
+          "Separate hotkeys for capture and Live Draw, including modifier keys.",
           "Tray behavior, optional autostart on packaged builds, and quality tuning from Settings.",
         ],
       },
@@ -461,7 +461,7 @@ const helvetyScreenTools: SoftwareProduct = {
       {
         title: "Open GitHub Releases",
         description:
-          "Use the Go to App button on this page to open the Helvety Screen Tools GitHub Releases page.",
+          "Use the Open releases button on this page to open the Helvety Screen Tools GitHub Releases page.",
       },
       {
         title: "Download the ZIP asset",
@@ -657,26 +657,26 @@ const helvetyPdf: SaaSProduct = {
   category: cHelvetyPdf.category,
   description: {
     intro:
-      "Helvety PDF is a thumbnail-first workbench for everyday PDF jobs: combine files, reorder pages, rotate, pull out a page, or add images. When a tool is supported, your files stay in the browser tab instead of uploading to Helvety.",
+      "Combine pages from several files, turn them, pull one page out, or drop images into the same document. The file stays in the browser tab. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
-        heading: "Access model",
+        heading: "Access",
         kind: "paragraph",
-        body: "No account is required. The app stays free; we may still enforce reasonable size or rate safeguards so sessions remain dependable.",
+        body: "No account is required. The app is free to use.",
       },
       {
-        heading: "What fits comfortably",
+        heading: "What you can do",
         kind: "bullets",
         items: [
-          "Combine PDFs and raster inputs (PNG, JPEG, WebP, GIF) in one export.",
-          "Drag thumbnails to reorder, rotate in quarter turns, or lift single pages out.",
-          "Per-file ceiling of 100 MB. Actual throughput still depends on device RAM and the browser you use.",
+          "Combine PDFs and images (JPEG, PNG, GIF, WebP, BMP, and TIFF) in one download.",
+          "Drag thumbnails to reorder, rotate in quarter turns, or pull a single page out.",
+          "Up to 100 MB per file, 20 open files, and 200 pages per file. Speed still depends on your device and browser.",
         ],
       },
       {
-        heading: "Privacy posture",
+        heading: "Privacy",
         kind: "paragraph",
-        body: "Because the sensitive bytes never leave your tab for those supported flows, you can reason about confidentiality the same way you would with any offline editor, minus the install step.",
+        body: "The file stays in your browser, the same way it would in an offline editor.",
       },
     ],
   },
@@ -687,8 +687,8 @@ const helvetyPdf: SaaSProduct = {
     "Drag & drop page reordering with thumbnails",
     "Rotate pages by 90° increments",
     "Extract individual pages as separate PDFs",
-    "Image support (PNG, JPEG, WebP, GIF)",
-    "Up to 100MB per file; 20 open files; 200 pages per file",
+    "Image support (JPEG, PNG, GIF, WebP, BMP, and TIFF)",
+    "Up to 100 MB per file, 20 open files, and 200 pages per file",
     "No login or account required",
     "Dark & light mode support",
   ],
@@ -704,7 +704,7 @@ const helvetyPdf: SaaSProduct = {
         isFree: true,
         features: [
           "All PDF tools included",
-          "Up to 100MB per file",
+          "Up to 100 MB per file",
           "Up to 20 open files",
           "Up to 200 pages per file",
           "No account required",
@@ -753,28 +753,28 @@ const helvetyImageEditor: SaaSProduct = {
   category: cHelvetyImageEditor.category,
   description: {
     intro:
-      "Helvety Image Editor lets you annotate PNG, JPEG, and WebP images in your browser. Add text, arrows, borders, spotlight highlights, blur regions, and crops with a layers panel for reordering and selection, a tool properties bar with color pickers plus sliders and number inputs for stroke, blur, dim, and corner radius, and zoom for detail work on large screenshots. Images are not sent to Helvety for processing in the normal flow. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
+      "Mark up a PNG, JPEG, or WebP screenshot in the browser: text, arrows, borders, highlights, blur, and crop. A highlight dims the rest of the image. Layers and zoom help with detail, and you can set stroke, blur, dim, and corner radius in the tool bar. The image stays in your browser (up to 25 MB). Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
-        heading: "Access model",
+        heading: "Access",
         kind: "paragraph",
-        body: "Launch the tool without signing in. Usage stays free; automated safeguards keep abusive floods from degrading shared infrastructure.",
+        body: "Open the tool without signing in. It is free to use.",
       },
       {
         heading: "What you can adjust",
         kind: "bullets",
         items: [
           "Select, move, and resize annotations on a layered canvas.",
-          "Add text, tapered arrows, bordered boxes, spotlight highlights, and blur regions with straight or rounded corners.",
-          "Crop the canvas and export PNG or JPEG at full resolution when your browser allows.",
-          "Reorder or delete layers from the right-hand panel on desktop or the mobile layers sheet.",
-          "Zoom in and out, reset fit-to-view, and set colors, stroke width, blur radius, dim opacity, and corner radius in the tool properties bar (sliders scale defaults to your image size; number inputs allow finer or larger values).",
+          "Add text, tapered arrows, bordered boxes, highlights, and blur regions with straight or rounded corners.",
+          "Crop the canvas and export PNG or JPEG.",
+          "Reorder or delete layers from the panel on desktop, or the layers sheet on a phone.",
+          "Zoom in and out, fit the image to the view, and set colors, stroke width, blur radius, dim, and corner radius in the tool bar.",
         ],
       },
       {
-        heading: "Why it fits sensitive screenshots",
+        heading: "Privacy",
         kind: "paragraph",
-        body: "Edits stay in your session, which makes it easier to redact or explain screenshots before you share them outside your organization.",
+        body: "Edits stay in your browser, so you can redact or mark up a screenshot before you share it.",
       },
     ],
   },
@@ -784,7 +784,8 @@ const helvetyImageEditor: SaaSProduct = {
     "Layers panel with reorder, select, and delete",
     "Tool properties bar with color pickers, sliders and number inputs for stroke/blur/dim/corner radius/font size, and per-layer edits",
     "Zoom and fit-to-view for large screenshots",
-    "PNG and JPEG export at full resolution",
+    "PNG and JPEG export",
+    "Up to 25 MB per image",
     "No login or account required",
     "Dark & light mode support",
   ],
@@ -800,6 +801,7 @@ const helvetyImageEditor: SaaSProduct = {
         isFree: true,
         features: [
           "All image editor features included",
+          "Up to 25 MB per image",
           "No account required",
           "Free to use",
         ],
@@ -855,12 +857,12 @@ const helvetyOcr: SaaSProduct = {
   category: cHelvetyOcr.category,
   description: {
     intro:
-      "Helvety OCR reads text out of PDFs and images without uploading your files. Drop a scan or photo and on-device optical character recognition transcribes it; drop a born-digital PDF and the app uses the existing text layer first, falling back to OCR when that layer is insufficient. When extraction finishes you can read the text on screen, copy it, or download a plain .txt file. Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
+      "Turn a scan, photo, or PDF into plain text you can read, copy, or download. English and German recognition run on your device. A born-digital PDF uses its text layer first, and OCR runs only when that layer is not enough. Files stay in your browser (up to 100 MB, 50 PDF pages). Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
-        heading: "Access model",
+        heading: "Access",
         kind: "paragraph",
-        body: "Open the tool without signing in. Usage stays free; automated safeguards keep abusive floods from degrading shared infrastructure.",
+        body: "Open the tool without signing in. It is free to use.",
       },
       {
         heading: "What it handles",
@@ -874,9 +876,9 @@ const helvetyOcr: SaaSProduct = {
         ],
       },
       {
-        heading: "Privacy posture",
+        heading: "Privacy",
         kind: "paragraph",
-        body: "Because the file bytes never leave your browser tab, you can extract text from sensitive documents the same way you would with an offline tool, minus the install step.",
+        body: "The file stays in your browser, so you can pull text from a sensitive document without uploading it.",
       },
     ],
   },
@@ -887,7 +889,7 @@ const helvetyOcr: SaaSProduct = {
     "PNG, JPEG, and WebP image support",
     "English and German recognition",
     "Read, copy, or download extracted text as .txt",
-    "Up to 100MB per file; up to 50 pages per PDF",
+    "Up to 100 MB per file and 50 PDF pages",
     "No login or account required",
     "Dark & light mode support",
   ],
@@ -903,7 +905,8 @@ const helvetyOcr: SaaSProduct = {
         isFree: true,
         features: [
           "All OCR features included",
-          "Up to 100MB per file",
+          "Up to 100 MB per file",
+          "Up to 50 pages per PDF",
           "No account required",
           "Free to use",
         ],

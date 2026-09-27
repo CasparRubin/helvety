@@ -1,6 +1,6 @@
 # Helvety OCR
 
-> Extract text from PDFs and images in your browser on your device. Scanned or photographed pages run through on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient. Read, copy, or download plain text. No file upload to Helvety servers in the normal flow. Engineered, designed and made in Switzerland.
+> Extract text from PDFs and images in your browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first, then OCR. Read, copy, or download plain text. Up to 100 MB per file and 50 PDF pages. Files stay in your browser. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety OCR](https://helvety.com/ocr): Main application route

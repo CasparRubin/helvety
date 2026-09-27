@@ -26,6 +26,20 @@ interface ProductDetailClientProps {
   slug: string;
 }
 
+/** True when the link opens a GitHub Releases page rather than a running app. */
+function isGitHubReleasesUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      parsed.hostname === "github.com" &&
+      parsed.pathname.endsWith("/releases")
+    );
+  } catch {
+    return false;
+  }
+}
+
 /** Renders the full product detail page with access details and features. */
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const product = getProductBySlug(slug);
@@ -65,6 +79,8 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const showDownload = Boolean(packageDownloadUrl && downloadFormat);
   const showAppLink = Boolean(appUrl);
   const showChromeWebStore = Boolean(chromeWebStoreUrl);
+  const appLinkLabel =
+    appUrl && isGitHubReleasesUrl(appUrl) ? "Open releases" : "Go to App";
 
   return (
     <div className="mx-auto max-w-6xl px-0 py-6 sm:py-8">
@@ -233,7 +249,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                     nativeButton={false}
                   >
                     <ExternalLink className="size-4 shrink-0" />
-                    Go to App
+                    {appLinkLabel}
                   </Button>
                 )}
                 {githubUrl && (

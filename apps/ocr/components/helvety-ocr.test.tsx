@@ -107,9 +107,9 @@ describe("HelvetyOcr", () => {
     mockUseOcrJob.mockReturnValue(loadedJobMock());
     render(<HelvetyOcr />);
 
-    expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Replace file" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Download text" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Clear All" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Clear file" })).toBeEnabled();
   });
 
   it("downloads extracted text through the shared file-download helper", () => {
@@ -135,12 +135,12 @@ describe("HelvetyOcr", () => {
     mockUseOcrJob.mockReturnValue(loadedJobMock({ clear }));
     render(<HelvetyOcr />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear file" }));
     const dialog = screen.getByRole("alertdialog");
     expect(screen.getByText("Clear File?")).toBeInTheDocument();
     expect(clear).not.toHaveBeenCalled();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: "Clear All" }));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Clear file" }));
     expect(clear).toHaveBeenCalledTimes(1);
   });
 

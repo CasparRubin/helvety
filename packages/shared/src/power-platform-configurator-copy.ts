@@ -29,15 +29,15 @@ export const POWER_PLATFORM_CONFIGURATOR_MANIFEST_DESCRIPTION_MAX_LENGTH =
   132 as const;
 
 /**
- * Appended on store cards / llms after {@link POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY}
- * so the Power Automate and Power Apps behavior stays explicit (see `store-catalog.test.ts`).
+ * Designer and survey detail for Store About and privacy/terms.
+ * Not used on the catalog card (that stays the manifest summary plus install line).
  */
 export const POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX =
   "Power Automate: choose Classic Designer, New Designer, or Paused; Hide sets v3survey=false on rewrites, while Show only normalizes an existing parameter. Power Apps: reveal hidden tabs, sections, and controls or enable disabled controls on supported model-driven record forms." as const;
 
-/** Full `StoreProductCard.shortDescription` for this product. */
+/** Catalog card blurb: manifest summary plus where to install. */
 export const POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION =
-  `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} ${POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}` as const;
+  `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} Install from the Chrome Web Store.` as const;
 
 /**
  * One-line install pointer for llms.txt and legal pages (includes the listing URL).
@@ -46,9 +46,8 @@ export const POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE =
   `Install from the Chrome Web Store: ${POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL}` as const;
 
 /**
- * Fragments for `toContain` against `apps/web` legal TSX (line breaks prevent
- * matching {@link POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION} as one string).
- * Every entry must appear in {@link POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION}.
+ * Fragments for `toContain` against privacy/terms and Store About.
+ * Every entry must appear in the public summary or {@link POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}.
  */
 export const POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS = [
   "Choose classic or new designer",

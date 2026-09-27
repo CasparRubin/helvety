@@ -70,7 +70,7 @@ export default function RootLayout({
           name: "Helvety Store",
           url: urls.store,
           description: STORE_DESCRIPTION,
-          applicationCategory: "ShoppingApplication",
+          applicationCategory: "BusinessApplication",
           operatingSystem: "Any",
         },
       ]}

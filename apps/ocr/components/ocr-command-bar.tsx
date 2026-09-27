@@ -58,7 +58,7 @@ export function OcrCommandBar({
   onLanguageChange,
 }: OcrCommandBarProps): React.JSX.Element {
   const [showClearDialog, setShowClearDialog] = React.useState(false);
-  const addLabel = hasFile ? "Add More" : "Add File";
+  const addLabel = hasFile ? "Replace file" : "Add File";
 
   return (
     <>
@@ -86,7 +86,7 @@ export function OcrCommandBar({
               }
             >
               <Trash2Icon className="mr-1.5 size-4 shrink-0" />
-              <span>Clear All</span>
+              <span>Clear file</span>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -99,7 +99,7 @@ export function OcrCommandBar({
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={onClearFile} variant="destructive">
-                  Clear All
+                  Clear file
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -172,7 +172,7 @@ export function OcrCommandBar({
                 variant="destructive"
               >
                 <Trash2Icon className="mr-2 size-4" />
-                <span>Clear All</span>
+                <span>Clear file</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -191,7 +191,7 @@ export function OcrCommandBar({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={onClearFile} variant="destructive">
-              Clear All
+              Clear file
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

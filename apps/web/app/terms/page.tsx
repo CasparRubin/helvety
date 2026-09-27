@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="September 4, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="September 27, 2026" />
 
       <LegalToc>
         <h2 className="mb-4 text-lg font-semibold">Table of Contents</h2>
@@ -264,7 +264,7 @@ export default function TermsPage() {
         </p>
         <ul className="text-muted-foreground mb-4 list-inside list-disc space-y-2 text-sm">
           <li>Probe, overload, or disrupt our infrastructure or downloads</li>
-          <li>Circumvent rate limits, account limits, or security controls</li>
+          <li>Circumvent rate limits or security controls</li>
           <li>
             Use the Services to distribute malware, spam, or infringe
             others&apos; rights
@@ -309,7 +309,7 @@ export default function TermsPage() {
         <h3 className="mb-3 text-lg font-medium">7.2 License to Us</h3>
         <p className="text-muted-foreground mb-4 text-sm">
           Under the current architecture, Helvety PDF, Helvety Image Editor, and
-          Helvety OCR keep PDF contents, or extracted text, and images on your
+          Helvety OCR keep PDF contents, extracted text, and images on your
           device for routine processing. You do not grant us a license to use
           that local content for our own products or AI training. If you email
           us attachments or text for support, you grant us a limited license to

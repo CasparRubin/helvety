@@ -79,10 +79,11 @@ describe("store product UI wiring", () => {
     expect(grid).toContain("CatalogCardFrame");
     expect(grid).toContain("preload={index < priorityCount}");
 
-    const serverHero = readStoreSource(
-      "components/products/product-detail-server-hero.tsx"
+    const detailHero = readStoreSource(
+      "components/products/product-detail-hero.tsx"
     );
-    expect(serverHero).toContain("ecosystemCategoryTitle");
-    expect(serverHero).not.toMatch(/\{card\.type\}/);
+    expect(detailHero).toContain("CategoryBadge");
+    expect(detailHero).toContain("product-detail-title");
+    expect(detailHero).not.toMatch(/\{product\.type\}/);
   });
 });

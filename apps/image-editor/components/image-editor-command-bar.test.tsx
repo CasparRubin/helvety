@@ -82,7 +82,7 @@ describe("ImageEditorCommandBar", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Add More" }));
+    fireEvent.click(screen.getByRole("button", { name: "Replace image" }));
     expect(onReplaceImage).toHaveBeenCalledTimes(1);
   });
 
@@ -126,7 +126,7 @@ describe("ImageEditorCommandBar", () => {
 
   it("shows add more when a file is already loaded", () => {
     renderCommandBar({ hasImage: true });
-    expect(screen.getByRole("button", { name: "Add More" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Replace image" })).toBeEnabled();
   });
 
   it("exports jpeg from the dropdown menu", async () => {

@@ -15,7 +15,7 @@ All text extraction runs in the browser; no file data leaves the client in the n
 
 ## Key Features
 
-- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `OcrCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll). Command bar labels per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add File** / **Add More** (primary), **Download Text** (secondary), **Clear All** (destructive, right); empty-state hint references the command bar above
+- Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `OcrCommandBar` is pinned as a flex sibling above the scrollable workspace (not inside page scroll). Command bar labels per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add File** / **Replace file** (primary; replace, not a second file), **Download Text** (secondary), **Clear file** (destructive, right); empty-state hint references the command bar above
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports shared `OCR_*` strings for metadata / JSON-LD and PWA [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
 - Inputs: `PNG`, `JPG/JPEG`, `WebP` images and `PDF` documents (scanned/image-only and born-digital)
 - Born-digital PDFs: the text layer is extracted first; pages with little or no embedded text fall back to on-device OCR
@@ -43,7 +43,7 @@ All Tesseract.js assets are self-hosted under `public/` so nothing is fetched fr
 ## Limits
 
 - Supported input formats: `PNG`, `JPG/JPEG`, `WebP`, `PDF`
-- Maximum file size: `100MB`, single file
+- Maximum file size: `100 MB`, single file
 - Maximum pages per PDF: `50`
 - Languages: English and German
 

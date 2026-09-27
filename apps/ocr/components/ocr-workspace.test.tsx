@@ -59,7 +59,7 @@ describe("OcrWorkspace", () => {
     });
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Recognizing text — page 2 of 5"
+      "Recognizing text, page 2 of 5"
     );
   });
 

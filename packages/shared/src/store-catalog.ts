@@ -14,6 +14,12 @@ import {
   type HelvetyEcosystemCategorySlug,
 } from "./helvety-ecosystem-sections";
 import { POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION } from "./power-platform-configurator-copy";
+import {
+  IMAGE_FILE_SIZE_LIMIT_COPY,
+  OCR_PDF_PAGE_LIMIT_COPY,
+  PDF_FILE_SIZE_LIMIT_COPY,
+  PDF_WORKSPACE_LIMITS_COPY,
+} from "./product-file-limit-copy";
 
 /** Product delivery model union (`StoreProductType`); imported by `apps/store/lib/types/products.ts` for `Product.type`. */
 export type StoreProductType = "saas" | "software" | "physical";
@@ -74,8 +80,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     id: "helvety-pdf",
     slug: "helvety-pdf",
     name: "Helvety PDF",
-    shortDescription:
-      "Reorder, merge, rotate, extract, or add images to a PDF. Supported edits stay in your browser, not on Helvety servers.",
+    shortDescription: `Reorder, merge, rotate, extract, or add images to a PDF. Files stay in your browser (${PDF_WORKSPACE_LIMITS_COPY}).`,
     releaseDate: "2025-09-14",
     type: "saas",
     runsOn: "Browser",
@@ -121,8 +126,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     id: "helvety-image-editor",
     slug: "helvety-image-editor",
     name: "Helvety Image Editor",
-    shortDescription:
-      "Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, spotlight highlights, blur regions, and crop. Adjustable stroke, blur, and corners; layers panel and zoom; edits stay on your device.",
+    shortDescription: `Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, highlights, blur, and crop. Layers and zoom are included. Edits stay on your device (${IMAGE_FILE_SIZE_LIMIT_COPY}).`,
     releaseDate: "2026-07-04",
     type: "saas",
     runsOn: "Browser",
@@ -133,8 +137,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     id: "helvety-ocr",
     slug: "helvety-ocr",
     name: "Helvety OCR",
-    shortDescription:
-      "Extract text from PDFs and images in the browser. Scanned pages run on-device OCR; born-digital PDFs use their text layer first and fall back to OCR when it is insufficient. Read, copy, or download plain text; files stay on your device.",
+    shortDescription: `Extract text from PDFs and images in the browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first. Files stay on your device (${PDF_FILE_SIZE_LIMIT_COPY}, ${OCR_PDF_PAGE_LIMIT_COPY}).`,
     releaseDate: "2026-07-11",
     type: "saas",
     runsOn: "Browser",

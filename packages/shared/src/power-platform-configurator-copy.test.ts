@@ -42,17 +42,19 @@ describe("power-platform-configurator-copy", () => {
     );
   });
 
-  it("composes store short description from summary and suffix", () => {
+  it("composes the store card from the manifest summary and an install line", () => {
     expect(POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION).toBe(
-      `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} ${POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}`
+      `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} Install from the Chrome Web Store.`
+    );
+    expect(POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION).not.toContain(
+      "v3survey"
     );
   });
 
-  it("legal page markers appear in store short description", () => {
+  it("legal page markers appear in the summary or the About suffix", () => {
+    const longForm = `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} ${POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}`;
     for (const marker of POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS) {
-      expect(POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION).toContain(
-        marker
-      );
+      expect(longForm).toContain(marker);
     }
   });
 

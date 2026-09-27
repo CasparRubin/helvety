@@ -1,6 +1,7 @@
 "use client";
 
 import { useDragDrop } from "@helvety/shared/hooks/use-drag-drop";
+import { PDF_WORKSPACE_LIMITS_COPY } from "@helvety/shared/product-file-limit-copy";
 import { cn } from "@helvety/shared/utils";
 import {
   PUBLIC_TOOL_CANVAS_SHELL_CLASS,
@@ -240,6 +241,13 @@ export function HelvetyPdf(): React.JSX.Element {
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
                         Or use the command bar above to add your files
+                      </p>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Processed locally in your browser. No server upload. No
+                        account.
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        PDFs and images, {PDF_WORKSPACE_LIMITS_COPY}.
                       </p>
                     </div>
                   </div>

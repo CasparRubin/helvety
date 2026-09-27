@@ -45,6 +45,7 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/pdf/lib/product-copy.ts",
   "apps/image-editor/lib/product-copy.ts",
   "apps/ocr/lib/product-copy.ts",
+  "apps/ocr/lib/progress-copy.ts",
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/impressum/page.tsx",

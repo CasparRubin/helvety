@@ -85,9 +85,7 @@ export function ProductsCatalog({
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight">Products</h1>
           <p className="text-muted-foreground mt-1 max-w-2xl text-pretty">
-            Filter by category, read the long-form About panels, then jump into
-            each repo or installer. Everything here is free to use with no
-            subscription upsell.
+            Filter by category, then open a product. Everything here is free.
           </p>
         </div>
 

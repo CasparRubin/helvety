@@ -1,6 +1,6 @@
 # Helvety Image Editor
 
-Browser-local image annotation editor: text, arrows, borders, spotlight highlights, blur regions, and crop, with a layers panel for reordering, a tool properties command bar (color pickers, sliders, and number inputs for stroke, blur, dim, and corner radius), and zoom for detail work. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
+Browser-local image annotation editor: text, arrows, borders, highlights, blur regions, and crop, with a layers panel for reordering, a tool properties command bar (color pickers, sliders, and number inputs for stroke, blur, dim, and corner radius), and zoom for detail work. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
 
 All image processing runs in the browser; no image data leaves the client in the normal flow.
 
@@ -30,7 +30,7 @@ All image processing runs in the browser; no image data leaves the client in the
 - Image-scaled default font size and stroke width via [`lib/default-tool-sizes.ts`](lib/default-tool-sizes.ts); text annotations include a simple shadow for readability
 - Live drag previews while drawing borders, highlights, blur regions, arrows, and crop rectangles
 - Tapered arrows: shaft widens toward the neck but stays narrower than the distinct pointy head; same geometry in canvas ([`lib/tapered-arrow.ts`](lib/tapered-arrow.ts)) and export
-- Main command bar per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Image** / **Add More** (primary), **Export** (secondary), **Clear Annotations** (destructive, right; keeps the loaded image), zoom and crop **Apply** / **Reset** when the crop tool is active
+- Main command bar per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Image** / **Replace image** (primary; replace, not a second image), **Export** (secondary), **Clear Annotations** (destructive, right; keeps the loaded image), zoom and crop **Apply** / **Reset** when the crop tool is active
 - Full-resolution PNG and JPEG export via an offscreen Konva stage loaded with `await import("@/lib/export-image")` on Export (empty landing does not download Konva); `canvas-size` probes browser canvas limits and export dimensions are clamped when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
 - Keyboard shortcuts: Delete/Backspace removes the selection; Escape deselects or cancels crop (ignored while editing text)
 - No login required
@@ -38,7 +38,7 @@ All image processing runs in the browser; no image data leaves the client in the
 ## Limits
 
 - Supported input formats: `PNG`, `JPG/JPEG`, `WebP`
-- Maximum file size: `25MB`, single image
+- Maximum file size: `25 MB`, single image
 - Output dimensions may be reduced when the browser canvas cap requires clamping (mostly a Mobile Safari concern)
 
 ## Crawl and Indexing

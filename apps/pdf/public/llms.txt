@@ -1,6 +1,6 @@
 # Helvety PDF
 
-> Helvety PDF merges, reorders, rotates, and extracts pages in the tab. Add images where supported. Work stays in the browser and is not sent to a conversion API. Engineered, designed and made in Switzerland.
+> Helvety PDF merges, reorders, rotates, and extracts pages, and adds images (JPEG, PNG, GIF, WebP, BMP, and TIFF). Work stays in the browser (up to 100 MB per file, 20 open files, 200 pages per file). Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety PDF](https://helvety.com/pdf): Main PDF application route

@@ -193,7 +193,7 @@ export function validateFileSize(
   if (file.size > PDF_FILE_SIZE_LIMIT_BYTES) {
     return {
       valid: false,
-      error: `File exceeds maximum size of 100MB.`,
+      error: `File exceeds maximum size of 100 MB.`,
     };
   }
 

@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import { CUSTOMER_COPY_EM_DASH } from "@helvety/shared/customer-copy-guardrails";
 import {
   POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS,
+  POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
-  POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
 } from "@helvety/shared/power-platform-configurator-copy";
 import { RETIRED_HELVETY_EXTENSION_NAME_PATTERNS } from "@helvety/shared/retired-power-platform-extension-naming";
 import { describe, expect, it } from "vitest";
@@ -42,11 +42,9 @@ describe("Power Platform Configurator legal copy parity", () => {
     const privacy = readFileSync(join(appDir, "privacy", "page.tsx"), "utf8");
     expect(privacy).toContain(officialTitle);
     expectLegalPageUsesCanonicalPowerPlatformConfiguratorCopy(privacy);
+    const longForm = `${POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY} ${POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX}`;
     for (const marker of POWER_PLATFORM_CONFIGURATOR_LEGAL_PAGE_MARKERS) {
-      expect(
-        POWER_PLATFORM_CONFIGURATOR_STORE_SHORT_DESCRIPTION,
-        `marker "${marker}"`
-      ).toContain(marker);
+      expect(longForm, `marker "${marker}"`).toContain(marker);
     }
     expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain("v3survey");
     expect(POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX).toContain(
@@ -55,15 +53,21 @@ describe("Power Platform Configurator legal copy parity", () => {
     expect(privacy).toContain("does not send tab URLs");
   });
 
-  it("impressum renders canonical public summary and store card suffix", () => {
+  it("impressum renders the short public summary, not the designer dump", () => {
     const impressum = readFileSync(
       join(appDir, "impressum", "page.tsx"),
       "utf8"
     );
     expect(impressum).toContain(officialTitle);
-    expectLegalPageUsesCanonicalPowerPlatformConfiguratorCopy(impressum);
+    expect(impressum).toContain(CANONICAL_COPY_IMPORT);
+    expect(impressum).toContain("POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY");
+    expect(impressum).not.toContain(
+      "POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX"
+    );
+    expect(impressum).toContain("Helvety Store");
     expectImpressumUsesChromeWebStoreCopy(impressum);
     expect(impressum).toContain("Edge/Chrome");
+    expect(impressum).not.toContain(CUSTOMER_COPY_EM_DASH);
   });
 
   it("terms page uses the canonical product title and Chrome Web Store distribution", () => {

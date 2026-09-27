@@ -1,6 +1,6 @@
 # Helvety Store
 
-Product catalog app for Helvety products: specs, Store-hosted download redirects (SPFx via GitHub Releases, desktop ZIPs via Supabase Storage), and install links (for example the Chrome Web Store) for helvety.com web apps **and** separately distributed software.
+Product catalog app for Helvety products: specs, Store-hosted download redirects (SPO Explorer `.sppkg` via GitHub Releases, Power Platform Tools ZIPs via Supabase Storage), Screen Tools desktop ZIPs on GitHub Releases, and install links (for example the Chrome Web Store) for helvety.com web apps **and** separately distributed software.
 
 **App URL:** <https://helvety.com/store> (catalog landing: <https://helvety.com/store/products>)  
 **Monorepo path:** `apps/store`
@@ -8,10 +8,10 @@ Product catalog app for Helvety products: specs, Store-hosted download redirects
 ## Key Features
 
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (injects `HelvetyThemeInitScript` in `<head>`) with `themeProviderScope: "navbar-only"` so `ThemeProvider` wraps only the navbar; `scrollAreaMainPrefix` pins [`StoreNav`](components/store-nav.tsx) above the main `ScrollArea` (opaque `CommandBar` `variant="solid"`; section nav does not scroll away with the catalog); metadata comes from `@helvety/shared/seo` (`createHelvetyProductMetadata`)
-- Public product catalog at `/store/products` with product cards that overlay frosted ecosystem category badges and an “Art by …” artist credit on artwork ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
+- Public product catalog at `/store/products` with product cards that overlay frosted ecosystem category badges, a release-date badge, and an “Art by …” artist credit on artwork ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
 - Public package download endpoints (no login required) for SPFx and desktop ZIPs; browser extensions link to vendor stores (for example Chrome Web Store) from product pages
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
-- Product listing server-renders artwork cards from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag) plus [`lib/data/catalog-card-artwork.ts`](lib/data/catalog-card-artwork.ts) (image and artist only; long-form copy stays in `lib/data/products.ts`). The first three cards preload artwork. Category filters hide cards in place. In-catalog product links use default Next.js prefetch. Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`). Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only; sitemap uses `lib/data/product-catalog-cache.ts`
+- Product listing server-renders artwork cards from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag) plus [`lib/data/catalog-card-artwork.ts`](lib/data/catalog-card-artwork.ts) (image and artist only; long-form copy stays in `lib/data/products.ts`). The first three cards preload artwork. Category filters hide cards in place. In-catalog product links use default Next.js prefetch. Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`). Product detail renders one artwork hero (title and summary) from the client detail view, which is included in the first HTML response; downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only; sitemap uses `lib/data/product-catalog-cache.ts`
 
 ## Package Download Behavior
 

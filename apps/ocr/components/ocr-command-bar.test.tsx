@@ -31,7 +31,7 @@ describe("OcrCommandBar", () => {
       screen.getByRole("button", { name: "Download text" })
     ).toBeDisabled();
     expect(
-      screen.queryByRole("button", { name: "Clear All" })
+      screen.queryByRole("button", { name: "Clear file" })
     ).not.toBeInTheDocument();
   });
 
@@ -45,7 +45,7 @@ describe("OcrCommandBar", () => {
       onDownload,
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Add More" }));
+    fireEvent.click(screen.getByRole("button", { name: "Replace file" }));
     fireEvent.click(screen.getByRole("button", { name: "Download text" }));
 
     expect(onAddFile).toHaveBeenCalledTimes(1);
@@ -55,23 +55,23 @@ describe("OcrCommandBar", () => {
   it("disables mutating actions while processing", () => {
     renderCommandBar({ hasFile: true, canDownload: true, isProcessing: true });
 
-    expect(screen.getByRole("button", { name: "Add More" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Replace file" })).toBeDisabled();
     expect(
       screen.getByRole("button", { name: "Download text (processing)" })
     ).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Clear All" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Clear file" })).toBeDisabled();
   });
 
   it("confirms before clearing the file", () => {
     const onClearFile = vi.fn();
     renderCommandBar({ hasFile: true, onClearFile });
 
-    fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear file" }));
     const dialog = screen.getByRole("alertdialog");
     expect(screen.getByText("Clear File?")).toBeInTheDocument();
     expect(onClearFile).not.toHaveBeenCalled();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: "Clear All" }));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Clear file" }));
     expect(onClearFile).toHaveBeenCalledTimes(1);
   });
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { pdfNavbarAbout } from "./app-navbar-about";
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
+  OCR_PDF_PAGE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_BYTES,
   PDF_FILE_SIZE_LIMIT_COPY,
   PDF_MAX_OPEN_FILES,
@@ -13,14 +14,15 @@ import { assertNoEmDashInCustomerCopy } from "./test-utils/customer-copy-test-he
 
 describe("product-file-limit-copy", () => {
   it("exports stable user-facing limit labels", () => {
-    expect(PDF_FILE_SIZE_LIMIT_COPY).toBe("up to 100MB per file");
+    expect(PDF_FILE_SIZE_LIMIT_COPY).toBe("up to 100 MB per file");
     expect(PDF_FILE_SIZE_LIMIT_BYTES).toBe(100 * 1024 * 1024);
     expect(PDF_MAX_OPEN_FILES).toBe(20);
     expect(PDF_MAX_PAGES_PER_FILE).toBe(200);
     expect(PDF_WORKSPACE_LIMITS_COPY).toBe(
-      "up to 100MB per file, 20 open files, 200 pages per file"
+      "up to 100 MB per file, 20 open files, 200 pages per file"
     );
-    expect(IMAGE_FILE_SIZE_LIMIT_COPY).toBe("up to 25MB per image");
+    expect(IMAGE_FILE_SIZE_LIMIT_COPY).toBe("up to 25 MB per image");
+    expect(OCR_PDF_PAGE_LIMIT_COPY).toBe("50 PDF pages");
   });
 
   it("navbar About helpers embed the same limit strings", () => {

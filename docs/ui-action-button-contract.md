@@ -52,10 +52,10 @@ Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*
 
 ### Command bar placement and variants
 
-| Zone      | Buttons                                                                                                                        |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Left**  | Add {Files\|Image\|File} / **Add More**, **Clear All** (multi-file apps)                                                       |
-| **Right** | Download / Export, mobile settings popover, **More actions** overflow; image editor **Clear Annotations** (partial reset only) |
+| Zone      | Buttons                                                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Left**  | Add {Files\|Image\|File} / **Add More** (PDF) or **Replace file** / **Replace image** (single-file), **Clear All** or **Clear file** |
+| **Right** | Download / Export, mobile settings popover, **More actions** overflow; image editor **Clear Annotations** (partial reset only)       |
 
 | Variant       | Use                                                                                      |
 | ------------- | ---------------------------------------------------------------------------------------- |
@@ -68,10 +68,10 @@ Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*
 | State         | Multi-file (PDF) | Single-file (image editor, OCR)        |
 | ------------- | ---------------- | -------------------------------------- |
 | Empty import  | Add Files        | Add Image / Add File                   |
-| Loaded import | Add More         | Add More                               |
+| Loaded import | Add More         | Replace image / Replace file           |
 | Processing    | Processing...    | Processing...                          |
 | Output        | Download PDF     | Export (+ format menu) / Download Text |
-| Full reset    | Clear All        | Clear All                              |
+| Full reset    | Clear All        | Clear file (OCR)                       |
 | Partial reset |                  | Clear Annotations                      |
 
 **Responsive:** icon-only bar labels below `min-[400px]`; desktop inline clear `hidden md:inline-flex`; mobile overflow `md:hidden`; sidebars `hidden lg:block`.
@@ -91,18 +91,18 @@ Public canvas apps pin a `CommandBar` above a flex workspace row (`PUBLIC_TOOL_*
 ### Empty state copy
 
 - Reference **command bar** (never "toolbar").
-- Secondary hint when empty: **Or use the command bar above to add your {files\|images\|image}**.
-- Optional privacy line: _Processed locally in your browser. No server upload. No account._
+- Secondary hint when empty: **Or use the command bar above to add your {files|file|image}**.
+- Privacy line on PDF, Image Editor, and OCR: _Processed locally in your browser. No server upload. No account._ PDF also states the workspace limits. Image Editor and OCR state their file limits.
 
 ### Icon map (canvas)
 
-| Action            | Icon           | Label                                                     |
-| ----------------- | -------------- | --------------------------------------------------------- |
-| Import            | `UploadIcon`   | Add Files / Add Image / Add File / Add More               |
-| Download          | `DownloadIcon` | Download PDF / Export / Download Text / per-card Download |
-| Clear workspace   | `Trash2Icon`   | Clear All                                                 |
-| Clear annotations | `Trash2Icon`   | Clear Annotations                                         |
-| Remove file       | `X`            | `aria-label` only: Remove {name}                          |
+| Action            | Icon           | Label                                                                      |
+| ----------------- | -------------- | -------------------------------------------------------------------------- |
+| Import            | `UploadIcon`   | Add Files / Add Image / Add File / Add More / Replace image / Replace file |
+| Download          | `DownloadIcon` | Download PDF / Export / Download Text / per-card Download                  |
+| Clear workspace   | `Trash2Icon`   | Clear All / Clear file                                                     |
+| Clear annotations | `Trash2Icon`   | Clear Annotations                                                          |
+| Remove file       | `X`            | `aria-label` only: Remove {name}                                           |
 
 ## Responsive smoke matrix
 
