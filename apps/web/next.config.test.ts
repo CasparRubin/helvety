@@ -174,6 +174,40 @@ describe("web gateway rewrites", () => {
     );
   });
 
+  it("prerenders only the store catalog from the homepage", async () => {
+    const groups = (await nextConfig.headers?.()) ?? [];
+    const security = groups.find((group) => group.source === "/:path*");
+    const home = groups.find((group) => group.source === "/");
+    const rulesFile = groups.find(
+      (group) => group.source === "/speculation/store-products.json"
+    );
+
+    expect(
+      security?.headers.some((header) => header.key === "X-Frame-Options")
+    ).toBe(true);
+    expect(home?.headers).toEqual([
+      {
+        key: "Speculation-Rules",
+        value: '"/speculation/store-products.json"',
+      },
+    ]);
+    expect(rulesFile?.headers).toEqual([
+      {
+        key: "Content-Type",
+        value: "application/speculationrules+json",
+      },
+    ]);
+    expect(
+      groups.some((group) =>
+        group.headers.some(
+          (header) =>
+            header.key === "Speculation-Rules" &&
+            /pdf|ocr|image-editor/.test(header.value)
+        )
+      )
+    ).toBe(false);
+  });
+
   it("requires OCR_URL on Vercel production when unset", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL", "1");

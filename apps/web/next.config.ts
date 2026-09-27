@@ -34,7 +34,7 @@ function isAllowedProductionHost(hostname: string): boolean {
   return false;
 }
 
-const nextConfig: NextConfig = createHelvetyNextConfig({
+const gatewayConfig = createHelvetyNextConfig({
   appName: "web",
   overrides: {
     // Multi-zone rewrites: proxy path-based URLs to each app's Vercel deployment.
@@ -121,5 +121,42 @@ const nextConfig: NextConfig = createHelvetyNextConfig({
     },
   },
 });
+
+const securityHeaders = gatewayConfig.headers;
+
+/**
+ * Homepage-only eager prerender of the store catalog.
+ * Header-delivered rules start with the document response (no hydration wait)
+ * and are not blocked by the nonce `strict-dynamic` script policy.
+ * The JSON file must use the speculation-rules MIME type or Chrome ignores it.
+ */
+const nextConfig: NextConfig = {
+  ...gatewayConfig,
+  async headers() {
+    const inherited = (await securityHeaders?.()) ?? [];
+
+    return [
+      ...inherited,
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Speculation-Rules",
+            value: '"/speculation/store-products.json"',
+          },
+        ],
+      },
+      {
+        source: "/speculation/store-products.json",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/speculationrules+json",
+          },
+        ],
+      },
+    ];
+  },
+};
 
 export default nextConfig;

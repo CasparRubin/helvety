@@ -6,37 +6,40 @@ import { describe, expect, it } from "vitest";
 
 const appDir = dirname(fileURLToPath(import.meta.url));
 const pagePath = join(appDir, "page.tsx");
-const speculationPath = join(
+const speculationRulesPath = join(
   appDir,
-  "../components/store-products-speculation.tsx"
-);
-const speculationClientPath = join(
-  appDir,
-  "../components/store-products-speculation-client.tsx"
+  "../public/speculation/store-products.json"
 );
 
 describe("gateway home page", () => {
-  it("server-renders the marketing shell with store Speculation Rules", () => {
+  it("server-renders the marketing shell without a client speculation injector", () => {
     const source = readFileSync(pagePath, "utf8");
 
     expect(source).toContain("HeroMarketingShell");
-    expect(source).toContain("StoreProductsSpeculation");
+    expect(source).not.toContain("StoreProductsSpeculation");
     expect(source).toMatch(/plain theme background/i);
+    expect(source).toMatch(/Speculation-Rules/);
     expect(source).not.toContain("HeroSection");
     expect(source).not.toContain('"use client"');
     expect(source).not.toMatch(/Hyperspeed|SideRays|light-pillar|WebGL/i);
   });
 });
 
-describe("StoreProductsSpeculation wiring", () => {
-  it("builds rules with CSP nonce and injects via the DOM client", () => {
-    const server = readFileSync(speculationPath, "utf8");
-    const client = readFileSync(speculationClientPath, "utf8");
+describe("store catalog speculation rules", () => {
+  it("eager-prerenders only the store catalog", () => {
+    const rules = JSON.parse(readFileSync(speculationRulesPath, "utf8")) as {
+      prefetch?: unknown;
+      prerender?: unknown;
+    };
 
-    expect(server).toContain("getRequestCspNonce");
-    expect(server).toContain("urls.storeProducts");
-    expect(server).toContain("StoreProductsSpeculationClient");
-    expect(client).toContain("document.createElement");
-    expect(client).toContain('type = "speculationrules"');
+    expect(rules.prefetch).toBeUndefined();
+    expect(rules.prerender).toEqual([
+      {
+        source: "list",
+        urls: ["/store/products"],
+        eagerness: "eager",
+      },
+    ]);
+    expect(JSON.stringify(rules)).not.toMatch(/\/pdf|\/ocr|\/image-editor/);
   });
 });

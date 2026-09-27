@@ -3,28 +3,40 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { productArtwork } from "@/lib/data/product-artwork";
-
 import { ArtistBadge, CategoryBadge, ReleaseDateBadge } from "./product-badge";
 
 import type { Product } from "@/lib/types/products";
 
-const PRODUCT_IMAGE_FALLBACK = productArtwork.artwork1;
+/** Fields a catalog card renders. Full product rows stay off this component. */
+export interface ProductCardModel {
+  slug: string;
+  name: string;
+  shortDescription: string;
+  category: Product["category"];
+  image?: Product["image"];
+  artist?: string;
+  releaseDate?: string;
+}
 
 /** Props for rendering a single catalog product card. */
 interface ProductCardProps {
-  product: Product;
+  product: ProductCardModel;
   className?: string;
+  /** Preload artwork for the first row (LCP). */
+  preload?: boolean;
 }
 
 /** Renders a single-link product card used in the catalog grid. */
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({
+  product,
+  className,
+  preload = false,
+}: ProductCardProps) {
   const productHref = `/products/${product.slug}`;
 
   return (
     <Link
       href={productHref}
-      prefetch={false}
       className="block h-full"
       aria-label={`View ${product.name} details`}
     >
@@ -36,22 +48,22 @@ export function ProductCard({ product, className }: ProductCardProps) {
         )}
       >
         {/* Background artwork - desaturated at rest, full color on hover */}
-        <Image
-          src={product.image ?? PRODUCT_IMAGE_FALLBACK}
-          alt=""
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
-        />
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt=""
+            fill
+            preload={preload}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
+          />
+        ) : null}
 
         {/* Badges over artwork: frosted category label + artist credit */}
         <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center justify-end gap-2">
           <CategoryBadge category={product.category} />
-          {product.metadata?.releaseDate && (
-            <ReleaseDateBadge
-              isoDate={product.metadata.releaseDate}
-              showIcon={false}
-            />
+          {product.releaseDate && (
+            <ReleaseDateBadge isoDate={product.releaseDate} showIcon={false} />
           )}
           {product.artist && (
             <ArtistBadge artist={product.artist} showIcon={false} />

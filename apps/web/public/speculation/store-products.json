@@ -1,0 +1,9 @@
+{
+  "prerender": [
+    {
+      "source": "list",
+      "urls": ["/store/products"],
+      "eagerness": "eager"
+    }
+  ]
+}

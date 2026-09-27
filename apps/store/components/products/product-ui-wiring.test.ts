@@ -54,9 +54,9 @@ describe("store product UI wiring", () => {
     expect(card).not.toContain("ProductBadge");
 
     const catalog = readStoreSource("components/products/products-catalog.tsx");
-    expect(catalog).toContain("card.category");
-    expect(catalog).toContain('import("@/lib/data/products")');
-    expect(catalog).toContain("product.category === filter");
+    expect(catalog).toContain("category !== filter");
+    expect(catalog).not.toContain('import("@/lib/data/products")');
+    expect(catalog).not.toContain("product.category === filter");
     expect(catalog).not.toMatch(
       /import\s*\{[^}]*getAllProducts[^}]*\}\s*from\s*["']@\/lib\/data\/products["']/
     );
@@ -70,12 +70,14 @@ describe("store product UI wiring", () => {
     expect(filters).not.toContain('"saas"');
   });
 
-  it("SSR catalog and detail heroes show ecosystem category labels", () => {
-    const textCard = readStoreSource(
-      "components/products/product-catalog-text-card.tsx"
-    );
-    expect(textCard).toContain("ecosystemCategoryTitle");
-    expect(textCard).not.toMatch(/\{card\.type\}/);
+  it("SSR catalog cards and detail heroes show ecosystem category labels", () => {
+    const card = readStoreSource("components/products/product-card.tsx");
+    expect(card).toContain("CategoryBadge");
+    expect(card).not.toContain("prefetch=");
+
+    const grid = readStoreSource("components/products/product-grid.tsx");
+    expect(grid).toContain("CatalogCardFrame");
+    expect(grid).toContain("preload={index < priorityCount}");
 
     const serverHero = readStoreSource(
       "components/products/product-detail-server-hero.tsx"

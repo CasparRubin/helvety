@@ -2,77 +2,61 @@
 
 import { HELVETY_ECOSYSTEM_PRODUCT_SECTIONS } from "@helvety/shared/helvety-ecosystem-sections";
 import {
-  useEffect,
+  createContext,
+  use,
   useMemo,
   useState,
-  useSyncExternalStore,
   useTransition,
+  type ReactNode,
 } from "react";
 
-import { ProductCatalogTextCard } from "@/components/products/product-catalog-text-card";
-
 import { type FilterType, ProductFilters } from "./product-filters";
-import { ProductGrid } from "./product-grid";
+import { ProductGridEmpty } from "./product-grid-empty";
 
-import type { Product } from "@/lib/types/products";
-import type { StoreProductCardEntry } from "@helvety/shared/store-catalog";
+import type { StoreProductCategory } from "@helvety/shared/store-catalog";
 
 /**
- * Products catalog component (client filter shell).
- * SSR uses {@link ProductCatalogTextCard} from `initialCards`; after mount
- * dynamically imports full `Product` rows (with artwork) so the heavy
- * `products.ts` / artwork chunk stays out of the initial client graph.
+ * Products catalog filter shell.
+ * Artwork cards are server-rendered children. This island hides cards by
+ * category without fetching `products.ts`.
  */
 
-/** No-op subscribe for `useSyncExternalStore` client-only hydration gate. */
-const subscribeNoop = () => () => {};
+const CatalogFilterContext = createContext<FilterType>("all");
 
-/** Returns true on the client after hydration. */
-const getClientEnhanced = () => true;
+/** Props for one server-rendered card slot that participates in filtering. */
+interface CatalogCardFrameProps {
+  category: StoreProductCategory;
+  children: ReactNode;
+}
 
-/** Returns false during SSR. */
-const getServerEnhanced = () => false;
+/** Hides a catalog card when the active filter does not match its category. */
+export function CatalogCardFrame({
+  category,
+  children,
+}: CatalogCardFrameProps) {
+  const filter = use(CatalogFilterContext);
+  const hidden = filter !== "all" && category !== filter;
+
+  return (
+    <div hidden={hidden} className="h-full" data-category={category}>
+      {children}
+    </div>
+  );
+}
 
 /** Props for the interactive products catalog. */
 interface ProductsCatalogProps {
-  initialCards: StoreProductCardEntry[];
+  categories: readonly StoreProductCategory[];
+  children: ReactNode;
 }
 
 /** Renders the product catalog with filter bar and responsive grid. */
-export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
+export function ProductsCatalog({
+  categories,
+  children,
+}: ProductsCatalogProps) {
   const [filter, setFilter] = useState<FilterType>("all");
   const [isPending, startTransition] = useTransition();
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [productsReady, setProductsReady] = useState(false);
-  const isEnhanced = useSyncExternalStore(
-    subscribeNoop,
-    getClientEnhanced,
-    getServerEnhanced
-  );
-
-  useEffect(() => {
-    if (!isEnhanced) {
-      return;
-    }
-
-    let cancelled = false;
-
-    void import("@/lib/data/products")
-      .then((mod) => {
-        if (cancelled) {
-          return;
-        }
-        setAllProducts(mod.getAllProducts());
-        setProductsReady(true);
-      })
-      .catch(() => {
-        // Keep SSR text cards if the artwork chunk fails to load.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isEnhanced]);
 
   const handleFilterChange = (newFilter: FilterType) => {
     startTransition(() => {
@@ -80,68 +64,48 @@ export function ProductsCatalog({ initialCards }: ProductsCatalogProps) {
     });
   };
 
-  const filteredCards = useMemo(() => {
-    if (filter === "all") {
-      return initialCards;
-    }
-    return initialCards.filter((card) => card.category === filter);
-  }, [filter, initialCards]);
-
   const counts = useMemo(() => {
-    const result = { all: initialCards.length } as Record<FilterType, number>;
+    const result = { all: categories.length } as Record<FilterType, number>;
     for (const section of HELVETY_ECOSYSTEM_PRODUCT_SECTIONS) {
-      result[section.slug] = initialCards.filter(
-        (card) => card.category === section.slug
+      result[section.slug] = categories.filter(
+        (category) => category === section.slug
       ).length;
     }
     return result;
-  }, [initialCards]);
+  }, [categories]);
 
-  const filteredProducts = useMemo(() => {
-    if (!productsReady) {
-      return [];
-    }
-    if (filter === "all") {
-      return allProducts;
-    }
-    return allProducts.filter((product) => product.category === filter);
-  }, [filter, allProducts, productsReady]);
-
-  const showArtworkGrid = isEnhanced && productsReady;
+  const visibleCount =
+    filter === "all"
+      ? categories.length
+      : categories.filter((category) => category === filter).length;
 
   return (
-    <div className="py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Products</h1>
-        <p className="text-muted-foreground mt-1 max-w-2xl text-pretty">
-          Filter by category, read the long-form About panels, then jump into
-          each repo or installer. Everything here is free to use with no
-          subscription upsell.
-        </p>
-      </div>
+    <CatalogFilterContext.Provider value={filter}>
+      <div className="py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold tracking-tight">Products</h1>
+          <p className="text-muted-foreground mt-1 max-w-2xl text-pretty">
+            Filter by category, read the long-form About panels, then jump into
+            each repo or installer. Everything here is free to use with no
+            subscription upsell.
+          </p>
+        </div>
 
-      <section className="mb-6">
-        <h2 className="text-muted-foreground mb-2 text-sm font-medium">
-          Category
-        </h2>
-        <ProductFilters
-          value={filter}
-          onChange={handleFilterChange}
-          counts={counts}
-        />
-      </section>
+        <section className="mb-6">
+          <h2 className="text-muted-foreground mb-2 text-sm font-medium">
+            Category
+          </h2>
+          <ProductFilters
+            value={filter}
+            onChange={handleFilterChange}
+            counts={counts}
+          />
+        </section>
 
-      <div className={isPending ? "opacity-70 transition-opacity" : ""}>
-        {showArtworkGrid ? (
-          <ProductGrid products={filteredProducts} columns={3} />
-        ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCards.map((card) => (
-              <ProductCatalogTextCard key={card.id} card={card} />
-            ))}
-          </div>
-        )}
+        <div className={isPending ? "opacity-70 transition-opacity" : ""}>
+          {visibleCount === 0 ? <ProductGridEmpty /> : children}
+        </div>
       </div>
-    </div>
+    </CatalogFilterContext.Provider>
   );
 }

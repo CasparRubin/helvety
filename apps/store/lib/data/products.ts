@@ -13,7 +13,7 @@ import {
   type StoreProductType,
 } from "@helvety/shared/store-catalog";
 
-import { productArtwork } from "@/lib/data/product-artwork";
+import { catalogArtwork } from "@/lib/data/catalog-card-artwork";
 import {
   type Product,
   type ProductFilters,
@@ -66,7 +66,7 @@ function platformsFromRunsOn(runsOn: string): string[] {
 // =============================================================================
 // PRODUCT DATA
 // =============================================================================
-// Store artwork uses static imports for immutable, content-hashed caching.
+// Store artwork and artist credits live in `catalog-card-artwork.ts`.
 
 /**
  * Helvety SPO Explorer - SharePoint Online Extension
@@ -79,8 +79,7 @@ const helvetyExplorer: SoftwareProduct = {
   shortDescription: cHelvetyExplorer.shortDescription,
   type: cHelvetyExplorer.type,
   category: cHelvetyExplorer.category,
-  image: productArtwork.artwork1,
-  artist: "Alexandre Calame",
+  ...catalogArtwork("helvety-spo-explorer"),
   description: {
     intro:
       "Helvety SPO Explorer adds a site switcher to SharePoint so you can open any site you already have access to without hunting through admin hubs. IT deploys it once from the tenant App Catalog; everyday users just pick sites from the header.",
@@ -262,8 +261,7 @@ const powerPlatformConfigurator: SoftwareProduct = {
   shortDescription: cPowerPlatformConfigurator.shortDescription,
   type: cPowerPlatformConfigurator.type,
   category: cPowerPlatformConfigurator.category,
-  image: productArtwork.artwork6,
-  artist: "Rudolf Koller",
+  ...catalogArtwork("helvety-power-platform-configurator"),
   description: {
     intro:
       "Choose how supported Power Automate flow and run URLs open, control the optional survey parameter, and apply visibility or enabled-state preferences to supported model-driven Power Apps record forms.",
@@ -393,8 +391,7 @@ const helvetyScreenTools: SoftwareProduct = {
   shortDescription: cHelvetyScreenTools.shortDescription,
   type: cHelvetyScreenTools.type,
   category: cHelvetyScreenTools.category,
-  image: productArtwork.artwork8,
-  artist: "Ferdinand Hodler",
+  ...catalogArtwork("helvety-screen-tools"),
   description: {
     intro:
       "Use a global shortcut to freeze the screen, snap to a window or drag a rectangle, then save or copy the capture. Draw on the live desktop with Live Draw, browse saved PNGs in the home gallery, and open them in the built-in editor to crop, blur, highlight, add text, borders, arrows, a magnifier, or sample colors.",
@@ -520,8 +517,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
   shortDescription: cHelvetyPowerPlatformTools.shortDescription,
   type: cHelvetyPowerPlatformTools.type,
   category: cHelvetyPowerPlatformTools.category,
-  image: productArtwork.artwork2,
-  artist: "Alexandre Calame",
+  ...catalogArtwork("helvety-power-platform-tools"),
   description: {
     intro:
       "Helvety Power Platform Tools is a portable Windows desktop app that talks to Dataverse in your user context. There is no admin installer and no Microsoft Graph access.",
@@ -684,8 +680,7 @@ const helvetyPdf: SaaSProduct = {
       },
     ],
   },
-  image: productArtwork.artwork7,
-  artist: "Alexandre Calame",
+  ...catalogArtwork("helvety-pdf"),
   features: [
     "Client-side processing for supported operations",
     "Merge multiple PDFs and images into one document",
@@ -783,8 +778,7 @@ const helvetyImageEditor: SaaSProduct = {
       },
     ],
   },
-  image: productArtwork.artwork11,
-  artist: "Clara von Rappard",
+  ...catalogArtwork("helvety-image-editor"),
   features: [
     "Text, arrow, border, highlight, blur, and crop tools",
     "Layers panel with reorder, select, and delete",
@@ -886,8 +880,7 @@ const helvetyOcr: SaaSProduct = {
       },
     ],
   },
-  image: productArtwork.artwork13,
-  artist: "Anny Meisser Vonzun",
+  ...catalogArtwork("helvety-ocr"),
   features: [
     "Client-side OCR for scanned pages and images",
     "Born-digital PDFs use their text layer first, with OCR fallback when needed",

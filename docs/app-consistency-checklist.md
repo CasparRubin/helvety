@@ -94,7 +94,7 @@ See [`docs/ui-shadcn-integration-policy.md`](./ui-shadcn-integration-policy.md) 
 
 - Em-dash, licensing, manifests: enforced in `packages/shared` copy guardrails + `bun run consistency:customer-copy`.
 - `lib/product-copy.test.ts`: `pdf` / `image-editor` / `ocr` thin re-exports from `@helvety/shared/app-product-descriptions`.
-- Store catalog SSOT: `@helvety/shared/helvety-ecosystem-sections` → `@helvety/shared/store-catalog` → `apps/store/lib/types/products.ts` → `apps/store/lib/data/products.ts`. Wiring: `helvety-ecosystem-sections.test.ts`, `store-catalog.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`, `apps/store/components/products/product-ui-wiring.test.ts`.
+- Store catalog SSOT: `@helvety/shared/helvety-ecosystem-sections` → `@helvety/shared/store-catalog` → `apps/store/lib/data/catalog-card-artwork.ts` (card image and artist) → `apps/store/lib/types/products.ts` → `apps/store/lib/data/products.ts` (spreads `catalogArtwork`). Wiring: `helvety-ecosystem-sections.test.ts`, `store-catalog.test.ts`, `packages/ui/src/app-switcher-sections.test.ts`, `apps/store/components/products/product-ui-wiring.test.ts`.
 
 ## `package.json` conventions
 

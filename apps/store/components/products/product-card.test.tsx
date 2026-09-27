@@ -6,7 +6,12 @@ import { ProductCard } from "./product-card";
 import type { Product } from "@/lib/types/products";
 
 vi.mock("next/image", () => ({
-  default: () => <span data-testid="product-card-image" />,
+  default: ({ preload }: { preload?: boolean }) => (
+    <span
+      data-testid="product-card-image"
+      data-preload={preload ? "true" : "false"}
+    />
+  ),
 }));
 
 vi.mock("next/link", () => ({
@@ -51,12 +56,23 @@ describe("ProductCard", () => {
     );
   });
 
-  it("links to the product detail route without prefetching the detail page", () => {
+  it("links to the product detail route and lets Next prefetch it", () => {
     render(<ProductCard product={product} />);
 
     const link = screen.getByRole("link", { name: /Helvety PDF/i });
     expect(link).toHaveAttribute("href", "/products/helvety-pdf");
-    expect(link).toHaveAttribute("data-prefetch", "false");
+    expect(link).not.toHaveAttribute("data-prefetch", "false");
+  });
+
+  it("preloads artwork for the first row when asked", () => {
+    render(
+      <ProductCard product={{ ...product, image: "/artwork.webp" }} preload />
+    );
+
+    expect(screen.getByTestId("product-card-image")).toHaveAttribute(
+      "data-preload",
+      "true"
+    );
   });
 
   it("renders category and artist badges with readable surfaces over the artwork", () => {

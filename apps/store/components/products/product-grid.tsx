@@ -4,26 +4,30 @@
  */
 
 import { cn } from "@helvety/shared/utils";
-import { Package } from "lucide-react";
 
 import { ProductCard } from "./product-card";
+import { ProductGridEmpty } from "./product-grid-empty";
+import { CatalogCardFrame } from "./products-catalog";
 
-import type { Product } from "@/lib/types/products";
+import type { CatalogArtworkCard } from "@/lib/data/catalog-card-artwork";
 
 /** Props for the ProductGrid component. */
 interface ProductGridProps {
-  products: Product[];
+  cards: readonly CatalogArtworkCard[];
   className?: string;
   columns?: 1 | 2 | 3 | 4;
+  /** How many leading cards preload artwork (the first row on desktop). */
+  priorityCount?: number;
 }
 
 /** Renders a responsive grid of product cards. */
 export function ProductGrid({
-  products,
+  cards,
   className,
   columns = 3,
+  priorityCount = 3,
 }: ProductGridProps) {
-  if (products.length === 0) {
+  if (cards.length === 0) {
     return <ProductGridEmpty />;
   }
 
@@ -36,24 +40,22 @@ export function ProductGrid({
 
   return (
     <div className={cn("grid gap-6", gridCols[columns], className)}>
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {cards.map((card, index) => (
+        <CatalogCardFrame key={card.id} category={card.category}>
+          <ProductCard
+            product={{
+              slug: card.slug,
+              name: card.name,
+              shortDescription: card.shortDescription,
+              category: card.category,
+              image: card.image,
+              artist: card.artist,
+              releaseDate: card.releaseDate,
+            }}
+            preload={index < priorityCount}
+          />
+        </CatalogCardFrame>
       ))}
-    </div>
-  );
-}
-
-/** Empty state shown when no products match the current filter. */
-function ProductGridEmpty() {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-      <div className="bg-muted flex size-12 items-center justify-center rounded-full">
-        <Package className="text-muted-foreground size-6" />
-      </div>
-      <h3 className="mt-4 text-lg font-medium">No products found</h3>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Try adjusting your filters to see available products.
-      </p>
     </div>
   );
 }

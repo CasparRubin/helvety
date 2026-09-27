@@ -11,7 +11,7 @@ Product catalog app for Helvety products: specs, Store-hosted download redirects
 - Public product catalog at `/store/products` with product cards that overlay frosted ecosystem category badges and an “Art by …” artist credit on artwork ([`components/products/product-badge.tsx`](components/products/product-badge.tsx))
 - Public package download endpoints (no login required) for SPFx and desktop ZIPs; browser extensions link to vendor stores (for example Chrome Web Store) from product pages
 - Product-detail pages with statically imported artwork; unknown catalog slugs return HTTP 404 via `notFound()` on the server (`app/products/[slug]/page.tsx`) with `app/products/[slug]/not-found.tsx`; `generateMetadata` emits noindex “Product Not Found” metadata when the slug is absent from `@helvety/shared/store-catalog` (without calling `notFound()` in metadata)
-- Product listing server-renders a text-only grid from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag); the client keeps text cards until a dynamic `import()` of `lib/data/products` resolves, then swaps in artwork cards. Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`). Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only; sitemap uses `lib/data/product-catalog-cache.ts`
+- Product listing server-renders artwork cards from `@helvety/shared/store-catalog` via `getCachedStoreCatalogCards()` (`unstable_cache`, `store-catalog` tag) plus [`lib/data/catalog-card-artwork.ts`](lib/data/catalog-card-artwork.ts) (image and artist only; long-form copy stays in `lib/data/products.ts`). The first three cards preload artwork. Category filters hide cards in place. In-catalog product links use default Next.js prefetch. Gateway/App Switcher “Store” links use `urls.storeProducts` (`/store/products`). Product detail server-renders hero title/description (`ProductDetailServerHero`); downloads and CTAs stay client-side. SEO metadata and JSON-LD use `@helvety/shared/store-catalog` only; sitemap uses `lib/data/product-catalog-cache.ts`
 
 ## Package Download Behavior
 
@@ -45,12 +45,14 @@ category pills, and the app switcher product sections.
    - Run `bun run test --filter=@helvety/shared` (from repo root) to confirm catalog and ecosystem wiring tests still pass.
 3. **Add the full Store product** in `apps/store/lib/data/products.ts`:
    - Call `cardCore("<id>", "<saas|software|physical>")`.
-   - Spread the `c<Name>` object into the `Product` literal and fill in the
-     long-copy fields (`description`, `features`, `pricing`, `links`,
-     `metadata.releaseDate`, `image`, `artist`).
+   - Spread `catalogArtwork("<id>")` into the `Product` literal for `image` and
+     `artist`, then fill in the long-copy fields (`description`, `features`,
+     `pricing`, `links`, `metadata.releaseDate`).
    - For new hero art: add `public/artwork_<n>.webp`, register it in
-     `lib/data/product-artwork.ts`, assign it in `products.ts`, and update the
-     canonical slug → artwork/artist map in `lib/data/products.test.ts`.
+     `lib/data/product-artwork.ts`, and add the id to
+     `lib/data/catalog-card-artwork.ts` (exhaustive on `StoreProductId`).
+     Update the canonical slug → artwork/artist expectations in
+     `lib/data/products.test.ts`.
    - Write `description.intro` and sections in plain language; it must **not**
      repeat the catalog `shortDescription` opening (see
      [`docs/naming-conventions.md`](../../docs/naming-conventions.md) › Customer-facing product copy).
@@ -101,7 +103,7 @@ bun run test:watch
 bun run test:coverage
 ```
 
-Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR catalog shell + dynamic artwork import, ecosystem category wiring, catalog badge surfaces, public download redirects and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()`, and canonical per-product artwork/artist assignments.
+Notable tests include layout shell provider wiring (`app/layout-shell-providers.test.ts`), solid section nav (`components/store-nav.test.tsx`), SSR artwork catalog (no post-hydration artwork import), ecosystem category wiring, catalog badge surfaces, public download redirects and retired package ids (`lib/packages/create-package-download.test.ts`, `app/api/packages/[packageId]/download/route.test.ts`), product detail SEO and unknown-slug `notFound()`, and canonical per-product artwork/artist assignments.
 
 For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README.md`](../../README.md).
 
