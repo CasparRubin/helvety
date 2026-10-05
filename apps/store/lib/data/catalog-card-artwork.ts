@@ -22,7 +22,7 @@ export interface CatalogCardArtwork {
 export type CatalogArtworkCard = StoreProductCardEntry & CatalogCardArtwork;
 
 /** Exhaustive artwork assignment keyed by catalog product id. */
-export const catalogCardArtwork = {
+const catalogCardArtwork = {
   "helvety-spo-explorer": {
     image: productArtwork.artwork1,
     artist: "Alexandre Calame",

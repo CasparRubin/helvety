@@ -39,6 +39,6 @@ Living contracts and guardrails for the Helvety monorepo. Completed modernizatio
 - Lint, type-check, and tests must stay green; run `bun run ci:check` during development and `bun run ci:release` before push.
 - `consistency:env-templates`, `consistency:workspace-scripts`, `consistency:zone-modernization`, and shadcn `rsc`/`tsx` enforced in `consistency:guardrails`; add primitives via `packages/ui/components.json`.
 - `deps:drift`, `deps:security:floors`, and `consistency:filenames` run inside `ci:check`; every zone with `proxy.ts` must ship `proxy.test.ts` (`test:hygiene`). New zones: [`app-consistency-checklist.md`](./app-consistency-checklist.md).
-- Upstash rate-limit metrics/dashboard enabled in production for Store downloads (not site visitor analytics).
+- Upstash rate-limit metrics: verify in the Upstash console for Store downloads (in-process counters live in [`packages/shared/src/rate-limit.ts`](../packages/shared/src/rate-limit.ts); not site visitor analytics).
 
 **Stack note:** Helvety public tools and Store use **Next.js** on Vercel.

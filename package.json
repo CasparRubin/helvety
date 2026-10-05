@@ -59,11 +59,6 @@
     "deps:unused": "bun run deps:check && bun run knip:exports",
     "knip:full": "knip --no-progress",
     "deadcode:sweep": "bun run deps:unused && bun run lint && bun run type-check",
-    "fallow": "npx fallow",
-    "fallow:dead-code": "npx fallow dead-code",
-    "fallow:dupes": "npx fallow dupes",
-    "fallow:health": "npx fallow health",
-    "fallow:fix": "npx fallow fix --dry-run",
     "clean:artifacts": "node scripts/clean-artifacts.mjs"
   },
   "overrides": {
@@ -75,14 +70,14 @@
     "@hono/node-server": "2.0.11",
     "vite": "8.1.5",
     "express-rate-limit": "8.5.2",
-    "undici": "7.29.0",
+    "undici": "7.30.0",
     "@babel/core": "8.0.1",
     "flatted": "3.4.2",
     "yaml": "2.9.0",
-    "brace-expansion": "5.0.9",
+    "brace-expansion": "5.0.12",
     "path-to-regexp": "8.4.2",
     "picomatch": "2.3.2",
-    "ip-address": "10.4.0",
+    "ip-address": "10.7.3",
     "postcss": "8.5.24",
     "protobufjs": "7.6.5",
     "qs": "6.16.0",
@@ -91,19 +86,19 @@
     "dompurify": "3.4.12",
     "js-yaml": "4.3.2",
     "nanoid": "3.3.18",
-    "typescript-eslint": "8.70.1",
+    "typescript-eslint": "8.71.1",
     "body-parser": "2.3.0",
     "sharp": "0.35.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "@types/node": "24.19.0",
+    "@types/node": "24.19.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "baseline-browser-mapping": "2.11.0"
   },
   "devDependencies": {
     "@helvety/dev-deps": "workspace:*",
-    "knip": "^6.38.0",
-    "turbo": "^2.11.4"
+    "knip": "^6.39.0",
+    "turbo": "^2.11.7"
   }
 }

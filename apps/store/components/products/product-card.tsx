@@ -8,7 +8,7 @@ import { ArtistBadge, CategoryBadge, ReleaseDateBadge } from "./product-badge";
 import type { Product } from "@/lib/types/products";
 
 /** Fields a catalog card renders. Full product rows stay off this component. */
-export interface ProductCardModel {
+interface ProductCardModel {
   slug: string;
   name: string;
   shortDescription: string;

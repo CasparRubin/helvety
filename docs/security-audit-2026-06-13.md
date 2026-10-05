@@ -1,5 +1,5 @@
-# Security audit archive (2026-06-13)
+# Historical security audit pointer (2026-06-13)
 
-Point-in-time security audit notes from 2026-06-13. That snapshot covered products and surfaces that are no longer part of this monorepo, so the full write-up is not kept here.
+The 2026-06-13 write-up covered surfaces that are no longer in this monorepo, so the findings are not kept here.
 
-For current review process, zones, and checklists, see [`security-review-runbook.md`](./security-review-runbook.md). For current dependency pins, see [`dependency-inventory.md`](./dependency-inventory.md).
+Use [`security-review-runbook.md`](./security-review-runbook.md) for current review process and checklists, and [`dependency-inventory.md`](./dependency-inventory.md) for current dependency pins.

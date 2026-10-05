@@ -56,9 +56,6 @@ yarn-error.log*
 # Testing
 coverage/
 
-# Fallow (local cache; commit .fallowrc.json at repo root)
-.fallow/
-
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts

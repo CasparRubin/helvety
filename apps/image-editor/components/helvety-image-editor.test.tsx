@@ -12,7 +12,7 @@ const toastMocks = vi.hoisted(() => ({
   info: vi.fn(),
 }));
 
-vi.mock("sonner", () => ({
+vi.mock("@helvety/ui/sonner", () => ({
   toast: toastMocks,
 }));
 

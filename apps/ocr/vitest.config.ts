@@ -5,7 +5,7 @@ export default mergeConfig(
   createVitestConfig(__dirname, { passWithNoTests: false }),
   {
     test: {
-      // scripts/sync-pdf-worker and pdfjs-worker-alignment share public/pdf.worker.*
+      // Keep worker sync / public/pdf.worker.* tests from racing on the shared asset.
       fileParallelism: false,
     },
   }
