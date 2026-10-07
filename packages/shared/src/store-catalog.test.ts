@@ -59,6 +59,11 @@ describe("store-catalog", () => {
   it("declares free and open-source flags on every current card", () => {
     for (const card of STORE_PRODUCT_CARDS) {
       expect(card.isFree).toBe(true);
+      if (card.id === "helvety-power-platform-tools") {
+        // Tools repo publishes source but has no LICENSE file.
+        expect(card.isOpenSource).toBe(false);
+        continue;
+      }
       expect(card.isOpenSource).toBe(true);
     }
   });

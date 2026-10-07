@@ -388,6 +388,11 @@ describe("store product catalog", () => {
       ].join("\n");
 
       expect(blob, slug).toContain("published source on GitHub");
+      if (slug === "helvety-power-platform-tools") {
+        // The tools repository has no LICENSE file, so About copy must not point at one.
+        expect(blob, slug).not.toMatch(/LICENSE/i);
+        continue;
+      }
       expect(blob, slug).toMatch(/LICENSE/i);
     }
 
@@ -485,7 +490,7 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Helvety Power Platform Tools serves a core zip plus Flow Explorer and Web Resource Explorer modules", () => {
+  it("Helvety Power Platform Tools serves a core zip plus Flow Explorer, Web Resource Explorer, and Data Model Explorer modules", () => {
     const product = getProductBySlug("helvety-power-platform-tools");
     expect(product).toBeDefined();
     if (!product || !isSoftwareProduct(product)) {
@@ -494,6 +499,7 @@ describe("store product catalog", () => {
 
     expect(product.software.publicPackageId).toBe("power-platform-tools");
     expect(product.software.fileFormat).toBe("zip");
+    expect(product.software.requirements).toEqual(["Windows 11"]);
     expect(product.software.modules).toEqual([
       {
         id: "flow-explorer",
@@ -509,6 +515,14 @@ describe("store product catalog", () => {
         description:
           "Search Dataverse image web resources and copy their unique names, with live icon previews.",
         publicPackageId: "web-resource-explorer",
+        fileFormat: "zip",
+      },
+      {
+        id: "data-model-explorer",
+        name: "Data Model Explorer",
+        description:
+          "Map Dataverse tables, relationships, notes, and cloud flows on a canvas.",
+        publicPackageId: "data-model-explorer",
         fileFormat: "zip",
       },
     ]);

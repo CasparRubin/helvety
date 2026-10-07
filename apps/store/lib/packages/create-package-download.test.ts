@@ -58,5 +58,13 @@ describe("createPackageDownload", () => {
         "/storage/v1/object/public/packages/web-resource-explorer/"
       );
     }
+
+    const dataModelZip = await createPackageDownload("data-model-explorer");
+    expect(dataModelZip.ok).toBe(true);
+    if (dataModelZip.ok) {
+      expect(dataModelZip.downloadUrl).toContain(
+        "/storage/v1/object/public/packages/data-model-explorer/"
+      );
+    }
   });
 });

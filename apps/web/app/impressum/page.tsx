@@ -155,8 +155,8 @@ export default function ImpressumPage() {
             <strong className="text-foreground">
               Helvety Power Platform Tools
             </strong>
-            : portable Windows app for Dataverse with modules including Flow
-            Explorer and Web Resource Explorer.
+            : portable Windows 11 app for Dataverse with modules including Flow
+            Explorer, Web Resource Explorer, and Data Model Explorer.
           </li>
           <li>
             <strong className="text-foreground">Helvety Image Editor</strong>:

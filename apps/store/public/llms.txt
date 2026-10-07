@@ -13,7 +13,7 @@ The authoritative catalog is [Products](https://helvety.com/store/products); ind
 - [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor): Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, highlights, blur, and crop (up to 25 MB per image).
 - [Helvety OCR](https://helvety.com/store/products/helvety-ocr): Extract text from PDFs and images in the browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first. Up to 100 MB per file and 50 PDF pages.
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots, Live Draw overlay, gallery, and built-in PNG editor. Desktop ZIPs are on GitHub Releases.
-- [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows app for Dataverse in your user context; download the core ZIP (Flow Explorer and Web Resource Explorer included) and optional drop-in module ZIPs from this Store page
+- [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows 11 app for Dataverse in your user context; download the core ZIP (Flow Explorer, Web Resource Explorer, and Data Model Explorer included) and optional drop-in module ZIPs from this Store page
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 
 ## Crawling And Indexing

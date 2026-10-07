@@ -16,7 +16,9 @@ describe("store package config", () => {
     expect(getPackageInfo("power-platform-tools")?.isPublic).toBe(true);
     expect(getPackageInfo("flow-explorer")?.isPublic).toBe(true);
     expect(getPackageInfo("web-resource-explorer")?.isPublic).toBe(true);
-    expect(getPackageInfo("power-platform-tools")?.version).toBe("0.2.1");
+    expect(getPackageInfo("data-model-explorer")?.isPublic).toBe(true);
+    expect(getPackageInfo("data-model-explorer")?.version).toBe("1.0.0");
+    expect(getPackageInfo("power-platform-tools")?.version).toBe("0.2.2");
     expect(getPackageInfo("power-platform-tools")?.downloadUrl).toContain(
       "/storage/v1/object/public/packages/power-platform-tools/"
     );
@@ -25,6 +27,9 @@ describe("store package config", () => {
     );
     expect(getPackageInfo("web-resource-explorer")?.downloadUrl).toContain(
       "/storage/v1/object/public/packages/web-resource-explorer/"
+    );
+    expect(getPackageInfo("data-model-explorer")?.downloadUrl).toContain(
+      "/storage/v1/object/public/packages/data-model-explorer/"
     );
   });
 });

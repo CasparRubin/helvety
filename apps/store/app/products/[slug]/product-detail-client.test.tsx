@@ -133,6 +133,9 @@ describe("ProductDetailClient", () => {
     expect(
       screen.getByRole("heading", { name: "Web Resource Explorer" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Data Model Explorer" })
+    ).toBeInTheDocument();
 
     const moduleDownload = screen.getByRole("button", {
       name: /Download Flow Explorer \.zip/i,
@@ -148,6 +151,14 @@ describe("ProductDetailClient", () => {
     webResourceDownload.click();
     expect(assign).toHaveBeenCalledWith(
       "/store/api/packages/web-resource-explorer/download"
+    );
+
+    const dataModelDownload = screen.getByRole("button", {
+      name: /Download Data Model Explorer \.zip/i,
+    });
+    dataModelDownload.click();
+    expect(assign).toHaveBeenCalledWith(
+      "/store/api/packages/data-model-explorer/download"
     );
 
     vi.unstubAllGlobals();
