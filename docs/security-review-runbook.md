@@ -53,7 +53,7 @@ Applies to every Vercel project in [`vercel-monorepo-apps.md`](./vercel-monorepo
 
 ## CSP
 
-Document accepted tradeoffs in [`packages/config/next-headers.mjs`](../packages/config/next-headers.mjs): `style-src 'unsafe-inline'`, dev `unsafe-eval`, `wasm-unsafe-eval` where public tools need WASM (OCR). Do **not** introduce style nonces until the Tailwind / Next CSS pipeline supports them without regressions; keep the current accepted tradeoff.
+Document accepted tradeoffs in [`packages/config/next-headers.mjs`](../packages/config/next-headers.mjs): `style-src 'unsafe-inline'`, `script-src 'self' 'unsafe-inline'` (no nonce, no `'strict-dynamic'`), dev `unsafe-eval`, and `wasm-unsafe-eval` where public tools need WASM (OCR). Cache Components prerender framework and flight scripts without a nonce; a nonce or hash would make browsers ignore `'unsafe-inline'` and block those scripts. Do **not** introduce style nonces until the Tailwind / Next CSS pipeline supports them without regressions; keep the current accepted tradeoff.
 
 ## Quarterly cadence
 

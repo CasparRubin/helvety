@@ -42,6 +42,9 @@ export const metadata = createHelvetyProductMetadata({
   indexing: "all",
 });
 
+/** Keep OCR pages static, including client navigations. */
+export const ensureStatic = "navigation";
+
 /**
  * Root layout: fixed header (Navbar), overflow-hidden main with shared container gutters, fixed footer.
  */

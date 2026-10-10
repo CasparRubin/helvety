@@ -1,6 +1,9 @@
 import { urls } from "@helvety/shared/config";
 import { cn } from "@helvety/shared/utils";
 
+/** Year captured when this module loads, so prerender does not call `Date`. */
+const COPYRIGHT_YEAR = new Date().getFullYear();
+
 const LEGAL_BASE = urls.home;
 const COPYRIGHT_GLUE = "\u00A0";
 
@@ -31,8 +34,6 @@ export function Footer({
   className?: string;
   external?: boolean;
 }) {
-  const currentYear = new Date().getFullYear();
-
   const link = (href: string, label: string) => {
     const fullHref = external ? `${LEGAL_BASE}${href}` : href;
     const extraProps = external
@@ -59,7 +60,7 @@ export function Footer({
           className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center text-xs"
         >
           <span>
-            &copy; {currentYear}
+            &copy; {COPYRIGHT_YEAR}
             {COPYRIGHT_GLUE}
             Helvety
           </span>

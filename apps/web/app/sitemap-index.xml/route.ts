@@ -1,8 +1,6 @@
 import { urls } from "@helvety/shared/config";
 import { NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
 const SITEMAP_PATHS = [
   "/sitemap.xml",
   "/store/sitemap.xml",

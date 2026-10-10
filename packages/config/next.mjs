@@ -121,11 +121,13 @@ export function createHelvetyNextConfig({
       root: path.resolve("../.."),
       ...turbopackOverrides,
     },
+    cacheComponents: true,
+    partialPrefetching: true,
     reactCompiler: true,
     experimental: {
       ...restExperimentalOverrides,
       // Do not set experimental.cssChunking: Turbopack (default bundler) rejects it;
-      // that option is webpack-only in Next 16.3+.
+      // that option is webpack-only.
       optimizePackageImports: mergedOptimizePackageImports,
       ...(Object.keys(mergedServerActions).length > 0
         ? { serverActions: mergedServerActions }

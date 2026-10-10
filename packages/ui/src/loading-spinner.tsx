@@ -3,8 +3,8 @@
  * store use {@link ./helvety-shell-route-loading} instead so the full
  * viewport stays on `bg-background` during transitions.
  *
- * Must stay RSC-safe (no client components / lucide): `loading.tsx` under
- * CSP `strict-dynamic` cannot load an unnonced client chunk for the spinner.
+ * Must stay a server component (no client components / lucide) so
+ * `loading.tsx` does not wait on a client chunk before it can paint.
  */
 export function LoadingSpinner() {
   return (

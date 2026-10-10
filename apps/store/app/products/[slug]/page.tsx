@@ -1,12 +1,16 @@
 import { urls } from "@helvety/shared/config";
-import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import {
   POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
   POWER_PLATFORM_CONFIGURATOR_SEO_DESCRIPTION,
 } from "@helvety/shared/power-platform-configurator-copy";
-import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
+import {
+  findStoreProductCardBySlug,
+  getStoreCatalogNewestFirst,
+} from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
+import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -16,6 +20,11 @@ import type { Metadata } from "next";
 interface ProductPageProps {
   /** Route params containing the product slug */
   params: Promise<{ slug: string }>;
+}
+
+/** Prerender every catalog slug. Unknown slugs still resolve at request time. */
+export function generateStaticParams(): Array<{ slug: string }> {
+  return getStoreCatalogNewestFirst().map((card) => ({ slug: card.slug }));
 }
 
 /**
@@ -72,11 +81,20 @@ export async function generateMetadata({
 
 /**
  * Product detail page for viewing a specific product.
- * The artwork hero (title and summary) renders with {@link ProductDetailClient}, which is server-rendered on first load.
+ * Params stay inside Suspense so Partial Prefetching can serve a shell for
+ * slugs that were not prerendered.
  */
-export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const [{ slug }, nonce] = await Promise.all([params, getRequestCspNonce()]);
+export default function ProductDetailPage({ params }: ProductPageProps) {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ProductDetail params={params} />
+    </Suspense>
+  );
+}
 
+/** Resolved product body. Exported for server render tests. */
+export async function ProductDetail({ params }: ProductPageProps) {
+  const { slug } = await params;
   const card = findStoreProductCardBySlug(slug);
   if (!card) {
     notFound();
@@ -99,7 +117,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <>
-      <JsonLdScript nonce={nonce ?? undefined} json={productJsonLd} />
+      <JsonLdScript json={productJsonLd} />
       <ProductDetailClient slug={slug} />
     </>
   );

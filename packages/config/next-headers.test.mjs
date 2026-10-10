@@ -95,21 +95,20 @@ describe("createSecurityHeaders", () => {
 describe("buildCsp", () => {
   it("uses zone basePath in report-uri", () => {
     process.env.NODE_ENV = "production";
-    const csp = buildCsp({ nonce: "nonce-123", basePath: "/pdf" });
+    const csp = buildCsp({ basePath: "/pdf" });
 
     expect(csp).toContain("report-uri /pdf/api/csp-report");
   });
 
-  it("adds nonce and omits unsafe-eval in production by default", () => {
+  it("allows inline scripts and omits unsafe-eval in production by default", () => {
     process.env.NODE_ENV = "production";
-    const csp = buildCsp({ nonce: "nonce-123" });
+    const csp = buildCsp();
 
-    expect(csp).toContain(
-      "script-src 'self' 'nonce-nonce-123' 'strict-dynamic'"
-    );
+    expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+    expect(csp).not.toContain("strict-dynamic");
+    expect(csp).not.toContain("nonce-");
     const scriptDirective = getDirective(csp, "script-src");
     expect(scriptDirective).not.toContain("'unsafe-eval'");
-    expect(scriptDirective).not.toContain("'unsafe-inline'");
     expect(csp).toContain("connect-src 'self'");
     expect(csp).not.toContain("supabase.co");
     expect(csp).toContain("upgrade-insecure-requests");

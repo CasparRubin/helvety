@@ -11,15 +11,7 @@ import { findStoreProductCardBySlug } from "@helvety/shared/store-catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import ProductDetailPage, { generateMetadata } from "./page";
-
-vi.mock("next/headers", () => ({
-  headers: vi.fn(async () => new Headers([["x-nonce", "test-nonce"]])),
-}));
-
-vi.mock("@helvety/shared/csp-nonce", () => ({
-  getRequestCspNonce: vi.fn(async () => "test-nonce"),
-}));
+import { generateMetadata, ProductDetail } from "./page";
 
 vi.mock("./product-detail-client", () => ({
   ProductDetailClient: ({ slug }: { slug: string }) => (
@@ -52,7 +44,7 @@ describe("store product SEO", () => {
 
   it("calls notFound for unknown product slugs on the server", async () => {
     await expect(
-      ProductDetailPage({
+      ProductDetail({
         params: Promise.resolve({ slug: "missing-product" }),
       })
     ).rejects.toThrow("NOT_FOUND");
@@ -113,7 +105,7 @@ describe("store product SEO", () => {
     const card = findStoreProductCardBySlug("helvety-pdf");
     if (!card) throw new Error("Expected Helvety PDF product card");
 
-    const element = await ProductDetailPage({
+    const element = await ProductDetail({
       params: Promise.resolve({ slug: card.slug }),
     });
     const html = renderToStaticMarkup(element);
@@ -132,7 +124,7 @@ describe("store product SEO", () => {
       throw new Error("Expected Power Platform Configurator product card");
     }
 
-    const element = await ProductDetailPage({
+    const element = await ProductDetail({
       params: Promise.resolve({ slug: card.slug }),
     });
     const html = renderToStaticMarkup(element);

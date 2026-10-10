@@ -1,7 +1,6 @@
 import { buildCsp } from "@helvety/config/next-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-const CSP_NONCE_LENGTH = 16;
 /** Request pathname forwarded from the security proxy for gateway shell layout routing. */
 export const HELVETY_PATHNAME_HEADER_NAME = "x-helvety-pathname";
 
@@ -39,22 +38,6 @@ export type CreateSecurityProxyOptions = {
   /** Whether to set {@link HELVETY_PATHNAME_HEADER_NAME} (default: false). */
   includeRequestPathname?: boolean;
 };
-
-/** Generate cryptographically secure random bytes in edge-safe runtimes. */
-function getRandomBytes(length: number): Uint8Array {
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  return bytes;
-}
-
-/** Encode bytes as base64 using web platform APIs. */
-function toBase64(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary);
-}
 
 /** Canonical proxy profiles used by app-type groupings. */
 export type SecurityProxyProfile =
@@ -167,17 +150,14 @@ export function createSecurityProxy(options: CreateSecurityProxyOptions = {}) {
   } = options;
 
   return async function proxy(request: NextRequest) {
-    const nonce = toBase64(getRandomBytes(CSP_NONCE_LENGTH));
     const csp = buildCsp({
       ...buildCspOptions,
-      nonce,
       basePath: buildCspOptions.basePath ?? request.nextUrl.basePath,
     });
     const requestHeaders = new Headers(request.headers);
 
     // NOTE: Header propagation from proxy to Server Components can vary by
-    // runtime/version. Treat x-helvety-url and x-nonce as best-effort signals.
-    requestHeaders.set("x-nonce", nonce);
+    // runtime/version. Treat x-helvety-url as a best-effort signal.
     requestHeaders.set("Content-Security-Policy", csp);
 
     if (includeHelvetyUrl) {

@@ -18,7 +18,7 @@ export function resolveCspReportEndpoint(basePath) {
  * Shared security headers factory for Helvety Next.js apps in this monorepo (helvety.com zones).
  *
  * Generates consistent HSTS, COOP, and other security headers.
- * CSP is generated per-request in proxy.ts with a cryptographic nonce.
+ * CSP is set in proxy.ts. Static pages cannot carry a per-request script nonce.
  *
  * @param {object} options
  * @param {string} options.appName - App identifier used in X-Helvety-App header for debugging and CSP report correlation
@@ -72,7 +72,7 @@ export function createSecurityHeaders({ appName, basePath } = {}) {
           endpoints: [{ url: cspReportEndpoint }],
         }),
       },
-      // CSP is set per-request in proxy.ts with a nonce - not as a static header.
+      // CSP is set in proxy.ts so dev and production policies can differ.
     ];
 
     // Production-only security headers
@@ -102,13 +102,14 @@ export function createSecurityHeaders({ appName, basePath } = {}) {
 }
 
 /**
- * Builds the Content-Security-Policy header value with a per-request nonce.
+ * Builds the Content-Security-Policy header value.
  *
- * Uses nonce + strict-dynamic and intentionally avoids legacy inline-script
- * fallback to keep a fail-closed policy in modern browsers.
+ * Cache Components prerender framework and `self.__next_f` scripts without a
+ * nonce. A nonce or hash would make browsers ignore `'unsafe-inline'`, so
+ * `script-src` is `'self'` plus `'unsafe-inline'` and does not use
+ * `'strict-dynamic'`.
  *
  * @param {object} opts
- * @param {string} opts.nonce - Cryptographic nonce for this request
  * @param {boolean} [opts.imgBlob=false] - Allow blob: in img-src
  * @param {"always" | "dev-only"} [opts.scriptUnsafeEval="dev-only"] - When to allow 'unsafe-eval'
  * @param {boolean} [opts.workerBlob=false] - Add worker-src 'self' blob:
@@ -118,7 +119,6 @@ export function createSecurityHeaders({ appName, basePath } = {}) {
  * @returns {string}
  */
 export function buildCsp({
-  nonce,
   imgBlob = false,
   scriptUnsafeEval = "dev-only",
   workerBlob = false,
@@ -136,7 +136,17 @@ export function buildCsp({
   // explicitly when 'unsafe-eval' is not.
   const useWasmUnsafeEval = wasmUnsafeEval && !useUnsafeEval;
 
-  const nonceDirective = nonce ? ` 'nonce-${nonce}'` : "";
+  const scriptSources = ["'self'", "'unsafe-inline'"];
+  if (useUnsafeEval) {
+    scriptSources.push("'unsafe-eval'");
+  }
+  if (useWasmUnsafeEval) {
+    scriptSources.push("'wasm-unsafe-eval'");
+  }
+  if (workerBlob) {
+    scriptSources.push("blob:");
+  }
+
   const connectSources = new Set(["'self'"]);
   const imageSources = new Set(["'self'", "data:", "https://helvety.com"]);
 
@@ -149,7 +159,7 @@ export function buildCsp({
 
   const directives = [
     "default-src 'self'",
-    `script-src 'self'${useUnsafeEval ? " 'unsafe-eval'" : ""}${useWasmUnsafeEval ? " 'wasm-unsafe-eval'" : ""}${nonceDirective} 'strict-dynamic'${workerBlob ? " blob:" : ""}`,
+    `script-src ${scriptSources.join(" ")}`,
     `style-src ${styleSources.join(" ")}`,
     `img-src ${Array.from(imageSources).join(" ")}${imgBlob ? " blob:" : ""}`,
     `font-src ${Array.from(fontSources).join(" ")}`,

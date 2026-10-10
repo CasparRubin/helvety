@@ -5,8 +5,8 @@ import { LoadingSpinner } from "./loading-spinner";
  * client navigations do not flash the browser default behind the shell (cross-zone
  * loads rely on `<head>` theme init in `HelvetyPublicShellRootLayout`).
  *
- * Must stay RSC-safe with {@link LoadingSpinner} so `app/loading.tsx` does not
- * emit a client chunk that CSP `strict-dynamic` would block.
+ * Must stay a server component with {@link LoadingSpinner} so
+ * `app/loading.tsx` can paint without a client chunk.
  */
 export function HelvetyShellRouteLoading() {
   return (

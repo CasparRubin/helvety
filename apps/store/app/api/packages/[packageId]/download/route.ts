@@ -13,8 +13,6 @@ import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 import type { NextRequest } from "next/server";
 
-export const runtime = "nodejs";
-
 /**
  * Public GET handler for `/store/api/packages/{packageId}/download`.
  * `packageId` must match a key in `lib/packages/config.ts`. Legacy package ids are rejected with not-found.

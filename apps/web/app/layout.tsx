@@ -40,6 +40,9 @@ export const metadata = createHelvetyProductMetadata({
   indexing: "all",
 });
 
+/** Keep gateway pages static, including client navigations. */
+export const ensureStatic = "navigation";
+
 /**
  * Root layout: fixed header (`Navbar`), `ScrollArea` main with shared container
  * gutters, fixed footer (copyright + legal links).
@@ -51,7 +54,8 @@ export const metadata = createHelvetyProductMetadata({
  * `bodyClassName` below.
  *
  * Public marketing/legal pages plus metadata routes (robots, sitemap, CSP
- * reporting). CSP nonce flows from request headers.
+ * reporting). The shell is static. Script policy is `'self'` and
+ * `'unsafe-inline'` because prerendered framework scripts have no nonce.
  */
 export default function RootLayout({
   children,

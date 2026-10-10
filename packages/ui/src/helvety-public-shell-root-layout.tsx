@@ -1,4 +1,3 @@
-import { getRequestCspNonce } from "@helvety/shared/csp-nonce";
 import { publicSans } from "@helvety/shared/fonts";
 import {
   createHelvetyOrganizationSchema,
@@ -131,7 +130,7 @@ function buildMainBlock(
 
 /**
  * Shared root shell for **public** Helvety apps (`web`, `store`, `pdf`,
- * `image-editor`, `ocr`): CSP nonce, JSON-LD, blocking {@link HelvetyThemeInitScript} in
+ * `image-editor`, `ocr`): JSON-LD, blocking {@link HelvetyThemeInitScript} in
  * `<head>`, theme via `ThemeProvider`, `TooltipProvider`, optional
  * {@link wrapInsideTooltipProvider}, navbar + main + {@link Footer}, toaster.
  *
@@ -139,7 +138,7 @@ function buildMainBlock(
  * section nav) renders **above** the main `ScrollArea` so it stays visible while catalog
  * content scrolls.
  */
-export async function HelvetyPublicShellRootLayout({
+export function HelvetyPublicShellRootLayout({
   children,
   organizationLogoUrl,
   jsonLdGraphTail,
@@ -155,9 +154,7 @@ export async function HelvetyPublicShellRootLayout({
   scrollAreaViewportClassName,
   shellColumnClassName,
   bodyClassName,
-}: HelvetyPublicShellRootLayoutProps): Promise<React.JSX.Element> {
-  const nonce = (await getRequestCspNonce()) ?? undefined;
-
+}: HelvetyPublicShellRootLayoutProps): React.JSX.Element {
   const ldJson = {
     "@context": "https://schema.org",
     "@graph": [
@@ -178,7 +175,7 @@ export async function HelvetyPublicShellRootLayout({
   const header =
     themeProviderScope === "navbar-only" ? (
       <header className="shrink-0">
-        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
+        <ThemeProvider {...DEFAULT_THEME_PROVIDER_PROPS}>
           {renderNavbar}
         </ThemeProvider>
       </header>
@@ -221,7 +218,7 @@ export async function HelvetyPublicShellRootLayout({
         suppressHydrationWarning
       >
         <head>
-          <HelvetyThemeInitScript nonce={nonce} />
+          <HelvetyThemeInitScript />
         </head>
         <body
           className={cn(
@@ -230,7 +227,7 @@ export async function HelvetyPublicShellRootLayout({
           )}
         >
           <SkipToContent />
-          <JsonLdScript nonce={nonce} json={ldJson} />
+          <JsonLdScript json={ldJson} />
           <TooltipProvider>{wrappedStore}</TooltipProvider>
         </body>
       </html>
@@ -251,7 +248,7 @@ export async function HelvetyPublicShellRootLayout({
       suppressHydrationWarning
     >
       <head>
-        <HelvetyThemeInitScript nonce={nonce} />
+        <HelvetyThemeInitScript />
       </head>
       <body
         className={cn(
@@ -260,8 +257,8 @@ export async function HelvetyPublicShellRootLayout({
         )}
       >
         <SkipToContent />
-        <JsonLdScript nonce={nonce} json={ldJson} />
-        <ThemeProvider nonce={nonce} {...DEFAULT_THEME_PROVIDER_PROPS}>
+        <JsonLdScript json={ldJson} />
+        <ThemeProvider {...DEFAULT_THEME_PROVIDER_PROPS}>
           <TooltipProvider>{tooltipBody}</TooltipProvider>
         </ThemeProvider>
       </body>

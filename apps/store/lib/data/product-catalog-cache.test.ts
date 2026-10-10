@@ -10,13 +10,15 @@ const cacheModulePath = join(
 );
 
 const mocks = vi.hoisted(() => ({
-  unstable_cache: vi.fn((fn: () => unknown) => fn),
+  cacheLife: vi.fn(),
+  cacheTag: vi.fn(),
   getStoreCatalogNewestFirst: vi.fn(),
   getAllProducts: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
-  unstable_cache: mocks.unstable_cache,
+  cacheLife: mocks.cacheLife,
+  cacheTag: mocks.cacheTag,
 }));
 
 vi.mock("@helvety/shared/store-catalog", () => ({
@@ -36,9 +38,9 @@ describe("product-catalog-cache", () => {
   it("registers cross-request cache with the store-catalog tag", () => {
     const src = readFileSync(cacheModulePath, "utf8");
 
-    expect(src).toContain("unstable_cache");
+    expect(src).toContain('"use cache"');
+    expect(src).toContain('cacheLife("max")');
     expect(src).toContain('"store-catalog"');
-    expect(src).toContain("revalidate:");
   });
 
   beforeEach(() => {

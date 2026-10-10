@@ -12,9 +12,8 @@ vi.mock("@helvety/shared/csp-report", () => ({
 mocks.createCspReportHandler.mockReturnValue(mocks.handler);
 
 describe("pdf CSP route", () => {
-  it("exports node runtime and domain-scoped CSP POST handler", async () => {
+  it("exports a domain-scoped CSP POST handler", async () => {
     const routeModule = await import("./route");
-    expect(routeModule.runtime).toBe("nodejs");
     expect(mocks.createCspReportHandler).toHaveBeenCalledWith("pdf");
     expect(routeModule.POST).toBe(mocks.handler);
   });

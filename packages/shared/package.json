@@ -33,7 +33,6 @@
     "./app-product-descriptions": "./src/app-product-descriptions.ts",
     "./app-navbar-about": "./src/app-navbar-about.ts",
     "./product-file-limit-copy": "./src/product-file-limit-copy.ts",
-    "./csp-nonce": "./src/csp-nonce.ts",
     "./csp-report": "./src/csp-report.ts",
     "./utils": "./src/utils.ts",
     "./logger": "./src/logger.ts",
@@ -66,10 +65,10 @@
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.5",
-    "next": "^16.3.8"
+    "next": "^16.4.0"
   },
   "peerDependencies": {
-    "next": "^16.3.8",
+    "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

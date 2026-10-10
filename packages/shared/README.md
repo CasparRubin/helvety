@@ -31,7 +31,7 @@ This package centralizes:
 
 ### Proxy and CSP
 
-- `proxy` is request bootstrap only (CSP headers). Per-request CSP uses a cryptographic nonce; **CSP violation reports** post to `/api/csp-report` on the gateway (`apps/web`) or `/{basePath}/api/csp-report` on zoned apps. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal; `scripts/check-consistency-guardrails.mjs` enforces parity.
+- `proxy` is request bootstrap only (CSP headers). `script-src` is `'self'` and `'unsafe-inline'` (no nonce, no `'strict-dynamic'`) because Cache Components prerender framework scripts without a nonce. **CSP violation reports** post to `/api/csp-report` on the gateway (`apps/web`) or `/{basePath}/api/csp-report` on zoned apps. Each basePath zone copies the `SECURITY_PROXY_MATCHER` pattern into `config.matcher` as a static literal; `scripts/check-consistency-guardrails.mjs` enforces parity.
 - Profiles in use: **`public-marketing`** (`web`), **`store-gateway`** (`store`), **`public-tool`** (`pdf`, `image-editor`, `ocr`).
 
 ### Cross-app URLs (`config.ts`)
@@ -44,7 +44,7 @@ This package centralizes:
 
 - Security rate limiting is distributed via Upstash (Store public downloads).
 - New shared rate-limit keys should use explicit, readable namespaces and stable key builders (for example `buildPublicDownloadRateLimitKey(...)`).
-- Request cache helpers are per-request only (`React.cache`). Public store catalog **cards** also use Next.js `unstable_cache` with a `store-catalog` tag in `apps/store/lib/data/product-catalog-cache.ts`.
+- Request cache helpers are per-request only (`React.cache`). Public store catalog **cards** use `'use cache'` with `cacheLife('max')` and a `store-catalog` tag in `apps/store/lib/data/product-catalog-cache.ts`.
 
 ### Logging and Errors
 

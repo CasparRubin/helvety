@@ -7,22 +7,16 @@ type JsonLdValue =
 /** Props for rendering a JSON-LD script element. */
 export type JsonLdScriptProps = Readonly<{
   json: JsonLdValue;
-  nonce?: string;
 }>;
 
 /**
- * Renders a hydration-safe JSON-LD script with optional CSP nonce.
- * Browsers may expose nonce differently at hydration time, so this centralizes
- * suppressHydrationWarning and keeps all app surfaces consistent.
+ * Renders a hydration-safe JSON-LD script. `application/ld+json` is not
+ * executed, so it does not need a CSP nonce.
  */
-export function JsonLdScript({
-  json,
-  nonce,
-}: JsonLdScriptProps): React.JSX.Element {
+export function JsonLdScript({ json }: JsonLdScriptProps): React.JSX.Element {
   return (
     <script
       type="application/ld+json"
-      nonce={nonce}
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
     />

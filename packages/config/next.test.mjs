@@ -10,7 +10,9 @@ describe("createHelvetyNextConfig", () => {
     const config = createHelvetyNextConfig({ appName: "test" });
     expect(config.turbopack?.root).toBeTruthy();
     expect(config.reactCompiler).toBe(true);
-    // Next 16.3+ rejects experimental.cssChunking under Turbopack (webpack-only).
+    expect(config.cacheComponents).toBe(true);
+    expect(config.partialPrefetching).toBe(true);
+    // Turbopack rejects experimental.cssChunking (webpack-only).
     expect(config.experimental?.cssChunking).toBeUndefined();
   });
 });

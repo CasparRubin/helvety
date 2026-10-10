@@ -68,7 +68,7 @@ Colocate **`route.test.ts` beside the handler**. Typical cases for remaining zon
 | Case                                              | Required?                              | Reference                                       |
 | ------------------------------------------------- | -------------------------------------- | ----------------------------------------------- |
 | List/download success + appropriate cache headers | When present                           | `apps/store/app/api/packages/.../route.test.ts` |
-| CSP wiring (`runtime`, domain, `POST`)            | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`     |
+| CSP wiring (domain, `POST`)                       | Yes per app with `csp-report/route.ts` | `apps/web/app/api/csp-report/route.test.ts`     |
 
 ### Components
 

@@ -126,8 +126,7 @@ const securityHeaders = gatewayConfig.headers;
 
 /**
  * Homepage-only eager prerender of the store catalog.
- * Header-delivered rules start with the document response (no hydration wait)
- * and are not blocked by the nonce `strict-dynamic` script policy.
+ * Header-delivered rules start with the document response (no hydration wait).
  * The JSON file must use the speculation-rules MIME type or Chrome ignores it.
  */
 const nextConfig: NextConfig = {

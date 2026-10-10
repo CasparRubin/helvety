@@ -12,20 +12,6 @@ describe("JsonLdScript", () => {
     );
     expect(script).not.toBeNull();
     expect(script?.textContent).toContain('"@context":"https://schema.org"');
-  });
-
-  it("forwards nonce attribute when provided", () => {
-    render(
-      <JsonLdScript
-        nonce="test-nonce"
-        json={{ "@type": "WebApplication", name: "Helvety" }}
-      />
-    );
-
-    const script = document.querySelector<HTMLScriptElement>(
-      'script[type="application/ld+json"]'
-    );
-    expect(script).not.toBeNull();
-    expect(script).toHaveAttribute("nonce", "test-nonce");
+    expect(script).not.toHaveAttribute("nonce");
   });
 });

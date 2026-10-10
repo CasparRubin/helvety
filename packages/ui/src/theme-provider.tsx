@@ -4,8 +4,8 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import * as React from "react";
 
 /**
- * next-themes wrapper. On the client, marks its injected script as a data
- * block so React 19 does not warn; FOUC is handled by HelvetyThemeInitScript.
+ * next-themes wrapper. Its injected script is a data block so it does not
+ * execute; FOUC is handled by the blocking {@link HelvetyThemeInitScript}.
  */
 export function ThemeProvider({
   children,
@@ -17,9 +17,7 @@ export function ThemeProvider({
       {...props}
       scriptProps={{
         ...scriptProps,
-        ...(typeof window !== "undefined"
-          ? { type: "application/json" as const }
-          : null),
+        type: "application/json",
       }}
     >
       {children}

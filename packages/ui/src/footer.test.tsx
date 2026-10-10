@@ -1,22 +1,15 @@
 import { urls } from "@helvety/shared/config";
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { Footer } from "./footer";
 
 describe("Footer", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("keeps an explicit separator between year and Helvety copy", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-05-05T12:00:00.000Z"));
-
     render(<Footer />);
 
-    expect(screen.getByText(/Helvety/).textContent).toContain(
-      "© 2026\u00A0Helvety"
+    expect(screen.getByText(/Helvety/).textContent).toMatch(
+      /© \d{4}\u00A0Helvety/
     );
   });
 

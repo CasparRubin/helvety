@@ -1,10 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@helvety/shared/csp-nonce", () => ({
-  getRequestCspNonce: vi.fn().mockResolvedValue("test-nonce"),
-}));
-
 vi.mock("@helvety/shared/fonts", () => ({
   publicSans: { variable: "mock-font-variable" },
 }));
@@ -25,8 +21,8 @@ import {
 } from "./helvety-theme-init-script.test-helpers";
 
 describe("HelvetyPublicShellRootLayout", () => {
-  it("renders overflow-main variant with navbar and main landmark", async () => {
-    const tree = await HelvetyPublicShellRootLayout({
+  it("renders overflow-main variant with navbar and main landmark", () => {
+    const tree = HelvetyPublicShellRootLayout({
       children: <p>Body</p>,
       organizationLogoUrl: "https://example.com/logo.png",
       jsonLdGraphTail: [
@@ -47,13 +43,13 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("Body");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");
-    expect(html).toContain('nonce="test-nonce"');
+    expect(html).not.toContain("nonce=");
     expect(html).toContain("localStorage.getItem");
     expectThemeScriptInHead(html);
   });
 
-  it("renders scroll-area variant with main content", async () => {
-    const tree = await HelvetyPublicShellRootLayout({
+  it("renders scroll-area variant with main content", () => {
+    const tree = HelvetyPublicShellRootLayout({
       children: <p>In scroll</p>,
       organizationLogoUrl: "https://example.com/logo.png",
       jsonLdGraphTail: [],
@@ -67,14 +63,14 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(html).toContain("In scroll");
     expect(html).toContain("bg-background");
     expect(html).toContain("text-foreground");
-    expect(html).toContain('nonce="test-nonce"');
+    expect(html).not.toContain("nonce=");
     expect(html).toContain("localStorage.getItem");
     expectThemeScriptInHead(html);
     expectThemeScriptBeforeSkipLink(html);
   });
 
-  it("scroll-area variant without prefix wraps only main content in ScrollArea", async () => {
-    const tree = await HelvetyPublicShellRootLayout({
+  it("scroll-area variant without prefix wraps only main content in ScrollArea", () => {
+    const tree = HelvetyPublicShellRootLayout({
       children: <p data-testid="body">In scroll</p>,
       organizationLogoUrl: "https://example.com/logo.png",
       jsonLdGraphTail: [],
@@ -92,8 +88,8 @@ describe("HelvetyPublicShellRootLayout", () => {
     expect(bodyIndex).toBeGreaterThan(mainIndex);
   });
 
-  it("navbar-only scope wraps shell and renders scroll prefix", async () => {
-    const tree = await HelvetyPublicShellRootLayout({
+  it("navbar-only scope wraps shell and renders scroll prefix", () => {
+    const tree = HelvetyPublicShellRootLayout({
       children: <p>Catalog</p>,
       organizationLogoUrl: "https://example.com/logo.png",
       jsonLdGraphTail: [],
