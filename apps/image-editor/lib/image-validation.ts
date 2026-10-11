@@ -58,3 +58,9 @@ export function createDownloadName(
   const ext = format === "jpeg" ? "jpg" : "png";
   return `${base}-edited.${ext}`;
 }
+
+/** Builds the Resize download filename, e.g. `photo.png` -> `photo-resized.jpg`. */
+export function createResizedDownloadName(originalName: string): string {
+  const base = originalName.replace(/\.[^.]+$/, "") || "image";
+  return `${base}-resized.jpg`;
+}

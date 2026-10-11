@@ -158,6 +158,62 @@ describe("ImageEditorToolPropertiesBar", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows resize current/new sizes and enables download when ready", () => {
+    const onDownload = vi.fn();
+    const onTargetBytesChange = vi.fn();
+
+    renderToolPropertiesBar({
+      activeTool: "resize",
+      resize: {
+        currentBytes: 5.2 * 1024 * 1024,
+        targetBytes: 1024 * 1024,
+        resultBytes: 980 * 1024,
+        resultWidth: 1280,
+        resultHeight: 720,
+        isBusy: false,
+        canDownload: true,
+        error: null,
+        onTargetBytesChange,
+        onDownload,
+      },
+    });
+
+    expect(screen.getByText(/Current:/)).toHaveTextContent("5.20 MB");
+    expect(screen.getByText(/New:/)).toHaveTextContent("980 KB");
+    expect(screen.getByText(/New:/)).toHaveTextContent("1280×720");
+
+    const download = screen.getByRole("button", {
+      name: "Download resized image",
+    });
+    expect(download).toBeEnabled();
+    fireEvent.click(download);
+    expect(onDownload).toHaveBeenCalledTimes(1);
+  });
+
+  it("disables resize download while busy", () => {
+    renderToolPropertiesBar({
+      activeTool: "resize",
+      resize: {
+        currentBytes: 1024 * 1024,
+        targetBytes: 500 * 1024,
+        resultBytes: null,
+        resultWidth: null,
+        resultHeight: null,
+        isBusy: true,
+        canDownload: false,
+        error: null,
+        onTargetBytesChange: vi.fn(),
+        onDownload: vi.fn(),
+      },
+    });
+
+    expect(
+      screen.getByRole("button", {
+        name: "Download resized image (processing)",
+      })
+    ).toBeDisabled();
+  });
+
   it("wires tool stroke width for border drawing", () => {
     const onToolStrokeWidthChange = vi.fn();
     renderToolPropertiesBar({

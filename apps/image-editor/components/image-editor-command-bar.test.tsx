@@ -171,6 +171,15 @@ describe("ImageEditorCommandBar", () => {
     expect(onOpenLayers).toHaveBeenCalledTimes(1);
   });
 
+  it("wires resize tool selection", () => {
+    const onSetTool = vi.fn();
+    renderCommandBar({ hasImage: true, onSetTool });
+
+    fireEvent.click(screen.getByRole("button", { name: "Resize" }));
+
+    expect(onSetTool).toHaveBeenCalledWith("resize");
+  });
+
   it("wires highlight tool selection", () => {
     const onSetTool = vi.fn();
     renderCommandBar({ hasImage: true, onSetTool });

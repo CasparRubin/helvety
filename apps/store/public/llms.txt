@@ -10,7 +10,7 @@
 The authoritative catalog is [Products](https://helvety.com/store/products); individual pages include:
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): Jump between SharePoint sites from the header. Favorites and settings stay on your device.
 - [Helvety PDF](https://helvety.com/store/products/helvety-pdf): Reorder, merge, rotate, extract, or add images to a PDF in the browser (up to 100 MB per file, 20 open files, 200 pages per file).
-- [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor): Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, highlights, blur, and crop (up to 25 MB per image).
+- [Helvety Image Editor](https://helvety.com/store/products/helvety-image-editor): Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, highlights, blur, crop, and resize to a smaller file size (up to 25 MB per image).
 - [Helvety OCR](https://helvety.com/store/products/helvety-ocr): Extract text from PDFs and images in the browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first. Up to 100 MB per file and 50 PDF pages.
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots, Live Draw overlay, gallery, and built-in PNG editor. Desktop ZIPs are on GitHub Releases.
 - [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows 11 app for Dataverse in your user context; download the core ZIP (Flow Explorer, Web Resource Explorer, and Data Model Explorer included) and optional drop-in module ZIPs from this Store page

@@ -1,6 +1,13 @@
 /** Active editing tool; drives pointer behavior on the canvas. */
 export type EditorTool =
-  "select" | "text" | "arrow" | "border" | "highlight" | "blur" | "crop";
+  | "select"
+  | "text"
+  | "arrow"
+  | "border"
+  | "highlight"
+  | "blur"
+  | "crop"
+  | "resize";
 
 /** Rectangle in natural image pixels, used for crop and rect annotations. */
 export interface CropRect {

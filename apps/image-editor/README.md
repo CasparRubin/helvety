@@ -1,6 +1,6 @@
 # Helvety Image Editor
 
-Browser-local image annotation editor: text, arrows, borders, highlights, blur regions, and crop, with a layers panel for reordering, a tool properties command bar (color pickers, sliders, and number inputs for stroke, blur, dim, and corner radius), and zoom for detail work. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
+Browser-local image annotation editor: text, arrows, borders, highlights, blur regions, crop, and Resize (shrink file size for download), with a layers panel for reordering, a tool properties command bar (color pickers, sliders, and number inputs for stroke, blur, dim, and corner radius, plus Resize target size), and zoom for detail work. Shopper-facing summaries are canonical in [`@helvety/shared/app-product-descriptions`](../../packages/shared/src/app-product-descriptions.ts); [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports those constants for layouts and tests. Store catalog cards live in `@helvety/shared/store-catalog`. This README documents implementation details.
 
 All image processing runs in the browser; no image data leaves the client in the normal flow.
 
@@ -17,7 +17,7 @@ All image processing runs in the browser; no image data leaves the client in the
 
 - Root `app/layout.tsx` composes `@helvety/ui/helvety-public-shell-root-layout` (`overflow-main`; the shell injects `HelvetyThemeInitScript` in `<head>`) and `@helvety/shared/seo` (`createHelvetyProductMetadata`); `ImageEditorCommandBar` and `ImageEditorToolPropertiesBar` are pinned as flex siblings above the scrollable workspace (not inside page scroll).
 - User-facing summaries: [`lib/product-copy.ts`](./lib/product-copy.ts) re-exports shared `IMAGE_EDITOR_*` strings for metadata / JSON-LD and PWA [`public/manifest.json`](./public/manifest.json) (verified by root `bun run consistency:install-manifest-metadata`); crawler hints in [`public/llms.txt`](./public/llms.txt)
-- Annotation tools: Select, Text, Arrow, Border, Highlight (spotlight dim), Blur region, and Crop
+- Annotation tools: Select, Text, Arrow, Border, Highlight (spotlight dim), Blur region, Crop, and Resize (file-size first: target max bytes via JPEG quality/resolution, download only)
 - Canvas rendered with Konva + react-konva (loaded via `next/dynamic({ ssr: false })` when an image is on the stage); `elements[]` index is the z-order; text, border, highlight, and blur use a Konva `Transformer` in Select mode and can be dragged on-canvas; arrows use draggable tail/tip endpoint handles (not the box transformer)
 - Border and blur regions support straight or rounded corners (`cornerRadius`, default `8`)
 - Highlight tool: one shared spotlight dim layer ([`HighlightDimOverlay`](components/editor/element-nodes.tsx)) sits above the base image; [`lib/spotlight-cutout.ts`](lib/spotlight-cutout.ts) (`drawSpotlightCutouts`) fills the stage once, then punches out every highlight hole with `destination-out` so dim never stacks when multiple highlights are added. Each highlight element is an interactive hole (selection, drag, transform only). `dimOpacity` stays in sync across all highlights when any is edited, when a new highlight is added, or when the tool Dim slider changes while the highlight tool is active
@@ -26,13 +26,14 @@ All image processing runs in the browser; no image data leaves the client in the
 - Pure `useReducer` editor state in [`lib/editor-reducer.ts`](./lib/editor-reducer.ts) (no global store), consistent with the PDF zone
 - Workspace layout: canvas on the left and layers panel on the right on desktop (`lg+`); the layers panel is always visible (empty state when no image), matching the PDF app; mobile uses a right-side layers sheet
 - Fit-to-view on load for large images (`useStageFit` × `userZoom`); main command bar zoom controls, Fit button, and Ctrl/Cmd + wheel (25%–400%); canvas display uses CSS `transform: scale()` (Konva stage stays at logical image size)
-- Second command bar (`ImageEditorToolPropertiesBar`, `variant="translucent"`): color pickers and `@helvety/ui/slider` controls with companion number inputs for tool defaults (stroke, blur radius, dim opacity, corner radius) and per-selection edits (font size, stroke, blur, dim, corner radius); sliders cap at 100px for stroke/blur/radius while number inputs accept higher values; W/H number inputs for rectangular elements; horizontal scroll on narrow viewports; layers panel is list-only (reorder, select, delete)
+- Second command bar (`ImageEditorToolPropertiesBar`, `variant="translucent"`): color pickers and `@helvety/ui/slider` controls with companion number inputs for tool defaults (stroke, blur radius, dim opacity, corner radius) and per-selection edits (font size, stroke, blur, dim, corner radius); Resize tool shows current vs new file size, a max-size slider, and Download resized; sliders cap at 100px for stroke/blur/radius while number inputs accept higher values; W/H number inputs for rectangular elements; horizontal scroll on narrow viewports; layers panel is list-only (reorder, select, delete)
 - Image-scaled default font size and stroke width via [`lib/default-tool-sizes.ts`](lib/default-tool-sizes.ts); text annotations include a simple shadow for readability
 - Live drag previews while drawing borders, highlights, blur regions, arrows, and crop rectangles
 - Tapered arrows: shaft widens toward the neck but stays narrower than the distinct pointy head; same geometry in canvas ([`lib/tapered-arrow.ts`](lib/tapered-arrow.ts)) and export
 - Main command bar per [`docs/ui-action-button-contract.md`](../../docs/ui-action-button-contract.md) (Canvas tools): **Add Image** / **Replace image** (primary; replace, not a second image), **Export** (secondary), **Clear Annotations** (destructive, right; keeps the loaded image), zoom and crop **Apply** / **Reset** when the crop tool is active
 - Full-resolution PNG and JPEG export via an offscreen Konva stage loaded with `await import("@/lib/export-image")` on Export (empty landing does not download Konva); `canvas-size` probes browser canvas limits and export dimensions are clamped when necessary (avoids WebKit `InvalidStateError` on large outputs, e.g. iPhone Safari)
-- Keyboard shortcuts: Delete/Backspace removes the selection; Escape deselects or cancels crop (ignored while editing text)
+- Keyboard shortcuts: Delete/Backspace removes the selection; Escape deselects or leaves crop/Resize for Select (ignored while editing text)
+- Resize uses [`image-resize-compress`](https://github.com/alefduarte/image-resize-compress) on a JPEG composite from [`lib/export-image.ts`](./lib/export-image.ts) ([`hooks/use-resize-preview.ts`](./hooks/use-resize-preview.ts), [`lib/resize-image.ts`](./lib/resize-image.ts)); download only, does not mutate the canvas
 - No login required
 
 ## Limits
@@ -88,6 +89,7 @@ For monorepo setup and `ci:check` / `ci:release` commands, use the root [`README
 ## Third-party libraries
 
 - [Konva](https://konvajs.org/) (MIT) powers the canvas editor.
+- [image-resize-compress](https://github.com/alefduarte/image-resize-compress) (MIT) powers the Resize tool (client-side target file size).
 
 ## Legal and Support
 

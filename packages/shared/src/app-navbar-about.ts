@@ -30,7 +30,7 @@ export function pdfNavbarAbout(
 export function imageEditorNavbarAbout(
   fileSizeLimitCopy: string = IMAGE_FILE_SIZE_LIMIT_COPY
 ): string {
-  return `Annotate PNG, JPEG, and WebP in your browser with text, arrows, borders, highlights, blur regions, and crop. Adjust stroke, blur, dim, and corner radius. Layers and zoom are included. Work stays on your device (${fileSizeLimitCopy}). No server upload.`;
+  return `Annotate PNG, JPEG, and WebP in your browser with text, arrows, borders, highlights, blur regions, crop, and resize to a smaller file size. Adjust stroke, blur, dim, and corner radius. Layers and zoom are included. Work stays on your device (${fileSizeLimitCopy}). No server upload.`;
 }
 
 /** Navbar About copy for Helvety OCR (optional limit line override). */

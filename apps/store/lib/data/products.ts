@@ -763,7 +763,7 @@ const helvetyImageEditor: SaaSProduct = {
   category: cHelvetyImageEditor.category,
   description: {
     intro:
-      "Mark up a PNG, JPEG, or WebP screenshot in the browser: text, arrows, borders, highlights, blur, and crop. A highlight dims the rest of the image. Layers and zoom help with detail, and you can set stroke, blur, dim, and corner radius in the tool bar. The image stays in your browser (up to 25 MB). Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
+      "Mark up a PNG, JPEG, or WebP screenshot in the browser: text, arrows, borders, highlights, blur, crop, and shrink the file size with Resize. A highlight dims the rest of the image. Layers and zoom help with detail, and you can set stroke, blur, dim, and corner radius in the tool bar. The image stays in your browser (up to 25 MB). Helvety is Switzerland-first and not offered in the EU/EEA; see our Privacy Policy for details.",
     sections: [
       {
         heading: "Access",
@@ -774,9 +774,9 @@ const helvetyImageEditor: SaaSProduct = {
         heading: "What you can adjust",
         kind: "bullets",
         items: [
-          "Select, move, and resize annotations on a layered canvas.",
+          "Select, move, and scale annotations on a layered canvas.",
           "Add text, tapered arrows, bordered boxes, highlights, and blur regions with straight or rounded corners.",
-          "Crop the canvas and export PNG or JPEG.",
+          "Crop the canvas, export PNG or JPEG, or use Resize to download a smaller JPEG under a target file size.",
           "Reorder or delete layers from the panel on desktop, or the layers sheet on a phone.",
           "Zoom in and out, fit the image to the view, and set colors, stroke width, blur radius, dim, and corner radius in the tool bar.",
         ],
@@ -790,7 +790,7 @@ const helvetyImageEditor: SaaSProduct = {
   },
   ...catalogArtwork("helvety-image-editor"),
   features: [
-    "Text, arrow, border, highlight, blur, and crop tools",
+    "Text, arrow, border, highlight, blur, crop, and Resize (smaller file size) tools",
     "Layers panel with reorder, select, and delete",
     "Tool properties bar with color pickers, sliders and number inputs for stroke/blur/dim/corner radius/font size, and per-layer edits",
     "Zoom and fit-to-view for large screenshots",

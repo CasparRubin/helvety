@@ -1,18 +1,36 @@
 "use client";
 
+import { Button } from "@helvety/ui/button";
 import { CommandBar } from "@helvety/ui/command-bar";
 import { Input } from "@helvety/ui/input";
 import { Label } from "@helvety/ui/label";
 import { Slider } from "@helvety/ui/slider";
+import { DownloadIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";
 
 import { STROKE_WIDTH_MIN } from "@/lib/default-tool-sizes";
 import { elementLabel } from "@/lib/editor-reducer";
 import { SLIDER_MAX_PX } from "@/lib/editor-types";
+import { formatFileSize } from "@/lib/format-file-size";
+import { RESIZE_TARGET_MIN_BYTES } from "@/lib/resize-image";
 
 import type { EditorElement, EditorTool } from "@/lib/editor-types";
 
 const TOOL_PROPERTIES_BAR_CLASS = "overflow-x-auto";
+
+/** Resize preview props passed when the Resize tool is active. */
+export interface ResizeToolProperties {
+  readonly currentBytes: number | null;
+  readonly targetBytes: number;
+  readonly resultBytes: number | null;
+  readonly resultWidth: number | null;
+  readonly resultHeight: number | null;
+  readonly isBusy: boolean;
+  readonly canDownload: boolean;
+  readonly error: string | null;
+  readonly onTargetBytesChange: (bytes: number) => void;
+  readonly onDownload: () => void;
+}
 
 /** Props for {@link ImageEditorToolPropertiesBar}. */
 interface ImageEditorToolPropertiesBarProps {
@@ -31,6 +49,7 @@ interface ImageEditorToolPropertiesBarProps {
   readonly onToolDimOpacityChange: (opacity: number) => void;
   readonly onToolCornerRadiusChange: (radius: number) => void;
   readonly onUpdate: (id: string, patch: Partial<EditorElement>) => void;
+  readonly resize?: ResizeToolProperties | null;
 }
 
 /** Desktop color picker for drawing tools. */
@@ -143,6 +162,7 @@ export function ImageEditorToolPropertiesBar({
   onToolDimOpacityChange,
   onToolCornerRadiusChange,
   onUpdate,
+  resize = null,
 }: ImageEditorToolPropertiesBarProps): React.JSX.Element | null {
   const selected = elements.find((element) => element.id === selectedId);
 
@@ -152,6 +172,94 @@ export function ImageEditorToolPropertiesBar({
         <p className="text-muted-foreground text-xs">
           Add an image to edit tool properties.
         </p>
+      </CommandBar>
+    );
+  }
+
+  if (activeTool === "resize" && resize) {
+    const sliderMax = Math.max(
+      1,
+      resize.currentBytes ?? RESIZE_TARGET_MIN_BYTES
+    );
+    const sliderMin = Math.min(RESIZE_TARGET_MIN_BYTES, sliderMax);
+    const sliderValue = Math.min(
+      Math.max(resize.targetBytes, sliderMin),
+      sliderMax
+    );
+    const dimensionsLabel =
+      resize.resultWidth !== null && resize.resultHeight !== null
+        ? `${resize.resultWidth}×${resize.resultHeight}`
+        : null;
+
+    return (
+      <CommandBar variant="translucent" className={TOOL_PROPERTIES_BAR_CLASS}>
+        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+          Current:{" "}
+          {resize.currentBytes !== null
+            ? formatFileSize(resize.currentBytes)
+            : "…"}
+        </span>
+
+        <div className="flex min-w-[14rem] items-center gap-2">
+          <Label
+            htmlFor="resize-target-size"
+            className="text-muted-foreground shrink-0 text-xs"
+          >
+            Max size
+          </Label>
+          <Slider
+            id="resize-target-size"
+            min={sliderMin}
+            max={sliderMax}
+            step={Math.max(1024, Math.floor((sliderMax - sliderMin) / 100))}
+            value={sliderValue}
+            onValueChange={(next) =>
+              resize.onTargetBytesChange(next as number)
+            }
+            aria-label="Target max file size"
+            className="w-32"
+            disabled={resize.currentBytes === null}
+          />
+          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+            {formatFileSize(sliderValue)}
+          </span>
+        </div>
+
+        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+          New:{" "}
+          {resize.resultBytes !== null
+            ? formatFileSize(resize.resultBytes)
+            : resize.isBusy
+              ? "…"
+              : "-"}
+          {dimensionsLabel ? ` · ${dimensionsLabel}` : null}
+        </span>
+
+        {resize.error ? (
+          <span className="text-destructive shrink-0 text-xs">
+            {resize.error}
+          </span>
+        ) : null}
+
+        <Button
+          type="button"
+          size="sm"
+          className="shrink-0"
+          disabled={!resize.canDownload || resize.isBusy}
+          onClick={resize.onDownload}
+          aria-label={
+            resize.isBusy
+              ? "Download resized image (processing)"
+              : "Download resized image"
+          }
+        >
+          {resize.isBusy ? (
+            <Loader2Icon className="size-4 animate-spin" />
+          ) : (
+            <DownloadIcon className="size-4" />
+          )}
+          Download resized
+        </Button>
       </CommandBar>
     );
   }

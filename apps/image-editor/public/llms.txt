@@ -1,6 +1,6 @@
 # Helvety Image Editor
 
-> Annotate PNG, JPEG, or WebP in your browser. Add text, arrows, borders, highlights, blur regions, and crop, with adjustable stroke, blur, and corner radius, a layers panel, and zoom. Up to 25 MB per image. PNG and JPEG export. Edits stay in your browser. Engineered, designed and made in Switzerland.
+> Annotate PNG, JPEG, or WebP in your browser. Add text, arrows, borders, highlights, blur regions, crop, and resize to a smaller file size, with adjustable stroke, blur, and corner radius, a layers panel, and zoom. Up to 25 MB per image. PNG and JPEG export. Edits stay in your browser. Engineered, designed and made in Switzerland.
 
 ## Canonical URL
 - [Helvety Image Editor](https://helvety.com/image-editor): Main application route
@@ -22,3 +22,4 @@ The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distrib
 
 ## Third-party libraries
 - [Konva](https://konvajs.org/) (MIT) powers the canvas editor.
+- [image-resize-compress](https://github.com/alefduarte/image-resize-compress) (MIT) powers the Resize tool.

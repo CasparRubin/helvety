@@ -47,11 +47,12 @@ Canonical list of **non-npm-only** dependencies and high-impact pins for public 
 
 ## image-editor
 
-| Name          | Current pin                                  | Upstream | Check URL                                       | Update procedure              | Risk              |
-| ------------- | -------------------------------------------- | -------- | ----------------------------------------------- | ----------------------------- | ----------------- |
-| `konva`       | `^10.7.1` (`apps/image-editor/package.json`) | Konva    | https://github.com/konvajs/konva/releases       | npm bump; canvas editor smoke | Canvas API        |
-| `react-konva` | `^19.3.0` (`apps/image-editor/package.json`) | Konvajs  | https://github.com/konvajs/react-konva/releases | npm bump with React 19        | React-Konva API   |
-| `canvas-size` | `^2.0.0` (`packages/shared/package.json`)    | npm      | https://www.npmjs.com/package/canvas-size       | Standard npm bump             | Input size limits |
+| Name                    | Current pin                                  | Upstream   | Check URL                                                    | Update procedure                          | Risk                  |
+| ----------------------- | -------------------------------------------- | ---------- | ------------------------------------------------------------ | ----------------------------------------- | --------------------- |
+| `konva`                 | `^10.7.1` (`apps/image-editor/package.json`) | Konva      | https://github.com/konvajs/konva/releases                    | npm bump; canvas editor smoke             | Canvas API            |
+| `react-konva`           | `^19.3.0` (`apps/image-editor/package.json`) | Konvajs    | https://github.com/konvajs/react-konva/releases              | npm bump with React 19                    | React-Konva API       |
+| `image-resize-compress` | `^4.1.0` (`apps/image-editor/package.json`)  | alefduarte | https://github.com/alefduarte/image-resize-compress/releases | npm bump; Resize tool smoke (target size) | Browser canvas encode |
+| `canvas-size`           | `^2.0.0` (`packages/shared/package.json`)    | npm        | https://www.npmjs.com/package/canvas-size                    | Standard npm bump                         | Input size limits     |
 
 ---
 

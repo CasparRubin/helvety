@@ -31,6 +31,7 @@ import {
   FocusIcon,
   LayersIcon,
   Maximize2Icon,
+  Minimize2Icon,
   MousePointer2Icon,
   SlidersHorizontalIcon,
   SquareIcon,
@@ -79,6 +80,7 @@ const TOOL_BUTTONS: Array<{
   { tool: "highlight", label: "Highlight", icon: FocusIcon },
   { tool: "blur", label: "Blur", icon: EyeOffIcon },
   { tool: "crop", label: "Crop", icon: CropIcon },
+  { tool: "resize", label: "Resize", icon: Minimize2Icon },
 ];
 
 /** Desktop zoom controls. */

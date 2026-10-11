@@ -126,7 +126,7 @@ const STORE_PRODUCT_CARDS_BASE = [
     id: "helvety-image-editor",
     slug: "helvety-image-editor",
     name: "Helvety Image Editor",
-    shortDescription: `Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, highlights, blur, and crop. Layers and zoom are included. Edits stay on your device (${IMAGE_FILE_SIZE_LIMIT_COPY}).`,
+    shortDescription: `Annotate PNG, JPEG, and WebP in the browser with text, arrows, borders, highlights, blur, crop, and resize to a smaller file size. Layers and zoom are included. Edits stay on your device (${IMAGE_FILE_SIZE_LIMIT_COPY}).`,
     releaseDate: "2026-07-04",
     type: "saas",
     runsOn: "Browser",

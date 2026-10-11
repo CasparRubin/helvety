@@ -19,6 +19,7 @@ import { ImageEditorToolPropertiesBar } from "@/components/image-editor-tool-pro
 import { LayersPanel } from "@/components/layers-panel";
 import { useEditorKeyboard } from "@/hooks/use-editor-keyboard";
 import { useEditorState } from "@/hooks/use-editor-state";
+import { useResizePreview } from "@/hooks/use-resize-preview";
 import { useSourceImage } from "@/hooks/use-source-image";
 import { useStageFit } from "@/hooks/use-stage-fit";
 import {
@@ -34,6 +35,7 @@ import {
 } from "@/lib/editor-types";
 import {
   createDownloadName,
+  createResizedDownloadName,
   imageValidationMessage,
   validateImageFile,
 } from "@/lib/image-validation";
@@ -137,6 +139,14 @@ export function HelvetyImageEditor(): React.JSX.Element {
     openFilePicker();
   }, [clear, openFilePicker, resetAnnotations]);
 
+  const resizePreview = useResizePreview({
+    enabled: Boolean(source) && state.activeTool === "resize",
+    sourceImage: source?.image ?? null,
+    naturalWidth: source?.naturalWidth ?? 0,
+    naturalHeight: source?.naturalHeight ?? 0,
+    state,
+  });
+
   const handleExport = React.useCallback(
     async (format: ExportFormat) => {
       if (!source) return;
@@ -176,6 +186,19 @@ export function HelvetyImageEditor(): React.JSX.Element {
     [source, state]
   );
 
+  const handleDownloadResized = React.useCallback(() => {
+    if (!source || !resizePreview.resultBlob) return;
+    const url = URL.createObjectURL(resizePreview.resultBlob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = createResizedDownloadName(source.file.name);
+    anchor.click();
+    URL.revokeObjectURL(url);
+    toast.success("Resized image downloaded.", {
+      duration: TOAST_DURATIONS.SUCCESS,
+    });
+  }, [source, resizePreview.resultBlob]);
+
   const handleApplyCrop = React.useCallback(() => {
     if (!pendingCrop) return;
     setCrop(pendingCrop);
@@ -204,7 +227,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
       }
     },
     onEscape: () => {
-      if (state.activeTool === "crop") {
+      if (state.activeTool === "crop" || state.activeTool === "resize") {
         setTool("select");
         return;
       }
@@ -311,6 +334,24 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onToolCornerRadiusChange={setToolCornerRadius}
         onUpdate={(id, patch) =>
           dispatch({ type: "UPDATE_ELEMENT", id, patch })
+        }
+        resize={
+          state.activeTool === "resize"
+            ? {
+                currentBytes: resizePreview.currentBytes,
+                targetBytes: resizePreview.targetBytes,
+                resultBytes: resizePreview.resultBytes,
+                resultWidth: resizePreview.resultWidth,
+                resultHeight: resizePreview.resultHeight,
+                isBusy:
+                  resizePreview.isBuildingComposite ||
+                  resizePreview.isCompressing,
+                canDownload: Boolean(resizePreview.resultBlob),
+                error: resizePreview.error,
+                onTargetBytesChange: resizePreview.setTargetBytes,
+                onDownload: handleDownloadResized,
+              }
+            : null
         }
       />
 

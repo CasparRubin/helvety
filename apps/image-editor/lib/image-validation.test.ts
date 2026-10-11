@@ -4,6 +4,7 @@ import {
   ACCEPTED_IMAGE_MIME_TYPES,
   MAX_IMAGE_FILE_BYTES,
   createDownloadName,
+  createResizedDownloadName,
   imageValidationMessage,
   validateImageFile,
 } from "./image-validation";
@@ -47,6 +48,7 @@ describe("image-validation", () => {
       "vacation-edited.jpg"
     );
     expect(createDownloadName("photo.png", "png")).toBe("photo-edited.png");
+    expect(createResizedDownloadName("photo.png")).toBe("photo-resized.jpg");
     expect(imageValidationMessage("unsupported-type")).toContain("PNG");
     expect(imageValidationMessage("too-large")).toContain("25 MB");
     expect(imageValidationMessage("not-image")).toContain("image file");
