@@ -411,7 +411,7 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.features).toEqual(
       expect.arrayContaining([
         "Home gallery of PNG captures with Recycle Bin delete",
-        "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, and color picker",
+        "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, color picker, and Resize (10–100%, never enlarge, measured PNG size, fit under a max KB, saves *_resized.png)",
       ])
     );
     expect(

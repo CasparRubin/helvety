@@ -395,7 +395,7 @@ const helvetyScreenTools: SoftwareProduct = {
   ...catalogArtwork("helvety-screen-tools"),
   description: {
     intro:
-      "Use a global shortcut to freeze the screen, snap to a window or drag a rectangle, then save or copy the capture. Draw on the live desktop with Live Draw, browse saved PNGs in the home gallery, and open them in the built-in editor to crop, blur, highlight, add text, borders, arrows, a magnifier, or sample colors.",
+      "Use a global shortcut to freeze the screen, snap to a window or drag a rectangle, then save or copy the capture. Draw on the live desktop with Live Draw, browse saved PNGs in the home gallery, and open them in the built-in editor to crop, blur, highlight, add text, borders, arrows, a magnifier, sample colors, or shrink the exported PNG with Resize.",
     sections: [
       {
         heading: "Distribution",
@@ -409,7 +409,7 @@ const helvetyScreenTools: SoftwareProduct = {
           "Frozen overlay selection with window snap or free regions.",
           "Live Draw shapes, freehand, and sparkle on a transparent fullscreen overlay.",
           "Home gallery of PNG captures with Recycle Bin delete.",
-          "Built-in PNG editor: Canvas, Text, Border, Blur, Highlight, Arrow, Magnifier, Crop, and Color.",
+          "Built-in PNG editor: Canvas, Text, Border, Blur, Highlight, Arrow, Magnifier, Crop, Resize, and Color.",
           "Separate hotkeys for capture and Live Draw, including modifier keys.",
           "Tray behavior, optional autostart on packaged builds, and quality tuning from Settings.",
         ],
@@ -426,7 +426,7 @@ const helvetyScreenTools: SoftwareProduct = {
     "Frozen-screen selection overlay with window snapping",
     "Live Draw fullscreen annotation overlay",
     "Home gallery of PNG captures with Recycle Bin delete",
-    "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, and color picker",
+    "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, color picker, and Resize (10–100%, never enlarge, measured PNG size, fit under a max KB, saves *_resized.png)",
     "Shape tools: arrows, lines, rectangles, circles, ellipses, and free draw",
     "Configurable hotkeys and shortcut modifiers",
     "System tray support with settings-driven behavior",
