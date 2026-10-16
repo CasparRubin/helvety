@@ -19,7 +19,7 @@ import type { EditorElement, EditorTool } from "@/lib/editor-types";
 const TOOL_PROPERTIES_BAR_CLASS = "overflow-x-auto";
 
 /** Resize preview props passed when the Resize tool is active. */
-export interface ResizeToolProperties {
+interface ResizeToolProperties {
   readonly currentBytes: number | null;
   readonly targetBytes: number;
   readonly resultBytes: number | null;
@@ -213,9 +213,7 @@ export function ImageEditorToolPropertiesBar({
             max={sliderMax}
             step={Math.max(1024, Math.floor((sliderMax - sliderMin) / 100))}
             value={sliderValue}
-            onValueChange={(next) =>
-              resize.onTargetBytesChange(next as number)
-            }
+            onValueChange={(next) => resize.onTargetBytesChange(next as number)}
             aria-label="Target max file size"
             className="w-32"
             disabled={resize.currentBytes === null}

@@ -31,7 +31,7 @@ export function clampResizeTargetBytes(
 }
 
 /** Reads natural pixel size from a blob via createImageBitmap / Image. */
-export async function readBlobDimensions(
+async function readBlobDimensions(
   blob: Blob,
   signal?: AbortSignal
 ): Promise<{ width: number; height: number }> {
