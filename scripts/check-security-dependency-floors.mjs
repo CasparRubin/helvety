@@ -84,9 +84,9 @@ async function main() {
 
         const declared = parseVersionTuple(specifier);
         const minimum = parseVersionTuple(floor);
-        if (!declared || !minimum) continue;
+        if (!minimum) continue;
 
-        if (compareVersions(declared, minimum) < 0) {
+        if (!declared || compareVersions(declared, minimum) < 0) {
           violations.push({
             packageJsonPath: path.relative(rootDir, packageJsonPath),
             dependencyName,

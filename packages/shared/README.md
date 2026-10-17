@@ -26,7 +26,7 @@ This package centralizes:
 ### Canonical Ownership Map
 
 - Proxy profiles, `SECURITY_PROXY_MATCHER` (canonical zone `proxy.ts` matcher pattern; zone apps **inline** this string because Next.js requires a static literal), and request bootstrap defaults: `packages/shared/src/proxy.ts`
-- Shared action and export limits: `packages/shared/src/constants.ts`
+- Shared toast durations: `packages/shared/src/constants.ts`; product file/page limits: `packages/shared/src/product-file-limit-copy.ts`; browser canvas limits: `packages/shared/src/canvas-export-limits.ts`
 - Toolchain config entrypoints: `packages/config/eslint.mjs`, `packages/config/tsconfig.base.json`, `packages/config/vitest.mjs`, `packages/config/postcss.mjs` (pinned versions in [`packages/dev-deps`](../dev-deps/))
 
 ### Proxy and CSP

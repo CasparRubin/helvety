@@ -9,14 +9,10 @@ interface UseProgressiveQualityParams {
   readonly fileType: "pdf" | "image";
 }
 
-/** Return type of useProgressiveQuality: quality state, setter, and cleanup refs. */
+/** Return type of useProgressiveQuality: quality state and setter. */
 interface UseProgressiveQualityReturn {
   readonly isHighQuality: boolean;
   readonly setIsHighQuality: React.Dispatch<React.SetStateAction<boolean>>;
-  readonly qualityUpgradeTimeoutRef: React.MutableRefObject<ReturnType<
-    typeof setTimeout
-  > | null>;
-  readonly qualityUpgradeIdleCallbackRef: React.MutableRefObject<number | null>;
 }
 
 /**
@@ -125,7 +121,5 @@ export function useProgressiveQuality({
   return {
     isHighQuality,
     setIsHighQuality,
-    qualityUpgradeTimeoutRef,
-    qualityUpgradeIdleCallbackRef,
   };
 }

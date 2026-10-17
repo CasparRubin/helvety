@@ -1,3 +1,4 @@
+import { brandAssets } from "@helvety/brand/urls";
 import { urls } from "@helvety/shared/config";
 import {
   POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL,
@@ -8,9 +9,9 @@ import {
   getStoreCatalogNewestFirst,
 } from "@helvety/shared/store-catalog";
 import { JsonLdScript } from "@helvety/ui/json-ld-script";
-import { LoadingSpinner } from "@helvety/ui/loading-spinner";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+
+import { getProductBySlug } from "@/lib/data/products";
 
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -22,7 +23,7 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/** Prerender every catalog slug. Unknown slugs still resolve at request time. */
+/** Prerender every catalog slug. */
 export function generateStaticParams(): Array<{ slug: string }> {
   return getStoreCatalogNewestFirst().map((card) => ({ slug: card.slug }));
 }
@@ -70,33 +71,49 @@ export async function generateMetadata({
       title: `${card.name} | Helvety Store`,
       description,
       url: `${urls.store}/products/${card.slug}`,
+      images: [
+        {
+          url: brandAssets.identifierLogo,
+          alt: `${card.name} | Helvety Store`,
+        },
+      ],
     },
     twitter: {
       card: "summary",
       title: `${card.name} | Helvety Store`,
       description,
+      images: [brandAssets.identifierLogo],
     },
   };
 }
 
 /**
  * Product detail page for viewing a specific product.
- * Params stay inside Suspense so Partial Prefetching can serve a shell for
- * slugs that were not prerendered.
+ * Resolves and validates params before rendering so unknown slugs return a
+ * real 404 status instead of a streamed 200 shell.
  */
-export default function ProductDetailPage({ params }: ProductPageProps) {
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <ProductDetail params={params} />
-    </Suspense>
-  );
+export default async function ProductDetailPage({
+  params,
+}: ProductPageProps): Promise<React.JSX.Element> {
+  const { slug } = await params;
+  if (!findStoreProductCardBySlug(slug)) {
+    notFound();
+  }
+  return <ProductDetail params={params} />;
 }
 
 /** Resolved product body. Exported for server render tests. */
-export async function ProductDetail({ params }: ProductPageProps) {
+export async function ProductDetail({
+  params,
+}: ProductPageProps): Promise<React.JSX.Element> {
   const { slug } = await params;
   const card = findStoreProductCardBySlug(slug);
   if (!card) {
+    notFound();
+  }
+
+  const product = getProductBySlug(slug);
+  if (!product) {
     notFound();
   }
 
@@ -118,7 +135,7 @@ export async function ProductDetail({ params }: ProductPageProps) {
   return (
     <>
       <JsonLdScript json={productJsonLd} />
-      <ProductDetailClient slug={slug} />
+      <ProductDetailClient product={product} />
     </>
   );
 }

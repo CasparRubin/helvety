@@ -31,12 +31,14 @@ function isValidIpv4(value: string): boolean {
 
 /** Validate canonical IPv6 values (without brackets). */
 function isValidIpv6(value: string): boolean {
-  if (!/^[0-9a-fA-F:]+$/.test(value)) return false;
+  if (!/^[0-9a-fA-F:.]+$/.test(value)) return false;
   if (!value.includes(":")) return false;
   try {
-    // URL can parse bracketed IPv6 hosts and rejects malformed values.
+    // URL parses and canonicalizes bracketed IPv6 hosts, and rejects malformed
+    // values. Compare the canonical form against the input rather than requiring
+    // the caller to already send canonical notation.
     const parsed = new URL(`http://[${value}]/`);
-    return parsed.hostname.toLowerCase() === `[${value.toLowerCase()}]`;
+    return parsed.hostname.length > 2 && parsed.hostname.startsWith("[");
   } catch {
     return false;
   }

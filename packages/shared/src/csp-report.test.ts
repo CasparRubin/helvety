@@ -79,6 +79,39 @@ describe("createCspReportHandler", () => {
     });
   });
 
+  it("logs Reporting API csp-violation entries", async () => {
+    const handler = createCspReportHandler("web");
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const response = await handler(
+      new Request("https://helvety.com/api/csp-report", {
+        method: "POST",
+        body: JSON.stringify([
+          {
+            type: "csp-violation",
+            body: {
+              documentURL: "https://helvety.com/app?token=abc123",
+              blockedURL: "https://cdn.example.com/script.js?sig=xyz",
+              effectiveDirective: "script-src-elem",
+              disposition: "enforce",
+              statusCode: 200,
+            },
+          },
+        ]),
+      })
+    );
+
+    expect(response.status).toBe(204);
+    expect(warnSpy).toHaveBeenCalledWith("[csp-report] web", {
+      documentUri: "https://helvety.com/app",
+      blockedUri: "https://cdn.example.com/script.js",
+      violatedDirective: "script-src-elem",
+      effectiveDirective: "script-src-elem",
+      disposition: "enforce",
+      statusCode: 200,
+    });
+  });
+
   it("returns 204 and parseError marker for invalid JSON payloads", async () => {
     const handler = createCspReportHandler("web");
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});

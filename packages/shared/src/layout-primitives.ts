@@ -64,7 +64,6 @@ export const HELVETY_SAME_AS_URLS = [
 /** Builds the shared Helvety Organization schema.org JSON object. */
 export function createHelvetyOrganizationSchema(logoUrl: string) {
   return {
-    "@context": "https://schema.org",
     "@type": "Organization",
     name: "Helvety",
     url: urls.home,

@@ -44,7 +44,10 @@ describe("createSecurityHeaders", () => {
 
     expect(headers).toEqual(
       expect.arrayContaining([
-        { key: "Reporting-Endpoints", value: 'csp="/pdf/api/csp-report"' },
+        {
+          key: "Reporting-Endpoints",
+          value: 'csp-endpoint="/pdf/api/csp-report"',
+        },
         {
           key: "Report-To",
           value: JSON.stringify({

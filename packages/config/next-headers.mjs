@@ -62,7 +62,7 @@ export function createSecurityHeaders({ appName, basePath } = {}) {
       },
       {
         key: "Reporting-Endpoints",
-        value: `csp="${cspReportEndpoint}"`,
+        value: `csp-endpoint="${cspReportEndpoint}"`,
       },
       {
         key: "Report-To",

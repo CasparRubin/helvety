@@ -119,15 +119,18 @@ async function main() {
   const storeRateLimit = contents.find((item) =>
     item.relativePath.endsWith("apps/store/lib/rate-limit.ts")
   );
-  if (
-    storeRateLimit &&
-    !/Public package download requests:\s*2 per minute per IP/.test(
-      storeRateLimit.content
-    )
-  ) {
-    throw new Error(
-      "apps/store/lib/rate-limit.ts must document DOWNLOADS as per IP to match implementation."
+  if (storeRateLimit) {
+    const documented = storeRateLimit.content.match(
+      /Public package download requests:\s*(\d+) per minute per IP/
     );
+    const configured = storeRateLimit.content.match(
+      /DOWNLOADS:\s*\{\s*maxRequests:\s*(\d+)/
+    );
+    if (!documented || !configured || documented[1] !== configured[1]) {
+      throw new Error(
+        "apps/store/lib/rate-limit.ts must document DOWNLOADS as per IP with the same maxRequests as the implementation."
+      );
+    }
   }
 
   const packageDownload = contents.find((item) =>

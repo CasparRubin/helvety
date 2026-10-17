@@ -1,7 +1,4 @@
-import { fromBlob } from "image-resize-compress";
-
-/** Floor for the Resize target-size slider (bytes). */
-export const RESIZE_TARGET_MIN_BYTES = 50 * 1024;
+import { RESIZE_TARGET_MIN_BYTES } from "./resize-constants";
 
 /** Options for {@link compressImageToTargetSize}. */
 export interface CompressToTargetOptions {
@@ -92,6 +89,7 @@ export async function compressImageToTargetSize(
     return { blob: source, ...dimensions };
   }
 
+  const { fromBlob } = await import("image-resize-compress");
   const blob = await fromBlob(source, {
     format: "jpeg",
     targetSize,

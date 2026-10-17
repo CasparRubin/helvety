@@ -64,7 +64,7 @@
 
 .legal-meta {
   margin: 0;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -75,8 +75,8 @@
 
 .legal-toc {
   margin: 0;
-  border: 1px solid hsl(var(--border));
-  background-color: hsl(var(--card));
+  border: 1px solid var(--border);
+  background-color: var(--card);
   padding: 1.5rem;
   min-width: 0;
   max-width: 100%;
@@ -92,7 +92,7 @@
 .legal-toc ol {
   margin: 1rem 0 0;
   padding-left: 1.25rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.6;
 }
@@ -117,12 +117,12 @@
 }
 
 .legal-toc a:hover {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .legal-toc a:focus-visible,
 .legal-doc a:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid var(--ring);
   outline-offset: 3px;
   border-radius: 0.25rem;
 }
@@ -189,7 +189,7 @@
 
 .legal-doc p,
 .legal-doc address {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.65;
   text-wrap: pretty;
@@ -197,7 +197,7 @@
 
 .legal-doc ul,
 .legal-doc ol {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.6;
 }
@@ -219,7 +219,7 @@
 }
 
 .legal-doc strong {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .legal-doc a {
@@ -230,13 +230,13 @@
 }
 
 .legal-doc a:hover {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 .legal-card {
   margin: 0;
-  border: 1px solid hsl(var(--border));
-  background-color: hsl(var(--card));
+  border: 1px solid var(--border);
+  background-color: var(--card);
   padding: 1.5rem;
   min-width: 0;
   max-width: 100%;
@@ -264,7 +264,7 @@
 }
 
 .legal-table-wrap:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid var(--ring);
   outline-offset: 4px;
   border-radius: 0.5rem;
 }
@@ -281,7 +281,7 @@
   min-width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
 }
 
 .legal-table-scroll [data-slot="table-container"],
@@ -291,12 +291,12 @@
 
 .legal-table-scroll [data-slot="table-header"] [data-slot="table-row"],
 .legal-table-scroll [data-slot="table-body"] [data-slot="table-row"] {
-  border-color: hsl(var(--border));
+  border-color: var(--border);
 }
 
 .legal-table-scroll [data-slot="table-head"],
 .legal-table-scroll [data-slot="table-cell"] {
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid var(--border);
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -305,12 +305,12 @@
 }
 
 .legal-table-scroll [data-slot="table-head"] {
-  background-color: hsl(var(--card));
-  color: hsl(var(--foreground));
+  background-color: var(--card);
+  color: var(--foreground);
 }
 
 .legal-table-scroll [data-slot="table-body"] {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
 }
 
 .legal-table-scroll
@@ -333,8 +333,8 @@
 .legal-table-cards [data-slot="table-body"] [data-slot="table-row"] {
   display: block;
   margin-bottom: 0.75rem;
-  border: 1px solid hsl(var(--border));
-  background-color: hsl(var(--card));
+  border: 1px solid var(--border);
+  background-color: var(--card);
 }
 
 .legal-table-cards [data-slot="table-body"] [data-slot="table-row"]:last-child {
@@ -343,7 +343,7 @@
 
 .legal-table-cards [data-slot="table-cell"] {
   display: block;
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid var(--border);
   padding: 0.75rem;
   white-space: normal;
   overflow-wrap: anywhere;
@@ -355,7 +355,7 @@
   content: attr(data-label);
   display: block;
   margin-bottom: 0.25rem;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.4;
@@ -374,7 +374,7 @@
   }
 
   .legal-table-cards [data-slot="table"] {
-    border: 1px solid hsl(var(--border));
+    border: 1px solid var(--border);
   }
 
   .legal-table-cards [data-slot="table-body"] [data-slot="table-row"] {
@@ -387,7 +387,7 @@
   .legal-table-cards [data-slot="table-head"],
   .legal-table-cards [data-slot="table-cell"] {
     display: table-cell;
-    border-bottom: 1px solid hsl(var(--border));
+    border-bottom: 1px solid var(--border);
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -400,12 +400,12 @@
   }
 
   .legal-table-cards [data-slot="table-head"] {
-    background-color: hsl(var(--card));
-    color: hsl(var(--foreground));
+    background-color: var(--card);
+    color: var(--foreground);
   }
 
   .legal-table-cards [data-slot="table-body"] {
-    color: hsl(var(--muted-foreground));
+    color: var(--muted-foreground);
   }
 
   .legal-table-cards
@@ -418,14 +418,14 @@
 
 .legal-footer {
   margin: 0;
-  border-top: 1px solid hsl(var(--border));
+  border-top: 1px solid var(--border);
   padding-top: 2rem;
 }
 
 .legal-footer p {
   margin: 0;
   text-align: center;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   font-size: 0.75rem;
   line-height: 1.5;
 }

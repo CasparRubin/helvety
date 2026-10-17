@@ -17,12 +17,8 @@ interface ImageEmbed {
   readonly height: number;
 }
 
-interface ImageConversionOptions {
-  /**
-   * Enables GPU-assisted preprocessing when supported.
-   */
-  readonly preferGpuPreprocess?: boolean;
-}
+/** Assumed source DPI for sizing image-only PDF pages (PDF units are 1/72 inch). */
+const PDF_IMAGE_SOURCE_DPI = 96;
 
 /**
  * Image blob source and MIME information.
@@ -115,8 +111,7 @@ async function convertImageSourceToPngBufferWithDom(
  * Converts a generic image source to PNG bytes via OffscreenCanvas.
  */
 async function convertImageSourceToPngBufferWithOffscreenCanvas(
-  source: ImageSource,
-  preferGpuPreprocess: boolean
+  source: ImageSource
 ): Promise<ArrayBuffer> {
   if (
     typeof OffscreenCanvas === "undefined" ||
@@ -129,14 +124,6 @@ async function convertImageSourceToPngBufferWithOffscreenCanvas(
 
   try {
     const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    let hasGpuContext = false;
-
-    if (preferGpuPreprocess) {
-      const webgl2 = canvas.getContext("webgl2");
-      const webgl = webgl2 ?? canvas.getContext("webgl");
-      hasGpuContext = Boolean(webgl);
-    }
-
     const context2d = canvas.getContext("2d");
     if (!context2d) {
       throw new Error("2D context is not available for OffscreenCanvas");
@@ -144,10 +131,6 @@ async function convertImageSourceToPngBufferWithOffscreenCanvas(
     context2d.drawImage(bitmap, 0, 0);
 
     const blob = await canvas.convertToBlob({ type: "image/png" });
-    if (preferGpuPreprocess && !hasGpuContext) {
-      throw new Error("GPU context unavailable, using CPU fallback path");
-    }
-
     return blob.arrayBuffer();
   } finally {
     bitmap.close();
@@ -168,14 +151,10 @@ async function convertImageSourceToPngBufferWithOffscreenCanvas(
  * // PDF now contains the image as a single page
  * ```
  */
-export async function convertImageToPdf(
-  file: File,
-  options: ImageConversionOptions = {}
-): Promise<PDFDocument> {
+export async function convertImageToPdf(file: File): Promise<PDFDocument> {
   const arrayBuffer = await file.arrayBuffer();
   const { PDFDocument } = await import("pdf-lib");
   const pdf = await PDFDocument.create();
-  const { preferGpuPreprocess = false } = options;
 
   const mimeType = file.type.toLowerCase();
   const fileName = file.name.toLowerCase();
@@ -210,10 +189,8 @@ export async function convertImageToPdf(
 
       let pngBuffer: ArrayBuffer;
       try {
-        pngBuffer = await convertImageSourceToPngBufferWithOffscreenCanvas(
-          source,
-          preferGpuPreprocess
-        );
+        pngBuffer =
+          await convertImageSourceToPngBufferWithOffscreenCanvas(source);
       } catch {
         pngBuffer = await convertImageSourceToPngBufferWithDom(source);
       }
@@ -235,12 +212,14 @@ export async function convertImageToPdf(
       );
     }
 
-    const page = pdf.addPage([imageEmbed.width, imageEmbed.height]);
+    const pageWidth = (imageEmbed.width * 72) / PDF_IMAGE_SOURCE_DPI;
+    const pageHeight = (imageEmbed.height * 72) / PDF_IMAGE_SOURCE_DPI;
+    const page = pdf.addPage([pageWidth, pageHeight]);
     page.drawImage(imageEmbed.embed, {
       x: 0,
       y: 0,
-      width: imageEmbed.width,
-      height: imageEmbed.height,
+      width: pageWidth,
+      height: pageHeight,
     });
 
     return pdf;

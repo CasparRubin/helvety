@@ -66,6 +66,10 @@ class OcrWorkerClientImpl implements OcrWorkerClient {
     }
     await this.terminateWorker();
     const worker = await this.createWorkerForLanguage(language);
+    if (this.disposed) {
+      await worker.terminate().catch(() => {});
+      throw new Error("OCR worker has been disposed");
+    }
     this.worker = worker;
     this.workerLanguage = language;
     return worker;
@@ -97,6 +101,10 @@ class OcrWorkerClientImpl implements OcrWorkerClient {
     }
 
     const worker = await this.ensureWorker(language);
+    if (this.disposed) {
+      throw new Error("OCR worker has been disposed");
+    }
+    signal?.throwIfAborted();
     this.progressListener = onProgress ?? null;
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -118,7 +126,12 @@ class OcrWorkerClientImpl implements OcrWorkerClient {
         worker
           .recognize(image)
           .then((response) => resolve(response.data.text))
-          .catch((error: unknown) => reject(error));
+          .catch((error: unknown) => {
+            // A failed recognition can leave the worker in a broken state.
+            // Drop it so the next page/job starts with a fresh instance.
+            void this.terminateWorker();
+            reject(error);
+          });
       });
       return result;
     } finally {

@@ -30,7 +30,7 @@ export function ProductDetailHero({ product }: { product: Product }) {
           alt=""
           fill
           preload
-          sizes="(max-width: 1024px) 100vw, min(896px, 100vw)"
+          sizes="(max-width: 1152px) 100vw, 1152px"
           className="object-cover"
         />
         {/* Top ~2/3: image only. Bottom ~1/3: overlapping content panel. */}

@@ -34,25 +34,27 @@ export function HelvetyOcr(): React.JSX.Element {
     fileInputRef.current?.click();
   }, []);
 
+  const loadFile = job.loadFile;
+
   const handleFileInputChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>): void => {
       const file = event.target.files?.[0];
       if (file) {
-        job.loadFile(file);
+        loadFile(file);
       }
       event.currentTarget.value = "";
     },
-    [job]
+    [loadFile]
   );
 
   const handleDropWithFiles = React.useCallback(
     (files: FileList): void => {
       const file = files[0];
       if (file) {
-        job.loadFile(file);
+        loadFile(file);
       }
     },
-    [job]
+    [loadFile]
   );
 
   const handleDownload = React.useCallback((): void => {
@@ -112,6 +114,7 @@ export function HelvetyOcr(): React.JSX.Element {
               status={job.status}
               progress={job.progress}
               text={job.text}
+              error={job.error}
               isDragging={dragDrop.isDragging}
               fileInputRef={fileInputRef}
               onPickFile={pickFile}

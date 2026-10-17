@@ -81,8 +81,8 @@ export function clampOutputDimensions(
 
   if (scale >= 1 - 1e-9) {
     return {
-      width: roundEven(tw),
-      height: roundEven(th),
+      width: Math.min(roundEven(tw), limits.maxWidth),
+      height: Math.min(roundEven(th), limits.maxHeight),
       clamped: false,
     };
   }

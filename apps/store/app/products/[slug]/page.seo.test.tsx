@@ -14,8 +14,8 @@ import { describe, expect, it, vi } from "vitest";
 import { generateMetadata, ProductDetail } from "./page";
 
 vi.mock("./product-detail-client", () => ({
-  ProductDetailClient: ({ slug }: { slug: string }) => (
-    <div data-testid="product-detail-client">{slug}</div>
+  ProductDetailClient: ({ product }: { product: { slug: string } }) => (
+    <div data-testid="product-detail-client">{product.slug}</div>
   ),
 }));
 
@@ -30,16 +30,23 @@ vi.mock("next/navigation", () => ({
 }));
 
 const pagePath = join(dirname(fileURLToPath(import.meta.url)), "page.tsx");
+const clientPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "product-detail-client.tsx"
+);
 
 describe("store product SEO", () => {
-  it("does not import products.ts on the server page module", () => {
-    const src = readFileSync(pagePath, "utf8");
-    expect(src).toContain("findStoreProductCardBySlug");
-    expect(src).toContain("notFound");
-    expect(src).not.toContain("@/lib/data/products");
-    expect(src).not.toContain("product-catalog-cache");
-    expect(src).toContain("ProductDetailClient");
-    expect(src).not.toContain("ProductDetailServerHero");
+  it("keeps the full product dataset out of the client detail module", () => {
+    const pageSrc = readFileSync(pagePath, "utf8");
+    const clientSrc = readFileSync(clientPath, "utf8");
+
+    expect(pageSrc).toContain("findStoreProductCardBySlug");
+    expect(pageSrc).toContain("notFound");
+    expect(pageSrc).toContain("getProductBySlug");
+    expect(pageSrc).toContain("ProductDetailClient");
+
+    expect(clientSrc).not.toContain("@/lib/data/products");
+    expect(clientSrc).not.toContain("getProductBySlug");
   });
 
   it("calls notFound for unknown product slugs on the server", async () => {

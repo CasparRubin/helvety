@@ -54,8 +54,7 @@ async function yieldToWorkerEventLoop(): Promise<void> {
 }
 
 async function loadSourcePdf(
-  sourceFile: WorkerSourceFile,
-  useGpuPreprocess: boolean
+  sourceFile: WorkerSourceFile
 ): Promise<PDFDocument> {
   if (sourceFile.type === "pdf") {
     return PDFDocument.load(sourceFile.bytes.slice(0));
@@ -68,9 +67,7 @@ async function loadSourcePdf(
   const imageFile = new File([sourceFile.bytes.slice(0)], sourceFile.name, {
     type: sourceFile.mimeType || "image/png",
   });
-  return convertImageToPdf(imageFile, {
-    preferGpuPreprocess: useGpuPreprocess,
-  });
+  return convertImageToPdf(imageFile);
 }
 
 async function extractPage(
@@ -79,10 +76,7 @@ async function extractPage(
 ): Promise<ExtractPageResponsePayload> {
   ensureNotCancelled(requestId);
 
-  const sourcePdf = await loadSourcePdf(
-    request.payload.sourceFile,
-    request.options.useGpuPreprocess
-  );
+  const sourcePdf = await loadSourcePdf(request.payload.sourceFile);
   ensureNotCancelled(requestId);
 
   const mergedPdf = await PDFDocument.create();
@@ -152,10 +146,7 @@ async function mergePages(
       try {
         let sourcePdfPromise = sourcePdfCache.get(sourceFile.id);
         if (!sourcePdfPromise) {
-          sourcePdfPromise = loadSourcePdf(
-            sourceFile,
-            request.options.useGpuPreprocess
-          );
+          sourcePdfPromise = loadSourcePdf(sourceFile);
           sourcePdfCache.set(sourceFile.id, sourcePdfPromise);
         }
 

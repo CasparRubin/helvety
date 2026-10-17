@@ -104,17 +104,15 @@ async function createRotatedImagePage(
  * Applies rotation to a target PDF page using rotation metadata.
  *
  * This function sets the /Rotate entry in the PDF page dictionary, which tells
- * PDF viewers how to display the content. This works correctly for PDF pages
- * but NOT for images (use createRotatedImagePage for images with 90/270 rotation).
+ * PDF viewers how to display the content. Image pages at 90°/270° use
+ * {@link createRotatedImagePage} instead.
  *
  * @param targetPage - The target PDF page to apply rotation to
  * @param effectiveRotation - Absolute display rotation in degrees (0, 90, 180, or 270), combining inherent metadata and user adjustments
- * @param isImage - Whether this page is from an image (only affects 180° rotation handling)
  */
 export async function applyPageRotation(
   targetPage: PDFPage,
-  effectiveRotation: number,
-  isImage: boolean = false
+  effectiveRotation: number
 ): Promise<void> {
   // Validate inputs
   if (!targetPage || typeof targetPage.setRotation !== "function") {
@@ -128,15 +126,6 @@ export async function applyPageRotation(
   const { degrees } = await loadPdfLib();
   const normalizedRotation = normalizeRotation(effectiveRotation);
 
-  // For images with 180° rotation, we can still use setRotation as it doesn't change dimensions
-  // For 90/270° image rotations, the caller should use createRotatedImagePage instead
-  if (isImage && normalizedRotation === ROTATION_ANGLES.HALF) {
-    // 180° rotation doesn't need dimension swap, just rotation metadata
-    targetPage.setRotation(degrees(normalizedRotation));
-    return;
-  }
-
-  // For PDFs, setRotation works correctly as viewers interpret the metadata
   targetPage.setRotation(degrees(normalizedRotation));
 }
 
@@ -156,7 +145,7 @@ export async function exportPageWithRotation(
   const useContentTransform =
     isImage && needsContentTransform(normalizedRotation);
 
-  if (useContentTransform && normalizedRotation !== 0) {
+  if (useContentTransform) {
     await createRotatedImagePage(
       targetPdf,
       sourcePdf,
@@ -169,5 +158,5 @@ export async function exportPageWithRotation(
   const [copiedPage] = await targetPdf.copyPages(sourcePdf, [pageIndex]);
   targetPdf.addPage(copiedPage);
   const newPage = targetPdf.getPage(targetPdf.getPageCount() - 1);
-  await applyPageRotation(newPage, normalizedRotation, isImage);
+  await applyPageRotation(newPage, normalizedRotation);
 }

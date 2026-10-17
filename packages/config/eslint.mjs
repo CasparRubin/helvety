@@ -292,16 +292,8 @@ export function createEslintConfig(rootDir) {
     },
     {
       files: [
-        "**/note-link-actions.ts",
-        "**/task-link-actions.ts",
-        "**/use-contact-links.ts",
-        "**/use-note-links.ts",
-        "**/use-task-links.ts",
-        "**/note-links-panel.tsx",
-        "**/task-links-panel.tsx",
         "**/pdf-conversion.ts",
         "**/pdf-processing-pipeline.ts",
-        "**/pdf-processing-telemetry.ts",
         "**/pdf-processing-worker-types.ts",
         "**/pdf-processing.worker.ts",
         "**/canvas-export-limits.ts",

@@ -15,7 +15,6 @@ import {
   Workflow,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
 
 import { HERO_MUTED_LINE_CLASS } from "@/components/hero-company-values-copy";
 import { HeroCompanyValuesTagline } from "@/components/hero-company-values-tagline";
@@ -89,8 +88,9 @@ const HERO_LINK_ROW_CLASS =
   "group flex items-center gap-3 px-3 py-2.5 text-left transition-colors outline-none hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset";
 
 /**
- * One destination row. Same-origin targets use `next/link`; external targets
- * open in a new tab and carry the off-site arrow.
+ * One destination row. These targets live in other Next.js zones, so they use
+ * plain anchors: `next/link` prefetch/soft navigation does not work across
+ * zones. External targets open in a new tab.
  */
 function HeroLinkRow({ link }: { link: HeroLink }) {
   const Icon = link.icon;
@@ -137,9 +137,9 @@ function HeroLinkRow({ link }: { link: HeroLink }) {
   }
 
   return (
-    <Link href={link.href} className={HERO_LINK_ROW_CLASS}>
+    <a href={link.href} className={HERO_LINK_ROW_CLASS}>
       {content}
-    </Link>
+    </a>
   );
 }
 
@@ -203,7 +203,7 @@ export function HeroMarketingShell() {
           <Button
             size="lg"
             className={HERO_CTA_BUTTON_CLASS}
-            render={<Link href={getLocalAppHref(urls.storeProducts)} />}
+            render={<a href={getLocalAppHref(urls.storeProducts)} />}
             nativeButton={false}
           >
             <PackageOpen className="size-5 shrink-0" aria-hidden="true" />

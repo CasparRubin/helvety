@@ -33,6 +33,6 @@ describe("zone next config presets", () => {
       (entry) => entry.key === "Reporting-Endpoints"
     );
 
-    expect(reporting?.value).toBe('csp="/pdf/api/csp-report"');
+    expect(reporting?.value).toBe('csp-endpoint="/pdf/api/csp-report"');
   });
 });

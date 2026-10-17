@@ -36,6 +36,9 @@ export const OCR_TEXT_LAYER_MIN_CHARS = 20;
 /** Public path to the pdf.js worker (synced from react-pdf's pdfjs-dist). */
 export const OCR_PDF_WORKER_PUBLIC_PATH = "/ocr/pdf.worker.min.mjs";
 
+/** Maximum rasterized page area, protecting the tab from huge PDF page sizes. */
+export const OCR_MAX_RENDER_PIXELS = 32_000_000;
+
 /** Public directory that hosts the Tesseract `*.traineddata` language files. */
 export const OCR_TESSDATA_PUBLIC_PATH = "/ocr/tessdata";
 

@@ -1,6 +1,11 @@
 "use client";
 
+import {
+  clampOutputDimensions,
+  getCanvasExportLimitsCached,
+} from "@helvety/shared/canvas-export-limits";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
+import { downloadBlob } from "@helvety/shared/file-download";
 import { useDragDrop } from "@helvety/shared/hooks/use-drag-drop";
 import { cn } from "@helvety/shared/utils";
 import {
@@ -22,10 +27,6 @@ import { useEditorState } from "@/hooks/use-editor-state";
 import { useResizePreview } from "@/hooks/use-resize-preview";
 import { useSourceImage } from "@/hooks/use-source-image";
 import { useStageFit } from "@/hooks/use-stage-fit";
-import {
-  clampOutputDimensions,
-  getCanvasExportLimitsCached,
-} from "@/lib/canvas-export-limits";
 import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
 import {
   DEFAULT_STROKE,
@@ -41,14 +42,25 @@ import {
 } from "@/lib/image-validation";
 import { clampUserZoom, USER_ZOOM_STEP } from "@/lib/stage-zoom";
 
-import type { CropRect, ExportFormat } from "@/lib/editor-types";
+import type { CropRect, EditorElement, ExportFormat } from "@/lib/editor-types";
+
+/** Filename limits for downloaded images. */
+const EXPORT_FILENAME_LIMITS = {
+  maxLength: 120,
+  defaultName: "image-edited.png",
+} as const;
+
+/** Filename limits for resized images. */
+const RESIZED_FILENAME_LIMITS = {
+  maxLength: 120,
+  defaultName: "image-resized.jpg",
+} as const;
 
 /** Main image editor workspace. */
 export function HelvetyImageEditor(): React.JSX.Element {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const canvasSizerRef = React.useRef<HTMLDivElement>(null);
   const canvasContainerRef = React.useRef<HTMLDivElement>(null);
-  const { source, loadFile, clear } = useSourceImage();
+  const { source, loadFile } = useSourceImage();
   const { state, dispatch, setTool, select, setCrop, resetAnnotations } =
     useEditorState();
   const [isExporting, setIsExporting] = React.useState(false);
@@ -79,7 +91,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
   const logicalHeight = source
     ? (state.crop?.height ?? source.naturalHeight)
     : 0;
-  const fitScale = useStageFit(canvasSizerRef, logicalWidth, logicalHeight);
+  const fitScale = useStageFit(canvasContainerRef, logicalWidth, logicalHeight);
   const displayScale = fitScale * userZoom;
 
   const resetCanvasView = React.useCallback(() => {
@@ -109,11 +121,14 @@ export function HelvetyImageEditor(): React.JSX.Element {
       }
 
       try {
+        await loadFile(file);
         resetAnnotations();
         setPendingCrop(null);
         setUserZoom(1);
-        await loadFile(file);
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
         toast.error("Could not load that image.", {
           duration: TOAST_DURATIONS.ERROR,
         });
@@ -132,12 +147,8 @@ export function HelvetyImageEditor(): React.JSX.Element {
   );
 
   const handleReplaceImage = React.useCallback(() => {
-    resetAnnotations();
-    setPendingCrop(null);
-    setUserZoom(1);
-    clear();
     openFilePicker();
-  }, [clear, openFilePicker, resetAnnotations]);
+  }, [openFilePicker]);
 
   const resizePreview = useResizePreview({
     enabled: Boolean(source) && state.activeTool === "resize",
@@ -167,13 +178,15 @@ export function HelvetyImageEditor(): React.JSX.Element {
         }
 
         const { exportEditedImage } = await import("@/lib/export-image");
-        const blob = await exportEditedImage(source.image, state, format);
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = createDownloadName(source.file.name, format);
-        anchor.click();
-        URL.revokeObjectURL(url);
+        const blob = await exportEditedImage(source.image, state, format, {
+          maxWidth: clamped.width,
+          maxHeight: clamped.height,
+        });
+        downloadBlob(
+          blob,
+          createDownloadName(source.file.name, format),
+          EXPORT_FILENAME_LIMITS
+        );
         toast.success("Image exported.", {
           duration: TOAST_DURATIONS.SUCCESS,
         });
@@ -188,23 +201,46 @@ export function HelvetyImageEditor(): React.JSX.Element {
 
   const handleDownloadResized = React.useCallback(() => {
     if (!source || !resizePreview.resultBlob) return;
-    const url = URL.createObjectURL(resizePreview.resultBlob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = createResizedDownloadName(source.file.name);
-    anchor.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(
+      resizePreview.resultBlob,
+      createResizedDownloadName(source.file.name),
+      RESIZED_FILENAME_LIMITS
+    );
     toast.success("Resized image downloaded.", {
       duration: TOAST_DURATIONS.SUCCESS,
     });
   }, [source, resizePreview.resultBlob]);
 
   const handleApplyCrop = React.useCallback(() => {
-    if (!pendingCrop) return;
-    setCrop(pendingCrop);
+    if (!pendingCrop || !source) return;
+
+    // Clamp the draft to the image so crops cannot create blank margins.
+    const x = Math.max(0, Math.min(pendingCrop.x, source.naturalWidth - 1));
+    const y = Math.max(0, Math.min(pendingCrop.y, source.naturalHeight - 1));
+    const width = Math.min(pendingCrop.width, source.naturalWidth - x);
+    const height = Math.min(pendingCrop.height, source.naturalHeight - y);
+    if (width < 1 || height < 1) return;
+
+    setCrop({ x, y, width, height });
     setTool("select");
     resetCanvasView();
-  }, [pendingCrop, resetCanvasView, setCrop, setTool]);
+  }, [pendingCrop, resetCanvasView, setCrop, setTool, source]);
+
+  const handleClearAnnotations = React.useCallback(() => {
+    resetAnnotations();
+    setPendingCrop(null);
+  }, [resetAnnotations]);
+
+  const handleUpdateElement = React.useCallback(
+    (id: string, patch: Partial<EditorElement>) => {
+      dispatch({ type: "UPDATE_ELEMENT", id, patch });
+      const dimOpacity = (patch as { dimOpacity?: number }).dimOpacity;
+      if (dimOpacity !== undefined) {
+        setToolDimOpacity(dimOpacity);
+      }
+    },
+    [dispatch]
+  );
 
   const handleResetCrop = React.useCallback(() => {
     setCrop(null);
@@ -308,7 +344,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onReplaceImage={handleReplaceImage}
         onSetTool={setTool}
         onExport={(format) => void handleExport(format)}
-        onClear={resetAnnotations}
+        onClear={handleClearAnnotations}
         onApplyCrop={handleApplyCrop}
         onResetCrop={handleResetCrop}
         onOpenLayers={() => setLayersOpen(true)}
@@ -332,9 +368,7 @@ export function HelvetyImageEditor(): React.JSX.Element {
         onToolBlurRadiusChange={setToolBlurRadius}
         onToolDimOpacityChange={handleToolDimOpacityChange}
         onToolCornerRadiusChange={setToolCornerRadius}
-        onUpdate={(id, patch) =>
-          dispatch({ type: "UPDATE_ELEMENT", id, patch })
-        }
+        onUpdate={handleUpdateElement}
         resize={
           state.activeTool === "resize"
             ? {
@@ -369,7 +403,6 @@ export function HelvetyImageEditor(): React.JSX.Element {
         aria-label="Image editor workspace"
       >
         <div
-          ref={canvasSizerRef}
           className={cn(
             "flex min-w-0 flex-1 flex-col",
             "h-full max-h-full min-h-0",

@@ -6,6 +6,7 @@
  */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import {
   CANONICAL_VERCEL_JSON,
   VERCEL_APP_EXPECTATIONS,
@@ -34,11 +35,9 @@ async function main() {
       continue;
     }
 
-    const vercelJson = JSON.stringify(vercelParsed);
-    const canonicalJson = JSON.stringify(CANONICAL_VERCEL_JSON);
-    if (vercelJson !== canonicalJson) {
+    if (!isDeepStrictEqual(vercelParsed, CANONICAL_VERCEL_JSON)) {
       errors.push(
-        `${vercelJsonPath} must match the canonical zone config (${canonicalJson}). ` +
+        `${vercelJsonPath} must match the canonical zone config (${JSON.stringify(CANONICAL_VERCEL_JSON)}). ` +
           `Do not set custom install/build commands; set Vercel Root Directory to ${expectation.rootDirectory} instead.`
       );
     }

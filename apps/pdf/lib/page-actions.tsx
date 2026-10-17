@@ -53,7 +53,6 @@ interface CreatePageActionsParams {
   totalPages: number;
   isDeleted: boolean;
   hasRotation: boolean;
-  rotation: number;
   isProcessing: boolean;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;

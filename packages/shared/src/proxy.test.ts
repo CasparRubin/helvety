@@ -36,7 +36,7 @@ function makeRequest(
 describe("proxy shared abstractions", () => {
   it("exposes the shared security matcher baseline", () => {
     expect(SECURITY_PROXY_MATCHER).toEqual([
-      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm)$).*)",
+      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm|traineddata)$).*)",
     ]);
   });
 

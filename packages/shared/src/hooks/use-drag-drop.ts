@@ -34,7 +34,7 @@ export function useDragDrop(): UseDragDropReturn {
   const handleDragLeave = React.useCallback((e: React.DragEvent): void => {
     e.preventDefault();
     e.stopPropagation();
-    dragCounterRef.current -= 1;
+    dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
     if (dragCounterRef.current === 0) {
       setIsDragging(false);
     }

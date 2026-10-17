@@ -15,11 +15,10 @@ import {
   mergePartialFailureMessage,
 } from "@/lib/pdf-merge-pages";
 import { selectPdfProcessingPipeline } from "@/lib/pdf-processing-pipeline";
-import { recordPipelineMetric } from "@/lib/pdf-processing-telemetry";
 import { PdfProcessingWorkerClient } from "@/lib/pdf-processing-worker-client";
 import { exportPageWithRotation } from "@/lib/pdf-rotation";
 import { computeEffectiveRotation } from "@/lib/pdf-rotation-math";
-import { withTimeout, withTimeoutAndSignal } from "@/lib/timeout-utils";
+import { withTimeoutAndSignal } from "@/lib/timeout-utils";
 
 // Types
 import type { PdfProcessingPipeline } from "@/lib/pdf-processing-pipeline";
@@ -29,6 +28,14 @@ import type {
 } from "@/lib/pdf-processing-worker-types";
 import type { PdfFile, UnifiedPage } from "@/lib/types";
 import type { PDFDocument } from "pdf-lib";
+
+/** True when a worker error is just a cancellation/abort, not a pipeline failure. */
+function isWorkerCancellation(error: unknown): boolean {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return true;
+  }
+  return error instanceof Error && /cancel/i.test(error.message);
+}
 
 /** Return type of usePdfProcessing: isProcessing, extractPage, downloadMerged. */
 interface UsePdfProcessingReturn {
@@ -80,14 +87,9 @@ export function usePdfProcessing({
   // Track mounted state to prevent state updates after unmount
   const isMountedRef = React.useRef(true);
 
-  // Keep pageRotationsRef in sync during render so export reads the latest rotations
-  // immediately (including rapid rotate-then-download), not after useEffect.
-  const pageRotationsRef =
-    React.useRef<Readonly<Record<number, number>>>(pageRotations);
-  pageRotationsRef.current = pageRotations;
-
   // Cleanup on unmount
   React.useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       abortControllerRef.current?.abort();
@@ -291,11 +293,10 @@ export function usePdfProcessing({
         setIsProcessing(true);
       }
       onError(null);
-      const start = performance.now();
       const abortController = createAbortController();
 
       try {
-        const currentRotations = pageRotationsRef.current;
+        const currentRotations = pageRotations;
         const pipeline = getActivePipeline();
         let blob: Blob;
 
@@ -317,12 +318,9 @@ export function usePdfProcessing({
             const inherentRotation =
               file.inherentRotations?.[page.originalPageNumber] ?? 0;
             const userRotation = currentRotations[unifiedPageNumber] ?? 0;
-            const response = await withTimeout(
-              workerClient.postMessage({
+            const response = await workerClient.postMessage(
+              {
                 kind: "extract-page",
-                options: {
-                  useGpuPreprocess: pipeline === "gpu-worker",
-                },
                 payload: {
                   sourceFile,
                   originalPageNumber: page.originalPageNumber,
@@ -332,9 +330,8 @@ export function usePdfProcessing({
                     userRotation
                   ),
                 },
-              }),
-              TIMEOUTS.OPERATION_TIMEOUT,
-              "Extracting page in worker timed out. Please try again."
+              },
+              { timeoutMs: TIMEOUTS.OPERATION_TIMEOUT }
             );
 
             if (!response.ok || response.kind !== "extract-page") {
@@ -347,6 +344,9 @@ export function usePdfProcessing({
               type: "application/pdf",
             });
           } catch (workerError) {
+            if (isWorkerCancellation(workerError)) {
+              throw workerError;
+            }
             downgradeToMainThread(
               workerError instanceof Error
                 ? workerError.message
@@ -370,22 +370,7 @@ export function usePdfProcessing({
         downloadBlob(blob, filename, DELAYS.BLOB_URL_CLEANUP);
 
         onError(null);
-        recordPipelineMetric({
-          operation: "extract",
-          pipeline: getActivePipeline(),
-          durationMs: Math.round(performance.now() - start),
-          success: true,
-          pagesProcessed: 1,
-        });
       } catch (err) {
-        recordPipelineMetric({
-          operation: "extract",
-          pipeline: getActivePipeline(),
-          durationMs: Math.round(performance.now() - start),
-          success: false,
-          pagesProcessed: 1,
-          error: err instanceof Error ? err.message : String(err),
-        });
         if (isMountedRef.current) {
           handleError(err, "Can't extract page:", onError);
         }
@@ -406,6 +391,7 @@ export function usePdfProcessing({
       getWorkerClient,
       loadWorkerSourceFile,
       onError,
+      pageRotations,
       pdfFiles,
       unifiedPages,
     ]
@@ -423,7 +409,7 @@ export function usePdfProcessing({
    * to clear inherited /Rotate when a page appears upright in the UI).
    *
    * Processing strategy is pipeline-based:
-   * - `worker` / `gpu-worker`: runs merge operations in a dedicated worker
+   * - `worker`: runs merge operations in a dedicated worker
    * - `main-thread`: runs adaptive batch processing on the UI thread with browser yields
    * Both paths preserve page order exactly as displayed in the UI.
    *
@@ -455,13 +441,12 @@ export function usePdfProcessing({
       setIsProcessing(true);
     }
     onError(null);
-    const start = performance.now();
     const abortController = createAbortController();
 
     try {
       // Snapshot rotation state at export start so each page uses a consistent view,
       // even if the user keeps rotating while merge/extract is in progress.
-      const currentRotations = pageRotationsRef.current;
+      const currentRotations = pageRotations;
 
       // Create lookup maps for O(1) access instead of O(n) Array.find()
       const pageMap = createPageMap(unifiedPages);
@@ -496,21 +481,17 @@ export function usePdfProcessing({
             })
           );
 
-          const response = await withTimeout(
-            workerClient.postMessage({
+          const response = await workerClient.postMessage(
+            {
               kind: "merge-pages",
-              options: {
-                useGpuPreprocess: pipeline === "gpu-worker",
-              },
               payload: {
                 files: workerFiles,
                 pages: workerPages,
                 activePageOrder: activePages,
                 pageRotations: currentRotations,
               },
-            }),
-            TIMEOUTS.OPERATION_TIMEOUT * 2,
-            "Merging pages in worker timed out. Please try again."
+            },
+            { timeoutMs: TIMEOUTS.OPERATION_TIMEOUT * 2 }
           );
 
           if (!response.ok || response.kind !== "merge-pages") {
@@ -524,6 +505,9 @@ export function usePdfProcessing({
           });
           batchErrors = [...response.payload.failedPages];
         } catch (workerError) {
+          if (isWorkerCancellation(workerError)) {
+            throw workerError;
+          }
           downgradeToMainThread(
             workerError instanceof Error
               ? workerError.message
@@ -562,27 +546,7 @@ export function usePdfProcessing({
             : null
         );
       }
-      recordPipelineMetric({
-        operation: "merge",
-        pipeline: getActivePipeline(),
-        durationMs: Math.round(performance.now() - start),
-        success: !hadPageFailures,
-        pagesProcessed: activePages.length,
-        ...(hadPageFailures
-          ? {
-              error: mergePartialFailureMessage(batchErrors.length),
-            }
-          : {}),
-      });
     } catch (err) {
-      recordPipelineMetric({
-        operation: "merge",
-        pipeline: getActivePipeline(),
-        durationMs: Math.round(performance.now() - start),
-        success: false,
-        pagesProcessed: activePages.length,
-        error: err instanceof Error ? err.message : String(err),
-      });
       // Standardized error handling - handleError already sets appropriate error message
       if (isMountedRef.current) {
         handleError(err, "Download failed:", onError);
@@ -605,6 +569,7 @@ export function usePdfProcessing({
     loadWorkerSourceFile,
     onError,
     pageOrder,
+    pageRotations,
     pdfFiles,
     unifiedPages,
   ]);

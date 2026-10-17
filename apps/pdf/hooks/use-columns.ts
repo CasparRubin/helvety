@@ -42,12 +42,23 @@ export function useColumns(): [number | undefined, (columns: number) => void] {
 
     const width = window.innerWidth;
 
-    // On large screens (>= MULTI_COLUMN), use localStorage if available
-    const stored = localStorage.getItem(STORAGE_KEYS.COLUMNS);
-    if (width >= BREAKPOINTS.MULTI_COLUMN && stored) {
-      const parsed = parseInt(stored, 10);
-      if (!isNaN(parsed) && parsed >= COLUMNS.MIN && parsed <= COLUMNS.MAX) {
-        return parsed;
+    // On large screens (>= MULTI_COLUMN), use localStorage if available.
+    // Storage can throw in privacy modes or when blocked by policy.
+    if (width >= BREAKPOINTS.MULTI_COLUMN) {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.COLUMNS);
+        if (stored) {
+          const parsed = parseInt(stored, 10);
+          if (
+            !isNaN(parsed) &&
+            parsed >= COLUMNS.MIN &&
+            parsed <= COLUMNS.MAX
+          ) {
+            return parsed;
+          }
+        }
+      } catch {
+        // Fall through to the screen-size default.
       }
     }
 
@@ -81,7 +92,11 @@ export function useColumns(): [number | undefined, (columns: number) => void] {
       typeof window !== "undefined" &&
       window.innerWidth >= BREAKPOINTS.MULTI_COLUMN
     ) {
-      localStorage.setItem(STORAGE_KEYS.COLUMNS, newColumns.toString());
+      try {
+        localStorage.setItem(STORAGE_KEYS.COLUMNS, newColumns.toString());
+      } catch {
+        // Persistence is best-effort; the in-memory column count still applies.
+      }
     }
   }, []);
 

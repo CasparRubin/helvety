@@ -85,6 +85,10 @@ class ImageBitmapCache {
     // Check if entry already exists
     const existing = this.cache.get(key);
     if (existing) {
+      // Release the previous bitmap before replacing it (LQ → HQ recapture).
+      if (existing.imageBitmap !== imageBitmap) {
+        existing.imageBitmap.close();
+      }
       // Update existing entry
       this.currentMemoryBytes -= existing.estimatedSize;
       this.cache.set(key, {

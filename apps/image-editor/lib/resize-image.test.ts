@@ -1,8 +1,8 @@
 import { fromBlob } from "image-resize-compress";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { RESIZE_TARGET_MIN_BYTES } from "./resize-constants";
 import {
-  RESIZE_TARGET_MIN_BYTES,
   clampResizeTargetBytes,
   compressImageToTargetSize,
 } from "./resize-image";

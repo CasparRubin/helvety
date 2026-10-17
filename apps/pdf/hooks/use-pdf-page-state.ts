@@ -57,9 +57,14 @@ export function usePdfPageState(
   const [deletedPages, setDeletedPages] = React.useState<Set<number>>(
     new Set()
   );
+  const deletedPagesRef = React.useRef<ReadonlySet<number>>(deletedPages);
   const [pageRotations, setPageRotations] = React.useState<
     Record<number, number>
   >({});
+
+  React.useEffect(() => {
+    deletedPagesRef.current = deletedPages;
+  }, [deletedPages]);
 
   // Memoize computed statistics to prevent unnecessary recalculations
   const deletedCount = React.useMemo(() => {
@@ -67,10 +72,8 @@ export function usePdfPageState(
   }, [pageOrder, deletedPages]);
 
   const rotatedCount = React.useMemo(() => {
-    // Use Object.values for better performance - avoids string-to-number conversion
-    return Object.values(pageRotations).filter((rotation) => rotation !== 0)
-      .length;
-  }, [pageRotations]);
+    return pageOrder.filter((page) => (pageRotations[page] ?? 0) !== 0).length;
+  }, [pageOrder, pageRotations]);
 
   // Page deletion toggle with validation
   const toggleDelete = React.useCallback(
@@ -79,23 +82,22 @@ export function usePdfPageState(
       totalPages: number,
       onError: (error: string | null) => void
     ): void => {
-      setDeletedPages((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(unifiedPageNumber)) {
-          newSet.delete(unifiedPageNumber);
-        } else {
-          // Prevent deleting all pages
-          const deletedCount = newSet.size;
-          if (totalPages - deletedCount <= 1) {
-            onError(
-              "Cannot delete all pages. At least one page must remain in the document."
-            );
-            return prev;
-          }
-          newSet.add(unifiedPageNumber);
-        }
-        return newSet;
-      });
+      const current = deletedPagesRef.current;
+      if (!current.has(unifiedPageNumber) && totalPages - current.size <= 1) {
+        onError(
+          "Cannot delete all pages. At least one page must remain in the document."
+        );
+        return;
+      }
+
+      const next = new Set(current);
+      if (next.has(unifiedPageNumber)) {
+        next.delete(unifiedPageNumber);
+      } else {
+        next.add(unifiedPageNumber);
+      }
+      deletedPagesRef.current = next;
+      setDeletedPages(next);
       onError(null);
     },
     []

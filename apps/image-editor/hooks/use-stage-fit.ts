@@ -17,10 +17,17 @@ export function useStageFit(
     }
 
     const update = () => {
-      const rect = element.getBoundingClientRect();
-      const padding = 16;
-      const availableWidth = Math.max(1, rect.width - padding * 2);
-      const availableHeight = Math.max(1, rect.height - padding * 2);
+      // Measure the content box: `clientWidth`/`clientHeight` exclude borders
+      // and scrollbars, then subtract the container's padding.
+      const style = getComputedStyle(element);
+      const paddingX =
+        Number.parseFloat(style.paddingLeft) +
+        Number.parseFloat(style.paddingRight);
+      const paddingY =
+        Number.parseFloat(style.paddingTop) +
+        Number.parseFloat(style.paddingBottom);
+      const availableWidth = Math.max(1, element.clientWidth - paddingX);
+      const availableHeight = Math.max(1, element.clientHeight - paddingY);
       const scale = Math.min(
         availableWidth / logicalWidth,
         availableHeight / logicalHeight,

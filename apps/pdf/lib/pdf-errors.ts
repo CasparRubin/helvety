@@ -19,8 +19,6 @@ export enum PdfErrorType {
 export interface PdfErrorInfo {
   type: PdfErrorType;
   message: string;
-  originalError?: unknown;
-  retryable: boolean;
 }
 
 /**
@@ -137,15 +135,8 @@ export function createPdfErrorInfo(
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorType = detectErrorType(errorMessage);
 
-  const retryable =
-    errorType === PdfErrorType.NETWORK ||
-    errorType === PdfErrorType.TIMEOUT ||
-    errorType === PdfErrorType.UNKNOWN;
-
   return {
     type: errorType,
     message: formatPdfError(error, context),
-    originalError: error,
-    retryable,
   };
 }

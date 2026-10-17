@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
+import { RESIZE_TARGET_MIN_BYTES } from "@/lib/resize-constants";
 import {
-  RESIZE_TARGET_MIN_BYTES,
   clampResizeTargetBytes,
   compressImageToTargetSize,
 } from "@/lib/resize-image";
@@ -103,6 +103,12 @@ export function useResizePreview({
 
     void (async () => {
       setIsBuildingComposite(true);
+      setCompositeBlob(null);
+      setCurrentBytes(null);
+      setResultBlob(null);
+      setResultBytes(null);
+      setResultWidth(null);
+      setResultHeight(null);
       setError(null);
       try {
         const { exportEditedImage } = await import("@/lib/export-image");
@@ -152,10 +158,15 @@ export function useResizePreview({
     }
 
     const controller = new AbortController();
+    setIsCompressing(true);
+    setResultBlob(null);
+    setResultBytes(null);
+    setResultWidth(null);
+    setResultHeight(null);
+    setError(null);
+
     const timer = window.setTimeout(() => {
       void (async () => {
-        setIsCompressing(true);
-        setError(null);
         try {
           const result = await compressImageToTargetSize(compositeBlob, {
             targetSize: clampedTarget,
@@ -186,6 +197,7 @@ export function useResizePreview({
     return () => {
       controller.abort();
       window.clearTimeout(timer);
+      setIsCompressing(false);
     };
   }, [enabled, compositeBlob, currentBytes, targetBytes, maxEdge]);
 

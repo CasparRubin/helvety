@@ -138,7 +138,18 @@ export function auditProjectEnv({ project, app, keys, target = "production" }) {
     }
   }
 
-  return { errors, warnings, toRemove };
+  return {
+    errors: [...new Set(errors)],
+    warnings: [...new Set(warnings)],
+    toRemove: toRemove.filter((item, index, all) => {
+      return (
+        all.findIndex(
+          (candidate) =>
+            candidate.project === item.project && candidate.key === item.key
+        ) === index
+      );
+    }),
+  };
 }
 
 /**
@@ -147,11 +158,16 @@ export function auditProjectEnv({ project, app, keys, target = "production" }) {
  */
 function runVercel(cwd, args) {
   return new Promise((resolve, reject) => {
-    const child = spawn("npx", ["vercel@latest", ...args], {
-      cwd,
-      stdio: ["ignore", "pipe", "pipe"],
-      env: process.env,
-    });
+    const child = spawn(
+      process.platform === "win32" ? "npx.cmd" : "npx",
+      ["vercel@latest", ...args],
+      {
+        cwd,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: process.env,
+        shell: process.platform === "win32",
+      }
+    );
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk) => {

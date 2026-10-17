@@ -26,7 +26,7 @@ export type BuildCspOptions = {
  * security proxy (PDF.js worker `.mjs`, Tesseract `.mjs`/`.wasm`, JSON, etc.).
  */
 export const SECURITY_PROXY_MATCHER = [
-  "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm)$).*)",
+  "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm|traineddata)$).*)",
 ];
 
 /** Configuration for creating a lightweight security proxy handler. */
@@ -73,9 +73,14 @@ export function createProfiledSecurityProxy(
   profile: SecurityProxyProfile,
   overrides?: Partial<CreateSecurityProxyOptions>
 ) {
+  const profileOptions = SECURITY_PROXY_PROFILE_OPTIONS[profile];
   return createSecurityProxy({
-    ...SECURITY_PROXY_PROFILE_OPTIONS[profile],
+    ...profileOptions,
     ...overrides,
+    buildCspOptions: {
+      ...profileOptions.buildCspOptions,
+      ...overrides?.buildCspOptions,
+    },
   });
 }
 
@@ -137,7 +142,7 @@ export function createAppProxy(options: {
  *
  * export const config = {
  *   matcher: [
- *     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm)$).*)",
+ *     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|txt|xml|json|map|woff2?|mjs|wasm|traineddata)$).*)",
  *   ],
  * };
  * ```

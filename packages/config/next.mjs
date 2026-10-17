@@ -75,12 +75,6 @@ export function createHelvetyNextConfig({
         ? getVercelDefaultAllowedOrigins()
         : [];
 
-  if (isVercelProductionBuild && allowedOrigins.length === 0) {
-    throw new Error(
-      "Unable to resolve server-action allowed origins for this Vercel build."
-    );
-  }
-
   const {
     experimental: experimentalOverrides = {},
     serverActions: explicitServerActionsOverrides = {},

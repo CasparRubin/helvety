@@ -19,95 +19,14 @@
  * - Access to production logs should be restricted at the infrastructure level
  *   (e.g., Vercel logs, cloud provider logging services)
  *
- * CAUGHT ERRORS / ERROR TRACKING:
+ * CAUGHT ERRORS:
  * Prefer `logger.logUnexpectedError(scope, error, context?)` over
  * `logger.error("…", error)` when logging a failure from `catch` or an API error
- * object. Passing a string first skips `captureException` in production; this
- * helper normalizes `unknown` to an `Error` (with `cause` when needed) and
- * passes metadata `{ scope, ...context }` for structured logs and trackers.
+ * object. This helper normalizes `unknown` to an `Error` (with `cause` when
+ * needed) and passes metadata `{ scope, ...context }` for structured logs.
  */
 
 const isDevelopment = process.env.NODE_ENV === "development";
-
-/**
- * Error tracking service interface.
- * Hook for plugging in an external provider if ever needed.
- */
-interface ErrorTrackingService {
-  captureException(error: Error, context?: Record<string, unknown>): void;
-  captureMessage(
-    message: string,
-    level?: "error" | "warning" | "info",
-    context?: Record<string, unknown>
-  ): void;
-}
-
-/**
- * Safe internal logger for error tracking failures
- * Uses console directly to avoid circular dependencies when error tracking itself fails
- * This is only used internally and never exposed to prevent bypassing the main logger
- * @param {...unknown} args
- */
-function safeInternalErrorLog(...args: unknown[]): void {
-  // Direct console.error is necessary here to prevent infinite loops
-  // if the error tracking service fails and tries to log through logger.error
-  if (isDevelopment) {
-    console.error("[Logger Internal Error]", ...args);
-  } else {
-    // In production, still log but with a clear marker
-    console.error("[Logger Internal Error]", ...args);
-  }
-}
-
-/**
- * Error tracking service implementation
- * Currently a no-op, but can be extended to integrate with actual services
- */
-class ErrorTracker implements ErrorTrackingService {
-  private _service: ErrorTrackingService | null = null;
-
-  /**
-   * Initialize with an external error tracking provider.
-   * @param service
-   */
-  init(service: ErrorTrackingService): void {
-    this._service = service;
-  }
-
-  captureException(error: Error, context?: Record<string, unknown>): void {
-    if (this._service) {
-      try {
-        this._service.captureException(error, context);
-      } catch (e) {
-        // Use safe internal logger to avoid circular dependency
-        // Cannot use logger.error here as it would call errorTracker again
-        safeInternalErrorLog("Error tracking failed:", e);
-      }
-    }
-  }
-
-  captureMessage(
-    message: string,
-    level: "error" | "warning" | "info" = "error",
-    context?: Record<string, unknown>
-  ): void {
-    if (this._service) {
-      try {
-        this._service.captureMessage(message, level, context);
-      } catch (e) {
-        // Use safe internal logger to avoid circular dependency
-        // Cannot use logger.error here as it would call errorTracker again
-        safeInternalErrorLog("Error tracking failed:", e);
-      }
-    }
-  }
-}
-
-/**
- * Global error tracker instance
- * Initialize with: errorTracker.init(yourService)
- */
-const errorTracker = new ErrorTracker();
 
 /**
  * Type guard to check if a value is a record-like object
@@ -142,11 +61,14 @@ const SENSITIVE_KEYS = new Set([
 /**
  * Check if a key is sensitive and should be redacted
  */
+const SENSITIVE_KEY_FRAGMENTS = Array.from(SENSITIVE_KEYS);
+
+/** Returns true when a key name should be redacted from log metadata. */
 function isSensitiveKey(key: string): boolean {
   const lowerKey = key.toLowerCase();
   return (
     SENSITIVE_KEYS.has(lowerKey) ||
-    Array.from(SENSITIVE_KEYS).some((sensitive) => lowerKey.includes(sensitive))
+    SENSITIVE_KEY_FRAGMENTS.some((sensitive) => lowerKey.includes(sensitive))
   );
 }
 
@@ -229,8 +151,14 @@ function buildStructuredEntry(
     const rest = args.slice(1);
     const extra: Record<string, unknown> = {};
     rest.forEach((arg, i) => {
-      if (isRecord(arg)) {
-        Object.assign(extra, sanitizeObject(arg));
+      if (arg instanceof Error) {
+        extra[`error${i + 1}`] = {
+          name: arg.name,
+          message: arg.message,
+          stack: arg.stack,
+        };
+      } else if (isRecord(arg)) {
+        Object.assign(extra, arg);
       } else {
         extra[`arg${i + 1}`] = arg;
       }
@@ -281,21 +209,6 @@ export const logger = {
       console.error(...args);
     } else {
       emitStructuredLog("error", args);
-    }
-
-    const firstArg = args[0];
-    if (firstArg instanceof Error) {
-      const context =
-        args.length > 1 && isRecord(args[1])
-          ? sanitizeObject(args[1])
-          : undefined;
-      errorTracker.captureException(firstArg, context);
-    } else if (typeof firstArg === "string") {
-      const context =
-        args.length > 1 && isRecord(args[1])
-          ? sanitizeObject(args[1])
-          : undefined;
-      errorTracker.captureMessage(firstArg, "error", context);
     }
   },
 

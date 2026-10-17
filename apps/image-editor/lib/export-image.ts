@@ -181,8 +181,9 @@ function addElementToLayer(
 function renderEditorToStage(
   stage: Konva.Stage,
   sourceImage: HTMLImageElement,
-  state: EditorState
-): void {
+  state: EditorState,
+  backgroundColor?: string
+): { width: number; height: number } {
   stage.destroyChildren();
   const crop = getExportCrop(
     state,
@@ -202,6 +203,19 @@ function renderEditorToStage(
   stage.add(imageLayer);
   stage.add(dimLayer);
   stage.add(annotationLayer);
+
+  if (backgroundColor) {
+    imageLayer.add(
+      new Konva.Rect({
+        x: 0,
+        y: 0,
+        width: stageWidth,
+        height: stageHeight,
+        fill: backgroundColor,
+        listening: false,
+      })
+    );
+  }
 
   imageLayer.add(
     new Konva.Image({
@@ -226,28 +240,50 @@ function renderEditorToStage(
   imageLayer.draw();
   dimLayer.draw();
   annotationLayer.draw();
+
+  return { width: stageWidth, height: stageHeight };
+}
+
+/** Options for {@link exportEditedImage}. */
+export interface ExportImageOptions {
+  /** Optional cap on output width in pixels (browser canvas limits). */
+  readonly maxWidth?: number;
+  /** Optional cap on output height in pixels (browser canvas limits). */
+  readonly maxHeight?: number;
 }
 
 /** Renders the edit to a throwaway stage and returns it as an image blob. */
 export async function exportEditedImage(
   sourceImage: HTMLImageElement,
   state: EditorState,
-  format: ExportFormat
+  format: ExportFormat,
+  options: ExportImageOptions = {}
 ): Promise<Blob> {
   const container = document.createElement("div");
   const stage = new Konva.Stage({ container, width: 1, height: 1 });
-  renderEditorToStage(stage, sourceImage, state);
 
-  const mimeType = format === "jpeg" ? "image/jpeg" : "image/png";
-  const dataUrl = stage.toDataURL({
-    mimeType,
-    quality: format === "jpeg" ? 0.92 : undefined,
-    pixelRatio: 1,
-  });
-  stage.destroy();
+  try {
+    const { width, height } = renderEditorToStage(
+      stage,
+      sourceImage,
+      state,
+      format === "jpeg" ? "#ffffff" : undefined
+    );
 
-  const response = await fetch(dataUrl);
-  return response.blob();
+    const pixelRatio = Math.min(
+      1,
+      options.maxWidth ? options.maxWidth / width : 1,
+      options.maxHeight ? options.maxHeight / height : 1
+    );
+
+    return await stage.toBlob({
+      mimeType: format === "jpeg" ? "image/jpeg" : "image/png",
+      quality: format === "jpeg" ? 0.92 : undefined,
+      pixelRatio: Math.max(0.01, pixelRatio),
+    });
+  } finally {
+    stage.destroy();
+  }
 }
 
 /** Logical (pre-fit) stage size and the crop it is derived from. */

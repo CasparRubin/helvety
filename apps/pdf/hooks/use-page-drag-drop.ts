@@ -11,7 +11,7 @@ import * as React from "react";
 interface UsePageDragDropReturn {
   readonly draggedIndex: number | null;
   readonly dragOverIndex: number | null;
-  readonly handleDragStart: (index: number) => void;
+  readonly handleDragStart: (index: number, event?: React.DragEvent) => void;
   readonly handleDragOver: (e: React.DragEvent, index: number) => void;
   readonly handleDragLeave: () => void;
   readonly handleDrop: (e: React.DragEvent, dropIndex: number) => void;
@@ -50,9 +50,17 @@ export function usePageDragDrop({
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
 
-  const handleDragStart = React.useCallback((index: number): void => {
-    setDraggedIndex(index);
-  }, []);
+  const handleDragStart = React.useCallback(
+    (index: number, event?: React.DragEvent): void => {
+      if (event) {
+        event.dataTransfer.effectAllowed = "move";
+        // Firefox requires data to be set for a drag to start.
+        event.dataTransfer.setData("text/plain", String(index));
+      }
+      setDraggedIndex(index);
+    },
+    []
+  );
 
   const handleDragOver = React.useCallback(
     (e: React.DragEvent, index: number): void => {

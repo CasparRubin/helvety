@@ -1,11 +1,7 @@
-"use client";
-
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-/**
- *
- */
+/** Accessible label element with shared typography. */
 function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
     <label

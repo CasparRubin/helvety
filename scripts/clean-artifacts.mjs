@@ -3,20 +3,25 @@
  * Does not touch source or node_modules.
  */
 import { readdirSync, rmSync, existsSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const repoRoot = join(fileURLToPath(new URL(".", import.meta.url)), "..");
+const repoRoot = process.env.HELVETY_CLEAN_ROOT
+  ? resolve(process.env.HELVETY_CLEAN_ROOT)
+  : join(fileURLToPath(new URL(".", import.meta.url)), "..");
 const skipCoverageClean = process.env.HELVETY_SKIP_COVERAGE_CLEAN === "1";
 
 /** Directory names removed wherever they appear under the repo (except node_modules). */
 const ARTIFACT_DIR_NAMES = new Set([".next", "coverage", ".turbo"]);
 
+/** Directories never traversed while collecting artifacts. */
+const SKIP_DIR_NAMES = new Set(["node_modules", ".git"]);
+
 /**
  * @param {string} dir
  * @returns {string[]}
  */
-function collectArtifactDirs(dir) {
+export function collectArtifactDirs(dir) {
   /** @type {string[]} */
   const found = [];
   let entries;
@@ -27,7 +32,7 @@ function collectArtifactDirs(dir) {
   }
 
   for (const entry of entries) {
-    if (entry.name === "node_modules") {
+    if (SKIP_DIR_NAMES.has(entry.name)) {
       continue;
     }
     const abs = join(dir, entry.name);
@@ -84,7 +89,7 @@ function removeDir(dir) {
 }
 
 /** @param {string} dir */
-function collectDsStore(dir) {
+export function collectDsStore(dir) {
   /** @type {string[]} */
   const paths = [];
   let entries;
@@ -94,7 +99,7 @@ function collectDsStore(dir) {
     return paths;
   }
   for (const entry of entries) {
-    if (entry.name === "node_modules") {
+    if (SKIP_DIR_NAMES.has(entry.name)) {
       continue;
     }
     const abs = join(dir, entry.name);
@@ -107,17 +112,27 @@ function collectDsStore(dir) {
   return paths;
 }
 
-const artifactDirs = collectArtifactDirs(repoRoot);
-for (const dir of artifactDirs) {
-  removeDir(dir);
+function main() {
+  const artifactDirs = collectArtifactDirs(repoRoot);
+  for (const dir of artifactDirs) {
+    removeDir(dir);
+  }
+
+  const dsStorePaths = collectDsStore(repoRoot);
+  for (const file of dsStorePaths) {
+    rmSync(file, { force: true });
+    console.log(`[clean:artifacts] removed ${repoRelativePath(file)}`);
+  }
+
+  if (artifactDirs.length === 0 && dsStorePaths.length === 0) {
+    console.log("[clean:artifacts] nothing to remove");
+  }
 }
 
-const dsStorePaths = collectDsStore(repoRoot);
-for (const file of dsStorePaths) {
-  rmSync(file, { force: true });
-  console.log(`[clean:artifacts] removed ${repoRelativePath(file)}`);
-}
-
-if (artifactDirs.length === 0 && dsStorePaths.length === 0) {
-  console.log("[clean:artifacts] nothing to remove");
+// Only run when executed directly (tests import the collectors).
+if (
+  process.argv[1] &&
+  pathToFileURL(process.argv[1]).href === import.meta.url
+) {
+  main();
 }

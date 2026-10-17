@@ -1,6 +1,12 @@
-/**
- * Formats YYYY-MM-DD for store UI (UTC calendar date, hydration-safe).
- */
+/** Shared UTC formatter; constructing Intl formatters is comparatively expensive. */
+const RELEASE_DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/** Formats YYYY-MM-DD for store UI (UTC calendar date, hydration-safe). */
 export function formatStoreReleaseDate(isoDate: string): string {
   const parts = isoDate.split("-").map(Number);
   const y = parts[0];
@@ -16,10 +22,5 @@ export function formatStoreReleaseDate(isoDate: string): string {
   ) {
     return isoDate;
   }
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(y, m - 1, d)));
+  return RELEASE_DATE_FORMATTER.format(new Date(Date.UTC(y, m - 1, d)));
 }

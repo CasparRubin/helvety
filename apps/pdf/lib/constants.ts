@@ -3,11 +3,6 @@
  * For toast durations, use @helvety/shared/constants.
  */
 
-import {
-  PDF_MAX_OPEN_FILES,
-  PDF_MAX_PAGES_PER_FILE,
-} from "@helvety/shared/product-file-limit-copy";
-
 /**
  * Breakpoint values for responsive column layout (in pixels)
  */
@@ -88,8 +83,6 @@ export const THUMBNAIL_DIMENSIONS = {
 export const INTERSECTION_OBSERVER = {
   /** Root margin for loading thumbnails (start loading before visible) */
   LOAD_MARGIN: "200px",
-  /** Root margin for unloading thumbnails (unload when far from viewport) */
-  UNLOAD_MARGIN: "-100px",
   /** Threshold for intersection detection */
   THRESHOLD: 0.01,
 } as const;
@@ -136,10 +129,6 @@ export const PDF_RENDER = {
 export const FILE_LIMITS = {
   /** Minimum delay between uploads in milliseconds */
   UPLOAD_RATE_LIMIT: 100,
-  /** Soft cap on concurrently open PDF/image documents (memory safeguard). */
-  MAX_OPEN_FILES: PDF_MAX_OPEN_FILES,
-  /** Soft cap on pages per uploaded document (memory safeguard). */
-  MAX_PAGES_PER_FILE: PDF_MAX_PAGES_PER_FILE,
 } as const;
 
 /**
@@ -180,8 +169,6 @@ export const TIMEOUTS = {
  * Rotation angle constants (in degrees)
  */
 export const ROTATION_ANGLES = {
-  /** No rotation */
-  NONE: 0,
   /** 90 degree rotation (quarter turn clockwise) */
   QUARTER: 90,
   /** 180 degree rotation (half turn) */

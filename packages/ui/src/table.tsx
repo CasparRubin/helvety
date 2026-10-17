@@ -1,11 +1,7 @@
-"use client";
-
 import { cn } from "@helvety/shared/utils";
 import * as React from "react";
 
-/**
- *
- */
+/** Horizontally scrollable table container. */
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
@@ -21,9 +17,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   );
 }
 
-/**
- *
- */
+/** Table header section. */
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
@@ -34,9 +28,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   );
 }
 
-/**
- *
- */
+/** Table body section. */
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
@@ -47,9 +39,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   );
 }
 
-/**
- *
- */
+/** Table footer section. */
 function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
     <tfoot
@@ -63,9 +53,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   );
 }
 
-/**
- *
- */
+/** Table body row. */
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
@@ -79,9 +67,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   );
 }
 
-/**
- *
- */
+/** Table header cell. */
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
@@ -95,9 +81,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   );
 }
 
-/**
- *
- */
+/** Table data cell. */
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
@@ -111,9 +95,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   );
 }
 
-/**
- *
- */
+/** Table caption. */
 function TableCaption({
   className,
   ...props

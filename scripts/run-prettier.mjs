@@ -31,10 +31,16 @@ const nodePath = [
   .filter(Boolean)
   .join(path.delimiter);
 
-const result = spawnSync(process.execPath, [prettierBin, ...args, "."], {
-  cwd: rootDir,
-  env: { ...process.env, NODE_PATH: nodePath },
-  stdio: "inherit",
-});
+const prettierArgs = args.slice(1);
+const hasTargetPaths = prettierArgs.some((arg) => !arg.startsWith("-"));
+const result = spawnSync(
+  process.execPath,
+  [prettierBin, ...args, ...(hasTargetPaths ? [] : ["."])],
+  {
+    cwd: rootDir,
+    env: { ...process.env, NODE_PATH: nodePath },
+    stdio: "inherit",
+  }
+);
 
 process.exit(result.status ?? 1);

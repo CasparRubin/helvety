@@ -35,33 +35,7 @@ const toolchainResolvePaths = {
   lucideReactDir: path.dirname(
     rootRequire.resolve("lucide-react/package.json")
   ),
-  reactRemoveScroll: rootRequire.resolve("react-remove-scroll"),
-  reactRemoveScrollDir: path.dirname(
-    rootRequire.resolve("react-remove-scroll/package.json")
-  ),
 };
-
-/** Optional aliases so Vitest still loads after Motion is removed from the tree. */
-function framerMotionAliases(rootRequireFn) {
-  try {
-    const framerMotion = rootRequireFn.resolve("framer-motion");
-    const framerMotionDir = path.dirname(
-      rootRequireFn.resolve("framer-motion/package.json")
-    );
-    return [
-      {
-        find: /^framer-motion$/,
-        replacement: framerMotion,
-      },
-      {
-        find: /^framer-motion\/(.+)$/,
-        replacement: `${framerMotionDir}/$1`,
-      },
-    ];
-  } catch {
-    return [];
-  }
-}
 
 /** Vite alias that pins a package to the hoisted root ESM entry when available. */
 function exactPackageAlias(rootRequireFn, packageName) {
@@ -88,15 +62,7 @@ function exactPackageAlias(rootRequireFn, packageName) {
   };
 }
 
-const hoistedTestPackages = [
-  "@dnd-kit/accessibility",
-  "@dnd-kit/core",
-  "@dnd-kit/sortable",
-  "@dnd-kit/utilities",
-  "next/link",
-  "next/navigation",
-  "react-remove-scroll",
-];
+const hoistedTestPackages = ["next/link", "next/navigation"];
 
 const hoistedPackageAliases = hoistedTestPackages.map((packageName) =>
   exactPackageAlias(rootRequire, packageName)
@@ -116,23 +82,8 @@ function forceSingleReactPlugin(paths) {
   return {
     name: "helvety-vitest-force-single-react",
     enforce: "pre",
-    resolveId(source, importer) {
-      const forced = forcedIds.get(source);
-      if (forced) {
-        return forced;
-      }
-      if (
-        importer &&
-        (source === "react" ||
-          source === "react-dom" ||
-          source.startsWith("react/") ||
-          source.startsWith("react-dom/"))
-      ) {
-        const nested = forcedIds.get(source);
-        if (nested) {
-          return nested;
-        }
-      }
+    resolveId(source) {
+      return forcedIds.get(source);
     },
   };
 }
@@ -241,12 +192,7 @@ export function createVitestConfig(rootDir, options = {}) {
           find: /^lucide-react\/(.+)$/,
           replacement: `${toolchainResolvePaths.lucideReactDir}/$1`,
         },
-        ...framerMotionAliases(rootRequire),
         ...hoistedPackageAliases,
-        {
-          find: /^react-remove-scroll\/(.+)$/,
-          replacement: `${toolchainResolvePaths.reactRemoveScrollDir}/$1`,
-        },
       ],
     },
     test: {

@@ -199,7 +199,15 @@ export function HelvetyPublicShellRootLayout({
   const shellWithToaster = (
     <>
       {column}
-      <Toaster />
+      {themeProviderScope === "navbar-only" ? (
+        // Keep the page tree outside ThemeProvider for this scope, but give
+        // Sonner its own provider so toasts follow the selected app theme.
+        <ThemeProvider {...DEFAULT_THEME_PROVIDER_PROPS}>
+          <Toaster />
+        </ThemeProvider>
+      ) : (
+        <Toaster />
+      )}
     </>
   );
 

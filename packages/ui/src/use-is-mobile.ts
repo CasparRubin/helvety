@@ -16,15 +16,18 @@ export function isMobileDevice(): boolean {
 /** React hook that tracks whether the current viewport is mobile-sized. */
 export function useIsMobile(): boolean {
   return React.useSyncExternalStore(
-    (onStoreChange) => {
-      if (typeof window === "undefined") {
-        return () => {};
-      }
-      const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-      mql.addEventListener("change", onStoreChange);
-      return () => mql.removeEventListener("change", onStoreChange);
-    },
-    () => isMobileDevice(),
+    subscribeToMobileBreakpoint,
+    isMobileDevice,
     () => false
   );
+}
+
+/** Shared media-query subscription (stable identity for `useSyncExternalStore`). */
+function subscribeToMobileBreakpoint(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+  const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+  mql.addEventListener("change", onStoreChange);
+  return () => mql.removeEventListener("change", onStoreChange);
 }

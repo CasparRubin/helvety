@@ -1,3 +1,4 @@
+import { clampOutputDimensions } from "@helvety/shared/canvas-export-limits";
 import { TOAST_DURATIONS } from "@helvety/shared/constants";
 import {
   getRangeInputByLabel,
@@ -26,7 +27,7 @@ vi.mock("@/lib/export-image", () => ({
     .mockResolvedValue(new Blob(["png"], { type: "image/png" })),
 }));
 
-vi.mock("@/lib/canvas-export-limits", () => ({
+vi.mock("@helvety/shared/canvas-export-limits", () => ({
   getCanvasExportLimitsCached: vi.fn().mockResolvedValue({
     maxWidth: 8192,
     maxHeight: 8192,
@@ -39,7 +40,6 @@ vi.mock("@/lib/canvas-export-limits", () => ({
   })),
 }));
 
-import { clampOutputDimensions } from "@/lib/canvas-export-limits";
 import { getDefaultToolSizes } from "@/lib/default-tool-sizes";
 import { DEFAULT_BLUR_RADIUS, DEFAULT_CORNER_RADIUS } from "@/lib/editor-types";
 import { exportEditedImage } from "@/lib/export-image";
@@ -283,7 +283,9 @@ describe("HelvetyImageEditor", () => {
         duration: TOAST_DURATIONS.SUCCESS,
       });
     });
-    expect(revokeObjectURL).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(revokeObjectURL).toHaveBeenCalled();
+    });
   });
 
   it("shows an info toast when export dimensions are clamped", async () => {

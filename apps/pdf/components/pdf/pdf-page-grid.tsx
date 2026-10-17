@@ -57,7 +57,9 @@ function PdfPageGridComponent({
   columns,
 }: PdfPageGridProps): React.JSX.Element | null {
   // Track error boundary retry keys for each page
-  const errorRetryKeysRef = React.useRef<Map<number, number>>(new Map());
+  const [errorRetryKeys, setErrorRetryKeys] = React.useState<
+    ReadonlyMap<number, number>
+  >(new Map());
 
   // Use drag-and-drop hook for cleaner code organization
   const dragDrop = usePageDragDrop({
@@ -219,7 +221,6 @@ function PdfPageGridComponent({
             totalPages: pageOrder.length,
             isDeleted,
             hasRotation: hasUserRotation,
-            rotation: userRotation,
             isProcessing,
             onMoveUp: handleMoveUp,
             onMoveDown: handleMoveDown,
@@ -248,7 +249,7 @@ function PdfPageGridComponent({
               tabIndex={0}
               aria-label={pageLabel}
               aria-describedby={pageDescriptionId}
-              onDragStart={() => dragDrop.handleDragStart(index)}
+              onDragStart={(e) => dragDrop.handleDragStart(index, e)}
               onDragOver={(e) => dragDrop.handleDragOver(e, index)}
               onDragLeave={dragDrop.handleDragLeave}
               onDrop={(e) => dragDrop.handleDrop(e, index)}
@@ -311,17 +312,16 @@ function PdfPageGridComponent({
             >
               <div className="min-w-0 flex-1">
                 <PageErrorBoundary
-                  retryKey={
-                    errorRetryKeysRef.current.get(unifiedPageNumber) ?? 0
-                  }
+                  retryKey={errorRetryKeys.get(unifiedPageNumber) ?? 0}
                   onError={() => {
-                    // Increment retry key to trigger re-render
-                    const currentKey =
-                      errorRetryKeysRef.current.get(unifiedPageNumber) ?? 0;
-                    errorRetryKeysRef.current.set(
-                      unifiedPageNumber,
-                      currentKey + 1
-                    );
+                    setErrorRetryKeys((previous) => {
+                      const next = new Map(previous);
+                      next.set(
+                        unifiedPageNumber,
+                        (previous.get(unifiedPageNumber) ?? 0) + 1
+                      );
+                      return next;
+                    });
                   }}
                 >
                   <PdfPageThumbnail
@@ -336,7 +336,6 @@ function PdfPageGridComponent({
                     finalPageNumber={finalPageNumber}
                     fileType={fileInfo.type}
                     totalPages={pageOrder.length}
-                    listIndex={index}
                   />
                 </PageErrorBoundary>
                 <div id={pageDescriptionId} className="sr-only">

@@ -1,3 +1,4 @@
+import { cn } from "@helvety/shared/utils";
 import { Button } from "@helvety/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -29,11 +30,6 @@ type LegalHeadingProps = WithClassName & {
   title: ReactNode;
 };
 
-/** Concatenate optional class names without external dependency. */
-function cx(...parts: Array<string | undefined>) {
-  return parts.filter(Boolean).join(" ");
-}
-
 /** Shared shell for legal pages with back navigation and document wrapper. */
 export function LegalPageShell({
   children,
@@ -55,7 +51,7 @@ export function LegalPageShell({
             {backLabel}
           </Button>
         </div>
-        <article className={cx("legal-doc", className)}>{children}</article>
+        <article className={cn("legal-doc", className)}>{children}</article>
       </div>
     </section>
   );
@@ -81,7 +77,7 @@ export function LegalHeader({
 /** Container for a legal table of contents block. */
 export function LegalToc({ children, className }: WithClassName) {
   return (
-    <nav aria-label="Table of contents" className={cx("legal-toc", className)}>
+    <nav aria-label="Table of contents" className={cn("legal-toc", className)}>
       {children}
     </nav>
   );
@@ -95,7 +91,7 @@ export function LegalSection({
   className,
 }: LegalHeadingProps) {
   return (
-    <section id={id} className={cx("legal-section", className)}>
+    <section id={id} className={cn("legal-section", className)}>
       <h2>{title}</h2>
       {children}
     </section>
@@ -110,7 +106,7 @@ export function LegalSubsection({
   className,
 }: LegalHeadingProps) {
   return (
-    <section id={id} className={cx("legal-subsection", className)}>
+    <section id={id} className={cn("legal-subsection", className)}>
       <h3>{title}</h3>
       {children}
     </section>
@@ -119,12 +115,12 @@ export function LegalSubsection({
 
 /** Card container used for highlighted legal content blocks. */
 export function LegalCard({ children, className }: WithClassName) {
-  return <div className={cx("legal-card", className)}>{children}</div>;
+  return <div className={cn("legal-card", className)}>{children}</div>;
 }
 
 /** Footer note container for final legal acknowledgements. */
 export function LegalFooterNote({ children, className }: WithClassName) {
-  return <footer className={cx("legal-footer", className)}>{children}</footer>;
+  return <footer className={cn("legal-footer", className)}>{children}</footer>;
 }
 
 /** Props for accessible horizontal scroll region around legal tables. */
@@ -143,7 +139,7 @@ export function LegalTableWrap({
       role="region"
       aria-label={ariaLabel}
       tabIndex={0}
-      className={cx("legal-table-wrap", className)}
+      className={cn("legal-table-wrap", className)}
     >
       {children}
     </div>
@@ -161,7 +157,7 @@ export function LegalTable({
 }: WithClassName & { layout?: LegalTableLayout }) {
   return (
     <div
-      className={cx(
+      className={cn(
         layout === "cards" ? "legal-table-cards" : "legal-table-scroll",
         className
       )}

@@ -24,6 +24,10 @@ class Stage {
   height = vi.fn();
   scale = vi.fn();
   toDataURL = vi.fn(() => "data:image/png;base64,AA==");
+  toBlob = vi.fn(
+    async (config?: { mimeType?: string }) =>
+      new Blob(["image"], { type: config?.mimeType ?? "image/png" })
+  );
   destroy = vi.fn();
   getRelativePointerPosition = vi.fn(() => null);
 }

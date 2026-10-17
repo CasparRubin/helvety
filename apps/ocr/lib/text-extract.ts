@@ -24,6 +24,12 @@ function pageSeparator(page: number): string {
 export function combinePageTexts(pageTexts: readonly string[]): string {
   const normalized = pageTexts.map(normalizePageText);
 
+  // A multi-page document with no extractable text must not surface page
+  // headers as if they were content.
+  if (normalized.every((text) => text.length === 0)) {
+    return "";
+  }
+
   if (normalized.length <= 1) {
     return normalized[0] ?? "";
   }

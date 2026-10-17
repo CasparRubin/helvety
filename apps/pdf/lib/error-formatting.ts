@@ -15,27 +15,9 @@
  * Standard error message templates for consistency.
  */
 export const ERROR_TEMPLATES = {
-  /** Template: "Can't [action] '[filename]': [reason]" */
-  CANT_ACTION_FILE: (
-    action: string,
-    filename: string,
-    reason: string
-  ): string => {
-    return `Can't ${action} '${filename}': ${reason}`;
-  },
   /** Template: "[Action] failed: [reason]" */
   ACTION_FAILED: (action: string, reason: string): string => {
     return `${action} failed: ${reason}`;
-  },
-  /** Template: "[Resource] not found. [context]" */
-  NOT_FOUND: (resource: string, context?: string): string => {
-    return context
-      ? `${resource} not found. ${context}`
-      : `${resource} not found.`;
-  },
-  /** Template: "Invalid [resource]: [details]" */
-  INVALID: (resource: string, details: string): string => {
-    return `Invalid ${resource}: ${details}`;
   },
 } as const;
 

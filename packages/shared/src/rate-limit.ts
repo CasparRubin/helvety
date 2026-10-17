@@ -125,7 +125,7 @@ function logRateLimitDecision(
     logger.warn(message, metadata);
     return;
   }
-  logger.info(message, metadata);
+  logger.debug(message, metadata);
 }
 
 /**

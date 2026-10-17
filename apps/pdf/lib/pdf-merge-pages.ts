@@ -178,7 +178,7 @@ export async function mergePagesOnMainThread({
         `Batch ${batchNumber}/${totalBatches} processing failed:`
       );
       logger.logUnexpectedError("Batch processing error", errorInfo);
-      throw errorInfo;
+      throw new Error(errorInfo.message);
     }
 
     if (i + batchSize < activePages.length) {

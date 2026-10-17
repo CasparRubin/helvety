@@ -13,7 +13,6 @@ import { formatValidationErrors } from "@/lib/error-formatting";
 import { processFile } from "@/lib/file-processing";
 import { getRecommendedCacheLimit } from "@/lib/memory-utils";
 import { convertImageToPdf } from "@/lib/pdf-conversion";
-import { createPdfErrorInfo, PdfErrorType } from "@/lib/pdf-errors";
 import { loadPdfFromFile } from "@/lib/pdf-loading";
 import { validateFiles, generateUniqueFileName } from "@/lib/validation-utils";
 
@@ -24,11 +23,9 @@ import type { PDFDocument } from "pdf-lib";
 /** Return type of usePdfFiles: file state, page order, handlers, and cache access. */
 interface UsePdfFilesReturn {
   readonly pdfFiles: ReadonlyArray<PdfFile>;
-  readonly setPdfFiles: React.Dispatch<React.SetStateAction<PdfFile[]>>;
   readonly unifiedPages: ReadonlyArray<UnifiedPage>;
   readonly pageOrder: ReadonlyArray<number>;
   readonly setPageOrder: React.Dispatch<React.SetStateAction<number[]>>;
-  readonly pdfCacheRef: React.MutableRefObject<Map<string, PDFDocument>>;
   readonly validateAndAddFiles: (
     files: FileList | ReadonlyArray<File>,
     onError: (error: string | null) => void
@@ -41,9 +38,6 @@ interface UsePdfFilesReturn {
     fileType: "pdf" | "image"
   ) => Promise<PDFDocument>;
 }
-
-/** Maximum number of retry attempts for transient failures */
-const MAX_RETRIES = 2;
 
 /** Evict least-recently-used documents until cache is within configured cap. */
 function enforcePdfCacheLimit(pdfCache: Map<string, PDFDocument>): void {
@@ -82,85 +76,21 @@ async function enforceRateLimiting(
 }
 
 /**
- * Determines if an error is retryable based on its type.
- * Network, timeout, and unknown errors are retryable.
- * Corrupted or invalid file errors are not.
- *
- * @param error - The error string to check
- * @param fileName - The file name for error context
- * @returns True if the error is retryable
+ * Processes a single file and logs failures before returning the result.
  */
-function isRetryableError(error: string, fileName: string): boolean {
-  const errorInfo = createPdfErrorInfo(
-    new Error(error),
-    `Processing '${fileName}':`
-  );
-  return (
-    errorInfo.type === PdfErrorType.NETWORK ||
-    errorInfo.type === PdfErrorType.TIMEOUT ||
-    errorInfo.type === PdfErrorType.UNKNOWN
-  );
-}
-
-/**
- * Enhances error messages with helpful suggestions for memory-related issues.
- *
- * @param errorMessage - The original error message
- * @returns Enhanced error message with suggestions if applicable
- */
-function enhanceErrorMessage(errorMessage: string): string {
-  const isMemoryRelated =
-    errorMessage.includes("memory") ||
-    errorMessage.includes("allocation") ||
-    errorMessage.includes("out of memory") ||
-    errorMessage.toLowerCase().includes("quota");
-
-  if (isMemoryRelated) {
-    return `${errorMessage} The file may be too large for your device's available memory. Try closing other browser tabs or processing fewer files at once.`;
-  }
-  return errorMessage;
-}
-
-/**
- * Processes a single file with retry logic for transient failures.
- *
- * @param file - The file to process
- * @param fileIndex - Index for color assignment
- * @param pdfCache - Cache map for PDFDocuments
- * @param isMobile - Whether device is mobile (affects yielding)
- * @returns Processed PdfFile or error message
- */
-async function processFileWithRetry(
+async function processFileSafely(
   file: File,
   fileIndex: number,
   pdfCache: Map<string, PDFDocument>,
   isMobile: boolean
 ): Promise<{ pdfFile: PdfFile } | { error: string }> {
-  let result = await processFile(file, fileIndex, pdfCache, isMobile);
-  let retryCount = 0;
-
-  while ("error" in result && retryCount < MAX_RETRIES) {
-    if (!isRetryableError(result.error, file.name)) {
-      break; // Don't retry for corrupted/invalid files
-    }
-
-    retryCount++;
-    logger.log(
-      `Retrying file '${file.name}' (attempt ${retryCount + 1}/${MAX_RETRIES + 1})...`
-    );
-
-    // Yield before retry to give browser time to recover
-    await yieldToBrowserIfNeeded(file.size, isMobile, true);
-
-    result = await processFile(file, fileIndex, pdfCache, isMobile);
-  }
+  const result = await processFile(file, fileIndex, pdfCache, isMobile);
 
   if ("error" in result) {
     logger.logUnexpectedError(
-      `Failed to process file '${file.name}' after ${retryCount + 1} attempt(s)`,
+      `Failed to process file '${file.name}'`,
       result.error
     );
-    return { error: enhanceErrorMessage(result.error) };
   }
 
   return result;
@@ -311,9 +241,9 @@ export function usePdfFiles(): UsePdfFilesReturn {
   /**
    * Validates and adds PDF files and images to the application state.
    *
-   * Performs validation checks, rate limiting, and progressive processing
-   * with retry logic for transient failures. Soft caps apply for open-file
-   * count and pages per file; per-file size validation still applies.
+   * Performs validation checks, rate limiting, and progressive processing.
+   * Soft caps apply for open-file count and pages per file; per-file size
+   * validation still applies.
    *
    * @param files - FileList or array of File objects to validate and add
    * @param onError - Callback function to handle errors
@@ -325,10 +255,12 @@ export function usePdfFiles(): UsePdfFilesReturn {
     ): Promise<void> => {
       const fileArray = Array.from(files);
       const isMobile = isMobileDevice();
-      const currentPdfFiles = pdfFilesRef.current;
 
       // Enforce rate limiting between uploads
       await enforceRateLimiting(lastUploadTimeRef);
+
+      // Read after the throttle so concurrent drops see files added meanwhile.
+      const currentPdfFiles = pdfFilesRef.current;
 
       // Validate files before processing
       const validationResult = validateFiles(fileArray, currentPdfFiles.length);
@@ -367,7 +299,7 @@ export function usePdfFiles(): UsePdfFilesReturn {
         // Yield to browser before processing (important for large files and mobile)
         await yieldToBrowserIfNeeded(file.size, isMobile, i > 0);
 
-        const result = await processFileWithRetry(
+        const result = await processFileSafely(
           file,
           fileIndex,
           pdfCacheRef.current,
@@ -392,7 +324,11 @@ export function usePdfFiles(): UsePdfFilesReturn {
 
       // Update state with successfully processed files
       if (pdfFilesToAdd.length > 0) {
-        setPdfFiles((prev) => [...prev, ...pdfFilesToAdd]);
+        setPdfFiles((prev) => {
+          const next = [...prev, ...pdfFilesToAdd];
+          pdfFilesRef.current = next;
+          return next;
+        });
       }
 
       // Report errors or clear error state
@@ -471,11 +407,9 @@ export function usePdfFiles(): UsePdfFilesReturn {
 
   return {
     pdfFiles,
-    setPdfFiles,
     unifiedPages,
     pageOrder,
     setPageOrder,
-    pdfCacheRef,
     validateAndAddFiles,
     removeFile,
     clearAll,

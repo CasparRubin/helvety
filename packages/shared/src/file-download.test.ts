@@ -23,6 +23,11 @@ describe("sanitizeDownloadFilename", () => {
     expect(result.length).toBeLessThanOrEqual(200);
     expect(result.endsWith(".pdf")).toBe(true);
   });
+
+  it("truncates long names without an extension", () => {
+    const result = sanitizeDownloadFilename("a".repeat(300), LIMITS);
+    expect(result.length).toBe(200);
+  });
 });
 
 describe("downloadBlob", () => {

@@ -20,7 +20,6 @@ type ErrorSetter = (error: string | null) => void;
  * @param error - The error to handle (can be Error, string, or unknown)
  * @param context - Context string for the error (e.g., "Can't load 'filename.pdf':")
  * @param onError - Callback function to set the error message
- * @param logError - Whether to log the error (default: true)
  * @returns The created error info, or null if error was null/undefined
  *
  * @example
@@ -35,8 +34,7 @@ type ErrorSetter = (error: string | null) => void;
 export function handleError(
   error: unknown,
   context: string,
-  onError: ErrorSetter,
-  logError: boolean = true
+  onError: ErrorSetter
 ): PdfErrorInfo | null {
   if (error === null || error === undefined) {
     onError(null);
@@ -45,9 +43,7 @@ export function handleError(
 
   const errorInfo = createPdfErrorInfo(error, context);
 
-  if (logError) {
-    logger.logUnexpectedError("Error handled", errorInfo);
-  }
+  logger.logUnexpectedError("Error handled", errorInfo);
 
   onError(errorInfo.message);
   return errorInfo;

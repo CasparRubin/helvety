@@ -4,26 +4,24 @@
  * Product detail client component.
  * Displays full product information with free actions: Chrome Web Store install
  * links where configured, Store-hosted package downloads, or app deep links.
- * The server page calls `notFound()` when the slug is absent from
- * `@helvety/shared/store-catalog`; this client guard covers rare
- * catalog vs `products.ts` drift. Package downloads use a click-only button
- * (no `<a href>` to the download API) to avoid prefetch.
+ * The server page resolves the product row and calls `notFound()` for unknown
+ * slugs, so this component only ships the selected product's data.
  */
 
 import { Button } from "@helvety/ui/button";
 import { Separator } from "@helvety/ui/separator";
 import { ArrowLeft, Check, Code2, Download, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 import { FeatureList } from "@/components/products/feature-list";
 import { ProductDetailHero } from "@/components/products/product-detail-hero";
-import { getProductBySlug } from "@/lib/data/products";
 import { isSaaSProduct, isSoftwareProduct } from "@/lib/types/products";
+
+import type { Product } from "@/lib/types/products";
 
 /** Props for the product detail page client component. */
 interface ProductDetailClientProps {
-  slug: string;
+  product: Product;
 }
 
 /** True when the link opens a GitHub Releases page rather than a running app. */
@@ -41,13 +39,7 @@ function isGitHubReleasesUrl(url: string): boolean {
 }
 
 /** Renders the full product detail page with access details and features. */
-export function ProductDetailClient({ slug }: ProductDetailClientProps) {
-  const product = getProductBySlug(slug);
-
-  if (!product) {
-    notFound();
-  }
-
+export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const appUrl = isSaaSProduct(product)
     ? product.saas?.appUrl
     : product.links?.website;
@@ -76,7 +68,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         }))
       : [];
 
-  const showDownload = Boolean(packageDownloadUrl && downloadFormat);
   const showAppLink = Boolean(appUrl);
   const showChromeWebStore = Boolean(chromeWebStoreUrl);
   const appLinkLabel =
@@ -162,11 +153,14 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                       </p>
                     </div>
                     <Button
-                      type="button"
                       className="w-full shrink-0 sm:w-auto"
-                      onClick={() => {
-                        window.location.assign(module.downloadUrl);
-                      }}
+                      render={
+                        <a
+                          href={module.downloadUrl}
+                          download={`${module.name}.${module.fileFormat}`}
+                        />
+                      }
+                      nativeButton={false}
                     >
                       <Download className="size-4 shrink-0" />
                       Download {module.name} .{module.fileFormat}
@@ -222,15 +216,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                     Add to Chrome
                   </Button>
                 )}
-                {showDownload && (
+                {packageDownloadUrl && downloadFormat && (
                   <Button
-                    type="button"
                     className="w-full"
-                    onClick={() => {
-                      if (packageDownloadUrl) {
-                        window.location.assign(packageDownloadUrl);
-                      }
-                    }}
+                    render={<a href={packageDownloadUrl} />}
+                    nativeButton={false}
                   >
                     <Download className="size-4 shrink-0" />
                     Download .{downloadFormat}

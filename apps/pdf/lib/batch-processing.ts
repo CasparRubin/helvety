@@ -5,7 +5,7 @@
 
 // Internal utilities
 import { PROCESSING } from "./constants";
-import { shouldYieldToBrowser, isMemoryPressureHigh } from "./memory-utils";
+import { shouldYieldToBrowser } from "./memory-utils";
 import { validateNonNegativeInteger } from "./validation-utils";
 
 /**
@@ -75,25 +75,12 @@ export async function yieldToBrowserIfNeeded(
     return;
   }
 
-  // Check if yielding is recommended based on file size
+  // Check if yielding is recommended based on memory pressure or file size.
   if (shouldYieldToBrowser(fileSizeBytes)) {
     const yieldInterval = isMobile
       ? PROCESSING.MOBILE_YIELD_INTERVAL
       : PROCESSING.YIELD_INTERVAL;
     await yieldToBrowser(yieldInterval);
-    return;
-  }
-
-  // Check memory pressure
-  const memoryPressure = isMemoryPressureHigh(85);
-  if (memoryPressure === true) {
-    // Use longer yield when memory pressure is high
-    await yieldToBrowser(
-      isMobile
-        ? PROCESSING.MOBILE_YIELD_INTERVAL * 2
-        : PROCESSING.YIELD_INTERVAL * 2
-    );
-    return;
   }
 
   // No yielding needed

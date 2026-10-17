@@ -49,7 +49,6 @@ const VALID_IMAGE_MIME_TYPES = new Set<string>([
   "image/gif",
   "image/webp",
   "image/bmp",
-  "image/tiff",
   // SVG intentionally excluded: SVGs can contain <script> tags, onload handlers,
   // and external entity references which create XSS risks when rendered.
 ]);
@@ -69,8 +68,6 @@ const VALID_IMAGE_EXTENSIONS = new Set<string>([
   ".gif",
   ".webp",
   ".bmp",
-  ".tiff",
-  ".tif",
   // .svg intentionally excluded (XSS risk - see VALID_IMAGE_MIME_TYPES comment)
 ]);
 
@@ -177,7 +174,7 @@ export function validateFileType(
 
   return {
     valid: false,
-    error: `'${file.name}' is not a supported file type. Please upload a PDF or image file (JPEG, PNG, GIF, WebP, BMP, or TIFF).`,
+    error: `'${file.name}' is not a supported file type. Please upload a PDF or image file (JPEG, PNG, GIF, WebP, or BMP).`,
   };
 }
 

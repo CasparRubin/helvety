@@ -75,7 +75,7 @@ export function OcrSidebar({
         </div>
       )}
 
-      {(status === "processing" || status === "done") && (
+      {(status === "processing" || status === "done" || status === "error") && (
         <div className="space-y-2">
           <h3 className="text-sm font-semibold">Status</h3>
           {status === "processing" ? (
@@ -87,6 +87,8 @@ export function OcrSidebar({
             >
               {progress ? describeOcrProgress(progress) : "Processing"}
             </p>
+          ) : status === "error" ? (
+            <p className="text-destructive text-sm">Failed</p>
           ) : (
             <p className="text-sm text-teal-700 dark:text-teal-300">Done</p>
           )}

@@ -45,6 +45,7 @@ async function readBodyWithLimit(
 
     totalBytes += value.byteLength;
     if (totalBytes > maxBytes) {
+      await reader.cancel().catch(() => {});
       return null;
     }
     chunks.push(value);
@@ -82,37 +83,58 @@ function sanitizeDirective(raw: unknown): string | undefined {
   return raw.slice(0, 120);
 }
 
+/** Type guard for plain record-like report bodies. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /** Extract and sanitize a report payload into safe log fields. */
 function getSanitizedCspPayload(payload: unknown): CspLogPayload | null {
-  if (!payload || typeof payload !== "object") {
+  // The Reporting API (`report-to`) sends an array of report objects with a
+  // `body`; the legacy `report-uri` sends a single object (usually wrapped in
+  // `csp-report`). Accept both shapes.
+  const report = Array.isArray(payload)
+    ? payload.find(
+        (entry) =>
+          entry !== null &&
+          typeof entry === "object" &&
+          (entry as Record<string, unknown>).type === "csp-violation"
+      )
+    : payload;
+  if (!report || typeof report !== "object") {
     return null;
   }
 
-  const source =
-    "csp-report" in payload &&
-    payload["csp-report"] &&
-    typeof payload["csp-report"] === "object"
-      ? payload["csp-report"]
-      : payload;
+  const reportRecord = report as Record<string, unknown>;
+  const source = isRecord(reportRecord.body)
+    ? reportRecord.body
+    : isRecord(reportRecord["csp-report"])
+      ? reportRecord["csp-report"]
+      : reportRecord;
   if (!source || typeof source !== "object") {
     return null;
   }
 
-  const sourceRecord = source as Record<string, unknown>;
-  const statusCode =
-    typeof sourceRecord["status-code"] === "number"
-      ? sourceRecord["status-code"]
-      : typeof sourceRecord["status_code"] === "number"
-        ? sourceRecord["status_code"]
-        : undefined;
+  const sourceRecord = source;
+  const statusCodeCandidate =
+    sourceRecord["status-code"] ??
+    sourceRecord["status_code"] ??
+    sourceRecord.statusCode;
 
   return {
-    documentUri: sanitizeUri(sourceRecord["document-uri"]),
-    blockedUri: sanitizeUri(sourceRecord["blocked-uri"]),
-    violatedDirective: sanitizeDirective(sourceRecord["violated-directive"]),
-    effectiveDirective: sanitizeDirective(sourceRecord["effective-directive"]),
+    documentUri: sanitizeUri(
+      sourceRecord["document-uri"] ?? sourceRecord.documentURL
+    ),
+    blockedUri: sanitizeUri(
+      sourceRecord["blocked-uri"] ?? sourceRecord.blockedURL
+    ),
+    violatedDirective: sanitizeDirective(
+      sourceRecord["violated-directive"] ?? sourceRecord.effectiveDirective
+    ),
+    effectiveDirective: sanitizeDirective(sourceRecord.effectiveDirective),
     disposition: sanitizeDirective(sourceRecord.disposition),
-    statusCode,
+    statusCode:
+      typeof statusCodeCandidate === "number" ? statusCodeCandidate : undefined,
   };
 }
 

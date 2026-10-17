@@ -54,7 +54,7 @@ export function ProductCard({
             alt=""
             fill
             preload={preload}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
             className="object-cover grayscale-[50%] transition-[filter] duration-500 group-hover:grayscale-0"
           />
         ) : null}
@@ -77,7 +77,8 @@ export function ProductCard({
             className={cn(
               "grid transition-[grid-template-rows] duration-300 ease-out",
               "max-md:grid-rows-[1fr]",
-              "grid-rows-[0fr] [@media(hover:hover)]:group-hover:grid-rows-[1fr]"
+              "[@media(hover:none)]:grid-rows-[1fr]",
+              "grid-rows-[0fr] [@media(hover:hover)]:group-focus-within:grid-rows-[1fr] [@media(hover:hover)]:group-hover:grid-rows-[1fr]"
             )}
           >
             <div className="overflow-hidden">

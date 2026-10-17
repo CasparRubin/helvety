@@ -57,8 +57,13 @@ async function loadPdfDocument(data: ArrayBuffer): Promise<{
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(data),
   }) as PdfLoadingTask;
-  const doc = (await loadingTask.promise) as PdfDocumentProxy;
-  return { doc, loadingTask };
+  try {
+    const doc = (await loadingTask.promise) as PdfDocumentProxy;
+    return { doc, loadingTask };
+  } catch (error) {
+    await loadingTask.destroy().catch(() => {});
+    throw error;
+  }
 }
 
 /** Throws an `AbortError` if the signal has already been aborted. */
@@ -73,6 +78,7 @@ export interface UseOcrJobResult {
   readonly status: OcrStatus;
   readonly progress: OcrProgress | null;
   readonly text: string;
+  readonly error: string | null;
   readonly fileName: string | null;
   readonly inputKind: OcrInputKind | null;
   readonly language: OcrLanguage;
@@ -91,6 +97,7 @@ export function useOcrJob(): UseOcrJobResult {
   const [status, setStatus] = React.useState<OcrStatus>("idle");
   const [progress, setProgress] = React.useState<OcrProgress | null>(null);
   const [text, setText] = React.useState<string>("");
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [fileName, setFileName] = React.useState<string | null>(null);
   const [inputKind, setInputKind] = React.useState<OcrInputKind | null>(null);
   const [language, setLanguageState] = React.useState<OcrLanguage>("eng");
@@ -100,6 +107,16 @@ export function useOcrJob(): UseOcrJobResult {
   const abortRef = React.useRef<AbortController | null>(null);
   const clientRef = React.useRef<OcrWorkerClient | null>(null);
   const isMountedRef = React.useRef(true);
+  const languageRerunTimeoutRef = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  const cancelPendingLanguageRerun = React.useCallback((): void => {
+    if (languageRerunTimeoutRef.current !== null) {
+      clearTimeout(languageRerunTimeoutRef.current);
+      languageRerunTimeoutRef.current = null;
+    }
+  }, []);
 
   const getClient = React.useCallback((): OcrWorkerClient => {
     clientRef.current ??= createOcrWorkerClient();
@@ -162,13 +179,17 @@ export function useOcrJob(): UseOcrJobResult {
               pageTexts.push(textLayer);
             }
           } finally {
-            page.cleanup?.();
+            try {
+              page.cleanup?.();
+            } catch {
+              // Page cleanup is best-effort; never mask the extraction result.
+            }
           }
         }
 
         return combinePageTexts(pageTexts);
       } finally {
-        await loadingTask.destroy();
+        await loadingTask.destroy().catch(() => {});
       }
     },
     [getClient]
@@ -182,6 +203,7 @@ export function useOcrJob(): UseOcrJobResult {
 
       setStatus("processing");
       setText("");
+      setErrorMessage(null);
       setProgress({ phase: "loading", page: 0, totalPages: 0 });
 
       void runJob(file, kind, lang, abortController.signal)
@@ -209,12 +231,14 @@ export function useOcrJob(): UseOcrJobResult {
             return;
           }
           logger.logUnexpectedError("OCR extraction failed", error);
+          const message =
+            error instanceof Error ? error.message : "Failed to extract text.";
           setStatus("error");
+          setErrorMessage(message);
           setProgress(null);
-          toast.error(
-            error instanceof Error ? error.message : "Failed to extract text.",
-            { duration: TOAST_DURATIONS.ERROR }
-          );
+          toast.error(message, {
+            duration: TOAST_DURATIONS.ERROR,
+          });
         })
         .finally(() => {
           if (abortRef.current === abortController) {
@@ -232,16 +256,18 @@ export function useOcrJob(): UseOcrJobResult {
         toast.error(validation.error, { duration: TOAST_DURATIONS.ERROR });
         return;
       }
+      cancelPendingLanguageRerun();
       fileRef.current = file;
       kindRef.current = validation.kind;
       setFileName(file.name);
       setInputKind(validation.kind);
       startJob(file, validation.kind, language);
     },
-    [language, startJob]
+    [cancelPendingLanguageRerun, language, startJob]
   );
 
   const clear = React.useCallback((): void => {
+    cancelPendingLanguageRerun();
     abortRef.current?.abort();
     abortRef.current = null;
     fileRef.current = null;
@@ -249,9 +275,10 @@ export function useOcrJob(): UseOcrJobResult {
     setFileName(null);
     setInputKind(null);
     setText("");
+    setErrorMessage(null);
     setProgress(null);
     setStatus("idle");
-  }, []);
+  }, [cancelPendingLanguageRerun]);
 
   const setLanguage = React.useCallback((next: OcrLanguage): void => {
     setLanguageState(next);
@@ -270,25 +297,34 @@ export function useOcrJob(): UseOcrJobResult {
       return;
     }
     const timeoutId = setTimeout(() => {
+      languageRerunTimeoutRef.current = null;
       startJob(file, kind, language);
     }, LANGUAGE_RERUN_DEBOUNCE_MS);
-    return () => clearTimeout(timeoutId);
+    languageRerunTimeoutRef.current = timeoutId;
+    return () => {
+      clearTimeout(timeoutId);
+      if (languageRerunTimeoutRef.current === timeoutId) {
+        languageRerunTimeoutRef.current = null;
+      }
+    };
   }, [language, startJob]);
 
   React.useEffect(() => {
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
+      cancelPendingLanguageRerun();
       abortRef.current?.abort();
       clientRef.current?.dispose();
       clientRef.current = null;
     };
-  }, []);
+  }, [cancelPendingLanguageRerun]);
 
   return {
     status,
     progress,
     text,
+    error: errorMessage,
     fileName,
     inputKind,
     language,

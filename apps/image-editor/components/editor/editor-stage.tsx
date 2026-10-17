@@ -605,7 +605,7 @@ export function EditorStage({
 
             <Transformer
               ref={transformerRef}
-              rotateEnabled
+              rotateEnabled={selectedElement?.type === "text"}
               boundBoxFunc={(oldBox, newBox) => {
                 if (
                   newBox.width < MIN_DRAG_SIZE_PX ||

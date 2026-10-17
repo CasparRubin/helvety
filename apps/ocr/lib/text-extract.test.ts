@@ -32,4 +32,8 @@ describe("combinePageTexts", () => {
       result.indexOf("--- Page 2 ---")
     );
   });
+
+  it("returns an empty string when every page is empty", () => {
+    expect(combinePageTexts(["", "   ", "\n"])).toBe("");
+  });
 });

@@ -76,6 +76,32 @@ describe("getTrustedClientIp", () => {
     expect(ip).toBeNull();
   });
 
+  it("accepts non-canonical IPv6 proxy headers", () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    const ip = getTrustedClientIp(
+      toHeaders({
+        "x-real-ip": "2001:0db8:0000:0000:0000:0000:0000:0001",
+      }),
+      { requireTrustedProxyInProduction: true }
+    );
+
+    expect(ip).toBe("2001:0db8:0000:0000:0000:0000:0000:0001");
+  });
+
+  it("accepts IPv4-mapped IPv6 proxy headers", () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    const ip = getTrustedClientIp(
+      toHeaders({
+        "x-real-ip": "::ffff:192.0.2.1",
+      }),
+      { requireTrustedProxyInProduction: true }
+    );
+
+    expect(ip).toBe("::ffff:192.0.2.1");
+  });
+
   it("normalizes ip:port values from forwarded headers", () => {
     vi.stubEnv("NODE_ENV", "production");
 

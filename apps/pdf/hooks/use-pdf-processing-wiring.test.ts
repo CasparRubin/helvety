@@ -26,19 +26,17 @@ describe("usePdfProcessing export wiring", () => {
   const workerSrc = readFileSync(workerPath, "utf8");
   const workerTypesSrc = readFileSync(workerTypesPath, "utf8");
 
-  it("syncs pageRotationsRef during render for immediate export reads", () => {
-    expect(hookSrc).toContain("pageRotationsRef.current = pageRotations");
-    expect(hookSrc).not.toMatch(
-      /useEffect\(\(\) => \{\s*pageRotationsRef\.current = pageRotations/
-    );
+  it("reads rotations directly for immediate export reads", () => {
+    expect(hookSrc).toContain("const currentRotations = pageRotations;");
+    expect(hookSrc).not.toContain("pageRotationsRef");
   });
 
   it("snapshots rotations at the start of merge and extract", () => {
-    expect(hookSrc).toContain(
-      "const currentRotations = pageRotationsRef.current"
+    expect(hookSrc).toMatch(
+      /extractPage[\s\S]*const currentRotations = pageRotations;/
     );
     expect(hookSrc).toMatch(
-      /extractPage[\s\S]*currentRotations = pageRotationsRef\.current/
+      /downloadMerged[\s\S]*const currentRotations = pageRotations;/
     );
   });
 
@@ -60,6 +58,7 @@ describe("usePdfProcessing export wiring", () => {
   it("surfaces partial merge page failures instead of a clean success", () => {
     expect(hookSrc).toContain("mergePagesOnMainThread");
     expect(hookSrc).toContain("mergePartialFailureMessage");
-    expect(hookSrc).toContain("success: !hadPageFailures");
+    expect(hookSrc).toContain("hadPageFailures");
+    expect(hookSrc).toContain("onError(");
   });
 });

@@ -12,7 +12,7 @@ import { STROKE_WIDTH_MIN } from "@/lib/default-tool-sizes";
 import { elementLabel } from "@/lib/editor-reducer";
 import { SLIDER_MAX_PX } from "@/lib/editor-types";
 import { formatFileSize } from "@/lib/format-file-size";
-import { RESIZE_TARGET_MIN_BYTES } from "@/lib/resize-image";
+import { RESIZE_TARGET_MIN_BYTES } from "@/lib/resize-constants";
 
 import type { EditorElement, EditorTool } from "@/lib/editor-types";
 
@@ -392,11 +392,12 @@ export function ImageEditorToolPropertiesBar({
                 type="number"
                 min={4}
                 value={Math.round(selected.width)}
-                onChange={(event) =>
-                  onUpdate(selected.id, {
-                    width: Number(event.target.value),
-                  })
-                }
+                onChange={(event) => {
+                  const width = Number(event.target.value);
+                  if (Number.isFinite(width)) {
+                    onUpdate(selected.id, { width: Math.max(4, width) });
+                  }
+                }}
                 className="h-8 w-16"
               />
             </div>
@@ -412,11 +413,12 @@ export function ImageEditorToolPropertiesBar({
                 type="number"
                 min={4}
                 value={Math.round(selected.height)}
-                onChange={(event) =>
-                  onUpdate(selected.id, {
-                    height: Number(event.target.value),
-                  })
-                }
+                onChange={(event) => {
+                  const height = Number(event.target.value);
+                  if (Number.isFinite(height)) {
+                    onUpdate(selected.id, { height: Math.max(4, height) });
+                  }
+                }}
                 className="h-8 w-16"
               />
             </div>

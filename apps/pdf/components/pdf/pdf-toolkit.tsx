@@ -117,7 +117,7 @@ function PdfToolkitComponent({
           )}
 
         {/* Statistics */}
-        {pdfFiles.length > 0 && columns !== 1 && (
+        {pdfFiles.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Statistics</h3>
             <div className="space-y-2 text-sm">

@@ -1,4 +1,12 @@
 import { execFileSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -59,17 +67,35 @@ describe("workspace script parity script", () => {
 });
 
 describe("clean artifacts script", () => {
-  it("runs idempotently without error", () => {
-    const output = execFileSync(
-      process.execPath,
-      [join(repoRoot, "scripts", "clean-artifacts.mjs")],
-      {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: { ...process.env, HELVETY_SKIP_COVERAGE_CLEAN: "1" },
-      }
-    );
-    expect(output).toContain("[clean:artifacts]");
+  it("removes only generated artifacts in the target root", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "helvety-clean-artifacts-"));
+    try {
+      mkdirSync(join(tempRoot, "apps", "web", ".next"), { recursive: true });
+      mkdirSync(join(tempRoot, "coverage"), { recursive: true });
+      writeFileSync(join(tempRoot, ".DS_Store"), "");
+      writeFileSync(join(tempRoot, "keep.txt"), "keep");
+
+      const output = execFileSync(
+        process.execPath,
+        [join(repoRoot, "scripts", "clean-artifacts.mjs")],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            HELVETY_CLEAN_ROOT: tempRoot,
+          },
+        }
+      );
+
+      expect(output).toContain("[clean:artifacts] removed");
+      expect(existsSync(join(tempRoot, "apps", "web", ".next"))).toBe(false);
+      expect(existsSync(join(tempRoot, "coverage"))).toBe(false);
+      expect(existsSync(join(tempRoot, ".DS_Store"))).toBe(false);
+      expect(existsSync(join(tempRoot, "keep.txt"))).toBe(true);
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
   });
 });
 

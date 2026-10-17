@@ -15,6 +15,7 @@ interface SourceImageState {
 export function useSourceImage() {
   const [source, setSource] = useState<SourceImageState | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  const loadIdRef = useRef(0);
 
   const revokeUrl = useCallback((url: string | null) => {
     if (url) {
@@ -24,31 +25,48 @@ export function useSourceImage() {
 
   const loadFile = useCallback(
     async (file: File): Promise<SourceImageState> => {
-      revokeUrl(objectUrlRef.current);
+      const loadId = loadIdRef.current + 1;
+      loadIdRef.current = loadId;
+      const previousUrl = objectUrlRef.current;
       const objectUrl = URL.createObjectURL(file);
       objectUrlRef.current = objectUrl;
 
-      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error("Failed to load image"));
-        img.src = objectUrl;
-      });
+      try {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error("Failed to load image"));
+          img.src = objectUrl;
+        });
 
-      const next: SourceImageState = {
-        file,
-        objectUrl,
-        image,
-        naturalWidth: image.naturalWidth,
-        naturalHeight: image.naturalHeight,
-      };
-      setSource(next);
-      return next;
+        if (loadId !== loadIdRef.current) {
+          throw new DOMException("Superseded load", "AbortError");
+        }
+
+        revokeUrl(previousUrl);
+
+        const next: SourceImageState = {
+          file,
+          objectUrl,
+          image,
+          naturalWidth: image.naturalWidth,
+          naturalHeight: image.naturalHeight,
+        };
+        setSource(next);
+        return next;
+      } catch (error) {
+        URL.revokeObjectURL(objectUrl);
+        if (objectUrlRef.current === objectUrl) {
+          objectUrlRef.current = previousUrl;
+        }
+        throw error;
+      }
     },
     [revokeUrl]
   );
 
   const clear = useCallback(() => {
+    loadIdRef.current += 1;
     revokeUrl(objectUrlRef.current);
     objectUrlRef.current = null;
     setSource(null);

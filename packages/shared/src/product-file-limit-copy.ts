@@ -12,7 +12,7 @@ export const PDF_MAX_PAGES_PER_FILE = 200;
 
 /** User-facing Helvety PDF workspace limits (size + open files + pages). */
 export const PDF_WORKSPACE_LIMITS_COPY =
-  "up to 100 MB per file, 20 open files, 200 pages per file" as const;
+  `up to 100 MB per file, ${PDF_MAX_OPEN_FILES} open files, ${PDF_MAX_PAGES_PER_FILE} pages per file` as const;
 
 /** User-facing file size limits for browser-local utility apps. */
 export const IMAGE_FILE_SIZE_LIMIT_COPY = "up to 25 MB per image" as const;

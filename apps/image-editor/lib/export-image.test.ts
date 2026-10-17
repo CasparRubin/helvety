@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import {
   konvaTestLayerAdds,
@@ -92,12 +92,6 @@ function countHighlightDimNodes(): number {
 describe("export-image helpers", () => {
   beforeEach(() => {
     resetKonvaTestLayerAdds();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => ({
-        blob: async () => new Blob(["png"], { type: "image/png" }),
-      }))
-    );
   });
 
   it("uses full image dimensions when crop is unset", () => {
@@ -175,13 +169,6 @@ describe("export-image helpers", () => {
   });
 
   it("exports JPEG with the jpeg mime type", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => ({
-        blob: async () => new Blob(["jpeg"], { type: "image/jpeg" }),
-      }))
-    );
-
     const image = new MockImage() as unknown as HTMLImageElement;
     const blob = await exportEditedImage(image, initialEditorState, "jpeg");
 

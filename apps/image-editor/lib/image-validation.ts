@@ -6,6 +6,27 @@ export const ACCEPTED_IMAGE_MIME_TYPES = [
   "image/webp",
 ] as const;
 
+/** File extensions mapped to accepted MIME types (for files without a MIME type). */
+const IMAGE_EXTENSION_MIME_TYPES: Readonly<Record<string, string>> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+};
+
+/** Resolves a MIME type from the file type, falling back to its extension. */
+function resolveImageMimeType(file: File): string | null {
+  if (
+    ACCEPTED_IMAGE_MIME_TYPES.includes(
+      file.type as (typeof ACCEPTED_IMAGE_MIME_TYPES)[number]
+    )
+  ) {
+    return file.type;
+  }
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return IMAGE_EXTENSION_MIME_TYPES[extension] ?? null;
+}
+
 export const MAX_IMAGE_FILE_BYTES = 25 * 1024 * 1024;
 
 /** Reason a chosen file was rejected. */
@@ -20,11 +41,7 @@ export interface ImageValidationResult {
 
 /** Validates a file's MIME type and size against the input limits. */
 export function validateImageFile(file: File): ImageValidationResult {
-  if (
-    !ACCEPTED_IMAGE_MIME_TYPES.includes(
-      file.type as (typeof ACCEPTED_IMAGE_MIME_TYPES)[number]
-    )
-  ) {
+  if (!resolveImageMimeType(file)) {
     return { ok: false, error: "unsupported-type" };
   }
   if (file.size > MAX_IMAGE_FILE_BYTES) {

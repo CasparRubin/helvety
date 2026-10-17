@@ -45,24 +45,24 @@ describe("computeEffectiveRotation", () => {
 describe("applyPageRotation", () => {
   it("sets zero rotation to clear inherited /Rotate on copied pages", async () => {
     const setRotation = vi.fn();
-    await applyPageRotation({ setRotation } as unknown as PDFPage, 0, false);
+    await applyPageRotation({ setRotation } as unknown as PDFPage, 0);
     expect(setRotation).toHaveBeenCalledWith(degrees(0));
   });
 
   it("applies normalized rotation metadata", async () => {
     const setRotation = vi.fn();
-    await applyPageRotation({ setRotation } as unknown as PDFPage, 450, false);
+    await applyPageRotation({ setRotation } as unknown as PDFPage, 450);
     expect(setRotation).toHaveBeenCalledWith(degrees(90));
   });
 
-  it("applies 180° metadata for images", async () => {
+  it("applies 180° metadata", async () => {
     const setRotation = vi.fn();
-    await applyPageRotation({ setRotation } as unknown as PDFPage, 180, true);
+    await applyPageRotation({ setRotation } as unknown as PDFPage, 180);
     expect(setRotation).toHaveBeenCalledWith(degrees(180));
   });
 
   it("throws for invalid target page", async () => {
-    await expect(applyPageRotation({} as PDFPage, 90, false)).rejects.toThrow(
+    await expect(applyPageRotation({} as PDFPage, 90)).rejects.toThrow(
       "Invalid targetPage provided"
     );
   });

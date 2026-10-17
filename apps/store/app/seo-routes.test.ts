@@ -26,7 +26,7 @@ describe("store SEO routes", () => {
     const entries = await sitemap();
     const entryUrls = new Set(entries.map((entry) => entry.url));
 
-    expect(entryUrls.has(urls.store)).toBe(true);
+    expect(entryUrls.has(urls.store)).toBe(false);
     expect(entryUrls.has(`${urls.store}/products`)).toBe(true);
     expect(entryUrls.has(`${urls.store}/llms.txt`)).toBe(false);
 

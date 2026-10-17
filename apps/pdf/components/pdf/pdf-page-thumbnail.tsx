@@ -46,8 +46,6 @@ interface PdfPageThumbnailProps {
   finalPageNumber?: number | null;
   fileType: "pdf" | "image";
   totalPages?: number;
-  /** List position; included in Document key so it remounts on reorder and avoids cached detached buffer. */
-  listIndex?: number;
 }
 
 /** Renders a single page thumbnail via ImageBitmap cache, image URL, or react-pdf canvas render. */
@@ -62,7 +60,6 @@ function PdfPageThumbnailComponent({
   finalPageNumber,
   fileType,
   totalPages = 1,
-  listIndex = 0,
 }: PdfPageThumbnailProps): React.JSX.Element {
   const documentKey = fileData
     ? `${fileData.name}-${fileData.size}-${fileData.lastModified}`
@@ -88,7 +85,7 @@ function PdfPageThumbnailComponent({
   const { screenSize } = useScreenSize();
 
   // PDF rendering hook for ImageBitmap rendering
-  const pdfRendering = usePdfRendering();
+  const { isWorkerRenderingAvailable } = usePdfRendering();
 
   // PDF worker initialization
   const { workerReady, error: workerError } = usePdfWorker(fileType);
@@ -174,7 +171,7 @@ function PdfPageThumbnailComponent({
       fileType !== "pdf" ||
       !isVisible ||
       shouldUnmount ||
-      !pdfRendering.isWorkerRenderingAvailable ||
+      !isWorkerRenderingAvailable ||
       !fileUrl ||
       pageWidth === 0
     ) {
@@ -203,7 +200,7 @@ function PdfPageThumbnailComponent({
     shouldUnmount,
     isHighQuality,
     fileType,
-    pdfRendering,
+    isWorkerRenderingAvailable,
     getThumbnailCacheKey,
   ]);
 
@@ -351,8 +348,10 @@ function PdfPageThumbnailComponent({
     (rotation === ROTATION_ANGLES.QUARTER ||
       rotation === ROTATION_ANGLES.THREE_QUARTER);
 
-  // When fileData exists, pass a new Blob so pdf.js reads fresh data (avoids worker cache returning a detached buffer). Otherwise pass the blob URL.
-  const pdfFile: Blob | string = fileData ? new Blob([fileData]) : fileUrl;
+  // Pass the stable File identity so react-pdf can share one parsed document
+  // across every thumbnail of the same file. A fresh Blob per render would
+  // bypass its resource cache and re-parse the PDF continuously.
+  const pdfFile: File | string = fileData ?? fileUrl;
   const canRenderPdfFallback = workerReady && !shouldUnmount;
 
   return (
@@ -435,7 +434,7 @@ function PdfPageThumbnailComponent({
             ) : // PDF canvas render path (react-pdf Document)
             canRenderPdfFallback ? (
               <Document
-                key={`${documentKey}-${pageNumber}-${listIndex}`}
+                key={`${documentKey}-${pageNumber}`}
                 file={pdfFile}
                 suspense={false}
                 onLoadSuccess={onDocumentLoadSuccess}

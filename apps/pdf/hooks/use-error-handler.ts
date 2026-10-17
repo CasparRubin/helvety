@@ -4,10 +4,9 @@ import * as React from "react";
 
 import { CRITICAL_ERROR_PATTERNS } from "@/lib/constants";
 
-/** Return type of useErrorHandler: setError and dismissError. */
+/** Return type of useErrorHandler: setError. */
 interface UseErrorHandlerReturn {
   readonly setError: (error: string | null) => void;
-  readonly dismissError: () => void;
 }
 
 /**
@@ -15,7 +14,7 @@ interface UseErrorHandlerReturn {
  * Non-critical errors are automatically dismissed after a delay.
  * Critical errors persist until manually dismissed.
  *
- * @returns Object containing setError and dismissError functions
+ * @returns Object containing setError
  */
 export function useErrorHandler(): UseErrorHandlerReturn {
   const toastIdRef = React.useRef<string | number | null>(null);
@@ -49,13 +48,6 @@ export function useErrorHandler(): UseErrorHandlerReturn {
     toastIdRef.current = toastId;
   }, []);
 
-  const dismissError = React.useCallback((): void => {
-    if (toastIdRef.current !== null) {
-      toast.dismiss(toastIdRef.current);
-      toastIdRef.current = null;
-    }
-  }, []);
-
   // Cleanup on unmount
   React.useEffect(() => {
     return (): void => {
@@ -65,8 +57,5 @@ export function useErrorHandler(): UseErrorHandlerReturn {
     };
   }, []);
 
-  return {
-    setError,
-    dismissError,
-  };
+  return { setError };
 }

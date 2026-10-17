@@ -8,6 +8,19 @@ import * as React from "react";
 
 import { getRenderingCapabilities } from "@/lib/feature-detection";
 
+/** Cached capabilities: probing WebGL creates canvases/contexts, so do it once. */
+let cachedCapabilities: ReturnType<typeof getRenderingCapabilities> | null =
+  null;
+
+/** Returns browser rendering capabilities, probing only on first use. */
+function getCachedRenderingCapabilities() {
+  if (typeof window === "undefined") {
+    return getRenderingCapabilities();
+  }
+  cachedCapabilities ??= getRenderingCapabilities();
+  return cachedCapabilities;
+}
+
 /**
  * Return type for usePdfRendering hook.
  */
@@ -22,7 +35,10 @@ interface UsePdfRenderingReturn {
  * @returns Whether worker-based rendering is available
  */
 export function usePdfRendering(): UsePdfRenderingReturn {
-  const capabilities = React.useMemo(() => getRenderingCapabilities(), []);
+  const capabilities = React.useMemo(
+    () => getCachedRenderingCapabilities(),
+    []
+  );
 
   return {
     isWorkerRenderingAvailable: capabilities.canUseWorkerRendering,

@@ -24,9 +24,17 @@ export function sanitizeDownloadFilename(
     .trim();
 
   if (sanitized.length > limits.maxLength) {
-    const ext = sanitized.substring(sanitized.lastIndexOf("."));
-    const name = sanitized.substring(0, sanitized.lastIndexOf("."));
-    sanitized = name.substring(0, limits.maxLength - ext.length) + ext;
+    const dotIndex = sanitized.lastIndexOf(".");
+    // Only split off an extension when the dot is part of the filename, not a
+    // leading dot or a missing extension.
+    if (dotIndex > 0) {
+      const ext = sanitized.slice(dotIndex);
+      const name = sanitized.slice(0, dotIndex);
+      sanitized =
+        name.slice(0, Math.max(0, limits.maxLength - ext.length)) + ext;
+    } else {
+      sanitized = sanitized.slice(0, limits.maxLength);
+    }
   }
 
   if (!sanitized || sanitized === "." || sanitized === "..") {

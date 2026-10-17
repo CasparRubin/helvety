@@ -4,6 +4,8 @@ import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/share
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { getProductBySlug } from "@/lib/data/products";
+
 vi.mock("next/link", () => ({
   default: ({
     children,
@@ -19,12 +21,6 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("next/navigation", () => ({
-  notFound: vi.fn(() => {
-    throw new Error("notFound");
-  }),
-}));
-
 vi.mock("next/image", () => ({
   default: (props: { alt?: string }) => (
     <span role="img" aria-label={props.alt ?? ""} />
@@ -33,30 +29,28 @@ vi.mock("next/image", () => ({
 
 import { ProductDetailClient } from "./product-detail-client";
 
-describe("ProductDetailClient", () => {
-  it("uses a click-only download button without a prefetchable package href", () => {
-    const assign = vi.fn();
-    vi.stubGlobal("location", {
-      ...window.location,
-      assign,
-    });
+/** Renders a catalog product by slug with its resolved server payload. */
+function renderProduct(slug: string) {
+  const product = getProductBySlug(slug);
+  if (!product) {
+    throw new Error(`Missing test product: ${slug}`);
+  }
+  return render(<ProductDetailClient product={product} />);
+}
 
-    render(<ProductDetailClient slug="helvety-spo-explorer" />);
+describe("ProductDetailClient", () => {
+  it("renders package downloads as direct links", () => {
+    renderProduct("helvety-spo-explorer");
 
     const download = screen.getByRole("button", { name: /Download \.sppkg/i });
-    expect(download).not.toHaveAttribute("href");
-    expect(document.querySelector('a[href*="/api/packages/"]')).toBeNull();
-
-    download.click();
-    expect(assign).toHaveBeenCalledWith(
+    expect(download).toHaveAttribute(
+      "href",
       "/store/api/packages/spo-explorer/download"
     );
-
-    vi.unstubAllGlobals();
   });
 
   it("does not render a package download control for SaaS products", () => {
-    render(<ProductDetailClient slug="helvety-pdf" />);
+    renderProduct("helvety-pdf");
 
     expect(
       screen.queryByRole("button", { name: /Download \./i })
@@ -65,7 +59,7 @@ describe("ProductDetailClient", () => {
   });
 
   it("renders Chrome Web Store and GitHub links without a package download for Power Platform Configurator", () => {
-    render(<ProductDetailClient slug="helvety-power-platform-configurator" />);
+    renderProduct("helvety-power-platform-configurator");
 
     const chromeWebStore = screen.getByRole("button", {
       name: /Add to Chrome/i,
@@ -90,7 +84,7 @@ describe("ProductDetailClient", () => {
   });
 
   it("uses opaque surface panels for About and Installation", () => {
-    render(<ProductDetailClient slug="helvety-power-platform-configurator" />);
+    renderProduct("helvety-power-platform-configurator");
 
     const about = document.getElementById("about");
     expect(about).toBeInTheDocument();
@@ -106,22 +100,13 @@ describe("ProductDetailClient", () => {
   });
 
   it("lists core and module zip downloads for Power Platform Tools", () => {
-    const assign = vi.fn();
-    vi.stubGlobal("location", {
-      ...window.location,
-      assign,
-    });
-
-    render(<ProductDetailClient slug="helvety-power-platform-tools" />);
+    renderProduct("helvety-power-platform-tools");
 
     const coreDownload = screen.getByRole("button", {
       name: /^Download \.zip$/i,
     });
-    expect(coreDownload).not.toHaveAttribute("href");
-    expect(document.querySelector('a[href*="/api/packages/"]')).toBeNull();
-
-    coreDownload.click();
-    expect(assign).toHaveBeenCalledWith(
+    expect(coreDownload).toHaveAttribute(
+      "href",
       "/store/api/packages/power-platform-tools/download"
     );
 
@@ -137,30 +122,28 @@ describe("ProductDetailClient", () => {
       screen.getByRole("heading", { name: "Data Model Explorer" })
     ).toBeInTheDocument();
 
-    const moduleDownload = screen.getByRole("button", {
-      name: /Download Flow Explorer \.zip/i,
-    });
-    moduleDownload.click();
-    expect(assign).toHaveBeenCalledWith(
-      "/store/api/packages/flow-explorer/download"
-    );
+    expect(
+      screen.getByRole("button", {
+        name: /Download Flow Explorer \.zip/i,
+      })
+    ).toHaveAttribute("href", "/store/api/packages/flow-explorer/download");
 
-    const webResourceDownload = screen.getByRole("button", {
-      name: /Download Web Resource Explorer \.zip/i,
-    });
-    webResourceDownload.click();
-    expect(assign).toHaveBeenCalledWith(
+    expect(
+      screen.getByRole("button", {
+        name: /Download Web Resource Explorer \.zip/i,
+      })
+    ).toHaveAttribute(
+      "href",
       "/store/api/packages/web-resource-explorer/download"
     );
 
-    const dataModelDownload = screen.getByRole("button", {
-      name: /Download Data Model Explorer \.zip/i,
-    });
-    dataModelDownload.click();
-    expect(assign).toHaveBeenCalledWith(
+    expect(
+      screen.getByRole("button", {
+        name: /Download Data Model Explorer \.zip/i,
+      })
+    ).toHaveAttribute(
+      "href",
       "/store/api/packages/data-model-explorer/download"
     );
-
-    vi.unstubAllGlobals();
   });
 });

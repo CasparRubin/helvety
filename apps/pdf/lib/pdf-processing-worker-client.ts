@@ -98,7 +98,8 @@ export class PdfProcessingWorkerClient {
 
   /** Posts a request to the worker and resolves with matched response. */
   async postMessage(
-    message: Omit<WorkerExecutableRequest, "id">
+    message: Omit<WorkerExecutableRequest, "id">,
+    options?: { timeoutMs?: number }
   ): Promise<WorkerResponse> {
     const worker = this.ensureWorker();
     const id = this.nextRequestId();
@@ -110,8 +111,14 @@ export class PdfProcessingWorkerClient {
     return new Promise<WorkerResponse>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         this.pending.delete(id);
+        // Ask the worker to stop the abandoned request so it does not keep
+        // burning CPU while the caller falls back to the main thread.
+        this.worker?.postMessage({
+          id,
+          kind: "cancel",
+        } satisfies WorkerRequest);
         reject(new Error("Worker processing timed out"));
-      }, TIMEOUTS.OPERATION_TIMEOUT);
+      }, options?.timeoutMs ?? TIMEOUTS.OPERATION_TIMEOUT);
 
       this.pending.set(id, { resolve, reject, timeoutId });
 

@@ -1,6 +1,7 @@
 import { HELVETY_SWISS_ORIGIN_SEO } from "./licensing";
 import {
   IMAGE_FILE_SIZE_LIMIT_COPY,
+  OCR_PDF_PAGE_LIMIT_COPY,
   PDF_FILE_SIZE_LIMIT_COPY,
   PDF_WORKSPACE_LIMITS_COPY,
 } from "./product-file-limit-copy";
@@ -13,10 +14,7 @@ export const WEB_SITE_DESCRIPTION =
 export const STORE_DESCRIPTION = `Browse Helvety apps, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Store products listing metadata (products wording vs {@link STORE_DESCRIPTION} apps). */
-export const STORE_PRODUCTS_PAGE_DESCRIPTION = STORE_DESCRIPTION.replace(
-  "apps,",
-  "products,"
-);
+export const STORE_PRODUCTS_PAGE_DESCRIPTION = `Browse Helvety products, downloads, and install links. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared PDF SEO / social copy. */
 export const PDF_APP_DESCRIPTION = `Reorder, merge, rotate, or extract PDF pages, and add images. Work stays in your browser (${PDF_WORKSPACE_LIMITS_COPY}). No account. ${HELVETY_SWISS_ORIGIN_SEO}`;
@@ -31,7 +29,7 @@ export const IMAGE_EDITOR_APP_DESCRIPTION = `Annotate PNG, JPEG, and WebP in you
 export const IMAGE_EDITOR_PWA_MANIFEST_DESCRIPTION = `Annotate PNG, JPEG, and WebP in your browser: text, arrows, borders, highlights, blur regions, crop, and resize to a smaller file size. Layers panel and zoom; PNG and JPEG export. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** Shared OCR SEO / social copy. */
-export const OCR_APP_DESCRIPTION = `Extract text from PDFs and images in your browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first, then OCR when that layer is not enough (${PDF_FILE_SIZE_LIMIT_COPY}, 50 PDF pages). Read, copy, or download plain text. Files stay in your browser. No account. ${HELVETY_SWISS_ORIGIN_SEO}`;
+export const OCR_APP_DESCRIPTION = `Extract text from PDFs and images in your browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first, then OCR when that layer is not enough (${PDF_FILE_SIZE_LIMIT_COPY}, ${OCR_PDF_PAGE_LIMIT_COPY}). Read, copy, or download plain text. Files stay in your browser. No account. ${HELVETY_SWISS_ORIGIN_SEO}`;
 
 /** PWA `public/manifest.json` summary for OCR. */
 export const OCR_PWA_MANIFEST_DESCRIPTION = `Extract text from PDFs and images in your browser. Born-digital PDFs use their text layer first, then on-device OCR. No account required. ${HELVETY_SWISS_ORIGIN_SEO}`;

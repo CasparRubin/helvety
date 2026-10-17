@@ -28,10 +28,6 @@ interface MergeRequestPayload {
   readonly pageRotations: Readonly<Record<number, number>>;
 }
 
-interface WorkerProcessingOptions {
-  readonly useGpuPreprocess: boolean;
-}
-
 export interface ExtractPageResponsePayload {
   readonly bytes: ArrayBuffer;
 }
@@ -48,13 +44,11 @@ export type WorkerRequest =
   | {
       readonly id: string;
       readonly kind: "extract-page";
-      readonly options: WorkerProcessingOptions;
       readonly payload: ExtractPageRequestPayload;
     }
   | {
       readonly id: string;
       readonly kind: "merge-pages";
-      readonly options: WorkerProcessingOptions;
       readonly payload: MergeRequestPayload;
     }
   | {

@@ -1,4 +1,8 @@
-import { OCR_PDF_BASE_DPI, OCR_RENDER_DPI } from "./constants";
+import {
+  OCR_MAX_RENDER_PIXELS,
+  OCR_PDF_BASE_DPI,
+  OCR_RENDER_DPI,
+} from "./constants";
 
 /** Minimal shape of a pdf.js viewport. */
 interface PdfViewport {
@@ -45,7 +49,17 @@ export async function renderPdfPageToImageBlob(
 ): Promise<Blob> {
   throwIfAborted(options.signal);
 
-  const viewport = page.getViewport({ scale: dpiToScale(options.dpi) });
+  const scale = dpiToScale(options.dpi);
+  const unscaledViewport = page.getViewport({ scale });
+  const unscaledPixels = unscaledViewport.width * unscaledViewport.height;
+  const scaleAdjustment =
+    unscaledPixels > OCR_MAX_RENDER_PIXELS
+      ? Math.sqrt(OCR_MAX_RENDER_PIXELS / unscaledPixels)
+      : 1;
+  const viewport =
+    scaleAdjustment < 1
+      ? page.getViewport({ scale: scale * scaleAdjustment })
+      : unscaledViewport;
   const canvas = new OffscreenCanvas(
     Math.max(1, Math.ceil(viewport.width)),
     Math.max(1, Math.ceil(viewport.height))

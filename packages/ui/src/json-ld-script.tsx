@@ -14,11 +14,13 @@ export type JsonLdScriptProps = Readonly<{
  * executed, so it does not need a CSP nonce.
  */
 export function JsonLdScript({ json }: JsonLdScriptProps): React.JSX.Element {
+  // Escape `<` so payload strings cannot terminate the script element.
+  const serialized = JSON.stringify(json).replace(/</g, "\\u003c");
   return (
     <script
       type="application/ld+json"
       suppressHydrationWarning
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+      dangerouslySetInnerHTML={{ __html: serialized }}
     />
   );
 }
