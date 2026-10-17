@@ -153,12 +153,9 @@ function HeroLinkGroup({
 }) {
   return (
     <section className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-3 px-3">
-        <h2 className="text-muted-foreground text-[0.6875rem] font-medium tracking-[0.14em] uppercase">
-          {title}
-        </h2>
-        <span className="bg-border h-px flex-1" aria-hidden="true" />
-      </div>
+      <h2 className="text-muted-foreground px-3 text-[0.6875rem] font-medium tracking-[0.14em] uppercase">
+        {title}
+      </h2>
       <ul className="border-border divide-border divide-y border-y">
         {links.map((link) => (
           <li key={link.href}>
