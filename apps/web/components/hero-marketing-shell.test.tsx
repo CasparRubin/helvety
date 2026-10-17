@@ -88,8 +88,8 @@ describe("HeroMarketingShell", () => {
     expect(html).not.toContain("<canvas");
     expect(html).toContain("bg-background");
     expect(html).not.toContain("radial-gradient");
-    expect(html).toContain("justify-center");
-    expect(html).toContain("gap-12");
+    expect(html).toContain("justify-center-safe");
+    expect(html).toContain("gap-16");
     expect(html).toContain("sm:gap-16");
     expect(html).toContain("max-w-md");
     expect(html).toContain("text-center");

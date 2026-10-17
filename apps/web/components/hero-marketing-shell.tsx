@@ -175,12 +175,12 @@ export function HeroMarketingShell() {
   return (
     <section
       className={cn(
-        "flex w-full min-w-0 flex-1 flex-col justify-center py-12 sm:py-16",
+        "flex w-full min-w-0 flex-1 flex-col justify-center-safe py-12 sm:py-16",
         HERO_MIN_MAIN,
         "bg-background"
       )}
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-12 px-4 text-center sm:gap-16 md:px-6">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-16 px-4 text-center sm:gap-16 md:px-6">
         <div className="hero-enter-brand space-y-4 sm:space-y-5">
           <h1 className={HERO_MUTED_LINE_CLASS}>open-source software</h1>
           <p className={HEADLINE_CLASS}>
