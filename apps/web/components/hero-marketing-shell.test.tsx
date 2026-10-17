@@ -3,13 +3,13 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { HELVETY_COMPANY_VALUES_TAGLINE } from "@helvety/shared/licensing";
+import { POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL } from "@helvety/shared/power-platform-configurator-copy";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import {
   HERO_COMPANY_VALUES_TAGLINE_DISPLAY,
   HERO_COMPANY_VALUES_TAGLINE_TEXT,
-  HERO_PRODUCTS_CTA_DESCRIPTION,
   HeroMarketingShell,
 } from "./hero-marketing-shell";
 
@@ -60,10 +60,6 @@ describe("HeroMarketingShell", () => {
       "private · simple · clean"
     );
     expect(HERO_COMPANY_VALUES_TAGLINE_DISPLAY).not.toMatch(EMOJI_PATTERN);
-    expect(HERO_PRODUCTS_CTA_DESCRIPTION).toBe(
-      "Inspect the source and verify our claims."
-    );
-    expect(HERO_PRODUCTS_CTA_DESCRIPTION).not.toMatch(EMOJI_PATTERN);
   });
 
   it("server-renders hero copy with a Store products CTA", () => {
@@ -100,16 +96,37 @@ describe("HeroMarketingShell", () => {
     expect(html).not.toContain("sm:text-left");
     expect(html).toContain("hero-enter-brand");
     expect(html).toContain("hero-enter-ctas");
-    expect(html).toContain("Browse products");
-    expect(html).toContain(HERO_PRODUCTS_CTA_DESCRIPTION);
+    expect(html).toContain("View all products");
+    expect(html).not.toContain("Inspect the source and verify our claims.");
     expect(html).not.toContain("Helvety Cloud");
     expect(html).not.toContain("Browse other products");
     expect(html).not.toContain("Microsoft 365");
     expect(html).not.toContain("M365");
     expect(html).not.toContain("End-to-end encrypted open-space workspace");
     expect(html).not.toContain("Free browser tools and Microsoft 365 apps");
+    expect(html).toContain("Released Tools");
+    expect(html.replaceAll("&#x27;", "'")).toContain("What we're working on");
+    expect(html).toContain("Helvety PDF");
+    expect(html).toContain("Helvety Image Editor");
+    expect(html).toContain("Power Platform Configurator");
+    expect(html).toContain("Merge, rotate, and edit PDF pages.");
+    expect(html).toContain("Annotate, crop, and resize images.");
+    expect(html).toContain("Tune Power Automate and Power Apps.");
+    expect(html).toContain("Screenshots and Live Draw on Windows.");
+    expect(html).toContain("Dataverse modules for Windows 11.");
+    expect(html).not.toContain("Chrome Web Store");
+    expect(html).toContain("Helvety Screen Tools");
+    expect(html).toContain("Helvety Power Platform Tools");
+    expect(html).not.toContain("Helvety OCR");
+    expect(hrefs).toContain("/pdf");
+    expect(hrefs).toContain("/image-editor");
+    expect(hrefs).toContain(POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL);
+    expect(hrefs).toContain("/store/products/helvety-screen-tools");
+    expect(hrefs).toContain("/store/products/helvety-power-platform-tools");
     expect(hrefs).toContain("/store/products");
     expect(hrefs).not.toContain("/store");
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
     expect(hrefs).not.toContain("https://helvety.cloud");
     expect(html).not.toMatch(EMOJI_PATTERN);
   });
@@ -117,6 +134,9 @@ describe("HeroMarketingShell", () => {
   it("links Store via urls.storeProducts", () => {
     const src = readFileSync(shellPath, "utf8");
     expect(src).toContain("urls.storeProducts");
+    expect(src).toContain("urls.pdf");
+    expect(src).toContain("urls.imageEditor");
+    expect(src).toContain("POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL");
     expect(src).not.toContain("urls.cloud");
     expect(src).not.toContain("getLocalAppHref(urls.store)");
   });
