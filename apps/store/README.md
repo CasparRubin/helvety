@@ -1,6 +1,6 @@
 # Helvety Store
 
-Product catalog app for Helvety products: specs, Store-hosted download redirects (SPO Explorer `.sppkg` via GitHub Releases, Power Platform Tools ZIPs via Supabase Storage), Screen Tools desktop ZIPs on GitHub Releases, and install links (for example the Chrome Web Store) for helvety.com web apps **and** separately distributed software.
+Product catalog app for Helvety products: specs, Store-hosted download redirects (SPO Explorer `.sppkg` via GitHub Releases, Power Platform Tools Windows ZIP via Supabase Storage), Screen Tools desktop ZIPs on GitHub Releases, and install links (for example the Chrome Web Store) for helvety.com web apps **and** separately distributed software.
 
 **App URL:** <https://helvety.com/store> (catalog landing: <https://helvety.com/store/products>)  
 **Monorepo path:** `apps/store`
@@ -15,7 +15,7 @@ Product catalog app for Helvety products: specs, Store-hosted download redirects
 
 ## Package Download Behavior
 
-- Downloadable packages are configured in [`lib/packages/config.ts`](lib/packages/config.ts) with absolute HTTPS URLs. Helvety SPO Explorer uses a **GitHub Releases** `.sppkg`. Helvety Power Platform Tools uses public **Supabase Storage** objects in the `packages` bucket (core ZIP and module ZIPs).
+- Downloadable packages are configured in [`lib/packages/config.ts`](lib/packages/config.ts) with absolute HTTPS URLs. Helvety SPO Explorer uses a **GitHub Releases** `.sppkg`. Helvety Power Platform Tools uses one public **Supabase Storage** object in the `packages` bucket (Windows portable ZIP with built-in explorers).
 - The public download route responds with an HTTP redirect to that URL. Redirect targets must be `https:` on trusted GitHub hosts (`github.com`, `objects.githubusercontent.com`, `release-assets.githubusercontent.com`) or public `{ref}.supabase.co/storage/v1/object/public/packages/...` URLs via `isAllowedDownloadUrl` (fail-closed for anything else).
 - **Power Platform Configurator** installs from the [Chrome Web Store](https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang) only (no Store-hosted ZIP). Retired `power-automate-*` and `power-platform-configurator` package ids are not served.
 - Public package downloads use `lib/download-security.ts` (`buildPublicDownloadRateLimitKey`, `packageIdSchema`, `isAllowedDownloadUrl`) and `lib/packages/create-package-download.ts` for resolution.
@@ -63,7 +63,7 @@ category pills, and the app switcher product sections.
    - Legal bullets in `apps/web/app/privacy/page.tsx` / `impressum/page.tsx` if claims change
    - For **Power Platform Configurator**, keep [`packages/shared/src/power-platform-configurator-copy.ts`](../../packages/shared/src/power-platform-configurator-copy.ts) aligned with the extension manifest `description` and Chrome Web Store listing URL; run `bun run consistency:project-naming`
    - For **SPO Explorer** SPFx downloads, add/update the GitHub Releases URL in `lib/packages/config.ts`
-   - For **Helvety Power Platform Tools**, add/update public Supabase Storage object URLs in `lib/packages/config.ts` (core ZIP plus each module ZIP)
+   - For **Helvety Power Platform Tools**, add/update the public Supabase Storage object URL in `lib/packages/config.ts` (Windows portable ZIP)
    - Run `bun run test --filter=@helvety/shared` and
      `bun run consistency:install-manifest-metadata`
 5. **Run pre-deployment validations** from the repo root:

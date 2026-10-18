@@ -99,7 +99,7 @@ describe("ProductDetailClient", () => {
     expect(installation?.className).not.toContain("bg-surface-panel/40");
   });
 
-  it("lists core and module zip downloads for Power Platform Tools", () => {
+  it("lists a single zip download for Power Platform Tools without module ZIPs", () => {
     renderProduct("helvety-power-platform-tools");
 
     const coreDownload = screen.getByRole("button", {
@@ -110,40 +110,21 @@ describe("ProductDetailClient", () => {
       "/store/api/packages/power-platform-tools/download"
     );
 
-    const modules = document.getElementById("modules");
-    expect(modules).toBeInTheDocument();
+    expect(document.getElementById("modules")).toBeNull();
     expect(
-      screen.getByRole("heading", { name: "Flow Explorer" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Web Resource Explorer" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Data Model Explorer" })
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
+      screen.queryByRole("button", {
         name: /Download Flow Explorer \.zip/i,
       })
-    ).toHaveAttribute("href", "/store/api/packages/flow-explorer/download");
-
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", {
+      screen.queryByRole("button", {
         name: /Download Web Resource Explorer \.zip/i,
       })
-    ).toHaveAttribute(
-      "href",
-      "/store/api/packages/web-resource-explorer/download"
-    );
-
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", {
+      screen.queryByRole("button", {
         name: /Download Data Model Explorer \.zip/i,
       })
-    ).toHaveAttribute(
-      "href",
-      "/store/api/packages/data-model-explorer/download"
-    );
+    ).not.toBeInTheDocument();
   });
 });

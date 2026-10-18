@@ -138,6 +138,21 @@ describe("seo customer copy guardrails", () => {
     );
   });
 
+  it("web and store llms.txt describe Power Platform Tools as built-in, not drop-in modules", () => {
+    for (const rel of [
+      "apps/web/public/llms.txt",
+      "apps/store/public/llms.txt",
+    ] as const) {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      const pptLine = source
+        .split("\n")
+        .find((line) => line.includes("helvety-power-platform-tools"));
+      expect(pptLine, rel).toBeDefined();
+      expect(pptLine, rel).toMatch(/built-in/i);
+      expect(pptLine, rel).not.toMatch(/drop-in|module ZIP/i);
+    }
+  });
+
   it("zone llms Related Helvety Apps sections link to Helvety OCR", () => {
     const zoneLlmsWithRelated = CUSTOMER_COPY_LLMS_RELATIVE_PATHS.filter(
       (rel) =>

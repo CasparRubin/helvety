@@ -75,7 +75,7 @@ const HERO_IN_PROGRESS_LINKS: readonly HeroLink[] = [
   },
   {
     label: "Helvety Power Platform Tools",
-    description: "Dataverse modules for Windows 11.",
+    description: "Built-in Dataverse explorers for Windows 11.",
     href: getLocalAppHref(
       `${urls.store}/products/helvety-power-platform-tools`
     ),

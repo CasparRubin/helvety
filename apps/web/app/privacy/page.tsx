@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Privacy Policy" lastReviewed="September 27, 2026" />
+      <LegalHeader title="Privacy Policy" lastReviewed="October 18, 2026" />
 
       <section className="legal-section">
         <p className="text-muted-foreground text-sm">
@@ -228,7 +228,8 @@ export default function PrivacyPage() {
             </strong>{" "}
             Windows desktop app distributed outside this monorepo. It signs in
             with your Microsoft account and talks to Dataverse in your user
-            context. Tokens stay on your device in normal operation.
+            context. Tokens stay on your device in normal operation. Microsoft
+            processes sign-in and Dataverse access under Microsoft&apos;s terms.
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
@@ -346,7 +347,7 @@ export default function PrivacyPage() {
                   <TableCell>
                     GitHub Releases for public .sppkg downloads and Helvety
                     Screen Tools ZIPs; public Supabase Storage for Helvety Power
-                    Platform Tools ZIPs
+                    Platform Tools ZIP
                   </TableCell>
                 </TableRow>
                 <TableRow>

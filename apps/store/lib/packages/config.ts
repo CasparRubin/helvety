@@ -22,7 +22,8 @@ interface PackageInfo {
 /**
  * Package configuration for all downloadable products.
  * SPO Explorer `.sppkg` is a GitHub Release asset. Helvety Power Platform Tools
- * zips are public objects in the Supabase `packages` bucket.
+ * ships as one public Windows ZIP in the Supabase `packages` bucket (built-in
+ * explorers; retired module package ids are omitted so downloads 404).
  */
 const PACKAGE_CONFIG: Record<string, PackageInfo> = {
   "spo-explorer": {
@@ -36,24 +37,6 @@ const PACKAGE_CONFIG: Record<string, PackageInfo> = {
     version: "0.2.2",
     filename: "Helvety-Power-Platform-Tools-win64.zip",
     downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/power-platform-tools/Helvety-Power-Platform-Tools-win64.zip`,
-    isPublic: true,
-  },
-  "flow-explorer": {
-    version: "1.0.0",
-    filename: "helvety-flow-explorer.zip",
-    downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/flow-explorer/helvety-flow-explorer.zip`,
-    isPublic: true,
-  },
-  "web-resource-explorer": {
-    version: "1.0.0",
-    filename: "helvety-web-resource-explorer.zip",
-    downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/web-resource-explorer/helvety-web-resource-explorer.zip`,
-    isPublic: true,
-  },
-  "data-model-explorer": {
-    version: "1.0.0",
-    filename: "helvety-data-model-explorer.zip",
-    downloadUrl: `${SUPABASE_PACKAGES_PUBLIC_BASE}/data-model-explorer/helvety-data-model-explorer.zip`,
     isPublic: true,
   },
 } as const;

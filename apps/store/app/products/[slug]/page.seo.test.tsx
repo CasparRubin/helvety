@@ -96,6 +96,31 @@ describe("store product SEO", () => {
     );
   });
 
+  it("uses built-in-tools catalog copy for Power Platform Tools SEO and JSON-LD", async () => {
+    const card = findStoreProductCardBySlug("helvety-power-platform-tools");
+    if (!card) {
+      throw new Error("Expected Helvety Power Platform Tools product card");
+    }
+
+    expect(card.shortDescription).toMatch(/built-in/i);
+    expect(card.shortDescription).not.toMatch(/drop-in/i);
+
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ slug: card.slug }),
+    });
+    expect(metadata.description).toBe(card.shortDescription);
+    expect(metadata.openGraph?.description).toBe(card.shortDescription);
+    expect(metadata.twitter?.description).toBe(card.shortDescription);
+
+    const element = await ProductDetail({
+      params: Promise.resolve({ slug: card.slug }),
+    });
+    const html = renderToStaticMarkup(element);
+    expect(html).toContain(
+      `"description":${JSON.stringify(card.shortDescription)}`
+    );
+  });
+
   it("returns explicit noindex metadata for unknown products", async () => {
     const metadata = await generateMetadata({
       params: Promise.resolve({ slug: "missing-product" }),

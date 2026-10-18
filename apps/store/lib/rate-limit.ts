@@ -18,6 +18,6 @@ export { checkRateLimit } from "@helvety/shared/rate-limit";
 export const RATE_LIMITS = {
   /** API calls: 100 per minute per identifier */
   API: { maxRequests: 100, windowMs: 60 * 1000 },
-  /** Public package download requests: 10 per minute per IP (core + module bundles). */
+  /** Public package download requests: 10 per minute per IP. */
   DOWNLOADS: { maxRequests: 10, windowMs: 60 * 1000 },
 } as const;

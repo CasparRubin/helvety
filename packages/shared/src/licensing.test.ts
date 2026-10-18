@@ -36,10 +36,16 @@ describe("licensing constants", () => {
     expect(HELVETY_FREE_SOURCE_INLINE).toContain("published source on GitHub");
   });
 
-  it("documents mixed Helvety licensing accurately in llms and legal helpers", () => {
+  it("documents unified AGPL Helvety licensing in llms and legal helpers", () => {
     expect(HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME).toContain("AGPL-3.0");
-    expect(HELVETY_LLMS_LICENSING_NOTE).toContain("AGPL-3.0");
-    expect(HELVETY_LLMS_LICENSING_NOTE).toContain("MIT");
+    expect(HELVETY_LLMS_LICENSING_NOTE).toContain("AGPL-3.0-or-later");
+    expect(HELVETY_LLMS_LICENSING_NOTE).toContain(
+      "separately distributed Helvety product repositories are released under AGPL-3.0-or-later"
+    );
+    expect(HELVETY_LLMS_LICENSING_NOTE).not.toMatch(/\bMIT\b/);
+    expect(HELVETY_LLMS_LICENSING_NOTE).not.toContain(
+      "may use different open-source licenses"
+    );
     expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).toContain("AGPL-3.0");
     expect(HELVETY_MONOREPO_LLMS_GITHUB_LINE).not.toContain("\u2014");
   });

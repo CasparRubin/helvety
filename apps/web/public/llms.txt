@@ -27,13 +27,13 @@ Per-zone `llms.txt` summaries. Public tool guides below are crawlable.
 - [Helvety SPO Explorer](https://helvety.com/store/products/helvety-spo-explorer): SharePoint site switcher in the header
 - [Power Platform Configurator](https://helvety.com/store/products/helvety-power-platform-configurator): Choose classic or new designer for Power Automate flow/run URLs. Control survey flags. Reveal or enable Power Apps form elements. Install from the Chrome Web Store: https://chromewebstore.google.com/detail/power-platform-configurat/mdneakhceachnimmejciaehnfjfabang
 - [Helvety Screen Tools](https://helvety.com/store/products/helvety-screen-tools): Windows screenshots, Live Draw overlay, gallery, and built-in PNG editor
-- [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows 11 app for Dataverse in your user context; download the core ZIP (Flow Explorer, Web Resource Explorer, and Data Model Explorer included) and optional drop-in module ZIPs from the Store
+- [Helvety Power Platform Tools](https://helvety.com/store/products/helvety-power-platform-tools): Portable Windows 11 app for Dataverse in your user context; download the ZIP with built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer from the Store
 - [Helvety PDF](https://helvety.com/pdf): Merge, reorder, rotate, extract, and add images to PDF pages in the browser (up to 100 MB per file, 20 open files, 200 pages per file). Files stay in your browser.
 - [Helvety Image Editor](https://helvety.com/image-editor): Annotate PNG, JPEG, or WebP in your browser with text, arrows, borders, highlights, blur regions, crop, and resize to a smaller file size. Layers and zoom. Up to 25 MB per image. Edits stay in your browser.
 - [Helvety OCR](https://helvety.com/ocr): Extract text from PDFs and images in your browser. Scanned pages use on-device OCR in English or German. Born-digital PDFs use their text layer first, then OCR. Up to 100 MB per file and 50 PDF pages. Files stay in your browser.
 
 ## Licensing
-The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.
+The helvety.com monorepo and separately distributed Helvety product repositories are released under AGPL-3.0-or-later. Always check the LICENSE file in the specific repository or release source link.
 
 ## Source
 - [GitHub - helvety.com monorepo](https://github.com/CasparRubin/helvety): Web applications and shared packages (AGPL-3.0)

@@ -388,11 +388,6 @@ describe("store product catalog", () => {
       ].join("\n");
 
       expect(blob, slug).toContain("published source on GitHub");
-      if (slug === "helvety-power-platform-tools") {
-        // The tools repository has no LICENSE file, so About copy must not point at one.
-        expect(blob, slug).not.toMatch(/LICENSE/i);
-        continue;
-      }
       expect(blob, slug).toMatch(/LICENSE/i);
     }
 
@@ -490,7 +485,7 @@ describe("store product catalog", () => {
     }
   });
 
-  it("Helvety Power Platform Tools serves a core zip plus Flow Explorer, Web Resource Explorer, and Data Model Explorer modules", () => {
+  it("Helvety Power Platform Tools serves a single Windows zip with built-in explorers", () => {
     const product = getProductBySlug("helvety-power-platform-tools");
     expect(product).toBeDefined();
     if (!product || !isSoftwareProduct(product)) {
@@ -500,31 +495,22 @@ describe("store product catalog", () => {
     expect(product.software.publicPackageId).toBe("power-platform-tools");
     expect(product.software.fileFormat).toBe("zip");
     expect(product.software.requirements).toEqual(["Windows 11"]);
-    expect(product.software.modules).toEqual([
-      {
-        id: "flow-explorer",
-        name: "Flow Explorer",
-        description:
-          "See what a cloud flow touches, and which flows use a Dataverse table.",
-        publicPackageId: "flow-explorer",
-        fileFormat: "zip",
-      },
-      {
-        id: "web-resource-explorer",
-        name: "Web Resource Explorer",
-        description:
-          "Search Dataverse image web resources and copy their unique names, with live icon previews.",
-        publicPackageId: "web-resource-explorer",
-        fileFormat: "zip",
-      },
-      {
-        id: "data-model-explorer",
-        name: "Data Model Explorer",
-        description:
-          "Map Dataverse tables, relationships, notes, and cloud flows on a canvas.",
-        publicPackageId: "data-model-explorer",
-        fileFormat: "zip",
-      },
-    ]);
+    expect(product.software.modules).toBeUndefined();
+    expect(product.features).toEqual(
+      expect.arrayContaining([
+        "Built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer",
+      ])
+    );
+    expect(product.shortDescription).toContain("built-in");
+    expect(product.shortDescription).not.toMatch(/drop-in/i);
+    const aboutBlob = [
+      product.description.intro,
+      ...(product.description.sections ?? []).flatMap((s) =>
+        s.kind === "paragraph" ? [s.body] : s.items
+      ),
+      ...product.features,
+      ...(product.software.installationSteps ?? []).map((s) => s.description),
+    ].join("\n");
+    expect(aboutBlob).not.toMatch(/drop-in|modules folder|Open modules/i);
   });
 });

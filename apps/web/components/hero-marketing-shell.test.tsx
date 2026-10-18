@@ -113,7 +113,7 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("Annotate, crop, and resize images.");
     expect(html).toContain("Tune Power Automate and Power Apps.");
     expect(html).toContain("Screenshots and Live Draw on Windows.");
-    expect(html).toContain("Dataverse modules for Windows 11.");
+    expect(html).toContain("Built-in Dataverse explorers for Windows 11.");
     expect(html).not.toContain("Chrome Web Store");
     expect(html).toContain("Helvety Screen Tools");
     expect(html).toContain("Helvety Power Platform Tools");

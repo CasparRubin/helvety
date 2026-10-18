@@ -1,4 +1,5 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import { HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME } from "@helvety/shared/licensing";
 import {
   POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_INSTALL_LINE,
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
@@ -32,7 +33,7 @@ export default function ImpressumPage() {
     <LegalPageShell>
       <LegalHeader
         title="Impressum"
-        lastReviewed="September 27, 2026"
+        lastReviewed="October 18, 2026"
         subtitle={
           <>
             Impressum gemäss Art. 3 Abs. 1 lit. s UWG / Legal Notice pursuant to
@@ -118,12 +119,12 @@ export default function ImpressumPage() {
           Helvety by Rubin designs and ships software products and web
           applications across Microsoft 365 integrations, browser utilities, and
           desktop tooling. Public tools and Store listings are currently free of
-          charge. Each published repository LICENSE file governs that product.
-          The helvety.com monorepo is licensed under the GNU Affero General
-          Public License version 3 or later (AGPL-3.0). Other Helvety
-          repositories may use different licenses, including MIT. Development is
-          primarily based in Switzerland. The Services are intended for
-          customers in Switzerland and are not offered in the EU/EEA.
+          charge. The helvety.com monorepo and separately distributed Helvety
+          product repositories are licensed under the{" "}
+          {HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME}. Always check that
+          repository&apos;s LICENSE. Development is primarily based in
+          Switzerland. The Services are intended for customers in Switzerland
+          and are not offered in the EU/EEA.
         </p>
         <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
           <li>
@@ -155,8 +156,8 @@ export default function ImpressumPage() {
             <strong className="text-foreground">
               Helvety Power Platform Tools
             </strong>
-            : portable Windows 11 app for Dataverse with modules including Flow
-            Explorer, Web Resource Explorer, and Data Model Explorer.
+            : portable Windows 11 app for Dataverse with built-in Flow Explorer,
+            Web Resource Explorer, and Data Model Explorer.
           </li>
           <li>
             <strong className="text-foreground">Helvety Image Editor</strong>:

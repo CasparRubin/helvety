@@ -134,9 +134,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                 Modules
               </h2>
               <p className="text-muted-foreground mb-6 text-sm leading-relaxed text-pretty sm:text-base">
-                Drop-in modules live in the app modules folder. Download a ZIP,
-                extract it, and copy the module folder there. In the app, use
-                Open modules folder.
+                Optional companion downloads for this product. Use each Download
+                button for the matching ZIP.
               </p>
               <ul className="space-y-5">
                 {softwareModules.map((module) => (

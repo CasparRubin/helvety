@@ -34,7 +34,7 @@ describe("createPackageDownload", () => {
     });
   });
 
-  it("returns public Supabase Storage URLs for Power Platform Tools packages", async () => {
+  it("returns a public Supabase Storage URL for Power Platform Tools", async () => {
     const core = await createPackageDownload("power-platform-tools");
     expect(core.ok).toBe(true);
     if (core.ok) {
@@ -42,29 +42,19 @@ describe("createPackageDownload", () => {
         "/storage/v1/object/public/packages/power-platform-tools/"
       );
     }
+  });
 
-    const moduleZip = await createPackageDownload("flow-explorer");
-    expect(moduleZip.ok).toBe(true);
-    if (moduleZip.ok) {
-      expect(moduleZip.downloadUrl).toContain(
-        "/storage/v1/object/public/packages/flow-explorer/"
-      );
-    }
-
-    const webResourceZip = await createPackageDownload("web-resource-explorer");
-    expect(webResourceZip.ok).toBe(true);
-    if (webResourceZip.ok) {
-      expect(webResourceZip.downloadUrl).toContain(
-        "/storage/v1/object/public/packages/web-resource-explorer/"
-      );
-    }
-
-    const dataModelZip = await createPackageDownload("data-model-explorer");
-    expect(dataModelZip.ok).toBe(true);
-    if (dataModelZip.ok) {
-      expect(dataModelZip.downloadUrl).toContain(
-        "/storage/v1/object/public/packages/data-model-explorer/"
-      );
+  it("rejects retired Power Platform Tools module package ids", async () => {
+    for (const packageId of [
+      "flow-explorer",
+      "web-resource-explorer",
+      "data-model-explorer",
+    ]) {
+      expect(await createPackageDownload(packageId)).toEqual({
+        ok: false,
+        error: "Package not found",
+        status: 404,
+      });
     }
   });
 });

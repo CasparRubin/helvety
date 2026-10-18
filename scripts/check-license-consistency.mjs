@@ -1,6 +1,7 @@
 /**
- * Ensures the monorepo keeps its own AGPL licensing while avoiding stale
- * blanket claims that every Helvety product repo uses the same license.
+ * Ensures the monorepo LICENSE is AGPL-3.0-or-later, customer licensing copy
+ * states that Helvety first-party product repositories share that SPDX, and
+ * stale MIT / mixed-license product-line claims are gone.
  *
  * Run: `bun run consistency:license`
  */
@@ -135,7 +136,7 @@ function checkForbiddenReferences() {
   return true;
 }
 
-function checkRequiredMixedLicenseDisclosure() {
+function checkRequiredAgplProductLineDisclosure() {
   const requiredFiles = [
     "packages/shared/src/licensing.ts",
     "apps/web/public/llms.txt",
@@ -145,11 +146,18 @@ function checkRequiredMixedLicenseDisclosure() {
   ];
 
   const requiredPhrases = [
-    /repository LICENSE file|release source link/i,
+    /AGPL-3\.0-or-later|HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME/,
+    /repository(?:&apos;s|'s)? LICENSE|repository LICENSE file|release source link/i,
+  ];
+
+  const forbiddenProductLinePhrases = [
+    /AGPL-3\.0-or-later or MIT/i,
     /including MIT/i,
+    /may use different open-source licenses/i,
   ];
 
   const missing = [];
+  const forbiddenHits = [];
   for (const rel of requiredFiles) {
     const abs = path.join(root, rel);
     const content = readFileSync(abs, "utf8");
@@ -158,16 +166,26 @@ function checkRequiredMixedLicenseDisclosure() {
         missing.push(`${rel} (missing ${re})`);
       }
     }
+    for (const re of forbiddenProductLinePhrases) {
+      if (re.test(content)) {
+        forbiddenHits.push(`${rel} (forbidden ${re})`);
+      }
+    }
   }
 
   if (missing.length > 0) {
-    console.error("Required mixed-license disclosures are missing:");
+    console.error("Required AGPL product-line disclosures are missing:");
     for (const item of missing) {
       console.error(`  ${item}`);
     }
-    return false;
   }
-  return true;
+  if (forbiddenHits.length > 0) {
+    console.error("Stale MIT / mixed-license product-line claims found:");
+    for (const item of forbiddenHits) {
+      console.error(`  ${item}`);
+    }
+  }
+  return missing.length === 0 && forbiddenHits.length === 0;
 }
 
 function checkNoPerAppLicenseDuplicates() {
@@ -199,13 +217,13 @@ function main() {
   const ok =
     checkLicenseFile() &&
     checkForbiddenReferences() &&
-    checkRequiredMixedLicenseDisclosure() &&
+    checkRequiredAgplProductLineDisclosure() &&
     checkNoPerAppLicenseDuplicates();
   if (!ok) {
     process.exit(1);
   }
   console.log(
-    "license consistency OK (monorepo AGPL, no stale blanket cross-repo claims)"
+    "license consistency OK (AGPL-3.0-or-later product line, no stale MIT claims)"
   );
 }
 

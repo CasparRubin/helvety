@@ -46,4 +46,4 @@ export const HELVETY_MONOREPO_LLMS_GITHUB_LINE =
 
 /** llms.txt: licensing note for the wider Helvety product line. */
 export const HELVETY_LLMS_LICENSING_NOTE =
-  "The helvety.com monorepo is released under AGPL-3.0-or-later. Separately distributed Helvety product repositories may use different open-source licenses, including MIT, so always check the LICENSE file in the specific repository or release source link.";
+  "The helvety.com monorepo and separately distributed Helvety product repositories are released under AGPL-3.0-or-later. Always check the LICENSE file in the specific repository or release source link.";

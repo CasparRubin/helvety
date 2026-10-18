@@ -149,13 +149,12 @@ const STORE_PRODUCT_CARDS_BASE = [
     slug: "helvety-power-platform-tools",
     name: "Helvety Power Platform Tools",
     shortDescription:
-      "Windows 11 app for Dataverse. Sign in with your Microsoft account, pick an environment, and use drop-in modules including Flow Explorer, Web Resource Explorer, and Data Model Explorer.",
+      "Windows 11 app for Dataverse. Sign in with your Microsoft account, pick an environment, and use built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer.",
     releaseDate: "2026-08-16",
     type: "software",
     runsOn: "Windows 11",
     isFree: true,
-    // Published on GitHub. The tools repository has no LICENSE file, so this is not an open-source grant.
-    isOpenSource: false,
+    isOpenSource: true,
   },
 ] as const satisfies readonly StoreProductCardBase[];
 

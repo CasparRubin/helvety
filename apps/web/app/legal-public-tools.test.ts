@@ -84,6 +84,49 @@ describe("legal pages enumerate public local-processing tools", () => {
     }
   });
 
+  it("legal licensing copy uses shared AGPL name for all Helvety product repos", () => {
+    for (const rel of [
+      "apps/web/app/terms/page.tsx",
+      "apps/web/app/impressum/page.tsx",
+    ] as const) {
+      const source = readFileSync(join(repoRoot, rel), "utf8");
+      const normalized = normalizeLegalSource(source);
+      expect(source, rel).toContain(
+        "HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME"
+      );
+      expect(normalized, rel).toContain(
+        "separately distributed Helvety product repositories are licensed under"
+      );
+      expect(source, rel).not.toMatch(/AGPL-3\.0-or-later or MIT|including MIT/i);
+      expect(source, rel).not.toContain(
+        "Each published repository LICENSE file governs that product"
+      );
+    }
+  });
+
+  it("impressum describes Power Platform Tools as built-in explorers", () => {
+    const impressum = readFileSync(
+      join(repoRoot, "apps/web/app/impressum/page.tsx"),
+      "utf8"
+    );
+    const pptSlice = sliceBetween(
+      impressum,
+      "Helvety Power Platform Tools",
+      "Helvety Image Editor"
+    );
+    expect(pptSlice).toMatch(/built-in/i);
+    expect(pptSlice).not.toMatch(/drop-in|module ZIP/i);
+  });
+
+  it("privacy documents Microsoft terms for Power Platform Tools Dataverse access", () => {
+    const privacy = normalizeLegalSource(
+      readFileSync(join(repoRoot, "apps/web/app/privacy/page.tsx"), "utf8")
+    );
+    expect(privacy).toContain(
+      "Microsoft processes sign-in and Dataverse access under Microsoft&apos;s terms"
+    );
+  });
+
   it("privacy and terms do not mention removed products", () => {
     for (const rel of [
       "apps/web/app/privacy/page.tsx",

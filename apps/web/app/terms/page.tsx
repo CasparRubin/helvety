@@ -1,4 +1,5 @@
 import { CONTACT_EMAIL, urls } from "@helvety/shared/config";
+import { HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME } from "@helvety/shared/licensing";
 import {
   POWER_PLATFORM_CONFIGURATOR_PUBLIC_SUMMARY,
   POWER_PLATFORM_CONFIGURATOR_STORE_CARD_SUFFIX,
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalPageShell>
-      <LegalHeader title="Terms of Service" lastReviewed="September 27, 2026" />
+      <LegalHeader title="Terms of Service" lastReviewed="October 18, 2026" />
 
       <LegalToc>
         <h2 className="mb-4 text-lg font-semibold">Table of Contents</h2>
@@ -161,7 +162,7 @@ export default function TermsPage() {
           <li>
             <strong className="text-foreground">Helvety Store</strong>: catalog
             and public downloads (for example Helvety SPO Explorer packages and
-            Helvety Power Platform Tools ZIPs).
+            Helvety Power Platform Tools ZIP).
           </li>
           <li>
             <strong className="text-foreground">
@@ -172,20 +173,26 @@ export default function TermsPage() {
             Chrome Web Store.
           </li>
           <li>
-            <strong className="text-foreground">Helvety SPO Explorer</strong>,{" "}
-            <strong className="text-foreground">Helvety Screen Tools</strong>,
+            <strong className="text-foreground">Helvety SPO Explorer</strong>:
+            SharePoint Framework package for Microsoft 365, distributed
+            separately from the browser tools above.
+          </li>
+          <li>
+            <strong className="text-foreground">Helvety Screen Tools</strong>{" "}
             and{" "}
             <strong className="text-foreground">
               Helvety Power Platform Tools
             </strong>
-            : Microsoft 365 and Windows products distributed separately from the
-            browser tools above.
+            : Windows desktop apps distributed separately from the browser tools
+            above (Screen Tools for capture and Live Draw; Power Platform Tools
+            for Dataverse).
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">
           Public tools and Store listings are currently offered free of charge.
           Swiss law does not provide a general statutory right of withdrawal for
-          these free public offerings. Features may change or be withdrawn.
+          ordinary online distance contracts covering these free public
+          offerings. Features may change or be withdrawn.
           Enterprise add-ins and extensions you install into Microsoft 365 or a
           browser follow the host platform&apos;s rules in addition to these
           Terms.
@@ -349,15 +356,15 @@ export default function TermsPage() {
         </h2>
         <p className="text-muted-foreground text-sm">
           Helvety branding and product names are used as trademarks by Helvety
-          by Rubin. The helvety.com monorepo source is licensed under the GNU
-          Affero General Public License version 3 (AGPL-3.0) or later. Other
-          Helvety repositories may use different licenses, including MIT. Always
-          check the repository LICENSE file or release source link for the
-          package you obtain. Chrome Web Store listings and Microsoft 365
-          packages remain subject to those platforms&apos; policies. Subject to
-          these Terms and Acceptable Use, Helvety grants you a limited,
-          non-exclusive, non-transferable, revocable right to use the Services
-          for lawful purposes.
+          by Rubin. The helvety.com monorepo and separately distributed Helvety
+          product repositories are licensed under the{" "}
+          {HELVETY_MONOREPO_SOURCE_LICENSE_LEGAL_NAME}. Always check the
+          repository LICENSE file or release source link for the package you
+          obtain. Chrome Web Store listings and Microsoft 365 packages remain
+          subject to those platforms&apos; policies. Subject to these Terms and
+          Acceptable Use, Helvety grants you a limited, non-exclusive,
+          non-transferable, revocable right to use the Services for lawful
+          purposes.
         </p>
       </section>
 

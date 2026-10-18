@@ -505,7 +505,7 @@ const helvetyScreenTools: SoftwareProduct = {
 };
 
 /**
- * Helvety Power Platform Tools - portable Dataverse desktop app with drop-in modules
+ * Helvety Power Platform Tools - portable Dataverse desktop app with built-in explorers
  */
 const cHelvetyPowerPlatformTools = cardCore(
   "helvety-power-platform-tools",
@@ -526,7 +526,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
       {
         heading: "Distribution",
         kind: "paragraph",
-        body: `${HELVETY_FREE_SOURCE_FEATURE}. The core Windows 11 ZIP is hosted on this Store page. Use the Download button, extract the archive, and run the app. Flow Explorer, Web Resource Explorer, and Data Model Explorer ship in the core ZIP and can also be added from the Modules section below.`,
+        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. The Windows 11 ZIP is hosted on this Store page. Use the Download button, extract the archive, and run the app. Flow Explorer, Web Resource Explorer, and Data Model Explorer ship built into the app.`,
       },
       {
         heading: "Workflow highlights",
@@ -535,13 +535,13 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
           "Sign in with your Microsoft work or school account in the system browser.",
           "Pick a Dataverse environment from Global Discovery.",
           "Read records and metadata with the permissions you already have.",
-          "Add drop-in modules from the modules folder, including Flow Explorer, Web Resource Explorer, and Data Model Explorer.",
+          "Use built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer.",
         ],
       },
       {
         heading: "Documentation",
         kind: "paragraph",
-        body: "Auth, packaging, and module layout stay in the project README so the latest details sit next to the source.",
+        body: "Auth and packaging details stay in the project README so the latest notes sit next to the source.",
       },
     ],
   },
@@ -549,7 +549,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
     "Sign in with your Microsoft work or school account",
     "Pick a Dataverse environment from Global Discovery",
     "Read Dataverse records and metadata in your user context",
-    "Drop-in modules, including Flow Explorer, Web Resource Explorer, and Data Model Explorer",
+    "Built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer",
     "Portable ZIP with no admin installer",
     HELVETY_FREE_SOURCE_FEATURE,
   ],
@@ -564,7 +564,7 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
         interval: "one-time",
         isFree: true,
         features: [
-          "Core app and published modules",
+          "Portable app with built-in explorers",
           "No account required to download",
           "Free to use",
         ],
@@ -579,35 +579,9 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
     requirements: ["Windows 11"],
     licenseType: "free",
     publicPackageId: "power-platform-tools",
-    modules: [
-      {
-        id: "flow-explorer",
-        name: "Flow Explorer",
-        description:
-          "See what a cloud flow touches, and which flows use a Dataverse table.",
-        publicPackageId: "flow-explorer",
-        fileFormat: "zip",
-      },
-      {
-        id: "web-resource-explorer",
-        name: "Web Resource Explorer",
-        description:
-          "Search Dataverse image web resources and copy their unique names, with live icon previews.",
-        publicPackageId: "web-resource-explorer",
-        fileFormat: "zip",
-      },
-      {
-        id: "data-model-explorer",
-        name: "Data Model Explorer",
-        description:
-          "Map Dataverse tables, relationships, notes, and cloud flows on a canvas.",
-        publicPackageId: "data-model-explorer",
-        fileFormat: "zip",
-      },
-    ],
     installationSteps: [
       {
-        title: "Download the core ZIP",
+        title: "Download the ZIP",
         description:
           "Use the Download button on this page to get Helvety-Power-Platform-Tools-win64.zip.",
       },
@@ -620,11 +594,6 @@ const helvetyPowerPlatformTools: SoftwareProduct = {
         title: "Sign in and pick an environment",
         description:
           "Sign in with your Microsoft work or school account, then choose a Dataverse environment.",
-      },
-      {
-        title: "Optional: add a module",
-        description:
-          "Download a module ZIP from the Modules section, extract it, and copy the module folder into the app modules directory. In the app, use Open modules folder.",
       },
     ],
   },
