@@ -15,7 +15,7 @@ const scriptPath = join(pdfAppDir, "scripts", "sync-pdf-worker.mjs");
 const workerPublicPath = join(pdfAppDir, "public", "pdf.worker.min.mjs");
 const metaPublicPath = join(pdfAppDir, "public", "pdf.worker.meta.json");
 
-describe.sequential("sync-pdf-worker script", () => {
+describe("sync-pdf-worker script", () => {
   beforeAll(() => {
     execFileSync(process.execPath, [scriptPath], { cwd: pdfAppDir });
   });

@@ -29,7 +29,7 @@ function runCheckScript(): void {
   });
 }
 
-describe.sequential("check-pdfjs-worker-alignment script", () => {
+describe("check-pdfjs-worker-alignment script", () => {
   afterAll(() => {
     syncWorker();
   });

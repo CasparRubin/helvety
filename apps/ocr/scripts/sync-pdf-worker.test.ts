@@ -15,7 +15,7 @@ const scriptPath = join(ocrAppDir, "scripts", "sync-pdf-worker.mjs");
 const workerPublicPath = join(ocrAppDir, "public", "pdf.worker.min.mjs");
 const metaPublicPath = join(ocrAppDir, "public", "pdf.worker.meta.json");
 
-describe.sequential("sync-pdf-worker script", () => {
+describe("sync-pdf-worker script", () => {
   beforeAll(() => {
     execFileSync(process.execPath, [scriptPath], { cwd: ocrAppDir });
   });

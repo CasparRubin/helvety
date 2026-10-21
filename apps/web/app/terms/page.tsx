@@ -192,10 +192,9 @@ export default function TermsPage() {
           Public tools and Store listings are currently offered free of charge.
           Swiss law does not provide a general statutory right of withdrawal for
           ordinary online distance contracts covering these free public
-          offerings. Features may change or be withdrawn.
-          Enterprise add-ins and extensions you install into Microsoft 365 or a
-          browser follow the host platform&apos;s rules in addition to these
-          Terms.
+          offerings. Features may change or be withdrawn. Enterprise add-ins and
+          extensions you install into Microsoft 365 or a browser follow the host
+          platform&apos;s rules in addition to these Terms.
         </p>
       </section>
 

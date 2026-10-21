@@ -128,9 +128,9 @@ async function main() {
     if (vitestVersion) {
       vitestVersions.set(relativePackageJsonPath, vitestVersion);
       const major = extractMajor(vitestVersion);
-      if (major !== null && major < 4) {
+      if (major !== null && major < 5) {
         issues.push(
-          `${relativePackageJsonPath} uses vitest ${vitestVersion}. Expected vitest v4+ for Node 24.`
+          `${relativePackageJsonPath} uses vitest ${vitestVersion}. Expected vitest v5+ for Node 24.`
         );
       }
     }
@@ -163,7 +163,7 @@ async function main() {
       const major = extractMajor(jsdomVersion);
       if (major !== null && major < 30) {
         issues.push(
-          `${relativePackageJsonPath} uses jsdom ${jsdomVersion}. Expected jsdom 30.x with Vitest 4 / Node 24.`
+          `${relativePackageJsonPath} uses jsdom ${jsdomVersion}. Expected jsdom 30.x with Vitest 5 / Node 24.`
         );
       }
     }

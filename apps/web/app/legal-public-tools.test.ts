@@ -97,7 +97,9 @@ describe("legal pages enumerate public local-processing tools", () => {
       expect(normalized, rel).toContain(
         "separately distributed Helvety product repositories are licensed under"
       );
-      expect(source, rel).not.toMatch(/AGPL-3\.0-or-later or MIT|including MIT/i);
+      expect(source, rel).not.toMatch(
+        /AGPL-3\.0-or-later or MIT|including MIT/i
+      );
       expect(source, rel).not.toContain(
         "Each published repository LICENSE file governs that product"
       );
