@@ -44,13 +44,13 @@
   },
   "dependencies": {
     "eslint": "^10.13.0",
-    "eslint-config-next": "^16.4.2",
-    "next": "^16.4.2",
+    "eslint-config-next": "^16.4.3",
+    "next": "^16.4.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import-x": "^4.17.1",
-    "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#bd381cdbd1ab0464e4a4b32ba46046e3c13357c6",
-    "eslint-plugin-jsdoc": "^65.4.0",
-    "typescript-eslint": "^8.72.0",
+    "eslint-plugin-react": "github:jsx-eslint/eslint-plugin-react#da5431790717d95dc7f5865eb907a79b4786d095",
+    "eslint-plugin-jsdoc": "^65.4.2",
+    "typescript-eslint": "^8.72.1",
     "@vitejs/plugin-react": "^6.1.2"
   },
   "devDependencies": {
