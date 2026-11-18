@@ -98,33 +98,4 @@ describe("ProductDetailClient", () => {
     expect(installation).toHaveClass("bg-surface-panel");
     expect(installation?.className).not.toContain("bg-surface-panel/40");
   });
-
-  it("lists a single zip download for Power Platform Tools without module ZIPs", () => {
-    renderProduct("helvety-power-platform-tools");
-
-    const coreDownload = screen.getByRole("button", {
-      name: /^Download \.zip$/i,
-    });
-    expect(coreDownload).toHaveAttribute(
-      "href",
-      "/store/api/packages/power-platform-tools/download"
-    );
-
-    expect(document.getElementById("modules")).toBeNull();
-    expect(
-      screen.queryByRole("button", {
-        name: /Download Flow Explorer \.zip/i,
-      })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", {
-        name: /Download Web Resource Explorer \.zip/i,
-      })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", {
-        name: /Download Data Model Explorer \.zip/i,
-      })
-    ).not.toBeInTheDocument();
-  });
 });

@@ -89,8 +89,8 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("bg-background");
     expect(html).not.toContain("radial-gradient");
     expect(html).toContain("justify-center-safe");
-    expect(html).toContain("gap-16");
-    expect(html).toContain("sm:gap-16");
+    expect(html).toContain("gap-20");
+    expect(html).toContain("sm:gap-24");
     expect(html).toContain("max-w-md");
     expect(html).toContain("text-center");
     expect(html).not.toContain("sm:text-left");
@@ -105,7 +105,9 @@ describe("HeroMarketingShell", () => {
     expect(html).not.toContain("End-to-end encrypted open-space workspace");
     expect(html).not.toContain("Free browser tools and Microsoft 365 apps");
     expect(html).toContain("Released Tools");
-    expect(html.replaceAll("&#x27;", "'")).toContain("What we're working on");
+    expect(html.replaceAll("&#x27;", "'")).not.toContain(
+      "What we're working on"
+    );
     expect(html).toContain("Helvety PDF");
     expect(html).toContain("Helvety Image Editor");
     expect(html).toContain("Power Platform Configurator");
@@ -113,16 +115,13 @@ describe("HeroMarketingShell", () => {
     expect(html).toContain("Annotate, crop, and resize images.");
     expect(html).toContain("Tune Power Automate and Power Apps.");
     expect(html).toContain("Screenshots and Live Draw on Windows.");
-    expect(html).toContain("Built-in Dataverse explorers for Windows 11.");
     expect(html).not.toContain("Chrome Web Store");
     expect(html).toContain("Helvety Screen Tools");
-    expect(html).toContain("Helvety Power Platform Tools");
     expect(html).not.toContain("Helvety OCR");
     expect(hrefs).toContain("/pdf");
     expect(hrefs).toContain("/image-editor");
     expect(hrefs).toContain(POWER_PLATFORM_CONFIGURATOR_CHROME_WEB_STORE_URL);
     expect(hrefs).toContain("/store/products/helvety-screen-tools");
-    expect(hrefs).toContain("/store/products/helvety-power-platform-tools");
     expect(hrefs).toContain("/store/products");
     expect(hrefs).not.toContain("/store");
     expect(html).toContain('target="_blank"');

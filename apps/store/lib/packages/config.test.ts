@@ -13,13 +13,5 @@ describe("store package config", () => {
     expect(
       getPackageInfo("power-automate-editor-version-enforcer")
     ).toBeUndefined();
-    expect(getPackageInfo("power-platform-tools")?.isPublic).toBe(true);
-    expect(getPackageInfo("flow-explorer")).toBeUndefined();
-    expect(getPackageInfo("web-resource-explorer")).toBeUndefined();
-    expect(getPackageInfo("data-model-explorer")).toBeUndefined();
-    expect(getPackageInfo("power-platform-tools")?.version).toBe("0.2.2");
-    expect(getPackageInfo("power-platform-tools")?.downloadUrl).toContain(
-      "/storage/v1/object/public/packages/power-platform-tools/"
-    );
   });
 });

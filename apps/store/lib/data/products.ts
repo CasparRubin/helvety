@@ -504,121 +504,6 @@ const helvetyScreenTools: SoftwareProduct = {
   },
 };
 
-/**
- * Helvety Power Platform Tools - portable Dataverse desktop app with built-in explorers
- */
-const cHelvetyPowerPlatformTools = cardCore(
-  "helvety-power-platform-tools",
-  "software"
-);
-const helvetyPowerPlatformTools: SoftwareProduct = {
-  id: cHelvetyPowerPlatformTools.id,
-  slug: cHelvetyPowerPlatformTools.slug,
-  name: cHelvetyPowerPlatformTools.name,
-  shortDescription: cHelvetyPowerPlatformTools.shortDescription,
-  type: cHelvetyPowerPlatformTools.type,
-  category: cHelvetyPowerPlatformTools.category,
-  ...catalogArtwork("helvety-power-platform-tools"),
-  description: {
-    intro:
-      "Helvety Power Platform Tools is a portable desktop app that talks to Dataverse in your user context on Windows 11. There is no admin installer and no Microsoft Graph access.",
-    sections: [
-      {
-        heading: "Distribution",
-        kind: "paragraph",
-        body: `${HELVETY_FREE_SOURCE_FEATURE}; see the repository LICENSE for the exact open-source terms. The Windows 11 ZIP is hosted on this Store page. Use the Download button, extract the archive, and run the app. Flow Explorer, Web Resource Explorer, and Data Model Explorer ship built into the app.`,
-      },
-      {
-        heading: "Workflow highlights",
-        kind: "bullets",
-        items: [
-          "Sign in with your Microsoft work or school account in the system browser.",
-          "Pick a Dataverse environment from Global Discovery.",
-          "Read records and metadata with the permissions you already have.",
-          "Use built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer.",
-        ],
-      },
-      {
-        heading: "Documentation",
-        kind: "paragraph",
-        body: "Auth and packaging details stay in the project README so the latest notes sit next to the source.",
-      },
-    ],
-  },
-  features: [
-    "Sign in with your Microsoft work or school account",
-    "Pick a Dataverse environment from Global Discovery",
-    "Read Dataverse records and metadata in your user context",
-    "Built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer",
-    "Portable ZIP with no admin installer",
-    HELVETY_FREE_SOURCE_FEATURE,
-  ],
-  pricing: {
-    hasFreeTier: true,
-    tiers: [
-      {
-        id: "helvety-power-platform-tools-free",
-        name: "Free",
-        price: 0,
-        currency: "CHF",
-        interval: "one-time",
-        isFree: true,
-        features: [
-          "Portable app with built-in explorers",
-          "No account required to download",
-          "Free to use",
-        ],
-      },
-    ],
-  },
-  links: {
-    github: "https://github.com/CasparRubin/helvety-power-platform-tools",
-  },
-  software: {
-    fileFormat: "zip",
-    requirements: ["Windows 11"],
-    licenseType: "free",
-    publicPackageId: "power-platform-tools",
-    installationSteps: [
-      {
-        title: "Download the ZIP",
-        description:
-          "Use the Download button on this page to get Helvety-Power-Platform-Tools-win64.zip.",
-      },
-      {
-        title: "Extract and run",
-        description:
-          "Extract the ZIP to a folder you keep on disk, then start Helvety Power Platform Tools.exe.",
-      },
-      {
-        title: "Sign in and pick an environment",
-        description:
-          "Sign in with your Microsoft work or school account, then choose a Dataverse environment.",
-      },
-    ],
-  },
-  metadata: {
-    targetAudience: [
-      "Power Platform makers",
-      "Dataverse administrators and makers",
-      "Consultants inspecting cloud flows",
-    ],
-    platforms: platformsFromRunsOn(cHelvetyPowerPlatformTools.runsOn),
-    keywords: [
-      "dataverse",
-      "power platform",
-      "cloud flow",
-      "windows",
-      "desktop",
-      "flow explorer",
-      "web resource explorer",
-      "data model explorer",
-    ],
-    featured: true,
-    releaseDate: cHelvetyPowerPlatformTools.releaseDate,
-  },
-};
-
 // =============================================================================
 // HELVETY PDF
 // =============================================================================
@@ -939,7 +824,6 @@ const products: Product[] = [
   helvetyScreenTools,
   helvetyImageEditor,
   helvetyOcr,
-  helvetyPowerPlatformTools,
 ];
 
 // =============================================================================

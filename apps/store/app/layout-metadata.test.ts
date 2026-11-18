@@ -37,14 +37,7 @@ describe("store root layout metadata", () => {
     assertSwissOriginInSeoCopy("STORE_DESCRIPTION", STORE_DESCRIPTION);
     expect(STORE_DESCRIPTION).toMatch(/Browse Helvety apps/i);
     expect(metadata.keywords).toEqual(
-      expect.arrayContaining([
-        "pdf",
-        "image editor",
-        "ocr",
-        "dataverse",
-        "power platform tools",
-        "live draw",
-      ])
+      expect.arrayContaining(["pdf", "image editor", "ocr", "live draw"])
     );
     expect(metadata.keywords).not.toEqual(
       expect.arrayContaining([

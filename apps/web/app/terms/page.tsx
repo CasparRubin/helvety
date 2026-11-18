@@ -161,8 +161,7 @@ export default function TermsPage() {
           </li>
           <li>
             <strong className="text-foreground">Helvety Store</strong>: catalog
-            and public downloads (for example Helvety SPO Explorer packages and
-            Helvety Power Platform Tools ZIP).
+            and public downloads (for example Helvety SPO Explorer packages).
           </li>
           <li>
             <strong className="text-foreground">
@@ -178,14 +177,9 @@ export default function TermsPage() {
             separately from the browser tools above.
           </li>
           <li>
-            <strong className="text-foreground">Helvety Screen Tools</strong>{" "}
-            and{" "}
-            <strong className="text-foreground">
-              Helvety Power Platform Tools
-            </strong>
-            : Windows desktop apps distributed separately from the browser tools
-            above (Screen Tools for capture and Live Draw; Power Platform Tools
-            for Dataverse).
+            <strong className="text-foreground">Helvety Screen Tools</strong>:
+            Windows desktop app for capture and Live Draw, distributed
+            separately from the browser tools above.
           </li>
         </ul>
         <p className="text-muted-foreground text-sm">

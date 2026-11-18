@@ -32,7 +32,7 @@ describe("download-security", () => {
     ).toBe(true);
     expect(
       isAllowedDownloadUrl(
-        "https://qnoeiurmyyyuawkcifmw.supabase.co/storage/v1/object/public/packages/power-platform-tools/Helvety-Power-Platform-Tools-win64.zip"
+        "https://abc123.supabase.co/storage/v1/object/public/packages/example/example.zip"
       )
     ).toBe(true);
     expect(

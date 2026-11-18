@@ -33,28 +33,4 @@ describe("createPackageDownload", () => {
         "https://github.com/CasparRubin/helvety-spo-explorer/releases/latest/download/helvety-spo-explorer.sppkg",
     });
   });
-
-  it("returns a public Supabase Storage URL for Power Platform Tools", async () => {
-    const core = await createPackageDownload("power-platform-tools");
-    expect(core.ok).toBe(true);
-    if (core.ok) {
-      expect(core.downloadUrl).toContain(
-        "/storage/v1/object/public/packages/power-platform-tools/"
-      );
-    }
-  });
-
-  it("rejects retired Power Platform Tools module package ids", async () => {
-    for (const packageId of [
-      "flow-explorer",
-      "web-resource-explorer",
-      "data-model-explorer",
-    ]) {
-      expect(await createPackageDownload(packageId)).toEqual({
-        ok: false,
-        error: "Package not found",
-        status: 404,
-      });
-    }
-  });
 });

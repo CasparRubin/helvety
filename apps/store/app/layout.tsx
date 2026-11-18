@@ -33,8 +33,6 @@ export const metadata = createHelvetyProductMetadata({
     "catalog",
     "SharePoint",
     "power automate",
-    "power platform tools",
-    "dataverse",
     "screen tools",
     "windows screenshot",
     "live draw",

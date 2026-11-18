@@ -12,7 +12,6 @@ import {
   Monitor,
   PackageOpen,
   Puzzle,
-  Workflow,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,22 +63,11 @@ const HERO_TOOL_LINKS: readonly HeroLink[] = [
     icon: Puzzle,
     external: true,
   },
-];
-
-const HERO_IN_PROGRESS_LINKS: readonly HeroLink[] = [
   {
     label: "Helvety Screen Tools",
     description: "Screenshots and Live Draw on Windows.",
     href: getLocalAppHref(`${urls.store}/products/helvety-screen-tools`),
     icon: Monitor,
-  },
-  {
-    label: "Helvety Power Platform Tools",
-    description: "Built-in Dataverse explorers for Windows 11.",
-    href: getLocalAppHref(
-      `${urls.store}/products/helvety-power-platform-tools`
-    ),
-    icon: Workflow,
   },
 ];
 
@@ -180,7 +168,7 @@ export function HeroMarketingShell() {
         "bg-background"
       )}
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-16 px-4 text-center sm:gap-16 md:px-6">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-20 px-4 text-center sm:gap-24 md:px-6">
         <div className="hero-enter-brand space-y-4 sm:space-y-5">
           <h1 className={HERO_MUTED_LINE_CLASS}>open-source software</h1>
           <p className={HEADLINE_CLASS}>
@@ -196,10 +184,6 @@ export function HeroMarketingShell() {
 
         <div className="hero-enter-ctas mx-auto flex w-full max-w-md flex-col items-stretch gap-10 text-center sm:gap-12">
           <HeroLinkGroup title="Released Tools" links={HERO_TOOL_LINKS} />
-          <HeroLinkGroup
-            title="What we're working on"
-            links={HERO_IN_PROGRESS_LINKS}
-          />
           <Button
             size="lg"
             className={HERO_CTA_BUTTON_CLASS}

@@ -64,7 +64,7 @@ describe("store product catalog", () => {
       "file-tools": 3,
       "browser-extensions": 1,
       "sharepoint-apps": 1,
-      "desktop-apps": 2,
+      "desktop-apps": 1,
     });
   });
 
@@ -74,9 +74,9 @@ describe("store product catalog", () => {
     );
   });
 
-  it("default sort is newest release first (Power Platform Tools newest; PDF oldest)", () => {
+  it("default sort is newest release first (OCR newest; PDF oldest)", () => {
     const ids = getAllProducts().map((p) => p.id);
-    expect(ids[0]).toBe("helvety-power-platform-tools");
+    expect(ids[0]).toBe("helvety-ocr");
     expect(ids[ids.length - 1]).toBe("helvety-pdf");
   });
 
@@ -110,9 +110,6 @@ describe("store product catalog", () => {
     expect(
       getProductBySlug("helvety-screen-tools")?.metadata?.platforms
     ).toEqual(["Windows"]);
-    expect(
-      getProductBySlug("helvety-power-platform-tools")?.metadata?.platforms
-    ).toEqual(["Windows"]);
     expect(getProductBySlug("helvety-pdf")?.metadata?.platforms).toEqual([
       "Web",
     ]);
@@ -129,12 +126,6 @@ describe("store product catalog", () => {
     expect(getProductBySlug("helvety-screen-tools")?.slug).toBe(
       "helvety-screen-tools"
     );
-    expect(getProductBySlug("helvety-power-platform-tools")?.name).toBe(
-      "Helvety Power Platform Tools"
-    );
-    expect(
-      getProductBySlug("helvety-power-platform-tools")?.links?.github
-    ).toBe("https://github.com/CasparRubin/helvety-power-platform-tools");
     expect(getProductBySlug("helvety-image-editor")?.slug).toBe(
       "helvety-image-editor"
     );
@@ -182,10 +173,6 @@ describe("store product catalog", () => {
       "helvety-ocr": {
         artwork: "artwork13",
         artist: "Anny Meisser Vonzun",
-      },
-      "helvety-power-platform-tools": {
-        artwork: "artwork2",
-        artist: "Alexandre Calame",
       },
     };
 
@@ -373,7 +360,6 @@ describe("store product catalog", () => {
       "helvety-spo-explorer",
       "helvety-power-platform-configurator",
       "helvety-screen-tools",
-      "helvety-power-platform-tools",
     ] as const) {
       const product = getProductBySlug(slug);
       expect(product, slug).toBeDefined();
@@ -409,9 +395,6 @@ describe("store product catalog", () => {
         "Built-in PNG editor with crop, blur, highlight, text, borders, arrows, magnifier, color picker, and Resize (10–100%, never enlarge, measured PNG size, fit under a max KB, saves *_resized.png)",
       ])
     );
-    expect(
-      getProductBySlug("helvety-power-platform-tools")?.features
-    ).toContain(HELVETY_FREE_SOURCE_FEATURE);
   });
 
   it("Power Platform Configurator links to the Chrome Web Store and has no package download", () => {
@@ -483,34 +466,5 @@ describe("store product catalog", () => {
         new RegExp(phrase, "i")
       );
     }
-  });
-
-  it("Helvety Power Platform Tools serves a single Windows zip with built-in explorers", () => {
-    const product = getProductBySlug("helvety-power-platform-tools");
-    expect(product).toBeDefined();
-    if (!product || !isSoftwareProduct(product)) {
-      throw new Error("Expected Helvety Power Platform Tools software product");
-    }
-
-    expect(product.software.publicPackageId).toBe("power-platform-tools");
-    expect(product.software.fileFormat).toBe("zip");
-    expect(product.software.requirements).toEqual(["Windows 11"]);
-    expect(product.software.modules).toBeUndefined();
-    expect(product.features).toEqual(
-      expect.arrayContaining([
-        "Built-in Flow Explorer, Web Resource Explorer, and Data Model Explorer",
-      ])
-    );
-    expect(product.shortDescription).toContain("built-in");
-    expect(product.shortDescription).not.toMatch(/drop-in/i);
-    const aboutBlob = [
-      product.description.intro,
-      ...(product.description.sections ?? []).flatMap((s) =>
-        s.kind === "paragraph" ? [s.body] : s.items
-      ),
-      ...product.features,
-      ...(product.software.installationSteps ?? []).map((s) => s.description),
-    ].join("\n");
-    expect(aboutBlob).not.toMatch(/drop-in|modules folder|Open modules/i);
   });
 });

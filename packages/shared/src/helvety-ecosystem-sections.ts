@@ -91,10 +91,6 @@ export const HELVETY_ECOSYSTEM_PRODUCT_SECTIONS = [
         displayName: "Helvety Screen Tools",
         storeProductSlug: "helvety-screen-tools",
       },
-      {
-        displayName: "Helvety Power Platform Tools",
-        storeProductSlug: "helvety-power-platform-tools",
-      },
     ],
   },
 ] as const satisfies readonly HelvetyEcosystemSection[];

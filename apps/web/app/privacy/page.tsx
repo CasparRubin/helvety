@@ -222,15 +222,6 @@ export default function PrivacyPage() {
             Live Draw, gallery, and editor content stays on your device in
             normal operation.
           </li>
-          <li>
-            <strong className="text-foreground">
-              Helvety Power Platform Tools:
-            </strong>{" "}
-            Windows desktop app distributed outside this monorepo. It signs in
-            with your Microsoft account and talks to Dataverse in your user
-            context. Tokens stay on your device in normal operation. Microsoft
-            processes sign-in and Dataverse access under Microsoft&apos;s terms.
-          </li>
         </ul>
         <p className="text-muted-foreground text-sm">
           <strong className="text-foreground">

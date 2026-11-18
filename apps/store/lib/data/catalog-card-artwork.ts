@@ -35,10 +35,6 @@ const catalogCardArtwork = {
     image: productArtwork.artwork8,
     artist: "Ferdinand Hodler",
   },
-  "helvety-power-platform-tools": {
-    image: productArtwork.artwork2,
-    artist: "Alexandre Calame",
-  },
   "helvety-pdf": {
     image: productArtwork.artwork7,
     artist: "Alexandre Calame",
