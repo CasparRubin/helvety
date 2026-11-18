@@ -41,7 +41,7 @@ Applies to every Vercel project in [`vercel-monorepo-apps.md`](./vercel-monorepo
 
 - **Analytics → Web Analytics** and **Speed Insights** must stay **disabled** (Helvety CSP does not allow `va.vercel-scripts.com`).
 - Do not set `NEXT_PUBLIC_HELVETY_VERCEL_ANALYTICS`, `NEXT_PUBLIC_VERCEL_ANALYTICS_ID`, or `VERCEL_ANALYTICS_ID` in Production or Preview.
-- Align Node.js version with zone apps (24.x per `.nvmrc`).
+- Align Node.js version with zone apps (26.x per `.nvmrc`).
 
 ## Store public downloads
 

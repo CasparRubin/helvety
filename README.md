@@ -36,7 +36,7 @@ Root layouts for these zones use `@helvety/ui/helvety-public-shell-root-layout`.
 ## Prerequisites
 
 - [Bun](https://bun.sh/) `1.4.4`
-- [Node.js](https://nodejs.org/) `24.x`
+- [Node.js](https://nodejs.org/) `26.x`
 
 ## Getting Started
 

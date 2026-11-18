@@ -12,7 +12,7 @@
   "private": true,
   "license": "AGPL-3.0-or-later",
   "engines": {
-    "node": "24.x"
+    "node": "26.x"
   },
   "scripts": {
     "dev": "bun run sync:pdf-worker && node ../../scripts/generate-version.mjs && next dev -p 3003",
@@ -32,7 +32,7 @@
     "@helvety/brand": "workspace:*",
     "@helvety/shared": "workspace:*",
     "@helvety/ui": "workspace:*",
-    "lucide-react": "^1.74.0",
+    "lucide-react": "^1.75.0",
     "next": "^16.4.6",
     "pdf-lib": "^1.17.1",
     "react": "^19.3.1",
