@@ -14,11 +14,9 @@ describe("web sitemap", () => {
         `${urls.home}/impressum`,
         `${urls.home}/privacy`,
         `${urls.home}/terms`,
-        `${urls.home}/briefings`,
-        `${urls.home}/briefings/energy-based-reasoners-duke-uiuc-harvard-reports-1-8-million-parameters-99-9-percent-sudoku-extreme-345-times-less-inference-compute`,
       ])
     );
-    expect(entries).toHaveLength(6);
+    expect(entries).toHaveLength(4);
     assertValidPublicSitemapEntries(entries);
   });
 });

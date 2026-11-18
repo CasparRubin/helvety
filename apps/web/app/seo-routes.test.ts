@@ -75,11 +75,9 @@ describe("web SEO routes", () => {
         `${urls.home}/impressum`,
         `${urls.home}/privacy`,
         `${urls.home}/terms`,
-        `${urls.home}/briefings`,
-        `${urls.home}/briefings/energy-based-reasoners-duke-uiuc-harvard-reports-1-8-million-parameters-99-9-percent-sudoku-extreme-345-times-less-inference-compute`,
       ])
     );
-    expect(entryUrls).toHaveLength(6);
+    expect(entryUrls).toHaveLength(4);
     expect(entryUrls).not.toContain(`${urls.home}/llms.txt`);
     assertValidPublicSitemapEntries(entries);
   });

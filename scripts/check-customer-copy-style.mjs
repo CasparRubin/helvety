@@ -49,7 +49,6 @@ const EXPLICIT_RELATIVE_PATHS = [
   "apps/web/app/terms/page.tsx",
   "apps/web/app/privacy/page.tsx",
   "apps/web/app/impressum/page.tsx",
-  "apps/web/content/briefings.ts",
 ];
 
 const USER_FACING_APP_IDS = ["image-editor", "ocr", "pdf", "store", "web"];

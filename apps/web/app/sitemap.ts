@@ -1,7 +1,5 @@
 import { urls } from "@helvety/shared/config";
 
-import { BRIEFINGS } from "@/content/briefings";
-
 import type { MetadataRoute } from "next";
 
 /**
@@ -31,13 +29,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${urls.home}/terms`,
       lastModified,
     },
-    {
-      url: `${urls.home}/briefings`,
-      lastModified,
-    },
-    ...BRIEFINGS.map((briefing) => ({
-      url: `${urls.home}/briefings/${briefing.slug}`,
-      lastModified: new Date(`${briefing.date}T00:00:00Z`),
-    })),
   ];
 }
