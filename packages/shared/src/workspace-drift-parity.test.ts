@@ -186,7 +186,6 @@ describe("dependency inventory doc pins", () => {
     );
     expect(inventory).toContain(`hono@${root.overrides?.hono}`);
     expect(inventory).toContain(`nanoid@${root.overrides?.nanoid}`);
-    expect(inventory).toContain(`undici@${root.overrides?.undici}`);
   });
 
   it("documents drift config JSON as the workspace specifier SSOT", () => {

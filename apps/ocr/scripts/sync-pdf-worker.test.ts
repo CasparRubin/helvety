@@ -27,15 +27,14 @@ describe("sync-pdf-worker script", () => {
     const meta = JSON.parse(readFileSync(metaPublicPath, "utf8")) as {
       version: string;
       source: string;
-      syncedAt: string;
     };
 
     expect(copied.equals(source)).toBe(true);
     expect(copied.byteLength).toBeGreaterThan(0);
     expect(meta.version).toBe(version);
     expect(meta.source).toBe(PDFJS_SOURCE_LABEL);
-    expect(() => new Date(meta.syncedAt)).not.toThrow();
-    expect(Number.isNaN(new Date(meta.syncedAt).getTime())).toBe(false);
+    // Deterministic metadata: re-syncing the same version leaves git clean.
+    expect(Object.keys(meta)).toEqual(["version", "source"]);
   });
 
   it("embeds the resolved pdfjs version in the synced worker", () => {

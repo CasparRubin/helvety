@@ -62,7 +62,6 @@ export async function syncPdfWorker(cwd = process.cwd()) {
       {
         version,
         source: PDFJS_SOURCE_LABEL,
-        syncedAt: new Date().toISOString(),
       },
       null,
       2
