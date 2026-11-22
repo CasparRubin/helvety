@@ -22,8 +22,21 @@ import {
   imageToStageCoords,
   pointerToImageCoords,
 } from "./export-image";
+import { REDACTION_FALLBACK_FILL } from "./redact-region";
 
 import type Konva from "konva";
+
+/** The export node for a blur region (a crop of the redacted raster). */
+function findBlurNode(): { attrs: Record<string, unknown> } | undefined {
+  return konvaTestLayerAdds.find(
+    (node): node is { attrs: Record<string, unknown> } =>
+      typeof node === "object" &&
+      node !== null &&
+      "attrs" in node &&
+      typeof (node as { attrs: Record<string, unknown> }).attrs.crop ===
+        "object"
+  );
+}
 
 /** Records compositing used by the shared highlight dim export node. */
 function getHighlightDimCompositing(): {
@@ -253,7 +266,7 @@ describe("export-image helpers", () => {
     expect(borderNode?.attrs.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
   });
 
-  it("renders blur regions with filters into the export layer", async () => {
+  it("renders blur regions as a redacted image node in the export layer", async () => {
     const image = new MockImage() as unknown as HTMLImageElement;
     const blur = createBlurElement(40, 30, 120, 90, {
       blurRadius: 18,
@@ -266,19 +279,18 @@ describe("export-image helpers", () => {
 
     await exportEditedImage(image, state, "png");
 
-    const blurNode = konvaTestLayerAdds.find(
-      (node): node is { attrs: Record<string, unknown>; cache: () => void } =>
-        typeof node === "object" &&
-        node !== null &&
-        "attrs" in node &&
-        Array.isArray(
-          (node as { attrs: Record<string, unknown> }).attrs.filters
-        )
-    );
+    const blurNode = findBlurNode();
     expect(blurNode).toBeDefined();
-    expect(blurNode?.attrs.blurRadius).toBe(18);
+    expect(blurNode?.attrs.x).toBe(40);
+    expect(blurNode?.attrs.y).toBe(30);
+    expect(blurNode?.attrs.width).toBe(120);
+    expect(blurNode?.attrs.height).toBe(90);
     expect(blurNode?.attrs.cornerRadius).toBe(0);
-    expect(blurNode?.cache).toHaveBeenCalled();
+    // Never the raw source: either the redacted raster or a flat fill.
+    expect(blurNode?.attrs.image).not.toBe(image);
+    expect(blurNode?.attrs.filters).toBeUndefined();
+    // jsdom has no 2D canvas, so the no-leak fallback fill is used.
+    expect(blurNode?.attrs.fill).toBe(REDACTION_FALLBACK_FILL);
   });
 
   it("renders rounded blur regions with corner radius on the export node", async () => {
@@ -294,15 +306,7 @@ describe("export-image helpers", () => {
 
     await exportEditedImage(image, state, "png");
 
-    const blurNode = konvaTestLayerAdds.find(
-      (node): node is { attrs: Record<string, unknown> } =>
-        typeof node === "object" &&
-        node !== null &&
-        "attrs" in node &&
-        Array.isArray(
-          (node as { attrs: Record<string, unknown> }).attrs.filters
-        )
-    );
+    const blurNode = findBlurNode();
     expect(blurNode?.attrs.cornerRadius).toBe(DEFAULT_CORNER_RADIUS);
   });
 

@@ -2,6 +2,7 @@ import Konva from "konva";
 
 import { getTextShadowProps } from "./default-tool-sizes";
 import { DEFAULT_DIM_OPACITY } from "./editor-types";
+import { createRedactedRegion, REDACTION_FALLBACK_FILL } from "./redact-region";
 import { clampCornerRadius, drawSpotlightCutouts } from "./spotlight-cutout";
 import { buildTaperedArrowPoints } from "./tapered-arrow";
 
@@ -29,7 +30,7 @@ function getExportCrop(
   );
 }
 
-/** Adds a cached, blur-filtered image region to the export layer. */
+/** Adds a redacted image region (same raster as the canvas) to the export layer. */
 function addBlurNode(
   layer: Konva.Layer,
   element: Extract<EditorElement, { type: "blur" }>,
@@ -43,26 +44,35 @@ function addBlurNode(
     element.height
   );
 
-  const node = new Konva.Image({
-    image: sourceImage,
-    x: element.x - crop.x,
-    y: element.y - crop.y,
-    width: element.width,
-    height: element.height,
-    crop: {
+  const region = createRedactedRegion(
+    sourceImage,
+    {
       x: element.x,
       y: element.y,
       width: element.width,
       height: element.height,
     },
-    filters: [Konva.Filters.Blur],
-    blurRadius: element.blurRadius,
-    cornerRadius: clippedRadius,
-    listening: false,
-  });
+    element.blurRadius
+  );
 
-  node.cache();
-  layer.add(node);
+  layer.add(
+    new Konva.Image({
+      image: region?.canvas,
+      fill: region ? undefined : REDACTION_FALLBACK_FILL,
+      x: element.x - crop.x,
+      y: element.y - crop.y,
+      width: element.width,
+      height: element.height,
+      crop: {
+        x: element.x - (region?.x ?? 0),
+        y: element.y - (region?.y ?? 0),
+        width: element.width,
+        height: element.height,
+      },
+      cornerRadius: clippedRadius,
+      listening: false,
+    })
+  );
 }
 
 /** Adds one shared spotlight dim layer with all highlight holes punched out. */

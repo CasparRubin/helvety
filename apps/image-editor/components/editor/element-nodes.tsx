@@ -1,7 +1,6 @@
 "use client";
 
-import Konva from "konva";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   Group,
   Circle,
@@ -14,6 +13,10 @@ import {
 
 import { getTextShadowProps } from "@/lib/default-tool-sizes";
 import { DEFAULT_DIM_OPACITY } from "@/lib/editor-types";
+import {
+  createRedactedRegion,
+  REDACTION_FALLBACK_FILL,
+} from "@/lib/redact-region";
 import {
   clampCornerRadius,
   drawSpotlightCutouts,
@@ -30,6 +33,7 @@ import type {
   HighlightElement,
   TextElement,
 } from "@/lib/editor-types";
+import type Konva from "konva";
 
 /** Props for {@link BlurNode}. */
 interface BlurNodeProps {
@@ -43,7 +47,7 @@ interface BlurNodeProps {
   readonly onChange: (patch: Partial<BlurElement>) => void;
 }
 
-/** Cropped, blur-filtered image region; re-caches when geometry changes. */
+/** Redacted image region (see `lib/redact-region.ts`); recomputed when geometry changes. */
 export function BlurNode({
   id,
   element,
@@ -56,20 +60,31 @@ export function BlurNode({
 }: BlurNodeProps): React.JSX.Element {
   const imageRef = useRef<Konva.Image>(null);
 
+  const region = useMemo(
+    () =>
+      createRedactedRegion(
+        sourceImage,
+        {
+          x: element.x,
+          y: element.y,
+          width: element.width,
+          height: element.height,
+        },
+        element.blurRadius
+      ),
+    [
+      sourceImage,
+      element.x,
+      element.y,
+      element.width,
+      element.height,
+      element.blurRadius,
+    ]
+  );
+
   useEffect(() => {
-    const node = imageRef.current;
-    if (!node) return;
-    node.cache();
-    node.getLayer()?.batchDraw();
-  }, [
-    element.x,
-    element.y,
-    element.width,
-    element.height,
-    element.blurRadius,
-    element.cornerRadius,
-    sourceImage,
-  ]);
+    imageRef.current?.getLayer()?.batchDraw();
+  }, [region]);
 
   const cornerRadius = element.cornerRadius ?? 0;
   const clippedRadius = clampCornerRadius(
@@ -82,19 +97,18 @@ export function BlurNode({
     <KonvaImage
       id={id}
       ref={imageRef}
-      image={sourceImage}
+      image={region?.canvas}
+      fill={region ? undefined : REDACTION_FALLBACK_FILL}
       x={element.x - crop.x}
       y={element.y - crop.y}
       width={element.width}
       height={element.height}
       crop={{
-        x: element.x,
-        y: element.y,
+        x: element.x - (region?.x ?? 0),
+        y: element.y - (region?.y ?? 0),
         width: element.width,
         height: element.height,
       }}
-      filters={[Konva.Filters.Blur]}
-      blurRadius={element.blurRadius}
       cornerRadius={clippedRadius}
       draggable={draggable}
       onClick={onSelect}
